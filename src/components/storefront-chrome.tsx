@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
+import { useCart } from "@/lib/cart";
 import { fontStack } from "@/lib/theme-presets";
 
 export type StoreTheme = {
@@ -68,7 +69,9 @@ export function StorefrontChrome({
   storeSlug: string;
   children: ReactNode;
 }) {
-  const { t, fonts, text, muted, border } = storefrontTokens(theme);
+  const { t, fonts, text, muted, border, radius } = storefrontTokens(theme);
+  const cart = useCart();
+  const cartCount = cart.countFor(storeSlug);
 
   return (
     <div
@@ -119,6 +122,27 @@ export function StorefrontChrome({
           <a href="#koleksiyonlar" style={{ color: muted, textDecoration: "none" }}>
             Koleksiyonlar
           </a>
+          <Link
+            to="/s/$slug/order"
+            params={{ slug: storeSlug }}
+            style={{ color: muted, textDecoration: "none" }}
+          >
+            Siparişim
+          </Link>
+          <Link
+            to="/s/$slug/cart"
+            params={{ slug: storeSlug }}
+            style={{
+              color: text,
+              textDecoration: "none",
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+              padding: "5px 12px",
+              fontWeight: 600,
+            }}
+          >
+            Sepet{cartCount ? ` (${cartCount})` : ""}
+          </Link>
         </nav>
       </header>
 
