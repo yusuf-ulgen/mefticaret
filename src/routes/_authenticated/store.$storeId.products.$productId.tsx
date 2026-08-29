@@ -121,7 +121,7 @@ function ProductDetailPage() {
     mutationFn: (input: {
       variantId?: string;
       title: string;
-      sku?: string;
+      sku: string;
       price: number;
       stock: number;
     }) => saveVariant({ data: { productId, ...input } }),
@@ -388,7 +388,7 @@ function ProductDetailPage() {
                         onClick={() =>
                           variantMutation.mutate({
                             title: draft.title,
-                            sku: draft.sku || undefined,
+                            sku: draft.sku,
                             price: Number(draft.price || 0),
                             stock: Number(draft.stock || 0),
                           })
@@ -428,7 +428,7 @@ function VariantRow({
 }: {
   variant: { id: string; title: string; sku: string | null; price: number; stock: number };
   currency: string;
-  onSave: (input: { title: string; sku?: string; price: number; stock: number }) => void;
+  onSave: (input: { title: string; sku: string; price: number; stock: number }) => void;
   onDelete: () => void;
 }) {
   const [title, setTitle] = useState(variant.title);
@@ -479,7 +479,7 @@ function VariantRow({
             onClick={() =>
               onSave({
                 title,
-                sku: sku || undefined,
+                sku,
                 price: Number(price || 0),
                 stock: Number(stock || 0),
               })
