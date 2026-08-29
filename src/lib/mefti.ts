@@ -1,0 +1,116 @@
+/**
+ * Mefticaret çekirdek sabitleri ve yardımcıları (framework-agnostik, izomorfik).
+ * Modül sınırları: /lib -> shared katman. Modüller (products, orders ...) FAZ 2+.
+ */
+
+export const INDUSTRIES = [
+  { value: "moda", label: "Moda & Giyim" },
+  { value: "elektronik", label: "Elektronik" },
+  { value: "kozmetik", label: "Kozmetik & Kişisel Bakım" },
+  { value: "gida", label: "Gıda & İçecek" },
+  { value: "mobilya", label: "Mobilya" },
+  { value: "dekorasyon", label: "Ev & Dekorasyon" },
+  { value: "taki", label: "Takı & Aksesuar" },
+  { value: "spor", label: "Spor & Outdoor" },
+  { value: "otomotiv", label: "Otomotiv" },
+  { value: "dijital", label: "Dijital Ürün" },
+  { value: "diger", label: "Diğer" },
+] as const;
+
+export const CURRENCIES = ["TRY", "USD", "EUR", "GBP", "AED", "SAR"] as const;
+export const LOCALES = [
+  { value: "tr", label: "Türkçe" },
+  { value: "en", label: "English" },
+  { value: "de", label: "Deutsch" },
+  { value: "fr", label: "Français" },
+  { value: "es", label: "Español" },
+  { value: "ar", label: "العربية" },
+] as const;
+
+export const ONBOARDING_STEPS = [
+  { step: 1, title: "Hesap", description: "Hesabın hazır" },
+  { step: 2, title: "Mağaza adı", description: "Marka adını belirle" },
+  { step: 3, title: "Sektör", description: "Ne satıyorsun?" },
+  { step: 4, title: "Tema", description: "Görünümü seç (FAZ 3)" },
+  { step: 5, title: "İlk ürün", description: "Katalog başlangıcı (FAZ 2)" },
+  { step: 6, title: "Ödeme", description: "Ödeme sağlayıcısı (FAZ 4)" },
+  { step: 7, title: "Kargo", description: "Kargo sağlayıcısı (FAZ 4)" },
+  { step: 8, title: "Domain", description: "Alt alan adı / özel domain" },
+  { step: 9, title: "Ayarlar", description: "Para birimi, dil, vergi" },
+  { step: 10, title: "Yayınla", description: "Mağazayı yayına al" },
+] as const;
+
+export const STORE_ROLE_LABELS: Record<string, string> = {
+  owner: "Mağaza Sahibi",
+  admin: "Mağaza Yöneticisi",
+  staff: "Personel",
+  marketing: "Pazarlama",
+  support: "Destek",
+};
+
+export const APP_ROLE_LABELS: Record<string, string> = {
+  platform_admin: "Platform Yöneticisi",
+  agency: "Ajans",
+  seller: "Marketplace Satıcısı",
+  customer: "Müşteri",
+};
+
+export const STORE_STATUS_LABELS: Record<string, string> = {
+  draft: "Taslak",
+  active: "Yayında",
+  suspended: "Askıda",
+  archived: "Arşiv",
+};
+
+export const SUBDOMAIN_SUFFIX = "mefshop.com";
+
+export function slugify(value: string): string {
+  const map: Record<string, string> = {
+    ç: "c",
+    ğ: "g",
+    ı: "i",
+    İ: "i",
+    ö: "o",
+    ş: "s",
+    ü: "u",
+    Ç: "c",
+    Ğ: "g",
+    Ö: "o",
+    Ş: "s",
+    Ü: "u",
+  };
+  return value
+    .split("")
+    .map((char) => map[char] ?? char)
+    .join("")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+}
+
+export function formatMoney(value: number, currency = "TRY", locale = "tr-TR"): string {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+export function formatNumber(value: number, locale = "tr-TR"): string {
+  return new Intl.NumberFormat(locale).format(value);
+}
+
+export function formatPercent(value: number): string {
+  return `${value.toFixed(2).replace(".", ",")}%`;
+}
+
+export function planLimitLabel(value: number | undefined): string {
+  if (value === undefined || value === null) return "—";
+  return value < 0 ? "Sınırsız" : formatNumber(value);
+}
+
+/** undefined alanları temizler; kısmi güncellemelerde null yazmayı engeller. */
+export function compact<T extends Record<string, unknown>>(input: T): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined));
+}
