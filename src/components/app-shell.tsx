@@ -21,6 +21,7 @@ import {
   Tag,
   Truck,
   Users,
+  Wallet,
   Warehouse,
 } from "lucide-react";
 import { useState } from "react";
