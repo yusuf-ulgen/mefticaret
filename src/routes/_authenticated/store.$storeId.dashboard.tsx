@@ -29,7 +29,7 @@ function DashboardPage() {
   const rows = stats ?? [];
   const currency = store?.currency ?? "TRY";
   const revenue = rows.reduce((total, row) => total + Number(row.revenue ?? 0), 0);
-  const orders = rows.reduce((total, row) => total + Number(row.orders ?? 0), 0);
+  const orders = rows.reduce((total, row) => total + Number(row.orders_count ?? 0), 0);
   const visitors = rows.reduce((total, row) => total + Number(row.visitors ?? 0), 0);
   const conversion = visitors > 0 ? (orders / visitors) * 100 : 0;
   const aov = orders > 0 ? revenue / orders : 0;
