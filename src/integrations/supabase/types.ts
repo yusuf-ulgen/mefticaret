@@ -1248,6 +1248,74 @@ export type Database = {
           },
         ]
       }
+      store_themes: {
+        Row: {
+          accent_color: string
+          announcement: string | null
+          background_color: string
+          created_at: string
+          font_pair: string
+          hero_cta_label: string
+          hero_subtitle: string
+          hero_title: string
+          is_published: boolean
+          layout: string
+          preset: string
+          primary_color: string
+          published_at: string | null
+          radius: number
+          show_announcement: boolean
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          announcement?: string | null
+          background_color?: string
+          created_at?: string
+          font_pair?: string
+          hero_cta_label?: string
+          hero_subtitle?: string
+          hero_title?: string
+          is_published?: boolean
+          layout?: string
+          preset?: string
+          primary_color?: string
+          published_at?: string | null
+          radius?: number
+          show_announcement?: boolean
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          announcement?: string | null
+          background_color?: string
+          created_at?: string
+          font_pair?: string
+          hero_cta_label?: string
+          hero_subtitle?: string
+          hero_title?: string
+          is_published?: boolean
+          layout?: string
+          preset?: string
+          primary_color?: string
+          published_at?: string | null
+          radius?: number
+          show_announcement?: boolean
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_themes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_users: {
         Row: {
           created_at: string
