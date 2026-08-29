@@ -1,5 +1,5 @@
 import { fontStack } from "@/lib/theme-presets";
-import { formatCurrency } from "@/lib/mefti";
+import { formatMoney } from "@/lib/mefti";
 
 export type ThemeDraft = {
   primaryColor: string;
@@ -171,7 +171,7 @@ export function StorefrontPreview({
                 <div style={{ padding: 12 }}>
                   <p style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>{product.title}</p>
                   <p style={{ margin: "6px 0 0", fontSize: 13, color: muted }}>
-                    {formatCurrency(Number(product.base_price), product.currency)}
+                    {formatMoney(Number(product.base_price), product.currency)}
                   </p>
                 </div>
               </article>
