@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.record_order_ledger() FROM PUBLIC, anon, authenticated;
