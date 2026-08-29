@@ -21,6 +21,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/lib/auth-context";
 import { productsQuery } from "@/lib/catalog-queries";
 import { myStoresQuery } from "@/lib/store-queries";
 import { FONT_PAIRS, THEME_LAYOUTS, THEME_PRESETS } from "@/lib/theme-presets";
@@ -70,7 +71,8 @@ function ThemesPage() {
   const queryClient = useQueryClient();
   const { data: theme, isLoading } = useQuery(storeThemeQuery(storeId));
   const { data: products } = useQuery(productsQuery(storeId));
-  const { data: stores } = useQuery(myStoresQuery());
+  const { user } = useAuth();
+  const { data: stores } = useQuery(myStoresQuery(user?.id));
   const persist = useServerFn(saveTheme);
 
   const [draft, setDraft] = useState(DEFAULT_DRAFT);
