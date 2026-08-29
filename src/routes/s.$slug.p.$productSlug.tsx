@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
+import { toast } from "sonner";
+
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { useCart } from "@/lib/cart";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontProductQuery } from "@/lib/storefront-queries";
 
@@ -55,6 +58,8 @@ function ProductPage() {
   const { slug, productSlug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontProductQuery(slug, productSlug));
   const [variantId, setVariantId] = useState<string | null>(null);
+  const cart = useCart();
+  const navigate = useNavigate();
 
   if (!data) return <Fallback text="Bu ürün bulunamadı." />;
   const { store, theme, product, variants, images } = data;
@@ -145,6 +150,21 @@ function ProductPage() {
           <button
             type="button"
             disabled={!inStock}
+            onClick={() => {
+              if (!selected) return;
+              cart.add({
+                storeSlug: store.slug,
+                variantId: selected.id,
+                productSlug: product.slug,
+                title: product.title,
+                variantTitle: selected.title,
+                price: Number(selected.price ?? product.base_price),
+                currency: product.currency,
+                maxStock: selected.stock ?? 0,
+              });
+              toast.success("Ürün sepete eklendi");
+              void navigate({ to: "/s/$slug/cart", params: { slug: store.slug } });
+            }}
             style={{
               marginTop: 24,
               width: "100%",
