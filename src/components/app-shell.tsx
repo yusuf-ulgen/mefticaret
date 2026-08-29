@@ -59,8 +59,8 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
     {
       group: "Katalog",
       items: [
-        { label: "Ürünler", icon: Package, phase: "FAZ 2" },
-        { label: "Koleksiyonlar", icon: Boxes, phase: "FAZ 2" },
+        { label: "Ürünler", to: `/store/${storeId}/products`, icon: Package },
+        { label: "Koleksiyonlar", to: `/store/${storeId}/collections`, icon: Boxes },
         { label: "Stok", icon: Boxes, phase: "FAZ 2" },
       ],
     },
