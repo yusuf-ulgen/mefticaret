@@ -21,6 +21,7 @@ import {
   Tag,
   Truck,
   Users,
+  Warehouse,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -61,7 +62,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
       items: [
         { label: "Ürünler", to: `/store/${storeId}/products`, icon: Package },
         { label: "Koleksiyonlar", to: `/store/${storeId}/collections`, icon: Boxes },
-        { label: "Stok", icon: Boxes, phase: "FAZ 4" },
+        { label: "Stok", to: `/store/${storeId}/inventory`, icon: Warehouse },
       ],
     },
     {
