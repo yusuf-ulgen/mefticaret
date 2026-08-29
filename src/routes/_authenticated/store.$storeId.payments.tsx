@@ -62,7 +62,16 @@ function PaymentsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (input: Parameters<typeof update>[0]["data"]) => update({ data: input }),
+    mutationFn: (input: {
+      storeId: string;
+      methodId: string;
+      displayName?: string;
+      instructions?: string | null;
+      isActive?: boolean;
+      testMode?: boolean;
+      installmentsEnabled?: boolean;
+      extraFeeRate?: number;
+    }) => update({ data: input }),
     onSuccess: async () => {
       await invalidate();
     },
