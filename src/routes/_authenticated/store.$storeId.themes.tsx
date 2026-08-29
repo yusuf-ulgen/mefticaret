@@ -96,8 +96,9 @@ function ThemesPage() {
     });
   }, [theme]);
 
-  const storeName =
-    stores?.find((row) => row.id === storeId)?.name ?? "Mağazam";
+  const currentStore = stores?.find((row) => row.id === storeId);
+  const storeName = currentStore?.name ?? "Mağazam";
+  const storeSlug = currentStore?.slug ?? null;
 
   const mutation = useMutation({
     mutationFn: () =>
