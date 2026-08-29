@@ -81,7 +81,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Ayarlar", to: `/store/${storeId}/settings`, icon: Cog },
         { label: "Ödeme", to: `/store/${storeId}/payments`, icon: BadgeCheck },
         { label: "Kargo", to: `/store/${storeId}/shipping`, icon: Truck },
-        { label: "Temalar", icon: Palette, phase: "FAZ 6" },
+        { label: "Temalar", to: `/store/${storeId}/themes`, icon: Palette },
         { label: "AI Asistan", icon: Sparkles, phase: "FAZ 9" },
       ],
     },
