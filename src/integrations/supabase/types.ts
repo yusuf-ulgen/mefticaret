@@ -401,6 +401,73 @@ export type Database = {
           },
         ]
       }
+      ledger_entries: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          direction: Database["public"]["Enums"]["ledger_direction"]
+          id: string
+          kind: Database["public"]["Enums"]["ledger_entry_kind"]
+          meta: Json
+          occurred_at: string
+          order_id: string | null
+          payout_id: string | null
+          store_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          direction: Database["public"]["Enums"]["ledger_direction"]
+          id?: string
+          kind: Database["public"]["Enums"]["ledger_entry_kind"]
+          meta?: Json
+          occurred_at?: string
+          order_id?: string | null
+          payout_id?: string | null
+          store_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          direction?: Database["public"]["Enums"]["ledger_direction"]
+          id?: string
+          kind?: Database["public"]["Enums"]["ledger_entry_kind"]
+          meta?: Json
+          occurred_at?: string
+          order_id?: string | null
+          payout_id?: string | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_payout_fkey"
+            columns: ["payout_id"]
+            isOneToOne: false
+            referencedRelation: "payouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_events: {
         Row: {
           actor_id: string | null
@@ -619,9 +686,72 @@ export type Database = {
           },
         ]
       }
+      payouts: {
+        Row: {
+          created_at: string
+          currency: string
+          fee_amount: number
+          gross_amount: number
+          id: string
+          net_amount: number
+          note: string | null
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          reference: string | null
+          refund_amount: number
+          status: Database["public"]["Enums"]["payout_status"]
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          fee_amount?: number
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          note?: string | null
+          paid_at?: string | null
+          period_end: string
+          period_start: string
+          reference?: string | null
+          refund_amount?: number
+          status?: Database["public"]["Enums"]["payout_status"]
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          fee_amount?: number
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          note?: string | null
+          paid_at?: string | null
+          period_end?: string
+          period_start?: string
+          reference?: string | null
+          refund_amount?: number
+          status?: Database["public"]["Enums"]["payout_status"]
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           code: string
+          commission_rate: number
           created_at: string
           currency: string
           description: string | null
@@ -638,6 +768,7 @@ export type Database = {
         }
         Insert: {
           code: string
+          commission_rate?: number
           created_at?: string
           currency?: string
           description?: string | null
@@ -654,6 +785,7 @@ export type Database = {
         }
         Update: {
           code?: string
+          commission_rate?: number
           created_at?: string
           currency?: string
           description?: string | null
@@ -1471,6 +1603,16 @@ export type Database = {
         | "sale"
         | "return"
         | "damage"
+      ledger_direction: "credit" | "debit"
+      ledger_entry_kind:
+        | "sale"
+        | "shipping"
+        | "discount"
+        | "platform_fee"
+        | "payment_fee"
+        | "refund"
+        | "payout"
+        | "adjustment"
       order_status:
         | "pending"
         | "processing"
@@ -1484,6 +1626,7 @@ export type Database = {
         | "partially_refunded"
         | "refunded"
         | "failed"
+      payout_status: "pending" | "processing" | "paid" | "failed"
       product_status: "draft" | "active" | "archived"
       store_role: "owner" | "admin" | "staff" | "marketing" | "support"
       store_status: "draft" | "active" | "suspended" | "archived"
@@ -1633,6 +1776,17 @@ export const Constants = {
         "return",
         "damage",
       ],
+      ledger_direction: ["credit", "debit"],
+      ledger_entry_kind: [
+        "sale",
+        "shipping",
+        "discount",
+        "platform_fee",
+        "payment_fee",
+        "refund",
+        "payout",
+        "adjustment",
+      ],
       order_status: [
         "pending",
         "processing",
@@ -1648,6 +1802,7 @@ export const Constants = {
         "refunded",
         "failed",
       ],
+      payout_status: ["pending", "processing", "paid", "failed"],
       product_status: ["draft", "active", "archived"],
       store_role: ["owner", "admin", "staff", "marketing", "support"],
       store_status: ["draft", "active", "suspended", "archived"],
