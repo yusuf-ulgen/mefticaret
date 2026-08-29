@@ -90,7 +90,7 @@ function TeamPage() {
                   <td className="px-5 py-3">
                     {member.role === "owner" ? (
                       <Badge className="gap-1">
-                        <ShieldCheck className="size-3" /> {STORE_ROLE_LABELS.owner}
+                        <ShieldCheck className="size-3" /> {STORE_ROLE_LABELS["owner"]}
                       </Badge>
                     ) : (
                       <Select
