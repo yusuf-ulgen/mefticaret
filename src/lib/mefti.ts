@@ -114,3 +114,55 @@ export function planLimitLabel(value: number | undefined): string {
 export function compact<T extends Record<string, unknown>>(input: T): Record<string, unknown> {
   return Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined));
 }
+
+export const ORDER_STATUS_LABELS: Record<string, string> = {
+  pending: "Bekliyor",
+  processing: "Hazırlanıyor",
+  shipped: "Kargoda",
+  delivered: "Teslim edildi",
+  cancelled: "İptal",
+  refunded: "İade",
+};
+
+export const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  pending: "Ödeme bekliyor",
+  paid: "Ödendi",
+  partially_refunded: "Kısmi iade",
+  refunded: "İade edildi",
+  failed: "Başarısız",
+};
+
+export const FULFILLMENT_STATUS_LABELS: Record<string, string> = {
+  unfulfilled: "Hazırlanmadı",
+  partially_fulfilled: "Kısmi gönderildi",
+  fulfilled: "Gönderildi",
+  returned: "Geri döndü",
+};
+
+export const DISCOUNT_TYPE_LABELS: Record<string, string> = {
+  percentage: "Yüzde indirim",
+  fixed_amount: "Sabit tutar",
+  free_shipping: "Ücretsiz kargo",
+};
+
+export const SHIPPING_CARRIERS = [
+  "Yurtiçi Kargo",
+  "MNG Kargo",
+  "Aras Kargo",
+  "PTT Kargo",
+  "Sürat Kargo",
+  "UPS",
+  "DHL",
+] as const;
+
+export function formatDateTime(value: string | null | undefined, locale = "tr-TR"): string {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
+    new Date(value),
+  );
+}
+
+export function formatDate(value: string | null | undefined, locale = "tr-TR"): string {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(value));
+}
