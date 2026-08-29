@@ -5,7 +5,7 @@ import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chro
 import { formatMoney } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
 
-export const Route = createFileRoute("/s/$slug")({
+export const Route = createFileRoute("/s/$slug/")({
   loader: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
     if (!data) throw notFound();
