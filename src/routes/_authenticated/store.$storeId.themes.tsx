@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Palette, Save } from "lucide-react";
+import { Check, ExternalLink, Palette, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -96,8 +96,9 @@ function ThemesPage() {
     });
   }, [theme]);
 
-  const storeName =
-    stores?.find((row) => row.id === storeId)?.name ?? "Mağazam";
+  const currentStore = stores?.find((row) => row.id === storeId);
+  const storeName = currentStore?.name ?? "Mağazam";
+  const storeSlug = currentStore?.slug ?? null;
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -135,10 +136,20 @@ function ThemesPage() {
       title="Tema editörü"
       description="Vitrin görünümünü hazır şablon, renk, tipografi ve hero içerikleriyle tasarla."
       actions={
-        <Button className="gap-2" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
-          <Save className="size-4" />
-          Kaydet
-        </Button>
+        <div className="flex items-center gap-2">
+          {storeSlug ? (
+            <Button asChild variant="outline" className="gap-2">
+              <Link to="/s/$slug" params={{ slug: storeSlug }} target="_blank">
+                <ExternalLink className="size-4" />
+                Vitrini gör
+              </Link>
+            </Button>
+          ) : null}
+          <Button className="gap-2" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
+            <Save className="size-4" />
+            Kaydet
+          </Button>
+        </div>
       }
     >
       <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
