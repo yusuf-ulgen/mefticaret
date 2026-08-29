@@ -6,6 +6,7 @@ import {
   ChartNoAxesColumn,
   ChevronsUpDown,
   Cog,
+  CreditCard,
   Globe,
   LayoutDashboard,
   LogOut,
@@ -73,6 +74,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Müşteriler", to: `/store/${storeId}/customers`, icon: Users },
         { label: "İndirimler", to: `/store/${storeId}/discounts`, icon: Tag },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
+        { label: "Abonelik", to: `/store/${storeId}/billing`, icon: CreditCard },
       ],
     },
     {
