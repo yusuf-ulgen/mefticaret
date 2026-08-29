@@ -27,6 +27,7 @@ import { Route as AuthenticatedStoreStoreIdProductsRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdSettingsRouteImport } from './routes/_authenticated/store.$storeId.settings'
 import { Route as AuthenticatedStoreStoreIdShippingRouteImport } from './routes/_authenticated/store.$storeId.shipping'
 import { Route as AuthenticatedStoreStoreIdTeamRouteImport } from './routes/_authenticated/store.$storeId.team'
+import { Route as AuthenticatedStoreStoreIdThemesRouteImport } from './routes/_authenticated/store.$storeId.themes'
 import { Route as AuthenticatedStoreStoreIdOrdersOrderIdRouteImport } from './routes/_authenticated/store.$storeId.orders.$orderId'
 import { Route as AuthenticatedStoreStoreIdProductsProductIdRouteImport } from './routes/_authenticated/store.$storeId.products.$productId'
 
@@ -131,6 +132,12 @@ const AuthenticatedStoreStoreIdTeamRoute =
     path: '/store/$storeId/team',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdThemesRoute =
+  AuthenticatedStoreStoreIdThemesRouteImport.update({
+    id: '/store/$storeId/themes',
+    path: '/store/$storeId/themes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdOrdersOrderIdRoute =
   AuthenticatedStoreStoreIdOrdersOrderIdRouteImport.update({
     id: '/$orderId',
@@ -162,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
+  '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
 }
@@ -183,6 +191,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
+  '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
 }
@@ -206,6 +215,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/_authenticated/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
   '/_authenticated/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
+  '/_authenticated/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/_authenticated/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/_authenticated/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
 }
@@ -229,6 +239,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/settings'
     | '/store/$storeId/shipping'
     | '/store/$storeId/team'
+    | '/store/$storeId/themes'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/products/$productId'
   fileRoutesByTo: FileRoutesByTo
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/settings'
     | '/store/$storeId/shipping'
     | '/store/$storeId/team'
+    | '/store/$storeId/themes'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/products/$productId'
   id:
@@ -272,6 +284,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/settings'
     | '/_authenticated/store/$storeId/shipping'
     | '/_authenticated/store/$storeId/team'
+    | '/_authenticated/store/$storeId/themes'
     | '/_authenticated/store/$storeId/orders/$orderId'
     | '/_authenticated/store/$storeId/products/$productId'
   fileRoutesById: FileRoutesById
@@ -410,6 +423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdTeamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/themes': {
+      id: '/_authenticated/store/$storeId/themes'
+      path: '/store/$storeId/themes'
+      fullPath: '/store/$storeId/themes'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/orders/$orderId': {
       id: '/_authenticated/store/$storeId/orders/$orderId'
       path: '/$orderId'
@@ -473,6 +493,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdSettingsRoute: typeof AuthenticatedStoreStoreIdSettingsRoute
   AuthenticatedStoreStoreIdShippingRoute: typeof AuthenticatedStoreStoreIdShippingRoute
   AuthenticatedStoreStoreIdTeamRoute: typeof AuthenticatedStoreStoreIdTeamRoute
+  AuthenticatedStoreStoreIdThemesRoute: typeof AuthenticatedStoreStoreIdThemesRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -501,6 +522,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdShippingRoute:
     AuthenticatedStoreStoreIdShippingRoute,
   AuthenticatedStoreStoreIdTeamRoute: AuthenticatedStoreStoreIdTeamRoute,
+  AuthenticatedStoreStoreIdThemesRoute: AuthenticatedStoreStoreIdThemesRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
