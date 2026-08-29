@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedStoreStoreIdDashboardRouteImport } from './routes/_authenticated/store.$storeId.dashboard'
+import { Route as AuthenticatedStoreStoreIdSettingsRouteImport } from './routes/_authenticated/store.$storeId.settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,12 @@ const AuthenticatedStoreStoreIdDashboardRoute =
     path: '/store/$storeId/dashboard',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdSettingsRoute =
+  AuthenticatedStoreStoreIdSettingsRouteImport.update({
+    id: '/store/$storeId/settings',
+    path: '/store/$storeId/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -53,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
+  '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -60,6 +68,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
+  '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -69,13 +78,25 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/_authenticated/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
+  '/_authenticated/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/onboarding' | '/stores' | '/store/$storeId/dashboard'
+    | '/'
+    | '/auth'
+    | '/onboarding'
+    | '/stores'
+    | '/store/$storeId/dashboard'
+    | '/store/$storeId/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/onboarding' | '/stores' | '/store/$storeId/dashboard'
+  to:
+    | '/'
+    | '/auth'
+    | '/onboarding'
+    | '/stores'
+    | '/store/$storeId/dashboard'
+    | '/store/$storeId/settings'
   id:
     | '__root__'
     | '/'
@@ -84,6 +105,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/stores'
     | '/_authenticated/store/$storeId/dashboard'
+    | '/_authenticated/store/$storeId/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -136,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/settings': {
+      id: '/_authenticated/store/$storeId/settings'
+      path: '/store/$storeId/settings'
+      fullPath: '/store/$storeId/settings'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -143,6 +172,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
   AuthenticatedStoreStoreIdDashboardRoute: typeof AuthenticatedStoreStoreIdDashboardRoute
+  AuthenticatedStoreStoreIdSettingsRoute: typeof AuthenticatedStoreStoreIdSettingsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -150,6 +180,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,
   AuthenticatedStoreStoreIdDashboardRoute:
     AuthenticatedStoreStoreIdDashboardRoute,
+  AuthenticatedStoreStoreIdSettingsRoute:
+    AuthenticatedStoreStoreIdSettingsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
