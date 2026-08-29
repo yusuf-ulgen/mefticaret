@@ -61,15 +61,15 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
       items: [
         { label: "Ürünler", to: `/store/${storeId}/products`, icon: Package },
         { label: "Koleksiyonlar", to: `/store/${storeId}/collections`, icon: Boxes },
-        { label: "Stok", icon: Boxes, phase: "FAZ 2" },
+        { label: "Stok", icon: Boxes, phase: "FAZ 4" },
       ],
     },
     {
       group: "Satış",
       items: [
-        { label: "Siparişler", icon: ShoppingBag, phase: "FAZ 2" },
-        { label: "Müşteriler", icon: Users, phase: "FAZ 2" },
-        { label: "İndirimler", icon: Tag, phase: "FAZ 2" },
+        { label: "Siparişler", to: `/store/${storeId}/orders`, icon: ShoppingBag },
+        { label: "Müşteriler", to: `/store/${storeId}/customers`, icon: Users },
+        { label: "İndirimler", to: `/store/${storeId}/discounts`, icon: Tag },
       ],
     },
     {
