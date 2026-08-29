@@ -20,6 +20,7 @@ import { Route as AuthenticatedStoreStoreIdCustomersRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdDashboardRouteImport } from './routes/_authenticated/store.$storeId.dashboard'
 import { Route as AuthenticatedStoreStoreIdDiscountsRouteImport } from './routes/_authenticated/store.$storeId.discounts'
 import { Route as AuthenticatedStoreStoreIdDomainsRouteImport } from './routes/_authenticated/store.$storeId.domains'
+import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
 import { Route as AuthenticatedStoreStoreIdOrdersRouteImport } from './routes/_authenticated/store.$storeId.orders'
 import { Route as AuthenticatedStoreStoreIdProductsRouteImport } from './routes/_authenticated/store.$storeId.products'
 import { Route as AuthenticatedStoreStoreIdSettingsRouteImport } from './routes/_authenticated/store.$storeId.settings'
@@ -86,6 +87,12 @@ const AuthenticatedStoreStoreIdDomainsRoute =
     path: '/store/$storeId/domains',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdInventoryRoute =
+  AuthenticatedStoreStoreIdInventoryRouteImport.update({
+    id: '/store/$storeId/inventory',
+    path: '/store/$storeId/inventory',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdOrdersRoute =
   AuthenticatedStoreStoreIdOrdersRouteImport.update({
     id: '/store/$storeId/orders',
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
+  '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
@@ -152,6 +160,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
+  '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
@@ -172,6 +181,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/_authenticated/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/_authenticated/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
+  '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/_authenticated/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/_authenticated/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
   '/_authenticated/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/dashboard'
     | '/store/$storeId/discounts'
     | '/store/$storeId/domains'
+    | '/store/$storeId/inventory'
     | '/store/$storeId/orders'
     | '/store/$storeId/products'
     | '/store/$storeId/settings'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/dashboard'
     | '/store/$storeId/discounts'
     | '/store/$storeId/domains'
+    | '/store/$storeId/inventory'
     | '/store/$storeId/orders'
     | '/store/$storeId/products'
     | '/store/$storeId/settings'
@@ -229,6 +241,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/dashboard'
     | '/_authenticated/store/$storeId/discounts'
     | '/_authenticated/store/$storeId/domains'
+    | '/_authenticated/store/$storeId/inventory'
     | '/_authenticated/store/$storeId/orders'
     | '/_authenticated/store/$storeId/products'
     | '/_authenticated/store/$storeId/settings'
@@ -322,6 +335,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdDomainsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/inventory': {
+      id: '/_authenticated/store/$storeId/inventory'
+      path: '/store/$storeId/inventory'
+      fullPath: '/store/$storeId/inventory'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdInventoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/orders': {
       id: '/_authenticated/store/$storeId/orders'
       path: '/store/$storeId/orders'
@@ -406,6 +426,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdDashboardRoute: typeof AuthenticatedStoreStoreIdDashboardRoute
   AuthenticatedStoreStoreIdDiscountsRoute: typeof AuthenticatedStoreStoreIdDiscountsRoute
   AuthenticatedStoreStoreIdDomainsRoute: typeof AuthenticatedStoreStoreIdDomainsRoute
+  AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
   AuthenticatedStoreStoreIdOrdersRoute: typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   AuthenticatedStoreStoreIdProductsRoute: typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
   AuthenticatedStoreStoreIdSettingsRoute: typeof AuthenticatedStoreStoreIdSettingsRoute
@@ -425,6 +446,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdDiscountsRoute:
     AuthenticatedStoreStoreIdDiscountsRoute,
   AuthenticatedStoreStoreIdDomainsRoute: AuthenticatedStoreStoreIdDomainsRoute,
+  AuthenticatedStoreStoreIdInventoryRoute:
+    AuthenticatedStoreStoreIdInventoryRoute,
   AuthenticatedStoreStoreIdOrdersRoute:
     AuthenticatedStoreStoreIdOrdersRouteWithChildren,
   AuthenticatedStoreStoreIdProductsRoute:
