@@ -48,14 +48,19 @@ export const updatePaymentMethod = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = {};
-    if (data.displayName !== undefined) patch['display_name'] = data.displayName;
-    if (data.instructions !== undefined) patch['instructions'] = data.instructions || null;
-    if (data.isActive !== undefined) patch['is_active'] = data.isActive;
-    if (data.testMode !== undefined) patch['test_mode'] = data.testMode;
-    if (data.installmentsEnabled !== undefined)
-      patch['installments_enabled'] = data.installmentsEnabled;
-    if (data.extraFeeRate !== undefined) patch['extra_fee_rate'] = data.extraFeeRate;
+    const patch = {
+      ...(data.displayName !== undefined ? { display_name: data.displayName } : {}),
+      ...(data.instructions !== undefined
+        ? { instructions: data.instructions || null }
+        : {}),
+      ...(data.isActive !== undefined ? { is_active: data.isActive } : {}),
+      ...(data.testMode !== undefined ? { test_mode: data.testMode } : {}),
+      ...(data.installmentsEnabled !== undefined
+        ? { installments_enabled: data.installmentsEnabled }
+        : {}),
+      ...(data.extraFeeRate !== undefined ? { extra_fee_rate: data.extraFeeRate } : {}),
+    };
+
 
     const { error } = await context.supabase
       .from("store_payment_methods")
