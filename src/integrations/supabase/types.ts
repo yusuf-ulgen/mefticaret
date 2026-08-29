@@ -289,6 +289,70 @@ export type Database = {
           },
         ]
       }
+      inventory_movements: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["inventory_movement_kind"]
+          product_id: string | null
+          quantity: number
+          reason: string | null
+          stock_after: number
+          stock_before: number
+          store_id: string
+          variant_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["inventory_movement_kind"]
+          product_id?: string | null
+          quantity: number
+          reason?: string | null
+          stock_after?: number
+          stock_before?: number
+          store_id: string
+          variant_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["inventory_movement_kind"]
+          product_id?: string | null
+          quantity?: number
+          reason?: string | null
+          stock_after?: number
+          stock_before?: number
+          store_id?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_events: {
         Row: {
           actor_id: string | null
@@ -639,6 +703,7 @@ export type Database = {
           cost_price: number | null
           created_at: string
           id: string
+          low_stock_threshold: number
           options: Json
           position: number
           price: number
@@ -655,6 +720,7 @@ export type Database = {
           cost_price?: number | null
           created_at?: string
           id?: string
+          low_stock_threshold?: number
           options?: Json
           position?: number
           price?: number
@@ -671,6 +737,7 @@ export type Database = {
           cost_price?: number | null
           created_at?: string
           id?: string
+          low_stock_threshold?: number
           options?: Json
           position?: number
           price?: number
@@ -1100,6 +1167,13 @@ export type Database = {
         | "partially_fulfilled"
         | "fulfilled"
         | "returned"
+      inventory_movement_kind:
+        | "count"
+        | "restock"
+        | "manual_out"
+        | "sale"
+        | "return"
+        | "damage"
       order_status:
         | "pending"
         | "processing"
@@ -1252,6 +1326,14 @@ export const Constants = {
         "partially_fulfilled",
         "fulfilled",
         "returned",
+      ],
+      inventory_movement_kind: [
+        "count",
+        "restock",
+        "manual_out",
+        "sale",
+        "return",
+        "damage",
       ],
       order_status: [
         "pending",
