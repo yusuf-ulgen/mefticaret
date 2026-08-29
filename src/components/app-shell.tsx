@@ -163,7 +163,11 @@ function StoreSwitcher({ storeId }: { storeId: string }) {
         <DropdownMenuLabel>Mağazalarım</DropdownMenuLabel>
         {(stores ?? []).map((store) => (
           <DropdownMenuItem key={store.id} asChild>
-            <Link to={`/store/${store.id}/dashboard`} className="flex items-center gap-2">
+            <Link
+              to="/store/$storeId/dashboard"
+              params={{ storeId: store.id }}
+              className="flex items-center gap-2"
+            >
               <Store className="size-4" />
               <span className="truncate">{store.name}</span>
               {store.id === storeId ? <Badge className="ml-auto">Aktif</Badge> : null}
