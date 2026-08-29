@@ -29,20 +29,20 @@ export const storeUsageQuery = (storeId: string) =>
         ),
       );
       return {
-        products: counts[0],
-        orders: counts[1],
-        staff: counts[2],
-        domains: counts[3],
-        collections: counts[4],
+        products: counts[0] ?? 0,
+        orders: counts[1] ?? 0,
+        staff: counts[2] ?? 0,
+        domains: counts[3] ?? 0,
+        collections: counts[4] ?? 0,
       };
     },
   });
 
 export type PlanLimits = {
-  products?: number;
-  staff?: number;
-  domains?: number;
-  orders_monthly?: number;
+  products?: number | undefined;
+  staff?: number | undefined;
+  domains?: number | undefined;
+  orders_monthly?: number | undefined;
 };
 
 export function readLimits(limits: unknown): PlanLimits {
