@@ -105,6 +105,54 @@ export type Database = {
           },
         ]
       }
+      connectors: {
+        Row: {
+          code: string
+          config_fields: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["connector_kind"]
+          logo_url: string | null
+          name: string
+          sort_order: number
+          supports_installments: boolean
+          supports_test_mode: boolean
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          config_fields?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind: Database["public"]["Enums"]["connector_kind"]
+          logo_url?: string | null
+          name: string
+          sort_order?: number
+          supports_installments?: boolean
+          supports_test_mode?: boolean
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          config_fields?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["connector_kind"]
+          logo_url?: string | null
+          name?: string
+          sort_order?: number
+          supports_installments?: boolean
+          supports_test_mode?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customer_addresses: {
         Row: {
           city: string | null
@@ -864,6 +912,123 @@ export type Database = {
         }
         Relationships: []
       }
+      shipping_rates: {
+        Row: {
+          connector_id: string | null
+          created_at: string
+          eta_days: number | null
+          free_over: number | null
+          id: string
+          is_active: boolean
+          max_weight_grams: number | null
+          min_weight_grams: number
+          price: number
+          sort_order: number
+          store_id: string
+          title: string
+          updated_at: string
+          zone_id: string
+        }
+        Insert: {
+          connector_id?: string | null
+          created_at?: string
+          eta_days?: number | null
+          free_over?: number | null
+          id?: string
+          is_active?: boolean
+          max_weight_grams?: number | null
+          min_weight_grams?: number
+          price?: number
+          sort_order?: number
+          store_id: string
+          title: string
+          updated_at?: string
+          zone_id: string
+        }
+        Update: {
+          connector_id?: string | null
+          created_at?: string
+          eta_days?: number | null
+          free_over?: number | null
+          id?: string
+          is_active?: boolean
+          max_weight_grams?: number | null
+          min_weight_grams?: number
+          price?: number
+          sort_order?: number
+          store_id?: string
+          title?: string
+          updated_at?: string
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_rates_connector_id_fkey"
+            columns: ["connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipping_rates_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipping_rates_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipping_zones: {
+        Row: {
+          cities: string[]
+          countries: string[]
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          cities?: string[]
+          countries?: string[]
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          cities?: string[]
+          countries?: string[]
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_zones_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_daily_stats: {
         Row: {
           abandoned_carts: number
@@ -954,6 +1119,69 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "store_domains_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_payment_methods: {
+        Row: {
+          config_ref: string | null
+          connector_id: string
+          created_at: string
+          display_name: string
+          extra_fee_rate: number
+          id: string
+          installments_enabled: boolean
+          instructions: string | null
+          is_active: boolean
+          sort_order: number
+          store_id: string
+          test_mode: boolean
+          updated_at: string
+        }
+        Insert: {
+          config_ref?: string | null
+          connector_id: string
+          created_at?: string
+          display_name: string
+          extra_fee_rate?: number
+          id?: string
+          installments_enabled?: boolean
+          instructions?: string | null
+          is_active?: boolean
+          sort_order?: number
+          store_id: string
+          test_mode?: boolean
+          updated_at?: string
+        }
+        Update: {
+          config_ref?: string | null
+          connector_id?: string
+          created_at?: string
+          display_name?: string
+          extra_fee_rate?: number
+          id?: string
+          installments_enabled?: boolean
+          instructions?: string | null
+          is_active?: boolean
+          sort_order?: number
+          store_id?: string
+          test_mode?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_payment_methods_connector_id_fkey"
+            columns: ["connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_payment_methods_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -1159,6 +1387,7 @@ export type Database = {
     }
     Enums: {
       app_role: "platform_admin" | "agency" | "seller" | "customer"
+      connector_kind: "payment" | "shipping"
       discount_type: "percentage" | "fixed_amount" | "free_shipping"
       domain_status: "pending" | "verifying" | "verified" | "failed"
       domain_type: "subdomain" | "custom"
@@ -1318,6 +1547,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["platform_admin", "agency", "seller", "customer"],
+      connector_kind: ["payment", "shipping"],
       discount_type: ["percentage", "fixed_amount", "free_shipping"],
       domain_status: ["pending", "verifying", "verified", "failed"],
       domain_type: ["subdomain", "custom"],
