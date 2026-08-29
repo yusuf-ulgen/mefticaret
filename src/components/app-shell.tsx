@@ -71,6 +71,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Siparişler", to: `/store/${storeId}/orders`, icon: ShoppingBag },
         { label: "Müşteriler", to: `/store/${storeId}/customers`, icon: Users },
         { label: "İndirimler", to: `/store/${storeId}/discounts`, icon: Tag },
+        { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
       ],
     },
     {
