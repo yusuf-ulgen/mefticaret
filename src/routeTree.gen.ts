@@ -16,6 +16,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
+import { Route as SSlugCartRouteImport } from './routes/s.$slug.cart'
 import { Route as AuthenticatedStoreStoreIdCollectionsRouteImport } from './routes/_authenticated/store.$storeId.collections'
 import { Route as AuthenticatedStoreStoreIdCustomersRouteImport } from './routes/_authenticated/store.$storeId.customers'
 import { Route as AuthenticatedStoreStoreIdDashboardRouteImport } from './routes/_authenticated/store.$storeId.dashboard'
@@ -65,6 +66,11 @@ const AuthenticatedStoresRoute = AuthenticatedStoresRouteImport.update({
 const SSlugIndexRoute = SSlugIndexRouteImport.update({
   id: '/s/$slug/',
   path: '/s/$slug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugCartRoute = SSlugCartRouteImport.update({
+  id: '/s/$slug/cart',
+  path: '/s/$slug/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedStoreStoreIdCollectionsRoute =
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/': typeof SSlugIndexRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug': typeof SSlugIndexRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
+  '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/': typeof SSlugIndexRoute
   '/_authenticated/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/_authenticated/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRoute
@@ -245,6 +254,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/onboarding'
     | '/stores'
+    | '/s/$slug/cart'
     | '/s/$slug/'
     | '/store/$storeId/collections'
     | '/store/$storeId/customers'
@@ -269,6 +279,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/onboarding'
     | '/stores'
+    | '/s/$slug/cart'
     | '/s/$slug'
     | '/store/$storeId/collections'
     | '/store/$storeId/customers'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/onboarding'
     | '/_authenticated/stores'
+    | '/s/$slug/cart'
     | '/s/$slug/'
     | '/_authenticated/store/$storeId/collections'
     | '/_authenticated/store/$storeId/customers'
@@ -317,6 +329,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  SSlugCartRoute: typeof SSlugCartRoute
   SSlugIndexRoute: typeof SSlugIndexRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
 }
@@ -370,6 +383,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug'
       fullPath: '/s/$slug/'
       preLoaderRoute: typeof SSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/cart': {
+      id: '/s/$slug/cart'
+      path: '/s/$slug/cart'
+      fullPath: '/s/$slug/cart'
+      preLoaderRoute: typeof SSlugCartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/store/$storeId/collections': {
@@ -572,6 +592,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  SSlugCartRoute: SSlugCartRoute,
   SSlugIndexRoute: SSlugIndexRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
 }
