@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, CreditCard, Gauge, History, Sparkles } from "lucide-react";
+import { Check, Gauge, History, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -63,19 +63,12 @@ function BillingPage() {
   ];
 
   return (
-    <AppShell storeId={storeId}>
+    <AppShell
+      storeId={storeId}
+      title="Abonelik & Limitler"
+      description="Aktif paket, limit kullanımı ve abonelik hareketleri tek ekranda."
+    >
       <div className="space-y-8">
-        <header className="space-y-2">
-          <h1 className="flex items-center gap-2 text-3xl font-semibold tracking-tight">
-            <CreditCard className="size-7 text-primary" />
-            Abonelik & Limitler
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            {store?.name ?? "Mağaza"} için aktif paketi, limit kullanımını ve abonelik hareketlerini yönet.
-            Paket değişikliği anında geçerli olur ve denetim kaydına işlenir.
-          </p>
-        </header>
-
         <section className="rounded-xl border bg-card p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-1">
