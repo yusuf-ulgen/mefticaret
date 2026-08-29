@@ -54,7 +54,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
       group: "Genel",
       items: [
         { label: "Panel", to: `/store/${storeId}/dashboard`, icon: LayoutDashboard },
-        { label: "Analitik", icon: ChartNoAxesColumn, phase: "FAZ 9" },
+        { label: "Analitik", to: `/store/${storeId}/analytics`, icon: ChartNoAxesColumn },
       ],
     },
     {
@@ -82,7 +82,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Ödeme", to: `/store/${storeId}/payments`, icon: BadgeCheck },
         { label: "Kargo", to: `/store/${storeId}/shipping`, icon: Truck },
         { label: "Temalar", to: `/store/${storeId}/themes`, icon: Palette },
-        { label: "AI Asistan", icon: Sparkles, phase: "FAZ 9" },
+        { label: "AI Asistan", to: `/store/${storeId}/ai`, icon: Sparkles },
       ],
     },
   ];
