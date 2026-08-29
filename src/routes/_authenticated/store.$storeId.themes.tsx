@@ -136,10 +136,20 @@ function ThemesPage() {
       title="Tema editörü"
       description="Vitrin görünümünü hazır şablon, renk, tipografi ve hero içerikleriyle tasarla."
       actions={
-        <Button className="gap-2" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
-          <Save className="size-4" />
-          Kaydet
-        </Button>
+        <div className="flex items-center gap-2">
+          {storeSlug ? (
+            <Button asChild variant="outline" className="gap-2">
+              <Link to="/s/$slug" params={{ slug: storeSlug }} target="_blank">
+                <ExternalLink className="size-4" />
+                Vitrini gör
+              </Link>
+            </Button>
+          ) : null}
+          <Button className="gap-2" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
+            <Save className="size-4" />
+            Kaydet
+          </Button>
+        </div>
       }
     >
       <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
