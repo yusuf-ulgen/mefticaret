@@ -18,6 +18,7 @@ import {
   Rocket,
   ShieldCheck,
   ShoppingBag,
+  ShoppingCart,
   Sparkles,
   Store,
   Tag,
