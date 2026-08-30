@@ -183,6 +183,14 @@ export function StorefrontChrome({
           )}
 
           <Link
+            to="/s/$slug/favorites"
+            params={{ slug: storeSlug }}
+            style={{ color: muted, textDecoration: "none" }}
+          >
+            Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
+          </Link>
+
+          <Link
             to="/s/$slug/cart"
             params={{ slug: storeSlug }}
             style={{
