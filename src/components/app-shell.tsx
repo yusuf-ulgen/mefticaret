@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   Package,
+  PackageSearch,
   Palette,
   Plus,
   Rocket,
