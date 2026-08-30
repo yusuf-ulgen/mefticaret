@@ -1,14 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ExternalLink, Truck } from "lucide-react";
+import { Download, ExternalLink, Truck } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { ShipmentLabels } from "@/components/shipment-labels";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { downloadCsv, toCsv } from "@/lib/csv";
 import { formatDateTime } from "@/lib/mefti";
 import {
   SHIPMENT_STATUS_LABELS,
@@ -95,6 +97,50 @@ function ShipmentsPage() {
     };
   }, [shipments]);
 
+  const labelRows = useMemo(
+    () =>
+      rows.map((shipment) => {
+        const order = shipment.orders as {
+          order_number?: string;
+          customer_name?: string;
+        } | null;
+        return {
+          id: shipment.id,
+          carrier: shipment.carrier,
+          tracking_number: shipment.tracking_number ?? null,
+          status: shipment.status,
+          created_at: shipment.created_at,
+          orderNumber: order?.order_number ?? "—",
+          customerName: order?.customer_name ?? "Misafir",
+          storeName: "Mefticaret",
+          statusLabel:
+            SHIPMENT_STATUS_LABELS[shipment.status as ShipmentStatus] ?? shipment.status,
+        };
+      }),
+    [rows],
+  );
+
+  const exportCsv = () => {
+    if (labelRows.length === 0) {
+      toast.error("Dışa aktarılacak sevkiyat yok");
+      return;
+    }
+    const csv = toCsv(
+      ["siparis_no", "musteri", "kargo", "takip_no", "durum", "olusturma"],
+      labelRows.map((row) => [
+        row.orderNumber,
+        row.customerName,
+        row.carrier,
+        row.tracking_number ?? "",
+        row.statusLabel,
+        row.created_at,
+      ]),
+    );
+    downloadCsv(`sevkiyatlar-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    toast.success("CSV indirildi");
+  };
+
+
   return (
     <AppShell
       storeId={storeId}
@@ -133,6 +179,11 @@ function ShipmentsPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
+        <ShipmentLabels rows={labelRows} />
+        <Button size="sm" variant="outline" onClick={exportCsv}>
+          <Download className="mr-2 size-4" />
+          CSV indir
+        </Button>
       </div>
 
       {isLoading ? (
