@@ -28,6 +28,7 @@ import {
   HelpCircle,
   Star,
   Tags,
+  Coins,
   BellRing,
   Bell,
   Sparkles,
