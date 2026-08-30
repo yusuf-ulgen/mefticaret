@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { StorefrontReviews } from "@/components/storefront-reviews";
 import { useCart } from "@/lib/cart";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontProductQuery } from "@/lib/storefront-queries";
@@ -62,7 +63,7 @@ function ProductPage() {
   const navigate = useNavigate();
 
   if (!data) return <Fallback text="Bu ürün bulunamadı." />;
-  const { store, theme, product, variants, images } = data;
+  const { store, theme, product, variants, images, reviews, ratingAverage } = data;
   const { t, fonts, muted, cardBg, border, radius, dark } = storefrontTokens(theme);
 
   const selected = variants.find((variant) => variant.id === variantId) ?? variants[0] ?? null;
@@ -189,6 +190,21 @@ function ProductPage() {
           ) : null}
         </div>
       </section>
+
+      <StorefrontReviews
+        storeSlug={store.slug}
+        productId={product.id}
+        reviews={reviews}
+        ratingAverage={ratingAverage}
+        tokens={{
+          accent: t.accent_color,
+          muted,
+          border,
+          cardBg,
+          radius,
+          headingFont: fonts.heading,
+        }}
+      />
     </StorefrontChrome>
   );
 }
