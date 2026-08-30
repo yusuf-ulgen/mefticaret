@@ -46,6 +46,7 @@ import { Route as AuthenticatedStoreStoreIdReviewsRouteImport } from './routes/_
 import { Route as AuthenticatedStoreStoreIdSettingsRouteImport } from './routes/_authenticated/store.$storeId.settings'
 import { Route as AuthenticatedStoreStoreIdShipmentsRouteImport } from './routes/_authenticated/store.$storeId.shipments'
 import { Route as AuthenticatedStoreStoreIdShippingRouteImport } from './routes/_authenticated/store.$storeId.shipping'
+import { Route as AuthenticatedStoreStoreIdStockAlertsRouteImport } from './routes/_authenticated/store.$storeId.stock-alerts'
 import { Route as AuthenticatedStoreStoreIdTeamRouteImport } from './routes/_authenticated/store.$storeId.team'
 import { Route as AuthenticatedStoreStoreIdThemesRouteImport } from './routes/_authenticated/store.$storeId.themes'
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
@@ -268,6 +269,12 @@ const AuthenticatedStoreStoreIdShippingRoute =
     path: '/store/$storeId/shipping',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdStockAlertsRoute =
+  AuthenticatedStoreStoreIdStockAlertsRouteImport.update({
+    id: '/store/$storeId/stock-alerts',
+    path: '/store/$storeId/stock-alerts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdTeamRoute =
   AuthenticatedStoreStoreIdTeamRouteImport.update({
     id: '/store/$storeId/team',
@@ -379,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
+  '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
@@ -430,6 +438,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
+  '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
@@ -483,6 +492,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/_authenticated/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/_authenticated/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
+  '/_authenticated/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/_authenticated/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/_authenticated/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
@@ -536,6 +546,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/settings'
     | '/store/$storeId/shipments'
     | '/store/$storeId/shipping'
+    | '/store/$storeId/stock-alerts'
     | '/store/$storeId/team'
     | '/store/$storeId/themes'
     | '/store/$storeId/webhooks'
@@ -587,6 +598,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/settings'
     | '/store/$storeId/shipments'
     | '/store/$storeId/shipping'
+    | '/store/$storeId/stock-alerts'
     | '/store/$storeId/team'
     | '/store/$storeId/themes'
     | '/store/$storeId/webhooks'
@@ -639,6 +651,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/settings'
     | '/_authenticated/store/$storeId/shipments'
     | '/_authenticated/store/$storeId/shipping'
+    | '/_authenticated/store/$storeId/stock-alerts'
     | '/_authenticated/store/$storeId/team'
     | '/_authenticated/store/$storeId/themes'
     | '/_authenticated/store/$storeId/webhooks'
@@ -934,6 +947,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdShippingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/stock-alerts': {
+      id: '/_authenticated/store/$storeId/stock-alerts'
+      path: '/store/$storeId/stock-alerts'
+      fullPath: '/store/$storeId/stock-alerts'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdStockAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/team': {
       id: '/_authenticated/store/$storeId/team'
       path: '/store/$storeId/team'
@@ -1104,6 +1124,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdSettingsRoute: typeof AuthenticatedStoreStoreIdSettingsRoute
   AuthenticatedStoreStoreIdShipmentsRoute: typeof AuthenticatedStoreStoreIdShipmentsRoute
   AuthenticatedStoreStoreIdShippingRoute: typeof AuthenticatedStoreStoreIdShippingRoute
+  AuthenticatedStoreStoreIdStockAlertsRoute: typeof AuthenticatedStoreStoreIdStockAlertsRoute
   AuthenticatedStoreStoreIdTeamRoute: typeof AuthenticatedStoreStoreIdTeamRoute
   AuthenticatedStoreStoreIdThemesRoute: typeof AuthenticatedStoreStoreIdThemesRoute
   AuthenticatedStoreStoreIdWebhooksRoute: typeof AuthenticatedStoreStoreIdWebhooksRoute
@@ -1153,6 +1174,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdShipmentsRoute,
   AuthenticatedStoreStoreIdShippingRoute:
     AuthenticatedStoreStoreIdShippingRoute,
+  AuthenticatedStoreStoreIdStockAlertsRoute:
+    AuthenticatedStoreStoreIdStockAlertsRoute,
   AuthenticatedStoreStoreIdTeamRoute: AuthenticatedStoreStoreIdTeamRoute,
   AuthenticatedStoreStoreIdThemesRoute: AuthenticatedStoreStoreIdThemesRoute,
   AuthenticatedStoreStoreIdWebhooksRoute:
