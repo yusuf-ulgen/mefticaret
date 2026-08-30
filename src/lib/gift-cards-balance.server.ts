@@ -9,7 +9,7 @@ export type GiftCardBalanceResult = {
   usable?: boolean;
   status?: string;
   expiresAt?: string | null;
-  reason?: string;
+  reason?: string | undefined;
 };
 
 export function maskGiftCardCode(code: string): string {
