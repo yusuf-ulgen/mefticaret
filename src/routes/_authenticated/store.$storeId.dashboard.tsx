@@ -41,6 +41,46 @@ function DashboardPage() {
   const { data: store } = useQuery(storeQuery(storeId));
   const { data: stats, isLoading } = useQuery(storeStatsQuery(storeId, 30));
   const { data: audit } = useQuery(storeAuditQuery(storeId));
+  const { data: actionItems } = useQuery(storeActionItemsQuery(storeId));
+
+  const todo = [
+    {
+      key: "pending-orders",
+      label: "Bekleyen sipariş",
+      count: actionItems?.pendingOrders ?? 0,
+      icon: ShoppingBag,
+      to: "/store/$storeId/orders" as const,
+    },
+    {
+      key: "unfulfilled",
+      label: "Sevk bekleyen",
+      count: actionItems?.unfulfilled ?? 0,
+      icon: PackageCheck,
+      to: "/store/$storeId/shipments" as const,
+    },
+    {
+      key: "low-stock",
+      label: "Kritik stok",
+      count: actionItems?.lowStock ?? 0,
+      icon: AlertTriangle,
+      to: "/store/$storeId/inventory" as const,
+    },
+    {
+      key: "returns",
+      label: "İade talebi",
+      count: actionItems?.pendingReturns ?? 0,
+      icon: RotateCcw,
+      to: "/store/$storeId/returns" as const,
+    },
+    {
+      key: "reviews",
+      label: "Onay bekleyen yorum",
+      count: actionItems?.pendingReviews ?? 0,
+      icon: MessageSquare,
+      to: "/store/$storeId/reviews" as const,
+    },
+  ];
+
 
   const rows = stats ?? [];
   const currency = store?.currency ?? "TRY";
