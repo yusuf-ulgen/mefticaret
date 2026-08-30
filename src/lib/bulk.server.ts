@@ -2,12 +2,12 @@ import { slugify } from "@/lib/mefti";
 
 export type BulkProductRow = {
   title: string;
-  description?: string;
-  sku?: string;
-  vendor?: string;
-  productType?: string;
+  description?: string | undefined;
+  sku?: string | undefined;
+  vendor?: string | undefined;
+  productType?: string | undefined;
   price: number;
-  compareAtPrice?: number;
+  compareAtPrice?: number | undefined;
   stock: number;
   status: "draft" | "active" | "archived";
   tags: string[];
