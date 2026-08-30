@@ -1075,6 +1075,7 @@ export type Database = {
           id: string
           position: number
           product_id: string
+          storage_path: string | null
           store_id: string
           url: string
         }
@@ -1084,6 +1085,7 @@ export type Database = {
           id?: string
           position?: number
           product_id: string
+          storage_path?: string | null
           store_id: string
           url: string
         }
@@ -1093,6 +1095,7 @@ export type Database = {
           id?: string
           position?: number
           product_id?: string
+          storage_path?: string | null
           store_id?: string
           url?: string
         }
