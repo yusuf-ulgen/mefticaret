@@ -93,15 +93,15 @@ function StockCountPage() {
   ).length;
 
   const downloadTemplate = () => {
-    const rows = (variants ?? []).map((variant) => {
+    const rows: unknown[][] = (variants ?? []).map((variant) => {
       const product = (variant as { products: { title: string } | null }).products;
-      return {
-        sku: variant.sku ?? variant.id,
-        urun: product?.title ?? "",
-        varyant: variant.title,
-        sistem_stok: String(variant.stock ?? 0),
-        counted: String(variant.stock ?? 0),
-      };
+      return [
+        variant.sku ?? variant.id,
+        product?.title ?? "",
+        variant.title,
+        variant.stock ?? 0,
+        variant.stock ?? 0,
+      ];
     });
     downloadCsv(
       `stok-sayim-${new Date().toISOString().slice(0, 10)}.csv`,
