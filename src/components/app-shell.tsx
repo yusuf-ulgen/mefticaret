@@ -30,6 +30,7 @@ import {
   Tags,
   Coins,
   Gift,
+  Images,
   BellRing,
   Bell,
   Sparkles,
@@ -93,6 +94,8 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Stok", to: `/store/${storeId}/inventory`, icon: Warehouse },
         { label: "Fiyatlandırma", to: `/store/${storeId}/pricing`, icon: Tags },
         { label: "Kârlılık", to: `/store/${storeId}/profit`, icon: Coins },
+        { label: "Medya", to: `/store/${storeId}/media`, icon: Images },
+
       ],
     },
     {
