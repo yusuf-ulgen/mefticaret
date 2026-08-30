@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   ShoppingCart,
+  Star,
   Sparkles,
   Store,
   Tag,
@@ -76,6 +77,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
       items: [
         { label: "Siparişler", to: `/store/${storeId}/orders`, icon: ShoppingBag },
         { label: "Müşteriler", to: `/store/${storeId}/customers`, icon: Users },
+        { label: "Değerlendirmeler", to: `/store/${storeId}/reviews`, icon: Star },
         { label: "Terk Sepetler", to: `/store/${storeId}/carts`, icon: ShoppingCart },
         { label: "İndirimler", to: `/store/${storeId}/discounts`, icon: Tag },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
