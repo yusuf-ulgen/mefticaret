@@ -1,4 +1,7 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
+
+import type { Database } from "@/integrations/supabase/types";
 
 /**
  * Vitrin müşteri hesabı iş mantığı (yalnızca sunucu).
@@ -7,6 +10,39 @@ import { z } from "zod";
  * kaydının kullanıcıya bağlanması) servis anahtarı gerektirir ve e-posta
  * eşleşmesi doğrulanmadan asla bağlantı kurulmaz.
  */
+
+type Client = SupabaseClient<Database>;
+type CustomerRow = Database["public"]["Tables"]["customers"]["Row"];
+type AddressRow = Database["public"]["Tables"]["customer_addresses"]["Row"];
+
+export type MyCustomer = Pick<
+  CustomerRow,
+  "id" | "store_id" | "full_name" | "email" | "phone" | "accepts_marketing" | "total_spent" | "orders_count" | "created_at"
+>;
+
+export type MyOrder = Pick<
+  Database["public"]["Tables"]["orders"]["Row"],
+  | "id"
+  | "order_number"
+  | "status"
+  | "payment_status"
+  | "fulfillment_status"
+  | "currency"
+  | "grand_total"
+  | "shipping_carrier"
+  | "tracking_number"
+  | "placed_at"
+> & {
+  order_items: Pick<
+    Database["public"]["Tables"]["order_items"]["Row"],
+    "id" | "title" | "variant_title" | "quantity" | "unit_price" | "line_total"
+  >[];
+};
+
+export type MyAddress = Pick<
+  AddressRow,
+  "id" | "label" | "recipient" | "phone" | "country" | "city" | "district" | "line1" | "line2" | "postal_code" | "is_default"
+>;
 
 export const storeIdSchema = z.object({ storeId: z.string().uuid() });
 
@@ -37,32 +73,27 @@ export const updateProfileSchema = z.object({
   acceptsMarketing: z.boolean(),
 });
 
-type UserContext = {
-  supabase: {
-    from: (table: string) => never;
-    auth: { getUser: () => Promise<{ data: { user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> } | null } }> };
-  };
-  userId: string;
-};
+const CUSTOMER_SELECT =
+  "id, store_id, full_name, email, phone, accepts_marketing, total_spent, orders_count, created_at";
 
 /** Oturum açmış kullanıcının bu mağazadaki müşteri kaydını döndürür (yoksa null). */
-export async function findMyCustomer(context: UserContext, storeId: string) {
-  const { data, error } = await context.supabase
+export async function findMyCustomer(supabase: Client, userId: string, storeId: string): Promise<MyCustomer | null> {
+  const { data, error } = await supabase
     .from("customers")
-    .select("id, store_id, full_name, email, phone, accepts_marketing, total_spent, orders_count, created_at")
+    .select(CUSTOMER_SELECT)
     .eq("store_id", storeId)
-    .eq("user_id", context.userId)
+    .eq("user_id", userId)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  return data as Record<string, unknown> | null;
+  return data;
 }
 
 /**
  * Misafir checkout ile aynı e-postayla açılmış müşteri kaydını kullanıcıya bağlar;
  * kayıt yoksa yeni müşteri kaydı oluşturur. E-posta eşleşmesi zorunludur.
  */
-export async function claimStoreAccount(context: UserContext, storeId: string) {
-  const { data: userData } = await context.supabase.auth.getUser();
+export async function claimStoreAccount(supabase: Client, userId: string, storeId: string) {
+  const { data: userData } = await supabase.auth.getUser();
   const email = userData.user?.email?.trim().toLowerCase();
   if (!email) throw new Error("Hesabınızda e-posta adresi bulunamadı.");
 
@@ -83,21 +114,21 @@ export async function claimStoreAccount(context: UserContext, storeId: string) {
     .from("customers")
     .select("id")
     .eq("store_id", storeId)
-    .eq("user_id", context.userId)
+    .eq("user_id", userId)
     .maybeSingle();
   if (existingError) throw new Error(existingError.message);
-  if (existing) return { customerId: existing.id as string, linked: false };
+  if (existing) return { customerId: existing.id, linked: false };
 
   // E-posta eşleşen sahipsiz misafir kaydını sahiplen
   const { data: claimed, error: claimError } = await supabaseAdmin
     .from("customers")
-    .update({ user_id: context.userId })
+    .update({ user_id: userId })
     .eq("store_id", storeId)
     .is("user_id", null)
     .ilike("email", email)
     .select("id");
   if (claimError) throw new Error(claimError.message);
-  if (claimed && claimed.length > 0) return { customerId: claimed[0]!.id as string, linked: true };
+  if (claimed && claimed.length > 0) return { customerId: claimed[0]!.id, linked: true };
 
   // Kayıt yoksa oluştur
   const fullName =
@@ -106,57 +137,61 @@ export async function claimStoreAccount(context: UserContext, storeId: string) {
     email.split("@")[0]!;
   const { data: created, error: createError } = await supabaseAdmin
     .from("customers")
-    .insert({ store_id: storeId, user_id: context.userId, full_name: fullName, email })
+    .insert({ store_id: storeId, user_id: userId, full_name: fullName, email })
     .select("id")
     .single();
   if (createError) throw new Error(createError.message);
-  return { customerId: created.id as string, linked: true };
+  return { customerId: created.id, linked: true };
 }
 
-export async function listMyOrders(context: UserContext, storeId: string) {
-  const customer = await findMyCustomer(context, storeId);
-  if (!customer) return { customer: null, orders: [] as Record<string, unknown>[] };
-  const { data, error } = await context.supabase
+export async function listMyOrders(
+  supabase: Client,
+  userId: string,
+  storeId: string,
+): Promise<{ customer: MyCustomer | null; orders: MyOrder[] }> {
+  const customer = await findMyCustomer(supabase, userId, storeId);
+  if (!customer) return { customer: null, orders: [] };
+  const { data, error } = await supabase
     .from("orders")
     .select(
       "id, order_number, status, payment_status, fulfillment_status, currency, grand_total, shipping_carrier, tracking_number, placed_at, order_items(id, title, variant_title, quantity, unit_price, line_total)",
     )
     .eq("store_id", storeId)
-    .eq("customer_id", customer.id as string)
+    .eq("customer_id", customer.id)
     .order("placed_at", { ascending: false })
     .limit(50);
   if (error) throw new Error(error.message);
-  return { customer, orders: (data ?? []) as Record<string, unknown>[] };
+  return { customer, orders: (data ?? []) as MyOrder[] };
 }
 
-export async function listMyAddresses(context: UserContext, storeId: string) {
-  const customer = await findMyCustomer(context, storeId);
-  if (!customer) return { customer: null, addresses: [] as Record<string, unknown>[] };
-  const { data, error } = await context.supabase
+export async function listMyAddresses(
+  supabase: Client,
+  userId: string,
+  storeId: string,
+): Promise<{ customer: MyCustomer | null; addresses: MyAddress[] }> {
+  const customer = await findMyCustomer(supabase, userId, storeId);
+  if (!customer) return { customer: null, addresses: [] };
+  const { data, error } = await supabase
     .from("customer_addresses")
     .select("id, label, recipient, phone, country, city, district, line1, line2, postal_code, is_default")
-    .eq("customer_id", customer.id as string)
+    .eq("customer_id", customer.id)
     .eq("store_id", storeId)
     .order("is_default", { ascending: false })
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return { customer, addresses: (data ?? []) as Record<string, unknown>[] };
+  return { customer, addresses: data ?? [] };
 }
 
-export async function saveMyAddress(context: UserContext, input: z.infer<typeof saveAddressSchema>) {
-  const customer = await findMyCustomer(context, input.storeId);
+export async function saveMyAddress(supabase: Client, userId: string, input: z.infer<typeof saveAddressSchema>) {
+  const customer = await findMyCustomer(supabase, userId, input.storeId);
   if (!customer) throw new Error("Önce mağaza hesabınızı oluşturmalısınız.");
-  const customerId = customer.id as string;
 
   if (input.isDefault) {
-    await context.supabase
-      .from("customer_addresses")
-      .update({ is_default: false })
-      .eq("customer_id", customerId);
+    await supabase.from("customer_addresses").update({ is_default: false }).eq("customer_id", customer.id);
   }
 
   const payload = {
-    customer_id: customerId,
+    customer_id: customer.id,
     store_id: input.storeId,
     label: input.label ?? null,
     recipient: input.recipient,
@@ -171,33 +206,29 @@ export async function saveMyAddress(context: UserContext, input: z.infer<typeof 
   };
 
   if (input.id) {
-    const { error } = await context.supabase
+    const { error } = await supabase
       .from("customer_addresses")
       .update(payload)
       .eq("id", input.id)
-      .eq("customer_id", customerId);
+      .eq("customer_id", customer.id);
     if (error) throw new Error(error.message);
     return { id: input.id };
   }
-  const { data, error } = await context.supabase.from("customer_addresses").insert(payload).select("id").single();
+  const { data, error } = await supabase.from("customer_addresses").insert(payload).select("id").single();
   if (error) throw new Error(error.message);
-  return { id: data.id as string };
+  return { id: data.id };
 }
 
-export async function deleteMyAddress(context: UserContext, input: z.infer<typeof deleteAddressSchema>) {
-  const customer = await findMyCustomer(context, input.storeId);
+export async function deleteMyAddress(supabase: Client, userId: string, input: z.infer<typeof deleteAddressSchema>) {
+  const customer = await findMyCustomer(supabase, userId, input.storeId);
   if (!customer) throw new Error("Müşteri kaydı bulunamadı.");
-  const { error } = await context.supabase
-    .from("customer_addresses")
-    .delete()
-    .eq("id", input.id)
-    .eq("customer_id", customer.id as string);
+  const { error } = await supabase.from("customer_addresses").delete().eq("id", input.id).eq("customer_id", customer.id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
-export async function updateMyProfile(context: UserContext, input: z.infer<typeof updateProfileSchema>) {
-  const { error } = await context.supabase
+export async function updateMyProfile(supabase: Client, userId: string, input: z.infer<typeof updateProfileSchema>) {
+  const { error } = await supabase
     .from("customers")
     .update({
       full_name: input.fullName,
@@ -205,7 +236,7 @@ export async function updateMyProfile(context: UserContext, input: z.infer<typeo
       accepts_marketing: input.acceptsMarketing,
     })
     .eq("store_id", input.storeId)
-    .eq("user_id", context.userId);
+    .eq("user_id", userId);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
