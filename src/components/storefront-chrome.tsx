@@ -118,26 +118,41 @@ export function StorefrontChrome({
           {storeName}
         </Link>
         <nav style={{ display: "flex", gap: 18, fontSize: 13, color: muted }}>
-          <Link to="/s/$slug" params={{ slug: storeSlug }} style={{ color: muted, textDecoration: "none" }}>
-            Ürünler
-          </Link>
-          <a href="#koleksiyonlar" style={{ color: muted, textDecoration: "none" }}>
-            Koleksiyonlar
-          </a>
-          <Link
-            to="/s/$slug/order"
-            params={{ slug: storeSlug }}
-            style={{ color: muted, textDecoration: "none" }}
-          >
-            Siparişim
-          </Link>
-          <Link
-            to="/s/$slug/account"
-            params={{ slug: storeSlug }}
-            style={{ color: muted, textDecoration: "none" }}
-          >
-            Hesabım
-          </Link>
+          {headerItems.length ? (
+            headerItems.map((item) => (
+              <a
+                key={item.id}
+                href={menuHref(storeSlug, item)}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                {item.label}
+              </a>
+            ))
+          ) : (
+            <>
+              <Link to="/s/$slug" params={{ slug: storeSlug }} style={{ color: muted, textDecoration: "none" }}>
+                Ürünler
+              </Link>
+              <a href="#koleksiyonlar" style={{ color: muted, textDecoration: "none" }}>
+                Koleksiyonlar
+              </a>
+              <Link
+                to="/s/$slug/order"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                Siparişim
+              </Link>
+              <Link
+                to="/s/$slug/account"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                Hesabım
+              </Link>
+            </>
+          )}
+
           <Link
             to="/s/$slug/cart"
             params={{ slug: storeSlug }}
