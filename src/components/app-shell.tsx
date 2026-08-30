@@ -26,6 +26,7 @@ import {
   Users,
   Wallet,
   Warehouse,
+  Webhook,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -90,6 +91,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Kargo", to: `/store/${storeId}/shipping`, icon: Truck },
         { label: "Temalar", to: `/store/${storeId}/themes`, icon: Palette },
         { label: "AI Asistan", to: `/store/${storeId}/ai`, icon: Sparkles },
+        { label: "Webhook & Bildirim", to: `/store/${storeId}/webhooks`, icon: Webhook },
         { label: "Denetim Kaydı", to: `/store/${storeId}/activity`, icon: History },
       ],
     },
