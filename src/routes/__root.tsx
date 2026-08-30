@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart";
+import { CompareProvider } from "@/lib/compare";
 import { FavoritesProvider } from "@/lib/favorites";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -130,8 +131,10 @@ function RootComponent() {
       <AuthProvider>
         <CartProvider>
           <FavoritesProvider>
+            <CompareProvider>
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
+          </CompareProvider>
           </FavoritesProvider>
         </CartProvider>
         <Toaster richColors position="top-right" />

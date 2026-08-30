@@ -1,7 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
-
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { useCompare } from "@/lib/compare";
 import { formatMoney } from "@/lib/mefti";
@@ -57,10 +55,9 @@ function ComparePage() {
   const { t, fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
 
   const selectedSlugs = compare.slugsFor(store.slug);
-  const rows = useMemo(
-    () => selectedSlugs.map((productSlug) => products.find((product) => product.slug === productSlug)).filter(Boolean),
-    [selectedSlugs, products],
-  ) as (typeof products)[number][];
+  const rows = selectedSlugs
+    .map((productSlug) => products.find((product) => product.slug === productSlug))
+    .filter((product): product is (typeof products)[number] => Boolean(product));
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
