@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, ShieldAlert } from "lucide-react";
+import { Download, Plus, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -24,7 +24,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/lib/auth-context";
 import { formatDateTime, formatMoney, formatNumber, STORE_STATUS_LABELS } from "@/lib/mefti";
 import { adminAuditQuery, adminStoresQuery } from "@/lib/store-queries";
-import { adminOverviewQuery, adminPlansQuery, type PlanRow } from "@/lib/admin-queries";
+import {
+  adminGrowthQuery,
+  adminOverviewQuery,
+  adminPlansQuery,
+  type PlanRow,
+} from "@/lib/admin-queries";
+import { downloadCsv, toCsv } from "@/lib/csv";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { savePlatformPlan, setStoreStatus } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -83,8 +100,11 @@ function AdminPage() {
   const { data: audit } = useQuery(adminAuditQuery(isPlatformAdmin));
   const { data: plans } = useQuery(adminPlansQuery(isPlatformAdmin));
   const { data: overview } = useQuery(adminOverviewQuery(isPlatformAdmin));
+  const { data: growth } = useQuery(adminGrowthQuery(isPlatformAdmin));
 
   const [draft, setDraft] = useState<PlanDraft | null>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | (typeof STATUS_OPTIONS)[number]>("all");
 
   const updateStatus = useServerFn(setStoreStatus);
   const savePlan = useServerFn(savePlatformPlan);
@@ -160,8 +180,33 @@ function AdminPage() {
     );
   }
 
-  const rows = stores ?? [];
-  const active = rows.filter((store) => store.status === "active").length;
+  const allRows = stores ?? [];
+  const active = allRows.filter((store) => store.status === "active").length;
+  const term = search.trim().toLocaleLowerCase("tr-TR");
+  const rows = allRows.filter((store) => {
+    if (statusFilter !== "all" && store.status !== statusFilter) return false;
+    if (!term) return true;
+    return (
+      store.name.toLocaleLowerCase("tr-TR").includes(term) ||
+      store.slug.toLocaleLowerCase("tr-TR").includes(term)
+    );
+  });
+
+  const exportStores = () => {
+    downloadCsv(
+      `mefticaret-magazalar-${new Date().toISOString().slice(0, 10)}.csv`,
+      toCsv(
+        ["Mağaza", "Slug", "Paket", "Durum", "Oluşturma"],
+        rows.map((store) => [
+          store.name,
+          store.slug,
+          store.plans?.name ?? "",
+          STORE_STATUS_LABELS[store.status] ?? store.status,
+          formatDateTime(store.created_at),
+        ]),
+      ),
+    );
+  };
 
   return (
     <AppShell title="Süper Admin" description="Platform genelinde kiracı, paket ve finans görünürlüğü.">
@@ -183,10 +228,41 @@ function AdminPage() {
         <TabsList>
           <TabsTrigger value="stores">Mağazalar</TabsTrigger>
           <TabsTrigger value="plans">Paketler</TabsTrigger>
+          <TabsTrigger value="growth">Büyüme</TabsTrigger>
           <TabsTrigger value="audit">Denetim</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="stores">
+        <TabsContent value="stores" className="space-y-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Mağaza adı veya slug ara"
+              className="h-9 w-full sm:w-72"
+            />
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value as typeof statusFilter)}
+            >
+              <SelectTrigger className="h-9 w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tüm durumlar</SelectItem>
+                {STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {STORE_STATUS_LABELS[status] ?? status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span className="text-xs text-muted-foreground">
+              {formatNumber(rows.length)} kayıt listeleniyor
+            </span>
+            <Button size="sm" variant="outline" className="ml-auto" onClick={exportStores}>
+              <Download className="size-4" /> CSV indir
+            </Button>
+          </div>
           <div className="surface-card overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
@@ -279,6 +355,51 @@ function AdminPage() {
               </button>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="growth" className="grid gap-4 xl:grid-cols-2">
+          <section className="surface-card p-6">
+            <h2 className="font-display text-lg font-semibold">Platform cirosu (30 gün)</h2>
+            <div className="mt-4 h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={growth ?? []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={4} />
+                  <YAxis tick={{ fontSize: 11 }} width={70} />
+                  <Tooltip
+                    formatter={(value: number, name) =>
+                      name === "revenue" ? formatMoney(value) : formatNumber(value)
+                    }
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="var(--color-primary)"
+                    fill="var(--color-primary)"
+                    fillOpacity={0.15}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+          <section className="surface-card p-6">
+            <h2 className="font-display text-lg font-semibold">Yeni mağaza & sipariş adedi</h2>
+            <div className="mt-4 h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={growth ?? []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={4} />
+                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} width={40} />
+                  <Tooltip formatter={(value: number) => formatNumber(value)} />
+                  <Bar dataKey="orders" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="stores" fill="var(--color-accent)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Koyu çubuklar sipariş adedini, vurgu rengi yeni açılan mağazaları gösterir.
+            </p>
+          </section>
         </TabsContent>
 
         <TabsContent value="audit">

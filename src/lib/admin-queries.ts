@@ -60,3 +60,59 @@ export const adminOverviewQuery = (enabled: boolean) =>
       };
     },
   });
+
+export const adminGrowthQuery = (enabled: boolean) =>
+  queryOptions({
+    queryKey: ["admin-growth"],
+    enabled,
+    queryFn: async () => {
+      const since = new Date();
+      since.setDate(since.getDate() - 29);
+      since.setHours(0, 0, 0, 0);
+
+      const [orders, stores] = await Promise.all([
+        supabase
+          .from("orders")
+          .select("grand_total, placed_at")
+          .gte("placed_at", since.toISOString())
+          .limit(5000),
+        supabase
+          .from("stores")
+          .select("created_at")
+          .gte("created_at", since.toISOString())
+          .limit(2000),
+      ]);
+      if (orders.error) throw orders.error;
+      if (stores.error) throw stores.error;
+
+      const days: { date: string; label: string; revenue: number; orders: number; stores: number }[] = [];
+      const index = new Map<string, number>();
+      for (let i = 0; i < 30; i += 1) {
+        const day = new Date(since);
+        day.setDate(since.getDate() + i);
+        const key = day.toISOString().slice(0, 10);
+        index.set(key, days.length);
+        days.push({
+          date: key,
+          label: day.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" }),
+          revenue: 0,
+          orders: 0,
+          stores: 0,
+        });
+      }
+
+      for (const row of orders.data ?? []) {
+        const slot = index.get(String(row.placed_at).slice(0, 10));
+        if (slot === undefined) continue;
+        days[slot]!.revenue += Number(row.grand_total ?? 0);
+        days[slot]!.orders += 1;
+      }
+      for (const row of stores.data ?? []) {
+        const slot = index.get(String(row.created_at).slice(0, 10));
+        if (slot === undefined) continue;
+        days[slot]!.stores += 1;
+      }
+
+      return days;
+    },
+  });
