@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { toast } from "sonner";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontReviews } from "@/components/storefront-reviews";
 import { useCart } from "@/lib/cart";
 import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
+import { recordRecentProduct } from "@/lib/recently-viewed";
 import { storefrontProductQuery } from "@/lib/storefront-queries";
 
 export const Route = createFileRoute("/s/$slug/p/$productSlug")({
@@ -98,6 +100,18 @@ function ProductPage() {
   const cart = useCart();
   const favorites = useFavorites();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!data) return;
+    recordRecentProduct({
+      storeSlug: data.store.slug,
+      productSlug: data.product.slug,
+      title: data.product.title,
+      price: Number(data.product.base_price),
+      currency: data.product.currency,
+      image: data.images[0]?.url ?? null,
+    });
+  }, [data]);
 
   if (!data) return <Fallback text="Bu ürün bulunamadı." />;
   const { store, theme, product, variants, images, reviews, ratingAverage, related } = data;
@@ -272,6 +286,12 @@ function ProductPage() {
           radius,
           headingFont: fonts.heading,
         }}
+      />
+
+      <RecentlyViewed
+        storeSlug={store.slug}
+        excludeSlug={product.slug}
+        tokens={{ muted, border, cardBg, radius, headingFont: fonts.heading }}
       />
 
       {related.length ? (
