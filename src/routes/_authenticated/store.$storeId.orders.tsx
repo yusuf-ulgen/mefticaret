@@ -177,7 +177,39 @@ function OrdersPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
+        <Button size="sm" variant="outline" className="gap-2" onClick={exportCsv}>
+          <Download className="size-4" /> CSV
+        </Button>
       </div>
+
+      {selectedVisible.length > 0 ? (
+        <div className="surface-card mb-4 flex flex-wrap items-center gap-3 p-4">
+          <p className="text-sm font-medium">{selectedVisible.length} sipariş seçildi</p>
+          <Select value={bulkStatus} onValueChange={(value) => setBulkStatus(value as OrderStatus)}>
+            <SelectTrigger className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            size="sm"
+            disabled={bulkMutation.isPending}
+            onClick={() => bulkMutation.mutate()}
+          >
+            {bulkMutation.isPending ? "Uygulanıyor…" : "Durumu uygula"}
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setSelected([])}>
+            Seçimi temizle
+          </Button>
+        </div>
+      ) : null}
+
 
       {isLoading ? (
         <p className="text-muted-foreground">Yükleniyor…</p>
