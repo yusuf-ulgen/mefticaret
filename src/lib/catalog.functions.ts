@@ -135,8 +135,9 @@ export const updateProduct = createServerFn({ method: "POST" })
               })
               .strict()
               .optional(),
-
+          })
           .strict(),
+
       })
       .parse(data),
   )
