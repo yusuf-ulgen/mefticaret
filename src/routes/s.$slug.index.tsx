@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
@@ -48,6 +49,20 @@ function StorefrontFallback({ text }: { text: string }) {
 function StorefrontHome() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!data) return [];
+    const q = query.trim().toLocaleLowerCase("tr");
+    if (!q) return data.products;
+    return data.products.filter((p) =>
+      [p.title, p.description ?? "", p.product_type ?? "", ...(p.tags ?? [])]
+        .join(" ")
+        .toLocaleLowerCase("tr")
+        .includes(q),
+    );
+  }, [data, query]);
+
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
   const { store, theme, products, collections } = data;
