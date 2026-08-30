@@ -212,3 +212,22 @@
     linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
   background-size: 48px 48px;
 }
+
+/* Sipariş fişi: yazdırırken yalnızca fiş alanı sayfaya düşer. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #order-print-area,
+  #order-print-area * {
+    visibility: visible;
+  }
+  #order-print-area {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    padding: 0;
+    background: #fff;
+    color: #000;
+  }
+}

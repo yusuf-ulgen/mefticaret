@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { ShipmentsPanel } from "@/components/shipments-panel";
+import { OrderPrintDialog } from "@/components/order-print";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -178,13 +179,17 @@ function OrderDetailPage() {
       title={order.order_number}
       description={`${formatDateTime(order.placed_at)} · ${order.customer_name ?? "Misafir"}`}
       actions={
-        <Button asChild variant="outline" size="sm">
-          <Link to="/store/$storeId/orders" params={{ storeId }}>
-            <ArrowLeft className="mr-2 size-4" /> Siparişler
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <OrderPrintDialog storeId={storeId} order={order} items={items} />
+          <Button asChild variant="outline" size="sm">
+            <Link to="/store/$storeId/orders" params={{ storeId }}>
+              <ArrowLeft className="mr-2 size-4" /> Siparişler
+            </Link>
+          </Button>
+        </div>
       }
     >
+
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="surface-card overflow-x-auto">
