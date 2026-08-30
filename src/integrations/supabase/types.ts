@@ -1506,6 +1506,105 @@ export type Database = {
           },
         ]
       }
+      shipment_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_item_id: string
+          quantity: number
+          shipment_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_item_id: string
+          quantity: number
+          shipment_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_item_id?: string
+          quantity?: number
+          shipment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_items_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipment_items_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipments: {
+        Row: {
+          carrier: string
+          created_at: string
+          delivered_at: string | null
+          id: string
+          note: string | null
+          order_id: string
+          shipped_at: string | null
+          status: Database["public"]["Enums"]["shipment_status"]
+          store_id: string
+          tracking_number: string | null
+          tracking_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          carrier: string
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          note?: string | null
+          order_id: string
+          shipped_at?: string | null
+          status?: Database["public"]["Enums"]["shipment_status"]
+          store_id: string
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          carrier?: string
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string
+          shipped_at?: string | null
+          status?: Database["public"]["Enums"]["shipment_status"]
+          store_id?: string
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shipping_rates: {
         Row: {
           connector_id: string | null
@@ -2321,6 +2420,12 @@ export type Database = {
         | "refunded"
         | "cancelled"
       review_status: "pending" | "published" | "rejected"
+      shipment_status:
+        | "pending"
+        | "in_transit"
+        | "delivered"
+        | "returned"
+        | "cancelled"
       store_role: "owner" | "admin" | "staff" | "marketing" | "support"
       store_status: "draft" | "active" | "suspended" | "archived"
       webhook_delivery_status: "pending" | "success" | "failed"
@@ -2525,6 +2630,13 @@ export const Constants = {
         "cancelled",
       ],
       review_status: ["pending", "published", "rejected"],
+      shipment_status: [
+        "pending",
+        "in_transit",
+        "delivered",
+        "returned",
+        "cancelled",
+      ],
       store_role: ["owner", "admin", "staff", "marketing", "support"],
       store_status: ["draft", "active", "suspended", "archived"],
       webhook_delivery_status: ["pending", "success", "failed"],
