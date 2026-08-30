@@ -122,7 +122,35 @@ function DashboardPage() {
             <p className="mt-2 font-display text-2xl font-semibold">
               {isLoading ? <Skeleton className="h-7 w-24" /> : card.value}
             </p>
-          </div>
+      </div>
+
+      <section className="surface-card p-6">
+        <h2 className="font-display text-lg font-semibold">Dikkat gerektirenler</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          {todo.map((item) => (
+            <Link
+              key={item.key}
+              to={item.to}
+              params={{ storeId }}
+              className="flex items-center justify-between gap-3 rounded-lg border border-border p-4 transition hover:border-brand hover:bg-muted/40"
+            >
+              <span className="flex items-center gap-2 text-sm">
+                <item.icon
+                  className={
+                    item.count > 0 ? "size-4 text-brand-foreground" : "size-4 text-muted-foreground"
+                  }
+                />
+                {item.label}
+              </span>
+              <Badge variant={item.count > 0 ? "default" : "secondary"}>
+                {formatNumber(item.count)}
+              </Badge>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+
         ))}
       </div>
 
