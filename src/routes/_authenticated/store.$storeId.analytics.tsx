@@ -303,6 +303,56 @@ function AnalyticsPage() {
           </div>
         </section>
       </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="surface-card p-6">
+          <h2 className="font-display text-lg font-semibold">Saatlik sipariş yoğunluğu</h2>
+          <p className="text-sm text-muted-foreground">
+            Kampanya ve reklam saatlerini planlamak için günün sipariş dağılımı.
+          </p>
+          <div className="mt-6 flex h-40 items-end gap-1">
+            {hourly.map((bucket) => (
+              <div key={bucket.hour} className="flex flex-1 flex-col items-center gap-1" title={`${bucket.hour}:00 — ${bucket.orders} sipariş`}>
+                <div
+                  className="w-full rounded-t bg-primary/70"
+                  style={{ height: `${(bucket.orders / peakOrders) * 100}%`, minHeight: bucket.orders > 0 ? 4 : 1 }}
+                />
+                {bucket.hour % 3 === 0 ? (
+                  <span className="text-[10px] text-muted-foreground">{bucket.hour}</span>
+                ) : (
+                  <span className="text-[10px] text-transparent">·</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="surface-card p-6">
+          <h2 className="font-display text-lg font-semibold">Kupon performansı</h2>
+          <p className="text-sm text-muted-foreground">
+            Yeni müşteri: {formatNumber(retention.newBuyers)} · Tekrar eden: {formatNumber(retention.returning)}
+          </p>
+          {coupons.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">Bu dönemde kupon kullanılmadı.</p>
+          ) : (
+            <ul className="mt-4 space-y-3 text-sm">
+              {coupons.map((coupon) => (
+                <li key={coupon.code} className="flex items-center justify-between gap-3">
+                  <Badge variant="secondary" className="font-mono uppercase">
+                    {coupon.code}
+                  </Badge>
+                  <span className="flex items-center gap-3 whitespace-nowrap text-muted-foreground">
+                    {formatNumber(coupon.orders)} sipariş
+                    <span className="text-foreground">{formatMoney(coupon.revenue, currency)}</span>
+                    <span>-{formatMoney(coupon.discount, currency)}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+
     </AppShell>
   );
 }
