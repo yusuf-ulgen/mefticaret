@@ -273,6 +273,62 @@ function ProductPage() {
           headingFont: fonts.heading,
         }}
       />
+
+      {related.length ? (
+        <section style={{ padding: "40px 0 8px" }}>
+          <h2 style={{ fontFamily: fonts.heading, fontSize: 22, marginBottom: 16 }}>
+            Benzer ürünler
+          </h2>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+              gap: 16,
+            }}
+          >
+            {related.map((item) => (
+              <Link
+                key={item.id}
+                to="/s/$slug/p/$productSlug"
+                params={{ slug: store.slug, productSlug: item.slug }}
+                style={{
+                  display: "block",
+                  border: `1px solid ${border}`,
+                  borderRadius: radius,
+                  background: cardBg,
+                  overflow: "hidden",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                {item.coverUrl ? (
+                  <img
+                    src={item.coverUrl}
+                    alt={item.title}
+                    loading="lazy"
+                    style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      aspectRatio: "1 / 1",
+                      background: dark ? "#1b1b1b" : "#f3f3f3",
+                    }}
+                  />
+                )}
+                <div style={{ padding: 12 }}>
+                  <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>{item.title}</p>
+                  <p style={{ fontSize: 13, color: muted, margin: "6px 0 0" }}>
+                    {formatMoney(item.base_price, item.currency)}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </StorefrontChrome>
+
   );
 }
