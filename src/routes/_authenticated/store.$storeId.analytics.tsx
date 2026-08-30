@@ -100,6 +100,61 @@ function AnalyticsPage() {
     return [...map.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 8);
   }, [items]);
 
+  /** Aynı e-posta/müşteri ile birden fazla sipariş verenler "geri dönen" sayılır. */
+  const retention = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const row of rows) {
+      const key = (row.customer_email ?? row.customer_id ?? "").toLowerCase();
+      if (!key) continue;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    const identified = [...counts.values()];
+    const returning = identified.filter((count) => count > 1).length;
+    const newBuyers = identified.filter((count) => count === 1).length;
+    return {
+      returning,
+      newBuyers,
+      ratio: identified.length > 0 ? (returning / identified.length) * 100 : 0,
+    };
+  }, [rows]);
+
+  /** Günün hangi saatlerinde sipariş geldiğini gösterir. */
+  const hourly = useMemo(() => {
+    const buckets = Array.from({ length: 24 }, (_, hour) => ({ hour, orders: 0, revenue: 0 }));
+    for (const row of rows) {
+      const stamp = new Date(row.placed_at ?? row.created_at);
+      const bucket = buckets[stamp.getHours()];
+      if (!bucket) continue;
+      bucket.orders += 1;
+      bucket.revenue += Number(row.grand_total ?? 0);
+    }
+    return buckets;
+  }, [rows]);
+
+  const peakOrders = useMemo(() => Math.max(1, ...hourly.map((bucket) => bucket.orders)), [hourly]);
+
+  const coupons = useMemo(() => {
+    const map = new Map<string, { code: string; orders: number; discount: number; revenue: number }>();
+    for (const row of rows) {
+      const code = row.discount_code?.trim();
+      if (!code) continue;
+      const entry = map.get(code) ?? { code, orders: 0, discount: 0, revenue: 0 };
+      entry.orders += 1;
+      entry.discount += Number(row.discount_total ?? 0);
+      entry.revenue += Number(row.grand_total ?? 0);
+      map.set(code, entry);
+    }
+    return [...map.values()].sort((a, b) => b.orders - a.orders).slice(0, 6);
+  }, [rows]);
+
+  function exportReport() {
+    const content = toCsv(
+      ["tarih", "ciro", "siparis"],
+      series.map((point) => [point.date, point.revenue.toFixed(2), point.orders]),
+    );
+    downloadCsv(`rapor-${days}gun-${new Date().toISOString().slice(0, 10)}.csv`, content);
+  }
+
   const cards = [
     { label: `Ciro (${days} gün)`, value: formatMoney(summary.revenue, currency), icon: TrendingUp },
     { label: "Sipariş", value: formatNumber(summary.orders), icon: ShoppingBag },
@@ -107,7 +162,9 @@ function AnalyticsPage() {
     { label: "Ödeme tamamlanma", value: formatPercent(summary.paidRatio), icon: Activity },
     { label: "Alıcı sayısı", value: formatNumber(summary.buyers), icon: Users },
     { label: "İndirim tutarı", value: formatMoney(summary.discount, currency), icon: Percent },
+    { label: "Tekrar eden müşteri", value: formatPercent(retention.ratio), icon: Repeat },
   ];
+
 
   return (
     <AppShell
