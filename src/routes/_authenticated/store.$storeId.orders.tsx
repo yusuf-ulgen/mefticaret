@@ -224,6 +224,15 @@ function OrdersPage() {
           <table className="w-full text-sm">
             <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
+                <th className="w-10 px-4 py-3">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={(checked) =>
+                      setSelected(checked === true ? visibleIds : [])
+                    }
+                    aria-label="Tümünü seç"
+                  />
+                </th>
                 <th className="px-4 py-3">Sipariş</th>
                 <th className="px-4 py-3">Müşteri</th>
                 <th className="px-4 py-3">Durum</th>
