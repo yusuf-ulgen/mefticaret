@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { CommandPalette } from "@/components/command-palette";
 import { NotificationBell } from "@/components/notification-bell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -315,6 +316,7 @@ export function AppShell({
             </Link>
           )}
           <div className="ml-auto flex items-center gap-2">
+            {storeId ? <CommandPalette storeId={storeId} /> : null}
             {storeId ? <NotificationBell storeId={storeId} /> : null}
             <UserMenu />
           </div>
