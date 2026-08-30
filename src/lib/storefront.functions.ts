@@ -4,6 +4,11 @@ import { z } from "zod";
 
 import type { Database } from "@/integrations/supabase/types";
 
+type StorefrontProductCard = Pick<
+  Database["public"]["Tables"]["products"]["Row"],
+  "id" | "title" | "slug" | "description" | "base_price" | "compare_at_price" | "currency" | "product_type" | "tags"
+>;
+
 /**
  * Halka açık vitrin okumaları. Yayınlanmış mağazalar için anon SELECT
  * politikaları üzerinden okunur; servis anahtarı KULLANILMAZ.
@@ -112,4 +117,50 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
       variants: variantsRes.data ?? [],
       images: imagesRes.data ?? [],
     };
+  });
+
+export const getStorefrontCollection = createServerFn({ method: "GET" })
+  .inputValidator((data) =>
+    z.object({ slug: z.string().trim().min(1), collectionSlug: z.string().trim().min(1) }).parse(data),
+  )
+  .handler(async ({ data }) => {
+    const supabase = publicClient();
+    const { data: store, error } = await supabase
+      .from("stores")
+      .select("id, name, slug, currency")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!store) return null;
+
+    const { data: collection, error: collectionError } = await supabase
+      .from("collections")
+      .select("id, title, slug, description")
+      .eq("store_id", store.id)
+      .eq("slug", data.collectionSlug)
+      .maybeSingle();
+    if (collectionError) throw new Error(collectionError.message);
+    if (!collection) return null;
+
+    const [themeRes, linksRes] = await Promise.all([
+      supabase.from("store_themes").select("*").eq("store_id", store.id).maybeSingle(),
+      supabase.from("product_collections").select("product_id").eq("collection_id", collection.id),
+    ]);
+    if (themeRes.error) throw new Error(themeRes.error.message);
+    if (linksRes.error) throw new Error(linksRes.error.message);
+
+    const ids = (linksRes.data ?? []).map((l) => l.product_id);
+    let products: StorefrontProductCard[] = [];
+    if (ids.length) {
+      const { data: rows, error: productsError } = await supabase
+        .from("products")
+        .select("id, title, slug, description, base_price, compare_at_price, currency, product_type, tags")
+        .in("id", ids)
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+      if (productsError) throw new Error(productsError.message);
+      products = rows ?? [];
+    }
+
+    return { store, theme: themeRes.data, collection, products };
   });

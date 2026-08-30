@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
@@ -48,6 +49,20 @@ function StorefrontFallback({ text }: { text: string }) {
 function StorefrontHome() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!data) return [];
+    const q = query.trim().toLocaleLowerCase("tr");
+    if (!q) return data.products;
+    return data.products.filter((p) =>
+      [p.title, p.description ?? "", p.product_type ?? "", ...(p.tags ?? [])]
+        .join(" ")
+        .toLocaleLowerCase("tr")
+        .includes(q),
+    );
+  }, [data, query]);
+
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
   const { store, theme, products, collections } = data;
@@ -104,30 +119,63 @@ function StorefrontHome() {
           <h2 style={{ fontFamily: fonts.heading, fontSize: 20, margin: "0 0 12px" }}>Koleksiyonlar</h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             {collections.map((collection) => (
-              <span
+              <Link
                 key={collection.id}
+                to="/s/$slug/c/$collectionSlug"
+                params={{ slug: store.slug, collectionSlug: collection.slug }}
                 style={{
                   border: `1px solid ${border}`,
                   borderRadius: 999,
                   padding: "6px 14px",
                   fontSize: 13,
                   color: muted,
+                  textDecoration: "none",
                 }}
               >
                 {collection.title}
-              </span>
+              </Link>
             ))}
           </div>
         </section>
       ) : null}
 
       <section id="urunler">
-        <h2 style={{ fontFamily: fonts.heading, fontSize: 24, margin: "0 0 18px" }}>Ürünler</h2>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            marginBottom: 18,
+          }}
+        >
+          <h2 style={{ fontFamily: fonts.heading, fontSize: 24, margin: 0 }}>Ürünler</h2>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Ürün ara…"
+            aria-label="Ürünlerde ara"
+            style={{
+              background: cardBg,
+              color: "inherit",
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+              padding: "9px 14px",
+              fontSize: 14,
+              fontFamily: "inherit",
+              minWidth: 220,
+            }}
+          />
+        </div>
         {products.length === 0 ? (
           <p style={{ color: muted }}>Bu mağazada henüz yayınlanmış ürün yok.</p>
+        ) : filtered.length === 0 ? (
+          <p style={{ color: muted }}>“{query}” aramasıyla eşleşen ürün bulunamadı.</p>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: columns, gap: 18 }}>
-            {products.map((product) => (
+            {filtered.map((product) => (
               <Link
                 key={product.id}
                 to="/s/$slug/p/$productSlug"
