@@ -20,6 +20,7 @@ import {
 import { downloadCsv, toCsv } from "@/lib/csv";
 import { ordersQuery, type OrderStatus } from "@/lib/sales-queries";
 import { updateOrder } from "@/lib/sales.functions";
+import { createShipment } from "@/lib/shipments.functions";
 import {
   formatDateTime,
   formatMoney,
