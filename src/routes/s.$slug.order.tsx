@@ -6,6 +6,7 @@ import { z } from "zod";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { getOrderStatus } from "@/lib/checkout.functions";
 import { formatDateTime, formatMoney, ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/mefti";
+import { SHIPMENT_STATUS_LABELS, type ShipmentStatus } from "@/lib/shipments-queries";
 import { storefrontQuery } from "@/lib/storefront-queries";
 
 type OrderStatus = Awaited<ReturnType<typeof getOrderStatus>>;
