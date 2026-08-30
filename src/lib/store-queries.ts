@@ -231,7 +231,7 @@ export const storeActionItemsQuery = (storeId: string) =>
             .from("return_requests")
             .select("id", { count: "exact", head: true })
             .eq("store_id", storeId)
-            .eq("status", "pending"),
+            .eq("status", "requested"),
           supabase
             .from("product_reviews")
             .select("id", { count: "exact", head: true })
