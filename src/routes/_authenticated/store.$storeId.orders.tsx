@@ -142,6 +142,13 @@ function OrdersPage() {
       storeId={storeId}
       title="Siparişler"
       description="Sipariş akışını, ödeme ve kargo durumlarını buradan yönet."
+      actions={
+        <Button asChild>
+          <Link to="/store/$storeId/orders/new" params={{ storeId }}>
+            Manuel sipariş
+          </Link>
+        </Button>
+      }
     >
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <div className="surface-card p-5">
