@@ -6,6 +6,7 @@ import { z } from "zod";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { getOrderStatus } from "@/lib/checkout.functions";
 import { formatDateTime, formatMoney, ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/mefti";
+import { SHIPMENT_STATUS_LABELS, type ShipmentStatus } from "@/lib/shipments-queries";
 import { storefrontQuery } from "@/lib/storefront-queries";
 
 type OrderStatus = Awaited<ReturnType<typeof getOrderStatus>>;
@@ -135,6 +136,45 @@ function OrderPage() {
               </p>
             </section>
           ) : null}
+
+          {result && result.shipments.length > 0 ? (
+            <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
+              <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>Kargo takibi</h2>
+              <div style={{ display: "grid", gap: 12 }}>
+                {result.shipments.map((shipment) => (
+                  <div
+                    key={shipment.id}
+                    style={{ border: `1px solid ${border}`, borderRadius: radius, padding: 14 }}
+                  >
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", justifyContent: "space-between" }}>
+                      <strong style={{ fontSize: 14 }}>{shipment.carrier}</strong>
+                      <Badge
+                        text={SHIPMENT_STATUS_LABELS[shipment.status as ShipmentStatus] ?? shipment.status}
+                        accent={t.accent_color}
+                        radius={radius}
+                      />
+                    </div>
+                    <p style={{ fontSize: 13, color: muted, margin: "8px 0 0" }}>
+                      Takip no: {shipment.tracking_number ?? "—"}
+                      {shipment.shipped_at ? ` · Çıkış: ${formatDateTime(shipment.shipped_at)}` : ""}
+                      {shipment.delivered_at ? ` · Teslim: ${formatDateTime(shipment.delivered_at)}` : ""}
+                    </p>
+                    {shipment.tracking_url ? (
+                      <a
+                        href={shipment.tracking_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ display: "inline-block", marginTop: 10, fontSize: 13, color: t.primary_color }}
+                      >
+                        Kargo firmasında takip et →
+                      </a>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
 
           <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
             <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>Sipariş sorgula</h2>

@@ -378,5 +378,16 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
     .select("id, title, variant_title, unit_price, quantity, line_total")
     .eq("order_id", order.id);
 
-  return { store: { name: store.name, slug: store.slug }, order, items: items ?? [] };
+  const { data: shipments } = await supabase
+    .from("shipments")
+    .select("id, carrier, tracking_number, tracking_url, status, shipped_at, delivered_at, created_at")
+    .eq("order_id", order.id)
+    .order("created_at", { ascending: false });
+
+  return {
+    store: { name: store.name, slug: store.slug },
+    order,
+    items: items ?? [],
+    shipments: shipments ?? [],
+  };
 }
