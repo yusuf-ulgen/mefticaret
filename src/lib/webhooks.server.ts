@@ -20,6 +20,11 @@ export const saveWebhookSchema = z.object({
 
 export const idSchema = z.object({ id: z.string().uuid() });
 
+export const retryDeliverySchema = z.object({
+  storeId: z.string().uuid(),
+  deliveryId: z.string().uuid(),
+});
+
 export const markReadSchema = z.object({
   storeId: z.string().uuid(),
   id: z.string().uuid().optional(),
@@ -89,6 +94,7 @@ export async function dispatchWebhook(
   webhookId: string,
   event: string,
   payload: Record<string, unknown>,
+  attempt = 1,
 ) {
   const { data: hook, error } = await supabase
     .from("store_webhooks")
@@ -132,6 +138,7 @@ export async function dispatchWebhook(
     status,
     response_status: responseStatus,
     response_body: responseBody,
+    attempt,
   });
 
   await supabase
@@ -143,6 +150,29 @@ export async function dispatchWebhook(
     .eq("id", hook.id);
 
   return { ok: status === "success", status: responseStatus, body: responseBody };
+}
+
+/** Başarısız bir gönderimi aynı olay ve payload ile yeniden dener. */
+export async function retryDelivery(
+  supabase: Client,
+  input: z.infer<typeof retryDeliverySchema>,
+) {
+  const { data: delivery, error } = await supabase
+    .from("webhook_deliveries")
+    .select("id, webhook_id, event, payload, attempt, store_id")
+    .eq("id", input.deliveryId)
+    .eq("store_id", input.storeId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!delivery) throw new Error("Gönderim kaydı bulunamadı");
+
+  return dispatchWebhook(
+    supabase,
+    delivery.webhook_id,
+    delivery.event,
+    (delivery.payload ?? {}) as Record<string, unknown>,
+    (delivery.attempt ?? 1) + 1,
+  );
 }
 
 export async function listNotifications(supabase: Client, storeId: string) {

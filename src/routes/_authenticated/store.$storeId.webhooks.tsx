@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Bell, CheckCheck, Radio, Send, Trash2, Webhook } from "lucide-react";
+import { Bell, CheckCheck, Eye, Radio, RefreshCw, Send, Trash2, Webhook } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -29,9 +29,17 @@ import {
 import {
   deleteStoreWebhook,
   markStoreNotificationsRead,
+  retryStoreWebhookDelivery,
   saveStoreWebhook,
   testStoreWebhook,
 } from "@/lib/webhooks.functions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/webhooks")({
   head: () => ({
@@ -71,6 +79,8 @@ function WebhooksPage() {
   const deleteFn = useServerFn(deleteStoreWebhook);
   const testFn = useServerFn(testStoreWebhook);
   const readFn = useServerFn(markStoreNotificationsRead);
+  const retryFn = useServerFn(retryStoreWebhookDelivery);
+  const [inspected, setInspected] = useState<string | null>(null);
 
   function invalidate(key: string) {
     void queryClient.invalidateQueries({ queryKey: ["store", storeId, key] });
@@ -107,6 +117,17 @@ function WebhooksPage() {
       invalidate("webhooks");
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "Test edilemedi"),
+  });
+
+  const retry = useMutation({
+    mutationFn: (deliveryId: string) => retryFn({ data: { storeId, deliveryId } }),
+    onSuccess: (result) => {
+      if (result?.ok) toast.success("Gönderim yeniden denendi ve başarılı oldu");
+      else toast.warning("Yeniden deneme başarısız oldu, yanıtı inceleyin");
+      invalidate("webhook-deliveries");
+      invalidate("webhooks");
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Denenemedi"),
   });
 
   const markRead = useMutation({
@@ -273,13 +294,15 @@ function WebhooksPage() {
                   <TableHead>Webhook</TableHead>
                   <TableHead>Olay</TableHead>
                   <TableHead>Durum</TableHead>
+                  <TableHead>Deneme</TableHead>
                   <TableHead>Yanıt</TableHead>
+                  <TableHead />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {(deliveries ?? []).length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-8 text-center text-sm text-muted-foreground">
+                    <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
                       Henüz gönderim kaydı yok.
                     </TableCell>
                   </TableRow>
@@ -296,8 +319,32 @@ function WebhooksPage() {
                           {row.status === "success" ? "Başarılı" : "Başarısız"}
                         </Badge>
                       </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {row.attempt ?? 1}
+                      </TableCell>
                       <TableCell className="max-w-[18rem] truncate text-sm text-muted-foreground">
                         {row.response_status ?? "—"} {row.response_body ?? ""}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-right">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Gönderim detayı"
+                          onClick={() => setInspected(row.id)}
+                        >
+                          <Eye className="size-4" />
+                        </Button>
+                        {row.status === "failed" ? (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label="Yeniden dene"
+                            disabled={retry.isPending}
+                            onClick={() => retry.mutate(row.id)}
+                          >
+                            <RefreshCw className="size-4" />
+                          </Button>
+                        ) : null}
                       </TableCell>
                     </TableRow>
                   ))
@@ -362,6 +409,42 @@ function WebhooksPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <Dialog open={Boolean(inspected)} onOpenChange={(open) => !open && setInspected(null)}>
+        <DialogContent className="max-w-2xl">
+          {(() => {
+            const row = (deliveries ?? []).find((item) => item.id === inspected);
+            if (!row) return null;
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{row.event}</DialogTitle>
+                  <DialogDescription>
+                    {row.store_webhooks?.target_url ?? "—"} · {formatDateTime(row.created_at)} ·{" "}
+                    {row.attempt ?? 1}. deneme
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">Gönderilen veri</p>
+                    <pre className="mt-1 max-h-60 overflow-auto rounded-lg bg-muted p-3 text-xs">
+                      {JSON.stringify(row.payload, null, 2)}
+                    </pre>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Yanıt ({row.response_status ?? "—"})
+                    </p>
+                    <pre className="mt-1 max-h-40 overflow-auto rounded-lg bg-muted p-3 text-xs">
+                      {row.response_body ?? "—"}
+                    </pre>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
