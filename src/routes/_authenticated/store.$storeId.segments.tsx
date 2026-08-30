@@ -117,6 +117,53 @@ function SegmentsPage() {
     downloadCsv(`segmentler-${new Date().toISOString().slice(0, 10)}.csv`, content);
   }
 
+  const campaignCode = useMemo(() => {
+    const base = active === "all" ? "SEGMENT" : SEGMENT_CODE[active];
+    return `${base}${Math.round(Number(percent) || 0)}`;
+  }, [active, percent]);
+
+  const campaign = useMutation({
+    mutationFn: async () => {
+      const value = Number(percent);
+      if (!Number.isFinite(value) || value <= 0 || value > 100) {
+        throw new Error("Yüzde 1 ile 100 arasında olmalı");
+      }
+      const days = Math.max(1, Math.round(Number(validDays) || 14));
+      const endsAt = new Date(Date.now() + days * 86_400_000).toISOString();
+      await saveDiscount({
+        data: {
+          storeId,
+          code: campaignCode,
+          title: `${active === "all" ? "Tüm segmentler" : SEGMENT_META[active].label} geri kazanım kampanyası`,
+          type: "percentage",
+          value,
+          minSubtotal: 0,
+          usageLimit: null,
+          endsAt,
+          isActive: true,
+        },
+      });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["discounts", storeId] });
+      setCampaignOpen(false);
+      toast.success(`${campaignCode} kuponu oluşturuldu`);
+    },
+    onError: (error: unknown) => {
+      toast.error(error instanceof Error ? error.message : "Kupon oluşturulamadı");
+    },
+  });
+
+  async function copyEmails() {
+    const emails = [...new Set(filtered.map((row) => row.email).filter(Boolean))];
+    if (emails.length === 0) {
+      toast.error("Kopyalanacak e-posta bulunamadı");
+      return;
+    }
+    await navigator.clipboard.writeText(emails.join(", "));
+    toast.success(`${emails.length} e-posta kopyalandı`);
+  }
+
   return (
     <AppShell storeId={storeId} title="Müşteri Segmentleri">
       <div className="space-y-6">
