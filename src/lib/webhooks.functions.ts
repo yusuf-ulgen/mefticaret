@@ -9,6 +9,8 @@ import {
   listWebhooks,
   markNotificationsRead,
   markReadSchema,
+  retryDelivery,
+  retryDeliverySchema,
   saveWebhook,
   saveWebhookSchema,
   storeIdSchema,
@@ -50,3 +52,8 @@ export const markStoreNotificationsRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => markReadSchema.parse(data))
   .handler(async ({ data, context }) => markNotificationsRead(context.supabase, data));
+
+export const retryStoreWebhookDelivery = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => retryDeliverySchema.parse(data))
+  .handler(async ({ data, context }) => retryDelivery(context.supabase, data));
