@@ -75,6 +75,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
             cartToken: getCartToken(slug),
             currency: storeLines[0]?.currency ?? "TRY",
             items: storeLines.map((l) => ({
+              variantId: l.variantId,
+              productSlug: l.productSlug,
               title: l.title,
               variantTitle: l.variantTitle,
               quantity: l.quantity,

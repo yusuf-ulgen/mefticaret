@@ -4,6 +4,8 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const cartItemSchema = z.object({
+  variantId: z.string().uuid().optional(),
+  productSlug: z.string().max(160).optional(),
   title: z.string().max(200),
   variantTitle: z.string().max(200).optional(),
   quantity: z.number().int().min(1).max(999),
@@ -126,4 +128,56 @@ export const deleteAbandonedCart = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("abandoned_carts").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
+  });
+
+/**
+ * Kurtarma linki için sepet anlık görüntüsünü token ile okur.
+ * Token tarayıcıya özel rastgele 40+ karakterdir; yalnızca sepet satırları döner.
+ */
+export const getAbandonedCartByToken = createServerFn({ method: "GET" })
+  .inputValidator((data) =>
+    z
+      .object({
+        slug: z.string().trim().min(1).max(120),
+        cartToken: z.string().trim().min(16).max(128),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
+
+    const { data: store } = await supabase.from("stores").select("id").eq("slug", data.slug).maybeSingle();
+    if (!store) return null;
+
+    const { data: cart, error } = await supabase
+      .from("abandoned_carts")
+      .select("items, currency, recovered_order_id")
+      .eq("store_id", store.id)
+      .eq("cart_token", data.cartToken)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!cart || cart.recovered_order_id) return null;
+
+    const items = (Array.isArray(cart.items) ? cart.items : []) as {
+      variantId?: string;
+      productSlug?: string;
+      title?: string;
+      variantTitle?: string;
+      quantity?: number;
+      price?: number;
+    }[];
+
+    return {
+      currency: cart.currency,
+      items: items
+        .filter((item) => typeof item.variantId === "string" && typeof item.productSlug === "string")
+        .map((item) => ({
+          variantId: item.variantId as string,
+          productSlug: item.productSlug as string,
+          title: item.title ?? "Ürün",
+          variantTitle: item.variantTitle ?? "",
+          quantity: Math.max(1, Number(item.quantity ?? 1)),
+          price: Number(item.price ?? 0),
+        })),
+    };
   });
