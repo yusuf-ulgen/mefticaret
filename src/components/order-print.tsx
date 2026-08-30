@@ -24,7 +24,7 @@ type Item = {
   line_total: number;
 };
 
-type AddressShape = Record<string, unknown> | null;
+type AddressShape = unknown;
 
 export type PrintableOrder = {
   order_number: string;
@@ -42,8 +42,9 @@ export type PrintableOrder = {
   note: string | null;
 };
 
-function addressLines(address: AddressShape) {
-  if (!address) return [] as string[];
+function addressLines(input: AddressShape) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return [] as string[];
+  const address = input as Record<string, unknown>;
   const get = (key: string) => {
     const value = address[key];
     return typeof value === "string" && value.trim() ? value.trim() : "";
