@@ -1,0 +1,223 @@
+import { useMemo, useState } from "react";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
+
+import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { formatMoney } from "@/lib/mefti";
+import { storefrontQuery } from "@/lib/storefront-queries";
+
+export const Route = createFileRoute("/s/$slug/products")({
+  loader: async ({ context, params }) => {
+    const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
+    if (!data) throw notFound();
+    return { storeName: data.store.name };
+  },
+  head: ({ loaderData, params }) => {
+    if (!loaderData) {
+      return { meta: [{ title: "Mağaza bulunamadı" }, { name: "robots", content: "noindex" }] };
+    }
+    const title = `Tüm ürünler — ${loaderData.storeName}`;
+    const description = `${loaderData.storeName} mağazasındaki tüm ürünleri filtreleyerek keşfet, fiyat ve türe göre sırala.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [{ rel: "canonical", href: `/s/${params.slug}/products` }],
+    };
+  },
+  notFoundComponent: () => (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+      <h1 className="text-2xl font-semibold">Bu mağaza bulunamadı.</h1>
+    </div>
+  ),
+  component: StorefrontProductsPage,
+});
+
+type SortKey = "newest" | "price_asc" | "price_desc" | "title";
+
+const normalize = (value: string) =>
+  value
+    .toLocaleLowerCase("tr")
+    .replaceAll("ı", "i")
+    .replaceAll("ş", "s")
+    .replaceAll("ğ", "g")
+    .replaceAll("ü", "u")
+    .replaceAll("ö", "o")
+    .replaceAll("ç", "c");
+
+function StorefrontProductsPage() {
+  const { slug } = Route.useParams();
+  const { data } = useSuspenseQuery(storefrontQuery(slug));
+
+  const [term, setTerm] = useState("");
+  const [sort, setSort] = useState<SortKey>("newest");
+  const [type, setType] = useState("all");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
+  const products = useMemo(() => data?.products ?? [], [data]);
+
+  const types = useMemo(
+    () => [...new Set(products.map((p) => p.product_type).filter((v): v is string => Boolean(v)))].sort(),
+    [products],
+  );
+
+  const visible = useMemo(() => {
+    const q = normalize(term.trim());
+    const min = minPrice.trim() ? Number(minPrice) : null;
+    const max = maxPrice.trim() ? Number(maxPrice) : null;
+    const list = products.filter((product) => {
+      if (type !== "all" && product.product_type !== type) return false;
+      const price = Number(product.base_price);
+      if (min !== null && Number.isFinite(min) && price < min) return false;
+      if (max !== null && Number.isFinite(max) && price > max) return false;
+      if (q && !normalize(`${product.title} ${product.product_type ?? ""} ${(product.tags ?? []).join(" ")}`).includes(q))
+        return false;
+      return true;
+    });
+    const sorted = [...list];
+    if (sort === "price_asc") sorted.sort((a, b) => Number(a.base_price) - Number(b.base_price));
+    else if (sort === "price_desc") sorted.sort((a, b) => Number(b.base_price) - Number(a.base_price));
+    else if (sort === "title") sorted.sort((a, b) => a.title.localeCompare(b.title, "tr"));
+    return sorted;
+  }, [products, term, type, minPrice, maxPrice, sort]);
+
+  if (!data) return null;
+  const { store, theme } = data;
+  const { fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
+
+  const controlStyle = {
+    background: "transparent",
+    color: "inherit",
+    border: `1px solid ${border}`,
+    borderRadius: radius,
+    padding: "8px 10px",
+    fontSize: 13,
+    fontFamily: "inherit",
+  } as const;
+
+  return (
+    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
+      <nav style={{ marginTop: 28, fontSize: 13, color: muted }}>
+        <Link to="/s/$slug" params={{ slug }} style={{ color: "inherit" }}>
+          {store.name}
+        </Link>
+        {" / "}
+        <span>Tüm ürünler</span>
+      </nav>
+
+      <header style={{ padding: "20px 0 24px", maxWidth: 640 }}>
+        <h1 style={{ fontFamily: fonts.heading, fontSize: 34, fontWeight: 700, margin: 0 }}>Tüm ürünler</h1>
+        <p style={{ color: muted, marginTop: 10, fontSize: 15 }}>
+          {store.name} kataloğundaki ürünleri arayabilir, tür ve fiyata göre filtreleyebilirsin.
+        </p>
+      </header>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 20 }}>
+        <input
+          value={term}
+          onChange={(event) => setTerm(event.target.value)}
+          placeholder="Ürün ara"
+          style={{ ...controlStyle, minWidth: 220 }}
+        />
+        <select value={sort} onChange={(event) => setSort(event.target.value as SortKey)} style={controlStyle}>
+          <option value="newest">Yeni eklenenler</option>
+          <option value="price_asc">Fiyat: artan</option>
+          <option value="price_desc">Fiyat: azalan</option>
+          <option value="title">İsim: A-Z</option>
+        </select>
+        {types.length > 0 ? (
+          <select value={type} onChange={(event) => setType(event.target.value)} style={controlStyle}>
+            <option value="all">Tüm türler</option>
+            {types.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        ) : null}
+        <input
+          value={minPrice}
+          onChange={(event) => setMinPrice(event.target.value)}
+          placeholder="Min ₺"
+          inputMode="numeric"
+          style={{ ...controlStyle, width: 90 }}
+        />
+        <input
+          value={maxPrice}
+          onChange={(event) => setMaxPrice(event.target.value)}
+          placeholder="Maks ₺"
+          inputMode="numeric"
+          style={{ ...controlStyle, width: 100 }}
+        />
+        <span style={{ color: muted, fontSize: 13 }}>{visible.length} ürün</span>
+        {term || type !== "all" || minPrice || maxPrice ? (
+          <button
+            type="button"
+            onClick={() => {
+              setTerm("");
+              setType("all");
+              setMinPrice("");
+              setMaxPrice("");
+            }}
+            style={{ ...controlStyle, cursor: "pointer" }}
+          >
+            Temizle
+          </button>
+        ) : null}
+      </div>
+
+      {visible.length === 0 ? (
+        <p style={{ color: muted, paddingBottom: 60 }}>Aramanla eşleşen ürün bulunamadı.</p>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+            gap: 18,
+            paddingBottom: 64,
+          }}
+        >
+          {visible.map((product) => (
+            <Link
+              key={product.id}
+              to="/s/$slug/p/$productSlug"
+              params={{ slug, productSlug: product.slug }}
+              style={{
+                background: cardBg,
+                border: `1px solid ${border}`,
+                borderRadius: radius,
+                overflow: "hidden",
+                textDecoration: "none",
+                color: "inherit",
+                display: "block",
+              }}
+            >
+              <div style={{ aspectRatio: "1 / 1", background: border, overflow: "hidden" }}>
+                {product.coverUrl ? (
+                  <img
+                    src={product.coverUrl}
+                    alt={product.title}
+                    loading="lazy"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : null}
+              </div>
+              <div style={{ padding: 14 }}>
+                <p style={{ margin: 0, fontWeight: 600, fontSize: 15 }}>{product.title}</p>
+                <p style={{ margin: "6px 0 0", color: muted, fontSize: 14 }}>
+                  {formatMoney(Number(product.base_price), product.currency ?? store.currency)}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </StorefrontChrome>
+  );
+}
