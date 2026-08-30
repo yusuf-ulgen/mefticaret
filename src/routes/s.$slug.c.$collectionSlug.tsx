@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
@@ -52,6 +53,43 @@ function CollectionPage() {
   const { store, theme, collection, products } = data;
   const { t, fonts, muted, cardBg, border, radius, dark } = storefrontTokens(theme);
 
+  const [sort, setSort] = useState<SortKey>("newest");
+  const [type, setType] = useState("all");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
+  const types = useMemo(
+    () => [...new Set(products.map((p) => p.product_type).filter((v): v is string => Boolean(v)))].sort(),
+    [products],
+  );
+
+  const visible = useMemo(() => {
+    const min = minPrice.trim() ? Number(minPrice) : null;
+    const max = maxPrice.trim() ? Number(maxPrice) : null;
+    const list = products.filter((product) => {
+      if (type !== "all" && product.product_type !== type) return false;
+      const price = Number(product.base_price);
+      if (min !== null && Number.isFinite(min) && price < min) return false;
+      if (max !== null && Number.isFinite(max) && price > max) return false;
+      return true;
+    });
+    const sorted = [...list];
+    if (sort === "price_asc") sorted.sort((a, b) => Number(a.base_price) - Number(b.base_price));
+    else if (sort === "price_desc") sorted.sort((a, b) => Number(b.base_price) - Number(a.base_price));
+    else if (sort === "title") sorted.sort((a, b) => a.title.localeCompare(b.title, "tr"));
+    return sorted;
+  }, [products, type, minPrice, maxPrice, sort]);
+
+  const controlStyle = {
+    background: "transparent",
+    color: "inherit",
+    border: `1px solid ${border}`,
+    borderRadius: radius,
+    padding: "8px 10px",
+    fontSize: 13,
+    fontFamily: "inherit",
+  } as const;
+
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
       <nav style={{ marginTop: 28, fontSize: 13, color: muted }}>
@@ -72,6 +110,71 @@ function CollectionPage() {
       {products.length === 0 ? (
         <p style={{ color: muted }}>Bu koleksiyonda henüz yayınlanmış ürün yok.</p>
       ) : (
+        <>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 10,
+            alignItems: "center",
+            border: `1px solid ${border}`,
+            background: cardBg,
+            borderRadius: radius,
+            padding: 12,
+            marginBottom: 18,
+          }}
+        >
+          <select style={controlStyle} value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
+            <option value="newest">Sıralama: Yeni eklenenler</option>
+            <option value="price_asc">Fiyat: Artan</option>
+            <option value="price_desc">Fiyat: Azalan</option>
+            <option value="title">İsme göre (A-Z)</option>
+          </select>
+          {types.length > 0 ? (
+            <select style={controlStyle} value={type} onChange={(e) => setType(e.target.value)}>
+              <option value="all">Tüm türler</option>
+              {types.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          ) : null}
+          <input
+            style={{ ...controlStyle, width: 100 }}
+            inputMode="numeric"
+            placeholder="Min ₺"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+          />
+          <input
+            style={{ ...controlStyle, width: 100 }}
+            inputMode="numeric"
+            placeholder="Max ₺"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+          />
+          <span style={{ fontSize: 12, color: muted, marginLeft: "auto" }}>
+            {visible.length} / {products.length} ürün
+          </span>
+          {(type !== "all" || minPrice || maxPrice || sort !== "newest") && (
+            <button
+              type="button"
+              onClick={() => {
+                setType("all");
+                setMinPrice("");
+                setMaxPrice("");
+                setSort("newest");
+              }}
+              style={{ ...controlStyle, cursor: "pointer", color: t.accent_color, borderColor: t.accent_color }}
+            >
+              Temizle
+            </button>
+          )}
+        </div>
+        {visible.length === 0 ? (
+          <p style={{ color: muted, paddingBottom: 40 }}>Seçtiğiniz filtrelere uygun ürün bulunamadı.</p>
+        ) : (
         <div
           style={{
             display: "grid",
@@ -80,7 +183,7 @@ function CollectionPage() {
             paddingBottom: 40,
           }}
         >
-          {products.map((product) => (
+          {visible.map((product) => (
             <Link
               key={product.id}
               to="/s/$slug/p/$productSlug"
@@ -117,6 +220,8 @@ function CollectionPage() {
             </Link>
           ))}
         </div>
+        )}
+        </>
       )}
     </StorefrontChrome>
   );
