@@ -11,6 +11,7 @@ import {
   FileText,
   CreditCard,
   Globe,
+  Grid3x3,
   History,
   LayoutDashboard,
   LogOut,
