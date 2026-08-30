@@ -98,6 +98,10 @@ export function StorefrontChrome({
 }) {
   const { t, fonts, text, muted, border, radius } = storefrontTokens(theme);
   const cart = useCart();
+  const { data: menuItems } = useQuery(storefrontMenuQuery(storeSlug));
+  const headerItems = (menuItems ?? []).filter((item) => item.location === "header");
+  const footerItems = (menuItems ?? []).filter((item) => item.location === "footer");
+
   const cartCount = cart.countFor(storeSlug);
 
   return (
