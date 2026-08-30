@@ -103,6 +103,7 @@ export function StorefrontChrome({
   const footerItems = (menuItems ?? []).filter((item) => item.location === "footer");
 
   const cartCount = cart.countFor(storeSlug);
+  const favoriteCount = favorites.countFor(storeSlug);
 
   return (
     <div
