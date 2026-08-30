@@ -67,7 +67,12 @@ function SegmentsPage() {
   const { storeId } = Route.useParams();
   const [active, setActive] = useState<SegmentKey | "all">("all");
   const [term, setTerm] = useState("");
+  const [campaignOpen, setCampaignOpen] = useState(false);
+  const [percent, setPercent] = useState("10");
+  const [validDays, setValidDays] = useState("14");
 
+  const queryClient = useQueryClient();
+  const saveDiscount = useServerFn(upsertDiscount);
   const { data: store } = useQuery(storeQuery(storeId));
   const { data: orders, isLoading } = useQuery(segmentOrdersQuery(storeId));
   const currency = store?.currency ?? "TRY";
