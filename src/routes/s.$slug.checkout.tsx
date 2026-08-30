@@ -7,7 +7,7 @@ import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chro
 import { markCartRecovered, syncAbandonedCart } from "@/lib/abandoned.functions";
 import { useCart } from "@/lib/cart";
 import { getCartToken } from "@/lib/cart-token";
-import { placeOrder } from "@/lib/checkout.functions";
+import { placeOrder, previewCheckoutDiscount } from "@/lib/checkout.functions";
 import { formatMoney } from "@/lib/mefti";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 
@@ -53,6 +53,13 @@ function CheckoutPage() {
   const [postalCode, setPostalCode] = useState("");
   const [note, setNote] = useState("");
   const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    label: string;
+    discountTotal: number;
+    freeShipping: boolean;
+  } | null>(null);
+  const [checkingDiscount, setCheckingDiscount] = useState(false);
   const [shippingRateId, setShippingRateId] = useState<string>("");
   const [paymentMethodId, setPaymentMethodId] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
@@ -86,11 +93,43 @@ function CheckoutPage() {
   const rates = options.data?.shippingRates ?? [];
   const methods = options.data?.paymentMethods ?? [];
   const selectedRate = useMemo(() => rates.find((rate) => rate.id === shippingRateId) ?? null, [rates, shippingRateId]);
-  const shippingTotal = selectedRate
-    ? selectedRate.free_over !== null && subtotal >= selectedRate.free_over
+  const discountTotal = appliedDiscount?.discountTotal ?? 0;
+  const baseShipping = selectedRate
+    ? selectedRate.free_over !== null && subtotal - discountTotal >= selectedRate.free_over
       ? 0
       : selectedRate.price
     : 0;
+  const shippingTotal = appliedDiscount?.freeShipping ? 0 : baseShipping;
+  const estimatedTotal = Math.max(0, subtotal - discountTotal) + shippingTotal;
+
+  // Sepet değişirse kupon tutarı geçersiz kalmasın diye uygulanan kuponu temizle
+  useEffect(() => {
+    setAppliedDiscount(null);
+  }, [subtotal]);
+
+  async function applyDiscount() {
+    const code = discountCode.trim();
+    if (!code) {
+      setAppliedDiscount(null);
+      return;
+    }
+    setCheckingDiscount(true);
+    try {
+      const result = await previewCheckoutDiscount({ data: { slug, code, subtotal } });
+      setAppliedDiscount({
+        code: result.code,
+        label: result.label,
+        discountTotal: result.discountTotal,
+        freeShipping: result.freeShipping,
+      });
+      toast.success(`Kupon uygulandı: ${result.label}`);
+    } catch (error) {
+      setAppliedDiscount(null);
+      toast.error(error instanceof Error ? error.message : "Kupon doğrulanamadı");
+    } finally {
+      setCheckingDiscount(false);
+    }
+  }
 
   if (!data) return null;
   const { store, theme } = data;
@@ -288,13 +327,73 @@ function CheckoutPage() {
               ))}
             </div>
             <Field label="İndirim kodu" muted={muted}>
-              <input style={inputStyle} value={discountCode} onChange={(e) => setDiscountCode(e.target.value)} />
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  style={inputStyle}
+                  value={discountCode}
+                  onChange={(e) => setDiscountCode(e.target.value)}
+                  placeholder="KUPON10"
+                />
+                <button
+                  type="button"
+                  onClick={() => void applyDiscount()}
+                  disabled={checkingDiscount}
+                  style={{
+                    border: `1px solid ${t.accent_color}`,
+                    background: "transparent",
+                    color: t.accent_color,
+                    borderRadius: radius,
+                    padding: "0 14px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: checkingDiscount ? "wait" : "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {checkingDiscount ? "…" : appliedDiscount ? "Yenile" : "Uygula"}
+                </button>
+              </div>
             </Field>
+            {appliedDiscount ? (
+              <p style={{ fontSize: 12, color: t.accent_color, margin: "6px 0 0" }}>
+                {appliedDiscount.code} · {appliedDiscount.label}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppliedDiscount(null);
+                    setDiscountCode("");
+                  }}
+                  style={{
+                    marginLeft: 8,
+                    background: "none",
+                    border: "none",
+                    color: muted,
+                    fontSize: 12,
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  }}
+                >
+                  kaldır
+                </button>
+              </p>
+            ) : null}
             <div style={{ marginTop: 12, borderTop: `1px solid ${border}`, paddingTop: 12 }}>
               <SummaryRow label="Ara toplam" value={formatMoney(subtotal, store.currency)} muted={muted} />
+              {appliedDiscount ? (
+                <SummaryRow
+                  label={`İndirim (${appliedDiscount.code})`}
+                  value={
+                    appliedDiscount.freeShipping
+                      ? "Ücretsiz kargo"
+                      : `-${formatMoney(discountTotal, store.currency)}`
+                  }
+                  muted={muted}
+                />
+              ) : null}
               <SummaryRow label="Kargo" value={formatMoney(shippingTotal, store.currency)} muted={muted} />
+              <SummaryRow label="Tahmini toplam" value={formatMoney(estimatedTotal, store.currency)} muted={muted} />
               <p style={{ fontSize: 12, color: muted, margin: "8px 0 0" }}>
-                İndirim ve vergi, sipariş oluşturulurken sunucuda kesin olarak hesaplanır.
+                Vergi ve nihai tutar, sipariş oluşturulurken sunucuda kesin olarak hesaplanır.
               </p>
             </div>
             <button

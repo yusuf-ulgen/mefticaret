@@ -391,3 +391,66 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
     shipments: shipments ?? [],
   };
 }
+
+export const previewDiscountSchema = z.object({
+  slug: z.string().trim().min(1).max(120),
+  code: z.string().trim().min(1).max(60),
+  subtotal: z.number().min(0).max(10_000_000),
+});
+
+/**
+ * Kasada kupon önizlemesi. Sunucuda doğrulanır; istemciye yalnızca hesaplanan
+ * indirim tutarı ve etiketi döner. Sipariş anındaki kesin hesap yine
+ * createStorefrontOrder içinde tekrar yapılır.
+ */
+export async function previewDiscount(input: z.infer<typeof previewDiscountSchema>) {
+  const store = await publishedStore(input.slug);
+  if (!store) throw new Error("Mağaza bulunamadı veya yayında değil");
+  const supabase = await admin();
+
+  const { data: discount, error } = await supabase
+    .from("discounts")
+    .select("code, title, type, value, min_subtotal, usage_limit, used_count, starts_at, ends_at, is_active")
+    .eq("store_id", store.id)
+    .ilike("code", input.code)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+
+  const now = Date.now();
+  const usable =
+    discount &&
+    discount.is_active &&
+    new Date(discount.starts_at).getTime() <= now &&
+    (!discount.ends_at || new Date(discount.ends_at).getTime() >= now) &&
+    (discount.usage_limit === null || discount.used_count < discount.usage_limit);
+  if (!usable) throw new Error("İndirim kodu geçersiz veya süresi dolmuş");
+
+  const minSubtotal = Number(discount!.min_subtotal ?? 0);
+  if (input.subtotal < minSubtotal) {
+    throw new Error(`Bu kupon için minimum sepet tutarı ${minSubtotal.toFixed(2)} ${store.currency}`);
+  }
+
+  let discountTotal = 0;
+  let freeShipping = false;
+  if (discount!.type === "percentage") {
+    discountTotal = Number(((input.subtotal * Number(discount!.value)) / 100).toFixed(2));
+  } else if (discount!.type === "fixed_amount") {
+    discountTotal = Math.min(input.subtotal, Number(discount!.value));
+  } else {
+    freeShipping = true;
+  }
+
+  return {
+    code: discount!.code,
+    title: discount!.title,
+    type: discount!.type,
+    discountTotal,
+    freeShipping,
+    label:
+      discount!.type === "percentage"
+        ? `%${Number(discount!.value)} indirim`
+        : discount!.type === "fixed_amount"
+          ? `${Number(discount!.value)} ${store.currency} indirim`
+          : "Ücretsiz kargo",
+  };
+}

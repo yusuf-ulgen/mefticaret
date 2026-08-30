@@ -7,6 +7,8 @@ import {
   loadOrderStatus,
   orderStatusSchema,
   placeOrderSchema,
+  previewDiscount,
+  previewDiscountSchema,
 } from "@/lib/checkout.server";
 
 export const getCheckoutOptions = createServerFn({ method: "GET" })
@@ -20,3 +22,7 @@ export const placeOrder = createServerFn({ method: "POST" })
 export const getOrderStatus = createServerFn({ method: "POST" })
   .inputValidator((data) => orderStatusSchema.parse(data))
   .handler(async ({ data }) => loadOrderStatus(data));
+
+export const previewCheckoutDiscount = createServerFn({ method: "POST" })
+  .inputValidator((data) => previewDiscountSchema.parse(data))
+  .handler(async ({ data }) => previewDiscount(data));
