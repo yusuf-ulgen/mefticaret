@@ -53,6 +53,7 @@ function CheckoutPage() {
   const [postalCode, setPostalCode] = useState("");
   const [note, setNote] = useState("");
   const [discountCode, setDiscountCode] = useState("");
+  const [giftCardCode, setGiftCardCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{
     code: string;
     label: string;
@@ -168,6 +169,7 @@ function CheckoutPage() {
           shippingRateId: shippingRateId || undefined,
           paymentMethodId: paymentMethodId || undefined,
           discountCode: discountCode.trim() ? discountCode.trim() : undefined,
+          giftCardCode: giftCardCode.trim() ? giftCardCode.trim() : undefined,
           note: note.trim() ? note.trim() : undefined,
         },
       });
@@ -175,7 +177,11 @@ function CheckoutPage() {
         data: { slug, cartToken: getCartToken(slug), orderNumber: result.orderNumber },
       }).catch(() => {});
       cart.clear(slug);
-      toast.success(`Sipariş alındı: ${result.orderNumber}`);
+      toast.success(
+        result.giftCardApplied > 0
+          ? `Sipariş alındı: ${result.orderNumber} · Hediye kartı: ${formatMoney(result.giftCardApplied, store.currency)}`
+          : `Sipariş alındı: ${result.orderNumber}`,
+      );
       navigate({
         to: "/s/$slug/order",
         params: { slug },
@@ -354,6 +360,19 @@ function CheckoutPage() {
                 </button>
               </div>
             </Field>
+            <div style={{ marginTop: 10 }}>
+              <Field label="Hediye kartı kodu" muted={muted}>
+                <input
+                  style={inputStyle}
+                  value={giftCardCode}
+                  onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
+                  placeholder="MEF-XXXX-XXXX-XXXX"
+                />
+              </Field>
+              <p style={{ fontSize: 12, color: muted, margin: "6px 0 0" }}>
+                Kart bakiyesi sipariş toplamından sunucuda düşülür.
+              </p>
+            </div>
             {appliedDiscount ? (
               <p style={{ fontSize: 12, color: t.accent_color, margin: "6px 0 0" }}>
                 {appliedDiscount.code} · {appliedDiscount.label}
