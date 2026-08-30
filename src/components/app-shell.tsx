@@ -31,6 +31,7 @@ import {
   Sparkles,
   Store,
   Tag,
+  TrendingUp,
   Truck,
   Users,
   UsersRound,
