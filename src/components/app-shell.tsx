@@ -95,6 +95,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Ayarlar", to: `/store/${storeId}/settings`, icon: Cog },
         { label: "Ödeme", to: `/store/${storeId}/payments`, icon: BadgeCheck },
         { label: "Kargo", to: `/store/${storeId}/shipping`, icon: Truck },
+        { label: "Pazaryerleri", to: `/store/${storeId}/channels`, icon: Store },
         { label: "Temalar", to: `/store/${storeId}/themes`, icon: Palette },
         { label: "İçerik Sayfaları", to: `/store/${storeId}/pages`, icon: FileText },
         { label: "AI Asistan", to: `/store/${storeId}/ai`, icon: Sparkles },
