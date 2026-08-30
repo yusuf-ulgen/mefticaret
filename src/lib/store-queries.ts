@@ -207,3 +207,54 @@ export const storeActivityQuery = (storeId: string, limit = 200) =>
       return data;
     },
   });
+
+/** Panelde "dikkat gerektirenler" kartları için sayaçlar. */
+export const storeActionItemsQuery = (storeId: string) =>
+  queryOptions({
+    queryKey: ["store-action-items", storeId],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const [pendingOrders, unfulfilled, pendingReturns, pendingReviews, variants] =
+        await Promise.all([
+          supabase
+            .from("orders")
+            .select("id", { count: "exact", head: true })
+            .eq("store_id", storeId)
+            .eq("status", "pending"),
+          supabase
+            .from("orders")
+            .select("id", { count: "exact", head: true })
+            .eq("store_id", storeId)
+            .eq("fulfillment_status", "unfulfilled")
+            .in("status", ["pending", "processing"]),
+          supabase
+            .from("return_requests")
+            .select("id", { count: "exact", head: true })
+            .eq("store_id", storeId)
+            .eq("status", "requested"),
+          supabase
+            .from("product_reviews")
+            .select("id", { count: "exact", head: true })
+            .eq("store_id", storeId)
+            .eq("status", "pending"),
+          supabase
+            .from("product_variants")
+            .select("id, stock, low_stock_threshold, products!inner(store_id, status)")
+            .eq("products.store_id", storeId)
+            .neq("products.status", "archived")
+            .limit(1000),
+        ]);
+
+      const lowStock = (variants.data ?? []).filter(
+        (row) => (row.stock ?? 0) <= (row.low_stock_threshold ?? 0),
+      ).length;
+
+      return {
+        pendingOrders: pendingOrders.count ?? 0,
+        unfulfilled: unfulfilled.count ?? 0,
+        pendingReturns: pendingReturns.count ?? 0,
+        pendingReviews: pendingReviews.count ?? 0,
+        lowStock,
+      };
+    },
+  });

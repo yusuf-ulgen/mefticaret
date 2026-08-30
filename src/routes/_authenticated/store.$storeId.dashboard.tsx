@@ -1,12 +1,28 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Activity, CreditCard, ShoppingBag, TrendingUp, Users } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  CreditCard,
+  MessageSquare,
+  PackageCheck,
+  RotateCcw,
+  ShoppingBag,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney, formatNumber, formatPercent, STORE_STATUS_LABELS } from "@/lib/mefti";
-import { storeAuditQuery, storeQuery, storeStatsQuery } from "@/lib/store-queries";
+import {
+  storeActionItemsQuery,
+  storeAuditQuery,
+  storeQuery,
+  storeStatsQuery,
+} from "@/lib/store-queries";
+
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/dashboard")({
   head: () => ({
@@ -25,6 +41,46 @@ function DashboardPage() {
   const { data: store } = useQuery(storeQuery(storeId));
   const { data: stats, isLoading } = useQuery(storeStatsQuery(storeId, 30));
   const { data: audit } = useQuery(storeAuditQuery(storeId));
+  const { data: actionItems } = useQuery(storeActionItemsQuery(storeId));
+
+  const todo = [
+    {
+      key: "pending-orders",
+      label: "Bekleyen sipariş",
+      count: actionItems?.pendingOrders ?? 0,
+      icon: ShoppingBag,
+      to: "/store/$storeId/orders" as const,
+    },
+    {
+      key: "unfulfilled",
+      label: "Sevk bekleyen",
+      count: actionItems?.unfulfilled ?? 0,
+      icon: PackageCheck,
+      to: "/store/$storeId/shipments" as const,
+    },
+    {
+      key: "low-stock",
+      label: "Kritik stok",
+      count: actionItems?.lowStock ?? 0,
+      icon: AlertTriangle,
+      to: "/store/$storeId/inventory" as const,
+    },
+    {
+      key: "returns",
+      label: "İade talebi",
+      count: actionItems?.pendingReturns ?? 0,
+      icon: RotateCcw,
+      to: "/store/$storeId/returns" as const,
+    },
+    {
+      key: "reviews",
+      label: "Onay bekleyen yorum",
+      count: actionItems?.pendingReviews ?? 0,
+      icon: MessageSquare,
+      to: "/store/$storeId/reviews" as const,
+    },
+  ];
+
 
   const rows = stats ?? [];
   const currency = store?.currency ?? "TRY";
@@ -69,6 +125,33 @@ function DashboardPage() {
           </div>
         ))}
       </div>
+
+      <section className="surface-card p-6">
+        <h2 className="font-display text-lg font-semibold">Dikkat gerektirenler</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          {todo.map((item) => (
+            <Link
+              key={item.key}
+              to={item.to}
+              params={{ storeId }}
+              className="flex items-center justify-between gap-3 rounded-lg border border-border p-4 transition hover:border-brand hover:bg-muted/40"
+            >
+              <span className="flex items-center gap-2 text-sm">
+                <item.icon
+                  className={
+                    item.count > 0 ? "size-4 text-brand-foreground" : "size-4 text-muted-foreground"
+                  }
+                />
+                {item.label}
+              </span>
+              <Badge variant={item.count > 0 ? "default" : "secondary"}>
+                {formatNumber(item.count)}
+              </Badge>
+            </Link>
+          ))}
+        </div>
+      </section>
+
 
       <section className="surface-card p-6">
         <h2 className="font-display text-lg font-semibold">Günlük ciro</h2>
