@@ -119,25 +119,56 @@ function StorefrontHome() {
           <h2 style={{ fontFamily: fonts.heading, fontSize: 20, margin: "0 0 12px" }}>Koleksiyonlar</h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             {collections.map((collection) => (
-              <span
+              <Link
                 key={collection.id}
+                to="/s/$slug/c/$collectionSlug"
+                params={{ slug: store.slug, collectionSlug: collection.slug }}
                 style={{
                   border: `1px solid ${border}`,
                   borderRadius: 999,
                   padding: "6px 14px",
                   fontSize: 13,
                   color: muted,
+                  textDecoration: "none",
                 }}
               >
                 {collection.title}
-              </span>
+              </Link>
             ))}
           </div>
         </section>
       ) : null}
 
       <section id="urunler">
-        <h2 style={{ fontFamily: fonts.heading, fontSize: 24, margin: "0 0 18px" }}>Ürünler</h2>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            marginBottom: 18,
+          }}
+        >
+          <h2 style={{ fontFamily: fonts.heading, fontSize: 24, margin: 0 }}>Ürünler</h2>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Ürün ara…"
+            aria-label="Ürünlerde ara"
+            style={{
+              background: cardBg,
+              color: "inherit",
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+              padding: "9px 14px",
+              fontSize: 14,
+              fontFamily: "inherit",
+              minWidth: 220,
+            }}
+          />
+        </div>
         {products.length === 0 ? (
           <p style={{ color: muted }}>Bu mağazada henüz yayınlanmış ürün yok.</p>
         ) : (
