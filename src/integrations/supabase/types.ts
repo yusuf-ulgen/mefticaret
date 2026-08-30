@@ -467,6 +467,123 @@ export type Database = {
           },
         ]
       }
+      gift_card_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          created_by: string | null
+          gift_card_id: string
+          id: string
+          kind: string
+          note: string | null
+          order_id: string | null
+          store_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          created_by?: string | null
+          gift_card_id: string
+          id?: string
+          kind: string
+          note?: string | null
+          order_id?: string | null
+          store_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          created_by?: string | null
+          gift_card_id?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          order_id?: string | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_card_transactions_gift_card_id_fkey"
+            columns: ["gift_card_id"]
+            isOneToOne: false
+            referencedRelation: "gift_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_card_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_card_transactions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gift_cards: {
+        Row: {
+          balance: number
+          code: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          customer_email: string | null
+          expires_at: string | null
+          id: string
+          initial_amount: number
+          note: string | null
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          balance: number
+          code: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_email?: string | null
+          expires_at?: string | null
+          id?: string
+          initial_amount: number
+          note?: string | null
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_email?: string | null
+          expires_at?: string | null
+          id?: string
+          initial_amount?: number
+          note?: string | null
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_cards_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_movements: {
         Row: {
           actor_id: string | null
