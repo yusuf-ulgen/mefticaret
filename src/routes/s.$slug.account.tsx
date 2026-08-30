@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/lib/cart";
 import {
   cancelMyStoreReturn,
   claimMyStoreAccount,
@@ -76,7 +77,7 @@ function AccountPage() {
         {loading ? (
           <p style={{ marginTop: 16, opacity: 0.7 }}>Yükleniyor…</p>
         ) : user ? (
-          <AccountDashboard storeId={store.id} />
+          <AccountDashboard storeId={store.id} slug={slug} />
         ) : (
           <AccountAuth />
         )}
@@ -167,7 +168,7 @@ function AccountAuth() {
 
 type Tab = "orders" | "returns" | "addresses" | "profile";
 
-function AccountDashboard({ storeId }: { storeId: string }) {
+function AccountDashboard({ storeId, slug }: { storeId: string; slug: string }) {
   const queryClient = useQueryClient();
   const { user, signOut } = useAuth();
   const [tab, setTab] = useState<Tab>("orders");
