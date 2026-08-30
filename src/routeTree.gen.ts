@@ -43,6 +43,7 @@ import { Route as AuthenticatedStoreStoreIdShippingRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdTeamRouteImport } from './routes/_authenticated/store.$storeId.team'
 import { Route as AuthenticatedStoreStoreIdThemesRouteImport } from './routes/_authenticated/store.$storeId.themes'
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
+import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
@@ -241,6 +242,12 @@ const AuthenticatedStoreStoreIdWebhooksRoute =
     path: '/store/$storeId/webhooks',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicCronDailyRollupRoute =
+  ApiPublicCronDailyRollupRouteImport.update({
+    id: '/api/public/cron/daily-rollup',
+    path: '/api/public/cron/daily-rollup',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SSlugCCollectionSlugRoute = SSlugCCollectionSlugRouteImport.update({
   id: '/s/$slug/c/$collectionSlug',
   path: '/s/$slug/c/$collectionSlug',
@@ -303,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
+  '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -343,6 +351,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
+  '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -385,6 +394,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/_authenticated/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
+  '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -427,6 +437,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/team'
     | '/store/$storeId/themes'
     | '/store/$storeId/webhooks'
+    | '/api/public/cron/daily-rollup'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -467,6 +478,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/team'
     | '/store/$storeId/themes'
     | '/store/$storeId/webhooks'
+    | '/api/public/cron/daily-rollup'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -508,6 +520,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/team'
     | '/_authenticated/store/$storeId/themes'
     | '/_authenticated/store/$storeId/webhooks'
+    | '/api/public/cron/daily-rollup'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -524,6 +537,7 @@ export interface RootRouteChildren {
   SSlugCheckoutRoute: typeof SSlugCheckoutRoute
   SSlugOrderRoute: typeof SSlugOrderRoute
   SSlugIndexRoute: typeof SSlugIndexRoute
+  ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
@@ -769,6 +783,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdWebhooksRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/cron/daily-rollup': {
+      id: '/api/public/cron/daily-rollup'
+      path: '/api/public/cron/daily-rollup'
+      fullPath: '/api/public/cron/daily-rollup'
+      preLoaderRoute: typeof ApiPublicCronDailyRollupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/c/$collectionSlug': {
       id: '/s/$slug/c/$collectionSlug'
       path: '/s/$slug/c/$collectionSlug'
@@ -921,6 +942,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugCheckoutRoute: SSlugCheckoutRoute,
   SSlugOrderRoute: SSlugOrderRoute,
   SSlugIndexRoute: SSlugIndexRoute,
+  ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
