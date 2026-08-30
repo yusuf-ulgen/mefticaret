@@ -24,18 +24,10 @@ const syncSchema = z.object({
 export const syncAbandonedCart = createServerFn({ method: "POST" })
   .inputValidator((data) => syncSchema.parse(data))
   .handler(async ({ data }) => {
-    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-    const supabase = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
-      auth: { persistSession: false, autoRefreshToken: false },
-      global: {
-        fetch: (input, init) => {
-          const h = new Headers(init?.headers);
-          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
-          h.set("apikey", key);
-          return fetch(input, { ...init, headers: h });
-        },
-      },
-    });
+    // Sepet anlık görüntüleri yalnızca sunucu tarafında yazılır; ziyaretçilerin
+    // tabloya doğrudan yazma izni yoktur (token tahmini ile veri kurcalanamaz).
+    const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
+
 
     const { data: store, error: storeError } = await supabase
       .from("stores")
