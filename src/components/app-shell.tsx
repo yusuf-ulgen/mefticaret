@@ -80,6 +80,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
       group: "Satış",
       items: [
         { label: "Siparişler", to: `/store/${storeId}/orders`, icon: ShoppingBag },
+        { label: "Sevkiyatlar", to: `/store/${storeId}/shipments`, icon: Truck },
         { label: "Müşteriler", to: `/store/${storeId}/customers`, icon: Users },
         { label: "Değerlendirmeler", to: `/store/${storeId}/reviews`, icon: Star },
         { label: "İadeler", to: `/store/${storeId}/returns`, icon: RotateCcw },
