@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  RotateCcw,
   BadgeCheck,
   Boxes,
   ChartNoAxesColumn,
@@ -81,6 +82,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Siparişler", to: `/store/${storeId}/orders`, icon: ShoppingBag },
         { label: "Müşteriler", to: `/store/${storeId}/customers`, icon: Users },
         { label: "Değerlendirmeler", to: `/store/${storeId}/reviews`, icon: Star },
+        { label: "İadeler", to: `/store/${storeId}/returns`, icon: RotateCcw },
         { label: "Terk Sepetler", to: `/store/${storeId}/carts`, icon: ShoppingCart },
         { label: "İndirimler", to: `/store/${storeId}/discounts`, icon: Tag },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
