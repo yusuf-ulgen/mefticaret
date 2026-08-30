@@ -37,6 +37,7 @@ import { Route as AuthenticatedStoreStoreIdDiscountsRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdDomainsRouteImport } from './routes/_authenticated/store.$storeId.domains'
 import { Route as AuthenticatedStoreStoreIdFinanceRouteImport } from './routes/_authenticated/store.$storeId.finance'
 import { Route as AuthenticatedStoreStoreIdForecastRouteImport } from './routes/_authenticated/store.$storeId.forecast'
+import { Route as AuthenticatedStoreStoreIdGiftCardsRouteImport } from './routes/_authenticated/store.$storeId.gift-cards'
 import { Route as AuthenticatedStoreStoreIdHealthRouteImport } from './routes/_authenticated/store.$storeId.health'
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
@@ -224,6 +225,12 @@ const AuthenticatedStoreStoreIdForecastRoute =
   AuthenticatedStoreStoreIdForecastRouteImport.update({
     id: '/store/$storeId/forecast',
     path: '/store/$storeId/forecast',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdGiftCardsRoute =
+  AuthenticatedStoreStoreIdGiftCardsRouteImport.update({
+    id: '/store/$storeId/gift-cards',
+    path: '/store/$storeId/gift-cards',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdHealthRoute =
@@ -460,6 +467,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
+  '/store/$storeId/gift-cards': typeof AuthenticatedStoreStoreIdGiftCardsRoute
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
@@ -524,6 +532,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
+  '/store/$storeId/gift-cards': typeof AuthenticatedStoreStoreIdGiftCardsRoute
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
@@ -590,6 +599,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/_authenticated/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/_authenticated/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
+  '/_authenticated/store/$storeId/gift-cards': typeof AuthenticatedStoreStoreIdGiftCardsRoute
   '/_authenticated/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
@@ -656,6 +666,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/domains'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
+    | '/store/$storeId/gift-cards'
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inventory'
@@ -720,6 +731,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/domains'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
+    | '/store/$storeId/gift-cards'
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inventory'
@@ -785,6 +797,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/domains'
     | '/_authenticated/store/$storeId/finance'
     | '/_authenticated/store/$storeId/forecast'
+    | '/_authenticated/store/$storeId/gift-cards'
     | '/_authenticated/store/$storeId/health'
     | '/_authenticated/store/$storeId/import-export'
     | '/_authenticated/store/$storeId/inventory'
@@ -1038,6 +1051,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/forecast'
       fullPath: '/store/$storeId/forecast'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdForecastRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/gift-cards': {
+      id: '/_authenticated/store/$storeId/gift-cards'
+      path: '/store/$storeId/gift-cards'
+      fullPath: '/store/$storeId/gift-cards'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdGiftCardsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/health': {
@@ -1354,6 +1374,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdDomainsRoute: typeof AuthenticatedStoreStoreIdDomainsRoute
   AuthenticatedStoreStoreIdFinanceRoute: typeof AuthenticatedStoreStoreIdFinanceRoute
   AuthenticatedStoreStoreIdForecastRoute: typeof AuthenticatedStoreStoreIdForecastRoute
+  AuthenticatedStoreStoreIdGiftCardsRoute: typeof AuthenticatedStoreStoreIdGiftCardsRoute
   AuthenticatedStoreStoreIdHealthRoute: typeof AuthenticatedStoreStoreIdHealthRoute
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
@@ -1407,6 +1428,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdFinanceRoute: AuthenticatedStoreStoreIdFinanceRoute,
   AuthenticatedStoreStoreIdForecastRoute:
     AuthenticatedStoreStoreIdForecastRoute,
+  AuthenticatedStoreStoreIdGiftCardsRoute:
+    AuthenticatedStoreStoreIdGiftCardsRoute,
   AuthenticatedStoreStoreIdHealthRoute: AuthenticatedStoreStoreIdHealthRoute,
   AuthenticatedStoreStoreIdImportExportRoute:
     AuthenticatedStoreStoreIdImportExportRoute,
