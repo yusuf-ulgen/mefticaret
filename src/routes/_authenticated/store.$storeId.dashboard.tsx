@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { BellRing, createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
@@ -78,6 +78,13 @@ function DashboardPage() {
       count: actionItems?.pendingReviews ?? 0,
       icon: MessageSquare,
       to: "/store/$storeId/reviews" as const,
+    },
+    {
+      key: "stock-alerts",
+      label: "Stok bildirimi bekleyen",
+      count: actionItems?.pendingStockAlerts ?? 0,
+      icon: BellRing,
+      to: "/store/$storeId/stock-alerts" as const,
     },
   ];
 

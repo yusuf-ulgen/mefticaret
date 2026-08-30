@@ -214,7 +214,7 @@ export const storeActionItemsQuery = (storeId: string) =>
     queryKey: ["store-action-items", storeId],
     staleTime: 60_000,
     queryFn: async () => {
-      const [pendingOrders, unfulfilled, pendingReturns, pendingReviews, variants] =
+      const [pendingOrders, unfulfilled, pendingReturns, pendingReviews, pendingStockAlerts, variants] =
         await Promise.all([
           supabase
             .from("orders")
@@ -238,6 +238,11 @@ export const storeActionItemsQuery = (storeId: string) =>
             .eq("store_id", storeId)
             .eq("status", "pending"),
           supabase
+            .from("stock_alerts")
+            .select("id", { count: "exact", head: true })
+            .eq("store_id", storeId)
+            .is("notified_at", null),
+          supabase
             .from("product_variants")
             .select("id, stock, low_stock_threshold, products!inner(store_id, status)")
             .eq("products.store_id", storeId)
@@ -254,6 +259,7 @@ export const storeActionItemsQuery = (storeId: string) =>
         unfulfilled: unfulfilled.count ?? 0,
         pendingReturns: pendingReturns.count ?? 0,
         pendingReviews: pendingReviews.count ?? 0,
+        pendingStockAlerts: pendingStockAlerts.count ?? 0,
         lowStock,
       };
     },
