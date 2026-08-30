@@ -258,7 +258,7 @@ function NewReturnSheet({ storeId, onDone }: { storeId: string; onDone: () => vo
                 orderId: order!.id,
                 reason,
                 restock,
-                customerNote: note || undefined,
+                ...(note ? { customerNote: note } : {}),
                 items: selected.map(([itemId, qty]) => ({ orderItemId: itemId, quantity: qty })),
               })
             }
