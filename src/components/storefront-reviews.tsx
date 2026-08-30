@@ -25,7 +25,7 @@ type Tokens = {
   muted: string;
   border: string;
   cardBg: string;
-  radius: number;
+  radius: string | number;
   headingFont: string;
 };
 

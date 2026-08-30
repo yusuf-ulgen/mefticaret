@@ -201,7 +201,7 @@ function ProductPage() {
           muted,
           border,
           cardBg,
-          radius: typeof radius === "number" ? radius : 12,
+          radius,
           headingFont: fonts.heading,
         }}
       />
