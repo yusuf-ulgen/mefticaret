@@ -128,8 +128,16 @@ export const updateProduct = createServerFn({ method: "POST" })
             compare_at_price: z.number().min(0).max(9_999_999).nullable().optional(),
             status: statusEnum.optional(),
             track_inventory: z.boolean().optional(),
+            seo: z
+              .object({
+                title: z.string().trim().max(70).default(""),
+                description: z.string().trim().max(180).default(""),
+              })
+              .strict()
+              .optional(),
           })
           .strict(),
+
       })
       .parse(data),
   )

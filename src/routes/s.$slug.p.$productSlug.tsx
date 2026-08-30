@@ -17,18 +17,51 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
       storefrontProductQuery(params.slug, params.productSlug),
     );
     if (!data) throw notFound();
+    const seo = (data.product.seo ?? {}) as { title?: string; description?: string };
     return {
       title: data.product.title,
       storeName: data.store.name,
-      description: (data.product.description ?? "").slice(0, 150),
+      description: (seo.description?.trim() || (data.product.description ?? "")).slice(0, 160),
+      seoTitle: seo.title?.trim() ?? "",
+      price: data.product.base_price,
+      currency: data.product.currency,
+      image: data.images[0]?.url ?? null,
+      ratingAverage: data.ratingAverage ?? 0,
+      reviewCount: data.reviews.length,
+      inStock: data.variants.length ? data.variants.some((variant) => variant.stock > 0) : true,
     };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
       return { meta: [{ title: "Ürün bulunamadı" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${loaderData.title} — ${loaderData.storeName}`;
+    const title = loaderData.seoTitle || `${loaderData.title} — ${loaderData.storeName}`;
     const description = loaderData.description || `${loaderData.title} ürününü ${loaderData.storeName} vitrininde keşfet.`;
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: loaderData.title,
+      description,
+      ...(loaderData.image ? { image: [loaderData.image] } : {}),
+      brand: { "@type": "Brand", name: loaderData.storeName },
+      offers: {
+        "@type": "Offer",
+        price: loaderData.price,
+        priceCurrency: loaderData.currency,
+        availability: loaderData.inStock
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      },
+      ...(loaderData.reviewCount > 0
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: loaderData.ratingAverage,
+              reviewCount: loaderData.reviewCount,
+            },
+          }
+        : {}),
+    };
     return {
       meta: [
         { title },
@@ -38,8 +71,10 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
         { property: "og:type", content: "product" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
+      scripts: [{ type: "application/ld+json", children: JSON.stringify(jsonLd) }],
     };
   },
+
   errorComponent: () => <Fallback text="Ürün şu anda yüklenemedi." />,
   notFoundComponent: () => <Fallback text="Bu ürün bulunamadı." />,
   component: ProductPage,

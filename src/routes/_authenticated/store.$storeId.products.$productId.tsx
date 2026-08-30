@@ -81,11 +81,14 @@ function ProductDetailPage() {
     product_type: "",
     base_price: "",
     status: "draft" as "draft" | "active" | "archived",
+    seo_title: "",
+    seo_description: "",
   });
   const [draft, setDraft] = useState<VariantDraft>(EMPTY_DRAFT);
 
   useEffect(() => {
     if (!product) return;
+    const seo = (product.seo ?? {}) as { title?: string; description?: string };
     setForm({
       title: product.title,
       description: product.description ?? "",
@@ -93,6 +96,8 @@ function ProductDetailPage() {
       product_type: product.product_type ?? "",
       base_price: String(product.base_price ?? 0),
       status: product.status,
+      seo_title: seo.title ?? "",
+      seo_description: seo.description ?? "",
     });
   }, [product]);
 
@@ -113,9 +118,14 @@ function ProductDetailPage() {
             product_type: form.product_type,
             base_price: Number(form.base_price || 0),
             status: form.status,
+            seo: {
+              title: form.seo_title.trim(),
+              description: form.seo_description.trim(),
+            },
           },
         },
       }),
+
     onSuccess: async () => {
       await invalidate();
       toast.success("Ürün güncellendi");
@@ -278,6 +288,51 @@ function ProductDetailPage() {
                 </Select>
               </div>
             </div>
+
+            <div className="space-y-3 rounded-lg border border-border p-4">
+              <div>
+                <h3 className="text-sm font-semibold">Arama motoru görünümü (SEO)</h3>
+                <p className="text-xs text-muted-foreground">
+                  Boş bırakılırsa ürün başlığı ve açıklaması kullanılır.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-seo-title">SEO başlığı</Label>
+                <Input
+                  id="p-seo-title"
+                  maxLength={70}
+                  value={form.seo_title}
+                  placeholder={form.title}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, seo_title: event.target.value }))
+                  }
+                />
+                <p className="text-xs text-muted-foreground">{form.seo_title.length}/70 karakter</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-seo-desc">SEO açıklaması</Label>
+                <Textarea
+                  id="p-seo-desc"
+                  rows={3}
+                  maxLength={180}
+                  value={form.seo_description}
+                  placeholder={form.description.slice(0, 150)}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, seo_description: event.target.value }))
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  {form.seo_description.length}/180 karakter
+                </p>
+              </div>
+              <div className="rounded-md bg-muted/40 p-3">
+                <p className="truncate text-sm text-primary">{form.seo_title || form.title}</p>
+                <p className="line-clamp-2 text-xs text-muted-foreground">
+                  {form.seo_description || form.description.slice(0, 150) || "—"}
+                </p>
+              </div>
+            </div>
+
             <Button type="submit" disabled={productMutation.isPending}>
               {productMutation.isPending ? "Kaydediliyor…" : "Değişiklikleri kaydet"}
             </Button>
