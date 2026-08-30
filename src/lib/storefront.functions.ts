@@ -69,6 +69,35 @@ export const getStorefront = createServerFn({ method: "GET" })
     if (collectionsRes.error) throw new Error(collectionsRes.error.message);
     if (pagesRes.error) throw new Error(pagesRes.error.message);
 
+    // Ürün kartları için kapak görselleri (imzalı adres).
+    const products = productsRes.data ?? [];
+    const coverByProduct: Record<string, string> = {};
+    if (products.length) {
+      const { data: coverRows } = await supabase
+        .from("product_images")
+        .select("product_id, url, storage_path, position")
+        .in(
+          "product_id",
+          products.map((product) => product.id),
+        )
+        .order("position");
+      const paths = (coverRows ?? []).map((row) => row.storage_path ?? "").filter(Boolean);
+      const signed: Record<string, string> = {};
+      if (paths.length) {
+        const { data: signedData } = await supabase.storage
+          .from("store-media")
+          .createSignedUrls(Array.from(new Set(paths)), 60 * 60);
+        for (const row of signedData ?? []) {
+          if (row.path && row.signedUrl) signed[row.path] = row.signedUrl;
+        }
+      }
+      for (const row of coverRows ?? []) {
+        if (coverByProduct[row.product_id]) continue;
+        const url = row.storage_path ? (signed[row.storage_path] ?? row.url) : row.url;
+        if (url) coverByProduct[row.product_id] = url;
+      }
+    }
+
     return {
       store,
       theme: themeRes.data,
