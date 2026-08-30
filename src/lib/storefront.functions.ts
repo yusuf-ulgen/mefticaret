@@ -181,6 +181,67 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
       : 0;
 
+    // İlgili ürünler: önce aynı türden, yetmezse en yeni ürünlerle tamamla.
+    const relatedMap = new Map<string, StorefrontProductCard>();
+    const pushRelated = (rows: StorefrontProductCard[] | null) => {
+      for (const row of rows ?? []) {
+        if (row.id === product.id || relatedMap.has(row.id)) continue;
+        if (relatedMap.size < 8) relatedMap.set(row.id, row);
+      }
+    };
+    const relatedSelect =
+      "id, title, slug, description, base_price, compare_at_price, currency, product_type, tags";
+    if (product.product_type) {
+      const { data: sameType } = await supabase
+        .from("products")
+        .select(relatedSelect)
+        .eq("store_id", store.id)
+        .eq("status", "active")
+        .eq("product_type", product.product_type)
+        .neq("id", product.id)
+        .order("created_at", { ascending: false })
+        .limit(9);
+      pushRelated(sameType);
+    }
+    if (relatedMap.size < 4) {
+      const { data: latest } = await supabase
+        .from("products")
+        .select(relatedSelect)
+        .eq("store_id", store.id)
+        .eq("status", "active")
+        .neq("id", product.id)
+        .order("created_at", { ascending: false })
+        .limit(9);
+      pushRelated(latest);
+    }
+    const relatedRows = Array.from(relatedMap.values());
+    const relatedCovers: Record<string, string> = {};
+    if (relatedRows.length) {
+      const { data: coverRows } = await supabase
+        .from("product_images")
+        .select("product_id, url, storage_path, position")
+        .in(
+          "product_id",
+          relatedRows.map((row) => row.id),
+        )
+        .order("position");
+      const paths = (coverRows ?? []).map((row) => row.storage_path ?? "").filter(Boolean);
+      let relatedSigned: Record<string, string> = {};
+      if (paths.length) {
+        const { data: signedData } = await supabase.storage
+          .from("store-media")
+          .createSignedUrls(Array.from(new Set(paths)), 60 * 60);
+        for (const row of signedData ?? []) {
+          if (row.path && row.signedUrl) relatedSigned[row.path] = row.signedUrl;
+        }
+      }
+      for (const row of coverRows ?? []) {
+        if (relatedCovers[row.product_id]) continue;
+        const url = row.storage_path ? (relatedSigned[row.storage_path] ?? row.url) : row.url;
+        if (url) relatedCovers[row.product_id] = url;
+      }
+    }
+
     return {
       store,
       theme: themeRes.data,
@@ -189,7 +250,9 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
       images,
       reviews,
       ratingAverage,
+      related: relatedRows.map((row) => ({ ...row, coverUrl: relatedCovers[row.id] ?? null })),
     };
+
   });
 
 export const getStorefrontCollection = createServerFn({ method: "GET" })
