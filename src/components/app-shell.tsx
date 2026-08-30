@@ -108,6 +108,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Terk Sepetler", to: `/store/${storeId}/carts`, icon: ShoppingCart },
         { label: "İndirimler", to: `/store/${storeId}/discounts`, icon: Tag },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
+        { label: "KDV Raporu", to: `/store/${storeId}/tax`, icon: Receipt },
         { label: "Abonelik", to: `/store/${storeId}/billing`, icon: CreditCard },
       ],
     },
