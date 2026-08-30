@@ -44,6 +44,7 @@ import { Route as AuthenticatedStoreStoreIdThemesRouteImport } from './routes/_a
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
+import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
 import { Route as AuthenticatedStoreStoreIdOrdersOrderIdRouteImport } from './routes/_authenticated/store.$storeId.orders.$orderId'
 import { Route as AuthenticatedStoreStoreIdProductsProductIdRouteImport } from './routes/_authenticated/store.$storeId.products.$productId'
 
@@ -243,6 +244,11 @@ const SSlugPProductSlugRoute = SSlugPProductSlugRouteImport.update({
   path: '/s/$slug/p/$productSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugPagePageSlugRoute = SSlugPagePageSlugRouteImport.update({
+  id: '/s/$slug/page/$pageSlug',
+  path: '/s/$slug/page/$pageSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedStoreStoreIdOrdersOrderIdRoute =
   AuthenticatedStoreStoreIdOrdersOrderIdRouteImport.update({
     id: '/$orderId',
@@ -291,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
+  '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
 }
@@ -329,6 +336,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
+  '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
 }
@@ -369,6 +377,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
+  '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/_authenticated/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/_authenticated/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
 }
@@ -409,6 +418,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/webhooks'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
+    | '/s/$slug/page/$pageSlug'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/products/$productId'
   fileRoutesByTo: FileRoutesByTo
@@ -447,6 +457,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/webhooks'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
+    | '/s/$slug/page/$pageSlug'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/products/$productId'
   id:
@@ -486,6 +497,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/webhooks'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
+    | '/s/$slug/page/$pageSlug'
     | '/_authenticated/store/$storeId/orders/$orderId'
     | '/_authenticated/store/$storeId/products/$productId'
   fileRoutesById: FileRoutesById
@@ -501,6 +513,7 @@ export interface RootRouteChildren {
   SSlugIndexRoute: typeof SSlugIndexRoute
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
+  SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -750,6 +763,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugPProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug/page/$pageSlug': {
+      id: '/s/$slug/page/$pageSlug'
+      path: '/s/$slug/page/$pageSlug'
+      fullPath: '/s/$slug/page/$pageSlug'
+      preLoaderRoute: typeof SSlugPagePageSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/store/$storeId/orders/$orderId': {
       id: '/_authenticated/store/$storeId/orders/$orderId'
       path: '/$orderId'
@@ -881,6 +901,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugIndexRoute: SSlugIndexRoute,
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
+  SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
