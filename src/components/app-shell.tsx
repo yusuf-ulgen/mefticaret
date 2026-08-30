@@ -74,6 +74,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Panel", to: `/store/${storeId}/dashboard`, icon: LayoutDashboard },
         { label: "Analitik", to: `/store/${storeId}/analytics`, icon: ChartNoAxesColumn },
         { label: "Ciro Tahmini", to: `/store/${storeId}/forecast`, icon: TrendingUp },
+        { label: "Kohortlar", to: `/store/${storeId}/cohorts`, icon: Grid3x3 },
         { label: "Ürün Raporu", to: `/store/${storeId}/reports`, icon: PackageSearch },
         { label: "Bildirimler", to: `/store/${storeId}/notifications`, icon: Bell },
       ],
