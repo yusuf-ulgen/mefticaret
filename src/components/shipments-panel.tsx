@@ -46,7 +46,7 @@ export function ShipmentsPanel({
   const update = useServerFn(updateShipment);
   const remove = useServerFn(deleteShipment);
 
-  const [carrier, setCarrier] = useState(SHIPPING_CARRIERS[0] ?? "");
+  const [carrier, setCarrier] = useState<string>(SHIPPING_CARRIERS[0] ?? "");
   const [tracking, setTracking] = useState("");
   const [trackingUrl, setTrackingUrl] = useState("");
   const [status, setStatus] = useState<ShipmentStatus>("pending");
