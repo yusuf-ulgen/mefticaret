@@ -114,6 +114,24 @@ function OrdersPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const shipmentMutation = useMutation({
+    mutationFn: async () => {
+      const carrier = bulkCarrier.trim();
+      if (carrier.length < 2) throw new Error("Kargo firması adı en az 2 karakter olmalı");
+      for (const orderId of selectedVisible) {
+        await createShipmentFn({ data: { orderId, carrier, status: "in_transit" } });
+      }
+    },
+    onSuccess: async () => {
+      const count = selectedVisible.length;
+      setSelected([]);
+      await queryClient.invalidateQueries({ queryKey: ["orders", storeId] });
+      await queryClient.invalidateQueries({ queryKey: ["shipments"] });
+      toast.success(`${count} sipariş için sevkiyat oluşturuldu`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const exportCsv = () => {
     const source = selectedVisible.length > 0 ? rows.filter((o) => selectedVisible.includes(o.id)) : rows;
     const csv = toCsv(
