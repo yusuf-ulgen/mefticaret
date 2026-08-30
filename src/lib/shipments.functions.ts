@@ -113,7 +113,15 @@ export const updateShipment = createServerFn({ method: "POST" })
     if (!current) throw new Error("Sevkiyat bulunamadı");
 
     const now = new Date().toISOString();
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      carrier?: string;
+      tracking_number?: string | null;
+      tracking_url?: string | null;
+      note?: string | null;
+      status?: z.infer<typeof statusSchema>;
+      shipped_at?: string | null;
+      delivered_at?: string | null;
+    } = {};
     if (data.carrier !== undefined) patch.carrier = data.carrier;
     if (data.trackingNumber !== undefined) patch.tracking_number = data.trackingNumber || null;
     if (data.trackingUrl !== undefined) patch.tracking_url = data.trackingUrl || null;
@@ -123,6 +131,7 @@ export const updateShipment = createServerFn({ method: "POST" })
       if (data.status !== "pending" && !current.shipped_at) patch.shipped_at = now;
       patch.delivered_at = data.status === "delivered" ? now : null;
     }
+
 
     const { error } = await supabase.from("shipments").update(patch).eq("id", current.id);
     if (error) throw new Error(error.message);
