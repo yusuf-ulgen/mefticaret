@@ -146,7 +146,19 @@ function ProductsPage() {
       title="Ürünler"
       description="Varyant, stok ve fiyat yönetimi tek ekranda."
       actions={
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Ürün ara…"
+              className="w-52 pl-8"
+            />
+          </div>
+          <Button variant="outline" className="gap-2" onClick={exportCsv} disabled={rows.length === 0}>
+            <Download className="size-4" /> CSV
+          </Button>
           <Select value={filter} onValueChange={(value) => setFilter(value as typeof filter)}>
             <SelectTrigger className="w-36">
               <SelectValue />
