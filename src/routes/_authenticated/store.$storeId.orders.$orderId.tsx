@@ -187,8 +187,9 @@ function OrderDetailPage() {
             </Link>
           </Button>
         </div>
-
+      }
     >
+
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="surface-card overflow-x-auto">
