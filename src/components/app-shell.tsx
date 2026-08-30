@@ -39,6 +39,7 @@ import {
   Users,
   UsersRound,
   Wallet,
+  Receipt,
   Warehouse,
   Webhook,
 } from "lucide-react";
