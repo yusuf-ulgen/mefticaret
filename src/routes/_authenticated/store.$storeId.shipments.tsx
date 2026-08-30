@@ -97,6 +97,50 @@ function ShipmentsPage() {
     };
   }, [shipments]);
 
+  const labelRows = useMemo(
+    () =>
+      rows.map((shipment) => {
+        const order = shipment.orders as {
+          order_number?: string;
+          customer_name?: string;
+        } | null;
+        return {
+          id: shipment.id,
+          carrier: shipment.carrier,
+          tracking_number: shipment.tracking_number ?? null,
+          status: shipment.status,
+          created_at: shipment.created_at,
+          orderNumber: order?.order_number ?? "—",
+          customerName: order?.customer_name ?? "Misafir",
+          storeName: "Mefticaret",
+          statusLabel:
+            SHIPMENT_STATUS_LABELS[shipment.status as ShipmentStatus] ?? shipment.status,
+        };
+      }),
+    [rows],
+  );
+
+  const exportCsv = () => {
+    if (labelRows.length === 0) {
+      toast.error("Dışa aktarılacak sevkiyat yok");
+      return;
+    }
+    const csv = toCsv(
+      ["siparis_no", "musteri", "kargo", "takip_no", "durum", "olusturma"],
+      labelRows.map((row) => [
+        row.orderNumber,
+        row.customerName,
+        row.carrier,
+        row.tracking_number ?? "",
+        row.statusLabel,
+        row.created_at,
+      ]),
+    );
+    downloadCsv(`sevkiyatlar-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    toast.success("CSV indirildi");
+  };
+
+
   return (
     <AppShell
       storeId={storeId}
