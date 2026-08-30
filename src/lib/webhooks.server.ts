@@ -3,20 +3,9 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import { WEBHOOK_EVENTS } from "@/lib/webhook-events";
 
 type Client = SupabaseClient<Database>;
-
-export const WEBHOOK_EVENTS = [
-  "order.created",
-  "order.updated",
-  "order.fulfilled",
-  "order.cancelled",
-  "product.created",
-  "product.updated",
-  "inventory.low_stock",
-  "customer.created",
-  "payout.paid",
-] as const;
 
 export const storeIdSchema = z.object({ storeId: z.string().uuid() });
 
