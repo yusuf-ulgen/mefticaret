@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { RecentlyViewed } from "@/components/recently-viewed";
+import { StorefrontQuestions } from "@/components/storefront-questions";
 import { StorefrontReviews } from "@/components/storefront-reviews";
 import { StockAlertForm } from "@/components/stock-alert-form";
 import { useCart } from "@/lib/cart";
@@ -321,6 +322,19 @@ function ProductPage() {
         productId={product.id}
         reviews={reviews}
         ratingAverage={ratingAverage}
+        tokens={{
+          accent: t.accent_color,
+          muted,
+          border,
+          cardBg,
+          radius,
+          headingFont: fonts.heading,
+        }}
+      />
+
+      <StorefrontQuestions
+        storeSlug={store.slug}
+        productId={product.id}
         tokens={{
           accent: t.accent_color,
           muted,
