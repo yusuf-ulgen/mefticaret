@@ -316,6 +316,7 @@ export function AppShell({
             </Link>
           )}
           <div className="ml-auto flex items-center gap-2">
+            {storeId ? <CommandPalette storeId={storeId} /> : null}
             {storeId ? <NotificationBell storeId={storeId} /> : null}
             <UserMenu />
           </div>
