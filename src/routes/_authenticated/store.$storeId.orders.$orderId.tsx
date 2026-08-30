@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { ShipmentsPanel } from "@/components/shipments-panel";
+import { OrderPrintDialog } from "@/components/order-print";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
