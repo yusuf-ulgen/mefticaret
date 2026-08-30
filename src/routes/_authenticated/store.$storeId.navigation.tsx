@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/lib/auth-context";
 import { collectionsQuery } from "@/lib/catalog-queries";
 import { menuHref } from "@/components/storefront-chrome";
 import {
@@ -55,7 +56,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/navigation"
 const KINDS: MenuKind[] = ["home", "collection", "page", "product", "cart", "account", "url"];
 
 type FormState = {
-  itemId?: string;
+  itemId: string | undefined;
   location: "header" | "footer";
   label: string;
   kind: MenuKind;
@@ -75,9 +76,9 @@ const EMPTY: FormState = {
 function NavigationPage() {
   const { storeId } = Route.useParams();
   const queryClient = useQueryClient();
-  const { data: stores } = useQuery(myStoresQuery);
-  const store = stores?.find((row) => row.store_id === storeId);
-  const slug = store?.stores?.slug ?? "";
+  const { user } = useAuth();
+  const { data: stores } = useQuery(myStoresQuery(user?.id));
+  const slug = (stores ?? []).find((row) => row.id === storeId)?.slug ?? "";
 
   const { data: items = [], isLoading } = useQuery(storeMenuItemsQuery(storeId));
   const { data: collections = [] } = useQuery(collectionsQuery(storeId));
@@ -155,6 +156,7 @@ function NavigationPage() {
     if (next < 0 || next >= list.length) return;
     const reordered = [...list];
     const [moved] = reordered.splice(index, 1);
+    if (!moved) return;
     reordered.splice(next, 0, moved);
     reorderMutation.mutate(reordered.map((row, i) => ({ id: row.id, position: i })));
   };
@@ -242,7 +244,11 @@ function NavigationPage() {
   };
 
   return (
-    <AppShell storeId={storeId}>
+    <AppShell
+      storeId={storeId}
+      title="Vitrin Menüleri"
+      description="Üst ve alt menü bağlantılarını yönet; sıralamayı oklarla değiştir."
+    >
       <div className="space-y-6">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
