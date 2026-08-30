@@ -93,7 +93,7 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
     if (productError) throw new Error(productError.message);
     if (!product) return null;
 
-    const [themeRes, variantsRes, imagesRes] = await Promise.all([
+    const [themeRes, variantsRes, imagesRes, reviewsRes] = await Promise.all([
       supabase.from("store_themes").select("*").eq("store_id", store.id).maybeSingle(),
       supabase
         .from("product_variants")
@@ -105,10 +105,23 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
         .select("id, url, alt, position")
         .eq("product_id", product.id)
         .order("position"),
+      supabase
+        .from("product_reviews")
+        .select("id, author_name, rating, title, body, is_verified_purchase, reply, created_at")
+        .eq("product_id", product.id)
+        .eq("status", "published")
+        .order("created_at", { ascending: false })
+        .limit(50),
     ]);
     if (themeRes.error) throw new Error(themeRes.error.message);
     if (variantsRes.error) throw new Error(variantsRes.error.message);
     if (imagesRes.error) throw new Error(imagesRes.error.message);
+    if (reviewsRes.error) throw new Error(reviewsRes.error.message);
+
+    const reviews = reviewsRes.data ?? [];
+    const ratingAverage = reviews.length
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+      : 0;
 
     return {
       store,
@@ -116,6 +129,8 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
       product,
       variants: variantsRes.data ?? [],
       images: imagesRes.data ?? [],
+      reviews,
+      ratingAverage,
     };
   });
 
