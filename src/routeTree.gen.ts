@@ -19,6 +19,7 @@ import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
 import { Route as SSlugAccountRouteImport } from './routes/s.$slug.account'
 import { Route as SSlugCartRouteImport } from './routes/s.$slug.cart'
 import { Route as SSlugCheckoutRouteImport } from './routes/s.$slug.checkout'
+import { Route as SSlugCompareRouteImport } from './routes/s.$slug.compare'
 import { Route as SSlugFavoritesRouteImport } from './routes/s.$slug.favorites'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
 import { Route as SSlugProductsRouteImport } from './routes/s.$slug.products'
@@ -110,6 +111,11 @@ const SSlugCartRoute = SSlugCartRouteImport.update({
 const SSlugCheckoutRoute = SSlugCheckoutRouteImport.update({
   id: '/s/$slug/checkout',
   path: '/s/$slug/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugCompareRoute = SSlugCompareRouteImport.update({
+  id: '/s/$slug/compare',
+  path: '/s/$slug/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugFavoritesRoute = SSlugFavoritesRouteImport.update({
@@ -372,6 +378,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
+  '/s/$slug/compare': typeof SSlugCompareRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/products': typeof SSlugProductsRoute
@@ -426,6 +433,7 @@ export interface FileRoutesByTo {
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
+  '/s/$slug/compare': typeof SSlugCompareRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/products': typeof SSlugProductsRoute
@@ -482,6 +490,7 @@ export interface FileRoutesById {
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
+  '/s/$slug/compare': typeof SSlugCompareRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/products': typeof SSlugProductsRoute
@@ -538,6 +547,7 @@ export interface FileRouteTypes {
     | '/s/$slug/account'
     | '/s/$slug/cart'
     | '/s/$slug/checkout'
+    | '/s/$slug/compare'
     | '/s/$slug/favorites'
     | '/s/$slug/order'
     | '/s/$slug/products'
@@ -592,6 +602,7 @@ export interface FileRouteTypes {
     | '/s/$slug/account'
     | '/s/$slug/cart'
     | '/s/$slug/checkout'
+    | '/s/$slug/compare'
     | '/s/$slug/favorites'
     | '/s/$slug/order'
     | '/s/$slug/products'
@@ -647,6 +658,7 @@ export interface FileRouteTypes {
     | '/s/$slug/account'
     | '/s/$slug/cart'
     | '/s/$slug/checkout'
+    | '/s/$slug/compare'
     | '/s/$slug/favorites'
     | '/s/$slug/order'
     | '/s/$slug/products'
@@ -700,6 +712,7 @@ export interface RootRouteChildren {
   SSlugAccountRoute: typeof SSlugAccountRoute
   SSlugCartRoute: typeof SSlugCartRoute
   SSlugCheckoutRoute: typeof SSlugCheckoutRoute
+  SSlugCompareRoute: typeof SSlugCompareRoute
   SSlugFavoritesRoute: typeof SSlugFavoritesRoute
   SSlugOrderRoute: typeof SSlugOrderRoute
   SSlugProductsRoute: typeof SSlugProductsRoute
@@ -782,6 +795,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug/checkout'
       fullPath: '/s/$slug/checkout'
       preLoaderRoute: typeof SSlugCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/compare': {
+      id: '/s/$slug/compare'
+      path: '/s/$slug/compare'
+      fullPath: '/s/$slug/compare'
+      preLoaderRoute: typeof SSlugCompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/favorites': {
@@ -1237,6 +1257,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugAccountRoute: SSlugAccountRoute,
   SSlugCartRoute: SSlugCartRoute,
   SSlugCheckoutRoute: SSlugCheckoutRoute,
+  SSlugCompareRoute: SSlugCompareRoute,
   SSlugFavoritesRoute: SSlugFavoritesRoute,
   SSlugOrderRoute: SSlugOrderRoute,
   SSlugProductsRoute: SSlugProductsRoute,
