@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { compact } from "@/lib/mefti";
+import { createManualOrder, manualOrderSchema } from "@/lib/manual-order.server";
 
 /**
  * Satış uygulama katmanı (siparişler, müşteriler, indirimler).
@@ -272,3 +273,8 @@ export const toggleDiscount = createServerFn({ method: "POST" })
     if (!discount) throw new Error("Bu kuponu düzenleme yetkiniz yok");
     return discount;
   });
+
+export const createManualOrderFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => manualOrderSchema.parse(data))
+  .handler(async ({ data, context }) => createManualOrder(context.supabase, data));
