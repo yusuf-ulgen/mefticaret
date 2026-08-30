@@ -264,3 +264,45 @@ export const storeActionItemsQuery = (storeId: string) =>
       };
     },
   });
+
+/** Mağaza kurulum kontrol listesi: yayına çıkmak için eksik adımlar. */
+export const storeSetupChecklistQuery = (storeId: string) =>
+  queryOptions({
+    queryKey: ["store-setup-checklist", storeId],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const [products, payments, rates, theme, domain, settings] = await Promise.all([
+        supabase
+          .from("products")
+          .select("id", { count: "exact", head: true })
+          .eq("store_id", storeId)
+          .eq("status", "active"),
+        supabase
+          .from("store_payment_methods")
+          .select("id", { count: "exact", head: true })
+          .eq("store_id", storeId)
+          .eq("is_active", true),
+        supabase
+          .from("shipping_rates")
+          .select("id", { count: "exact", head: true })
+          .eq("store_id", storeId)
+          .eq("is_active", true),
+        supabase.from("store_themes").select("is_published").eq("store_id", storeId).maybeSingle(),
+        supabase
+          .from("store_domains")
+          .select("id", { count: "exact", head: true })
+          .eq("store_id", storeId)
+          .eq("status", "verified"),
+        supabase.from("store_settings").select("contact_email").eq("store_id", storeId).maybeSingle(),
+      ]);
+
+      return {
+        hasActiveProduct: (products.count ?? 0) > 0,
+        hasPaymentMethod: (payments.count ?? 0) > 0,
+        hasShippingRate: (rates.count ?? 0) > 0,
+        themePublished: Boolean(theme.data?.is_published),
+        hasVerifiedDomain: (domain.count ?? 0) > 0,
+        hasContactEmail: Boolean(settings.data?.contact_email),
+      };
+    },
+  });
