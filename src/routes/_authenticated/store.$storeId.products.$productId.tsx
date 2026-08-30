@@ -81,11 +81,14 @@ function ProductDetailPage() {
     product_type: "",
     base_price: "",
     status: "draft" as "draft" | "active" | "archived",
+    seo_title: "",
+    seo_description: "",
   });
   const [draft, setDraft] = useState<VariantDraft>(EMPTY_DRAFT);
 
   useEffect(() => {
     if (!product) return;
+    const seo = (product.seo ?? {}) as { title?: string; description?: string };
     setForm({
       title: product.title,
       description: product.description ?? "",
@@ -93,6 +96,8 @@ function ProductDetailPage() {
       product_type: product.product_type ?? "",
       base_price: String(product.base_price ?? 0),
       status: product.status,
+      seo_title: seo.title ?? "",
+      seo_description: seo.description ?? "",
     });
   }, [product]);
 
@@ -113,9 +118,14 @@ function ProductDetailPage() {
             product_type: form.product_type,
             base_price: Number(form.base_price || 0),
             status: form.status,
+            seo: {
+              title: form.seo_title.trim(),
+              description: form.seo_description.trim(),
+            },
           },
         },
       }),
+
     onSuccess: async () => {
       await invalidate();
       toast.success("Ürün güncellendi");
