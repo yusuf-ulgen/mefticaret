@@ -13,6 +13,13 @@ import {
   updateMyProfile,
   updateProfileSchema,
 } from "@/lib/account.server";
+import {
+  cancelMyReturn,
+  cancelReturnSchema,
+  createMyReturn,
+  createReturnSchema,
+  listMyReturns,
+} from "@/lib/account-returns.server";
 
 export const claimMyStoreAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -43,3 +50,18 @@ export const updateMyStoreProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => updateProfileSchema.parse(data))
   .handler(async ({ data, context }) => updateMyProfile(context.supabase, context.userId, data));
+
+export const getMyStoreReturns = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => storeIdSchema.parse(data))
+  .handler(async ({ data, context }) => listMyReturns(context.supabase, context.userId, data.storeId));
+
+export const createMyStoreReturn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => createReturnSchema.parse(data))
+  .handler(async ({ data, context }) => createMyReturn(context.supabase, context.userId, data));
+
+export const cancelMyStoreReturn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => cancelReturnSchema.parse(data))
+  .handler(async ({ data, context }) => cancelMyReturn(context.supabase, context.userId, data));
