@@ -13,6 +13,7 @@ import {
   Users,
   Check,
   Circle,
+  Radio,
 } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
@@ -26,6 +27,8 @@ import {
   storeSetupChecklistQuery,
   storeStatsQuery,
 } from "@/lib/store-queries";
+import { useStoreRealtime } from "@/hooks/use-store-realtime";
+import { formatDateTime } from "@/lib/mefti";
 
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/dashboard")({
@@ -47,6 +50,7 @@ function DashboardPage() {
   const { data: audit } = useQuery(storeAuditQuery(storeId));
   const { data: actionItems } = useQuery(storeActionItemsQuery(storeId));
   const { data: checklist } = useQuery(storeSetupChecklistQuery(storeId));
+  const liveEvents = useStoreRealtime(storeId);
 
   const setupSteps = [
     { key: "product", label: "Aktif ürün ekle", done: checklist?.hasActiveProduct ?? false, to: "/store/$storeId/products" as const },
@@ -147,6 +151,38 @@ function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {liveEvents.length ? (
+        <section className="surface-card p-6">
+          <div className="flex items-center gap-2">
+            <span className="relative grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
+              <Radio className="size-4" />
+              <span className="absolute -right-0.5 -top-0.5 size-2 animate-pulse rounded-full bg-primary" />
+            </span>
+            <div>
+              <h2 className="font-display text-lg font-semibold">Canlı akış</h2>
+              <p className="text-xs text-muted-foreground">
+                Siparişler ve mağaza olayları anlık olarak buraya düşer.
+              </p>
+            </div>
+          </div>
+          <ul className="mt-4 divide-y divide-border">
+            {liveEvents.map((event) => (
+              <li key={`${event.kind}-${event.id}`} className="flex items-start justify-between gap-3 py-3">
+                <div>
+                  <p className="text-sm font-medium">{event.title}</p>
+                  {event.detail ? (
+                    <p className="text-xs text-muted-foreground">{event.detail}</p>
+                  ) : null}
+                </div>
+                <span className="whitespace-nowrap text-xs text-muted-foreground">
+                  {formatDateTime(event.at)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {setupDone < setupSteps.length ? (
         <section className="surface-card p-6">
