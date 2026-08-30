@@ -9,6 +9,7 @@ import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontReviews } from "@/components/storefront-reviews";
 import { StockAlertForm } from "@/components/stock-alert-form";
 import { useCart } from "@/lib/cart";
+import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { recordRecentProduct } from "@/lib/recently-viewed";
@@ -100,6 +101,7 @@ function ProductPage() {
   const [variantId, setVariantId] = useState<string | null>(null);
   const cart = useCart();
   const favorites = useFavorites();
+  const compare = useCompare();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -276,6 +278,34 @@ function ProductPage() {
             {favorites.isFavorite(store.slug, product.slug)
               ? "♥ Favorilerimde"
               : "♡ Favorilere ekle"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              const result = compare.toggle({ storeSlug: store.slug, productSlug: product.slug });
+              if (result === null) {
+                toast.error(`En fazla ${compare.limit} ürün karşılaştırabilirsin`);
+                return;
+              }
+              toast.success(result ? "Karşılaştırma listesine eklendi" : "Karşılaştırmadan çıkarıldı");
+            }}
+            style={{
+              marginTop: 10,
+              width: "100%",
+              background: "transparent",
+              color: "inherit",
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+              padding: "12px 20px",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            {compare.isSelected(store.slug, product.slug)
+              ? "⇄ Karşılaştırmada"
+              : "⇄ Karşılaştır"}
           </button>
 
           {product.description ? (
