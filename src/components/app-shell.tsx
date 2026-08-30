@@ -20,6 +20,7 @@ import {
   Palette,
   Plus,
   Rocket,
+  Search,
   ShieldCheck,
   ShoppingBag,
   ShoppingCart,
