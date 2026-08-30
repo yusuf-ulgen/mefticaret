@@ -179,6 +179,11 @@ function ShipmentsPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
+        <ShipmentLabels rows={labelRows} />
+        <Button size="sm" variant="outline" onClick={exportCsv}>
+          <Download className="mr-2 size-4" />
+          CSV indir
+        </Button>
       </div>
 
       {isLoading ? (
