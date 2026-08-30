@@ -20,6 +20,7 @@ import {
 import { downloadCsv, toCsv } from "@/lib/csv";
 import { ordersQuery, type OrderStatus } from "@/lib/sales-queries";
 import { updateOrder } from "@/lib/sales.functions";
+import { createShipment } from "@/lib/shipments.functions";
 import {
   formatDateTime,
   formatMoney,
@@ -89,8 +90,10 @@ function OrdersPage() {
 
   const queryClient = useQueryClient();
   const update = useServerFn(updateOrder);
+  const createShipmentFn = useServerFn(createShipment);
   const [selected, setSelected] = useState<string[]>([]);
   const [bulkStatus, setBulkStatus] = useState<OrderStatus>("processing");
+  const [bulkCarrier, setBulkCarrier] = useState("Aras Kargo");
 
   const visibleIds = rows.map((order) => order.id);
   const selectedVisible = selected.filter((id) => visibleIds.includes(id));
@@ -110,6 +113,24 @@ function OrdersPage() {
       setSelected([]);
       await queryClient.invalidateQueries({ queryKey: ["orders", storeId] });
       toast.success(`${count} sipariş güncellendi`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const shipmentMutation = useMutation({
+    mutationFn: async () => {
+      const carrier = bulkCarrier.trim();
+      if (carrier.length < 2) throw new Error("Kargo firması adı en az 2 karakter olmalı");
+      for (const orderId of selectedVisible) {
+        await createShipmentFn({ data: { orderId, carrier, status: "in_transit" } });
+      }
+    },
+    onSuccess: async () => {
+      const count = selectedVisible.length;
+      setSelected([]);
+      await queryClient.invalidateQueries({ queryKey: ["orders", storeId] });
+      await queryClient.invalidateQueries({ queryKey: ["shipments"] });
+      toast.success(`${count} sipariş için sevkiyat oluşturuldu`);
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -210,6 +231,21 @@ function OrdersPage() {
             onClick={() => bulkMutation.mutate()}
           >
             {bulkMutation.isPending ? "Uygulanıyor…" : "Durumu uygula"}
+          </Button>
+          <span className="mx-1 hidden h-6 w-px bg-border sm:block" />
+          <Input
+            className="w-40"
+            placeholder="Kargo firması"
+            value={bulkCarrier}
+            onChange={(event) => setBulkCarrier(event.target.value)}
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={shipmentMutation.isPending}
+            onClick={() => shipmentMutation.mutate()}
+          >
+            {shipmentMutation.isPending ? "Oluşturuluyor…" : "Sevkiyat oluştur"}
           </Button>
           <Button size="sm" variant="ghost" onClick={() => setSelected([])}>
             Seçimi temizle
