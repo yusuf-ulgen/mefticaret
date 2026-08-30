@@ -1,15 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Download, UsersRound } from "lucide-react";
+import { ClipboardCopy, Download, TicketPercent, UsersRound } from "lucide-react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { downloadCsv, toCsv } from "@/lib/csv";
 import { formatMoney, formatNumber } from "@/lib/mefti";
+import { upsertDiscount } from "@/lib/sales.functions";
 import {
   SEGMENT_META,
   type SegmentKey,
@@ -20,6 +33,14 @@ import { storeQuery } from "@/lib/store-queries";
 import { cn } from "@/lib/utils";
 
 const SEGMENT_ORDER: SegmentKey[] = ["champion", "loyal", "new", "at_risk", "lost"];
+
+const SEGMENT_CODE: Record<SegmentKey, string> = {
+  champion: "VIP",
+  loyal: "SADIK",
+  new: "HOSGELDIN",
+  at_risk: "GERIDON",
+  lost: "OZLEDIK",
+};
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/segments")({
   head: () => ({
