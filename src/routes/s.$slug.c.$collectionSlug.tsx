@@ -45,6 +45,8 @@ export const Route = createFileRoute("/s/$slug/c/$collectionSlug")({
   component: CollectionPage,
 });
 
+type SortKey = "newest" | "price_asc" | "price_desc" | "title";
+
 function CollectionPage() {
   const { slug, collectionSlug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontCollectionQuery(slug, collectionSlug));
