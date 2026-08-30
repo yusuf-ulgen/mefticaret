@@ -1,8 +1,33 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 
 import { useCart } from "@/lib/cart";
+import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import { fontStack } from "@/lib/theme-presets";
+
+/** Menü bağlantısını vitrin adresine çevirir. */
+export function menuHref(slug: string, item: Pick<MenuItem, "kind" | "target">) {
+  const base = `/s/${slug}`;
+  const target = item.target?.trim() ?? "";
+  switch (item.kind) {
+    case "home":
+      return base;
+    case "cart":
+      return `${base}/cart`;
+    case "account":
+      return `${base}/account`;
+    case "collection":
+      return `${base}/c/${target}`;
+    case "page":
+      return `${base}/page/${target}`;
+    case "product":
+      return `${base}/p/${target}`;
+    default:
+      return target.startsWith("http") ? target : `${base}${target.startsWith("/") ? target : `/${target}`}`;
+  }
+}
+
 
 export type StoreTheme = {
   primary_color: string;
