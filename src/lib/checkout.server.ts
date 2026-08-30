@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isGiftCardUsable, normalizeGiftCardCode, redeemableAmount } from "@/lib/gift-cards";
+
 /**
  * Halka açık kasa (checkout) iş mantığı. Fiyat, stok ve indirim doğrulaması
  * daima veritabanı üzerinden yapılır; istemciden gelen tutarlara güvenilmez.
