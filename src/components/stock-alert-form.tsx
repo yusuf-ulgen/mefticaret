@@ -19,7 +19,7 @@ export function StockAlertForm({
 }: {
   slug: string;
   productSlug: string;
-  variantId?: string;
+  variantId?: string | undefined;
   accent: string;
   border: string;
   muted: string;
