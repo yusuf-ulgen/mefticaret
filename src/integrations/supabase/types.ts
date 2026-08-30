@@ -531,6 +531,53 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          entity: string | null
+          entity_id: string | null
+          id: string
+          is_read: boolean
+          kind: Database["public"]["Enums"]["notification_kind"]
+          message: string | null
+          meta: Json
+          store_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          is_read?: boolean
+          kind?: Database["public"]["Enums"]["notification_kind"]
+          message?: string | null
+          meta?: Json
+          store_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+          is_read?: boolean
+          kind?: Database["public"]["Enums"]["notification_kind"]
+          message?: string | null
+          meta?: Json
+          store_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_events: {
         Row: {
           actor_id: string | null
@@ -1552,6 +1599,56 @@ export type Database = {
           },
         ]
       }
+      store_webhooks: {
+        Row: {
+          created_at: string
+          events: string[]
+          id: string
+          is_active: boolean
+          last_error: string | null
+          last_triggered_at: string | null
+          name: string
+          secret: string
+          store_id: string
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_triggered_at?: string | null
+          name: string
+          secret?: string
+          store_id: string
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_triggered_at?: string | null
+          name?: string
+          secret?: string
+          store_id?: string
+          target_url?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_webhooks_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stores: {
         Row: {
           created_at: string
@@ -1641,6 +1738,60 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_deliveries: {
+        Row: {
+          attempt: number
+          created_at: string
+          event: string
+          id: string
+          payload: Json
+          response_body: string | null
+          response_status: number | null
+          status: Database["public"]["Enums"]["webhook_delivery_status"]
+          store_id: string
+          webhook_id: string
+        }
+        Insert: {
+          attempt?: number
+          created_at?: string
+          event: string
+          id?: string
+          payload?: Json
+          response_body?: string | null
+          response_status?: number | null
+          status?: Database["public"]["Enums"]["webhook_delivery_status"]
+          store_id: string
+          webhook_id: string
+        }
+        Update: {
+          attempt?: number
+          created_at?: string
+          event?: string
+          id?: string
+          payload?: Json
+          response_body?: string | null
+          response_status?: number | null
+          status?: Database["public"]["Enums"]["webhook_delivery_status"]
+          store_id?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_deliveries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_deliveries_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "store_webhooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1676,6 +1827,12 @@ export type Database = {
         | "refund"
         | "payout"
         | "adjustment"
+      notification_kind:
+        | "order"
+        | "inventory"
+        | "payout"
+        | "system"
+        | "abandoned_cart"
       order_status:
         | "pending"
         | "processing"
@@ -1693,6 +1850,7 @@ export type Database = {
       product_status: "draft" | "active" | "archived"
       store_role: "owner" | "admin" | "staff" | "marketing" | "support"
       store_status: "draft" | "active" | "suspended" | "archived"
+      webhook_delivery_status: "pending" | "success" | "failed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1850,6 +2008,13 @@ export const Constants = {
         "payout",
         "adjustment",
       ],
+      notification_kind: [
+        "order",
+        "inventory",
+        "payout",
+        "system",
+        "abandoned_cart",
+      ],
       order_status: [
         "pending",
         "processing",
@@ -1869,6 +2034,7 @@ export const Constants = {
       product_status: ["draft", "active", "archived"],
       store_role: ["owner", "admin", "staff", "marketing", "support"],
       store_status: ["draft", "active", "suspended", "archived"],
+      webhook_delivery_status: ["pending", "success", "failed"],
     },
   },
 } as const
