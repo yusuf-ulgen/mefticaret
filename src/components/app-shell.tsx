@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { CommandPalette } from "@/components/command-palette";
 import { NotificationBell } from "@/components/notification-bell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
