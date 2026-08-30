@@ -47,6 +47,7 @@ import { Route as AuthenticatedStoreStoreIdQuestionsRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdReportsRouteImport } from './routes/_authenticated/store.$storeId.reports'
 import { Route as AuthenticatedStoreStoreIdReturnsRouteImport } from './routes/_authenticated/store.$storeId.returns'
 import { Route as AuthenticatedStoreStoreIdReviewsRouteImport } from './routes/_authenticated/store.$storeId.reviews'
+import { Route as AuthenticatedStoreStoreIdSegmentsRouteImport } from './routes/_authenticated/store.$storeId.segments'
 import { Route as AuthenticatedStoreStoreIdSeoRouteImport } from './routes/_authenticated/store.$storeId.seo'
 import { Route as AuthenticatedStoreStoreIdSettingsRouteImport } from './routes/_authenticated/store.$storeId.settings'
 import { Route as AuthenticatedStoreStoreIdShipmentsRouteImport } from './routes/_authenticated/store.$storeId.shipments'
@@ -279,6 +280,12 @@ const AuthenticatedStoreStoreIdReviewsRoute =
     path: '/store/$storeId/reviews',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdSegmentsRoute =
+  AuthenticatedStoreStoreIdSegmentsRouteImport.update({
+    id: '/store/$storeId/segments',
+    path: '/store/$storeId/segments',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdSeoRoute =
   AuthenticatedStoreStoreIdSeoRouteImport.update({
     id: '/store/$storeId/seo',
@@ -421,6 +428,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/reports': typeof AuthenticatedStoreStoreIdReportsRoute
   '/store/$storeId/returns': typeof AuthenticatedStoreStoreIdReturnsRoute
   '/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
+  '/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
   '/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
@@ -478,6 +486,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/reports': typeof AuthenticatedStoreStoreIdReportsRoute
   '/store/$storeId/returns': typeof AuthenticatedStoreStoreIdReturnsRoute
   '/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
+  '/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
   '/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
@@ -537,6 +546,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/reports': typeof AuthenticatedStoreStoreIdReportsRoute
   '/_authenticated/store/$storeId/returns': typeof AuthenticatedStoreStoreIdReturnsRoute
   '/_authenticated/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
+  '/_authenticated/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
   '/_authenticated/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/_authenticated/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/_authenticated/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
@@ -596,6 +606,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/reports'
     | '/store/$storeId/returns'
     | '/store/$storeId/reviews'
+    | '/store/$storeId/segments'
     | '/store/$storeId/seo'
     | '/store/$storeId/settings'
     | '/store/$storeId/shipments'
@@ -653,6 +664,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/reports'
     | '/store/$storeId/returns'
     | '/store/$storeId/reviews'
+    | '/store/$storeId/segments'
     | '/store/$storeId/seo'
     | '/store/$storeId/settings'
     | '/store/$storeId/shipments'
@@ -711,6 +723,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/reports'
     | '/_authenticated/store/$storeId/returns'
     | '/_authenticated/store/$storeId/reviews'
+    | '/_authenticated/store/$storeId/segments'
     | '/_authenticated/store/$storeId/seo'
     | '/_authenticated/store/$storeId/settings'
     | '/_authenticated/store/$storeId/shipments'
@@ -1019,6 +1032,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdReviewsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/segments': {
+      id: '/_authenticated/store/$storeId/segments'
+      path: '/store/$storeId/segments'
+      fullPath: '/store/$storeId/segments'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSegmentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/seo': {
       id: '/_authenticated/store/$storeId/seo'
       path: '/store/$storeId/seo'
@@ -1224,6 +1244,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdReportsRoute: typeof AuthenticatedStoreStoreIdReportsRoute
   AuthenticatedStoreStoreIdReturnsRoute: typeof AuthenticatedStoreStoreIdReturnsRoute
   AuthenticatedStoreStoreIdReviewsRoute: typeof AuthenticatedStoreStoreIdReviewsRoute
+  AuthenticatedStoreStoreIdSegmentsRoute: typeof AuthenticatedStoreStoreIdSegmentsRoute
   AuthenticatedStoreStoreIdSeoRoute: typeof AuthenticatedStoreStoreIdSeoRoute
   AuthenticatedStoreStoreIdSettingsRoute: typeof AuthenticatedStoreStoreIdSettingsRoute
   AuthenticatedStoreStoreIdShipmentsRoute: typeof AuthenticatedStoreStoreIdShipmentsRoute
@@ -1277,6 +1298,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdReportsRoute: AuthenticatedStoreStoreIdReportsRoute,
   AuthenticatedStoreStoreIdReturnsRoute: AuthenticatedStoreStoreIdReturnsRoute,
   AuthenticatedStoreStoreIdReviewsRoute: AuthenticatedStoreStoreIdReviewsRoute,
+  AuthenticatedStoreStoreIdSegmentsRoute:
+    AuthenticatedStoreStoreIdSegmentsRoute,
   AuthenticatedStoreStoreIdSeoRoute: AuthenticatedStoreStoreIdSeoRoute,
   AuthenticatedStoreStoreIdSettingsRoute:
     AuthenticatedStoreStoreIdSettingsRoute,
