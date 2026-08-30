@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
   AlertTriangle,
+  BellRing,
   CreditCard,
   MessageSquare,
   PackageCheck,
@@ -78,6 +79,13 @@ function DashboardPage() {
       count: actionItems?.pendingReviews ?? 0,
       icon: MessageSquare,
       to: "/store/$storeId/reviews" as const,
+    },
+    {
+      key: "stock-alerts",
+      label: "Stok bildirimi bekleyen",
+      count: actionItems?.pendingStockAlerts ?? 0,
+      icon: BellRing,
+      to: "/store/$storeId/stock-alerts" as const,
     },
   ];
 

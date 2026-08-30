@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.notify_stock_alerts_ready() FROM PUBLIC, anon, authenticated;
