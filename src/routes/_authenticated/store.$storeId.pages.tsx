@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/lib/auth-context";
 import { deletePage, savePage } from "@/lib/pages.functions";
 import { storePagesQuery } from "@/lib/pages-queries";
 import { myStoresQuery } from "@/lib/store-queries";
@@ -59,7 +60,8 @@ function PagesPage() {
   const { storeId } = Route.useParams();
   const queryClient = useQueryClient();
   const { data: pages, isLoading } = useQuery(storePagesQuery(storeId));
-  const { data: stores } = useQuery(myStoresQuery());
+  const { user } = useAuth();
+  const { data: stores } = useQuery(myStoresQuery(user?.id));
   const storeSlug = (stores ?? []).find((s) => s.id === storeId)?.slug;
 
   const save = useServerFn(savePage);
