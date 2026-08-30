@@ -100,6 +100,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Pazaryerleri", to: `/store/${storeId}/channels`, icon: Store },
         { label: "Temalar", to: `/store/${storeId}/themes`, icon: Palette },
         { label: "İçerik Sayfaları", to: `/store/${storeId}/pages`, icon: FileText },
+        { label: "Vitrin Menüleri", to: `/store/${storeId}/navigation`, icon: Menu },
         { label: "AI Asistan", to: `/store/${storeId}/ai`, icon: Sparkles },
         { label: "Webhook & Bildirim", to: `/store/${storeId}/webhooks`, icon: Webhook },
         { label: "İçe / Dışa Aktarma", to: `/store/${storeId}/import-export`, icon: FileSpreadsheet },

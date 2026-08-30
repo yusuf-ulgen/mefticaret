@@ -1720,6 +1720,53 @@ export type Database = {
           },
         ]
       }
+      store_menu_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_visible: boolean
+          kind: string
+          label: string
+          location: string
+          position: number
+          store_id: string
+          target: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          kind?: string
+          label: string
+          location?: string
+          position?: number
+          store_id: string
+          target?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          kind?: string
+          label?: string
+          location?: string
+          position?: number
+          store_id?: string
+          target?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_menu_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_pages: {
         Row: {
           body: string

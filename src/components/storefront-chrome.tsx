@@ -1,8 +1,33 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 
 import { useCart } from "@/lib/cart";
+import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import { fontStack } from "@/lib/theme-presets";
+
+/** Menü bağlantısını vitrin adresine çevirir. */
+export function menuHref(slug: string, item: Pick<MenuItem, "kind" | "target">) {
+  const base = `/s/${slug}`;
+  const target = item.target?.trim() ?? "";
+  switch (item.kind) {
+    case "home":
+      return base;
+    case "cart":
+      return `${base}/cart`;
+    case "account":
+      return `${base}/account`;
+    case "collection":
+      return `${base}/c/${target}`;
+    case "page":
+      return `${base}/page/${target}`;
+    case "product":
+      return `${base}/p/${target}`;
+    default:
+      return target.startsWith("http") ? target : `${base}${target.startsWith("/") ? target : `/${target}`}`;
+  }
+}
+
 
 export type StoreTheme = {
   primary_color: string;
@@ -73,6 +98,10 @@ export function StorefrontChrome({
 }) {
   const { t, fonts, text, muted, border, radius } = storefrontTokens(theme);
   const cart = useCart();
+  const { data: menuItems } = useQuery(storefrontMenuQuery(storeSlug));
+  const headerItems = (menuItems ?? []).filter((item) => item.location === "header");
+  const footerItems = (menuItems ?? []).filter((item) => item.location === "footer");
+
   const cartCount = cart.countFor(storeSlug);
 
   return (
@@ -118,26 +147,41 @@ export function StorefrontChrome({
           {storeName}
         </Link>
         <nav style={{ display: "flex", gap: 18, fontSize: 13, color: muted }}>
-          <Link to="/s/$slug" params={{ slug: storeSlug }} style={{ color: muted, textDecoration: "none" }}>
-            Ürünler
-          </Link>
-          <a href="#koleksiyonlar" style={{ color: muted, textDecoration: "none" }}>
-            Koleksiyonlar
-          </a>
-          <Link
-            to="/s/$slug/order"
-            params={{ slug: storeSlug }}
-            style={{ color: muted, textDecoration: "none" }}
-          >
-            Siparişim
-          </Link>
-          <Link
-            to="/s/$slug/account"
-            params={{ slug: storeSlug }}
-            style={{ color: muted, textDecoration: "none" }}
-          >
-            Hesabım
-          </Link>
+          {headerItems.length ? (
+            headerItems.map((item) => (
+              <a
+                key={item.id}
+                href={menuHref(storeSlug, item)}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                {item.label}
+              </a>
+            ))
+          ) : (
+            <>
+              <Link to="/s/$slug" params={{ slug: storeSlug }} style={{ color: muted, textDecoration: "none" }}>
+                Ürünler
+              </Link>
+              <a href="#koleksiyonlar" style={{ color: muted, textDecoration: "none" }}>
+                Koleksiyonlar
+              </a>
+              <Link
+                to="/s/$slug/order"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                Siparişim
+              </Link>
+              <Link
+                to="/s/$slug/account"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                Hesabım
+              </Link>
+            </>
+          )}
+
           <Link
             to="/s/$slug/cart"
             params={{ slug: storeSlug }}
@@ -166,7 +210,7 @@ export function StorefrontChrome({
           color: muted,
         }}
       >
-        {footerPages?.length ? (
+        {footerItems.length || footerPages?.length ? (
           <nav
             style={{
               display: "flex",
@@ -176,7 +220,16 @@ export function StorefrontChrome({
               marginBottom: 14,
             }}
           >
-            {footerPages.map((page) => (
+            {footerItems.map((item) => (
+              <a
+                key={item.id}
+                href={menuHref(storeSlug, item)}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                {item.label}
+              </a>
+            ))}
+            {footerPages?.map((page) => (
               <Link
                 key={page.slug}
                 to="/s/$slug/page/$pageSlug"
@@ -188,6 +241,7 @@ export function StorefrontChrome({
             ))}
           </nav>
         ) : null}
+
         {storeName} — Mefticaret altyapısıyla çalışır.
       </footer>
     </div>
