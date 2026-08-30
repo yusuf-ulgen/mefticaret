@@ -1926,7 +1926,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      rollup_store_daily_stats: {
+        Args: { target_day?: string }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "platform_admin" | "agency" | "seller" | "customer"
