@@ -11,3 +11,12 @@ export function getCartToken(storeSlug: string): string {
     return " ephemeral-token-placeholder";
   }
 }
+
+/** Kurtarma linki ile gelen ziyaretçinin token'ını sabitler (aynı sepet kaydına yazılsın). */
+export function setCartToken(storeSlug: string, token: string): void {
+  try {
+    window.localStorage.setItem(`mefti-cart-token-${storeSlug}`, token);
+  } catch {
+    /* depolama kapalı olabilir */
+  }
+}

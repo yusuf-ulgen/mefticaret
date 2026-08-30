@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Mail, ShoppingCart, Trash2, TrendingUp } from "lucide-react";
+import { Link2, Mail, ShoppingCart, Trash2, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -50,6 +50,23 @@ function AbandonedCartsPage() {
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "Silinemedi"),
   });
+
+  const storeSlug = store?.slug ?? "";
+
+  /** Ziyaretçiyi sepeti dolu olarak geri getiren kurtarma linki. */
+  function recoveryLink(cartToken: string) {
+    const origin = typeof window === "undefined" ? "" : window.location.origin;
+    return `${origin}/s/${storeSlug}/cart?recover=${encodeURIComponent(cartToken)}`;
+  }
+
+  async function copyRecoveryLink(cartToken: string) {
+    try {
+      await navigator.clipboard.writeText(recoveryLink(cartToken));
+      toast.success("Kurtarma linki kopyalandı");
+    } catch {
+      toast.error("Link kopyalanamadı");
+    }
+  }
 
   const rows = carts ?? [];
   const filtered = useMemo(() => {
@@ -134,7 +151,7 @@ function AbandonedCartsPage() {
                   <TableHead className="text-right">Tutar</TableHead>
                   <TableHead>Son görülme</TableHead>
                   <TableHead>Durum</TableHead>
-                  <TableHead className="w-12" />
+                  <TableHead className="w-24" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -163,7 +180,18 @@ function AbandonedCartsPage() {
                         <Badge variant="secondary">Bekliyor</Badge>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {!cart.recovered_order_id && storeSlug ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Kurtarma linkini kopyala"
+                          title="Kurtarma linkini kopyala"
+                          onClick={() => void copyRecoveryLink(cart.cart_token)}
+                        >
+                          <Link2 className="size-4" />
+                        </Button>
+                      ) : null}
                       <Button
                         variant="ghost"
                         size="icon"
