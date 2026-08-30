@@ -51,6 +51,7 @@ import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/publi
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
+import { Route as AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport } from './routes/_authenticated/store.$storeId.customers.$customerId'
 import { Route as AuthenticatedStoreStoreIdOrdersOrderIdRouteImport } from './routes/_authenticated/store.$storeId.orders.$orderId'
 import { Route as AuthenticatedStoreStoreIdProductsProductIdRouteImport } from './routes/_authenticated/store.$storeId.products.$productId'
 
@@ -291,6 +292,12 @@ const SSlugPagePageSlugRoute = SSlugPagePageSlugRouteImport.update({
   path: '/s/$slug/page/$pageSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedStoreStoreIdCustomersCustomerIdRoute =
+  AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport.update({
+    id: '/$customerId',
+    path: '/$customerId',
+    getParentRoute: () => AuthenticatedStoreStoreIdCustomersRoute,
+  } as any)
 const AuthenticatedStoreStoreIdOrdersOrderIdRoute =
   AuthenticatedStoreStoreIdOrdersOrderIdRouteImport.update({
     id: '/$orderId',
@@ -322,7 +329,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
   '/store/$storeId/channels': typeof AuthenticatedStoreStoreIdChannelsRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
-  '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRoute
+  '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
@@ -346,6 +353,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
 }
@@ -367,7 +375,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
   '/store/$storeId/channels': typeof AuthenticatedStoreStoreIdChannelsRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
-  '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRoute
+  '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
@@ -391,6 +399,7 @@ export interface FileRoutesByTo {
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
 }
@@ -414,7 +423,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
   '/_authenticated/store/$storeId/channels': typeof AuthenticatedStoreStoreIdChannelsRoute
   '/_authenticated/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
-  '/_authenticated/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRoute
+  '/_authenticated/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   '/_authenticated/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/_authenticated/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/_authenticated/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
@@ -438,6 +447,7 @@ export interface FileRoutesById {
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/_authenticated/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/_authenticated/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/_authenticated/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
 }
@@ -485,6 +495,7 @@ export interface FileRouteTypes {
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/store/$storeId/customers/$customerId'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/products/$productId'
   fileRoutesByTo: FileRoutesByTo
@@ -530,6 +541,7 @@ export interface FileRouteTypes {
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/store/$storeId/customers/$customerId'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/products/$productId'
   id:
@@ -576,6 +588,7 @@ export interface FileRouteTypes {
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/_authenticated/store/$storeId/customers/$customerId'
     | '/_authenticated/store/$storeId/orders/$orderId'
     | '/_authenticated/store/$storeId/products/$productId'
   fileRoutesById: FileRoutesById
@@ -891,6 +904,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugPagePageSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/store/$storeId/customers/$customerId': {
+      id: '/_authenticated/store/$storeId/customers/$customerId'
+      path: '/$customerId'
+      fullPath: '/store/$storeId/customers/$customerId'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdCustomersRoute
+    }
     '/_authenticated/store/$storeId/orders/$orderId': {
       id: '/_authenticated/store/$storeId/orders/$orderId'
       path: '/$orderId'
@@ -907,6 +927,21 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedStoreStoreIdCustomersRouteChildren {
+  AuthenticatedStoreStoreIdCustomersCustomerIdRoute: typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
+}
+
+const AuthenticatedStoreStoreIdCustomersRouteChildren: AuthenticatedStoreStoreIdCustomersRouteChildren =
+  {
+    AuthenticatedStoreStoreIdCustomersCustomerIdRoute:
+      AuthenticatedStoreStoreIdCustomersCustomerIdRoute,
+  }
+
+const AuthenticatedStoreStoreIdCustomersRouteWithChildren =
+  AuthenticatedStoreStoreIdCustomersRoute._addFileChildren(
+    AuthenticatedStoreStoreIdCustomersRouteChildren,
+  )
 
 interface AuthenticatedStoreStoreIdOrdersRouteChildren {
   AuthenticatedStoreStoreIdOrdersOrderIdRoute: typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
@@ -949,7 +984,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdCartsRoute: typeof AuthenticatedStoreStoreIdCartsRoute
   AuthenticatedStoreStoreIdChannelsRoute: typeof AuthenticatedStoreStoreIdChannelsRoute
   AuthenticatedStoreStoreIdCollectionsRoute: typeof AuthenticatedStoreStoreIdCollectionsRoute
-  AuthenticatedStoreStoreIdCustomersRoute: typeof AuthenticatedStoreStoreIdCustomersRoute
+  AuthenticatedStoreStoreIdCustomersRoute: typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   AuthenticatedStoreStoreIdDashboardRoute: typeof AuthenticatedStoreStoreIdDashboardRoute
   AuthenticatedStoreStoreIdDiscountsRoute: typeof AuthenticatedStoreStoreIdDiscountsRoute
   AuthenticatedStoreStoreIdDomainsRoute: typeof AuthenticatedStoreStoreIdDomainsRoute
@@ -987,7 +1022,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdCollectionsRoute:
     AuthenticatedStoreStoreIdCollectionsRoute,
   AuthenticatedStoreStoreIdCustomersRoute:
-    AuthenticatedStoreStoreIdCustomersRoute,
+    AuthenticatedStoreStoreIdCustomersRouteWithChildren,
   AuthenticatedStoreStoreIdDashboardRoute:
     AuthenticatedStoreStoreIdDashboardRoute,
   AuthenticatedStoreStoreIdDiscountsRoute:

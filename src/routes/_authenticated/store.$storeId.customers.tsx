@@ -193,7 +193,14 @@ function CustomersPage() {
                   {rows.map((customer) => (
                     <tr key={customer.id} className="border-b border-border/60 last:border-0">
                       <td className="px-4 py-3">
-                        <span className="block font-medium">{customer.full_name}</span>
+                        <Link
+                          className="block font-medium underline-offset-4 hover:underline"
+                          to="/store/$storeId/customers/$customerId"
+                          params={{ storeId, customerId: customer.id }}
+                        >
+                          {customer.full_name}
+                        </Link>
+
                         <span className="flex flex-wrap gap-1 pt-1">
                           {(customer.tags ?? []).map((tag: string) => (
                             <Badge key={tag} variant="secondary" className="text-[0.65rem]">
