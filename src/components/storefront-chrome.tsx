@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { useCart } from "@/lib/cart";
+import { useFavorites } from "@/lib/favorites";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import { fontStack } from "@/lib/theme-presets";
 
@@ -98,6 +99,7 @@ export function StorefrontChrome({
 }) {
   const { t, fonts, text, muted, border, radius } = storefrontTokens(theme);
   const cart = useCart();
+  const favorites = useFavorites();
   const { data: menuItems } = useQuery(storefrontMenuQuery(storeSlug));
   const headerItems = (menuItems ?? []).filter((item) => item.location === "header");
   const footerItems = (menuItems ?? []).filter((item) => item.location === "footer");
