@@ -89,8 +89,10 @@ function OrdersPage() {
 
   const queryClient = useQueryClient();
   const update = useServerFn(updateOrder);
+  const createShipmentFn = useServerFn(createShipment);
   const [selected, setSelected] = useState<string[]>([]);
   const [bulkStatus, setBulkStatus] = useState<OrderStatus>("processing");
+  const [bulkCarrier, setBulkCarrier] = useState("Aras Kargo");
 
   const visibleIds = rows.map((order) => order.id);
   const selectedVisible = selected.filter((id) => visibleIds.includes(id));
