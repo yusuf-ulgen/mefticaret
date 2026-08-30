@@ -6,11 +6,13 @@ import { toast } from "sonner";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/lib/cart";
 import {
   cancelMyStoreReturn,
   claimMyStoreAccount,
   createMyStoreReturn,
   deleteMyStoreAddress,
+  reorderMyStoreOrder,
   saveMyStoreAddress,
   updateMyStoreProfile,
 } from "@/lib/account.functions";
@@ -75,7 +77,7 @@ function AccountPage() {
         {loading ? (
           <p style={{ marginTop: 16, opacity: 0.7 }}>Yükleniyor…</p>
         ) : user ? (
-          <AccountDashboard storeId={store.id} />
+          <AccountDashboard storeId={store.id} slug={slug} />
         ) : (
           <AccountAuth />
         )}
@@ -166,7 +168,7 @@ function AccountAuth() {
 
 type Tab = "orders" | "returns" | "addresses" | "profile";
 
-function AccountDashboard({ storeId }: { storeId: string }) {
+function AccountDashboard({ storeId, slug }: { storeId: string; slug: string }) {
   const queryClient = useQueryClient();
   const { user, signOut } = useAuth();
   const [tab, setTab] = useState<Tab>("orders");
@@ -227,7 +229,7 @@ function AccountDashboard({ storeId }: { storeId: string }) {
 
       {claim.isPending ? <p style={{ opacity: 0.7, fontSize: 14 }}>Hesabınız hazırlanıyor…</p> : null}
 
-      {tab === "orders" ? <OrdersList orders={orders} /> : null}
+      {tab === "orders" ? <OrdersList orders={orders} storeId={storeId} slug={slug} /> : null}
       {tab === "returns" ? <ReturnsPanel storeId={storeId} orders={orders} returns={returns} /> : null}
       {tab === "addresses" && customer ? <AddressBook storeId={storeId} addresses={addresses} /> : null}
       {tab === "profile" && customer ? <ProfileForm storeId={storeId} customer={customer} /> : null}
@@ -235,7 +237,52 @@ function AccountDashboard({ storeId }: { storeId: string }) {
   );
 }
 
-function OrdersList({ orders }: { orders: import("@/lib/account.server").MyOrder[] }) {
+function OrdersList({
+  orders,
+  storeId,
+  slug,
+}: {
+  orders: import("@/lib/account.server").MyOrder[];
+  storeId: string;
+  slug: string;
+}) {
+  const cart = useCart();
+  const reorderFn = useServerFn(reorderMyStoreOrder);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const handleReorder = async (orderId: string) => {
+    setBusyId(orderId);
+    try {
+      const result = await reorderFn({ data: { storeId, orderId } });
+      for (const line of result.lines) {
+        cart.add(
+          {
+            storeSlug: slug,
+            variantId: line.variantId,
+            productSlug: line.productSlug,
+            title: line.title,
+            variantTitle: line.variantTitle,
+            price: line.price,
+            currency: line.currency,
+            maxStock: line.maxStock,
+          },
+          line.quantity,
+        );
+      }
+      if (!result.lines.length) {
+        toast.error("Bu siparişteki ürünler şu anda satın alınamıyor.");
+      } else if (result.skipped.length) {
+        toast.success(`${result.lines.length} ürün sepete eklendi. Stokta olmayanlar atlandı.`);
+      } else {
+        toast.success("Sipariş sepete eklendi.");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Sepete eklenemedi.");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   if (!orders.length) {
     return <p style={{ opacity: 0.7, fontSize: 14 }}>Henüz siparişiniz yok.</p>;
   }
@@ -248,7 +295,26 @@ function OrdersList({ orders }: { orders: import("@/lib/account.server").MyOrder
               <strong>{order.order_number}</strong>
               <span style={{ fontSize: 13, opacity: 0.65, marginLeft: 10 }}>{formatDateTime(order.placed_at)}</span>
             </div>
-            <strong>{formatMoney(Number(order.grand_total), order.currency)}</strong>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <strong>{formatMoney(Number(order.grand_total), order.currency)}</strong>
+              <button
+                type="button"
+                onClick={() => void handleReorder(order.id)}
+                disabled={busyId === order.id}
+                style={{
+                  border: "1px solid currentColor",
+                  background: "transparent",
+                  color: "inherit",
+                  borderRadius: 999,
+                  padding: "6px 14px",
+                  fontSize: 12,
+                  cursor: busyId === order.id ? "wait" : "pointer",
+                  opacity: busyId === order.id ? 0.6 : 1,
+                }}
+              >
+                {busyId === order.id ? "Ekleniyor…" : "Yeniden sipariş ver"}
+              </button>
+            </div>
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10, fontSize: 12 }}>
             <span style={tagStyle}>{ORDER_STATUS_LABELS[order.status] ?? order.status}</span>
