@@ -100,7 +100,7 @@ function ProductPage() {
   const navigate = useNavigate();
 
   if (!data) return <Fallback text="Bu ürün bulunamadı." />;
-  const { store, theme, product, variants, images, reviews, ratingAverage } = data;
+  const { store, theme, product, variants, images, reviews, ratingAverage, related } = data;
   const { t, fonts, muted, cardBg, border, radius, dark } = storefrontTokens(theme);
 
   const selected = variants.find((variant) => variant.id === variantId) ?? variants[0] ?? null;
