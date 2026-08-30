@@ -10,6 +10,13 @@ export const storefrontQuery = (slug: string) =>
     staleTime: 60_000,
   });
 
+export const storefrontCollectionQuery = (slug: string, collectionSlug: string) =>
+  queryOptions({
+    queryKey: ["storefront", slug, "collection", collectionSlug],
+    queryFn: () => getStorefrontCollection({ data: { slug, collectionSlug } }),
+    staleTime: 60_000,
+  });
+
 export const storefrontProductQuery = (slug: string, productSlug: string) =>
   queryOptions({
     queryKey: ["storefront", slug, "product", productSlug],
