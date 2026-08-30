@@ -192,3 +192,18 @@ export const adminAuditQuery = (enabled: boolean) =>
       return data;
     },
   });
+
+export const storeActivityQuery = (storeId: string, limit = 200) =>
+  queryOptions({
+    queryKey: ["store-activity", storeId, limit],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("audit_logs")
+        .select("*")
+        .eq("store_id", storeId)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return data;
+    },
+  });
