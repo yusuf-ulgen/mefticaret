@@ -1,7 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Activity, CreditCard, Percent, ShoppingBag, TrendingUp, Users } from "lucide-react";
+import {
+  Activity,
+  CreditCard,
+  Download,
+  Percent,
+  Repeat,
+  ShoppingBag,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { AppShell } from "@/components/app-shell";
@@ -10,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { analyticsItemsQuery, analyticsOrdersQuery, buildDailySeries } from "@/lib/analytics-queries";
 import { storeQuery } from "@/lib/store-queries";
+import { downloadCsv, toCsv } from "@/lib/csv";
 import {
   formatDate,
   formatMoney,
@@ -18,6 +28,7 @@ import {
   ORDER_STATUS_LABELS,
   PAYMENT_STATUS_LABELS,
 } from "@/lib/mefti";
+
 
 const RANGES = [7, 30, 90] as const;
 
