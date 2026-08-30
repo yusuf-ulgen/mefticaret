@@ -1356,6 +1356,153 @@ export type Database = {
         }
         Relationships: []
       }
+      return_items: {
+        Row: {
+          created_at: string
+          id: string
+          line_total: number
+          order_item_id: string | null
+          quantity: number
+          return_id: string
+          store_id: string
+          title: string
+          unit_price: number
+          variant_id: string | null
+          variant_title: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          line_total?: number
+          order_item_id?: string | null
+          quantity?: number
+          return_id: string
+          store_id: string
+          title: string
+          unit_price?: number
+          variant_id?: string | null
+          variant_title?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_total?: number
+          order_item_id?: string | null
+          quantity?: number
+          return_id?: string
+          store_id?: string
+          title?: string
+          unit_price?: number
+          variant_id?: string | null
+          variant_title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "return_items_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_items_return_id_fkey"
+            columns: ["return_id"]
+            isOneToOne: false
+            referencedRelation: "return_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      return_requests: {
+        Row: {
+          created_at: string
+          currency: string
+          customer_id: string | null
+          customer_note: string | null
+          id: string
+          order_id: string
+          reason: Database["public"]["Enums"]["return_reason"]
+          refund_amount: number
+          resolved_at: string | null
+          restock: boolean
+          return_number: string
+          staff_note: string | null
+          status: Database["public"]["Enums"]["return_status"]
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          customer_note?: string | null
+          id?: string
+          order_id: string
+          reason?: Database["public"]["Enums"]["return_reason"]
+          refund_amount?: number
+          resolved_at?: string | null
+          restock?: boolean
+          return_number: string
+          staff_note?: string | null
+          status?: Database["public"]["Enums"]["return_status"]
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          customer_note?: string | null
+          id?: string
+          order_id?: string
+          reason?: Database["public"]["Enums"]["return_reason"]
+          refund_amount?: number
+          resolved_at?: string | null
+          restock?: boolean
+          return_number?: string
+          staff_note?: string | null
+          status?: Database["public"]["Enums"]["return_status"]
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "return_requests_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_requests_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shipping_rates: {
         Row: {
           connector_id: string | null
@@ -2109,6 +2256,20 @@ export type Database = {
         | "failed"
       payout_status: "pending" | "processing" | "paid" | "failed"
       product_status: "draft" | "active" | "archived"
+      return_reason:
+        | "damaged"
+        | "wrong_item"
+        | "not_as_described"
+        | "size_fit"
+        | "changed_mind"
+        | "other"
+      return_status:
+        | "requested"
+        | "approved"
+        | "rejected"
+        | "received"
+        | "refunded"
+        | "cancelled"
       review_status: "pending" | "published" | "rejected"
       store_role: "owner" | "admin" | "staff" | "marketing" | "support"
       store_status: "draft" | "active" | "suspended" | "archived"
@@ -2297,6 +2458,22 @@ export const Constants = {
       ],
       payout_status: ["pending", "processing", "paid", "failed"],
       product_status: ["draft", "active", "archived"],
+      return_reason: [
+        "damaged",
+        "wrong_item",
+        "not_as_described",
+        "size_fit",
+        "changed_mind",
+        "other",
+      ],
+      return_status: [
+        "requested",
+        "approved",
+        "rejected",
+        "received",
+        "refunded",
+        "cancelled",
+      ],
       review_status: ["pending", "published", "rejected"],
       store_role: ["owner", "admin", "staff", "marketing", "support"],
       store_status: ["draft", "active", "suspended", "archived"],
