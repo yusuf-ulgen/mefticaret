@@ -196,8 +196,23 @@ function StorefrontHome() {
                   textDecoration: "none",
                   color: "inherit",
                   display: "block",
+                  position: "relative",
                 }}
               >
+                <FavoriteButton
+                  item={{
+                    storeSlug: store.slug,
+                    productSlug: product.slug,
+                    title: product.title,
+                    price: Number(product.base_price),
+                    currency: product.currency,
+                    image: product.coverUrl ?? null,
+                  }}
+                  border={border}
+                  cardBg={cardBg}
+                  accent={t.accent_color}
+                  muted={muted}
+                />
                 <div
                   style={{
                     height: 160,
