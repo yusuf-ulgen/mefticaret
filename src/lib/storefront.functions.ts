@@ -4,6 +4,11 @@ import { z } from "zod";
 
 import type { Database } from "@/integrations/supabase/types";
 
+type StorefrontProductCard = Pick<
+  Database["public"]["Tables"]["products"]["Row"],
+  "id" | "title" | "slug" | "description" | "base_price" | "compare_at_price" | "currency" | "product_type" | "tags"
+>;
+
 /**
  * Halka açık vitrin okumaları. Yayınlanmış mağazalar için anon SELECT
  * politikaları üzerinden okunur; servis anahtarı KULLANILMAZ.
