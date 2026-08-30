@@ -122,6 +122,8 @@ function DashboardPage() {
             <p className="mt-2 font-display text-2xl font-semibold">
               {isLoading ? <Skeleton className="h-7 w-24" /> : card.value}
             </p>
+          </div>
+        ))}
       </div>
 
       <section className="surface-card p-6">
@@ -150,9 +152,6 @@ function DashboardPage() {
         </div>
       </section>
 
-
-        ))}
-      </div>
 
       <section className="surface-card p-6">
         <h2 className="font-display text-lg font-semibold">Günlük ciro</h2>
