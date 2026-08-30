@@ -81,7 +81,7 @@ export const searchStore = createServerFn({ method: "GET" })
     for (const row of customers.data ?? []) {
       hits.push({ kind: "customer", id: row.id, title: row.full_name, subtitle: row.email });
     }
-    for (const row of pages ?? { data: [] }).data ?? []) {
+    for (const row of pages.data ?? []) {
       hits.push({
         kind: "page",
         id: row.id,
