@@ -123,16 +123,14 @@ function ManualOrderPage() {
   const canSubmit = lines.length > 0 && fullName.trim().length > 1 && /.+@.+\..+/.test(email);
 
   return (
-    <AppShell>
+    <AppShell
+      storeId={storeId}
+      title="Manuel sipariş"
+      description="Telefon veya mesajla gelen siparişleri panelden oluştur; stok ve finans kayıtları otomatik işlenir."
+    >
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-6">
         <header className="flex items-center gap-3">
           <ShoppingBag className="size-5 text-primary" />
-          <div>
-            <h1 className="text-2xl font-semibold">Manuel sipariş</h1>
-            <p className="text-sm text-muted-foreground">
-              Telefon veya mesajla gelen siparişleri panelden oluştur; stok ve finans kayıtları otomatik işlenir.
-            </p>
-          </div>
         </header>
 
         <section className="rounded-xl border bg-card p-5">
