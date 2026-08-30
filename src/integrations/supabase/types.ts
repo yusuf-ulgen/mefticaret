@@ -987,6 +987,82 @@ export type Database = {
           },
         ]
       }
+      product_reviews: {
+        Row: {
+          author_name: string
+          body: string | null
+          created_at: string
+          customer_id: string | null
+          id: string
+          is_verified_purchase: boolean
+          product_id: string
+          rating: number
+          replied_at: string | null
+          reply: string | null
+          status: Database["public"]["Enums"]["review_status"]
+          store_id: string
+          title: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          author_name: string
+          body?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          is_verified_purchase?: boolean
+          product_id: string
+          rating: number
+          replied_at?: string | null
+          reply?: string | null
+          status?: Database["public"]["Enums"]["review_status"]
+          store_id: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          author_name?: string
+          body?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          is_verified_purchase?: boolean
+          product_id?: string
+          rating?: number
+          replied_at?: string | null
+          reply?: string | null
+          status?: Database["public"]["Enums"]["review_status"]
+          store_id?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_variants: {
         Row: {
           barcode: string | null
@@ -1833,6 +1909,7 @@ export type Database = {
         | "payout"
         | "system"
         | "abandoned_cart"
+        | "review"
       order_status:
         | "pending"
         | "processing"
@@ -1848,6 +1925,7 @@ export type Database = {
         | "failed"
       payout_status: "pending" | "processing" | "paid" | "failed"
       product_status: "draft" | "active" | "archived"
+      review_status: "pending" | "published" | "rejected"
       store_role: "owner" | "admin" | "staff" | "marketing" | "support"
       store_status: "draft" | "active" | "suspended" | "archived"
       webhook_delivery_status: "pending" | "success" | "failed"
@@ -2014,6 +2092,7 @@ export const Constants = {
         "payout",
         "system",
         "abandoned_cart",
+        "review",
       ],
       order_status: [
         "pending",
@@ -2032,6 +2111,7 @@ export const Constants = {
       ],
       payout_status: ["pending", "processing", "paid", "failed"],
       product_status: ["draft", "active", "archived"],
+      review_status: ["pending", "published", "rejected"],
       store_role: ["owner", "admin", "staff", "marketing", "support"],
       store_status: ["draft", "active", "suspended", "archived"],
       webhook_delivery_status: ["pending", "success", "failed"],
