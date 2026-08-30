@@ -245,6 +245,13 @@ function OrdersPage() {
             <tbody>
               {rows.map((order) => (
                 <tr key={order.id} className="border-b border-border/60 last:border-0">
+                  <td className="px-4 py-3">
+                    <Checkbox
+                      checked={selected.includes(order.id)}
+                      onCheckedChange={(checked) => toggleOne(order.id, checked === true)}
+                      aria-label={`${order.order_number} seç`}
+                    />
+                  </td>
                   <td className="px-4 py-3 font-medium">
                     <Link
                       to="/store/$storeId/orders/$orderId"
