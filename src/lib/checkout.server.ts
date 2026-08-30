@@ -360,6 +360,30 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
       .eq("id", discountRow.id);
   }
 
+  if (giftCard && giftCardApplied > 0) {
+    const nextBalance = Number((giftCard.balance - giftCardApplied).toFixed(2));
+    await supabase
+      .from("gift_cards")
+      .update({ balance: nextBalance, status: nextBalance === 0 ? "depleted" : "active" })
+      .eq("id", giftCard.id);
+    await supabase.from("gift_card_transactions").insert({
+      store_id: store.id,
+      gift_card_id: giftCard.id,
+      order_id: order.id,
+      kind: "redeem",
+      amount: -giftCardApplied,
+      balance_after: nextBalance,
+      note: `Sipariş ${number}`,
+    });
+    await supabase.from("order_events").insert({
+      order_id: order.id,
+      store_id: store.id,
+      kind: "note",
+      message: `Hediye kartı kullanıldı: ${giftCard.code} · ${giftCardApplied}`,
+      meta: { gift_card_id: giftCard.id, amount: giftCardApplied },
+    });
+  }
+
   if (existingCustomer) {
     await supabase
       .from("customers")
