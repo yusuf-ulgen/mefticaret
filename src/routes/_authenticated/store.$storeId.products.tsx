@@ -288,13 +288,13 @@ function ProductsPage() {
           <tbody className="divide-y divide-border">
             {isLoading ? (
               <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-muted-foreground">
+                <td colSpan={6} className="px-5 py-8 text-center text-muted-foreground">
                   Yükleniyor…
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-5 py-10 text-center">
+                <td colSpan={6} className="px-5 py-10 text-center">
                   <Package className="mx-auto mb-3 size-6 text-muted-foreground" />
                   <p className="font-medium">Bu filtrede ürün yok</p>
                   <p className="text-sm text-muted-foreground">
@@ -308,6 +308,19 @@ function ProductsPage() {
                 const stockTotal = variants.reduce((sum, variant) => sum + (variant.stock ?? 0), 0);
                 return (
                   <tr key={product.id} className="hover:bg-muted/40">
+                    <td className="px-5 py-3">
+                      <Checkbox
+                        checked={selected.includes(product.id)}
+                        onCheckedChange={(value) =>
+                          setSelected((prev) =>
+                            value === true
+                              ? [...prev, product.id]
+                              : prev.filter((id) => id !== product.id),
+                          )
+                        }
+                        aria-label={`${product.title} seç`}
+                      />
+                    </td>
                     <td className="px-5 py-3">
                       <Link
                         to="/store/$storeId/products/$productId"
