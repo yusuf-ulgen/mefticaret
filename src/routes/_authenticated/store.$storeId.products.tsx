@@ -243,10 +243,41 @@ function ProductsPage() {
         </div>
       }
     >
+      {selected.length > 0 ? (
+        <div className="surface-card mb-4 flex flex-wrap items-center gap-3 p-4">
+          <span className="text-sm font-medium">{selected.length} ürün seçildi</span>
+          <Select value={bulkStatus} onValueChange={(value) => setBulkStatus(value as typeof bulkStatus)}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Aktif</SelectItem>
+              <SelectItem value="draft">Taslak</SelectItem>
+              <SelectItem value="archived">Arşiv</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button size="sm" onClick={() => bulkMutation.mutate()} disabled={bulkMutation.isPending}>
+            {bulkMutation.isPending ? "Güncelleniyor…" : "Durumu uygula"}
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setSelected([])}>
+            Seçimi temizle
+          </Button>
+        </div>
+      ) : null}
+
       <div className="surface-card overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
+              <th className="px-5 py-3">
+                <Checkbox
+                  checked={allSelected}
+                  onCheckedChange={(value) =>
+                    setSelected(value === true ? rows.map((row) => row.id) : [])
+                  }
+                  aria-label="Tümünü seç"
+                />
+              </th>
               <th className="px-5 py-3">Ürün</th>
               <th className="px-5 py-3">Durum</th>
               <th className="px-5 py-3">Fiyat</th>
