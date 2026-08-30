@@ -27,8 +27,8 @@ export function weekdayFactors(series: DailyPoint[]) {
   const counts = new Array(7).fill(0) as number[];
   for (const point of series) {
     const day = new Date(`${point.date}T00:00:00Z`).getUTCDay();
-    sums[day] += point.revenue;
-    counts[day] += 1;
+    sums[day] = (sums[day] ?? 0) + point.revenue;
+    counts[day] = (counts[day] ?? 0) + 1;
   }
   const averages = sums.map((sum, index) => (counts[index] ? sum / counts[index] : 0));
   const overall = averages.reduce((sum, value) => sum + value, 0) / 7;
