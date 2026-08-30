@@ -172,19 +172,25 @@ function AnalyticsPage() {
       title="Analitik & Raporlar"
       description="Dönemsel satış performansı, ürün kırılımı ve sipariş durum dağılımı."
       actions={
-        <div className="flex gap-1 rounded-lg border border-border/60 p-1">
-          {RANGES.map((range) => (
-            <Button
-              key={range}
-              size="sm"
-              variant={days === range ? "default" : "ghost"}
-              onClick={() => setDays(range)}
-            >
-              {range} gün
-            </Button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex gap-1 rounded-lg border border-border/60 p-1">
+            {RANGES.map((range) => (
+              <Button
+                key={range}
+                size="sm"
+                variant={days === range ? "default" : "ghost"}
+                onClick={() => setDays(range)}
+              >
+                {range} gün
+              </Button>
+            ))}
+          </div>
+          <Button size="sm" variant="outline" onClick={exportReport} disabled={series.length === 0}>
+            <Download className="mr-2 size-4" /> CSV indir
+          </Button>
         </div>
       }
+
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => (
