@@ -1116,6 +1116,73 @@ export type Database = {
           },
         ]
       }
+      product_questions: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          author_name: string
+          created_at: string
+          customer_id: string | null
+          id: string
+          product_id: string
+          question: string
+          status: string
+          store_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          author_name: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          product_id: string
+          question: string
+          status?: string
+          store_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          author_name?: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          product_id?: string
+          question?: string
+          status?: string
+          store_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_questions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_questions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_questions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_reviews: {
         Row: {
           author_name: string
@@ -2442,6 +2509,7 @@ export type Database = {
         | "system"
         | "abandoned_cart"
         | "review"
+        | "question"
       order_status:
         | "pending"
         | "processing"
@@ -2647,6 +2715,7 @@ export const Constants = {
         "system",
         "abandoned_cart",
         "review",
+        "question",
       ],
       order_status: [
         "pending",
