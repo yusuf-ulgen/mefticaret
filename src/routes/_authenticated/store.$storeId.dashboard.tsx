@@ -1,8 +1,9 @@
-import { BellRing, createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
   AlertTriangle,
+  BellRing,
   CreditCard,
   MessageSquare,
   PackageCheck,
