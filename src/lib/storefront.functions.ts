@@ -340,3 +340,57 @@ export const getStorefrontPage = createServerFn({ method: "GET" })
 
     return { store, theme: themeRes.data, page: pageRes.data, footerPages: footerRes.data ?? [] };
   });
+
+/**
+ * Kartlardan hızlı sepete ekleme için varsayılan varyantı döner.
+ * Stokta olan en uygun fiyatlı varyant, yoksa ilk varyant seçilir.
+ */
+export const getQuickAddVariant = createServerFn({ method: "GET" })
+  .inputValidator((data) =>
+    z.object({ slug: z.string().trim().min(1), productSlug: z.string().trim().min(1) }).parse(data),
+  )
+  .handler(async ({ data }) => {
+    const supabase = publicClient();
+    const { data: store, error } = await supabase
+      .from("stores")
+      .select("id, currency")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!store) return null;
+
+    const { data: product, error: productError } = await supabase
+      .from("products")
+      .select("id, title, slug, base_price, currency")
+      .eq("store_id", store.id)
+      .eq("slug", data.productSlug)
+      .eq("status", "active")
+      .maybeSingle();
+    if (productError) throw new Error(productError.message);
+    if (!product) return null;
+
+    const { data: variants, error: variantError } = await supabase
+      .from("product_variants")
+      .select("id, title, price, stock, position")
+      .eq("product_id", product.id)
+      .order("position");
+    if (variantError) throw new Error(variantError.message);
+    if (!variants?.length) return null;
+
+    const inStock = variants.filter((variant) => (variant.stock ?? 0) > 0);
+    const pool = inStock.length ? inStock : variants;
+    const chosen = pool.reduce((best, current) =>
+      Number(current.price ?? product.base_price) < Number(best.price ?? product.base_price) ? current : best,
+    );
+
+    return {
+      variantId: chosen.id,
+      variantTitle: chosen.title ?? "Varsayılan",
+      price: Number(chosen.price ?? product.base_price),
+      stock: Number(chosen.stock ?? 0),
+      currency: product.currency ?? store.currency,
+      productSlug: product.slug,
+      title: product.title,
+      variantCount: variants.length,
+    };
+  });

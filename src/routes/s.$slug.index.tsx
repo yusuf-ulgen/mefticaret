@@ -3,6 +3,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { FavoriteButton } from "@/components/favorite-button";
+import { QuickAddButton } from "@/components/quick-add-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
@@ -243,6 +244,7 @@ function StorefrontHome() {
                     </span>
                   ) : null}
                 </div>
+                <QuickAddButton storeSlug={store.slug} productSlug={product.slug} accent={t.accent_color} />
               </Link>
             ))}
           </div>
