@@ -11,6 +11,8 @@ import {
   ShoppingBag,
   TrendingUp,
   Users,
+  Check,
+  Circle,
 } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
@@ -21,6 +23,7 @@ import {
   storeActionItemsQuery,
   storeAuditQuery,
   storeQuery,
+  storeSetupChecklistQuery,
   storeStatsQuery,
 } from "@/lib/store-queries";
 
@@ -43,6 +46,17 @@ function DashboardPage() {
   const { data: stats, isLoading } = useQuery(storeStatsQuery(storeId, 30));
   const { data: audit } = useQuery(storeAuditQuery(storeId));
   const { data: actionItems } = useQuery(storeActionItemsQuery(storeId));
+  const { data: checklist } = useQuery(storeSetupChecklistQuery(storeId));
+
+  const setupSteps = [
+    { key: "product", label: "Aktif ürün ekle", done: checklist?.hasActiveProduct ?? false, to: "/store/$storeId/products" as const },
+    { key: "payment", label: "Ödeme yöntemi aç", done: checklist?.hasPaymentMethod ?? false, to: "/store/$storeId/payments" as const },
+    { key: "shipping", label: "Kargo tarifesi tanımla", done: checklist?.hasShippingRate ?? false, to: "/store/$storeId/shipping" as const },
+    { key: "theme", label: "Temayı yayınla", done: checklist?.themePublished ?? false, to: "/store/$storeId/themes" as const },
+    { key: "contact", label: "İletişim e-postası gir", done: checklist?.hasContactEmail ?? false, to: "/store/$storeId/settings" as const },
+    { key: "domain", label: "Alan adı doğrula", done: checklist?.hasVerifiedDomain ?? false, to: "/store/$storeId/domains" as const },
+  ];
+  const setupDone = setupSteps.filter((step) => step.done).length;
 
   const todo = [
     {
@@ -133,6 +147,42 @@ function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {setupDone < setupSteps.length ? (
+        <section className="surface-card p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-display text-lg font-semibold">Kurulum kontrol listesi</h2>
+            <Badge variant="secondary">
+              {setupDone}/{setupSteps.length} tamamlandı
+            </Badge>
+          </div>
+          <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full brand-gradient transition-all"
+              style={{ width: `${(setupDone / setupSteps.length) * 100}%` }}
+            />
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {setupSteps.map((step) => (
+              <Link
+                key={step.key}
+                to={step.to}
+                params={{ storeId }}
+                className="flex items-center gap-3 rounded-lg border border-border p-4 text-sm transition hover:border-brand hover:bg-muted/40"
+              >
+                {step.done ? (
+                  <Check className="size-4 text-brand-foreground" />
+                ) : (
+                  <Circle className="size-4 text-muted-foreground" />
+                )}
+                <span className={step.done ? "text-muted-foreground line-through" : "font-medium"}>
+                  {step.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="surface-card p-6">
         <h2 className="font-display text-lg font-semibold">Dikkat gerektirenler</h2>
