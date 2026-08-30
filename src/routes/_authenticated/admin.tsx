@@ -47,7 +47,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const STATUS_OPTIONS = ["draft", "active", "suspended", "archived"] as const;
 
 type PlanDraft = {
-  id?: string;
+  id?: string | undefined;
   code: string;
   name: string;
   description: string;
