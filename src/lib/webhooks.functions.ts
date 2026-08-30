@@ -1,6 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   deleteWebhook,
@@ -52,15 +50,3 @@ export const markStoreNotificationsRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => markReadSchema.parse(data))
   .handler(async ({ data, context }) => markNotificationsRead(context.supabase, data));
-
-export const webhookEventSchema = z.enum([
-  "order.created",
-  "order.updated",
-  "order.fulfilled",
-  "order.cancelled",
-  "product.created",
-  "product.updated",
-  "inventory.low_stock",
-  "customer.created",
-  "payout.paid",
-]);
