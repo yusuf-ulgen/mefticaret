@@ -27,6 +27,7 @@ import {
   ShoppingCart,
   HelpCircle,
   Star,
+  Tags,
   BellRing,
   Bell,
   Sparkles,
@@ -87,6 +88,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Ürünler", to: `/store/${storeId}/products`, icon: Package },
         { label: "Koleksiyonlar", to: `/store/${storeId}/collections`, icon: Boxes },
         { label: "Stok", to: `/store/${storeId}/inventory`, icon: Warehouse },
+        { label: "Fiyatlandırma", to: `/store/${storeId}/pricing`, icon: Tags },
       ],
     },
     {
