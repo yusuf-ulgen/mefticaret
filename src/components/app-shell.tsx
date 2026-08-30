@@ -8,6 +8,7 @@ import {
   Cog,
   CreditCard,
   Globe,
+  History,
   LayoutDashboard,
   LogOut,
   Menu,
