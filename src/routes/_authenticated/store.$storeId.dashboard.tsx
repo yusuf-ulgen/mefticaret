@@ -1,12 +1,28 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Activity, CreditCard, ShoppingBag, TrendingUp, Users } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  CreditCard,
+  MessageSquare,
+  PackageCheck,
+  RotateCcw,
+  ShoppingBag,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney, formatNumber, formatPercent, STORE_STATUS_LABELS } from "@/lib/mefti";
-import { storeAuditQuery, storeQuery, storeStatsQuery } from "@/lib/store-queries";
+import {
+  storeActionItemsQuery,
+  storeAuditQuery,
+  storeQuery,
+  storeStatsQuery,
+} from "@/lib/store-queries";
+
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/dashboard")({
   head: () => ({
