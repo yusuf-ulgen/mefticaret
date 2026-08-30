@@ -23,7 +23,7 @@ export function StockAlertForm({
   accent: string;
   border: string;
   muted: string;
-  radius: number;
+  radius: string;
 }) {
   const submit = useServerFn(createStockAlert);
   const [email, setEmail] = useState("");
