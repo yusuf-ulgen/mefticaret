@@ -1,15 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Download, UsersRound } from "lucide-react";
+import { ClipboardCopy, Download, TicketPercent, UsersRound } from "lucide-react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { downloadCsv, toCsv } from "@/lib/csv";
 import { formatMoney, formatNumber } from "@/lib/mefti";
+import { upsertDiscount } from "@/lib/sales.functions";
 import {
   SEGMENT_META,
   type SegmentKey,
@@ -20,6 +33,14 @@ import { storeQuery } from "@/lib/store-queries";
 import { cn } from "@/lib/utils";
 
 const SEGMENT_ORDER: SegmentKey[] = ["champion", "loyal", "new", "at_risk", "lost"];
+
+const SEGMENT_CODE: Record<SegmentKey, string> = {
+  champion: "VIP",
+  loyal: "SADIK",
+  new: "HOSGELDIN",
+  at_risk: "GERIDON",
+  lost: "OZLEDIK",
+};
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/segments")({
   head: () => ({
@@ -46,7 +67,12 @@ function SegmentsPage() {
   const { storeId } = Route.useParams();
   const [active, setActive] = useState<SegmentKey | "all">("all");
   const [term, setTerm] = useState("");
+  const [campaignOpen, setCampaignOpen] = useState(false);
+  const [percent, setPercent] = useState("10");
+  const [validDays, setValidDays] = useState("14");
 
+  const queryClient = useQueryClient();
+  const saveDiscount = useServerFn(upsertDiscount);
   const { data: store } = useQuery(storeQuery(storeId));
   const { data: orders, isLoading } = useQuery(segmentOrdersQuery(storeId));
   const currency = store?.currency ?? "TRY";
@@ -91,6 +117,53 @@ function SegmentsPage() {
     downloadCsv(`segmentler-${new Date().toISOString().slice(0, 10)}.csv`, content);
   }
 
+  const campaignCode = useMemo(() => {
+    const base = active === "all" ? "SEGMENT" : SEGMENT_CODE[active];
+    return `${base}${Math.round(Number(percent) || 0)}`;
+  }, [active, percent]);
+
+  const campaign = useMutation({
+    mutationFn: async () => {
+      const value = Number(percent);
+      if (!Number.isFinite(value) || value <= 0 || value > 100) {
+        throw new Error("Yüzde 1 ile 100 arasında olmalı");
+      }
+      const days = Math.max(1, Math.round(Number(validDays) || 14));
+      const endsAt = new Date(Date.now() + days * 86_400_000).toISOString();
+      await saveDiscount({
+        data: {
+          storeId,
+          code: campaignCode,
+          title: `${active === "all" ? "Tüm segmentler" : SEGMENT_META[active].label} geri kazanım kampanyası`,
+          type: "percentage",
+          value,
+          minSubtotal: 0,
+          usageLimit: null,
+          endsAt,
+          isActive: true,
+        },
+      });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["discounts", storeId] });
+      setCampaignOpen(false);
+      toast.success(`${campaignCode} kuponu oluşturuldu`);
+    },
+    onError: (error: unknown) => {
+      toast.error(error instanceof Error ? error.message : "Kupon oluşturulamadı");
+    },
+  });
+
+  async function copyEmails() {
+    const emails = [...new Set(filtered.map((row) => row.email).filter(Boolean))];
+    if (emails.length === 0) {
+      toast.error("Kopyalanacak e-posta bulunamadı");
+      return;
+    }
+    await navigator.clipboard.writeText(emails.join(", "));
+    toast.success(`${emails.length} e-posta kopyalandı`);
+  }
+
   return (
     <AppShell storeId={storeId} title="Müşteri Segmentleri">
       <div className="space-y-6">
@@ -103,9 +176,63 @@ function SegmentsPage() {
               Sipariş güncelliği, sıklığı ve harcama tutarına göre otomatik RFM segmentasyonu.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
-            <Download className="mr-2 size-4" /> CSV indir
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={copyEmails} disabled={filtered.length === 0}>
+              <ClipboardCopy className="mr-2 size-4" /> E-postaları kopyala
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
+              <Download className="mr-2 size-4" /> CSV indir
+            </Button>
+            <Dialog open={campaignOpen} onOpenChange={setCampaignOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <TicketPercent className="mr-2 size-4" /> Geri kazanım kuponu
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Segment kuponu oluştur</DialogTitle>
+                  <DialogDescription>
+                    {active === "all"
+                      ? "Tüm müşteriler için"
+                      : `${SEGMENT_META[active].label} segmenti için`}{" "}
+                    yüzde indirimli, süreli bir kupon üretilir.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="segment-percent">İndirim (%)</Label>
+                    <Input
+                      id="segment-percent"
+                      value={percent}
+                      inputMode="numeric"
+                      onChange={(event) => setPercent(event.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="segment-days">Geçerlilik (gün)</Label>
+                    <Input
+                      id="segment-days"
+                      value={validDays}
+                      inputMode="numeric"
+                      onChange={(event) => setValidDays(event.target.value)}
+                    />
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Kupon kodu: <span className="font-mono font-medium text-foreground">{campaignCode}</span>
+                </p>
+                <DialogFooter>
+                  <Button
+                    onClick={() => campaign.mutate()}
+                    disabled={campaign.isPending}
+                  >
+                    {campaign.isPending ? "Oluşturuluyor…" : "Kuponu oluştur"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </header>
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
