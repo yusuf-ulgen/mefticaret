@@ -250,15 +250,10 @@ function NavigationPage() {
       description="Üst ve alt menü bağlantılarını yönet; sıralamayı oklarla değiştir."
     >
       <div className="space-y-6">
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="flex items-center gap-2 font-heading text-2xl font-semibold">
-              <Menu className="size-5" /> Vitrin Menüleri
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Üst ve alt menü bağlantılarını yönet; sıralamayı oklarla değiştir.
-            </p>
-          </div>
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Menu className="size-4" /> Vitrin navigasyonu
+          </p>
           <div className="flex gap-2">
             <Button
               variant="outline"
