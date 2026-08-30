@@ -135,13 +135,11 @@ export const updateReturn = createServerFn({ method: "POST" })
 
     const patch: Record<string, unknown> = {};
     if (data.status) patch["status"] = data.status;
-    if (data.staffNote !== undefined) patch["staffNote"] = undefined;
     if (data.staffNote !== undefined) patch["staff_note"] = data.staffNote || null;
     if (data.refundAmount !== undefined) patch["refund_amount"] = data.refundAmount;
     if (data.status && ["refunded", "rejected", "cancelled"].includes(data.status)) {
       patch["resolved_at"] = new Date().toISOString();
     }
-    delete patch["staffNote"];
     if (Object.keys(patch).length === 0) throw new Error("Güncellenecek alan yok");
 
     const { data: updated, error } = await supabase
