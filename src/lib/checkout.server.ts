@@ -401,6 +401,7 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
     grandTotal: Number(order.grand_total),
     currency: order.currency,
     paymentLabel,
+    giftCardApplied,
   };
 }
 
