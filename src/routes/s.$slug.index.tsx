@@ -12,7 +12,7 @@ export const Route = createFileRoute("/s/$slug/")({
     if (!data) throw notFound();
     return { name: data.store.name, hero: data.theme?.hero_subtitle ?? "" };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) {
       return { meta: [{ title: "Mağaza bulunamadı" }, { name: "robots", content: "noindex" }] };
     }
@@ -28,8 +28,16 @@ export const Route = createFileRoute("/s/$slug/")({
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
+      links: [
+        {
+          rel: "sitemap",
+          type: "application/xml",
+          href: `/api/public/sitemap/${params.slug}`,
+        },
+      ],
     };
   },
+
   errorComponent: () => <StorefrontFallback text="Vitrin şu anda yüklenemedi." />,
   notFoundComponent: () => <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />,
   component: StorefrontHome,
