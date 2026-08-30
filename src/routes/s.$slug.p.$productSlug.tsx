@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontReviews } from "@/components/storefront-reviews";
+import { StockAlertForm } from "@/components/stock-alert-form";
 import { useCart } from "@/lib/cart";
 import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
@@ -233,6 +234,18 @@ function ProductPage() {
           >
             {inStock ? "Sepete ekle" : "Stokta yok"}
           </button>
+
+          {inStock ? null : (
+            <StockAlertForm
+              slug={store.slug}
+              productSlug={product.slug}
+              variantId={selected?.id}
+              accent={t.accent_color}
+              border={border}
+              muted={muted}
+              radius={radius}
+            />
+          )}
 
           <button
             type="button"
