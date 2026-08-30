@@ -87,9 +87,58 @@ function ProductsPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const rows = (products ?? []).filter((product) =>
-    filter === "all" ? true : product.status === filter,
-  );
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [bulkStatus, setBulkStatus] = useState<"draft" | "active" | "archived">("active");
+
+  const update = useServerFn(updateProduct);
+  const bulkMutation = useMutation({
+    mutationFn: async () => {
+      for (const productId of selected) {
+        await update({ data: { productId, patch: { status: bulkStatus } } });
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["products", storeId] });
+      toast.success(`${selected.length} ürün güncellendi`);
+      setSelected([]);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const rows = useMemo(() => {
+    const term = search.trim().toLocaleLowerCase("tr");
+    return (products ?? []).filter((product) => {
+      if (filter !== "all" && product.status !== filter) return false;
+      if (!term) return true;
+      return (
+        product.title.toLocaleLowerCase("tr").includes(term) ||
+        (product.slug ?? "").toLocaleLowerCase("tr").includes(term)
+      );
+    });
+  }, [products, filter, search]);
+
+  const allSelected = rows.length > 0 && rows.every((row) => selected.includes(row.id));
+
+  const exportCsv = () => {
+    const source = selected.length > 0 ? rows.filter((r) => selected.includes(r.id)) : rows;
+    const csv = toCsv(
+      ["Ürün", "Slug", "Durum", "Fiyat", "Para birimi", "Varyant", "Stok"],
+      source.map((product) => {
+        const variants = product.product_variants ?? [];
+        return [
+          product.title,
+          product.slug,
+          STATUS_LABELS[product.status] ?? product.status,
+          Number(product.base_price),
+          product.currency,
+          variants.length,
+          variants.reduce((sum, v) => sum + (v.stock ?? 0), 0),
+        ];
+      }),
+    );
+    downloadCsv(`urunler-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+  };
 
   return (
     <AppShell
