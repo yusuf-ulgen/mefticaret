@@ -69,10 +69,39 @@ export const getStorefront = createServerFn({ method: "GET" })
     if (collectionsRes.error) throw new Error(collectionsRes.error.message);
     if (pagesRes.error) throw new Error(pagesRes.error.message);
 
+    // Ürün kartları için kapak görselleri (imzalı adres).
+    const products = productsRes.data ?? [];
+    const coverByProduct: Record<string, string> = {};
+    if (products.length) {
+      const { data: coverRows } = await supabase
+        .from("product_images")
+        .select("product_id, url, storage_path, position")
+        .in(
+          "product_id",
+          products.map((product) => product.id),
+        )
+        .order("position");
+      const paths = (coverRows ?? []).map((row) => row.storage_path ?? "").filter(Boolean);
+      const signed: Record<string, string> = {};
+      if (paths.length) {
+        const { data: signedData } = await supabase.storage
+          .from("store-media")
+          .createSignedUrls(Array.from(new Set(paths)), 60 * 60);
+        for (const row of signedData ?? []) {
+          if (row.path && row.signedUrl) signed[row.path] = row.signedUrl;
+        }
+      }
+      for (const row of coverRows ?? []) {
+        if (coverByProduct[row.product_id]) continue;
+        const url = row.storage_path ? (signed[row.storage_path] ?? row.url) : row.url;
+        if (url) coverByProduct[row.product_id] = url;
+      }
+    }
+
     return {
       store,
       theme: themeRes.data,
-      products: productsRes.data ?? [],
+      products: products.map((product) => ({ ...product, coverUrl: coverByProduct[product.id] ?? null })),
       collections: collectionsRes.data ?? [],
       footerPages: pagesRes.data ?? [],
     };
@@ -112,7 +141,7 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
         .order("position"),
       supabase
         .from("product_images")
-        .select("id, url, alt, position")
+        .select("id, url, alt, position, storage_path")
         .eq("product_id", product.id)
         .order("position"),
       supabase
@@ -128,6 +157,25 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
     if (imagesRes.error) throw new Error(imagesRes.error.message);
     if (reviewsRes.error) throw new Error(reviewsRes.error.message);
 
+    // Özel medya kovasındaki görseller için kısa süreli imzalı adres üret.
+    const imageRows = imagesRes.data ?? [];
+    const storedPaths = imageRows.map((row) => row.storage_path ?? "").filter(Boolean);
+    let signed: Record<string, string> = {};
+    if (storedPaths.length) {
+      const { data: signedData } = await supabase.storage
+        .from("store-media")
+        .createSignedUrls(Array.from(new Set(storedPaths)), 60 * 60);
+      for (const row of signedData ?? []) {
+        if (row.path && row.signedUrl) signed[row.path] = row.signedUrl;
+      }
+    }
+    const images = imageRows.map((row) => ({
+      id: row.id,
+      alt: row.alt,
+      position: row.position,
+      url: row.storage_path ? (signed[row.storage_path] ?? row.url) : row.url,
+    }));
+
     const reviews = reviewsRes.data ?? [];
     const ratingAverage = reviews.length
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
@@ -138,7 +186,7 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
       theme: themeRes.data,
       product,
       variants: variantsRes.data ?? [],
-      images: imagesRes.data ?? [],
+      images,
       reviews,
       ratingAverage,
     };

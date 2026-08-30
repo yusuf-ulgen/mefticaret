@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, ImagePlus, Plus, Star, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -25,6 +25,12 @@ import {
   updateProduct,
   upsertVariant,
 } from "@/lib/catalog.functions";
+import {
+  addProductImage,
+  deleteProductImage,
+  updateProductImage,
+} from "@/lib/media.functions";
+import { productImagesQuery, uploadProductImage, type ProductImage } from "@/lib/media";
 import { formatMoney } from "@/lib/mefti";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/products/$productId")({
@@ -317,6 +323,8 @@ function ProductDetailPage() {
             )}
           </div>
 
+          <ProductGallery storeId={storeId} productId={productId} />
+
           <div className="surface-card p-6 lg:col-span-3">
             <h2 className="mb-4 text-lg font-semibold">Varyantlar</h2>
             <div className="overflow-x-auto">
@@ -417,6 +425,147 @@ function ProductDetailPage() {
         </div>
       )}
     </AppShell>
+  );
+}
+
+function ProductGallery({ storeId, productId }: { storeId: string; productId: string }) {
+  const queryClient = useQueryClient();
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const { data: images } = useQuery(productImagesQuery(productId));
+  const addFn = useServerFn(addProductImage);
+  const updateFn = useServerFn(updateProductImage);
+  const deleteFn = useServerFn(deleteProductImage);
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["product-images", productId] });
+
+  async function handleFiles(files: FileList | null) {
+    if (!files?.length) return;
+    setUploading(true);
+    try {
+      for (const file of Array.from(files).slice(0, 6)) {
+        const path = await uploadProductImage(storeId, productId, file);
+        await addFn({ data: { productId, storagePath: path } });
+      }
+      await invalidate();
+      toast.success("Görseller yüklendi");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Görsel yüklenemedi");
+    } finally {
+      setUploading(false);
+      if (fileInput.current) fileInput.current.value = "";
+    }
+  }
+
+  const makeCover = useMutation({
+    mutationFn: async (image: ProductImage) => {
+      const rest = (images ?? []).filter((row) => row.id !== image.id);
+      await updateFn({ data: { imageId: image.id, position: 0 } });
+      await Promise.all(
+        rest.map((row, index) => updateFn({ data: { imageId: row.id, position: index + 1 } })),
+      );
+    },
+    onSuccess: async () => {
+      await invalidate();
+      toast.success("Kapak görseli güncellendi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: (imageId: string) => deleteFn({ data: { imageId } }),
+    onSuccess: async () => {
+      await invalidate();
+      toast.success("Görsel silindi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  return (
+    <div className="surface-card space-y-4 p-6 lg:col-span-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">Görseller</h2>
+          <p className="text-sm text-muted-foreground">
+            JPG, PNG, WEBP veya AVIF · dosya başına en fazla 10 MB · ürün başına 12 görsel.
+          </p>
+        </div>
+        <div>
+          <input
+            ref={fileInput}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(event) => void handleFiles(event.target.files)}
+          />
+          <Button size="sm" disabled={uploading} onClick={() => fileInput.current?.click()}>
+            <ImagePlus className="mr-2 size-4" />
+            {uploading ? "Yükleniyor…" : "Görsel yükle"}
+          </Button>
+        </div>
+      </div>
+
+      {!images?.length ? (
+        <p className="text-sm text-muted-foreground">
+          Henüz görsel yok. Vitrinde ürününüzün öne çıkması için en az bir görsel ekleyin.
+        </p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {images.map((image, index) => (
+            <figure key={image.id} className="space-y-2">
+              <div className="relative overflow-hidden rounded-xl border border-border bg-muted">
+                <img
+                  src={image.displayUrl}
+                  alt={image.alt ?? ""}
+                  loading="lazy"
+                  className="aspect-square w-full object-cover"
+                />
+                {index === 0 ? (
+                  <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[0.65rem] font-semibold text-primary-foreground">
+                    Kapak
+                  </span>
+                ) : null}
+              </div>
+              <Input
+                defaultValue={image.alt ?? ""}
+                placeholder="Alt metin (SEO)"
+                className="h-8 text-xs"
+                onBlur={(event) => {
+                  const value = event.target.value.trim();
+                  if (value === (image.alt ?? "")) return;
+                  void updateFn({ data: { imageId: image.id, alt: value } }).then(invalidate);
+                }}
+              />
+              <div className="flex gap-2">
+                {index !== 0 ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    disabled={makeCover.isPending}
+                    onClick={() => makeCover.mutate(image)}
+                  >
+                    <Star className="size-3.5" />
+                  </Button>
+                ) : null}
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="flex-1"
+                  disabled={remove.isPending}
+                  onClick={() => remove.mutate(image.id)}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </div>
+            </figure>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

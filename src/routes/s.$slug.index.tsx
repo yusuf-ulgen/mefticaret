@@ -194,12 +194,22 @@ function StorefrontHome() {
                   style={{
                     height: 160,
                     borderRadius: radius,
+                    overflow: "hidden",
                     background: dark
                       ? "linear-gradient(140deg, rgba(255,255,255,.12), rgba(255,255,255,.03))"
                       : `linear-gradient(140deg, ${t.accent_color}22, ${t.primary_color}12)`,
                     marginBottom: 14,
                   }}
-                />
+                >
+                  {product.coverUrl ? (
+                    <img
+                      src={product.coverUrl}
+                      alt={product.title}
+                      loading="lazy"
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  ) : null}
+                </div>
                 <div style={{ fontFamily: fonts.heading, fontWeight: 600, fontSize: 15 }}>{product.title}</div>
                 <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontWeight: 600 }}>{formatMoney(product.base_price, product.currency)}</span>
