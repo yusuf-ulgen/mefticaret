@@ -127,6 +127,73 @@ export type Database = {
           },
         ]
       }
+      channel_listings: {
+        Row: {
+          channel_id: string
+          created_at: string
+          external_id: string | null
+          external_url: string | null
+          id: string
+          last_error: string | null
+          last_synced_at: string | null
+          price_override: number | null
+          product_id: string
+          status: Database["public"]["Enums"]["listing_status"]
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          external_id?: string | null
+          external_url?: string | null
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          price_override?: number | null
+          product_id: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          external_id?: string | null
+          external_url?: string | null
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          price_override?: number | null
+          product_id?: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_listings_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_listings_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_listings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collections: {
         Row: {
           created_at: string
@@ -524,6 +591,65 @@ export type Database = {
           },
           {
             foreignKeyName: "ledger_entries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_channels: {
+        Row: {
+          auto_sync: boolean
+          config_ref: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          last_error: string | null
+          last_sync_at: string | null
+          name: string
+          price_markup_rate: number
+          provider: string
+          seller_id: string | null
+          status: Database["public"]["Enums"]["channel_status"]
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          auto_sync?: boolean
+          config_ref?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_sync_at?: string | null
+          name: string
+          price_markup_rate?: number
+          provider: string
+          seller_id?: string | null
+          status?: Database["public"]["Enums"]["channel_status"]
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          auto_sync?: boolean
+          config_ref?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_sync_at?: string | null
+          name?: string
+          price_markup_rate?: number
+          provider?: string
+          seller_id?: string | null
+          status?: Database["public"]["Enums"]["channel_status"]
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_channels_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -1933,6 +2059,7 @@ export type Database = {
     }
     Enums: {
       app_role: "platform_admin" | "agency" | "seller" | "customer"
+      channel_status: "disconnected" | "connected" | "error" | "paused"
       connector_kind: "payment" | "shipping"
       discount_type: "percentage" | "fixed_amount" | "free_shipping"
       domain_status: "pending" | "verifying" | "verified" | "failed"
@@ -1959,6 +2086,7 @@ export type Database = {
         | "refund"
         | "payout"
         | "adjustment"
+      listing_status: "draft" | "queued" | "listed" | "error" | "removed"
       notification_kind:
         | "order"
         | "inventory"
@@ -2113,6 +2241,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["platform_admin", "agency", "seller", "customer"],
+      channel_status: ["disconnected", "connected", "error", "paused"],
       connector_kind: ["payment", "shipping"],
       discount_type: ["percentage", "fixed_amount", "free_shipping"],
       domain_status: ["pending", "verifying", "verified", "failed"],
@@ -2142,6 +2271,7 @@ export const Constants = {
         "payout",
         "adjustment",
       ],
+      listing_status: ["draft", "queued", "listed", "error", "removed"],
       notification_kind: [
         "order",
         "inventory",
