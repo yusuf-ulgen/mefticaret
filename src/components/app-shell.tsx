@@ -24,6 +24,7 @@ import {
   ShoppingCart,
   Star,
   BellRing,
+  Bell,
   Sparkles,
   Store,
   Tag,
@@ -67,6 +68,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
       items: [
         { label: "Panel", to: `/store/${storeId}/dashboard`, icon: LayoutDashboard },
         { label: "Analitik", to: `/store/${storeId}/analytics`, icon: ChartNoAxesColumn },
+        { label: "Bildirimler", to: `/store/${storeId}/notifications`, icon: Bell },
       ],
     },
     {

@@ -134,7 +134,7 @@ export function NotificationBell({ storeId }: { storeId: string }) {
         <div className="border-t border-border px-4 py-2">
           <Button asChild variant="ghost" size="sm" className="w-full justify-center text-xs">
             <Link
-              to="/store/$storeId/webhooks"
+              to="/store/$storeId/notifications"
               params={{ storeId }}
               onClick={() => setOpen(false)}
             >

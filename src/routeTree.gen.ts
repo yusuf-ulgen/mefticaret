@@ -37,6 +37,7 @@ import { Route as AuthenticatedStoreStoreIdFinanceRouteImport } from './routes/_
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
 import { Route as AuthenticatedStoreStoreIdNavigationRouteImport } from './routes/_authenticated/store.$storeId.navigation'
+import { Route as AuthenticatedStoreStoreIdNotificationsRouteImport } from './routes/_authenticated/store.$storeId.notifications'
 import { Route as AuthenticatedStoreStoreIdOrdersRouteImport } from './routes/_authenticated/store.$storeId.orders'
 import { Route as AuthenticatedStoreStoreIdPagesRouteImport } from './routes/_authenticated/store.$storeId.pages'
 import { Route as AuthenticatedStoreStoreIdPaymentsRouteImport } from './routes/_authenticated/store.$storeId.payments'
@@ -215,6 +216,12 @@ const AuthenticatedStoreStoreIdNavigationRoute =
     path: '/store/$storeId/navigation',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdNotificationsRoute =
+  AuthenticatedStoreStoreIdNotificationsRouteImport.update({
+    id: '/store/$storeId/notifications',
+    path: '/store/$storeId/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdOrdersRoute =
   AuthenticatedStoreStoreIdOrdersRouteImport.update({
     id: '/store/$storeId/orders',
@@ -377,6 +384,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
+  '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
@@ -429,6 +437,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
+  '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
@@ -483,6 +492,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/_authenticated/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
+  '/_authenticated/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
   '/_authenticated/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/_authenticated/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/_authenticated/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
@@ -537,6 +547,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/import-export'
     | '/store/$storeId/inventory'
     | '/store/$storeId/navigation'
+    | '/store/$storeId/notifications'
     | '/store/$storeId/orders'
     | '/store/$storeId/pages'
     | '/store/$storeId/payments'
@@ -589,6 +600,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/import-export'
     | '/store/$storeId/inventory'
     | '/store/$storeId/navigation'
+    | '/store/$storeId/notifications'
     | '/store/$storeId/orders'
     | '/store/$storeId/pages'
     | '/store/$storeId/payments'
@@ -642,6 +654,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/import-export'
     | '/_authenticated/store/$storeId/inventory'
     | '/_authenticated/store/$storeId/navigation'
+    | '/_authenticated/store/$storeId/notifications'
     | '/_authenticated/store/$storeId/orders'
     | '/_authenticated/store/$storeId/pages'
     | '/_authenticated/store/$storeId/payments'
@@ -884,6 +897,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdNavigationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/notifications': {
+      id: '/_authenticated/store/$storeId/notifications'
+      path: '/store/$storeId/notifications'
+      fullPath: '/store/$storeId/notifications'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/orders': {
       id: '/_authenticated/store/$storeId/orders'
       path: '/store/$storeId/orders'
@@ -1115,6 +1135,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
   AuthenticatedStoreStoreIdNavigationRoute: typeof AuthenticatedStoreStoreIdNavigationRoute
+  AuthenticatedStoreStoreIdNotificationsRoute: typeof AuthenticatedStoreStoreIdNotificationsRoute
   AuthenticatedStoreStoreIdOrdersRoute: typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   AuthenticatedStoreStoreIdPagesRoute: typeof AuthenticatedStoreStoreIdPagesRoute
   AuthenticatedStoreStoreIdPaymentsRoute: typeof AuthenticatedStoreStoreIdPaymentsRoute
@@ -1159,6 +1180,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdInventoryRoute,
   AuthenticatedStoreStoreIdNavigationRoute:
     AuthenticatedStoreStoreIdNavigationRoute,
+  AuthenticatedStoreStoreIdNotificationsRoute:
+    AuthenticatedStoreStoreIdNotificationsRoute,
   AuthenticatedStoreStoreIdOrdersRoute:
     AuthenticatedStoreStoreIdOrdersRouteWithChildren,
   AuthenticatedStoreStoreIdPagesRoute: AuthenticatedStoreStoreIdPagesRoute,
