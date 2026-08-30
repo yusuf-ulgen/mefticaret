@@ -67,3 +67,32 @@ export function buildDailySeries(orders: AnalyticsOrder[], days: number) {
   }
   return [...buckets.values()];
 }
+
+/** Ürün performans raporu için güncel stok ve ürün bilgisi. */
+export const productPerformanceStockQuery = (storeId: string) =>
+  queryOptions({
+    queryKey: ["product-performance-stock", storeId],
+    queryFn: async () => {
+      const [products, variants] = await Promise.all([
+        supabase
+          .from("products")
+          .select("id, title, status, base_price, currency")
+          .eq("store_id", storeId)
+          .limit(1000),
+        supabase.from("product_variants").select("product_id, stock").eq("store_id", storeId).limit(2000),
+      ]);
+      if (products.error) throw products.error;
+      if (variants.error) throw variants.error;
+      const stockByProduct = new Map<string, number>();
+      for (const variant of variants.data ?? []) {
+        const key = String(variant.product_id);
+        stockByProduct.set(key, (stockByProduct.get(key) ?? 0) + Number(variant.stock ?? 0));
+      }
+      return (products.data ?? []).map((product) => ({
+        id: String(product.id),
+        title: String(product.title),
+        status: String(product.status),
+        stock: stockByProduct.get(String(product.id)) ?? 0,
+      }));
+    },
+  });
