@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Trash2, Users } from "lucide-react";
+import { Download, Plus, Trash2, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { customersQuery } from "@/lib/sales-queries";
 import { deleteCustomer, upsertCustomer } from "@/lib/sales.functions";
+import { downloadCsv, toCsv } from "@/lib/csv";
 import { formatDate, formatMoney } from "@/lib/mefti";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/customers")({
@@ -161,11 +162,38 @@ function CustomersPage() {
         </form>
 
         <div className="space-y-4 lg:col-span-2">
-          <Input
-            placeholder="Müşteri ara"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            <Input
+              className="flex-1 min-w-[200px]"
+              placeholder="Müşteri ara"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              className="gap-2"
+              disabled={rows.length === 0}
+              onClick={() => {
+                const csv = toCsv(
+                  ["ad_soyad", "eposta", "telefon", "siparis_adedi", "toplam_harcama", "etiketler", "kayit_tarihi"],
+                  rows.map((customer) => [
+                    customer.full_name,
+                    customer.email ?? "",
+                    customer.phone ?? "",
+                    customer.orders_count,
+                    customer.total_spent,
+                    (customer.tags ?? []).join("|"),
+                    customer.created_at,
+                  ]),
+                );
+                downloadCsv(`musteriler-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+                toast.success(`${rows.length} müşteri CSV olarak indirildi.`);
+              }}
+            >
+              <Download className="size-4" /> CSV indir
+            </Button>
+          </div>
           {isLoading ? (
             <p className="text-muted-foreground">Yükleniyor…</p>
           ) : rows.length === 0 ? (
