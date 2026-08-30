@@ -20,6 +20,7 @@ import {
   createReturnSchema,
   listMyReturns,
 } from "@/lib/account-returns.server";
+import { reorderMyOrder, reorderSchema } from "@/lib/account-reorder.server";
 
 export const claimMyStoreAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -65,3 +66,8 @@ export const cancelMyStoreReturn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => cancelReturnSchema.parse(data))
   .handler(async ({ data, context }) => cancelMyReturn(context.supabase, context.userId, data));
+
+export const reorderMyStoreOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => reorderSchema.parse(data))
+  .handler(async ({ data, context }) => reorderMyOrder(context.supabase, data));
