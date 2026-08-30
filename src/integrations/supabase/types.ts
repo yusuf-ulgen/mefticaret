@@ -1444,6 +1444,59 @@ export type Database = {
           },
         ]
       }
+      store_pages: {
+        Row: {
+          body: string
+          created_at: string
+          excerpt: string | null
+          id: string
+          is_published: boolean
+          seo_description: string | null
+          show_in_footer: boolean
+          slug: string
+          sort_order: number
+          store_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean
+          seo_description?: string | null
+          show_in_footer?: boolean
+          slug: string
+          sort_order?: number
+          store_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean
+          seo_description?: string | null
+          show_in_footer?: boolean
+          slug?: string
+          sort_order?: number
+          store_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_pages_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_payment_methods: {
         Row: {
           config_ref: string | null

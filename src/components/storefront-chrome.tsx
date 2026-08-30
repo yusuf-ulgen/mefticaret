@@ -62,11 +62,13 @@ export function StorefrontChrome({
   theme,
   storeName,
   storeSlug,
+  footerPages,
   children,
 }: {
   theme: StoreTheme;
   storeName: string;
   storeSlug: string;
+  footerPages?: { title: string; slug: string }[];
   children: ReactNode;
 }) {
   const { t, fonts, text, muted, border, radius } = storefrontTokens(theme);
@@ -164,6 +166,28 @@ export function StorefrontChrome({
           color: muted,
         }}
       >
+        {footerPages?.length ? (
+          <nav
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 16,
+              justifyContent: "center",
+              marginBottom: 14,
+            }}
+          >
+            {footerPages.map((page) => (
+              <Link
+                key={page.slug}
+                to="/s/$slug/page/$pageSlug"
+                params={{ slug: storeSlug, pageSlug: page.slug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                {page.title}
+              </Link>
+            ))}
+          </nav>
+        ) : null}
         {storeName} — Mefticaret altyapısıyla çalışır.
       </footer>
     </div>

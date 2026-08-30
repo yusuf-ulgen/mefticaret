@@ -65,13 +65,13 @@ function StorefrontHome() {
 
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
-  const { store, theme, products, collections } = data;
+  const { store, theme, products, collections, footerPages } = data;
   const { t, fonts, muted, cardBg, border, radius, dark } = storefrontTokens(theme);
   const split = t.layout === "split-screen";
   const columns = t.layout === "magazine" ? "repeat(auto-fill, minmax(320px, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))";
 
   return (
-    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
+    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} footerPages={footerPages}>
       <section
         style={{
           display: split ? "grid" : "block",

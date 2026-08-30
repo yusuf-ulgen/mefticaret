@@ -42,7 +42,7 @@ export const getStorefront = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!store) return null;
 
-    const [themeRes, productsRes, collectionsRes] = await Promise.all([
+    const [themeRes, productsRes, collectionsRes, pagesRes] = await Promise.all([
       supabase.from("store_themes").select("*").eq("store_id", store.id).maybeSingle(),
       supabase
         .from("products")
@@ -56,17 +56,27 @@ export const getStorefront = createServerFn({ method: "GET" })
         .select("id, title, slug, description")
         .eq("store_id", store.id)
         .order("sort_order"),
+      supabase
+        .from("store_pages")
+        .select("title, slug")
+        .eq("store_id", store.id)
+        .eq("is_published", true)
+        .eq("show_in_footer", true)
+        .order("sort_order"),
     ]);
     if (themeRes.error) throw new Error(themeRes.error.message);
     if (productsRes.error) throw new Error(productsRes.error.message);
     if (collectionsRes.error) throw new Error(collectionsRes.error.message);
+    if (pagesRes.error) throw new Error(pagesRes.error.message);
 
     return {
       store,
       theme: themeRes.data,
       products: productsRes.data ?? [],
       collections: collectionsRes.data ?? [],
+      footerPages: pagesRes.data ?? [],
     };
+
   });
 
 export const getStorefrontProduct = createServerFn({ method: "GET" })
@@ -178,4 +188,44 @@ export const getStorefrontCollection = createServerFn({ method: "GET" })
     }
 
     return { store, theme: themeRes.data, collection, products };
+  });
+
+/** Yayınlanmış vitrin içerik sayfası (CMS). */
+export const getStorefrontPage = createServerFn({ method: "GET" })
+  .inputValidator((data) =>
+    z.object({ slug: z.string().trim().min(1), pageSlug: z.string().trim().min(1) }).parse(data),
+  )
+  .handler(async ({ data }) => {
+    const supabase = publicClient();
+    const { data: store, error } = await supabase
+      .from("stores")
+      .select("id, name, slug")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!store) return null;
+
+    const [pageRes, themeRes, footerRes] = await Promise.all([
+      supabase
+        .from("store_pages")
+        .select("id, title, slug, excerpt, body, seo_description, updated_at")
+        .eq("store_id", store.id)
+        .eq("slug", data.pageSlug)
+        .eq("is_published", true)
+        .maybeSingle(),
+      supabase.from("store_themes").select("*").eq("store_id", store.id).maybeSingle(),
+      supabase
+        .from("store_pages")
+        .select("title, slug")
+        .eq("store_id", store.id)
+        .eq("is_published", true)
+        .eq("show_in_footer", true)
+        .order("sort_order"),
+    ]);
+    if (pageRes.error) throw new Error(pageRes.error.message);
+    if (themeRes.error) throw new Error(themeRes.error.message);
+    if (footerRes.error) throw new Error(footerRes.error.message);
+    if (!pageRes.data) return null;
+
+    return { store, theme: themeRes.data, page: pageRes.data, footerPages: footerRes.data ?? [] };
   });
