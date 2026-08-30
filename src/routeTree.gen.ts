@@ -16,6 +16,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
+import { Route as SSlugAccountRouteImport } from './routes/s.$slug.account'
 import { Route as SSlugCartRouteImport } from './routes/s.$slug.cart'
 import { Route as SSlugCheckoutRouteImport } from './routes/s.$slug.checkout'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
@@ -75,6 +76,11 @@ const AuthenticatedStoresRoute = AuthenticatedStoresRouteImport.update({
 const SSlugIndexRoute = SSlugIndexRouteImport.update({
   id: '/s/$slug/',
   path: '/s/$slug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugAccountRoute = SSlugAccountRouteImport.update({
+  id: '/s/$slug/account',
+  path: '/s/$slug/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugCartRoute = SSlugCartRouteImport.update({
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
   '/s/$slug/order': typeof SSlugOrderRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
   '/s/$slug/order': typeof SSlugOrderRoute
@@ -305,6 +313,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
+  '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
   '/s/$slug/order': typeof SSlugOrderRoute
@@ -341,6 +350,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/onboarding'
     | '/stores'
+    | '/s/$slug/account'
     | '/s/$slug/cart'
     | '/s/$slug/checkout'
     | '/s/$slug/order'
@@ -375,6 +385,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/onboarding'
     | '/stores'
+    | '/s/$slug/account'
     | '/s/$slug/cart'
     | '/s/$slug/checkout'
     | '/s/$slug/order'
@@ -410,6 +421,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/onboarding'
     | '/_authenticated/stores'
+    | '/s/$slug/account'
     | '/s/$slug/cart'
     | '/s/$slug/checkout'
     | '/s/$slug/order'
@@ -443,6 +455,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  SSlugAccountRoute: typeof SSlugAccountRoute
   SSlugCartRoute: typeof SSlugCartRoute
   SSlugCheckoutRoute: typeof SSlugCheckoutRoute
   SSlugOrderRoute: typeof SSlugOrderRoute
@@ -500,6 +513,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug'
       fullPath: '/s/$slug/'
       preLoaderRoute: typeof SSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/account': {
+      id: '/s/$slug/account'
+      path: '/s/$slug/account'
+      fullPath: '/s/$slug/account'
+      preLoaderRoute: typeof SSlugAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/cart': {
@@ -786,6 +806,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  SSlugAccountRoute: SSlugAccountRoute,
   SSlugCartRoute: SSlugCartRoute,
   SSlugCheckoutRoute: SSlugCheckoutRoute,
   SSlugOrderRoute: SSlugOrderRoute,

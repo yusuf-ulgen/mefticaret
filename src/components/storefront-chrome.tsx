@@ -130,6 +130,13 @@ export function StorefrontChrome({
             Siparişim
           </Link>
           <Link
+            to="/s/$slug/account"
+            params={{ slug: storeSlug }}
+            style={{ color: muted, textDecoration: "none" }}
+          >
+            Hesabım
+          </Link>
+          <Link
             to="/s/$slug/cart"
             params={{ slug: storeSlug }}
             style={{
