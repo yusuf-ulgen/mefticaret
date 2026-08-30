@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { markCartRecovered, syncAbandonedCart } from "@/lib/abandoned.functions";
 import { useCart } from "@/lib/cart";
+import { getCartToken } from "@/lib/cart-token";
 import { placeOrder } from "@/lib/checkout.functions";
 import { formatMoney } from "@/lib/mefti";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";

@@ -1,5 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { syncAbandonedCart } from "@/lib/abandoned.functions";
+import { getCartToken } from "@/lib/cart-token";
+
 export type CartLine = {
   storeSlug: string;
   variantId: string;
@@ -53,6 +56,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } catch {
       /* kota dolu olabilir, sessizce yut */
     }
+  }, [lines, hydrated]);
+
+  // Terk edilmiş sepet takibi: sepet değişimlerini mağaza bazında sunucuya yansıt (sessiz, debounce'lu)
+  useEffect(() => {
+    if (!hydrated) return;
+    const timer = setTimeout(() => {
+      const byStore = new Map<string, CartLine[]>();
+      for (const line of lines) {
+        const list = byStore.get(line.storeSlug) ?? [];
+        list.push(line);
+        byStore.set(line.storeSlug, list);
+      }
+      for (const [slug, storeLines] of byStore) {
+        void syncAbandonedCart({
+          data: {
+            slug,
+            cartToken: getCartToken(slug),
+            currency: storeLines[0]?.currency ?? "TRY",
+            items: storeLines.map((l) => ({
+              title: l.title,
+              variantTitle: l.variantTitle,
+              quantity: l.quantity,
+              price: l.price,
+            })),
+          },
+        }).catch(() => {});
+      }
+    }, 2500);
+    return () => clearTimeout(timer);
   }, [lines, hydrated]);
 
   const add = useCallback((line: Omit<CartLine, "quantity">, quantity = 1) => {
