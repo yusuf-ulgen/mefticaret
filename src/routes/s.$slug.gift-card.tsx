@@ -53,15 +53,15 @@ function GiftCardBalancePage() {
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   const check = useServerFn(checkGiftCardBalance);
   const [code, setCode] = useState("");
-
-  if (!data) return <Fallback text="Bu adreste yayınlanmış bir mağaza yok." />;
-  const { store, theme } = data;
-  const { t, fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
-
   const lookup = useMutation({
     mutationFn: () => check({ data: { slug, code } }),
   });
   const result = lookup.data;
+
+
+  if (!data) return <Fallback text="Bu adreste yayınlanmış bir mağaza yok." />;
+  const { store, theme } = data;
+  const { t, fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
