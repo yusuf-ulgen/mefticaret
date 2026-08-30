@@ -273,6 +273,9 @@ function OrderDetailPage() {
               ))}
             </ul>
           </div>
+
+          <ShipmentsPanel storeId={storeId} orderId={orderId} items={items} />
+
         </div>
 
         <div className="space-y-6">
