@@ -28,6 +28,7 @@ import {
   HelpCircle,
   Star,
   Tags,
+  Coins,
   BellRing,
   Bell,
   Sparkles,
@@ -89,6 +90,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Koleksiyonlar", to: `/store/${storeId}/collections`, icon: Boxes },
         { label: "Stok", to: `/store/${storeId}/inventory`, icon: Warehouse },
         { label: "Fiyatlandırma", to: `/store/${storeId}/pricing`, icon: Tags },
+        { label: "Kârlılık", to: `/store/${storeId}/profit`, icon: Coins },
       ],
     },
     {
