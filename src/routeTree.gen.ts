@@ -19,6 +19,7 @@ import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
 import { Route as SSlugAccountRouteImport } from './routes/s.$slug.account'
 import { Route as SSlugCartRouteImport } from './routes/s.$slug.cart'
 import { Route as SSlugCheckoutRouteImport } from './routes/s.$slug.checkout'
+import { Route as SSlugFavoritesRouteImport } from './routes/s.$slug.favorites'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
 import { Route as AuthenticatedStoreStoreIdAiRouteImport } from './routes/_authenticated/store.$storeId.ai'
@@ -102,6 +103,11 @@ const SSlugCartRoute = SSlugCartRouteImport.update({
 const SSlugCheckoutRoute = SSlugCheckoutRouteImport.update({
   id: '/s/$slug/checkout',
   path: '/s/$slug/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugFavoritesRoute = SSlugFavoritesRouteImport.update({
+  id: '/s/$slug/favorites',
+  path: '/s/$slug/favorites',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugOrderRoute = SSlugOrderRouteImport.update({
@@ -320,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
+  '/s/$slug/favorites': typeof SSlugFavoritesRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/': typeof SSlugIndexRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
@@ -366,6 +373,7 @@ export interface FileRoutesByTo {
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
+  '/s/$slug/favorites': typeof SSlugFavoritesRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug': typeof SSlugIndexRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
@@ -414,6 +422,7 @@ export interface FileRoutesById {
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
+  '/s/$slug/favorites': typeof SSlugFavoritesRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/': typeof SSlugIndexRoute
   '/_authenticated/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
@@ -462,6 +471,7 @@ export interface FileRouteTypes {
     | '/s/$slug/account'
     | '/s/$slug/cart'
     | '/s/$slug/checkout'
+    | '/s/$slug/favorites'
     | '/s/$slug/order'
     | '/s/$slug/'
     | '/store/$storeId/activity'
@@ -508,6 +518,7 @@ export interface FileRouteTypes {
     | '/s/$slug/account'
     | '/s/$slug/cart'
     | '/s/$slug/checkout'
+    | '/s/$slug/favorites'
     | '/s/$slug/order'
     | '/s/$slug'
     | '/store/$storeId/activity'
@@ -555,6 +566,7 @@ export interface FileRouteTypes {
     | '/s/$slug/account'
     | '/s/$slug/cart'
     | '/s/$slug/checkout'
+    | '/s/$slug/favorites'
     | '/s/$slug/order'
     | '/s/$slug/'
     | '/_authenticated/store/$storeId/activity'
@@ -600,6 +612,7 @@ export interface RootRouteChildren {
   SSlugAccountRoute: typeof SSlugAccountRoute
   SSlugCartRoute: typeof SSlugCartRoute
   SSlugCheckoutRoute: typeof SSlugCheckoutRoute
+  SSlugFavoritesRoute: typeof SSlugFavoritesRoute
   SSlugOrderRoute: typeof SSlugOrderRoute
   SSlugIndexRoute: typeof SSlugIndexRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
@@ -678,6 +691,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug/checkout'
       fullPath: '/s/$slug/checkout'
       preLoaderRoute: typeof SSlugCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/favorites': {
+      id: '/s/$slug/favorites'
+      path: '/s/$slug/favorites'
+      fullPath: '/s/$slug/favorites'
+      preLoaderRoute: typeof SSlugFavoritesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/order': {
@@ -1066,6 +1086,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugAccountRoute: SSlugAccountRoute,
   SSlugCartRoute: SSlugCartRoute,
   SSlugCheckoutRoute: SSlugCheckoutRoute,
+  SSlugFavoritesRoute: SSlugFavoritesRoute,
   SSlugOrderRoute: SSlugOrderRoute,
   SSlugIndexRoute: SSlugIndexRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,

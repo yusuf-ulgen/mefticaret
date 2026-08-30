@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { useCart } from "@/lib/cart";
+import { useFavorites } from "@/lib/favorites";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import { fontStack } from "@/lib/theme-presets";
 
@@ -98,11 +99,13 @@ export function StorefrontChrome({
 }) {
   const { t, fonts, text, muted, border, radius } = storefrontTokens(theme);
   const cart = useCart();
+  const favorites = useFavorites();
   const { data: menuItems } = useQuery(storefrontMenuQuery(storeSlug));
   const headerItems = (menuItems ?? []).filter((item) => item.location === "header");
   const footerItems = (menuItems ?? []).filter((item) => item.location === "footer");
 
   const cartCount = cart.countFor(storeSlug);
+  const favoriteCount = favorites.countFor(storeSlug);
 
   return (
     <div
@@ -181,6 +184,14 @@ export function StorefrontChrome({
               </Link>
             </>
           )}
+
+          <Link
+            to="/s/$slug/favorites"
+            params={{ slug: storeSlug }}
+            style={{ color: muted, textDecoration: "none" }}
+          >
+            Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
+          </Link>
 
           <Link
             to="/s/$slug/cart"

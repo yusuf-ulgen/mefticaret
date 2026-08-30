@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { StorefrontReviews } from "@/components/storefront-reviews";
 import { useCart } from "@/lib/cart";
+import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontProductQuery } from "@/lib/storefront-queries";
 
@@ -60,6 +61,7 @@ function ProductPage() {
   const { data } = useSuspenseQuery(storefrontProductQuery(slug, productSlug));
   const [variantId, setVariantId] = useState<string | null>(null);
   const cart = useCart();
+  const favorites = useFavorites();
   const navigate = useNavigate();
 
   if (!data) return <Fallback text="Bu ürün bulunamadı." />;
@@ -181,6 +183,37 @@ function ProductPage() {
             }}
           >
             {inStock ? "Sepete ekle" : "Stokta yok"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              const added = favorites.toggle({
+                storeSlug: store.slug,
+                productSlug: product.slug,
+                title: product.title,
+                price: Number(price),
+                currency: product.currency,
+                image: images[0]?.url ?? null,
+              });
+              toast.success(added ? "Favorilere eklendi" : "Favorilerden çıkarıldı");
+            }}
+            style={{
+              marginTop: 10,
+              width: "100%",
+              background: "transparent",
+              color: "inherit",
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+              padding: "12px 20px",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            {favorites.isFavorite(store.slug, product.slug)
+              ? "♥ Favorilerimde"
+              : "♡ Favorilere ekle"}
           </button>
 
           {product.description ? (
