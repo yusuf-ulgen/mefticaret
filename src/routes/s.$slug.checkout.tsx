@@ -60,6 +60,29 @@ function CheckoutPage() {
   const lines = cart.linesFor(slug);
   const subtotal = cart.subtotalFor(slug);
 
+  // Kasada e-posta giren ziyaretçinin sepetini iletişim bilgisiyle eşle (terk edilmiş sepet takibi)
+  useEffect(() => {
+    if (!email.includes("@") || lines.length === 0) return;
+    const timer = setTimeout(() => {
+      void syncAbandonedCart({
+        data: {
+          slug,
+          cartToken: getCartToken(slug),
+          customerEmail: email,
+          customerName: fullName.trim() || undefined,
+          currency: lines[0]?.currency ?? "TRY",
+          items: lines.map((l) => ({
+            title: l.title,
+            variantTitle: l.variantTitle,
+            quantity: l.quantity,
+            price: l.price,
+          })),
+        },
+      }).catch(() => {});
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [email, fullName, lines, slug]);
+
   const rates = options.data?.shippingRates ?? [];
   const methods = options.data?.paymentMethods ?? [];
   const selectedRate = useMemo(() => rates.find((rate) => rate.id === shippingRateId) ?? null, [rates, shippingRateId]);
@@ -109,6 +132,9 @@ function CheckoutPage() {
           note: note.trim() ? note.trim() : undefined,
         },
       });
+      void markCartRecovered({
+        data: { slug, cartToken: getCartToken(slug), orderNumber: result.orderNumber },
+      }).catch(() => {});
       cart.clear(slug);
       toast.success(`Sipariş alındı: ${result.orderNumber}`);
       navigate({
