@@ -1,11 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
 import { formatMoney } from "@/lib/mefti";
-import { storefrontQuery } from "@/lib/storefront-queries";
+import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 
 export const Route = createFileRoute("/s/$slug/cart")({
   loader: async ({ context, params }) => {
@@ -42,6 +42,19 @@ function CartPage() {
   const { t, fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
   const lines = cart.linesFor(slug);
   const subtotal = cart.subtotalFor(slug);
+
+  // Ücretsiz kargo eşiği: aktif kargo tarifelerindeki en düşük "free_over" değeri.
+  const options = useQuery(checkoutOptionsQuery(slug));
+  const freeShippingThreshold = (() => {
+    const values = (options.data?.shippingRates ?? [])
+      .map((rate) => Number(rate.free_over ?? 0))
+      .filter((value) => value > 0);
+    return values.length ? Math.min(...values) : null;
+  })();
+  const freeShippingRemaining = freeShippingThreshold ? Math.max(0, freeShippingThreshold - subtotal) : 0;
+  const freeShippingProgress = freeShippingThreshold
+    ? Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100))
+    : 0;
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
@@ -136,6 +149,33 @@ function CartPage() {
             <p style={{ fontSize: 12, color: muted, marginTop: 8 }}>
               Kargo ve vergi kasada hesaplanır.
             </p>
+            {freeShippingThreshold ? (
+              <div style={{ marginTop: 14 }}>
+                <p style={{ fontSize: 12.5, margin: 0 }}>
+                  {freeShippingRemaining > 0
+                    ? `Ücretsiz kargoya ${formatMoney(freeShippingRemaining, store.currency)} kaldı`
+                    : "Ücretsiz kargo kazandın 🎉"}
+                </p>
+                <div
+                  style={{
+                    marginTop: 8,
+                    height: 6,
+                    borderRadius: 999,
+                    background: border,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${freeShippingProgress}%`,
+                      height: "100%",
+                      background: t.accent_color,
+                      transition: "width .3s ease",
+                    }}
+                  />
+                </div>
+              </div>
+            ) : null}
             <Link
               to="/s/$slug/checkout"
               params={{ slug }}
