@@ -38,6 +38,21 @@ import {
 } from "@/lib/returns-queries";
 import { createReturn, updateReturn } from "@/lib/returns.functions";
 
+type CreateReturnInput = {
+  orderId: string;
+  reason: ReturnReason;
+  restock: boolean;
+  customerNote?: string;
+  items: { orderItemId: string; quantity: number }[];
+};
+
+type UpdateReturnInput = {
+  returnId: string;
+  status?: ReturnStatus;
+  staffNote?: string;
+  refundAmount?: number;
+};
+
 export const Route = createFileRoute("/_authenticated/store/$storeId/returns")({
   head: () => ({
     meta: [
@@ -99,7 +114,7 @@ function NewReturnSheet({ storeId, onDone }: { storeId: string; onDone: () => vo
 
   const create = useServerFn(createReturn);
   const mutation = useMutation({
-    mutationFn: (input: Parameters<typeof create>[0]["data"]) => create({ data: input }),
+    mutationFn: (input: CreateReturnInput) => create({ data: input }),
     onSuccess: () => {
       toast.success("İade talebi oluşturuldu");
       setOpen(false);
@@ -266,7 +281,7 @@ function ReturnsPage() {
 
   const update = useServerFn(updateReturn);
   const mutation = useMutation({
-    mutationFn: (input: Parameters<typeof update>[0]["data"]) => update({ data: input }),
+    mutationFn: (input: UpdateReturnInput) => update({ data: input }),
     onSuccess: () => {
       toast.success("İade güncellendi");
       void queryClient.invalidateQueries({ queryKey: ["returns", storeId] });
