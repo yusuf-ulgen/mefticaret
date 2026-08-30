@@ -232,6 +232,21 @@ function OrdersPage() {
           >
             {bulkMutation.isPending ? "Uygulanıyor…" : "Durumu uygula"}
           </Button>
+          <span className="mx-1 hidden h-6 w-px bg-border sm:block" />
+          <Input
+            className="w-40"
+            placeholder="Kargo firması"
+            value={bulkCarrier}
+            onChange={(event) => setBulkCarrier(event.target.value)}
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={shipmentMutation.isPending}
+            onClick={() => shipmentMutation.mutate()}
+          >
+            {shipmentMutation.isPending ? "Oluşturuluyor…" : "Sevkiyat oluştur"}
+          </Button>
           <Button size="sm" variant="ghost" onClick={() => setSelected([])}>
             Seçimi temizle
           </Button>
