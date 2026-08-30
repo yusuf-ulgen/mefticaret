@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
+import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
 import { formatMoney } from "@/lib/mefti";
@@ -156,6 +157,10 @@ function CartPage() {
           </aside>
         </div>
       )}
+      <RecentlyViewed
+        storeSlug={store.slug}
+        tokens={{ muted, border, cardBg, radius, headingFont: fonts.heading }}
+      />
     </StorefrontChrome>
   );
 }
