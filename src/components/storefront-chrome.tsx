@@ -162,7 +162,11 @@ export function StorefrontChrome({
             ))
           ) : (
             <>
-              <Link to="/s/$slug" params={{ slug: storeSlug }} style={{ color: muted, textDecoration: "none" }}>
+              <Link
+                to="/s/$slug/products"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
                 Ürünler
               </Link>
               <a href="#koleksiyonlar" style={{ color: muted, textDecoration: "none" }}>
