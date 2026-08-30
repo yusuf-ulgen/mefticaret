@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+import { isDark } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
 import { getQuickAddVariant } from "@/lib/storefront.functions";
 
@@ -13,16 +14,15 @@ export function QuickAddButton({
   storeSlug,
   productSlug,
   accent,
-  accentContrast,
 }: {
   storeSlug: string;
   productSlug: string;
   accent: string;
-  accentContrast: string;
 }) {
   const cart = useCart();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const accentContrast = isDark(accent) ? "#ffffff" : "#101418";
 
   return (
     <button
