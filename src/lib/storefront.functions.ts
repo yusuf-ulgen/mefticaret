@@ -145,7 +145,7 @@ export const getStorefrontCollection = createServerFn({ method: "GET" })
     if (linksRes.error) throw new Error(linksRes.error.message);
 
     const ids = (linksRes.data ?? []).map((l) => l.product_id);
-    let products: Array<Record<string, unknown>> = [];
+    let products: StorefrontProductCard[] = [];
     if (ids.length) {
       const { data: rows, error: productsError } = await supabase
         .from("products")
