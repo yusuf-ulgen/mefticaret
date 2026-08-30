@@ -92,7 +92,7 @@ function SegmentsPage() {
   }
 
   return (
-    <AppShell storeId={storeId}>
+    <AppShell storeId={storeId} title="Müşteri Segmentleri">
       <div className="space-y-6">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
