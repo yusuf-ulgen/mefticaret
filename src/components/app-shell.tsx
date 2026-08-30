@@ -30,6 +30,7 @@ import {
   Tags,
   Coins,
   Gift,
+  Images,
   BellRing,
   Bell,
   Sparkles,
