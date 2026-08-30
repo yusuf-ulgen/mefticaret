@@ -68,6 +68,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
       items: [
         { label: "Panel", to: `/store/${storeId}/dashboard`, icon: LayoutDashboard },
         { label: "Analitik", to: `/store/${storeId}/analytics`, icon: ChartNoAxesColumn },
+        { label: "Ürün Raporu", to: `/store/${storeId}/reports`, icon: PackageSearch },
         { label: "Bildirimler", to: `/store/${storeId}/notifications`, icon: Bell },
       ],
     },
