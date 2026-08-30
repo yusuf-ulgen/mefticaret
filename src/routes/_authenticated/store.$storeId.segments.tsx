@@ -176,9 +176,63 @@ function SegmentsPage() {
               Sipariş güncelliği, sıklığı ve harcama tutarına göre otomatik RFM segmentasyonu.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
-            <Download className="mr-2 size-4" /> CSV indir
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={copyEmails} disabled={filtered.length === 0}>
+              <ClipboardCopy className="mr-2 size-4" /> E-postaları kopyala
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
+              <Download className="mr-2 size-4" /> CSV indir
+            </Button>
+            <Dialog open={campaignOpen} onOpenChange={setCampaignOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <TicketPercent className="mr-2 size-4" /> Geri kazanım kuponu
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Segment kuponu oluştur</DialogTitle>
+                  <DialogDescription>
+                    {active === "all"
+                      ? "Tüm müşteriler için"
+                      : `${SEGMENT_META[active].label} segmenti için`}{" "}
+                    yüzde indirimli, süreli bir kupon üretilir.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="segment-percent">İndirim (%)</Label>
+                    <Input
+                      id="segment-percent"
+                      value={percent}
+                      inputMode="numeric"
+                      onChange={(event) => setPercent(event.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="segment-days">Geçerlilik (gün)</Label>
+                    <Input
+                      id="segment-days"
+                      value={validDays}
+                      inputMode="numeric"
+                      onChange={(event) => setValidDays(event.target.value)}
+                    />
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Kupon kodu: <span className="font-mono font-medium text-foreground">{campaignCode}</span>
+                </p>
+                <DialogFooter>
+                  <Button
+                    onClick={() => campaign.mutate()}
+                    disabled={campaign.isPending}
+                  >
+                    {campaign.isPending ? "Oluşturuluyor…" : "Kuponu oluştur"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </header>
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
