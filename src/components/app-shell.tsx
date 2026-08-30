@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { NotificationBell } from "@/components/notification-bell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -313,7 +314,10 @@ export function AppShell({
               <span className="font-display text-lg font-semibold">Mefticaret</span>
             </Link>
           )}
-          <div className="ml-auto flex items-center gap-2">{<UserMenu />}</div>
+          <div className="ml-auto flex items-center gap-2">
+            {storeId ? <NotificationBell storeId={storeId} /> : null}
+            <UserMenu />
+          </div>
         </header>
 
         <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
