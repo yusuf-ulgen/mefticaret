@@ -28,6 +28,7 @@ export const NOTIFICATION_KIND_LABELS: Record<string, string> = {
   order: "Sipariş",
   inventory: "Stok",
   payout: "Hakediş",
+  review: "Yorum",
   system: "Sistem",
   abandoned_cart: "Terk sepet",
 };
