@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      abandoned_carts: {
+        Row: {
+          cart_token: string
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          id: string
+          item_count: number
+          items: Json
+          last_seen_at: string
+          recovered_order_id: string | null
+          store_id: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          cart_token: string
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          id?: string
+          item_count?: number
+          items?: Json
+          last_seen_at?: string
+          recovered_order_id?: string | null
+          store_id: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          cart_token?: string
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          id?: string
+          item_count?: number
+          items?: Json
+          last_seen_at?: string
+          recovered_order_id?: string | null
+          store_id?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abandoned_carts_recovered_order_id_fkey"
+            columns: ["recovered_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abandoned_carts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
