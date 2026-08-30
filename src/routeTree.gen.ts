@@ -21,6 +21,7 @@ import { Route as SSlugCartRouteImport } from './routes/s.$slug.cart'
 import { Route as SSlugCheckoutRouteImport } from './routes/s.$slug.checkout'
 import { Route as SSlugCompareRouteImport } from './routes/s.$slug.compare'
 import { Route as SSlugFavoritesRouteImport } from './routes/s.$slug.favorites'
+import { Route as SSlugGiftCardRouteImport } from './routes/s.$slug.gift-card'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
 import { Route as SSlugProductsRouteImport } from './routes/s.$slug.products'
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
@@ -131,6 +132,11 @@ const SSlugCompareRoute = SSlugCompareRouteImport.update({
 const SSlugFavoritesRoute = SSlugFavoritesRouteImport.update({
   id: '/s/$slug/favorites',
   path: '/s/$slug/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugGiftCardRoute = SSlugGiftCardRouteImport.update({
+  id: '/s/$slug/gift-card',
+  path: '/s/$slug/gift-card',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugOrderRoute = SSlugOrderRouteImport.update({
@@ -450,6 +456,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
   '/s/$slug/compare': typeof SSlugCompareRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
+  '/s/$slug/gift-card': typeof SSlugGiftCardRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/': typeof SSlugIndexRoute
@@ -515,6 +522,7 @@ export interface FileRoutesByTo {
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
   '/s/$slug/compare': typeof SSlugCompareRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
+  '/s/$slug/gift-card': typeof SSlugGiftCardRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug': typeof SSlugIndexRoute
@@ -582,6 +590,7 @@ export interface FileRoutesById {
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
   '/s/$slug/compare': typeof SSlugCompareRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
+  '/s/$slug/gift-card': typeof SSlugGiftCardRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/': typeof SSlugIndexRoute
@@ -649,6 +658,7 @@ export interface FileRouteTypes {
     | '/s/$slug/checkout'
     | '/s/$slug/compare'
     | '/s/$slug/favorites'
+    | '/s/$slug/gift-card'
     | '/s/$slug/order'
     | '/s/$slug/products'
     | '/s/$slug/'
@@ -714,6 +724,7 @@ export interface FileRouteTypes {
     | '/s/$slug/checkout'
     | '/s/$slug/compare'
     | '/s/$slug/favorites'
+    | '/s/$slug/gift-card'
     | '/s/$slug/order'
     | '/s/$slug/products'
     | '/s/$slug'
@@ -780,6 +791,7 @@ export interface FileRouteTypes {
     | '/s/$slug/checkout'
     | '/s/$slug/compare'
     | '/s/$slug/favorites'
+    | '/s/$slug/gift-card'
     | '/s/$slug/order'
     | '/s/$slug/products'
     | '/s/$slug/'
@@ -844,6 +856,7 @@ export interface RootRouteChildren {
   SSlugCheckoutRoute: typeof SSlugCheckoutRoute
   SSlugCompareRoute: typeof SSlugCompareRoute
   SSlugFavoritesRoute: typeof SSlugFavoritesRoute
+  SSlugGiftCardRoute: typeof SSlugGiftCardRoute
   SSlugOrderRoute: typeof SSlugOrderRoute
   SSlugProductsRoute: typeof SSlugProductsRoute
   SSlugIndexRoute: typeof SSlugIndexRoute
@@ -939,6 +952,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug/favorites'
       fullPath: '/s/$slug/favorites'
       preLoaderRoute: typeof SSlugFavoritesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/gift-card': {
+      id: '/s/$slug/gift-card'
+      path: '/s/$slug/gift-card'
+      fullPath: '/s/$slug/gift-card'
+      preLoaderRoute: typeof SSlugGiftCardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/order': {
@@ -1483,6 +1503,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugCheckoutRoute: SSlugCheckoutRoute,
   SSlugCompareRoute: SSlugCompareRoute,
   SSlugFavoritesRoute: SSlugFavoritesRoute,
+  SSlugGiftCardRoute: SSlugGiftCardRoute,
   SSlugOrderRoute: SSlugOrderRoute,
   SSlugProductsRoute: SSlugProductsRoute,
   SSlugIndexRoute: SSlugIndexRoute,
