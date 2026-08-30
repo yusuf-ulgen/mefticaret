@@ -87,6 +87,56 @@ function OrdersPage() {
     .filter((order) => order.payment_status === "paid")
     .reduce((sum, order) => sum + Number(order.grand_total), 0);
 
+  const queryClient = useQueryClient();
+  const update = useServerFn(updateOrder);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [bulkStatus, setBulkStatus] = useState<OrderStatus>("processing");
+
+  const visibleIds = rows.map((order) => order.id);
+  const selectedVisible = selected.filter((id) => visibleIds.includes(id));
+  const allSelected = visibleIds.length > 0 && selectedVisible.length === visibleIds.length;
+
+  const toggleOne = (id: string, checked: boolean) =>
+    setSelected((prev) => (checked ? [...new Set([...prev, id])] : prev.filter((x) => x !== id)));
+
+  const bulkMutation = useMutation({
+    mutationFn: async () => {
+      for (const orderId of selectedVisible) {
+        await update({ data: { orderId, patch: { status: bulkStatus as never } } });
+      }
+    },
+    onSuccess: async () => {
+      const count = selectedVisible.length;
+      setSelected([]);
+      await queryClient.invalidateQueries({ queryKey: ["orders", storeId] });
+      toast.success(`${count} sipariş güncellendi`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const exportCsv = () => {
+    const source = selectedVisible.length > 0 ? rows.filter((o) => selectedVisible.includes(o.id)) : rows;
+    const csv = toCsv(
+      ["siparis_no", "musteri", "eposta", "durum", "odeme", "adet", "toplam", "para_birimi", "tarih"],
+      source.map((order) => [
+        order.order_number,
+        order.customer_name ?? "",
+        order.customer_email ?? "",
+        ORDER_STATUS_LABELS[order.status],
+        PAYMENT_STATUS_LABELS[order.payment_status],
+        (order.order_items ?? []).reduce(
+          (sum: number, item: { quantity: number }) => sum + item.quantity,
+          0,
+        ),
+        Number(order.grand_total),
+        order.currency,
+        order.placed_at,
+      ]),
+    );
+    downloadCsv(`siparisler-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+  };
+
+
   return (
     <AppShell
       storeId={storeId}
