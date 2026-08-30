@@ -224,7 +224,28 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
     extraFee = Number((((taxable + shippingTotal) * Number(method.extra_fee_rate ?? 0)) / 100).toFixed(2));
   }
 
-  const grandTotal = Number((taxable + shippingTotal + taxTotal + extraFee).toFixed(2));
+  const orderTotal = Number((taxable + shippingTotal + taxTotal + extraFee).toFixed(2));
+
+  // Hediye kartı: kod, aktiflik, son kullanma ve bakiye sunucuda doğrulanır
+  let giftCardApplied = 0;
+  let giftCard: { id: string; code: string; balance: number } | null = null;
+  if (input.giftCardCode) {
+    const code = normalizeGiftCardCode(input.giftCardCode);
+    const { data: cards, error: giftError } = await supabase
+      .from("gift_cards")
+      .select("id, code, balance, status, expires_at, currency")
+      .eq("store_id", store.id)
+      .ilike("code", code);
+    if (giftError) throw new Error(giftError.message);
+    const card = (cards ?? []).find((row) => normalizeGiftCardCode(row.code) === code);
+    if (!card || !isGiftCardUsable({ status: card.status, balance: Number(card.balance), expires_at: card.expires_at })) {
+      throw new Error("Hediye kartı geçersiz veya bakiyesi yok");
+    }
+    giftCardApplied = redeemableAmount(Number(card.balance), orderTotal);
+    giftCard = { id: card.id, code: card.code, balance: Number(card.balance) };
+  }
+
+  const grandTotal = Number((orderTotal - giftCardApplied).toFixed(2));
 
   // Müşteri kaydı (e-posta ile tekilleştirilir)
   const { data: existingCustomer } = await supabase
