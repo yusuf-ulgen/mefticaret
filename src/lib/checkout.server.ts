@@ -31,6 +31,7 @@ export const placeOrderSchema = z.object({
   shippingRateId: z.string().uuid().optional(),
   paymentMethodId: z.string().uuid().optional(),
   discountCode: z.string().trim().max(60).optional(),
+  giftCardCode: z.string().trim().max(60).optional(),
   note: z.string().trim().max(500).optional(),
 });
 
