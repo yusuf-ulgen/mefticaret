@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
+import { FavoriteButton } from "@/components/favorite-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontCollectionQuery } from "@/lib/storefront-queries";
@@ -198,8 +199,23 @@ function CollectionPage() {
                 textDecoration: "none",
                 color: "inherit",
                 display: "block",
+                position: "relative",
               }}
             >
+              <FavoriteButton
+                item={{
+                  storeSlug: store.slug,
+                  productSlug: product.slug,
+                  title: product.title,
+                  price: Number(product.base_price),
+                  currency: product.currency,
+                  image: null,
+                }}
+                border={border}
+                cardBg={cardBg}
+                accent={t.accent_color}
+                muted={muted}
+              />
               <div
                 style={{
                   height: 160,

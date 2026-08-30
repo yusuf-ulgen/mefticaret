@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
+import { FavoriteButton } from "@/components/favorite-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
@@ -89,7 +90,7 @@ function StorefrontProductsPage() {
 
   if (!data) return null;
   const { store, theme } = data;
-  const { fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
+  const { t, fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
 
   const controlStyle = {
     background: "transparent",
@@ -196,8 +197,23 @@ function StorefrontProductsPage() {
                 textDecoration: "none",
                 color: "inherit",
                 display: "block",
+                position: "relative",
               }}
             >
+              <FavoriteButton
+                item={{
+                  storeSlug: store.slug,
+                  productSlug: product.slug,
+                  title: product.title,
+                  price: Number(product.base_price),
+                  currency: product.currency ?? store.currency,
+                  image: product.coverUrl ?? null,
+                }}
+                border={border}
+                cardBg={cardBg}
+                accent={t.accent_color}
+                muted={muted}
+              />
               <div style={{ aspectRatio: "1 / 1", background: border, overflow: "hidden" }}>
                 {product.coverUrl ? (
                   <img
