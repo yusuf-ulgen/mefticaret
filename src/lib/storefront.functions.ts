@@ -101,7 +101,7 @@ export const getStorefront = createServerFn({ method: "GET" })
     return {
       store,
       theme: themeRes.data,
-      products: productsRes.data ?? [],
+      products: products.map((product) => ({ ...product, coverUrl: coverByProduct[product.id] ?? null })),
       collections: collectionsRes.data ?? [],
       footerPages: pagesRes.data ?? [],
     };
