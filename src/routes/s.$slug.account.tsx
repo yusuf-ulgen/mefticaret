@@ -7,12 +7,15 @@ import { toast } from "sonner";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  cancelMyStoreReturn,
   claimMyStoreAccount,
+  createMyStoreReturn,
   deleteMyStoreAddress,
   saveMyStoreAddress,
   updateMyStoreProfile,
 } from "@/lib/account.functions";
-import { myAddressesQuery, myOrdersQuery } from "@/lib/account-queries";
+import { myAddressesQuery, myOrdersQuery, myReturnsQuery } from "@/lib/account-queries";
+import { RETURN_REASON_LABELS, RETURN_STATUS_LABELS, type ReturnReason, type ReturnStatus } from "@/lib/returns-queries";
 import { useAuth } from "@/lib/auth-context";
 import { formatDateTime, formatMoney, FULFILLMENT_STATUS_LABELS, ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
@@ -161,7 +164,7 @@ function AccountAuth() {
 
 /* --------------------------------- Panel ---------------------------------- */
 
-type Tab = "orders" | "addresses" | "profile";
+type Tab = "orders" | "returns" | "addresses" | "profile";
 
 function AccountDashboard({ storeId }: { storeId: string }) {
   const queryClient = useQueryClient();
@@ -187,10 +190,12 @@ function AccountDashboard({ storeId }: { storeId: string }) {
   const claimed = claim.isSuccess;
   const { data: ordersData } = useQuery(myOrdersQuery(storeId, claimed));
   const { data: addressesData } = useQuery(myAddressesQuery(storeId, claimed));
+  const { data: returnsData } = useQuery(myReturnsQuery(storeId, claimed));
 
   const customer = ordersData?.customer ?? addressesData?.customer ?? null;
   const orders = useMemo(() => ordersData?.orders ?? [], [ordersData]);
   const addresses = useMemo(() => addressesData?.addresses ?? [], [addressesData]);
+  const returns = useMemo(() => returnsData ?? [], [returnsData]);
 
   return (
     <div style={{ marginTop: 20 }}>
@@ -198,6 +203,7 @@ function AccountDashboard({ storeId }: { storeId: string }) {
         {(
           [
             ["orders", `Siparişlerim (${orders.length})`],
+            ["returns", `İadelerim (${returns.length})`],
             ["addresses", `Adreslerim (${addresses.length})`],
             ["profile", "Üyelik Bilgilerim"],
           ] as [Tab, string][]
@@ -222,6 +228,7 @@ function AccountDashboard({ storeId }: { storeId: string }) {
       {claim.isPending ? <p style={{ opacity: 0.7, fontSize: 14 }}>Hesabınız hazırlanıyor…</p> : null}
 
       {tab === "orders" ? <OrdersList orders={orders} /> : null}
+      {tab === "returns" ? <ReturnsPanel storeId={storeId} orders={orders} returns={returns} /> : null}
       {tab === "addresses" && customer ? <AddressBook storeId={storeId} addresses={addresses} /> : null}
       {tab === "profile" && customer ? <ProfileForm storeId={storeId} customer={customer} /> : null}
     </div>
@@ -266,6 +273,206 @@ function OrdersList({ orders }: { orders: import("@/lib/account.server").MyOrder
           </ul>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* --------------------------------- İadeler --------------------------------- */
+
+function ReturnsPanel({
+  storeId,
+  orders,
+  returns,
+}: {
+  storeId: string;
+  orders: import("@/lib/account.server").MyOrder[];
+  returns: import("@/lib/account-returns.server").MyReturn[];
+}) {
+  const queryClient = useQueryClient();
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [reason, setReason] = useState<ReturnReason>("changed_mind");
+  const [note, setNote] = useState("");
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+
+  const createFn = useServerFn(createMyStoreReturn);
+  const cancelFn = useServerFn(cancelMyStoreReturn);
+
+  const openReturnOrderIds = new Set(
+    returns.filter((row) => !["rejected", "cancelled"].includes(row.status)).map((row) => row.orders?.order_number),
+  );
+  const eligible = orders.filter(
+    (order) =>
+      ["paid", "partially_refunded"].includes(order.payment_status) &&
+      !openReturnOrderIds.has(order.order_number),
+  );
+  const selected = eligible.find((order) => order.id === orderId) ?? null;
+
+  const invalidate = () => {
+    void queryClient.invalidateQueries({ queryKey: ["storefront", storeId, "my-returns"] });
+    void queryClient.invalidateQueries({ queryKey: ["storefront", storeId, "my-orders"] });
+  };
+
+  const reset = () => {
+    setOrderId(null);
+    setQuantities({});
+    setNote("");
+    setReason("changed_mind");
+  };
+
+  const create = useMutation({
+    mutationFn: () => {
+      if (!selected) throw new Error("Sipariş seçin");
+      const items = Object.entries(quantities)
+        .filter(([, quantity]) => quantity > 0)
+        .map(([orderItemId, quantity]) => ({ orderItemId, quantity }));
+      if (!items.length) throw new Error("En az bir ürün ve adet seçmelisiniz.");
+      return createFn({ data: { storeId, orderId: selected.id, reason, customerNote: note || undefined, items } });
+    },
+    onSuccess: (result) => {
+      toast.success(`İade talebiniz oluşturuldu: ${result.returnNumber}`);
+      reset();
+      invalidate();
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "İade talebi oluşturulamadı"),
+  });
+
+  const cancel = useMutation({
+    mutationFn: (returnId: string) => cancelFn({ data: { storeId, returnId } }),
+    onSuccess: () => {
+      toast.success("İade talebi iptal edildi");
+      invalidate();
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Talep iptal edilemedi"),
+  });
+
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      {returns.length ? (
+        <div style={{ display: "grid", gap: 12 }}>
+          {returns.map((row) => (
+            <div key={row.id} style={cardStyle}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div>
+                  <strong>{row.return_number}</strong>
+                  <span style={{ fontSize: 13, opacity: 0.65, marginLeft: 10 }}>
+                    {row.orders?.order_number ?? ""} · {formatDateTime(row.created_at)}
+                  </span>
+                </div>
+                <strong>{formatMoney(Number(row.refund_amount), row.currency)}</strong>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10, fontSize: 12 }}>
+                <span style={tagStyle}>{RETURN_STATUS_LABELS[row.status as ReturnStatus] ?? row.status}</span>
+                <span style={tagStyle}>{RETURN_REASON_LABELS[row.reason as ReturnReason] ?? row.reason}</span>
+              </div>
+              <ul style={{ margin: "12px 0 0", padding: 0, listStyle: "none", fontSize: 13, opacity: 0.8 }}>
+                {row.return_items.map((item) => (
+                  <li key={item.id} style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}>
+                    <span>
+                      {item.title}
+                      {item.variant_title ? ` — ${item.variant_title}` : ""} × {item.quantity}
+                    </span>
+                    <span>{formatMoney(Number(item.line_total), row.currency)}</span>
+                  </li>
+                ))}
+              </ul>
+              {row.staff_note ? (
+                <p style={{ marginTop: 10, fontSize: 13, opacity: 0.75 }}>Mağaza notu: {row.staff_note}</p>
+              ) : null}
+              {row.status === "requested" ? (
+                <button
+                  style={{ ...smallButtonStyle, marginTop: 12 }}
+                  disabled={cancel.isPending}
+                  onClick={() => cancel.mutate(row.id)}
+                >
+                  Talebi iptal et
+                </button>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p style={{ opacity: 0.7, fontSize: 14, margin: 0 }}>Henüz iade talebiniz yok.</p>
+      )}
+
+      {selected ? (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            create.mutate();
+          }}
+          style={{ ...cardStyle, display: "grid", gap: 12 }}
+        >
+          <strong style={{ fontSize: 15 }}>{selected.order_number} için iade talebi</strong>
+          <div style={{ display: "grid", gap: 8 }}>
+            {selected.order_items.map((item) => (
+              <label
+                key={item.id}
+                style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13 }}
+              >
+                <span style={{ flex: 1 }}>
+                  {item.title}
+                  {item.variant_title ? ` — ${item.variant_title}` : ""}
+                  <span style={{ opacity: 0.6 }}> (sipariş adedi {item.quantity})</span>
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  max={item.quantity}
+                  value={quantities[item.id] ?? 0}
+                  onChange={(event) =>
+                    setQuantities((prev) => ({
+                      ...prev,
+                      [item.id]: Math.max(0, Math.min(item.quantity, Number(event.target.value) || 0)),
+                    }))
+                  }
+                  style={{ ...inputStyle, width: 80 }}
+                />
+              </label>
+            ))}
+          </div>
+          <select
+            value={reason}
+            onChange={(event) => setReason(event.target.value as ReturnReason)}
+            style={inputStyle}
+          >
+            {(Object.keys(RETURN_REASON_LABELS) as ReturnReason[]).map((key) => (
+              <option key={key} value={key}>
+                {RETURN_REASON_LABELS[key]}
+              </option>
+            ))}
+          </select>
+          <textarea
+            placeholder="Açıklama (opsiyonel)"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            style={{ ...inputStyle, minHeight: 70 }}
+          />
+          <div style={{ display: "flex", gap: 8 }}>
+            <button type="submit" style={buttonStyle} disabled={create.isPending}>
+              {create.isPending ? "Gönderiliyor…" : "Talebi gönder"}
+            </button>
+            <button type="button" style={buttonStyle} onClick={reset}>
+              Vazgeç
+            </button>
+          </div>
+        </form>
+      ) : eligible.length ? (
+        <div style={{ ...cardStyle, display: "grid", gap: 10 }}>
+          <strong style={{ fontSize: 15 }}>Yeni iade talebi</strong>
+          <select value="" onChange={(event) => setOrderId(event.target.value || null)} style={inputStyle}>
+            <option value="">İade edilecek siparişi seçin…</option>
+            {eligible.map((order) => (
+              <option key={order.id} value={order.id}>
+                {order.order_number} — {formatMoney(Number(order.grand_total), order.currency)}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <p style={{ opacity: 0.7, fontSize: 14, margin: 0 }}>
+          İade talebi açılabilecek uygun siparişiniz bulunmuyor.
+        </p>
+      )}
     </div>
   );
 }
