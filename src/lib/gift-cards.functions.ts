@@ -64,7 +64,7 @@ export const issueGiftCard = createServerFn({ method: "POST" })
       action: "gift_card.issue",
       entity: "gift_card",
       entity_id: card.id,
-      after: { code: card.code, amount },
+      new_value: { code: card.code, amount },
     } as never);
 
     return { id: card.id, code: card.code };
@@ -120,8 +120,8 @@ export const adjustGiftCardBalance = createServerFn({ method: "POST" })
       action: "gift_card.adjust",
       entity: "gift_card",
       entity_id: card.id,
-      before: { balance: Number(card.balance) },
-      after: { balance: next },
+      old_value: { balance: Number(card.balance) },
+      new_value: { balance: next },
     } as never);
 
     return { balance: next };
@@ -153,7 +153,7 @@ export const setGiftCardStatus = createServerFn({ method: "POST" })
       action: "gift_card.status",
       entity: "gift_card",
       entity_id: card.id,
-      after: { status: card.status },
+      new_value: { status: card.status },
     } as never);
 
     return { status: card.status };
