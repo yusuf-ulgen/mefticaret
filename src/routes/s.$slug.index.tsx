@@ -171,9 +171,11 @@ function StorefrontHome() {
         </div>
         {products.length === 0 ? (
           <p style={{ color: muted }}>Bu mağazada henüz yayınlanmış ürün yok.</p>
+        ) : filtered.length === 0 ? (
+          <p style={{ color: muted }}>“{query}” aramasıyla eşleşen ürün bulunamadı.</p>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: columns, gap: 18 }}>
-            {products.map((product) => (
+            {filtered.map((product) => (
               <Link
                 key={product.id}
                 to="/s/$slug/p/$productSlug"
