@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { NOTIFICATION_KIND_LABELS } from "@/lib/mefti";
+import { NOTIFICATION_KIND_LABELS } from "@/lib/webhook-events";
 import { storeNotificationsQuery } from "@/lib/webhook-queries";
 import { markStoreNotificationsRead } from "@/lib/webhooks.functions";
 import { cn } from "@/lib/utils";
