@@ -210,7 +210,7 @@ export function StorefrontChrome({
           color: muted,
         }}
       >
-        {footerPages?.length ? (
+        {footerItems.length || footerPages?.length ? (
           <nav
             style={{
               display: "flex",
@@ -220,7 +220,16 @@ export function StorefrontChrome({
               marginBottom: 14,
             }}
           >
-            {footerPages.map((page) => (
+            {footerItems.map((item) => (
+              <a
+                key={item.id}
+                href={menuHref(storeSlug, item)}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                {item.label}
+              </a>
+            ))}
+            {footerPages?.map((page) => (
               <Link
                 key={page.slug}
                 to="/s/$slug/page/$pageSlug"
@@ -232,6 +241,7 @@ export function StorefrontChrome({
             ))}
           </nav>
         ) : null}
+
         {storeName} — Mefticaret altyapısıyla çalışır.
       </footer>
     </div>
