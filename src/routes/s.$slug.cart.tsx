@@ -1,5 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { z } from "zod";
+
+import { getAbandonedCartByToken } from "@/lib/abandoned.functions";
+import { setCartToken } from "@/lib/cart-token";
 
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
@@ -7,7 +12,12 @@ import { useCart } from "@/lib/cart";
 import { formatMoney } from "@/lib/mefti";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 
+const cartSearchSchema = z.object({
+  recover: z.string().trim().min(16).max(128).optional(),
+});
+
 export const Route = createFileRoute("/s/$slug/cart")({
+  validateSearch: (search) => cartSearchSchema.parse(search),
   loader: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
     if (!data) throw notFound();
@@ -34,8 +44,41 @@ export const Route = createFileRoute("/s/$slug/cart")({
 
 function CartPage() {
   const { slug } = Route.useParams();
+  const { recover } = Route.useSearch();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   const cart = useCart();
+  const restored = useRef<string | null>(null);
+
+  // Kurtarma linki: panelden gönderilen token ile sepet satırlarını geri yükle.
+  useEffect(() => {
+    if (!recover || restored.current === recover) return;
+    restored.current = recover;
+    let cancelled = false;
+    void getAbandonedCartByToken({ data: { slug, cartToken: recover } })
+      .then((snapshot) => {
+        if (cancelled || !snapshot || snapshot.items.length === 0) return;
+        setCartToken(slug, recover);
+        for (const item of snapshot.items) {
+          cart.add(
+            {
+              storeSlug: slug,
+              variantId: item.variantId,
+              productSlug: item.productSlug,
+              title: item.title,
+              variantTitle: item.variantTitle,
+              price: item.price,
+              currency: snapshot.currency,
+              maxStock: 99,
+            },
+            item.quantity,
+          );
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [recover, slug, cart]);
 
   if (!data) return null;
   const { store, theme } = data;
