@@ -85,7 +85,11 @@ function StockAlertsPage() {
   const ready = pending.filter((row) => (row.product_variants?.stock ?? 0) > 0);
 
   return (
-    <AppShell storeId={storeId} storeName={store?.name} title="Stok Bildirimleri">
+    <AppShell
+      storeId={storeId}
+      title="Stok Bildirimleri"
+      description={`${store?.name ?? "Mağaza"} · Tükenen ürünler için haber bekleyen müşteriler`}
+    >
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-3">
           <StatCard label="Bekleyen talep" value={String(pending.length)} icon={<BellRing className="size-4" />} />
