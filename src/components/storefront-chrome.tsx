@@ -200,6 +200,16 @@ export function StorefrontChrome({
             Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
           </Link>
 
+          <Link
+            to="/s/$slug/gift-card"
+            params={{ slug: storeSlug }}
+            style={{ color: muted, textDecoration: "none" }}
+          >
+            Hediye kartı
+          </Link>
+
+
+
           {compareCount > 0 ? (
             <Link
               to="/s/$slug/compare"
