@@ -214,7 +214,7 @@ function Insight({
   tone,
 }: {
   title: string;
-  vendor?: string;
+  vendor?: string | undefined;
   detail: string;
   tone?: "warning";
 }) {
