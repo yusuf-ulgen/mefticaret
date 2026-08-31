@@ -69,6 +69,7 @@ import { Route as AuthenticatedStoreStoreIdReportMonthlyRouteImport } from './ro
 import { Route as AuthenticatedStoreStoreIdReportsRouteImport } from './routes/_authenticated/store.$storeId.reports'
 import { Route as AuthenticatedStoreStoreIdReturnsRouteImport } from './routes/_authenticated/store.$storeId.returns'
 import { Route as AuthenticatedStoreStoreIdReturnsAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.returns-analytics'
+import { Route as AuthenticatedStoreStoreIdReviewImpactRouteImport } from './routes/_authenticated/store.$storeId.review-impact'
 import { Route as AuthenticatedStoreStoreIdReviewsRouteImport } from './routes/_authenticated/store.$storeId.reviews'
 import { Route as AuthenticatedStoreStoreIdSegmentsRouteImport } from './routes/_authenticated/store.$storeId.segments'
 import { Route as AuthenticatedStoreStoreIdSeoRouteImport } from './routes/_authenticated/store.$storeId.seo'
@@ -442,6 +443,12 @@ const AuthenticatedStoreStoreIdReturnsAnalyticsRoute =
     path: '/store/$storeId/returns-analytics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdReviewImpactRoute =
+  AuthenticatedStoreStoreIdReviewImpactRouteImport.update({
+    id: '/store/$storeId/review-impact',
+    path: '/store/$storeId/review-impact',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdReviewsRoute =
   AuthenticatedStoreStoreIdReviewsRouteImport.update({
     id: '/store/$storeId/reviews',
@@ -666,6 +673,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/reports': typeof AuthenticatedStoreStoreIdReportsRoute
   '/store/$storeId/returns': typeof AuthenticatedStoreStoreIdReturnsRoute
   '/store/$storeId/returns-analytics': typeof AuthenticatedStoreStoreIdReturnsAnalyticsRoute
+  '/store/$storeId/review-impact': typeof AuthenticatedStoreStoreIdReviewImpactRoute
   '/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
   '/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
   '/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
@@ -755,6 +763,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/reports': typeof AuthenticatedStoreStoreIdReportsRoute
   '/store/$storeId/returns': typeof AuthenticatedStoreStoreIdReturnsRoute
   '/store/$storeId/returns-analytics': typeof AuthenticatedStoreStoreIdReturnsAnalyticsRoute
+  '/store/$storeId/review-impact': typeof AuthenticatedStoreStoreIdReviewImpactRoute
   '/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
   '/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
   '/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
@@ -846,6 +855,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/reports': typeof AuthenticatedStoreStoreIdReportsRoute
   '/_authenticated/store/$storeId/returns': typeof AuthenticatedStoreStoreIdReturnsRoute
   '/_authenticated/store/$storeId/returns-analytics': typeof AuthenticatedStoreStoreIdReturnsAnalyticsRoute
+  '/_authenticated/store/$storeId/review-impact': typeof AuthenticatedStoreStoreIdReviewImpactRoute
   '/_authenticated/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
   '/_authenticated/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
   '/_authenticated/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
@@ -937,6 +947,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/reports'
     | '/store/$storeId/returns'
     | '/store/$storeId/returns-analytics'
+    | '/store/$storeId/review-impact'
     | '/store/$storeId/reviews'
     | '/store/$storeId/segments'
     | '/store/$storeId/seo'
@@ -1026,6 +1037,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/reports'
     | '/store/$storeId/returns'
     | '/store/$storeId/returns-analytics'
+    | '/store/$storeId/review-impact'
     | '/store/$storeId/reviews'
     | '/store/$storeId/segments'
     | '/store/$storeId/seo'
@@ -1116,6 +1128,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/reports'
     | '/_authenticated/store/$storeId/returns'
     | '/_authenticated/store/$storeId/returns-analytics'
+    | '/_authenticated/store/$storeId/review-impact'
     | '/_authenticated/store/$storeId/reviews'
     | '/_authenticated/store/$storeId/segments'
     | '/_authenticated/store/$storeId/seo'
@@ -1589,6 +1602,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdReturnsAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/review-impact': {
+      id: '/_authenticated/store/$storeId/review-impact'
+      path: '/store/$storeId/review-impact'
+      fullPath: '/store/$storeId/review-impact'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdReviewImpactRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/reviews': {
       id: '/_authenticated/store/$storeId/reviews'
       path: '/store/$storeId/reviews'
@@ -1885,6 +1905,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdReportsRoute: typeof AuthenticatedStoreStoreIdReportsRoute
   AuthenticatedStoreStoreIdReturnsRoute: typeof AuthenticatedStoreStoreIdReturnsRoute
   AuthenticatedStoreStoreIdReturnsAnalyticsRoute: typeof AuthenticatedStoreStoreIdReturnsAnalyticsRoute
+  AuthenticatedStoreStoreIdReviewImpactRoute: typeof AuthenticatedStoreStoreIdReviewImpactRoute
   AuthenticatedStoreStoreIdReviewsRoute: typeof AuthenticatedStoreStoreIdReviewsRoute
   AuthenticatedStoreStoreIdSegmentsRoute: typeof AuthenticatedStoreStoreIdSegmentsRoute
   AuthenticatedStoreStoreIdSeoRoute: typeof AuthenticatedStoreStoreIdSeoRoute
@@ -1979,6 +2000,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdReturnsRoute: AuthenticatedStoreStoreIdReturnsRoute,
   AuthenticatedStoreStoreIdReturnsAnalyticsRoute:
     AuthenticatedStoreStoreIdReturnsAnalyticsRoute,
+  AuthenticatedStoreStoreIdReviewImpactRoute:
+    AuthenticatedStoreStoreIdReviewImpactRoute,
   AuthenticatedStoreStoreIdReviewsRoute: AuthenticatedStoreStoreIdReviewsRoute,
   AuthenticatedStoreStoreIdSegmentsRoute:
     AuthenticatedStoreStoreIdSegmentsRoute,
