@@ -223,12 +223,15 @@
   #shipment-print-area,
   #shipment-print-area *,
   #barcode-print-area,
-  #barcode-print-area * {
+  #barcode-print-area *,
+  #report-print-area,
+  #report-print-area * {
     visibility: visible;
   }
   #order-print-area,
   #shipment-print-area,
-  #barcode-print-area {
+  #barcode-print-area,
+  #report-print-area {
     position: absolute;
     inset: 0 auto auto 0;
     width: 100%;
