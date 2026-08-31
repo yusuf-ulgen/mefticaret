@@ -208,18 +208,8 @@ function PurchasingPage() {
     );
 
   return (
-    <AppShell storeId={storeId}>
+    <AppShell storeId={storeId} title="Tedarik & Satın Alma" description="Tedarikçiler, satın alma siparişleri ve denetim izli mal kabul.">
       <div className="space-y-8">
-        <header className="space-y-2">
-          <h1 className="font-display text-3xl font-semibold tracking-tight">
-            Tedarik &amp; Satın Alma
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            Tedarikçilerini kaydet, satın alma siparişi aç ve mal kabul ettiğinde stok denetim
-            iziyle otomatik güncellensin.
-          </p>
-        </header>
-
         <section className="grid gap-6 lg:grid-cols-[320px_1fr]">
           <div className="space-y-4 rounded-xl border bg-card p-5">
             <h2 className="font-display text-lg font-semibold">Yeni tedarikçi</h2>
