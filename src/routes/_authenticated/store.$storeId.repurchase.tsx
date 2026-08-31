@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { downloadCsv } from "@/lib/csv";
+import { downloadCsv, toCsv } from "@/lib/csv";
 import { formatMoney, formatNumber } from "@/lib/mefti";
 import {
   intervalBands,
