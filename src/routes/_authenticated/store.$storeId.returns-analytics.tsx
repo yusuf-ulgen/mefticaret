@@ -65,7 +65,11 @@ function ReturnsAnalyticsPage() {
   };
 
   return (
-    <AppShell storeId={storeId}>
+    <AppShell
+      storeId={storeId}
+      title="İade Analizi"
+      description="İade oranı, sebep dağılımı, çözüm süreleri ve en çok iade edilen ürünler."
+    >
       <div className="space-y-6">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
