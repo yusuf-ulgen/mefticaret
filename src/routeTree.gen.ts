@@ -33,6 +33,7 @@ import { Route as AuthenticatedStoreStoreIdBasketRouteImport } from './routes/_a
 import { Route as AuthenticatedStoreStoreIdBillingRouteImport } from './routes/_authenticated/store.$storeId.billing'
 import { Route as AuthenticatedStoreStoreIdCampaignsRouteImport } from './routes/_authenticated/store.$storeId.campaigns'
 import { Route as AuthenticatedStoreStoreIdCartsRouteImport } from './routes/_authenticated/store.$storeId.carts'
+import { Route as AuthenticatedStoreStoreIdCashflowRouteImport } from './routes/_authenticated/store.$storeId.cashflow'
 import { Route as AuthenticatedStoreStoreIdChannelsRouteImport } from './routes/_authenticated/store.$storeId.channels'
 import { Route as AuthenticatedStoreStoreIdCohortsRouteImport } from './routes/_authenticated/store.$storeId.cohorts'
 import { Route as AuthenticatedStoreStoreIdCollectionsRouteImport } from './routes/_authenticated/store.$storeId.collections'
@@ -220,6 +221,12 @@ const AuthenticatedStoreStoreIdCartsRoute =
   AuthenticatedStoreStoreIdCartsRouteImport.update({
     id: '/store/$storeId/carts',
     path: '/store/$storeId/carts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdCashflowRoute =
+  AuthenticatedStoreStoreIdCashflowRouteImport.update({
+    id: '/store/$storeId/cashflow',
+    path: '/store/$storeId/cashflow',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdChannelsRoute =
@@ -602,6 +609,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
   '/store/$storeId/campaigns': typeof AuthenticatedStoreStoreIdCampaignsRoute
   '/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
+  '/store/$storeId/cashflow': typeof AuthenticatedStoreStoreIdCashflowRoute
   '/store/$storeId/channels': typeof AuthenticatedStoreStoreIdChannelsRoute
   '/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
@@ -687,6 +695,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
   '/store/$storeId/campaigns': typeof AuthenticatedStoreStoreIdCampaignsRoute
   '/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
+  '/store/$storeId/cashflow': typeof AuthenticatedStoreStoreIdCashflowRoute
   '/store/$storeId/channels': typeof AuthenticatedStoreStoreIdChannelsRoute
   '/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
@@ -774,6 +783,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
   '/_authenticated/store/$storeId/campaigns': typeof AuthenticatedStoreStoreIdCampaignsRoute
   '/_authenticated/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
+  '/_authenticated/store/$storeId/cashflow': typeof AuthenticatedStoreStoreIdCashflowRoute
   '/_authenticated/store/$storeId/channels': typeof AuthenticatedStoreStoreIdChannelsRoute
   '/_authenticated/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/_authenticated/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
@@ -861,6 +871,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/billing'
     | '/store/$storeId/campaigns'
     | '/store/$storeId/carts'
+    | '/store/$storeId/cashflow'
     | '/store/$storeId/channels'
     | '/store/$storeId/cohorts'
     | '/store/$storeId/collections'
@@ -946,6 +957,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/billing'
     | '/store/$storeId/campaigns'
     | '/store/$storeId/carts'
+    | '/store/$storeId/cashflow'
     | '/store/$storeId/channels'
     | '/store/$storeId/cohorts'
     | '/store/$storeId/collections'
@@ -1032,6 +1044,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/billing'
     | '/_authenticated/store/$storeId/campaigns'
     | '/_authenticated/store/$storeId/carts'
+    | '/_authenticated/store/$storeId/cashflow'
     | '/_authenticated/store/$storeId/channels'
     | '/_authenticated/store/$storeId/cohorts'
     | '/_authenticated/store/$storeId/collections'
@@ -1283,6 +1296,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/carts'
       fullPath: '/store/$storeId/carts'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCartsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/cashflow': {
+      id: '/_authenticated/store/$storeId/cashflow'
+      path: '/store/$storeId/cashflow'
+      fullPath: '/store/$storeId/cashflow'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdCashflowRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/channels': {
@@ -1769,6 +1789,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdBillingRoute: typeof AuthenticatedStoreStoreIdBillingRoute
   AuthenticatedStoreStoreIdCampaignsRoute: typeof AuthenticatedStoreStoreIdCampaignsRoute
   AuthenticatedStoreStoreIdCartsRoute: typeof AuthenticatedStoreStoreIdCartsRoute
+  AuthenticatedStoreStoreIdCashflowRoute: typeof AuthenticatedStoreStoreIdCashflowRoute
   AuthenticatedStoreStoreIdChannelsRoute: typeof AuthenticatedStoreStoreIdChannelsRoute
   AuthenticatedStoreStoreIdCohortsRoute: typeof AuthenticatedStoreStoreIdCohortsRoute
   AuthenticatedStoreStoreIdCollectionsRoute: typeof AuthenticatedStoreStoreIdCollectionsRoute
@@ -1838,6 +1859,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdCampaignsRoute:
     AuthenticatedStoreStoreIdCampaignsRoute,
   AuthenticatedStoreStoreIdCartsRoute: AuthenticatedStoreStoreIdCartsRoute,
+  AuthenticatedStoreStoreIdCashflowRoute:
+    AuthenticatedStoreStoreIdCashflowRoute,
   AuthenticatedStoreStoreIdChannelsRoute:
     AuthenticatedStoreStoreIdChannelsRoute,
   AuthenticatedStoreStoreIdCohortsRoute: AuthenticatedStoreStoreIdCohortsRoute,
