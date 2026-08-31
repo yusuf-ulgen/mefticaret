@@ -53,7 +53,7 @@ type Bucket = {
   parent: string | null;
   orders: number;
   revenue: number;
-  shipping: number
+  shipping: number;
   customers: Set<string>;
   recentRevenue: number;
   previousRevenue: number;
