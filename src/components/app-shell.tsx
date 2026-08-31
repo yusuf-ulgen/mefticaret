@@ -32,6 +32,7 @@ import {
   HelpCircle,
   Star,
   Tags,
+  Timer,
   Coins,
   Gift,
   Images,
