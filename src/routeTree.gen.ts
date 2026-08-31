@@ -47,6 +47,7 @@ import { Route as AuthenticatedStoreStoreIdGiftCardsRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdHealthRouteImport } from './routes/_authenticated/store.$storeId.health'
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
+import { Route as AuthenticatedStoreStoreIdLossesRouteImport } from './routes/_authenticated/store.$storeId.losses'
 import { Route as AuthenticatedStoreStoreIdLtvRouteImport } from './routes/_authenticated/store.$storeId.ltv'
 import { Route as AuthenticatedStoreStoreIdMediaRouteImport } from './routes/_authenticated/store.$storeId.media'
 import { Route as AuthenticatedStoreStoreIdNavigationRouteImport } from './routes/_authenticated/store.$storeId.navigation'
@@ -302,6 +303,12 @@ const AuthenticatedStoreStoreIdInventoryRoute =
   AuthenticatedStoreStoreIdInventoryRouteImport.update({
     id: '/store/$storeId/inventory',
     path: '/store/$storeId/inventory',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdLossesRoute =
+  AuthenticatedStoreStoreIdLossesRouteImport.update({
+    id: '/store/$storeId/losses',
+    path: '/store/$storeId/losses',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdLtvRoute =
@@ -602,6 +609,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
+  '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
@@ -685,6 +693,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
+  '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
@@ -770,6 +779,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
+  '/_authenticated/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/_authenticated/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/_authenticated/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/_authenticated/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
@@ -855,6 +865,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inventory'
+    | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
     | '/store/$storeId/media'
     | '/store/$storeId/navigation'
@@ -938,6 +949,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inventory'
+    | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
     | '/store/$storeId/media'
     | '/store/$storeId/navigation'
@@ -1022,6 +1034,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/health'
     | '/_authenticated/store/$storeId/import-export'
     | '/_authenticated/store/$storeId/inventory'
+    | '/_authenticated/store/$storeId/losses'
     | '/_authenticated/store/$storeId/ltv'
     | '/_authenticated/store/$storeId/media'
     | '/_authenticated/store/$storeId/navigation'
@@ -1355,6 +1368,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/inventory'
       fullPath: '/store/$storeId/inventory'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdInventoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/losses': {
+      id: '/_authenticated/store/$storeId/losses'
+      path: '/store/$storeId/losses'
+      fullPath: '/store/$storeId/losses'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdLossesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/ltv': {
@@ -1743,6 +1763,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdHealthRoute: typeof AuthenticatedStoreStoreIdHealthRoute
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
+  AuthenticatedStoreStoreIdLossesRoute: typeof AuthenticatedStoreStoreIdLossesRoute
   AuthenticatedStoreStoreIdLtvRoute: typeof AuthenticatedStoreStoreIdLtvRoute
   AuthenticatedStoreStoreIdMediaRoute: typeof AuthenticatedStoreStoreIdMediaRoute
   AuthenticatedStoreStoreIdNavigationRoute: typeof AuthenticatedStoreStoreIdNavigationRoute
@@ -1819,6 +1840,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdImportExportRoute,
   AuthenticatedStoreStoreIdInventoryRoute:
     AuthenticatedStoreStoreIdInventoryRoute,
+  AuthenticatedStoreStoreIdLossesRoute: AuthenticatedStoreStoreIdLossesRoute,
   AuthenticatedStoreStoreIdLtvRoute: AuthenticatedStoreStoreIdLtvRoute,
   AuthenticatedStoreStoreIdMediaRoute: AuthenticatedStoreStoreIdMediaRoute,
   AuthenticatedStoreStoreIdNavigationRoute:
