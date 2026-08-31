@@ -59,14 +59,17 @@ function RepurchasePage() {
   const exportReminders = () => {
     downloadCsv(
       `hatirlatma-${storeId}.csv`,
-      reminders.slice(0, 500).map((item) => ({
-        urun: item.productTitle,
-        musteri: item.customerKey,
-        son_alim: item.lastPurchaseAt.slice(0, 10),
-        gecen_gun: item.daysSincePurchase,
-        beklenen_aralik: item.expectedIntervalDays,
-        gecikme: item.overdueDays,
-      })),
+      toCsv(
+        ["Ürün", "Müşteri", "Son alım", "Geçen gün", "Beklenen aralık", "Gecikme"],
+        reminders.slice(0, 500).map((item) => [
+          item.productTitle,
+          item.customerKey,
+          item.lastPurchaseAt.slice(0, 10),
+          item.daysSincePurchase,
+          item.expectedIntervalDays,
+          item.overdueDays,
+        ]),
+      ),
     );
   };
 
