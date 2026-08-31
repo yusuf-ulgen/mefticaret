@@ -96,6 +96,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Koleksiyonlar", to: `/store/${storeId}/collections`, icon: Boxes },
         { label: "Stok", to: `/store/${storeId}/inventory`, icon: Warehouse },
         { label: "Stok Sayımı", to: `/store/${storeId}/stock-count`, icon: ClipboardList },
+        { label: "Tedarik & Satın Alma", to: `/store/${storeId}/purchasing`, icon: Truck },
         { label: "Barkod Etiketi", to: `/store/${storeId}/barcodes`, icon: Barcode },
 
         { label: "Fiyatlandırma", to: `/store/${storeId}/pricing`, icon: Tags },
