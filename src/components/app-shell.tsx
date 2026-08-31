@@ -34,6 +34,7 @@ import {
   Tags,
   Timer,
   TrendingDown,
+  MapPin,
   Coins,
   Gift,
   Images,
