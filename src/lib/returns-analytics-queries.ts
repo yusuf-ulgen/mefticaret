@@ -39,10 +39,10 @@ export const returnAnalyticsQuery = (storeId: string, windowDays: number) =>
           reason: row.reason as ReturnReason,
           refundAmount: Number(row.refund_amount ?? 0),
           items: ((row.return_items ?? []) as Array<Record<string, unknown>>).map((item) => ({
-            title: String(item.title ?? "Ürün"),
-            variantTitle: item.variant_title ? String(item.variant_title) : null,
-            quantity: Number(item.quantity ?? 0),
-            lineTotal: Number(item.line_total ?? 0),
+            title: String(item["title"] ?? "Ürün"),
+            variantTitle: item["variant_title"] ? String(item["variant_title"]) : null,
+            quantity: Number(item["quantity"] ?? 0),
+            lineTotal: Number(item["line_total"] ?? 0),
           })),
         })),
         orders: (orders.data ?? []).map((row) => ({
