@@ -140,6 +140,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "İndirim Derinliği", to: `/store/${storeId}/elasticity`, icon: Tag },
         { label: "Ürün Yaşam Döngüsü", to: `/store/${storeId}/lifecycle`, icon: Tag },
         { label: "Değerlendirme Etkisi", to: `/store/${storeId}/review-impact`, icon: Tag },
+        { label: "Senaryo Simülatörü", to: `/store/${storeId}/simulator`, icon: Tag },
         { label: "Hediye Kartları", to: `/store/${storeId}/gift-cards`, icon: Gift },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
         { label: "Nakit Akışı", to: `/store/${storeId}/cashflow`, icon: Wallet },
