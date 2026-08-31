@@ -17,6 +17,7 @@ import {
   Grid3x3,
   History,
   LayoutDashboard,
+  Layers,
   LogOut,
   Menu,
   Package,
