@@ -122,6 +122,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Siparişler", to: `/store/${storeId}/orders`, icon: ShoppingBag },
         { label: "Sevkiyatlar", to: `/store/${storeId}/shipments`, icon: Truck },
         { label: "Kargo Performansı", to: `/store/${storeId}/shipping-performance`, icon: Truck },
+        { label: "Kargo Ekonomisi", to: `/store/${storeId}/shipping-economics`, icon: Truck },
         { label: "Tedarikçi Performansı", to: `/store/${storeId}/supplier-performance`, icon: Truck },
         { label: "Karşılama SLA", to: `/store/${storeId}/sla`, icon: Timer },
         { label: "İptal & Kayıp", to: `/store/${storeId}/losses`, icon: TrendingDown },
