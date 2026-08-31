@@ -112,16 +112,26 @@ function ReorderPage() {
     downloadCsv(
       `yeniden-siparis-${storeId}.csv`,
       toCsv(
-        visible.map((line) => ({
-          Ürün: line.title,
-          SKU: line.sku ?? "",
-          Stok: line.stock,
-          "Günlük satış": line.velocity,
-          "Kalan gün": line.daysOfCover ?? "",
-          "Sipariş noktası": line.reorderPoint,
-          "Önerilen adet": line.suggestedQuantity,
-          Durum: URGENCY_LABEL[line.urgency],
-        })),
+        [
+          "Ürün",
+          "SKU",
+          "Stok",
+          "Günlük satış",
+          "Kalan gün",
+          "Sipariş noktası",
+          "Önerilen adet",
+          "Durum",
+        ],
+        visible.map((line) => [
+          line.title,
+          line.sku ?? "",
+          line.stock,
+          line.velocity,
+          line.daysOfCover ?? "",
+          line.reorderPoint,
+          line.suggestedQuantity,
+          URGENCY_LABEL[line.urgency],
+        ]),
       ),
     );
   };
