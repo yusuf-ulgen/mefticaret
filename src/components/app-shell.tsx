@@ -150,6 +150,11 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
       items: [
         { label: "Domainler", to: `/store/${storeId}/domains`, icon: Globe },
         { label: "Ekip & Yetkiler", to: `/store/${storeId}/team`, icon: ShieldCheck },
+        {
+          label: "Personel Performansı",
+          to: `/store/${storeId}/team-performance`,
+          icon: ShieldCheck,
+        },
         { label: "Ayarlar", to: `/store/${storeId}/settings`, icon: Cog },
         { label: "Ödeme", to: `/store/${storeId}/payments`, icon: BadgeCheck },
         { label: "Kargo", to: `/store/${storeId}/shipping`, icon: Truck },
