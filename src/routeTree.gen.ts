@@ -77,6 +77,7 @@ import { Route as AuthenticatedStoreStoreIdTasksRouteImport } from './routes/_au
 import { Route as AuthenticatedStoreStoreIdTaxRouteImport } from './routes/_authenticated/store.$storeId.tax'
 import { Route as AuthenticatedStoreStoreIdTeamRouteImport } from './routes/_authenticated/store.$storeId.team'
 import { Route as AuthenticatedStoreStoreIdThemesRouteImport } from './routes/_authenticated/store.$storeId.themes'
+import { Route as AuthenticatedStoreStoreIdValuationRouteImport } from './routes/_authenticated/store.$storeId.valuation'
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
@@ -481,6 +482,12 @@ const AuthenticatedStoreStoreIdThemesRoute =
     path: '/store/$storeId/themes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdValuationRoute =
+  AuthenticatedStoreStoreIdValuationRouteImport.update({
+    id: '/store/$storeId/valuation',
+    path: '/store/$storeId/valuation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdWebhooksRoute =
   AuthenticatedStoreStoreIdWebhooksRouteImport.update({
     id: '/store/$storeId/webhooks',
@@ -611,6 +618,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
+  '/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -691,6 +699,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
+  '/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -773,6 +782,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/_authenticated/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/_authenticated/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
+  '/_authenticated/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -855,6 +865,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/tax'
     | '/store/$storeId/team'
     | '/store/$storeId/themes'
+    | '/store/$storeId/valuation'
     | '/store/$storeId/webhooks'
     | '/api/public/cron/daily-rollup'
     | '/api/public/robots/$slug'
@@ -935,6 +946,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/tax'
     | '/store/$storeId/team'
     | '/store/$storeId/themes'
+    | '/store/$storeId/valuation'
     | '/store/$storeId/webhooks'
     | '/api/public/cron/daily-rollup'
     | '/api/public/robots/$slug'
@@ -1016,6 +1028,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/tax'
     | '/_authenticated/store/$storeId/team'
     | '/_authenticated/store/$storeId/themes'
+    | '/_authenticated/store/$storeId/valuation'
     | '/_authenticated/store/$storeId/webhooks'
     | '/api/public/cron/daily-rollup'
     | '/api/public/robots/$slug'
@@ -1528,6 +1541,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdThemesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/valuation': {
+      id: '/_authenticated/store/$storeId/valuation'
+      path: '/store/$storeId/valuation'
+      fullPath: '/store/$storeId/valuation'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdValuationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/webhooks': {
       id: '/_authenticated/store/$storeId/webhooks'
       path: '/store/$storeId/webhooks'
@@ -1713,6 +1733,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdTaxRoute: typeof AuthenticatedStoreStoreIdTaxRoute
   AuthenticatedStoreStoreIdTeamRoute: typeof AuthenticatedStoreStoreIdTeamRoute
   AuthenticatedStoreStoreIdThemesRoute: typeof AuthenticatedStoreStoreIdThemesRoute
+  AuthenticatedStoreStoreIdValuationRoute: typeof AuthenticatedStoreStoreIdValuationRoute
   AuthenticatedStoreStoreIdWebhooksRoute: typeof AuthenticatedStoreStoreIdWebhooksRoute
 }
 
@@ -1803,6 +1824,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdTaxRoute: AuthenticatedStoreStoreIdTaxRoute,
   AuthenticatedStoreStoreIdTeamRoute: AuthenticatedStoreStoreIdTeamRoute,
   AuthenticatedStoreStoreIdThemesRoute: AuthenticatedStoreStoreIdThemesRoute,
+  AuthenticatedStoreStoreIdValuationRoute:
+    AuthenticatedStoreStoreIdValuationRoute,
   AuthenticatedStoreStoreIdWebhooksRoute:
     AuthenticatedStoreStoreIdWebhooksRoute,
 }
