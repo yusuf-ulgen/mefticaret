@@ -67,6 +67,7 @@ import { Route as AuthenticatedStoreStoreIdSeoRouteImport } from './routes/_auth
 import { Route as AuthenticatedStoreStoreIdSettingsRouteImport } from './routes/_authenticated/store.$storeId.settings'
 import { Route as AuthenticatedStoreStoreIdShipmentsRouteImport } from './routes/_authenticated/store.$storeId.shipments'
 import { Route as AuthenticatedStoreStoreIdShippingRouteImport } from './routes/_authenticated/store.$storeId.shipping'
+import { Route as AuthenticatedStoreStoreIdShippingPerformanceRouteImport } from './routes/_authenticated/store.$storeId.shipping-performance'
 import { Route as AuthenticatedStoreStoreIdStockAlertsRouteImport } from './routes/_authenticated/store.$storeId.stock-alerts'
 import { Route as AuthenticatedStoreStoreIdStockCountRouteImport } from './routes/_authenticated/store.$storeId.stock-count'
 import { Route as AuthenticatedStoreStoreIdTaxRouteImport } from './routes/_authenticated/store.$storeId.tax'
@@ -416,6 +417,12 @@ const AuthenticatedStoreStoreIdShippingRoute =
     path: '/store/$storeId/shipping',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdShippingPerformanceRoute =
+  AuthenticatedStoreStoreIdShippingPerformanceRouteImport.update({
+    id: '/store/$storeId/shipping-performance',
+    path: '/store/$storeId/shipping-performance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdStockAlertsRoute =
   AuthenticatedStoreStoreIdStockAlertsRouteImport.update({
     id: '/store/$storeId/stock-alerts',
@@ -566,6 +573,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
+  '/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
@@ -641,6 +649,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
+  '/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
@@ -718,6 +727,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/_authenticated/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/_authenticated/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
+  '/_authenticated/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/_authenticated/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/_authenticated/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/_authenticated/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
@@ -795,6 +805,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/settings'
     | '/store/$storeId/shipments'
     | '/store/$storeId/shipping'
+    | '/store/$storeId/shipping-performance'
     | '/store/$storeId/stock-alerts'
     | '/store/$storeId/stock-count'
     | '/store/$storeId/tax'
@@ -870,6 +881,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/settings'
     | '/store/$storeId/shipments'
     | '/store/$storeId/shipping'
+    | '/store/$storeId/shipping-performance'
     | '/store/$storeId/stock-alerts'
     | '/store/$storeId/stock-count'
     | '/store/$storeId/tax'
@@ -946,6 +958,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/settings'
     | '/_authenticated/store/$storeId/shipments'
     | '/_authenticated/store/$storeId/shipping'
+    | '/_authenticated/store/$storeId/shipping-performance'
     | '/_authenticated/store/$storeId/stock-alerts'
     | '/_authenticated/store/$storeId/stock-count'
     | '/_authenticated/store/$storeId/tax'
@@ -1393,6 +1406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdShippingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/shipping-performance': {
+      id: '/_authenticated/store/$storeId/shipping-performance'
+      path: '/store/$storeId/shipping-performance'
+      fullPath: '/store/$storeId/shipping-performance'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdShippingPerformanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/stock-alerts': {
       id: '/_authenticated/store/$storeId/stock-alerts'
       path: '/store/$storeId/stock-alerts'
@@ -1603,6 +1623,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdSettingsRoute: typeof AuthenticatedStoreStoreIdSettingsRoute
   AuthenticatedStoreStoreIdShipmentsRoute: typeof AuthenticatedStoreStoreIdShipmentsRoute
   AuthenticatedStoreStoreIdShippingRoute: typeof AuthenticatedStoreStoreIdShippingRoute
+  AuthenticatedStoreStoreIdShippingPerformanceRoute: typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   AuthenticatedStoreStoreIdStockAlertsRoute: typeof AuthenticatedStoreStoreIdStockAlertsRoute
   AuthenticatedStoreStoreIdStockCountRoute: typeof AuthenticatedStoreStoreIdStockCountRoute
   AuthenticatedStoreStoreIdTaxRoute: typeof AuthenticatedStoreStoreIdTaxRoute
@@ -1683,6 +1704,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdShipmentsRoute,
   AuthenticatedStoreStoreIdShippingRoute:
     AuthenticatedStoreStoreIdShippingRoute,
+  AuthenticatedStoreStoreIdShippingPerformanceRoute:
+    AuthenticatedStoreStoreIdShippingPerformanceRoute,
   AuthenticatedStoreStoreIdStockAlertsRoute:
     AuthenticatedStoreStoreIdStockAlertsRoute,
   AuthenticatedStoreStoreIdStockCountRoute:
