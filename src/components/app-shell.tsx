@@ -33,6 +33,7 @@ import {
   Star,
   Tags,
   Timer,
+  TrendingDown,
   Coins,
   Gift,
   Images,
