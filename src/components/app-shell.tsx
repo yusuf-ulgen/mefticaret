@@ -1,7 +1,9 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Barcode,
   ClipboardList,
+
   RotateCcw,
   BadgeCheck,
   Boxes,
@@ -94,6 +96,8 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Koleksiyonlar", to: `/store/${storeId}/collections`, icon: Boxes },
         { label: "Stok", to: `/store/${storeId}/inventory`, icon: Warehouse },
         { label: "Stok Sayımı", to: `/store/${storeId}/stock-count`, icon: ClipboardList },
+        { label: "Barkod Etiketi", to: `/store/${storeId}/barcodes`, icon: Barcode },
+
         { label: "Fiyatlandırma", to: `/store/${storeId}/pricing`, icon: Tags },
         { label: "Kârlılık", to: `/store/${storeId}/profit`, icon: Coins },
         { label: "Medya", to: `/store/${storeId}/media`, icon: Images },

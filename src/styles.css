@@ -221,11 +221,14 @@
   #order-print-area,
   #order-print-area *,
   #shipment-print-area,
-  #shipment-print-area * {
+  #shipment-print-area *,
+  #barcode-print-area,
+  #barcode-print-area * {
     visibility: visible;
   }
   #order-print-area,
-  #shipment-print-area {
+  #shipment-print-area,
+  #barcode-print-area {
     position: absolute;
     inset: 0 auto auto 0;
     width: 100%;
@@ -234,3 +237,4 @@
     color: #000;
   }
 }
+

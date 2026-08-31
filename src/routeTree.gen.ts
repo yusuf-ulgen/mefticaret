@@ -27,6 +27,7 @@ import { Route as SSlugProductsRouteImport } from './routes/s.$slug.products'
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
 import { Route as AuthenticatedStoreStoreIdAiRouteImport } from './routes/_authenticated/store.$storeId.ai'
 import { Route as AuthenticatedStoreStoreIdAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.analytics'
+import { Route as AuthenticatedStoreStoreIdBarcodesRouteImport } from './routes/_authenticated/store.$storeId.barcodes'
 import { Route as AuthenticatedStoreStoreIdBillingRouteImport } from './routes/_authenticated/store.$storeId.billing'
 import { Route as AuthenticatedStoreStoreIdCartsRouteImport } from './routes/_authenticated/store.$storeId.carts'
 import { Route as AuthenticatedStoreStoreIdChannelsRouteImport } from './routes/_authenticated/store.$storeId.channels'
@@ -167,6 +168,12 @@ const AuthenticatedStoreStoreIdAnalyticsRoute =
   AuthenticatedStoreStoreIdAnalyticsRouteImport.update({
     id: '/store/$storeId/analytics',
     path: '/store/$storeId/analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdBarcodesRoute =
+  AuthenticatedStoreStoreIdBarcodesRouteImport.update({
+    id: '/store/$storeId/barcodes',
+    path: '/store/$storeId/barcodes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdBillingRoute =
@@ -477,6 +484,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
+  '/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
   '/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
   '/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
   '/store/$storeId/channels': typeof AuthenticatedStoreStoreIdChannelsRoute
@@ -545,6 +553,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
+  '/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
   '/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
   '/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
   '/store/$storeId/channels': typeof AuthenticatedStoreStoreIdChannelsRoute
@@ -615,6 +624,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/_authenticated/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/_authenticated/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
+  '/_authenticated/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
   '/_authenticated/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
   '/_authenticated/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
   '/_authenticated/store/$storeId/channels': typeof AuthenticatedStoreStoreIdChannelsRoute
@@ -685,6 +695,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/activity'
     | '/store/$storeId/ai'
     | '/store/$storeId/analytics'
+    | '/store/$storeId/barcodes'
     | '/store/$storeId/billing'
     | '/store/$storeId/carts'
     | '/store/$storeId/channels'
@@ -753,6 +764,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/activity'
     | '/store/$storeId/ai'
     | '/store/$storeId/analytics'
+    | '/store/$storeId/barcodes'
     | '/store/$storeId/billing'
     | '/store/$storeId/carts'
     | '/store/$storeId/channels'
@@ -822,6 +834,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/activity'
     | '/_authenticated/store/$storeId/ai'
     | '/_authenticated/store/$storeId/analytics'
+    | '/_authenticated/store/$storeId/barcodes'
     | '/_authenticated/store/$storeId/billing'
     | '/_authenticated/store/$storeId/carts'
     | '/_authenticated/store/$storeId/channels'
@@ -1020,6 +1033,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/analytics'
       fullPath: '/store/$storeId/analytics'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/barcodes': {
+      id: '/_authenticated/store/$storeId/barcodes'
+      path: '/store/$storeId/barcodes'
+      fullPath: '/store/$storeId/barcodes'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdBarcodesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/billing': {
@@ -1423,6 +1443,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdActivityRoute: typeof AuthenticatedStoreStoreIdActivityRoute
   AuthenticatedStoreStoreIdAiRoute: typeof AuthenticatedStoreStoreIdAiRoute
   AuthenticatedStoreStoreIdAnalyticsRoute: typeof AuthenticatedStoreStoreIdAnalyticsRoute
+  AuthenticatedStoreStoreIdBarcodesRoute: typeof AuthenticatedStoreStoreIdBarcodesRoute
   AuthenticatedStoreStoreIdBillingRoute: typeof AuthenticatedStoreStoreIdBillingRoute
   AuthenticatedStoreStoreIdCartsRoute: typeof AuthenticatedStoreStoreIdCartsRoute
   AuthenticatedStoreStoreIdChannelsRoute: typeof AuthenticatedStoreStoreIdChannelsRoute
@@ -1473,6 +1494,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdAiRoute: AuthenticatedStoreStoreIdAiRoute,
   AuthenticatedStoreStoreIdAnalyticsRoute:
     AuthenticatedStoreStoreIdAnalyticsRoute,
+  AuthenticatedStoreStoreIdBarcodesRoute:
+    AuthenticatedStoreStoreIdBarcodesRoute,
   AuthenticatedStoreStoreIdBillingRoute: AuthenticatedStoreStoreIdBillingRoute,
   AuthenticatedStoreStoreIdCartsRoute: AuthenticatedStoreStoreIdCartsRoute,
   AuthenticatedStoreStoreIdChannelsRoute:
