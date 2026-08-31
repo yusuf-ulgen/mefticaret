@@ -40,6 +40,7 @@ import {
   Store,
   Tag,
   TrendingUp,
+  RefreshCcw,
   Truck,
   Users,
   UsersRound,
@@ -97,6 +98,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Stok", to: `/store/${storeId}/inventory`, icon: Warehouse },
         { label: "Stok Sayımı", to: `/store/${storeId}/stock-count`, icon: ClipboardList },
         { label: "Tedarik & Satın Alma", to: `/store/${storeId}/purchasing`, icon: Truck },
+        { label: "Yeniden Sipariş", to: `/store/${storeId}/reorder`, icon: RefreshCcw },
         { label: "Barkod Etiketi", to: `/store/${storeId}/barcodes`, icon: Barcode },
 
         { label: "Fiyatlandırma", to: `/store/${storeId}/pricing`, icon: Tags },
