@@ -26,6 +26,7 @@ import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
 import { Route as SSlugProductsRouteImport } from './routes/s.$slug.products'
 import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_authenticated/store.$storeId.abc'
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
+import { Route as AuthenticatedStoreStoreIdAgingRouteImport } from './routes/_authenticated/store.$storeId.aging'
 import { Route as AuthenticatedStoreStoreIdAiRouteImport } from './routes/_authenticated/store.$storeId.ai'
 import { Route as AuthenticatedStoreStoreIdAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.analytics'
 import { Route as AuthenticatedStoreStoreIdBarcodesRouteImport } from './routes/_authenticated/store.$storeId.barcodes'
@@ -184,6 +185,12 @@ const AuthenticatedStoreStoreIdActivityRoute =
   AuthenticatedStoreStoreIdActivityRouteImport.update({
     id: '/store/$storeId/activity',
     path: '/store/$storeId/activity',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdAgingRoute =
+  AuthenticatedStoreStoreIdAgingRouteImport.update({
+    id: '/store/$storeId/aging',
+    path: '/store/$storeId/aging',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdAiRoute =
@@ -637,6 +644,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/': typeof SSlugIndexRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
+  '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
   '/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
   '/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
@@ -728,6 +736,7 @@ export interface FileRoutesByTo {
   '/s/$slug': typeof SSlugIndexRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
+  '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
   '/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
   '/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
@@ -821,6 +830,7 @@ export interface FileRoutesById {
   '/s/$slug/': typeof SSlugIndexRoute
   '/_authenticated/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/_authenticated/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
+  '/_authenticated/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
   '/_authenticated/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/_authenticated/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
   '/_authenticated/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
@@ -914,6 +924,7 @@ export interface FileRouteTypes {
     | '/s/$slug/'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
+    | '/store/$storeId/aging'
     | '/store/$storeId/ai'
     | '/store/$storeId/analytics'
     | '/store/$storeId/barcodes'
@@ -1005,6 +1016,7 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
+    | '/store/$storeId/aging'
     | '/store/$storeId/ai'
     | '/store/$storeId/analytics'
     | '/store/$storeId/barcodes'
@@ -1097,6 +1109,7 @@ export interface FileRouteTypes {
     | '/s/$slug/'
     | '/_authenticated/store/$storeId/abc'
     | '/_authenticated/store/$storeId/activity'
+    | '/_authenticated/store/$storeId/aging'
     | '/_authenticated/store/$storeId/ai'
     | '/_authenticated/store/$storeId/analytics'
     | '/_authenticated/store/$storeId/barcodes'
@@ -1312,6 +1325,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/activity'
       fullPath: '/store/$storeId/activity'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdActivityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/aging': {
+      id: '/_authenticated/store/$storeId/aging'
+      path: '/store/$storeId/aging'
+      fullPath: '/store/$storeId/aging'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdAgingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/ai': {
@@ -1882,6 +1902,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
   AuthenticatedStoreStoreIdAbcRoute: typeof AuthenticatedStoreStoreIdAbcRoute
   AuthenticatedStoreStoreIdActivityRoute: typeof AuthenticatedStoreStoreIdActivityRoute
+  AuthenticatedStoreStoreIdAgingRoute: typeof AuthenticatedStoreStoreIdAgingRoute
   AuthenticatedStoreStoreIdAiRoute: typeof AuthenticatedStoreStoreIdAiRoute
   AuthenticatedStoreStoreIdAnalyticsRoute: typeof AuthenticatedStoreStoreIdAnalyticsRoute
   AuthenticatedStoreStoreIdBarcodesRoute: typeof AuthenticatedStoreStoreIdBarcodesRoute
@@ -1954,6 +1975,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdAbcRoute: AuthenticatedStoreStoreIdAbcRoute,
   AuthenticatedStoreStoreIdActivityRoute:
     AuthenticatedStoreStoreIdActivityRoute,
+  AuthenticatedStoreStoreIdAgingRoute: AuthenticatedStoreStoreIdAgingRoute,
   AuthenticatedStoreStoreIdAiRoute: AuthenticatedStoreStoreIdAiRoute,
   AuthenticatedStoreStoreIdAnalyticsRoute:
     AuthenticatedStoreStoreIdAnalyticsRoute,
