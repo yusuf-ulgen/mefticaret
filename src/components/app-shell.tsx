@@ -86,6 +86,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Analitik", to: `/store/${storeId}/analytics`, icon: ChartNoAxesColumn },
         { label: "Ciro Tahmini", to: `/store/${storeId}/forecast`, icon: TrendingUp },
         { label: "Kohortlar", to: `/store/${storeId}/cohorts`, icon: Grid3x3 },
+        { label: "Operasyon Merkezi", to: `/store/${storeId}/tasks`, icon: ClipboardList },
         { label: "Ürün Raporu", to: `/store/${storeId}/reports`, icon: PackageSearch },
         { label: "Bildirimler", to: `/store/${storeId}/notifications`, icon: Bell },
         { label: "Yayına Hazırlık", to: `/store/${storeId}/health`, icon: ShieldCheck },
