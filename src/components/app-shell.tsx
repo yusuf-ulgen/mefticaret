@@ -127,6 +127,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Stok Bildirimleri", to: `/store/${storeId}/stock-alerts`, icon: BellRing },
         { label: "Terk Sepetler", to: `/store/${storeId}/carts`, icon: ShoppingCart },
         { label: "İndirimler", to: `/store/${storeId}/discounts`, icon: Tag },
+        { label: "Kampanya Performansı", to: `/store/${storeId}/campaigns`, icon: Tag },
         { label: "Hediye Kartları", to: `/store/${storeId}/gift-cards`, icon: Gift },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
         { label: "KDV Raporu", to: `/store/${storeId}/tax`, icon: Receipt },
