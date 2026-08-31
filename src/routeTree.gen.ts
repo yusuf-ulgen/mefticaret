@@ -77,6 +77,7 @@ import { Route as AuthenticatedStoreStoreIdSeoRouteImport } from './routes/_auth
 import { Route as AuthenticatedStoreStoreIdSettingsRouteImport } from './routes/_authenticated/store.$storeId.settings'
 import { Route as AuthenticatedStoreStoreIdShipmentsRouteImport } from './routes/_authenticated/store.$storeId.shipments'
 import { Route as AuthenticatedStoreStoreIdShippingRouteImport } from './routes/_authenticated/store.$storeId.shipping'
+import { Route as AuthenticatedStoreStoreIdShippingEconomicsRouteImport } from './routes/_authenticated/store.$storeId.shipping-economics'
 import { Route as AuthenticatedStoreStoreIdShippingPerformanceRouteImport } from './routes/_authenticated/store.$storeId.shipping-performance'
 import { Route as AuthenticatedStoreStoreIdSimulatorRouteImport } from './routes/_authenticated/store.$storeId.simulator'
 import { Route as AuthenticatedStoreStoreIdSlaRouteImport } from './routes/_authenticated/store.$storeId.sla'
@@ -494,6 +495,12 @@ const AuthenticatedStoreStoreIdShippingRoute =
     path: '/store/$storeId/shipping',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdShippingEconomicsRoute =
+  AuthenticatedStoreStoreIdShippingEconomicsRouteImport.update({
+    id: '/store/$storeId/shipping-economics',
+    path: '/store/$storeId/shipping-economics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdShippingPerformanceRoute =
   AuthenticatedStoreStoreIdShippingPerformanceRouteImport.update({
     id: '/store/$storeId/shipping-performance',
@@ -702,6 +709,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
+  '/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   '/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
   '/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
@@ -795,6 +803,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
+  '/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   '/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
   '/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
@@ -890,6 +899,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/_authenticated/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/_authenticated/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
+  '/_authenticated/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   '/_authenticated/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/_authenticated/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
   '/_authenticated/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
@@ -985,6 +995,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/settings'
     | '/store/$storeId/shipments'
     | '/store/$storeId/shipping'
+    | '/store/$storeId/shipping-economics'
     | '/store/$storeId/shipping-performance'
     | '/store/$storeId/simulator'
     | '/store/$storeId/sla'
@@ -1078,6 +1089,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/settings'
     | '/store/$storeId/shipments'
     | '/store/$storeId/shipping'
+    | '/store/$storeId/shipping-economics'
     | '/store/$storeId/shipping-performance'
     | '/store/$storeId/simulator'
     | '/store/$storeId/sla'
@@ -1172,6 +1184,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/settings'
     | '/_authenticated/store/$storeId/shipments'
     | '/_authenticated/store/$storeId/shipping'
+    | '/_authenticated/store/$storeId/shipping-economics'
     | '/_authenticated/store/$storeId/shipping-performance'
     | '/_authenticated/store/$storeId/simulator'
     | '/_authenticated/store/$storeId/sla'
@@ -1697,6 +1710,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdShippingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/shipping-economics': {
+      id: '/_authenticated/store/$storeId/shipping-economics'
+      path: '/store/$storeId/shipping-economics'
+      fullPath: '/store/$storeId/shipping-economics'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdShippingEconomicsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/shipping-performance': {
       id: '/_authenticated/store/$storeId/shipping-performance'
       path: '/store/$storeId/shipping-performance'
@@ -1973,6 +1993,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdSettingsRoute: typeof AuthenticatedStoreStoreIdSettingsRoute
   AuthenticatedStoreStoreIdShipmentsRoute: typeof AuthenticatedStoreStoreIdShipmentsRoute
   AuthenticatedStoreStoreIdShippingRoute: typeof AuthenticatedStoreStoreIdShippingRoute
+  AuthenticatedStoreStoreIdShippingEconomicsRoute: typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   AuthenticatedStoreStoreIdShippingPerformanceRoute: typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   AuthenticatedStoreStoreIdSimulatorRoute: typeof AuthenticatedStoreStoreIdSimulatorRoute
   AuthenticatedStoreStoreIdSlaRoute: typeof AuthenticatedStoreStoreIdSlaRoute
@@ -2076,6 +2097,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdShipmentsRoute,
   AuthenticatedStoreStoreIdShippingRoute:
     AuthenticatedStoreStoreIdShippingRoute,
+  AuthenticatedStoreStoreIdShippingEconomicsRoute:
+    AuthenticatedStoreStoreIdShippingEconomicsRoute,
   AuthenticatedStoreStoreIdShippingPerformanceRoute:
     AuthenticatedStoreStoreIdShippingPerformanceRoute,
   AuthenticatedStoreStoreIdSimulatorRoute:
