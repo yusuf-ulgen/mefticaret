@@ -122,6 +122,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Tedarikçi Performansı", to: `/store/${storeId}/supplier-performance`, icon: Truck },
         { label: "Karşılama SLA", to: `/store/${storeId}/sla`, icon: Timer },
         { label: "İptal & Kayıp", to: `/store/${storeId}/losses`, icon: TrendingDown },
+        { label: "Coğrafi Dağılım", to: `/store/${storeId}/geo`, icon: MapPin },
         { label: "Dönüşüm Hunisi", to: `/store/${storeId}/funnel`, icon: ShoppingCart },
         { label: "Sepet Analizi", to: `/store/${storeId}/basket`, icon: ShoppingCart },
         { label: "Müşteriler", to: `/store/${storeId}/customers`, icon: Users },
