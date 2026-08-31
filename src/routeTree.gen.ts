@@ -41,6 +41,7 @@ import { Route as AuthenticatedStoreStoreIdCustomersRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdDashboardRouteImport } from './routes/_authenticated/store.$storeId.dashboard'
 import { Route as AuthenticatedStoreStoreIdDiscountsRouteImport } from './routes/_authenticated/store.$storeId.discounts'
 import { Route as AuthenticatedStoreStoreIdDomainsRouteImport } from './routes/_authenticated/store.$storeId.domains'
+import { Route as AuthenticatedStoreStoreIdElasticityRouteImport } from './routes/_authenticated/store.$storeId.elasticity'
 import { Route as AuthenticatedStoreStoreIdFinanceRouteImport } from './routes/_authenticated/store.$storeId.finance'
 import { Route as AuthenticatedStoreStoreIdForecastRouteImport } from './routes/_authenticated/store.$storeId.forecast'
 import { Route as AuthenticatedStoreStoreIdFunnelRouteImport } from './routes/_authenticated/store.$storeId.funnel'
@@ -270,6 +271,12 @@ const AuthenticatedStoreStoreIdDomainsRoute =
   AuthenticatedStoreStoreIdDomainsRouteImport.update({
     id: '/store/$storeId/domains',
     path: '/store/$storeId/domains',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdElasticityRoute =
+  AuthenticatedStoreStoreIdElasticityRouteImport.update({
+    id: '/store/$storeId/elasticity',
+    path: '/store/$storeId/elasticity',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdFinanceRoute =
@@ -624,6 +631,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
+  '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -711,6 +719,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
+  '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -800,6 +809,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/_authenticated/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/_authenticated/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
+  '/_authenticated/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
   '/_authenticated/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/_authenticated/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/_authenticated/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -889,6 +899,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/dashboard'
     | '/store/$storeId/discounts'
     | '/store/$storeId/domains'
+    | '/store/$storeId/elasticity'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
     | '/store/$storeId/funnel'
@@ -976,6 +987,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/dashboard'
     | '/store/$storeId/discounts'
     | '/store/$storeId/domains'
+    | '/store/$storeId/elasticity'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
     | '/store/$storeId/funnel'
@@ -1064,6 +1076,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/dashboard'
     | '/_authenticated/store/$storeId/discounts'
     | '/_authenticated/store/$storeId/domains'
+    | '/_authenticated/store/$storeId/elasticity'
     | '/_authenticated/store/$storeId/finance'
     | '/_authenticated/store/$storeId/forecast'
     | '/_authenticated/store/$storeId/funnel'
@@ -1365,6 +1378,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/domains'
       fullPath: '/store/$storeId/domains'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdDomainsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/elasticity': {
+      id: '/_authenticated/store/$storeId/elasticity'
+      path: '/store/$storeId/elasticity'
+      fullPath: '/store/$storeId/elasticity'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdElasticityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/finance': {
@@ -1817,6 +1837,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdDashboardRoute: typeof AuthenticatedStoreStoreIdDashboardRoute
   AuthenticatedStoreStoreIdDiscountsRoute: typeof AuthenticatedStoreStoreIdDiscountsRoute
   AuthenticatedStoreStoreIdDomainsRoute: typeof AuthenticatedStoreStoreIdDomainsRoute
+  AuthenticatedStoreStoreIdElasticityRoute: typeof AuthenticatedStoreStoreIdElasticityRoute
   AuthenticatedStoreStoreIdFinanceRoute: typeof AuthenticatedStoreStoreIdFinanceRoute
   AuthenticatedStoreStoreIdForecastRoute: typeof AuthenticatedStoreStoreIdForecastRoute
   AuthenticatedStoreStoreIdFunnelRoute: typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -1894,6 +1915,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdDiscountsRoute:
     AuthenticatedStoreStoreIdDiscountsRoute,
   AuthenticatedStoreStoreIdDomainsRoute: AuthenticatedStoreStoreIdDomainsRoute,
+  AuthenticatedStoreStoreIdElasticityRoute:
+    AuthenticatedStoreStoreIdElasticityRoute,
   AuthenticatedStoreStoreIdFinanceRoute: AuthenticatedStoreStoreIdFinanceRoute,
   AuthenticatedStoreStoreIdForecastRoute:
     AuthenticatedStoreStoreIdForecastRoute,
