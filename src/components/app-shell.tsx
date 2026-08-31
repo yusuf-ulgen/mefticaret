@@ -110,6 +110,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Kârlılık", to: `/store/${storeId}/profit`, icon: Coins },
         { label: "ABC & Devir Hızı", to: `/store/${storeId}/abc`, icon: Layers },
         { label: "Envanter Değerleme", to: `/store/${storeId}/valuation`, icon: Coins },
+        { label: "Stok Yaşlandırma", to: `/store/${storeId}/aging`, icon: Timer },
         { label: "Medya", to: `/store/${storeId}/media`, icon: Images },
 
       ],
