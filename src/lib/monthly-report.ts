@@ -174,8 +174,11 @@ export function dailyBreakdown(orders: ReportOrder[], range: MonthRange): DailyL
 
 /** En yüksek ciroyu getiren günü döndürür. */
 export function bestDay(lines: DailyLine[]): DailyLine | null {
-  if (!lines.length) return null;
-  return lines.reduce((best, line) => (line.revenue > best.revenue ? line : best), lines[0]);
+  let best: DailyLine | null = null;
+  for (const line of lines) {
+    if (!best || line.revenue > best.revenue) best = line;
+  }
+  return best;
 }
 
 /** Kullanılan kupon kodlarının performansı. */
