@@ -63,7 +63,8 @@ export function buildAbcAnalysis(inputs: AbcInput[], windowDays: number): AbcLin
     const cost = input.costPrice ?? 0;
     const stockValue = cost * Math.max(0, input.stock);
     const cogs = cost * Math.max(0, input.soldUnits);
-    const averageStockValue = (stockValue + cogs / 2) / 1 || 0;
+    // Dönem başı stok tahmini: mevcut stok + dönemde satılanın yarısı
+    const averageStockValue = stockValue + cogs / 2;
     const turnover =
       averageStockValue > 0 ? (cogs / averageStockValue) * (365 / days) : cogs > 0 ? null : 0;
 
