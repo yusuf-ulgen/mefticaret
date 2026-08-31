@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/simulator")
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: SimulatorPage;
+  component: SimulatorPage,
 });
 
 const DEFAULTS = { priceDelta: 5, costDelta: 0, elasticity: -1.2, fixedCostPerOrder: 0 };
