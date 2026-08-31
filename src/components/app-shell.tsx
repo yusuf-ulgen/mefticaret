@@ -131,6 +131,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Sepet Analizi", to: `/store/${storeId}/basket`, icon: ShoppingCart },
         { label: "Müşteriler", to: `/store/${storeId}/customers`, icon: Users },
         { label: "Segmentler", to: `/store/${storeId}/segments`, icon: UsersRound },
+        { label: "Tekrar Satın Alma", to: `/store/${storeId}/repurchase`, icon: RefreshCcw },
         { label: "Müşteri LTV", to: `/store/${storeId}/ltv`, icon: UsersRound },
         { label: "Değerlendirmeler", to: `/store/${storeId}/reviews`, icon: Star },
         { label: "Soru & Cevap", to: `/store/${storeId}/questions`, icon: HelpCircle },
