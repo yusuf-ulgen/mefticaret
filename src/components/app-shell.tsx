@@ -120,6 +120,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Değerlendirmeler", to: `/store/${storeId}/reviews`, icon: Star },
         { label: "Soru & Cevap", to: `/store/${storeId}/questions`, icon: HelpCircle },
         { label: "İadeler", to: `/store/${storeId}/returns`, icon: RotateCcw },
+        { label: "İade Analizi", to: `/store/${storeId}/returns-analytics`, icon: RotateCcw },
         { label: "Stok Bildirimleri", to: `/store/${storeId}/stock-alerts`, icon: BellRing },
         { label: "Terk Sepetler", to: `/store/${storeId}/carts`, icon: ShoppingCart },
         { label: "İndirimler", to: `/store/${storeId}/discounts`, icon: Tag },
