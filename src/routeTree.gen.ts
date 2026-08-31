@@ -43,6 +43,7 @@ import { Route as AuthenticatedStoreStoreIdDomainsRouteImport } from './routes/_
 import { Route as AuthenticatedStoreStoreIdFinanceRouteImport } from './routes/_authenticated/store.$storeId.finance'
 import { Route as AuthenticatedStoreStoreIdForecastRouteImport } from './routes/_authenticated/store.$storeId.forecast'
 import { Route as AuthenticatedStoreStoreIdFunnelRouteImport } from './routes/_authenticated/store.$storeId.funnel'
+import { Route as AuthenticatedStoreStoreIdGeoRouteImport } from './routes/_authenticated/store.$storeId.geo'
 import { Route as AuthenticatedStoreStoreIdGiftCardsRouteImport } from './routes/_authenticated/store.$storeId.gift-cards'
 import { Route as AuthenticatedStoreStoreIdHealthRouteImport } from './routes/_authenticated/store.$storeId.health'
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
@@ -279,6 +280,12 @@ const AuthenticatedStoreStoreIdFunnelRoute =
   AuthenticatedStoreStoreIdFunnelRouteImport.update({
     id: '/store/$storeId/funnel',
     path: '/store/$storeId/funnel',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdGeoRoute =
+  AuthenticatedStoreStoreIdGeoRouteImport.update({
+    id: '/store/$storeId/geo',
+    path: '/store/$storeId/geo',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdGiftCardsRoute =
@@ -605,6 +612,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
+  '/store/$storeId/geo': typeof AuthenticatedStoreStoreIdGeoRoute
   '/store/$storeId/gift-cards': typeof AuthenticatedStoreStoreIdGiftCardsRoute
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
@@ -689,6 +697,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
+  '/store/$storeId/geo': typeof AuthenticatedStoreStoreIdGeoRoute
   '/store/$storeId/gift-cards': typeof AuthenticatedStoreStoreIdGiftCardsRoute
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
@@ -775,6 +784,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/_authenticated/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/_authenticated/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
+  '/_authenticated/store/$storeId/geo': typeof AuthenticatedStoreStoreIdGeoRoute
   '/_authenticated/store/$storeId/gift-cards': typeof AuthenticatedStoreStoreIdGiftCardsRoute
   '/_authenticated/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
@@ -861,6 +871,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
     | '/store/$storeId/funnel'
+    | '/store/$storeId/geo'
     | '/store/$storeId/gift-cards'
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
@@ -945,6 +956,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
     | '/store/$storeId/funnel'
+    | '/store/$storeId/geo'
     | '/store/$storeId/gift-cards'
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
@@ -1030,6 +1042,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/finance'
     | '/_authenticated/store/$storeId/forecast'
     | '/_authenticated/store/$storeId/funnel'
+    | '/_authenticated/store/$storeId/geo'
     | '/_authenticated/store/$storeId/gift-cards'
     | '/_authenticated/store/$storeId/health'
     | '/_authenticated/store/$storeId/import-export'
@@ -1340,6 +1353,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/funnel'
       fullPath: '/store/$storeId/funnel'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdFunnelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/geo': {
+      id: '/_authenticated/store/$storeId/geo'
+      path: '/store/$storeId/geo'
+      fullPath: '/store/$storeId/geo'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdGeoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/gift-cards': {
@@ -1759,6 +1779,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdFinanceRoute: typeof AuthenticatedStoreStoreIdFinanceRoute
   AuthenticatedStoreStoreIdForecastRoute: typeof AuthenticatedStoreStoreIdForecastRoute
   AuthenticatedStoreStoreIdFunnelRoute: typeof AuthenticatedStoreStoreIdFunnelRoute
+  AuthenticatedStoreStoreIdGeoRoute: typeof AuthenticatedStoreStoreIdGeoRoute
   AuthenticatedStoreStoreIdGiftCardsRoute: typeof AuthenticatedStoreStoreIdGiftCardsRoute
   AuthenticatedStoreStoreIdHealthRoute: typeof AuthenticatedStoreStoreIdHealthRoute
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
@@ -1833,6 +1854,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdForecastRoute:
     AuthenticatedStoreStoreIdForecastRoute,
   AuthenticatedStoreStoreIdFunnelRoute: AuthenticatedStoreStoreIdFunnelRoute,
+  AuthenticatedStoreStoreIdGeoRoute: AuthenticatedStoreStoreIdGeoRoute,
   AuthenticatedStoreStoreIdGiftCardsRoute:
     AuthenticatedStoreStoreIdGiftCardsRoute,
   AuthenticatedStoreStoreIdHealthRoute: AuthenticatedStoreStoreIdHealthRoute,
