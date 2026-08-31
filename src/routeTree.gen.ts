@@ -24,6 +24,7 @@ import { Route as SSlugFavoritesRouteImport } from './routes/s.$slug.favorites'
 import { Route as SSlugGiftCardRouteImport } from './routes/s.$slug.gift-card'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
 import { Route as SSlugProductsRouteImport } from './routes/s.$slug.products'
+import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_authenticated/store.$storeId.abc'
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
 import { Route as AuthenticatedStoreStoreIdAiRouteImport } from './routes/_authenticated/store.$storeId.ai'
 import { Route as AuthenticatedStoreStoreIdAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.analytics'
@@ -154,6 +155,12 @@ const SSlugProductsRoute = SSlugProductsRouteImport.update({
   path: '/s/$slug/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedStoreStoreIdAbcRoute =
+  AuthenticatedStoreStoreIdAbcRouteImport.update({
+    id: '/store/$storeId/abc',
+    path: '/store/$storeId/abc',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdActivityRoute =
   AuthenticatedStoreStoreIdActivityRouteImport.update({
     id: '/store/$storeId/activity',
@@ -495,6 +502,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/': typeof SSlugIndexRoute
+  '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
@@ -566,6 +574,7 @@ export interface FileRoutesByTo {
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug': typeof SSlugIndexRoute
+  '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
@@ -639,6 +648,7 @@ export interface FileRoutesById {
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/': typeof SSlugIndexRoute
+  '/_authenticated/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/_authenticated/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/_authenticated/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/_authenticated/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
@@ -712,6 +722,7 @@ export interface FileRouteTypes {
     | '/s/$slug/order'
     | '/s/$slug/products'
     | '/s/$slug/'
+    | '/store/$storeId/abc'
     | '/store/$storeId/activity'
     | '/store/$storeId/ai'
     | '/store/$storeId/analytics'
@@ -783,6 +794,7 @@ export interface FileRouteTypes {
     | '/s/$slug/order'
     | '/s/$slug/products'
     | '/s/$slug'
+    | '/store/$storeId/abc'
     | '/store/$storeId/activity'
     | '/store/$storeId/ai'
     | '/store/$storeId/analytics'
@@ -855,6 +867,7 @@ export interface FileRouteTypes {
     | '/s/$slug/order'
     | '/s/$slug/products'
     | '/s/$slug/'
+    | '/_authenticated/store/$storeId/abc'
     | '/_authenticated/store/$storeId/activity'
     | '/_authenticated/store/$storeId/ai'
     | '/_authenticated/store/$storeId/analytics'
@@ -1039,6 +1052,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/s/$slug/products'
       preLoaderRoute: typeof SSlugProductsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/store/$storeId/abc': {
+      id: '/_authenticated/store/$storeId/abc'
+      path: '/store/$storeId/abc'
+      fullPath: '/store/$storeId/abc'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdAbcRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/activity': {
       id: '/_authenticated/store/$storeId/activity'
@@ -1480,6 +1500,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
+  AuthenticatedStoreStoreIdAbcRoute: typeof AuthenticatedStoreStoreIdAbcRoute
   AuthenticatedStoreStoreIdActivityRoute: typeof AuthenticatedStoreStoreIdActivityRoute
   AuthenticatedStoreStoreIdAiRoute: typeof AuthenticatedStoreStoreIdAiRoute
   AuthenticatedStoreStoreIdAnalyticsRoute: typeof AuthenticatedStoreStoreIdAnalyticsRoute
@@ -1531,6 +1552,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,
+  AuthenticatedStoreStoreIdAbcRoute: AuthenticatedStoreStoreIdAbcRoute,
   AuthenticatedStoreStoreIdActivityRoute:
     AuthenticatedStoreStoreIdActivityRoute,
   AuthenticatedStoreStoreIdAiRoute: AuthenticatedStoreStoreIdAiRoute,
