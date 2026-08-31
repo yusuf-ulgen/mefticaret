@@ -146,6 +146,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "İletişim Performansı", to: `/store/${storeId}/support-performance`, icon: HelpCircle },
         { label: "Senaryo Simülatörü", to: `/store/${storeId}/simulator`, icon: Tag },
         { label: "Hediye Kartları", to: `/store/${storeId}/gift-cards`, icon: Gift },
+        { label: "Hediye Kartı Yükümlülüğü", to: `/store/${storeId}/gift-liability`, icon: Wallet },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
         { label: "Nakit Akışı", to: `/store/${storeId}/cashflow`, icon: Wallet },
         { label: "KDV Raporu", to: `/store/${storeId}/tax`, icon: Receipt },
