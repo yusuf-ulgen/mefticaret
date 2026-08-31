@@ -109,15 +109,13 @@ function MonthlyReportPage() {
   ];
 
   return (
-    <AppShell storeId={storeId}>
+    <AppShell
+      storeId={storeId}
+      title="Aylık İşletme Raporu"
+      description="Dönem performansını önceki ayla karşılaştır, yönetim için yazdır."
+    >
       <div className="space-y-8">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="font-display text-3xl">Aylık İşletme Raporu</h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Dönem performansını önceki ayla karşılaştır, yönetim için yazdır.
-            </p>
-          </div>
+        <header className="flex flex-wrap items-end justify-end gap-4">
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
               <Label>Dönem</Label>
