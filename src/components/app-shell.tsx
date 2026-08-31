@@ -119,6 +119,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Kargo Performansı", to: `/store/${storeId}/shipping-performance`, icon: Truck },
         { label: "Tedarikçi Performansı", to: `/store/${storeId}/supplier-performance`, icon: Truck },
         { label: "Dönüşüm Hunisi", to: `/store/${storeId}/funnel`, icon: ShoppingCart },
+        { label: "Sepet Analizi", to: `/store/${storeId}/basket`, icon: ShoppingCart },
         { label: "Müşteriler", to: `/store/${storeId}/customers`, icon: Users },
         { label: "Segmentler", to: `/store/${storeId}/segments`, icon: UsersRound },
         { label: "Müşteri LTV", to: `/store/${storeId}/ltv`, icon: UsersRound },
