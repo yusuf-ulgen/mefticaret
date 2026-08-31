@@ -139,6 +139,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Kampanya Performansı", to: `/store/${storeId}/campaigns`, icon: Tag },
         { label: "Hediye Kartları", to: `/store/${storeId}/gift-cards`, icon: Gift },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
+        { label: "Nakit Akışı", to: `/store/${storeId}/cashflow`, icon: Wallet },
         { label: "KDV Raporu", to: `/store/${storeId}/tax`, icon: Receipt },
         { label: "Aylık Rapor", to: `/store/${storeId}/report-monthly`, icon: FileText },
         { label: "Abonelik", to: `/store/${storeId}/billing`, icon: CreditCard },
