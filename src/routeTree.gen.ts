@@ -73,6 +73,7 @@ import { Route as AuthenticatedStoreStoreIdShippingPerformanceRouteImport } from
 import { Route as AuthenticatedStoreStoreIdStockAlertsRouteImport } from './routes/_authenticated/store.$storeId.stock-alerts'
 import { Route as AuthenticatedStoreStoreIdStockCountRouteImport } from './routes/_authenticated/store.$storeId.stock-count'
 import { Route as AuthenticatedStoreStoreIdSupplierPerformanceRouteImport } from './routes/_authenticated/store.$storeId.supplier-performance'
+import { Route as AuthenticatedStoreStoreIdTasksRouteImport } from './routes/_authenticated/store.$storeId.tasks'
 import { Route as AuthenticatedStoreStoreIdTaxRouteImport } from './routes/_authenticated/store.$storeId.tax'
 import { Route as AuthenticatedStoreStoreIdTeamRouteImport } from './routes/_authenticated/store.$storeId.team'
 import { Route as AuthenticatedStoreStoreIdThemesRouteImport } from './routes/_authenticated/store.$storeId.themes'
@@ -456,6 +457,12 @@ const AuthenticatedStoreStoreIdSupplierPerformanceRoute =
     path: '/store/$storeId/supplier-performance',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdTasksRoute =
+  AuthenticatedStoreStoreIdTasksRouteImport.update({
+    id: '/store/$storeId/tasks',
+    path: '/store/$storeId/tasks',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdTaxRoute =
   AuthenticatedStoreStoreIdTaxRouteImport.update({
     id: '/store/$storeId/tax',
@@ -600,6 +607,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
+  '/store/$storeId/tasks': typeof AuthenticatedStoreStoreIdTasksRoute
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
@@ -679,6 +687,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
+  '/store/$storeId/tasks': typeof AuthenticatedStoreStoreIdTasksRoute
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
@@ -760,6 +769,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/_authenticated/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/_authenticated/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
+  '/_authenticated/store/$storeId/tasks': typeof AuthenticatedStoreStoreIdTasksRoute
   '/_authenticated/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/_authenticated/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/_authenticated/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
@@ -841,6 +851,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/stock-alerts'
     | '/store/$storeId/stock-count'
     | '/store/$storeId/supplier-performance'
+    | '/store/$storeId/tasks'
     | '/store/$storeId/tax'
     | '/store/$storeId/team'
     | '/store/$storeId/themes'
@@ -920,6 +931,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/stock-alerts'
     | '/store/$storeId/stock-count'
     | '/store/$storeId/supplier-performance'
+    | '/store/$storeId/tasks'
     | '/store/$storeId/tax'
     | '/store/$storeId/team'
     | '/store/$storeId/themes'
@@ -1000,6 +1012,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/stock-alerts'
     | '/_authenticated/store/$storeId/stock-count'
     | '/_authenticated/store/$storeId/supplier-performance'
+    | '/_authenticated/store/$storeId/tasks'
     | '/_authenticated/store/$storeId/tax'
     | '/_authenticated/store/$storeId/team'
     | '/_authenticated/store/$storeId/themes'
@@ -1487,6 +1500,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSupplierPerformanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/tasks': {
+      id: '/_authenticated/store/$storeId/tasks'
+      path: '/store/$storeId/tasks'
+      fullPath: '/store/$storeId/tasks'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdTasksRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/tax': {
       id: '/_authenticated/store/$storeId/tax'
       path: '/store/$storeId/tax'
@@ -1689,6 +1709,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdStockAlertsRoute: typeof AuthenticatedStoreStoreIdStockAlertsRoute
   AuthenticatedStoreStoreIdStockCountRoute: typeof AuthenticatedStoreStoreIdStockCountRoute
   AuthenticatedStoreStoreIdSupplierPerformanceRoute: typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
+  AuthenticatedStoreStoreIdTasksRoute: typeof AuthenticatedStoreStoreIdTasksRoute
   AuthenticatedStoreStoreIdTaxRoute: typeof AuthenticatedStoreStoreIdTaxRoute
   AuthenticatedStoreStoreIdTeamRoute: typeof AuthenticatedStoreStoreIdTeamRoute
   AuthenticatedStoreStoreIdThemesRoute: typeof AuthenticatedStoreStoreIdThemesRoute
@@ -1778,6 +1799,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdStockCountRoute,
   AuthenticatedStoreStoreIdSupplierPerformanceRoute:
     AuthenticatedStoreStoreIdSupplierPerformanceRoute,
+  AuthenticatedStoreStoreIdTasksRoute: AuthenticatedStoreStoreIdTasksRoute,
   AuthenticatedStoreStoreIdTaxRoute: AuthenticatedStoreStoreIdTaxRoute,
   AuthenticatedStoreStoreIdTeamRoute: AuthenticatedStoreStoreIdTeamRoute,
   AuthenticatedStoreStoreIdThemesRoute: AuthenticatedStoreStoreIdThemesRoute,
