@@ -138,6 +138,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "İndirimler", to: `/store/${storeId}/discounts`, icon: Tag },
         { label: "Kampanya Performansı", to: `/store/${storeId}/campaigns`, icon: Tag },
         { label: "İndirim Derinliği", to: `/store/${storeId}/elasticity`, icon: Tag },
+        { label: "Ürün Yaşam Döngüsü", to: `/store/${storeId}/lifecycle`, icon: Tag },
         { label: "Hediye Kartları", to: `/store/${storeId}/gift-cards`, icon: Gift },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
         { label: "Nakit Akışı", to: `/store/${storeId}/cashflow`, icon: Wallet },
