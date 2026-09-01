@@ -157,6 +157,7 @@ import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/pu
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
+import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
@@ -1019,6 +1020,11 @@ const ApiPublicCronWebhookRetriesRoute =
     path: '/api/public/cron/webhook-retries',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicOauthRevokeRoute = ApiPublicOauthRevokeRouteImport.update({
+  id: '/api/public/oauth/revoke',
+  path: '/api/public/oauth/revoke',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicOauthTokenRoute = ApiPublicOauthTokenRouteImport.update({
   id: '/api/public/oauth/token',
   path: '/api/public/oauth/token',
@@ -1238,6 +1244,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -1399,6 +1406,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -1563,6 +1571,7 @@ export interface FileRoutesById {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -1727,6 +1736,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
@@ -1888,6 +1898,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
@@ -2051,6 +2062,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
@@ -2097,6 +2109,7 @@ export interface RootRouteChildren {
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
+  ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
@@ -3146,6 +3159,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronWebhookRetriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/oauth/revoke': {
+      id: '/api/public/oauth/revoke'
+      path: '/api/public/oauth/revoke'
+      fullPath: '/api/public/oauth/revoke'
+      preLoaderRoute: typeof ApiPublicOauthRevokeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/oauth/token': {
       id: '/api/public/oauth/token'
       path: '/api/public/oauth/token'
@@ -3627,6 +3647,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
+  ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
