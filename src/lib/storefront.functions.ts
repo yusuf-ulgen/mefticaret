@@ -33,6 +33,12 @@ const slugInput = (data: unknown) => z.object({ slug: z.string().trim().min(1).m
 export const getStorefront = createServerFn({ method: "GET" })
   .inputValidator(slugInput)
   .handler(async ({ data }) => {
+    // Vitrin ana sayfası kısa süreli önbelleklenir; katalog değişince invalidate edilir.
+    const { cached, cacheKey, CACHE_NAMESPACES } = await import("./cache.server");
+    return cached(
+      cacheKey(CACHE_NAMESPACES.catalog, null, "storefront-home", data.slug),
+      CACHE_NAMESPACES.catalog,
+      async () => {
     const supabase = publicClient();
     const { data: store, error } = await supabase
       .from("stores")
@@ -122,7 +128,8 @@ export const getStorefront = createServerFn({ method: "GET" })
       sections: sectionsRes.data ?? [],
       blogPages: blogRes.data ?? [],
     };
-
+      },
+    );
   });
 
 export const getStorefrontProduct = createServerFn({ method: "GET" })
