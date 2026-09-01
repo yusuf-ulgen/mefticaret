@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * Vitrin menü yönetimi (header / footer navigasyonu).
@@ -57,7 +58,7 @@ export const saveMenuItem = createServerFn({ method: "POST" })
     const { data: row, error } = await query.select("*").single();
     if (error) throw new Error(error.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: data.itemId ? "menu_item.updated" : "menu_item.created",
@@ -83,7 +84,7 @@ export const deleteMenuItem = createServerFn({ method: "POST" })
       .eq("store_id", data.storeId);
     if (error) throw new Error(error.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "menu_item.deleted",

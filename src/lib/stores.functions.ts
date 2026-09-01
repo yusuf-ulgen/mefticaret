@@ -14,6 +14,7 @@ import {
   slugify,
   SUBDOMAIN_SUFFIX,
 } from "@/lib/mefti";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * Application katmanı: mağaza yaşam döngüsü.
@@ -88,7 +89,7 @@ export const createStore = createServerFn({ method: "POST" })
       ssl_active: true,
       verified_at: new Date().toISOString(),
     });
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: store.id,
       actor_id: userId,
       action: "store.created",
@@ -136,7 +137,7 @@ export const updateStore = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!store) throw new Error("Bu mağazayı düzenleme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: store.id,
       actor_id: userId,
       action: "store.updated",
@@ -180,7 +181,7 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Bu mağazanın ayarlarını düzenleme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "store_settings.updated",
@@ -260,7 +261,7 @@ export const addStoreSubdomain = createServerFn({ method: "POST" })
     }
     if (!row) throw new Error("Alt alan adı ekleme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "domain.subdomain_added",
@@ -320,7 +321,7 @@ export const addStoreDomain = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message.includes("duplicate") ? "Bu domain zaten kayıtlı" : error.message);
     if (!rows?.length) throw new Error("Domain ekleme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "domain.added",
@@ -390,7 +391,7 @@ export const verifyStoreDomain = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!updated) throw new Error("Domain doğrulama yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: domain.store_id,
       actor_id: userId,
       action: verified ? "domain.verified" : "domain.verification_failed",
@@ -432,7 +433,7 @@ export const provisionDomainSsl = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: domain.store_id,
       actor_id: userId,
       action: "domain.ssl_provisioned",
@@ -522,7 +523,7 @@ export const removeStoreDomain = createServerFn({ method: "POST" })
     const { error } = await supabase.from("store_domains").delete().eq("id", data.domainId);
     if (error) throw new Error(error.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: domain.store_id,
       actor_id: userId,
       action: "domain.removed",

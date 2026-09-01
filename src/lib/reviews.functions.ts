@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * Ürün değerlendirmeleri. Yorumlar "pending" olarak kaydedilir; mağaza ekibi
@@ -109,7 +110,7 @@ export const moderateReview = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!review) throw new Error("Bu yorumu yönetme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: review.store_id,
       actor_id: userId,
       action: "review.moderated",
@@ -135,7 +136,7 @@ export const deleteReview = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!review) throw new Error("Bu yorumu silme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: review.store_id,
       actor_id: userId,
       action: "review.deleted",

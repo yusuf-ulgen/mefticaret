@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { API_SCOPES, API_VERSIONS } from "@/lib/api-keys";
+import { insertAuditRow } from "./audit.server";
 
 /** API anahtarı sunucu mantığı: üretim, doğrulama, iptal ve istek kaydı. */
 
@@ -75,7 +76,7 @@ export async function createApiKey(
     .single();
   if (error) throw new Error(error.message);
 
-  await supabase.from("audit_logs").insert({
+  await insertAuditRow(supabase, {
     store_id: input.storeId,
     actor_id: userId,
     action: "api_key.created",
@@ -100,7 +101,7 @@ export async function revokeApiKey(
     .eq("store_id", input.storeId);
   if (error) throw new Error(error.message);
 
-  await supabase.from("audit_logs").insert({
+  await insertAuditRow(supabase, {
     store_id: input.storeId,
     actor_id: userId,
     action: "api_key.revoked",

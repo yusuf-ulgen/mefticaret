@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { slugify } from "@/lib/mefti";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * Kural tabanlı müşteri segmentleri.
@@ -67,7 +68,7 @@ export const saveCustomerSegment = createServerFn({ method: "POST" })
     const { data: row, error } = await query.select("*").single();
     if (error) throw new Error(error.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: data.segmentId ? "customer_segment.updated" : "customer_segment.created",
@@ -93,7 +94,7 @@ export const deleteCustomerSegment = createServerFn({ method: "POST" })
       .eq("store_id", data.storeId);
     if (error) throw new Error(error.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "customer_segment.deleted",

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { normalizeGiftCardCode } from "@/lib/gift-cards";
+import { insertAuditRow } from "./audit.server";
 
 /** Hediye kartı işlemleri. Tenant izolasyonu RLS politikalarıyla zorlanır. */
 
@@ -58,7 +59,7 @@ export const issueGiftCard = createServerFn({ method: "POST" })
       created_by: userId,
     });
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "gift_card.issue",
@@ -114,7 +115,7 @@ export const adjustGiftCardBalance = createServerFn({ method: "POST" })
       created_by: userId,
     });
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: card.store_id,
       actor_id: userId,
       action: "gift_card.adjust",
@@ -147,7 +148,7 @@ export const setGiftCardStatus = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: card.store_id,
       actor_id: userId,
       action: "gift_card.status",

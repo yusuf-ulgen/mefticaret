@@ -164,7 +164,11 @@ export function AdminShell({
 
   return (
     <div className="flex min-h-screen w-full bg-muted/20">
-      <aside className="hidden w-64 shrink-0 border-r border-border bg-card lg:block">
+      <a href="#admin-content" className="skip-link">
+        İçeriğe geç
+      </a>
+      <aside aria-label="Süper admin menüsü" className="hidden w-64 shrink-0 border-r border-border bg-card lg:block">
+
         <div className="flex h-14 items-center gap-2 border-b border-border px-4">
           <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
             <ShieldCheck className="size-4" />
@@ -203,7 +207,10 @@ export function AdminShell({
             </Button>
           </div>
         </header>
-        <main className="min-w-0 flex-1 space-y-4 p-4 lg:p-6">{children}</main>
+        <main id="admin-content" tabIndex={-1} className="min-w-0 flex-1 space-y-4 p-4 lg:p-6">
+          {children}
+        </main>
+
       </div>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>

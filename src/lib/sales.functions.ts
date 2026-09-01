@@ -4,6 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { compact } from "@/lib/mefti";
 import { createManualOrder, manualOrderSchema } from "@/lib/manual-order.server";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * Satış uygulama katmanı (siparişler, müşteriler, indirimler).
@@ -83,7 +84,7 @@ export const updateOrder = createServerFn({ method: "POST" })
       meta: patch as never,
     });
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: order.store_id,
       actor_id: userId,
       action: "order.updated",
@@ -169,7 +170,7 @@ export const upsertCustomer = createServerFn({ method: "POST" })
     if (!customer) throw new Error("Müşteri kaydedilemedi");
 
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: data.customerId ? "customer.updated" : "customer.created",
@@ -195,7 +196,7 @@ export const deleteCustomer = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!customer) throw new Error("Bu müşteriyi silme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: customer.store_id,
       actor_id: userId,
       action: "customer.deleted",
@@ -262,7 +263,7 @@ export const upsertDiscount = createServerFn({ method: "POST" })
     }
     if (!discount) throw new Error("Kupon kaydedilemedi");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: data.discountId ? "discount.updated" : "discount.created",

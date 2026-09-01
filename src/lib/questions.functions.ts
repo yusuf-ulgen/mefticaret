@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * Ürün soru & cevap. Sorular "pending" olarak kaydedilir; mağaza ekibi
@@ -90,7 +91,7 @@ export const moderateQuestion = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!question) throw new Error("Bu soruyu yönetme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: question.store_id,
       actor_id: userId,
       action: "question.moderated",
@@ -116,7 +117,7 @@ export const deleteQuestion = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!question) throw new Error("Bu soruyu silme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: question.store_id,
       actor_id: userId,
       action: "question.deleted",

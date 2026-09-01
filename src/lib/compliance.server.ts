@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { CONSENT_TYPES, DSR_KINDS, DSR_STATUSES, LEGAL_BASES } from "@/lib/security";
+import { insertAuditRow } from "./audit.server";
 
 /** KVKK/GDPR sunucu mantığı: rıza kayıtları, veri işleme envanteri, veri sahibi talepleri. */
 
@@ -269,7 +270,7 @@ export async function eraseCustomerData(
     .eq("store_id", storeId);
   if (error) throw new Error(error.message);
 
-  await supabase.from("audit_logs").insert({
+  await insertAuditRow(supabase, {
     store_id: storeId,
     actor_id: userId,
     action: "customer.erased",

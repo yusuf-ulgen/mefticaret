@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { insertAuditRow } from "./audit.server";
 
 /** Abonelik sunucu fonksiyonu: paket değişimi (RLS ile yetki kontrolü + audit kaydı). */
 
@@ -35,7 +36,7 @@ export const changeStorePlan = createServerFn({ method: "POST" })
       .eq("id", data.storeId);
     if (updateError) throw new Error(updateError.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "store.plan_changed",

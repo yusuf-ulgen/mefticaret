@@ -11,6 +11,7 @@ import {
   OAUTH_SCOPES,
 } from "@/lib/oauth";
 import { API_VERSIONS } from "@/lib/api-keys";
+import { insertAuditRow } from "./audit.server";
 
 /** OAuth 2.0 sunucu mantığı: istemci yönetimi, kod/token üretimi ve doğrulama. */
 
@@ -110,7 +111,7 @@ export async function createOAuthClient(
     .single();
   if (error) throw new Error(error.message);
 
-  await supabase.from("audit_logs").insert({
+  await insertAuditRow(supabase, {
     store_id: input.storeId,
     actor_id: userId,
     action: "oauth_client.created",

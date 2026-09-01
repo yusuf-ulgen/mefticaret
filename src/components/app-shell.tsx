@@ -399,6 +399,9 @@ export function AppShell({
 
   return (
     <div className="flex min-h-screen bg-background">
+      <a href="#panel-content" className="skip-link">
+        İçeriğe geç
+      </a>
       {sidebar ? (
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-sidebar-border bg-sidebar lg:block">
           {sidebar}
@@ -434,7 +437,7 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
+        <main id="panel-content" tabIndex={-1} className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
           <div className="mx-auto w-full max-w-7xl space-y-6">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>

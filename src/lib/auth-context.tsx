@@ -95,11 +95,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [load]);
 
   const signOut = useCallback(async () => {
+    // Oturum kapanmadan önce denetim kaydı yaz (token hâlâ geçerli).
+    try {
+      const { logAuthEvent } = await import("./audit.functions");
+      await logAuthEvent({ data: { event: "logout" } });
+    } catch {
+      // Denetim kaydı başarısız olsa da çıkış işlemi devam etmeli.
+    }
     await supabase.auth.signOut();
     setSession(null);
     setProfile(null);
     setPlatformRoles([]);
   }, []);
+
 
   const value = useMemo<AuthState>(
     () => ({

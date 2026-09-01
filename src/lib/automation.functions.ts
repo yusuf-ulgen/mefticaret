@@ -4,6 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { AUTOMATION_TRIGGERS, CONDITIONS, MESSAGE_CHANNELS, STEP_KINDS } from "@/lib/automation";
 import { slugify } from "@/lib/mefti";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * Pazarlama otomasyonu yönetimi: akışlar, adımlar, mesaj şablonları,
@@ -82,7 +83,7 @@ export const saveWorkflow = createServerFn({ method: "POST" })
       if (stepError) throw new Error(stepError.message);
     }
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: data.workflowId ? "automation.updated" : "automation.created",

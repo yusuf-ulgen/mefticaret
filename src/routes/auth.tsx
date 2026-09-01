@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth-context";
+import { logAuthEvent } from "@/lib/audit.functions";
+
 
 const searchSchema = z.object({
   mode: z.enum(["login", "register"]).optional(),
@@ -59,6 +61,7 @@ function AuthPage() {
       toast.error(error.message === "Invalid login credentials" ? "E-posta veya şifre hatalı" : error.message);
       return;
     }
+    void logAuthEvent({ data: { event: "login", method: "password" } }).catch(() => {});
     toast.success("Hoş geldin!");
     void navigate({ to: safeNext, replace: true });
   }
@@ -80,12 +83,14 @@ function AuthPage() {
       return;
     }
     if (data.session) {
+      void logAuthEvent({ data: { event: "login", method: "signup" } }).catch(() => {});
       toast.success("Hesabın hazır, ilk mağazanı kuralım.");
       void navigate({ to: "/onboarding", replace: true });
       return;
     }
     toast.success("Hesabını doğrulamak için e-postanı kontrol et.");
   }
+
 
   async function handleGoogle() {
     setBusy(true);
