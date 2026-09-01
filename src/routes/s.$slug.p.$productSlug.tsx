@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
@@ -15,6 +15,15 @@ import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { recordRecentProduct } from "@/lib/recently-viewed";
 import { storefrontProductQuery } from "@/lib/storefront-queries";
+
+/** YouTube/Vimeo adreslerini gömme adresine çevirir. */
+function embedUrl(url: string) {
+  const yt = url.match(/(?:youtu\.be\/|v=)([\w-]{11})/);
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  const vimeo = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
+  return url;
+}
 
 export const Route = createFileRoute("/s/$slug/p/$productSlug")({
   loader: async ({ context, params }) => {
