@@ -129,6 +129,7 @@ import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/publi
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
+import { Route as ApiPublicTrackSlugRouteImport } from './routes/api/public/track.$slug'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicWhatsappStoreIdRouteImport } from './routes/api/public/whatsapp.$storeId'
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
@@ -826,6 +827,11 @@ const ApiPublicSitemapSlugRoute = ApiPublicSitemapSlugRouteImport.update({
   path: '/api/public/sitemap/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTrackSlugRoute = ApiPublicTrackSlugRouteImport.update({
+  id: '/api/public/track/$slug',
+  path: '/api/public/track/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
   id: '/api/public/v1/$',
   path: '/api/public/v1/$',
@@ -997,6 +1003,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
@@ -1127,6 +1134,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
@@ -1259,6 +1267,7 @@ export interface FileRoutesById {
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
@@ -1391,6 +1400,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
     | '/s/$slug/c/$collectionSlug'
@@ -1521,6 +1531,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
     | '/s/$slug/c/$collectionSlug'
@@ -1652,6 +1663,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
     | '/s/$slug/c/$collectionSlug'
@@ -1695,6 +1707,7 @@ export interface RootRouteChildren {
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
+  ApiPublicTrackSlugRoute: typeof ApiPublicTrackSlugRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   ApiPublicWhatsappStoreIdRoute: typeof ApiPublicWhatsappStoreIdRoute
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
@@ -2544,6 +2557,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSitemapSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/track/$slug': {
+      id: '/api/public/track/$slug'
+      path: '/api/public/track/$slug'
+      fullPath: '/api/public/track/$slug'
+      preLoaderRoute: typeof ApiPublicTrackSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/$': {
       id: '/api/public/v1/$'
       path: '/api/public/v1/$'
@@ -2928,6 +2948,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
+  ApiPublicTrackSlugRoute: ApiPublicTrackSlugRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   ApiPublicWhatsappStoreIdRoute: ApiPublicWhatsappStoreIdRoute,
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,

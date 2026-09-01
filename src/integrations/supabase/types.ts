@@ -193,6 +193,107 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          campaign: string | null
+          country: string | null
+          created_at: string
+          currency: string
+          device: string | null
+          id: string
+          kind: string
+          medium: string | null
+          order_id: string | null
+          path: string | null
+          product_id: string | null
+          quantity: number
+          referrer: string | null
+          referrer_host: string | null
+          session_id: string
+          source: string | null
+          store_id: string
+          user_agent: string | null
+          value: number
+          variant_id: string | null
+          visitor_id: string
+        }
+        Insert: {
+          campaign?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string
+          device?: string | null
+          id?: string
+          kind: string
+          medium?: string | null
+          order_id?: string | null
+          path?: string | null
+          product_id?: string | null
+          quantity?: number
+          referrer?: string | null
+          referrer_host?: string | null
+          session_id: string
+          source?: string | null
+          store_id: string
+          user_agent?: string | null
+          value?: number
+          variant_id?: string | null
+          visitor_id: string
+        }
+        Update: {
+          campaign?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string
+          device?: string | null
+          id?: string
+          kind?: string
+          medium?: string | null
+          order_id?: string | null
+          path?: string | null
+          product_id?: string | null
+          quantity?: number
+          referrer?: string | null
+          referrer_host?: string | null
+          session_id?: string
+          source?: string | null
+          store_id?: string
+          user_agent?: string | null
+          value?: number
+          variant_id?: string | null
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_keys: {
         Row: {
           api_version: string

@@ -5,6 +5,10 @@ import {
   Activity,
   CreditCard,
   Download,
+  Eye,
+  Globe2,
+  MonitorSmartphone,
+  MousePointerClick,
   Percent,
   Repeat,
   ShoppingBag,
@@ -16,8 +20,16 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { analyticsItemsQuery, analyticsOrdersQuery, buildDailySeries } from "@/lib/analytics-queries";
+import { analyticsItemsQuery } from "@/lib/analytics-queries";
+import {
+  analyticsEventsQuery,
+  analyticsRangeOrdersQuery,
+  buildTrafficSeries,
+  summarizeEvents,
+} from "@/lib/analytics-events-queries";
+import { buildRange, RANGE_PRESETS, type RangePreset } from "@/lib/analytics-range";
 import { storeQuery } from "@/lib/store-queries";
 import { downloadCsv, toCsv } from "@/lib/csv";
 import {
@@ -29,8 +41,12 @@ import {
   PAYMENT_STATUS_LABELS,
 } from "@/lib/mefti";
 
-
-const RANGES = [7, 30, 90] as const;
+const DEVICE_LABELS: Record<string, string> = {
+  desktop: "Masaüstü",
+  mobile: "Mobil",
+  tablet: "Tablet",
+  bilinmiyor: "Bilinmiyor",
+};
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/analytics")({
   head: () => ({
@@ -38,10 +54,11 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/analytics")
       { title: "Analitik & Raporlar — Mefticaret" },
       {
         name: "description",
-        content: "Ciro trendi, sepet ortalaması, en çok satan ürünler ve sipariş durum dağılımı raporları.",
+        content:
+          "Ziyaretçi, oturum, dönüşüm hunisi, trafik kaynağı, cihaz ve ülke kırılımlarıyla mağaza analitiği.",
       },
       { property: "og:title", content: "Analitik & Raporlar — Mefticaret" },
-      { property: "og:description", content: "Mağazanın satış performansını dönemsel raporlarla incele." },
+      { property: "og:description", content: "Ziyaretçiden satın almaya tüm dönüşüm hunisini dönemsel izle." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -51,10 +68,16 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/analytics")
 
 function AnalyticsPage() {
   const { storeId } = Route.useParams();
-  const [days, setDays] = useState<number>(30);
+  const [preset, setPreset] = useState<RangePreset>("30d");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
+  const range = useMemo(() => buildRange(preset, customFrom, customTo), [preset, customFrom, customTo]);
+  const days = range.days;
+
   const { data: store } = useQuery(storeQuery(storeId));
-  const { data: orders, isLoading } = useQuery(analyticsOrdersQuery(storeId, days));
+  const { data: orders, isLoading } = useQuery(analyticsRangeOrdersQuery(storeId, range));
   const { data: items } = useQuery(analyticsItemsQuery(storeId, days));
+  const { data: events, isLoading: eventsLoading } = useQuery(analyticsEventsQuery(storeId, range));
 
   const currency = store?.currency ?? "TRY";
   const rows = orders ?? [];
