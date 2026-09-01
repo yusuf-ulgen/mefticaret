@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { CookieConsent } from "@/components/cookie-consent";
 
 import { useCart } from "@/lib/cart";
 import { useCompare } from "@/lib/compare";
