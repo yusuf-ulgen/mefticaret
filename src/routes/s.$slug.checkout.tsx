@@ -8,7 +8,10 @@ import { markCartRecovered, syncAbandonedCart } from "@/lib/abandoned.functions"
 import { useCart } from "@/lib/cart";
 import { getCartPrefs } from "@/lib/cart-prefs";
 import { getCartToken } from "@/lib/cart-token";
-import { placeOrder, previewCheckoutDiscount } from "@/lib/checkout.functions";
+import { myAddressesQuery } from "@/lib/account-queries";
+import { useAuth } from "@/lib/auth-context";
+import { getCheckoutQuote, placeMemberOrder, placeOrder, previewCheckoutDiscount } from "@/lib/checkout.functions";
+import { checkGiftCardBalance } from "@/lib/gift-cards-public.functions";
 import { formatMoney } from "@/lib/mefti";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 
@@ -43,6 +46,11 @@ function CheckoutPage() {
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   const options = useQuery(checkoutOptionsQuery(slug));
   const cart = useCart();
+  const { user, loading: authLoading } = useAuth();
+  const memberMode = Boolean(user);
+  const guestAllowed = options.data?.settings?.guest_checkout !== false;
+  const savedAddresses = useQuery(myAddressesQuery(data?.store.id ?? "", Boolean(user && data?.store.id)));
+  const profileFilled = useRef(false);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -64,6 +72,17 @@ function CheckoutPage() {
   const [checkingDiscount, setCheckingDiscount] = useState(false);
   const [shippingRateId, setShippingRateId] = useState<string>("");
   const [paymentMethodId, setPaymentMethodId] = useState<string>("");
+  const [billingSame, setBillingSame] = useState(true);
+  const [billingRecipient, setBillingRecipient] = useState("");
+  const [billingCompany, setBillingCompany] = useState("");
+  const [billingTaxId, setBillingTaxId] = useState("");
+  const [billingCountry, setBillingCountry] = useState("Türkiye");
+  const [billingCity, setBillingCity] = useState("");
+  const [billingDistrict, setBillingDistrict] = useState("");
+  const [billingLine1, setBillingLine1] = useState("");
+  const [billingPostalCode, setBillingPostalCode] = useState("");
+  const [appliedGiftCard, setAppliedGiftCard] = useState<{ code: string; balance: number } | null>(null);
+  const [checkingGiftCard, setCheckingGiftCard] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const prefsLoaded = useRef(false);
 
