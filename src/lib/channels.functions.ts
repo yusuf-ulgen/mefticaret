@@ -129,53 +129,26 @@ export const removeChannelListing = createServerFn({ method: "POST" })
   });
 
 /**
- * Senkronizasyon simülasyonu: gerçek pazaryeri API çağrıları connector
- * kimlik bilgileri girildiğinde bu noktadan tetiklenir. Şimdilik kuyruktaki
- * kayıtları "listed" durumuna taşır ve dış kimlik üretir.
+ * Senkronizasyon: connector modülü payload üretir, sunucu tarafı taşıyıcı
+ * katman isteği gönderir. Kimlik bilgisi tanımlı değilse kuru çalışma
+ * (dry-run) modunda payload doğrulanır ve yerel durum güncellenir.
  */
 export const syncChannel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), channelId: z.string().uuid() }).parse(data),
+    z
+      .object({
+        storeId: z.string().uuid(),
+        channelId: z.string().uuid(),
+        scope: z.enum(["full", "listing", "price", "stock", "orders"]).default("full"),
+      })
+      .parse(data),
   )
   .handler(async ({ data, context }) => {
-    const { data: channel, error: channelError } = await context.supabase
-      .from("marketplace_channels")
-      .select("id, provider, seller_id")
-      .eq("id", data.channelId)
-      .eq("store_id", data.storeId)
-      .maybeSingle();
-    if (channelError) throw new Error(channelError.message);
-    if (!channel) throw new Error("Kanal bulunamadı");
-    if (!channel.seller_id) throw new Error("Senkronizasyon için satıcı kimliği gerekli");
-
-    const { data: listings, error: listingError } = await context.supabase
-      .from("channel_listings")
-      .select("id, product_id")
-      .eq("channel_id", data.channelId)
-      .eq("store_id", data.storeId)
-      .in("status", ["draft", "queued", "error"]);
-    if (listingError) throw new Error(listingError.message);
-
-    const now = new Date().toISOString();
-    for (const listing of listings ?? []) {
-      const { error } = await context.supabase
-        .from("channel_listings")
-        .update({
-          status: "listed",
-          external_id: `${channel.provider}-${listing.product_id.slice(0, 8)}`,
-          last_synced_at: now,
-          last_error: null,
-        })
-        .eq("id", listing.id);
-      if (error) throw new Error(error.message);
-    }
-
-    const { error: touchError } = await context.supabase
-      .from("marketplace_channels")
-      .update({ last_sync_at: now, status: "connected", last_error: null })
-      .eq("id", data.channelId);
-    if (touchError) throw new Error(touchError.message);
-
-    return { ok: true, synced: (listings ?? []).length };
+    const { runChannelSync } = await import("@/lib/marketplace-channels.server");
+    return runChannelSync(context.supabase, {
+      storeId: data.storeId,
+      channelId: data.channelId,
+      scope: data.scope,
+    });
   });
