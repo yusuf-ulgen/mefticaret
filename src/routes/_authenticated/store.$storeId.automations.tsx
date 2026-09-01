@@ -180,31 +180,32 @@ function AutomationsPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const simpleMutation = <T,>(fn: () => Promise<T>, message: (result: T) => string) =>
-    useMutation({
-      mutationFn: fn,
-      onSuccess: async (result) => {
-        await invalidate();
-        toast.success(message(result));
-      },
-      onError: (error: Error) => toast.error(error.message),
-    });
-
-  const seedMutation = simpleMutation(
-    () => seed({ data: { storeId } }),
-    () => "Hazır sepet kurtarma akışı oluşturuldu",
-  );
-  const enrollMutation = simpleMutation(
-    () => enroll({ data: { storeId } }),
-    (result) => `${(result as { enrolled: number }).enrolled} terk edilmiş sepet akışa alındı`,
-  );
-  const tickMutation = simpleMutation(
-    () => tick({ data: { storeId } }),
-    (result) => {
-      const r = result as { processed: number; completed: number };
-      return `${r.processed} adım işlendi, ${r.completed} akış tamamlandı`;
+  const seedMutation = useMutation({
+    mutationFn: () => seed({ data: { storeId } }),
+    onSuccess: async () => {
+      await invalidate();
+      toast.success("Hazır sepet kurtarma akışı oluşturuldu");
     },
-  );
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const enrollMutation = useMutation({
+    mutationFn: () => enroll({ data: { storeId } }),
+    onSuccess: async (result) => {
+      await invalidate();
+      toast.success(`${result.enrolled} terk edilmiş sepet akışa alındı`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const tickMutation = useMutation({
+    mutationFn: () => tick({ data: { storeId } }),
+    onSuccess: async (result) => {
+      await invalidate();
+      toast.success(`${result.processed} adım işlendi, ${result.completed} akış tamamlandı`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const templateMutation = useMutation({
     mutationFn: () =>
