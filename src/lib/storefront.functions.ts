@@ -394,3 +394,27 @@ export const getQuickAddVariant = createServerFn({ method: "GET" })
       variantCount: variants.length,
     };
   });
+
+/** Vitrin blog/bilgi sayfası listesi (yayınlanmış tüm sayfalar). */
+export const getStorefrontPages = createServerFn({ method: "GET" })
+  .inputValidator(slugInput)
+  .handler(async ({ data }) => {
+    const supabase = publicClient();
+    const { data: store, error } = await supabase
+      .from("stores")
+      .select("id, name, slug")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!store) return null;
+
+    const { data: pages, error: pagesError } = await supabase
+      .from("store_pages")
+      .select("id, title, slug, excerpt, seo_description, updated_at")
+      .eq("store_id", store.id)
+      .eq("is_published", true)
+      .order("updated_at", { ascending: false });
+    if (pagesError) throw new Error(pagesError.message);
+
+    return { store, pages: pages ?? [] };
+  });

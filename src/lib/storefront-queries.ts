@@ -1,7 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { getCheckoutOptions } from "@/lib/checkout.functions";
-import { getStorefront, getStorefrontCollection, getStorefrontProduct } from "@/lib/storefront.functions";
+import {
+  getStorefront,
+  getStorefrontCollection,
+  getStorefrontPages,
+  getStorefrontProduct,
+} from "@/lib/storefront.functions";
 
 export const storefrontQuery = (slug: string) =>
   queryOptions({
@@ -29,4 +34,11 @@ export const checkoutOptionsQuery = (slug: string) =>
     queryKey: ["storefront", slug, "checkout-options"],
     queryFn: () => getCheckoutOptions({ data: { slug } }),
     staleTime: 30_000,
+  });
+
+export const storefrontPagesQuery = (slug: string) =>
+  queryOptions({
+    queryKey: ["storefront", slug, "pages"],
+    queryFn: () => getStorefrontPages({ data: { slug } }),
+    staleTime: 60_000,
   });

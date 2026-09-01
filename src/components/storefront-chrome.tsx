@@ -172,15 +172,33 @@ export function StorefrontChrome({
               >
                 Ürünler
               </Link>
-              <a href="#koleksiyonlar" style={{ color: muted, textDecoration: "none" }}>
-                Koleksiyonlar
-              </a>
               <Link
-                to="/s/$slug/order"
+                to="/s/$slug/categories"
                 params={{ slug: storeSlug }}
                 style={{ color: muted, textDecoration: "none" }}
               >
-                Siparişim
+                Kategoriler
+              </Link>
+              <Link
+                to="/s/$slug/collections"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                Koleksiyonlar
+              </Link>
+              <Link
+                to="/s/$slug/blog"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                Blog
+              </Link>
+              <Link
+                to="/s/$slug/orders"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                Siparişlerim
               </Link>
               <Link
                 to="/s/$slug/account"
@@ -189,8 +207,17 @@ export function StorefrontChrome({
               >
                 Hesabım
               </Link>
+
             </>
           )}
+
+          <Link
+            to="/s/$slug/search"
+            params={{ slug: storeSlug }}
+            style={{ color: muted, textDecoration: "none" }}
+          >
+            Arama
+          </Link>
 
           <Link
             to="/s/$slug/favorites"
@@ -199,6 +226,7 @@ export function StorefrontChrome({
           >
             Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
           </Link>
+
 
           <Link
             to="/s/$slug/gift-card"
@@ -280,8 +308,37 @@ export function StorefrontChrome({
           </nav>
         ) : null}
 
+        <nav
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 16,
+            justifyContent: "center",
+            marginBottom: 14,
+          }}
+        >
+          {[
+            { to: "/s/$slug/about", label: "Hakkımızda" },
+            { to: "/s/$slug/contact", label: "İletişim" },
+            { to: "/s/$slug/faq", label: "SSS" },
+            { to: "/s/$slug/returns", label: "İade politikası" },
+            { to: "/s/$slug/privacy", label: "Gizlilik politikası" },
+            { to: "/s/$slug/terms", label: "Kullanım şartları" },
+          ].map((link) => (
+            <Link
+              key={link.label}
+              to={link.to as "/s/$slug/about"}
+              params={{ slug: storeSlug }}
+              style={{ color: muted, textDecoration: "none" }}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
         {storeName} — Mefticaret altyapısıyla çalışır.
       </footer>
+
     </div>
   );
 }
