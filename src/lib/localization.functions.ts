@@ -59,7 +59,7 @@ export const saveLocalizationSettings = createServerFn({ method: "POST" })
       actor_id: userId,
       action: "localization.updated",
       entity: "store_settings",
-      entity_id: row.id,
+      entity_id: data.storeId,
       new_value: payload,
     });
 
