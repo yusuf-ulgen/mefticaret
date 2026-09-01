@@ -2270,6 +2270,162 @@ export type Database = {
           },
         ]
       }
+      media_assets: {
+        Row: {
+          alt: string | null
+          bucket: string
+          caption: string | null
+          checksum: string | null
+          converted_to_webp: boolean
+          created_at: string
+          created_by: string | null
+          duration_seconds: number | null
+          extension: string | null
+          file_name: string
+          folder_id: string | null
+          height: number | null
+          id: string
+          kind: string
+          mime_type: string
+          optimized: boolean
+          original_size_bytes: number | null
+          public_url: string | null
+          size_bytes: number
+          storage_path: string
+          storage_provider: string
+          store_id: string
+          tags: string[]
+          title: string | null
+          updated_at: string
+          usage_count: number
+          variants: Json
+          width: number | null
+        }
+        Insert: {
+          alt?: string | null
+          bucket?: string
+          caption?: string | null
+          checksum?: string | null
+          converted_to_webp?: boolean
+          created_at?: string
+          created_by?: string | null
+          duration_seconds?: number | null
+          extension?: string | null
+          file_name: string
+          folder_id?: string | null
+          height?: number | null
+          id?: string
+          kind?: string
+          mime_type: string
+          optimized?: boolean
+          original_size_bytes?: number | null
+          public_url?: string | null
+          size_bytes?: number
+          storage_path: string
+          storage_provider?: string
+          store_id: string
+          tags?: string[]
+          title?: string | null
+          updated_at?: string
+          usage_count?: number
+          variants?: Json
+          width?: number | null
+        }
+        Update: {
+          alt?: string | null
+          bucket?: string
+          caption?: string | null
+          checksum?: string | null
+          converted_to_webp?: boolean
+          created_at?: string
+          created_by?: string | null
+          duration_seconds?: number | null
+          extension?: string | null
+          file_name?: string
+          folder_id?: string | null
+          height?: number | null
+          id?: string
+          kind?: string
+          mime_type?: string
+          optimized?: boolean
+          original_size_bytes?: number | null
+          public_url?: string | null
+          size_bytes?: number
+          storage_path?: string
+          storage_provider?: string
+          store_id?: string
+          tags?: string[]
+          title?: string | null
+          updated_at?: string
+          usage_count?: number
+          variants?: Json
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_assets_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "media_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_assets_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_folders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          path: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          path?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          path?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "media_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_folders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_deliveries: {
         Row: {
           body: string

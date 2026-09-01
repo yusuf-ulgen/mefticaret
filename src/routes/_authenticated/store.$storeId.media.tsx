@@ -6,6 +6,8 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { MediaLibraryPanel } from "@/components/media-library-panel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +46,35 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/media")({
 });
 
 function MediaPage() {
+  const { storeId } = Route.useParams();
+  return (
+    <AppShell storeId={storeId} title="Medya Kütüphanesi">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Medya kütüphanesi</h1>
+          <p className="text-sm text-muted-foreground">
+            Görsel, video ve dokümanlarınızı klasörleyin; alt metin, WebP dönüşümü ve responsive
+            varyantlarla yönetin.
+          </p>
+        </div>
+        <Tabs defaultValue="library">
+          <TabsList>
+            <TabsTrigger value="library">Kütüphane</TabsTrigger>
+            <TabsTrigger value="products">Ürün görselleri</TabsTrigger>
+          </TabsList>
+          <TabsContent value="library" className="mt-6">
+            <MediaLibraryPanel storeId={storeId} />
+          </TabsContent>
+          <TabsContent value="products" className="mt-6">
+            <ProductImagesPanel />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AppShell>
+  );
+}
+
+function ProductImagesPanel() {
   const { storeId } = Route.useParams();
   const queryClient = useQueryClient();
   const { data: items, isLoading } = useQuery(mediaLibraryQuery(storeId));
@@ -94,15 +125,12 @@ function MediaPage() {
   });
 
   return (
-    <AppShell storeId={storeId} title="Medya Kütüphanesi">
+    <>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Medya kütüphanesi</h1>
-          <p className="text-sm text-muted-foreground">
-            Tüm ürün görselleri tek listede. Alt metni olmayan görseller SEO ve erişilebilirlik
-            puanını düşürür.
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          Ürünlere bağlı görseller. Alt metni olmayan görseller SEO ve erişilebilirlik puanını
+          düşürür.
+        </p>
 
         <div className="grid gap-4 sm:grid-cols-3">
           <StatCard label="Görsel sayısı" value={String((items ?? []).length)} />
@@ -248,7 +276,7 @@ function MediaPage() {
           </SheetContent>
         </Sheet>
       </div>
-    </AppShell>
+    </>
   );
 }
 
