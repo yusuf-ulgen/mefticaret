@@ -74,7 +74,9 @@ export function StorefrontSections({
       {sections
         .filter((section) => section.isEnabled && section.definition.slot === "body")
         .map((section) => (
-          <StorefrontSection key={section.id} section={section} context={context} />
+          <div key={section.id} style={{ marginBottom: storefrontTokens(context.theme).sectionSpacing }}>
+            <StorefrontSection section={section} context={context} />
+          </div>
         ))}
     </>
   );
