@@ -2,7 +2,18 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { compact, slugify, SUBDOMAIN_SUFFIX } from "@/lib/mefti";
+import {
+  compact,
+  DOMAIN_TXT_PREFIX,
+  isApexDomain,
+  isPlatformSubdomain,
+  normalizeHostname,
+  PLATFORM_DNS_A,
+  PLATFORM_DNS_CNAME,
+  RESERVED_SUBDOMAINS,
+  slugify,
+  SUBDOMAIN_SUFFIX,
+} from "@/lib/mefti";
 
 /**
  * Application katmanı: mağaza yaşam döngüsü.
@@ -272,12 +283,7 @@ export const addStoreDomain = createServerFn({ method: "POST" })
           .trim()
           .toLowerCase()
           .min(4)
-          .max(253)
-          .transform(normalizeHostname)
-          .refine(
-            (value) => /^(?!-)[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(value),
-            "Geçerli bir domain giriniz (örn. magazam.com)",
-          ),
+          .max(253),
         /** true ise apex ile birlikte www kaydı da oluşturulur. */
         includeWww: z.boolean().default(true),
       })
@@ -285,12 +291,16 @@ export const addStoreDomain = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    if (isPlatformSubdomain(data.hostname)) {
+    const host = normalizeHostname(data.hostname);
+    if (!/^(?!-)[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host)) {
+      throw new Error("Geçerli bir domain giriniz (örn. magazam.com)");
+    }
+    if (isPlatformSubdomain(host)) {
       throw new Error("Platform alan adları için 'Alt alan adı ekle' bölümünü kullanın");
     }
 
-    const hostnames = [data.hostname];
-    if (data.includeWww && isApexDomain(data.hostname)) hostnames.push(`www.${data.hostname}`);
+    const hostnames: string[] = [host];
+    if (data.includeWww && isApexDomain(host)) hostnames.push(`www.${host}`);
 
     const { data: rows, error } = await supabase
       .from("store_domains")
@@ -302,7 +312,7 @@ export const addStoreDomain = createServerFn({ method: "POST" })
           status: "pending" as const,
           ssl_status: "pending",
           dns_target: hostname.startsWith("www.") ? PLATFORM_DNS_CNAME : PLATFORM_DNS_A,
-          redirect_to_hostname: hostname.startsWith("www.") ? data.hostname : null,
+          redirect_to_hostname: hostname.startsWith("www.") ? host : null,
         })),
       )
       .select("*");
@@ -441,7 +451,7 @@ export const setDomainRedirect = createServerFn({ method: "POST" })
     z
       .object({
         domainId: z.string().uuid(),
-        redirectTo: z.string().trim().toLowerCase().max(253).transform(normalizeHostname).nullable(),
+        redirectTo: z.string().trim().toLowerCase().max(253).nullable(),
       })
       .parse(data),
   )
@@ -449,7 +459,7 @@ export const setDomainRedirect = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data: row, error } = await supabase
       .from("store_domains")
-      .update({ redirect_to_hostname: data.redirectTo || null })
+      .update({ redirect_to_hostname: data.redirectTo ? normalizeHostname(data.redirectTo) : null })
       .eq("id", data.domainId)
       .select("*")
       .maybeSingle();
