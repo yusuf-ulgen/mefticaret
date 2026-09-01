@@ -133,6 +133,46 @@ function ProductPage() {
   const selected = variants.find((variant) => variant.id === variantId) ?? variants[0] ?? null;
   const price = selected ? selected.price : product.base_price;
   const inStock = selected ? selected.stock > 0 : true;
+  const variantImage = selected?.imageUrl
+    ? { url: selected.imageUrl, alt: selected.title }
+    : null;
+  const heroImage = variantImage ?? (images.length ? { url: images[0]!.url, alt: images[0]!.alt } : null);
+
+  // Seçenek grupları: ürün tanımı yoksa varyant seçeneklerinden türetilir.
+  const definedGroups = (Array.isArray(product.variant_options) ? product.variant_options : []) as {
+    name: string;
+    values: string[];
+  }[];
+  const derived = new Map<string, string[]>();
+  for (const variant of variants) {
+    for (const [name, value] of Object.entries((variant.options ?? {}) as Record<string, string>)) {
+      const list = derived.get(name) ?? [];
+      if (!list.includes(value)) list.push(value);
+      derived.set(name, list);
+    }
+  }
+  const optionGroups = (definedGroups.length
+    ? definedGroups.map((group) => ({
+        name: group.name,
+        values: group.values.filter((value) => (derived.get(group.name) ?? []).includes(value)),
+      }))
+    : Array.from(derived.entries()).map(([name, values]) => ({ name, values }))
+  ).filter((group) => group.values.length > 0);
+
+  const selectedOptions = (selected?.options ?? {}) as Record<string, string>;
+  const pickOption = (name: string, value: string) => {
+    const target = { ...selectedOptions, [name]: value };
+    const match =
+      variants.find((variant) =>
+        Object.entries(target).every(
+          ([key, val]) => ((variant.options ?? {}) as Record<string, string>)[key] === val,
+        ),
+      ) ??
+      variants.find(
+        (variant) => ((variant.options ?? {}) as Record<string, string>)[name] === value,
+      );
+    if (match) setVariantId(match.id);
+  };
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
@@ -145,10 +185,10 @@ function ProductPage() {
 
       <section style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,420px)", gap: 32 }}>
         <div>
-          {images.length ? (
+          {heroImage ? (
             <img
-              src={images[0]!.url}
-              alt={images[0]!.alt ?? product.title}
+              src={heroImage.url}
+              alt={heroImage.alt ?? product.title}
               loading="lazy"
               style={{ width: "100%", borderRadius: radius, border: `1px solid ${border}` }}
             />
@@ -202,7 +242,43 @@ function ProductPage() {
             ) : null}
           </div>
 
-          {variants.length > 1 ? (
+          {optionGroups.length ? (
+            optionGroups.map((group) => (
+              <div key={group.name} style={{ marginTop: 20 }}>
+                <div style={{ fontSize: 13, color: muted, marginBottom: 8 }}>{group.name}</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {group.values.map((value) => {
+                    const active = selectedOptions[group.name] === value;
+                    const available = variants.some(
+                      (variant) =>
+                        ((variant.options ?? {}) as Record<string, string>)[group.name] === value &&
+                        variant.stock > 0,
+                    );
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => pickOption(group.name, value)}
+                        style={{
+                          border: `1px solid ${active ? t.accent_color : border}`,
+                          background: active ? `${t.accent_color}22` : cardBg,
+                          color: "inherit",
+                          borderRadius: radius,
+                          padding: "8px 14px",
+                          fontSize: 13,
+                          cursor: "pointer",
+                          textDecoration: available ? "none" : "line-through",
+                          opacity: available ? 1 : 0.5,
+                        }}
+                      >
+                        {value}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          ) : variants.length > 1 ? (
             <div style={{ marginTop: 20 }}>
               <div style={{ fontSize: 13, color: muted, marginBottom: 8 }}>Seçenek</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -250,8 +326,13 @@ function ProductPage() {
               ["Marka", product.vendor],
               ["Satıcı", product.seller_name],
               ["Kategori", product.product_type],
-              ["Barkod", product.barcode],
-              ["Ağırlık", product.weight_grams ? `${product.weight_grams} g` : null],
+              ["Barkod", selected?.barcode ?? product.barcode],
+              [
+                "Ağırlık",
+                (selected?.weight_grams ?? product.weight_grams)
+                  ? `${selected?.weight_grams ?? product.weight_grams} g`
+                  : null,
+              ],
               [
                 "Boyut",
                 product.length_cm || product.width_cm || product.height_cm
