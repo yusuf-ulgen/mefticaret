@@ -342,7 +342,7 @@ function CustomerSegmentsPage() {
                       <span
                         className={cn(
                           "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                          SEGMENT_COLOR_CLASSES[segment.color] ?? SEGMENT_COLOR_CLASSES.slate,
+                          SEGMENT_COLOR_CLASSES[segment.color] ?? SEGMENT_COLOR_CLASSES["slate"],
                         )}
                       >
                         {segment.name}

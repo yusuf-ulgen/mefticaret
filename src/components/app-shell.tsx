@@ -178,6 +178,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Ayarlar", to: `/store/${storeId}/settings`, icon: Cog },
         { label: "Ödeme", to: `/store/${storeId}/payments`, icon: BadgeCheck },
         { label: "Kargo", to: `/store/${storeId}/shipping`, icon: Truck },
+        { label: "Müşteri Segmentleri", to: `/store/${storeId}/customer-segments`, icon: Users },
         { label: "Pazaryerleri", to: `/store/${storeId}/channels`, icon: Store },
         { label: "Pazaryeri Satıcıları", to: `/store/${storeId}/sellers`, icon: Users },
         { label: "Temalar", to: `/store/${storeId}/themes`, icon: Palette },
