@@ -40,6 +40,7 @@ import { Route as AuthenticatedAdminTicketsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin.transactions'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminWebhooksRouteImport } from './routes/_authenticated/admin.webhooks'
+import { Route as AuthenticatedOauthAuthorizeRouteImport } from './routes/_authenticated/oauth.authorize'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
@@ -106,6 +107,7 @@ import { Route as AuthenticatedStoreStoreIdLtvRouteImport } from './routes/_auth
 import { Route as AuthenticatedStoreStoreIdMediaRouteImport } from './routes/_authenticated/store.$storeId.media'
 import { Route as AuthenticatedStoreStoreIdNavigationRouteImport } from './routes/_authenticated/store.$storeId.navigation'
 import { Route as AuthenticatedStoreStoreIdNotificationsRouteImport } from './routes/_authenticated/store.$storeId.notifications'
+import { Route as AuthenticatedStoreStoreIdOauthRouteImport } from './routes/_authenticated/store.$storeId.oauth'
 import { Route as AuthenticatedStoreStoreIdOrdersRouteImport } from './routes/_authenticated/store.$storeId.orders'
 import { Route as AuthenticatedStoreStoreIdPagesRouteImport } from './routes/_authenticated/store.$storeId.pages'
 import { Route as AuthenticatedStoreStoreIdPaymentsRouteImport } from './routes/_authenticated/store.$storeId.payments'
@@ -139,6 +141,7 @@ import { Route as AuthenticatedStoreStoreIdStockAlertsRouteImport } from './rout
 import { Route as AuthenticatedStoreStoreIdStockCountRouteImport } from './routes/_authenticated/store.$storeId.stock-count'
 import { Route as AuthenticatedStoreStoreIdStockoutRouteImport } from './routes/_authenticated/store.$storeId.stockout'
 import { Route as AuthenticatedStoreStoreIdSupplierPerformanceRouteImport } from './routes/_authenticated/store.$storeId.supplier-performance'
+import { Route as AuthenticatedStoreStoreIdSupportRouteImport } from './routes/_authenticated/store.$storeId.support'
 import { Route as AuthenticatedStoreStoreIdSupportPerformanceRouteImport } from './routes/_authenticated/store.$storeId.support-performance'
 import { Route as AuthenticatedStoreStoreIdTasksRouteImport } from './routes/_authenticated/store.$storeId.tasks'
 import { Route as AuthenticatedStoreStoreIdTaxRouteImport } from './routes/_authenticated/store.$storeId.tax'
@@ -156,6 +159,8 @@ import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/pu
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
+import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
+import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
 import { Route as ApiPublicTrackSlugRouteImport } from './routes/api/public/track.$slug'
@@ -338,6 +343,12 @@ const AuthenticatedAdminWebhooksRoute =
     id: '/webhooks',
     path: '/webhooks',
     getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedOauthAuthorizeRoute =
+  AuthenticatedOauthAuthorizeRouteImport.update({
+    id: '/oauth/authorize',
+    path: '/oauth/authorize',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedSellerSellerIdRoute =
   AuthenticatedSellerSellerIdRouteImport.update({
@@ -712,6 +723,12 @@ const AuthenticatedStoreStoreIdNotificationsRoute =
     path: '/store/$storeId/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdOauthRoute =
+  AuthenticatedStoreStoreIdOauthRouteImport.update({
+    id: '/store/$storeId/oauth',
+    path: '/store/$storeId/oauth',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdOrdersRoute =
   AuthenticatedStoreStoreIdOrdersRouteImport.update({
     id: '/store/$storeId/orders',
@@ -910,6 +927,12 @@ const AuthenticatedStoreStoreIdSupplierPerformanceRoute =
     path: '/store/$storeId/supplier-performance',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdSupportRoute =
+  AuthenticatedStoreStoreIdSupportRouteImport.update({
+    id: '/store/$storeId/support',
+    path: '/store/$storeId/support',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdSupportPerformanceRoute =
   AuthenticatedStoreStoreIdSupportPerformanceRouteImport.update({
     id: '/store/$storeId/support-performance',
@@ -1011,6 +1034,16 @@ const ApiPublicCronWebhookRetriesRoute =
     path: '/api/public/cron/webhook-retries',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicOauthRevokeRoute = ApiPublicOauthRevokeRouteImport.update({
+  id: '/api/public/oauth/revoke',
+  path: '/api/public/oauth/revoke',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOauthTokenRoute = ApiPublicOauthTokenRouteImport.update({
+  id: '/api/public/oauth/token',
+  path: '/api/public/oauth/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicRobotsSlugRoute = ApiPublicRobotsSlugRouteImport.update({
   id: '/api/public/robots/$slug',
   path: '/api/public/robots/$slug',
@@ -1107,6 +1140,7 @@ export interface FileRoutesByFullPath {
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
+  '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -1174,6 +1208,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
+  '/store/$storeId/oauth': typeof AuthenticatedStoreStoreIdOauthRoute
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
@@ -1207,6 +1242,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
   '/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
+  '/store/$storeId/support': typeof AuthenticatedStoreStoreIdSupportRoute
   '/store/$storeId/support-performance': typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
   '/store/$storeId/tasks': typeof AuthenticatedStoreStoreIdTasksRoute
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
@@ -1224,6 +1260,8 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
+  '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
@@ -1266,6 +1304,7 @@ export interface FileRoutesByTo {
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
+  '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -1333,6 +1372,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
+  '/store/$storeId/oauth': typeof AuthenticatedStoreStoreIdOauthRoute
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
@@ -1366,6 +1406,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
   '/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
+  '/store/$storeId/support': typeof AuthenticatedStoreStoreIdSupportRoute
   '/store/$storeId/support-performance': typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
   '/store/$storeId/tasks': typeof AuthenticatedStoreStoreIdTasksRoute
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
@@ -1383,6 +1424,8 @@ export interface FileRoutesByTo {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
+  '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
@@ -1428,6 +1471,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
+  '/_authenticated/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -1495,6 +1539,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/_authenticated/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/_authenticated/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
+  '/_authenticated/store/$storeId/oauth': typeof AuthenticatedStoreStoreIdOauthRoute
   '/_authenticated/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/_authenticated/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/_authenticated/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
@@ -1528,6 +1573,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/_authenticated/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
   '/_authenticated/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
+  '/_authenticated/store/$storeId/support': typeof AuthenticatedStoreStoreIdSupportRoute
   '/_authenticated/store/$storeId/support-performance': typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
   '/_authenticated/store/$storeId/tasks': typeof AuthenticatedStoreStoreIdTasksRoute
   '/_authenticated/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
@@ -1545,6 +1591,8 @@ export interface FileRoutesById {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
+  '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
@@ -1590,6 +1638,7 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/webhooks'
+    | '/oauth/authorize'
     | '/seller/$sellerId'
     | '/api/v1/$'
     | '/s/$slug/about'
@@ -1657,6 +1706,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/media'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
+    | '/store/$storeId/oauth'
     | '/store/$storeId/orders'
     | '/store/$storeId/pages'
     | '/store/$storeId/payments'
@@ -1690,6 +1740,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/stock-count'
     | '/store/$storeId/stockout'
     | '/store/$storeId/supplier-performance'
+    | '/store/$storeId/support'
     | '/store/$storeId/support-performance'
     | '/store/$storeId/tasks'
     | '/store/$storeId/tax'
@@ -1707,6 +1758,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/oauth/revoke'
+    | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/track/$slug'
@@ -1749,6 +1802,7 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/webhooks'
+    | '/oauth/authorize'
     | '/seller/$sellerId'
     | '/api/v1/$'
     | '/s/$slug/about'
@@ -1816,6 +1870,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/media'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
+    | '/store/$storeId/oauth'
     | '/store/$storeId/orders'
     | '/store/$storeId/pages'
     | '/store/$storeId/payments'
@@ -1849,6 +1904,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/stock-count'
     | '/store/$storeId/stockout'
     | '/store/$storeId/supplier-performance'
+    | '/store/$storeId/support'
     | '/store/$storeId/support-performance'
     | '/store/$storeId/tasks'
     | '/store/$storeId/tax'
@@ -1866,6 +1922,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/oauth/revoke'
+    | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/track/$slug'
@@ -1910,6 +1968,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/transactions'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/webhooks'
+    | '/_authenticated/oauth/authorize'
     | '/_authenticated/seller/$sellerId'
     | '/api/v1/$'
     | '/s/$slug/about'
@@ -1977,6 +2036,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/media'
     | '/_authenticated/store/$storeId/navigation'
     | '/_authenticated/store/$storeId/notifications'
+    | '/_authenticated/store/$storeId/oauth'
     | '/_authenticated/store/$storeId/orders'
     | '/_authenticated/store/$storeId/pages'
     | '/_authenticated/store/$storeId/payments'
@@ -2010,6 +2070,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/stock-count'
     | '/_authenticated/store/$storeId/stockout'
     | '/_authenticated/store/$storeId/supplier-performance'
+    | '/_authenticated/store/$storeId/support'
     | '/_authenticated/store/$storeId/support-performance'
     | '/_authenticated/store/$storeId/tasks'
     | '/_authenticated/store/$storeId/tax'
@@ -2027,6 +2088,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/oauth/revoke'
+    | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/track/$slug'
@@ -2072,6 +2135,8 @@ export interface RootRouteChildren {
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
+  ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
+  ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
   ApiPublicTrackSlugRoute: typeof ApiPublicTrackSlugRoute
@@ -2300,6 +2365,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/webhooks'
       preLoaderRoute: typeof AuthenticatedAdminWebhooksRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/oauth/authorize': {
+      id: '/_authenticated/oauth/authorize'
+      path: '/oauth/authorize'
+      fullPath: '/oauth/authorize'
+      preLoaderRoute: typeof AuthenticatedOauthAuthorizeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/seller/$sellerId': {
       id: '/_authenticated/seller/$sellerId'
@@ -2763,6 +2835,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/oauth': {
+      id: '/_authenticated/store/$storeId/oauth'
+      path: '/store/$storeId/oauth'
+      fullPath: '/store/$storeId/oauth'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdOauthRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/orders': {
       id: '/_authenticated/store/$storeId/orders'
       path: '/store/$storeId/orders'
@@ -2994,6 +3073,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSupplierPerformanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/support': {
+      id: '/_authenticated/store/$storeId/support'
+      path: '/store/$storeId/support'
+      fullPath: '/store/$storeId/support'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSupportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/support-performance': {
       id: '/_authenticated/store/$storeId/support-performance'
       path: '/store/$storeId/support-performance'
@@ -3111,6 +3197,20 @@ declare module '@tanstack/react-router' {
       path: '/api/public/cron/webhook-retries'
       fullPath: '/api/public/cron/webhook-retries'
       preLoaderRoute: typeof ApiPublicCronWebhookRetriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oauth/revoke': {
+      id: '/api/public/oauth/revoke'
+      path: '/api/public/oauth/revoke'
+      fullPath: '/api/public/oauth/revoke'
+      preLoaderRoute: typeof ApiPublicOauthRevokeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oauth/token': {
+      id: '/api/public/oauth/token'
+      path: '/api/public/oauth/token'
+      fullPath: '/api/public/oauth/token'
+      preLoaderRoute: typeof ApiPublicOauthTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/robots/$slug': {
@@ -3310,6 +3410,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
+  AuthenticatedOauthAuthorizeRoute: typeof AuthenticatedOauthAuthorizeRoute
   AuthenticatedSellerSellerIdRoute: typeof AuthenticatedSellerSellerIdRoute
   AuthenticatedStoreStoreIdAbcRoute: typeof AuthenticatedStoreStoreIdAbcRoute
   AuthenticatedStoreStoreIdActivityRoute: typeof AuthenticatedStoreStoreIdActivityRoute
@@ -3353,6 +3454,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdMediaRoute: typeof AuthenticatedStoreStoreIdMediaRoute
   AuthenticatedStoreStoreIdNavigationRoute: typeof AuthenticatedStoreStoreIdNavigationRoute
   AuthenticatedStoreStoreIdNotificationsRoute: typeof AuthenticatedStoreStoreIdNotificationsRoute
+  AuthenticatedStoreStoreIdOauthRoute: typeof AuthenticatedStoreStoreIdOauthRoute
   AuthenticatedStoreStoreIdOrdersRoute: typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   AuthenticatedStoreStoreIdPagesRoute: typeof AuthenticatedStoreStoreIdPagesRoute
   AuthenticatedStoreStoreIdPaymentsRoute: typeof AuthenticatedStoreStoreIdPaymentsRoute
@@ -3386,6 +3488,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdStockCountRoute: typeof AuthenticatedStoreStoreIdStockCountRoute
   AuthenticatedStoreStoreIdStockoutRoute: typeof AuthenticatedStoreStoreIdStockoutRoute
   AuthenticatedStoreStoreIdSupplierPerformanceRoute: typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
+  AuthenticatedStoreStoreIdSupportRoute: typeof AuthenticatedStoreStoreIdSupportRoute
   AuthenticatedStoreStoreIdSupportPerformanceRoute: typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
   AuthenticatedStoreStoreIdTasksRoute: typeof AuthenticatedStoreStoreIdTasksRoute
   AuthenticatedStoreStoreIdTaxRoute: typeof AuthenticatedStoreStoreIdTaxRoute
@@ -3406,6 +3509,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,
+  AuthenticatedOauthAuthorizeRoute: AuthenticatedOauthAuthorizeRoute,
   AuthenticatedSellerSellerIdRoute: AuthenticatedSellerSellerIdRoute,
   AuthenticatedStoreStoreIdAbcRoute: AuthenticatedStoreStoreIdAbcRoute,
   AuthenticatedStoreStoreIdActivityRoute:
@@ -3472,6 +3576,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdNavigationRoute,
   AuthenticatedStoreStoreIdNotificationsRoute:
     AuthenticatedStoreStoreIdNotificationsRoute,
+  AuthenticatedStoreStoreIdOauthRoute: AuthenticatedStoreStoreIdOauthRoute,
   AuthenticatedStoreStoreIdOrdersRoute:
     AuthenticatedStoreStoreIdOrdersRouteWithChildren,
   AuthenticatedStoreStoreIdPagesRoute: AuthenticatedStoreStoreIdPagesRoute,
@@ -3528,6 +3633,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdStockoutRoute,
   AuthenticatedStoreStoreIdSupplierPerformanceRoute:
     AuthenticatedStoreStoreIdSupplierPerformanceRoute,
+  AuthenticatedStoreStoreIdSupportRoute: AuthenticatedStoreStoreIdSupportRoute,
   AuthenticatedStoreStoreIdSupportPerformanceRoute:
     AuthenticatedStoreStoreIdSupportPerformanceRoute,
   AuthenticatedStoreStoreIdTasksRoute: AuthenticatedStoreStoreIdTasksRoute,
@@ -3585,6 +3691,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
+  ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
+  ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
   ApiPublicTrackSlugRoute: ApiPublicTrackSlugRoute,
