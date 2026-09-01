@@ -93,7 +93,7 @@ export async function runChannelSync(
     const { data: listings, error: listingError } = await supabase
       .from("channel_listings")
       .select(
-        "id, product_id, status, external_id, price_override, products(id, title, description, sku, barcode, brand, base_price, sale_price, currency, category_id)",
+        "id, product_id, status, external_id, price_override, products(id, title, description, sku, barcode, vendor, product_type, base_price, compare_at_price, currency)",
       )
       .eq("channel_id", channel.id)
       .eq("store_id", input.storeId);
@@ -129,10 +129,10 @@ export async function runChannelSync(
         description: product.description ?? null,
         sku: product.sku ?? null,
         barcode: product.barcode ?? null,
-        brand: product.brand ?? null,
-        category: product.category_id ?? null,
-        basePrice: Number(product.base_price ?? 0),
-        salePrice: product.sale_price === null ? null : Number(product.sale_price),
+        brand: product.vendor ?? null,
+        category: product.product_type ?? null,
+        basePrice: Number(product.compare_at_price ?? product.base_price ?? 0),
+        salePrice: Number(product.base_price ?? 0),
         currency: product.currency ?? "TRY",
         stock: stockByProduct.get(product.id) ?? 0,
         images: [],
