@@ -207,7 +207,10 @@ export function AdminShell({
             </Button>
           </div>
         </header>
-        <main className="min-w-0 flex-1 space-y-4 p-4 lg:p-6">{children}</main>
+        <main id="admin-content" tabIndex={-1} className="min-w-0 flex-1 space-y-4 p-4 lg:p-6">
+          {children}
+        </main>
+
       </div>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
