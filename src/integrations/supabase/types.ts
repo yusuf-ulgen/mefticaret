@@ -1379,9 +1379,11 @@ export type Database = {
       product_variants: {
         Row: {
           barcode: string | null
+          compare_at_price: number | null
           cost_price: number | null
           created_at: string
           id: string
+          image_id: string | null
           low_stock_threshold: number
           options: Json
           position: number
@@ -1396,9 +1398,11 @@ export type Database = {
         }
         Insert: {
           barcode?: string | null
+          compare_at_price?: number | null
           cost_price?: number | null
           created_at?: string
           id?: string
+          image_id?: string | null
           low_stock_threshold?: number
           options?: Json
           position?: number
@@ -1413,9 +1417,11 @@ export type Database = {
         }
         Update: {
           barcode?: string | null
+          compare_at_price?: number | null
           cost_price?: number | null
           created_at?: string
           id?: string
+          image_id?: string | null
           low_stock_threshold?: number
           options?: Json
           position?: number
@@ -1429,6 +1435,13 @@ export type Database = {
           weight_grams?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "product_variants_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "product_images"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "product_variants_product_id_fkey"
             columns: ["product_id"]
@@ -1469,6 +1482,7 @@ export type Database = {
           title: string
           track_inventory: boolean
           updated_at: string
+          variant_options: Json
           vendor: string | null
           video_url: string | null
           weight_grams: number | null
@@ -1497,6 +1511,7 @@ export type Database = {
           title: string
           track_inventory?: boolean
           updated_at?: string
+          variant_options?: Json
           vendor?: string | null
           video_url?: string | null
           weight_grams?: number | null
@@ -1525,6 +1540,7 @@ export type Database = {
           title?: string
           track_inventory?: boolean
           updated_at?: string
+          variant_options?: Json
           vendor?: string | null
           video_url?: string | null
           weight_grams?: number | null
