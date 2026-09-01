@@ -172,7 +172,7 @@ export function parseXmlItems(xml: string, itemPath?: string | null): Record<str
   if (!nodeName) {
     const counts = new Map<string, number>();
     for (const match of cleaned.matchAll(/<([A-Za-z_][\w.:-]*)(\s[^>]*)?>[\s\S]*?<\/\1>/g)) {
-      const name = match[1];
+      const name = match[1]!;
       counts.set(name, (counts.get(name) ?? 0) + 1);
     }
     let best = "";
@@ -193,24 +193,24 @@ export function parseXmlItems(xml: string, itemPath?: string | null): Record<str
     const record: Record<string, unknown> = {};
     const attrBlock = node[1] ?? "";
     for (const attr of attrBlock.matchAll(/([\w.:-]+)\s*=\s*"([^"]*)"/g)) {
-      record[`@${attr[1]}`] = decodeEntities(attr[2]);
+      record[`@${attr[1]}`] = decodeEntities(attr[2]!);
     }
     const body = node[2] ?? "";
     for (const child of body.matchAll(/<([A-Za-z_][\w.:-]*)(\s[^>]*)?>([\s\S]*?)<\/\1>/g)) {
-      const key = child[1];
-      const value = decodeEntities(child[3]);
+      const key = child[1]!;
+      const value = decodeEntities(child[3]!);
       const existing = record[key];
       if (existing === undefined) record[key] = value;
       else if (Array.isArray(existing)) (existing as unknown[]).push(value);
       else record[key] = [existing, value];
       for (const attr of (child[2] ?? "").matchAll(/([\w.:-]+)\s*=\s*"([^"]*)"/g)) {
-        record[`${key}@${attr[1]}`] = decodeEntities(attr[2]);
+        record[`${key}@${attr[1]}`] = decodeEntities(attr[2]!);
       }
     }
     for (const selfClosing of body.matchAll(/<([A-Za-z_][\w.:-]*)([^>]*)\/>/g)) {
-      const key = selfClosing[1];
-      for (const attr of selfClosing[2].matchAll(/([\w.:-]+)\s*=\s*"([^"]*)"/g)) {
-        record[`${key}@${attr[1]}`] = decodeEntities(attr[2]);
+      const key = selfClosing[1]!;
+      for (const attr of (selfClosing[2] ?? "").matchAll(/([\w.:-]+)\s*=\s*"([^"]*)"/g)) {
+        record[`${key}@${attr[1]}`] = decodeEntities(attr[2]!);
       }
     }
     items.push(record);
