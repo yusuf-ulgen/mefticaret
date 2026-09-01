@@ -103,6 +103,8 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Ürünler", to: `/store/${storeId}/products`, icon: Package },
         { label: "Koleksiyonlar", to: `/store/${storeId}/collections`, icon: Boxes },
         { label: "Stok", to: `/store/${storeId}/inventory`, icon: Warehouse },
+        { label: "Depolar & Şubeler", to: `/store/${storeId}/warehouses`, icon: Building2 },
+        { label: "Depo Transferleri", to: `/store/${storeId}/transfers`, icon: ArrowLeftRight },
         { label: "Stok Sayımı", to: `/store/${storeId}/stock-count`, icon: ClipboardList },
         { label: "Tedarik & Satın Alma", to: `/store/${storeId}/purchasing`, icon: Truck },
         { label: "Yeniden Sipariş", to: `/store/${storeId}/reorder`, icon: RefreshCcw },
