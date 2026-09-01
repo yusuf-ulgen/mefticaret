@@ -177,6 +177,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Ödeme", to: `/store/${storeId}/payments`, icon: BadgeCheck },
         { label: "Kargo", to: `/store/${storeId}/shipping`, icon: Truck },
         { label: "Pazaryerleri", to: `/store/${storeId}/channels`, icon: Store },
+        { label: "Pazaryeri Satıcıları", to: `/store/${storeId}/sellers`, icon: Users },
         { label: "Temalar", to: `/store/${storeId}/themes`, icon: Palette },
         { label: "Tema Bileşenleri", to: `/store/${storeId}/theme-sections`, icon: Blocks },
         { label: "SEO Denetimi", to: `/store/${storeId}/seo`, icon: Search },
