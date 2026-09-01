@@ -12,10 +12,14 @@ import { createManualOrder, manualOrderSchema } from "@/lib/manual-order.server"
 
 const orderStatusEnum = z.enum([
   "pending",
+  "awaiting_payment",
+  "paid",
   "processing",
+  "packed",
   "shipped",
   "delivered",
   "cancelled",
+  "returned",
   "refunded",
 ]);
 const paymentStatusEnum = z.enum([
