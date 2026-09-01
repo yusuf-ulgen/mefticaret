@@ -53,6 +53,8 @@ import {
   Wallet,
   Receipt,
   Warehouse,
+  Building2,
+  ArrowLeftRight,
   Webhook,
 } from "lucide-react";
 import { useState } from "react";
