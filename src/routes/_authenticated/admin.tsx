@@ -589,15 +589,72 @@ function AdminPage() {
                   <Label htmlFor="plan-active">Satışta</Label>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="plan-limits">Limitler (JSON)</Label>
-                <Textarea
-                  id="plan-limits"
-                  rows={6}
-                  className="font-mono text-xs"
-                  value={draft.limits}
-                  onChange={(event) => setDraft({ ...draft, limits: event.target.value })}
-                />
+              <div className="space-y-3">
+                <div>
+                  <Label>Paket limitleri</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Limitler veritabanında tutulur. Boş bırakılan alan sınırsız kabul edilir.
+                  </p>
+                </div>
+                {draft.id ? (
+                  <div className="space-y-2">
+                    {features.map((feature, index) => (
+                      <div
+                        key={feature.metricKey}
+                        className="grid grid-cols-[1fr_110px_70px_auto] items-center gap-2 rounded-lg border border-border p-2"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium">{feature.label}</p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {feature.metricKey}
+                          </p>
+                        </div>
+                        <Input
+                          type="number"
+                          min={0}
+                          placeholder="Sınırsız"
+                          value={feature.limitValue}
+                          aria-label={`${feature.label} limiti`}
+                          onChange={(event) =>
+                            setFeatures(
+                              features.map((row, rowIndex) =>
+                                rowIndex === index
+                                  ? { ...row, limitValue: event.target.value }
+                                  : row,
+                              ),
+                            )
+                          }
+                        />
+                        <Input
+                          value={feature.unit}
+                          aria-label={`${feature.label} birimi`}
+                          onChange={(event) =>
+                            setFeatures(
+                              features.map((row, rowIndex) =>
+                                rowIndex === index ? { ...row, unit: event.target.value } : row,
+                              ),
+                            )
+                          }
+                        />
+                        <Switch
+                          checked={feature.isEnabled}
+                          aria-label={`${feature.label} aktif`}
+                          onCheckedChange={(checked) =>
+                            setFeatures(
+                              features.map((row, rowIndex) =>
+                                rowIndex === index ? { ...row, isEnabled: checked } : row,
+                              ),
+                            )
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+                    Paketi kaydettikten sonra limitleri düzenleyebilirsin.
+                  </p>
+                )}
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setDraft(null)}>
