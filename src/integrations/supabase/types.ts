@@ -435,6 +435,129 @@ export type Database = {
           },
         ]
       }
+      blog_authors: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          slug: string
+          store_id: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          slug: string
+          store_id: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          store_id?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_authors_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_categories_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_tags_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       channel_listings: {
         Row: {
           channel_id: string
@@ -3150,62 +3273,134 @@ export type Database = {
           },
         ]
       }
+      store_page_tags: {
+        Row: {
+          created_at: string
+          page_id: string
+          store_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          page_id: string
+          store_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          page_id?: string
+          store_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_page_tags_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "store_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_page_tags_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_page_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "blog_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_pages: {
         Row: {
+          author_id: string | null
           author_name: string | null
           body: string
+          category_id: string | null
+          cover_url: string | null
           created_at: string
           excerpt: string | null
           id: string
           is_published: boolean
           page_kind: string
           published_at: string | null
+          scheduled_at: string | null
           seo: Json
           seo_description: string | null
           show_in_footer: boolean
           slug: string
           sort_order: number
+          status: string
           store_id: string
           title: string
           updated_at: string
         }
         Insert: {
+          author_id?: string | null
           author_name?: string | null
           body?: string
+          category_id?: string | null
+          cover_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
           is_published?: boolean
           page_kind?: string
           published_at?: string | null
+          scheduled_at?: string | null
           seo?: Json
           seo_description?: string | null
           show_in_footer?: boolean
           slug: string
           sort_order?: number
+          status?: string
           store_id: string
           title: string
           updated_at?: string
         }
         Update: {
+          author_id?: string | null
           author_name?: string | null
           body?: string
+          category_id?: string | null
+          cover_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
           is_published?: boolean
           page_kind?: string
           published_at?: string | null
+          scheduled_at?: string | null
           seo?: Json
           seo_description?: string | null
           show_in_footer?: boolean
           slug?: string
           sort_order?: number
+          status?: string
           store_id?: string
           title?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "store_pages_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "blog_authors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_pages_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "store_pages_store_id_fkey"
             columns: ["store_id"]
@@ -4062,6 +4257,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      publish_due_blog_posts: { Args: never; Returns: number }
       rollup_store_daily_stats: {
         Args: { target_day?: string }
         Returns: number
