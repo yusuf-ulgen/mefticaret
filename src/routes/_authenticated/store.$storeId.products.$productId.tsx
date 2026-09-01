@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, ImagePlus, Plus, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, ImagePlus, Star, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -26,7 +26,7 @@ import {
   updateProductImage,
 } from "@/lib/media.functions";
 import { productImagesQuery, uploadProductImage, type ProductImage } from "@/lib/media";
-import { formatMoney, slugify } from "@/lib/mefti";
+import { slugify } from "@/lib/mefti";
 
 /** Boş metni null'a, dolu metni sayıya çevirir. */
 function numOrNull(value: string) {
