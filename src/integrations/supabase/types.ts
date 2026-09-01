@@ -995,6 +995,8 @@ export type Database = {
           quantity: number
           sku: string | null
           store_id: string
+          tax_rate: number
+          tax_total: number
           title: string
           unit_price: number
           variant_id: string | null
@@ -1009,6 +1011,8 @@ export type Database = {
           quantity?: number
           sku?: string | null
           store_id: string
+          tax_rate?: number
+          tax_total?: number
           title: string
           unit_price?: number
           variant_id?: string | null
@@ -1023,6 +1027,8 @@ export type Database = {
           quantity?: number
           sku?: string | null
           store_id?: string
+          tax_rate?: number
+          tax_total?: number
           title?: string
           unit_price?: number
           variant_id?: string | null
@@ -1067,11 +1073,14 @@ export type Database = {
           customer_email: string | null
           customer_id: string | null
           customer_name: string | null
+          customer_phone: string | null
           discount_code: string | null
           discount_total: number
           fulfillment_status: Database["public"]["Enums"]["fulfillment_status"]
           grand_total: number
           id: string
+          invoice_number: string | null
+          invoiced_at: string | null
           note: string | null
           order_number: string
           payment_status: Database["public"]["Enums"]["payment_status"]
@@ -1093,11 +1102,14 @@ export type Database = {
           customer_email?: string | null
           customer_id?: string | null
           customer_name?: string | null
+          customer_phone?: string | null
           discount_code?: string | null
           discount_total?: number
           fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
           grand_total?: number
           id?: string
+          invoice_number?: string | null
+          invoiced_at?: string | null
           note?: string | null
           order_number: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
@@ -1119,11 +1131,14 @@ export type Database = {
           customer_email?: string | null
           customer_id?: string | null
           customer_name?: string | null
+          customer_phone?: string | null
           discount_code?: string | null
           discount_total?: number
           fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
           grand_total?: number
           id?: string
+          invoice_number?: string | null
+          invoiced_at?: string | null
           note?: string | null
           order_number?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
@@ -3299,10 +3314,14 @@ export type Database = {
         | "question"
       order_status:
         | "pending"
+        | "awaiting_payment"
+        | "paid"
         | "processing"
+        | "packed"
         | "shipped"
         | "delivered"
         | "cancelled"
+        | "returned"
         | "refunded"
       payment_status:
         | "pending"
@@ -3517,10 +3536,14 @@ export const Constants = {
       ],
       order_status: [
         "pending",
+        "awaiting_payment",
+        "paid",
         "processing",
+        "packed",
         "shipped",
         "delivered",
         "cancelled",
+        "returned",
         "refunded",
       ],
       payment_status: [
