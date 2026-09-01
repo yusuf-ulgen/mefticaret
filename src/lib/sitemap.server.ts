@@ -142,7 +142,6 @@ export async function buildStoreRobots(slug: string, origin: string) {
     .maybeSingle();
   const storeSeo = readStoreSeo(settings?.seo);
 
-  const base = `${origin.replace(/\/$/, "")}/s/${store.slug}`;
   const blocked = store.status !== "active" || storeSeo.noindexStore === true;
 
   const lines = ["User-agent: *"];
