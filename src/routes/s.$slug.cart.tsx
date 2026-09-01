@@ -1,16 +1,19 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 import { getAbandonedCartByToken } from "@/lib/abandoned.functions";
 import { setCartToken } from "@/lib/cart-token";
+import { estimatedDeliveryLabel, getCartPrefs, setCartPrefs } from "@/lib/cart-prefs";
+import { previewCheckoutDiscount } from "@/lib/checkout.functions";
 
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
 import { formatMoney } from "@/lib/mefti";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
+
 
 const cartSearchSchema = z.object({
   recover: z.string().trim().min(16).max(128).optional(),
