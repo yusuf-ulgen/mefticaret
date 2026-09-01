@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth-context";
+import { logAuthEvent } from "@/lib/audit.functions";
+
 
 const searchSchema = z.object({
   mode: z.enum(["login", "register"]).optional(),
