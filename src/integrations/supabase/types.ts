@@ -3258,6 +3258,39 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          is_public: boolean
+          key: string
+          label: string | null
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          is_public?: boolean
+          key: string
+          label?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          is_public?: boolean
+          key?: string
+          label?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       product_collections: {
         Row: {
           collection_id: string
@@ -5793,6 +5826,103 @@ export type Database = {
           },
         ]
       }
+      support_ticket_messages: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          body: string
+          created_at: string
+          id: string
+          is_internal: boolean
+          ticket_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          ticket_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          ticket_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          category: Database["public"]["Enums"]["support_ticket_category"]
+          created_at: string
+          id: string
+          last_reply_at: string | null
+          priority: Database["public"]["Enums"]["support_ticket_priority"]
+          requester_email: string | null
+          requester_id: string | null
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["support_ticket_status"]
+          store_id: string | null
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: Database["public"]["Enums"]["support_ticket_category"]
+          created_at?: string
+          id?: string
+          last_reply_at?: string | null
+          priority?: Database["public"]["Enums"]["support_ticket_priority"]
+          requester_email?: string | null
+          requester_id?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["support_ticket_status"]
+          store_id?: string | null
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: Database["public"]["Enums"]["support_ticket_category"]
+          created_at?: string
+          id?: string
+          last_reply_at?: string | null
+          priority?: Database["public"]["Enums"]["support_ticket_priority"]
+          requester_email?: string | null
+          requester_id?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["support_ticket_status"]
+          store_id?: string | null
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tax_classes: {
         Row: {
           code: string
@@ -6567,6 +6697,21 @@ export type Database = {
       supplier_feed_run_status: "running" | "success" | "failed"
       supplier_feed_schedule: "manual" | "hourly" | "six_hourly" | "daily"
       supplier_match_key: "sku" | "barcode" | "external_id"
+      support_ticket_category:
+        | "billing"
+        | "technical"
+        | "account"
+        | "store"
+        | "marketplace"
+        | "api"
+        | "other"
+      support_ticket_priority: "low" | "normal" | "high" | "urgent"
+      support_ticket_status:
+        | "open"
+        | "pending"
+        | "answered"
+        | "resolved"
+        | "closed"
       warehouse_kind:
         | "warehouse"
         | "branch"
@@ -6900,6 +7045,23 @@ export const Constants = {
       supplier_feed_run_status: ["running", "success", "failed"],
       supplier_feed_schedule: ["manual", "hourly", "six_hourly", "daily"],
       supplier_match_key: ["sku", "barcode", "external_id"],
+      support_ticket_category: [
+        "billing",
+        "technical",
+        "account",
+        "store",
+        "marketplace",
+        "api",
+        "other",
+      ],
+      support_ticket_priority: ["low", "normal", "high", "urgent"],
+      support_ticket_status: [
+        "open",
+        "pending",
+        "answered",
+        "resolved",
+        "closed",
+      ],
       warehouse_kind: [
         "warehouse",
         "branch",

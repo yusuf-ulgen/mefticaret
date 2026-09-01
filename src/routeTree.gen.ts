@@ -16,6 +16,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
@@ -178,6 +179,11 @@ const AuthenticatedStoresRoute = AuthenticatedStoresRouteImport.update({
   id: '/stores',
   path: '/stores',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const AuthenticatedSellerSellerIdRoute =
   AuthenticatedSellerSellerIdRouteImport.update({
@@ -920,7 +926,7 @@ const AuthenticatedStoreStoreIdProductsProductIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
@@ -947,6 +953,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/returns': typeof SSlugReturnsRoute
   '/s/$slug/search': typeof SSlugSearchRoute
   '/s/$slug/terms': typeof SSlugTermsRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/s/$slug/': typeof SSlugIndexRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
@@ -1056,7 +1063,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
@@ -1083,6 +1089,7 @@ export interface FileRoutesByTo {
   '/s/$slug/returns': typeof SSlugReturnsRoute
   '/s/$slug/search': typeof SSlugSearchRoute
   '/s/$slug/terms': typeof SSlugTermsRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/s/$slug': typeof SSlugIndexRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
@@ -1194,7 +1201,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
@@ -1221,6 +1228,7 @@ export interface FileRoutesById {
   '/s/$slug/returns': typeof SSlugReturnsRoute
   '/s/$slug/search': typeof SSlugSearchRoute
   '/s/$slug/terms': typeof SSlugTermsRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/s/$slug/': typeof SSlugIndexRoute
   '/_authenticated/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/_authenticated/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
@@ -1359,6 +1367,7 @@ export interface FileRouteTypes {
     | '/s/$slug/returns'
     | '/s/$slug/search'
     | '/s/$slug/terms'
+    | '/admin/'
     | '/s/$slug/'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
@@ -1468,7 +1477,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/admin'
     | '/onboarding'
     | '/sellers'
     | '/stores'
@@ -1495,6 +1503,7 @@ export interface FileRouteTypes {
     | '/s/$slug/returns'
     | '/s/$slug/search'
     | '/s/$slug/terms'
+    | '/admin'
     | '/s/$slug'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
@@ -1632,6 +1641,7 @@ export interface FileRouteTypes {
     | '/s/$slug/returns'
     | '/s/$slug/search'
     | '/s/$slug/terms'
+    | '/_authenticated/admin/'
     | '/s/$slug/'
     | '/_authenticated/store/$storeId/abc'
     | '/_authenticated/store/$storeId/activity'
@@ -1830,6 +1840,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/stores'
       preLoaderRoute: typeof AuthenticatedStoresRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/seller/$sellerId': {
       id: '/_authenticated/seller/$sellerId'
@@ -2730,6 +2747,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedStoreStoreIdCustomersRouteChildren {
   AuthenticatedStoreStoreIdCustomersCustomerIdRoute: typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
 }
@@ -2779,7 +2807,7 @@ const AuthenticatedStoreStoreIdProductsRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
@@ -2875,7 +2903,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,
