@@ -172,15 +172,33 @@ export function StorefrontChrome({
               >
                 Ürünler
               </Link>
-              <a href="#koleksiyonlar" style={{ color: muted, textDecoration: "none" }}>
-                Koleksiyonlar
-              </a>
               <Link
-                to="/s/$slug/order"
+                to="/s/$slug/categories"
                 params={{ slug: storeSlug }}
                 style={{ color: muted, textDecoration: "none" }}
               >
-                Siparişim
+                Kategoriler
+              </Link>
+              <Link
+                to="/s/$slug/collections"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                Koleksiyonlar
+              </Link>
+              <Link
+                to="/s/$slug/blog"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                Blog
+              </Link>
+              <Link
+                to="/s/$slug/orders"
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                Siparişlerim
               </Link>
               <Link
                 to="/s/$slug/account"
@@ -189,6 +207,7 @@ export function StorefrontChrome({
               >
                 Hesabım
               </Link>
+
             </>
           )}
 
