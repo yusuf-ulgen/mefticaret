@@ -40,6 +40,7 @@ import { Route as AuthenticatedAdminTicketsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin.transactions'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminWebhooksRouteImport } from './routes/_authenticated/admin.webhooks'
+import { Route as AuthenticatedOauthAuthorizeRouteImport } from './routes/_authenticated/oauth.authorize'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
@@ -342,6 +343,12 @@ const AuthenticatedAdminWebhooksRoute =
     id: '/webhooks',
     path: '/webhooks',
     getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedOauthAuthorizeRoute =
+  AuthenticatedOauthAuthorizeRouteImport.update({
+    id: '/oauth/authorize',
+    path: '/oauth/authorize',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedSellerSellerIdRoute =
   AuthenticatedSellerSellerIdRouteImport.update({
@@ -1133,6 +1140,7 @@ export interface FileRoutesByFullPath {
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
+  '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -1296,6 +1304,7 @@ export interface FileRoutesByTo {
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
+  '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -1462,6 +1471,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
+  '/_authenticated/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -1628,6 +1638,7 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/webhooks'
+    | '/oauth/authorize'
     | '/seller/$sellerId'
     | '/api/v1/$'
     | '/s/$slug/about'
@@ -1791,6 +1802,7 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/webhooks'
+    | '/oauth/authorize'
     | '/seller/$sellerId'
     | '/api/v1/$'
     | '/s/$slug/about'
@@ -1956,6 +1968,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/transactions'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/webhooks'
+    | '/_authenticated/oauth/authorize'
     | '/_authenticated/seller/$sellerId'
     | '/api/v1/$'
     | '/s/$slug/about'
@@ -2352,6 +2365,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/webhooks'
       preLoaderRoute: typeof AuthenticatedAdminWebhooksRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/oauth/authorize': {
+      id: '/_authenticated/oauth/authorize'
+      path: '/oauth/authorize'
+      fullPath: '/oauth/authorize'
+      preLoaderRoute: typeof AuthenticatedOauthAuthorizeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/seller/$sellerId': {
       id: '/_authenticated/seller/$sellerId'
@@ -3390,6 +3410,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
+  AuthenticatedOauthAuthorizeRoute: typeof AuthenticatedOauthAuthorizeRoute
   AuthenticatedSellerSellerIdRoute: typeof AuthenticatedSellerSellerIdRoute
   AuthenticatedStoreStoreIdAbcRoute: typeof AuthenticatedStoreStoreIdAbcRoute
   AuthenticatedStoreStoreIdActivityRoute: typeof AuthenticatedStoreStoreIdActivityRoute
@@ -3488,6 +3509,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,
+  AuthenticatedOauthAuthorizeRoute: AuthenticatedOauthAuthorizeRoute,
   AuthenticatedSellerSellerIdRoute: AuthenticatedSellerSellerIdRoute,
   AuthenticatedStoreStoreIdAbcRoute: AuthenticatedStoreStoreIdAbcRoute,
   AuthenticatedStoreStoreIdActivityRoute:
