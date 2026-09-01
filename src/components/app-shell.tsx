@@ -6,6 +6,7 @@ import {
   ClipboardList,
 
   RotateCcw,
+  Blocks,
   BadgeCheck,
   Boxes,
   ChartNoAxesColumn,
