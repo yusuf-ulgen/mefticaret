@@ -17,6 +17,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
+import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
 import { Route as SSlugAboutRouteImport } from './routes/s.$slug.about'
 import { Route as SSlugAccountRouteImport } from './routes/s.$slug.account'
@@ -168,6 +169,11 @@ const AuthenticatedSellerSellerIdRoute =
     path: '/seller/$sellerId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiV1SplatRoute = ApiV1SplatRouteImport.update({
+  id: '/api/v1/$',
+  path: '/api/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SSlugIndexRoute = SSlugIndexRouteImport.update({
   id: '/s/$slug/',
   path: '/s/$slug/',
@@ -809,6 +815,7 @@ export interface FileRoutesByFullPath {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -928,6 +935,7 @@ export interface FileRoutesByTo {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -1049,6 +1057,7 @@ export interface FileRoutesById {
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -1170,6 +1179,7 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/seller/$sellerId'
+    | '/api/v1/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -1289,6 +1299,7 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/seller/$sellerId'
+    | '/api/v1/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -1409,6 +1420,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
     | '/_authenticated/seller/$sellerId'
+    | '/api/v1/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -1525,6 +1537,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiV1SplatRoute: typeof ApiV1SplatRoute
   SSlugAboutRoute: typeof SSlugAboutRoute
   SSlugAccountRoute: typeof SSlugAccountRoute
   SSlugBlogRoute: typeof SSlugBlogRoute
@@ -1613,6 +1626,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/seller/$sellerId'
       preLoaderRoute: typeof AuthenticatedSellerSellerIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/v1/$': {
+      id: '/api/v1/$'
+      path: '/api/v1/$'
+      fullPath: '/api/v1/$'
+      preLoaderRoute: typeof ApiV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/s/$slug/': {
       id: '/s/$slug/'
@@ -2659,6 +2679,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiV1SplatRoute: ApiV1SplatRoute,
   SSlugAboutRoute: SSlugAboutRoute,
   SSlugAccountRoute: SSlugAccountRoute,
   SSlugBlogRoute: SSlugBlogRoute,
