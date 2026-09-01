@@ -1,5 +1,6 @@
 import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
 
+import { applyCacheHeaders } from "./lib/cache-headers";
 import { renderErrorPage } from "./lib/error-page";
 import { applySecurityHeaders } from "./lib/security-headers";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
@@ -9,6 +10,14 @@ const securityHeadersMiddleware = createMiddleware().server(async ({ next }) => 
   const result = await next();
   const response = (result as { response?: Response }).response;
   if (response instanceof Response) applySecurityHeaders(response);
+  return result;
+});
+
+// CDN/tarayıcı önbellek politikası: vitrin kısa süreli, panel/API önbelleksiz.
+const cacheHeadersMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const result = await next();
+  const response = (result as { response?: Response }).response;
+  if (response instanceof Response) applyCacheHeaders(response, request.url, request.method);
   return result;
 });
 
@@ -36,5 +45,5 @@ const csrfMiddleware = createCsrfMiddleware({
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [securityHeadersMiddleware, errorMiddleware, csrfMiddleware],
+  requestMiddleware: [securityHeadersMiddleware, cacheHeadersMiddleware, errorMiddleware, csrfMiddleware],
 }));

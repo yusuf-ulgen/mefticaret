@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
+import { SmartImage } from "@/components/smart-image";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
@@ -66,6 +67,8 @@ function StorefrontProductsPage() {
   const [type, setType] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 24;
 
   const products = useMemo(() => data?.products ?? [], [data]);
 
@@ -93,6 +96,13 @@ function StorefrontProductsPage() {
     else if (sort === "title") sorted.sort((a, b) => a.title.localeCompare(b.title, "tr"));
     return sorted;
   }, [products, term, type, minPrice, maxPrice, sort]);
+
+  const pageCount = Math.max(1, Math.ceil(visible.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const paged = useMemo(
+    () => visible.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [visible, currentPage, pageSize],
+  );
 
   if (!data) return null;
   const { store, theme } = data;
@@ -128,18 +138,18 @@ function StorefrontProductsPage() {
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 20 }}>
         <input
           value={term}
-          onChange={(event) => setTerm(event.target.value)}
+          onChange={(event) => { setTerm(event.target.value); setPage(1); }}
           placeholder="Ürün ara"
           style={{ ...controlStyle, minWidth: 220 }}
         />
-        <select value={sort} onChange={(event) => setSort(event.target.value as SortKey)} style={controlStyle}>
+        <select value={sort} onChange={(event) => { setSort(event.target.value as SortKey); setPage(1); }} style={controlStyle}>
           <option value="newest">Yeni eklenenler</option>
           <option value="price_asc">Fiyat: artan</option>
           <option value="price_desc">Fiyat: azalan</option>
           <option value="title">İsim: A-Z</option>
         </select>
         {types.length > 0 ? (
-          <select value={type} onChange={(event) => setType(event.target.value)} style={controlStyle}>
+          <select value={type} onChange={(event) => { setType(event.target.value); setPage(1); }} style={controlStyle}>
             <option value="all">Tüm türler</option>
             {types.map((value) => (
               <option key={value} value={value}>
@@ -150,14 +160,14 @@ function StorefrontProductsPage() {
         ) : null}
         <input
           value={minPrice}
-          onChange={(event) => setMinPrice(event.target.value)}
+          onChange={(event) => { setMinPrice(event.target.value); setPage(1); }}
           placeholder="Min ₺"
           inputMode="numeric"
           style={{ ...controlStyle, width: 90 }}
         />
         <input
           value={maxPrice}
-          onChange={(event) => setMaxPrice(event.target.value)}
+          onChange={(event) => { setMaxPrice(event.target.value); setPage(1); }}
           placeholder="Maks ₺"
           inputMode="numeric"
           style={{ ...controlStyle, width: 100 }}
@@ -171,6 +181,7 @@ function StorefrontProductsPage() {
               setType("all");
               setMinPrice("");
               setMaxPrice("");
+              setPage(1);
             }}
             style={{ ...controlStyle, cursor: "pointer" }}
           >
@@ -190,7 +201,7 @@ function StorefrontProductsPage() {
             paddingBottom: 64,
           }}
         >
-          {visible.map((product) => (
+          {paged.map((product) => (
             <Link
               key={product.id}
               to="/s/$slug/p/$productSlug"
@@ -221,14 +232,12 @@ function StorefrontProductsPage() {
                 muted={muted}
               />
               <div style={{ aspectRatio: "1 / 1", background: border, overflow: "hidden" }}>
-                {product.coverUrl ? (
-                  <img
-                    src={product.coverUrl}
-                    alt={product.title}
-                    loading="lazy"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                ) : null}
+                <SmartImage
+                  src={product.coverUrl}
+                  alt={product.title}
+                  width={480}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
               </div>
               <div style={{ padding: 14 }}>
                 <p style={{ margin: 0, fontWeight: 600, fontSize: 15 }}>{product.title}</p>
@@ -241,6 +250,55 @@ function StorefrontProductsPage() {
           ))}
         </div>
       )}
+
+      {pageCount > 1 ? (
+        <nav
+          aria-label="Sayfalar"
+          style={{ display: "flex", gap: 8, alignItems: "center", paddingBottom: 64, flexWrap: "wrap" }}
+        >
+          <button
+            type="button"
+            onClick={() => setPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            style={{ ...controlStyle, cursor: currentPage === 1 ? "default" : "pointer", opacity: currentPage === 1 ? 0.5 : 1 }}
+          >
+            Önceki
+          </button>
+          {Array.from({ length: pageCount }, (_, index) => index + 1)
+            .filter((value) => value === 1 || value === pageCount || Math.abs(value - currentPage) <= 2)
+            .map((value) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setPage(value)}
+                aria-current={value === currentPage ? "page" : undefined}
+                style={{
+                  ...controlStyle,
+                  cursor: "pointer",
+                  background: value === currentPage ? t.accent_color : "transparent",
+                  color: value === currentPage ? "#fff" : "inherit",
+                }}
+              >
+                {value}
+              </button>
+            ))}
+          <button
+            type="button"
+            onClick={() => setPage(Math.min(pageCount, currentPage + 1))}
+            disabled={currentPage === pageCount}
+            style={{
+              ...controlStyle,
+              cursor: currentPage === pageCount ? "default" : "pointer",
+              opacity: currentPage === pageCount ? 0.5 : 1,
+            }}
+          >
+            Sonraki
+          </button>
+          <span style={{ color: muted, fontSize: 13 }}>
+            {currentPage} / {pageCount}
+          </span>
+        </nav>
+      ) : null}
     </StorefrontChrome>
   );
 }
