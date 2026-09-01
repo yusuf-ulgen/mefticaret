@@ -143,7 +143,7 @@ export type BulkOperationResult = { affected: number; errors: string[] };
 function roundPrice(value: number, rounding: "none" | "integer" | "ends_99"): number {
   const safe = Math.max(0, value);
   if (rounding === "integer") return Math.round(safe);
-  if (rounding === "ends_99") return Math.max(0, Math.round(safe) - 0.01 + (safe < 1 ? 0.01 : 0));
+  if (rounding === "ends_99") return Math.max(0, Math.round(safe) - 0.01);
   return Math.round(safe * 100) / 100;
 }
 
