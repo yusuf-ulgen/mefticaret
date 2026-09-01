@@ -17,6 +17,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
 import { Route as AuthenticatedAdminStoresRouteImport } from './routes/_authenticated/admin.stores'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
@@ -184,6 +185,11 @@ const AuthenticatedStoresRoute = AuthenticatedStoresRouteImport.update({
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const AuthenticatedAdminStoresRoute =
@@ -937,6 +943,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
@@ -1074,6 +1081,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
@@ -1214,6 +1222,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
+  '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
@@ -1354,6 +1363,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/sellers'
     | '/stores'
+    | '/admin/plans'
     | '/admin/stores'
     | '/seller/$sellerId'
     | '/api/v1/$'
@@ -1491,6 +1501,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/sellers'
     | '/stores'
+    | '/admin/plans'
     | '/admin/stores'
     | '/seller/$sellerId'
     | '/api/v1/$'
@@ -1630,6 +1641,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
+    | '/_authenticated/admin/plans'
     | '/_authenticated/admin/stores'
     | '/_authenticated/seller/$sellerId'
     | '/api/v1/$'
@@ -1859,6 +1871,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/plans': {
+      id: '/_authenticated/admin/plans'
+      path: '/plans'
+      fullPath: '/admin/plans'
+      preLoaderRoute: typeof AuthenticatedAdminPlansRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/stores': {
@@ -2768,11 +2787,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminStoresRoute: typeof AuthenticatedAdminStoresRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminStoresRoute: AuthenticatedAdminStoresRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
