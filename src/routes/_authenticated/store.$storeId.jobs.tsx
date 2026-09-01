@@ -122,29 +122,27 @@ function JobsPage() {
   });
 
   return (
-    <AppShell storeId={storeId}>
+    <AppShell
+      storeId={storeId}
+      title="Kuyruk & Önbellek"
+      description="Ağır işler istek sırasında değil, arka plan worker'ında çalışır. Önbellek veri değiştiğinde otomatik geçersiz kılınır."
+      actions={
+        <>
+          <Button variant="outline" onClick={refresh}>
+            <RefreshCcw className="mr-2 size-4" /> Yenile
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => clearCache.mutate()}
+            disabled={clearCache.isPending}
+          >
+            <Trash2 className="mr-2 size-4" /> Önbelleği temizle
+          </Button>
+        </>
+      }
+    >
       <div className="space-y-6">
-        <header className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Kuyruk & Önbellek</h1>
-            <p className="text-muted-foreground text-sm">
-              Ağır işler istek sırasında değil, arka plan worker'ında çalışır. Önbellek veri
-              değiştiğinde otomatik geçersiz kılınır.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={refresh}>
-              <RefreshCcw className="mr-2 size-4" /> Yenile
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => clearCache.mutate()}
-              disabled={clearCache.isPending}
-            >
-              <Trash2 className="mr-2 size-4" /> Önbelleği temizle
-            </Button>
-          </div>
-        </header>
+
 
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
