@@ -118,6 +118,7 @@ import { Route as AuthenticatedStoreStoreIdVendorsRouteImport } from './routes/_
 import { Route as AuthenticatedStoreStoreIdWarehousesRouteImport } from './routes/_authenticated/store.$storeId.warehouses'
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
+import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
@@ -752,6 +753,12 @@ const ApiPublicCronDailyRollupRoute =
     path: '/api/public/cron/daily-rollup',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronWebhookRetriesRoute =
+  ApiPublicCronWebhookRetriesRouteImport.update({
+    id: '/api/public/cron/webhook-retries',
+    path: '/api/public/cron/webhook-retries',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicRobotsSlugRoute = ApiPublicRobotsSlugRouteImport.update({
   id: '/api/public/robots/$slug',
   path: '/api/public/robots/$slug',
@@ -916,6 +923,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
@@ -1036,6 +1044,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
@@ -1158,6 +1167,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
@@ -1280,6 +1290,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/v1/$'
@@ -1400,6 +1411,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/v1/$'
@@ -1521,6 +1533,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/warehouses'
     | '/_authenticated/store/$storeId/webhooks'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/v1/$'
@@ -1561,6 +1574,7 @@ export interface RootRouteChildren {
   SSlugTermsRoute: typeof SSlugTermsRoute
   SSlugIndexRoute: typeof SSlugIndexRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
+  ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
@@ -2334,6 +2348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronDailyRollupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/webhook-retries': {
+      id: '/api/public/cron/webhook-retries'
+      path: '/api/public/cron/webhook-retries'
+      fullPath: '/api/public/cron/webhook-retries'
+      preLoaderRoute: typeof ApiPublicCronWebhookRetriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/robots/$slug': {
       id: '/api/public/robots/$slug'
       path: '/api/public/robots/$slug'
@@ -2703,6 +2724,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugTermsRoute: SSlugTermsRoute,
   SSlugIndexRoute: SSlugIndexRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
+  ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
