@@ -212,12 +212,21 @@ export function StorefrontChrome({
           )}
 
           <Link
+            to="/s/$slug/search"
+            params={{ slug: storeSlug }}
+            style={{ color: muted, textDecoration: "none" }}
+          >
+            Arama
+          </Link>
+
+          <Link
             to="/s/$slug/favorites"
             params={{ slug: storeSlug }}
             style={{ color: muted, textDecoration: "none" }}
           >
             Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
           </Link>
+
 
           <Link
             to="/s/$slug/gift-card"
