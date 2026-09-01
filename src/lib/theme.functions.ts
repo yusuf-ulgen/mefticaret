@@ -28,6 +28,11 @@ export const saveTheme = createServerFn({ method: "POST" })
         heroCtaLabel: z.string().trim().min(2).max(40),
         announcement: z.string().trim().max(160).nullish(),
         showAnnouncement: z.boolean(),
+        logoUrl: z.string().trim().max(500).nullish(),
+        buttonStyle: z.enum(["solid", "outline", "pill", "ghost", "square"]).default("solid"),
+        cardStyle: z.enum(["soft", "bordered", "flat", "shadow"]).default("soft"),
+        contentWidth: z.number().int().min(900).max(1600).default(1140),
+        sectionSpacing: z.number().int().min(0).max(160).default(48),
         isPublished: z.boolean(),
       })
       .parse(data),
@@ -47,6 +52,11 @@ export const saveTheme = createServerFn({ method: "POST" })
       hero_cta_label: data.heroCtaLabel,
       announcement: data.announcement || null,
       show_announcement: data.showAnnouncement,
+      logo_url: data.logoUrl || null,
+      button_style: data.buttonStyle,
+      card_style: data.cardStyle,
+      content_width: data.contentWidth,
+      section_spacing: data.sectionSpacing,
       is_published: data.isPublished,
       published_at: data.isPublished ? new Date().toISOString() : null,
     };
