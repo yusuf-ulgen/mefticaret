@@ -156,6 +156,6 @@ export async function buildStoreRobots(slug: string, origin: string) {
     lines.push(`Disallow: /s/${store.slug}${path}`);
   }
   if (storeSeo.robotsExtra?.trim()) lines.push(storeSeo.robotsExtra.trim());
-  lines.push("", `Sitemap: ${base}/sitemap.xml`);
+  lines.push("", `Sitemap: ${origin.replace(/\/$/, "")}/api/public/sitemap/${store.slug}`);
   return `${lines.join("\n")}\n`;
 }
