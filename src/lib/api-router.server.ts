@@ -188,19 +188,40 @@ export async function handleApiRequest(request: Request, splat: string): Promise
     );
   }
 
+  // Kimlik doğrulama: API anahtarı veya OAuth erişim belirteci (mat_...).
   const rawKey = extractKey(request);
   let auth: AuthedApiKey | null = null;
+  let authKind: "api_key" | "oauth" = "api_key";
   try {
-    auth = await authenticateApiKey(rawKey);
+    if (rawKey.startsWith("mat_")) {
+      const { authenticateAccessToken } = await import("@/lib/oauth.server");
+      const token = await authenticateAccessToken(rawKey);
+      if (token) {
+        authKind = "oauth";
+        auth = {
+          id: token.id,
+          storeId: token.storeId,
+          scopes: token.scopes,
+          apiVersion: token.apiVersion,
+        };
+      }
+    } else {
+      auth = await authenticateApiKey(rawKey);
+    }
   } catch {
     auth = null;
   }
-  if (!auth) return json({ error: "unauthorized", message: "Geçersiz veya süresi geçmiş API anahtarı" }, 401);
+  if (!auth) {
+    return json(
+      { error: "unauthorized", message: "Geçersiz veya süresi geçmiş API anahtarı ya da erişim belirteci" },
+      401,
+    );
+  }
 
   const finish = async (response: Response, errorMessage?: string) => {
     await logApiRequest({
       storeId: auth.storeId,
-      apiKeyId: auth.id,
+      apiKeyId: authKind === "api_key" ? auth.id : null,
       apiVersion: version,
       method,
       path: url.pathname,
@@ -217,6 +238,7 @@ export async function handleApiRequest(request: Request, splat: string): Promise
       json({
         version,
         store_id: auth.storeId,
+        auth: authKind,
         scopes: auth.scopes,
         resources: Object.keys(RESOURCES).map((name) => `/api/${version}/${name}`),
       }),
@@ -231,7 +253,10 @@ export async function handleApiRequest(request: Request, splat: string): Promise
   // API anahtarı başına hız sınırı: yazma istekleri daha sıkı kotaya tabidir.
   const { RATE_LIMITS, consumeRateLimit, rateLimitResponse } = await import("@/lib/rate-limit.server");
   const limitRule = writing ? RATE_LIMITS.api_write : RATE_LIMITS.api;
-  const limit = await consumeRateLimit(`api:${auth.id}:${writing ? "write" : "read"}`, limitRule);
+  const limit = await consumeRateLimit(
+    `api:${authKind}:${auth.id}:${writing ? "write" : "read"}`,
+    limitRule,
+  );
   if (!limit.allowed) return finish(rateLimitResponse(limit), "rate_limited");
 
   const needed = writing ? resource.writeScope : resource.readScope;
