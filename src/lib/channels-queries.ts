@@ -1,16 +1,20 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { MARKETPLACE_CONNECTORS } from "@/lib/marketplace";
 
-export const MARKETPLACE_PROVIDERS = [
-  { code: "trendyol", name: "Trendyol" },
-  { code: "hepsiburada", name: "Hepsiburada" },
-  { code: "n11", name: "n11" },
-  { code: "amazon_tr", name: "Amazon TR" },
-  { code: "ciceksepeti", name: "Çiçeksepeti" },
-  { code: "google_shopping", name: "Google Shopping" },
-  { code: "meta_catalog", name: "Meta Katalog" },
-] as const;
+/** Sağlayıcı listesi connector kayıt defterinden türetilir. */
+export const MARKETPLACE_PROVIDERS = MARKETPLACE_CONNECTORS.map((connector) => ({
+  code: connector.code,
+  name: connector.name,
+  kind: connector.kind,
+  region: connector.region,
+  capabilities: connector.capabilities,
+  commissionRate: connector.defaultCommissionRate,
+  sellerIdLabel: connector.sellerIdLabel,
+  docsUrl: connector.docsUrl,
+  notes: connector.notes ?? null,
+}));
 
 export const CHANNEL_STATUS_LABELS: Record<string, string> = {
   disconnected: "Bağlı değil",
