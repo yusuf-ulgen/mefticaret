@@ -62,7 +62,70 @@ export const STORE_STATUS_LABELS: Record<string, string> = {
   archived: "Arşiv",
 };
 
-export const SUBDOMAIN_SUFFIX = "mefshop.com";
+/** Platform alt alan adı köki: magazaadi.mefticaret.com */
+export const SUBDOMAIN_SUFFIX = "mefticaret.com";
+
+/** Özel domainlerin A kaydı ile göstermesi gereken edge IP'si. */
+export const PLATFORM_DNS_A = "185.158.133.1";
+/** www / alt alan adı bağlamaları için CNAME hedefi. */
+export const PLATFORM_DNS_CNAME = `edge.${SUBDOMAIN_SUFFIX}`;
+/** DNS sahiplik doğrulaması için TXT kaydı ön eki. */
+export const DOMAIN_TXT_PREFIX = "_mefticaret";
+
+export const RESERVED_SUBDOMAINS = new Set([
+  "www",
+  "api",
+  "app",
+  "admin",
+  "cdn",
+  "edge",
+  "mail",
+  "smtp",
+  "static",
+  "assets",
+  "status",
+  "help",
+  "docs",
+  "blog",
+  "panel",
+  "dashboard",
+  "checkout",
+  "pay",
+]);
+
+export const DOMAIN_STATUS_LABELS: Record<string, string> = {
+  pending: "DNS bekleniyor",
+  verifying: "Doğrulanıyor",
+  verified: "Doğrulandı",
+  failed: "Doğrulanamadı",
+};
+
+export const SSL_STATUS_LABELS: Record<string, string> = {
+  pending: "SSL bekliyor",
+  provisioning: "Sertifika hazırlanıyor",
+  active: "SSL aktif",
+  failed: "SSL hatası",
+};
+
+/** Hostname'i normalize eder: protokol, yol ve baştaki nokta temizlenir. */
+export function normalizeHostname(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/.*$/, "")
+    .replace(/^\.+|\.+$/g, "");
+}
+
+export function isPlatformSubdomain(hostname: string): boolean {
+  return hostname.endsWith(`.${SUBDOMAIN_SUFFIX}`) || hostname === SUBDOMAIN_SUFFIX;
+}
+
+/** Kök domain mi (www.x.com değil, x.com) */
+export function isApexDomain(hostname: string): boolean {
+  return hostname.split(".").length === 2;
+}
+
 
 export function slugify(value: string): string {
   const map: Record<string, string> = {
