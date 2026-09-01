@@ -116,11 +116,21 @@ function orderNumber() {
   return `MEF-${stamp}${rand}`;
 }
 
-export async function createStorefrontOrder(input: z.infer<typeof placeOrderSchema>) {
-  const store = await publishedStore(input.slug);
-  if (!store) throw new Error("Mağaza bulunamadı veya yayında değil");
-  const supabase = await admin();
+/** Sunucu tarafı fiyatlandırma çekirdeği: fiyat, stok, indirim, kargo, vergi,
+ * ödeme farkı ve hediye kartı daima veritabanından hesaplanır. */
+type PricingInput = {
+  items: { variantId: string; quantity: number }[];
+  shippingRateId?: string | undefined;
+  paymentMethodId?: string | undefined;
+  discountCode?: string | undefined;
+  giftCardCode?: string | undefined;
+};
 
+async function priceCart(
+  supabase: Awaited<ReturnType<typeof admin>>,
+  store: { id: string; currency: string },
+  input: PricingInput,
+) {
   const variantIds = [...new Set(input.items.map((item) => item.variantId))];
   const { data: variants, error: variantsError } = await supabase
     .from("product_variants")
@@ -189,7 +199,7 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
   if (input.shippingRateId) {
     const { data: rate, error: rateError } = await supabase
       .from("shipping_rates")
-      .select("id, title, price, free_over, is_active")
+      .select("id, title, price, free_over, eta_days, is_active")
       .eq("store_id", store.id)
       .eq("id", input.shippingRateId)
       .maybeSingle();
@@ -208,8 +218,9 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
     .eq("store_id", store.id)
     .maybeSingle();
   const taxRate = Number(settings?.default_tax_rate ?? 0);
+  const taxIncluded = Boolean(settings?.tax_included_prices);
   const taxable = Math.max(0, subtotal - discountTotal);
-  const taxTotal = settings?.tax_included_prices ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
+  const taxTotal = taxIncluded ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
 
   let paymentLabel: string | null = null;
   let extraFee = 0;
@@ -248,6 +259,135 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
   }
 
   const grandTotal = Number((orderTotal - giftCardApplied).toFixed(2));
+
+  return {
+    lines,
+    subtotal,
+    discountTotal,
+    discountRow,
+    freeShipping,
+    shippingTotal,
+    shippingTitle,
+    taxRate,
+    taxIncluded,
+    taxTotal,
+    paymentLabel,
+    extraFee,
+    orderTotal,
+    giftCard,
+    giftCardApplied,
+    grandTotal,
+    currency: store.currency,
+  };
+}
+
+export const quoteCheckoutSchema = z.object({
+  slug: z.string().trim().min(1).max(120),
+  items: z
+    .array(z.object({ variantId: z.string().uuid(), quantity: z.number().int().min(1).max(50) }))
+    .min(1)
+    .max(30),
+  shippingRateId: z.string().uuid().optional(),
+  paymentMethodId: z.string().uuid().optional(),
+  discountCode: z.string().trim().max(60).optional(),
+  giftCardCode: z.string().trim().max(60).optional(),
+});
+
+/**
+ * Kasada gösterilen tutarların tek doğruluk kaynağı. İstemci yalnızca ürün
+ * kimliği/adet ve kod gönderir; tüm tutarlar burada hesaplanır.
+ */
+export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) {
+  const store = await publishedStore(input.slug);
+  if (!store) throw new Error("Mağaza bulunamadı veya yayında değil");
+  const supabase = await admin();
+  try {
+    const quote = await priceCart(supabase, store, input);
+    return {
+      ok: true as const,
+      error: null,
+      currency: quote.currency,
+      lines: quote.lines.map((line) => ({
+        variantId: line.variant.id,
+        title: line.variant.products.title,
+        variantTitle: line.variant.title,
+        quantity: line.quantity,
+        unitPrice: line.unitPrice,
+        lineTotal: line.lineTotal,
+      })),
+      subtotal: quote.subtotal,
+      discountTotal: quote.discountTotal,
+      discountCode: quote.discountRow?.code ?? null,
+      freeShipping: quote.freeShipping,
+      shippingTotal: quote.shippingTotal,
+      shippingTitle: quote.shippingTitle,
+      taxRate: quote.taxRate,
+      taxIncluded: quote.taxIncluded,
+      taxTotal: quote.taxTotal,
+      paymentLabel: quote.paymentLabel,
+      paymentFee: quote.extraFee,
+      giftCardApplied: quote.giftCardApplied,
+      grandTotal: quote.grandTotal,
+    };
+  } catch (error) {
+    return {
+      ok: false as const,
+      error: error instanceof Error ? error.message : "Sepet doğrulanamadı",
+      currency: store.currency,
+      lines: [],
+      subtotal: 0,
+      discountTotal: 0,
+      discountCode: null,
+      freeShipping: false,
+      shippingTotal: 0,
+      shippingTitle: null,
+      taxRate: 0,
+      taxIncluded: false,
+      taxTotal: 0,
+      paymentLabel: null,
+      paymentFee: 0,
+      giftCardApplied: 0,
+      grandTotal: 0,
+    };
+  }
+}
+
+export async function createStorefrontOrder(
+  input: z.infer<typeof placeOrderSchema>,
+  auth?: { userId: string; email: string } | undefined,
+) {
+  const store = await publishedStore(input.slug);
+  if (!store) throw new Error("Mağaza bulunamadı veya yayında değil");
+  const supabase = await admin();
+
+  const { data: checkoutSettings } = await supabase
+    .from("store_settings")
+    .select("guest_checkout")
+    .eq("store_id", store.id)
+    .maybeSingle();
+  if (!auth && checkoutSettings && checkoutSettings.guest_checkout === false) {
+    throw new Error("Bu mağazada misafir ödeme kapalı; lütfen giriş yapın.");
+  }
+  if (auth && auth.email.toLowerCase() !== input.customer.email.trim().toLowerCase()) {
+    throw new Error("Sipariş e-postası hesabınızla eşleşmiyor.");
+  }
+
+  const priced = await priceCart(supabase, store, input);
+  const {
+    lines,
+    subtotal,
+    discountTotal,
+    discountRow,
+    shippingTotal,
+    shippingTitle,
+    taxTotal,
+    paymentLabel,
+    extraFee,
+    giftCard,
+    giftCardApplied,
+    grandTotal,
+  } = priced;
+
 
   // Müşteri kaydı (e-posta ile tekilleştirilir)
   const { data: existingCustomer } = await supabase
