@@ -62,3 +62,31 @@ export async function recordAudit(client: unknown, entry: AuditEntry): Promise<v
     console.error("audit_logs insert threw", error);
   }
 }
+
+/**
+ * Ham audit_logs kolon payload'ını yazar ve her kayda istekten çıkarılan
+ * IP + user-agent bilgisini ekler. Mevcut çağrı noktaları bu yolu kullanır.
+ */
+export async function insertAuditRow(
+  client: unknown,
+  row: Record<string, unknown>,
+): Promise<void> {
+  let ip: string | null = null;
+  let userAgent: string | null = null;
+  try {
+    const request = getRequest();
+    ip = requestIp(request);
+    userAgent = request.headers.get("user-agent");
+  } catch {
+    // İstek bağlamı yok (cron/worker).
+  }
+  try {
+    const { error } = await (client as MinimalClient)
+      .from("audit_logs")
+      .insert({ ip, user_agent: userAgent, ...row });
+    if (error) console.error("audit_logs insert failed", error);
+  } catch (error) {
+    console.error("audit_logs insert threw", error);
+  }
+}
+
