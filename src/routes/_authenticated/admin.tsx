@@ -43,6 +43,9 @@ import {
   YAxis,
 } from "recharts";
 import { savePlatformPlan, setStoreStatus } from "@/lib/admin.functions";
+import { savePlanFeatures } from "@/lib/subscription.functions";
+import { planFeaturesQuery, type PlanFeatureRow } from "@/lib/subscription-queries";
+import { METRIC_CATALOG, limitLabel } from "@/lib/subscription";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -74,7 +77,15 @@ type PlanDraft = {
   trialDays: string;
   sortOrder: string;
   isActive: boolean;
-  limits: string;
+};
+
+type FeatureDraft = {
+  metricKey: string;
+  label: string;
+  unit: string;
+  limitValue: string;
+  isEnabled: boolean;
+  sortOrder: number;
 };
 
 function toDraft(plan?: PlanRow): PlanDraft {
@@ -89,8 +100,37 @@ function toDraft(plan?: PlanRow): PlanDraft {
     trialDays: String(plan?.trial_days ?? 0),
     sortOrder: String(plan?.sort_order ?? 0),
     isActive: plan?.is_active ?? true,
-    limits: JSON.stringify(plan?.limits ?? {}, null, 2),
   };
+}
+
+/** Paket limitleri veritabanından okunur; eksik metrikler katalogdan boş (sınırsız) eklenir. */
+function toFeatureDrafts(rows: PlanFeatureRow[]): FeatureDraft[] {
+  const byKey = new Map(rows.map((row) => [row.metric_key, row]));
+  const drafts: FeatureDraft[] = METRIC_CATALOG.map((metric, index) => {
+    const row = byKey.get(metric.key);
+    byKey.delete(metric.key);
+    return {
+      metricKey: metric.key,
+      label: row?.label ?? metric.label,
+      unit: row?.unit ?? metric.unit,
+      limitValue: row?.limit_value === null || row?.limit_value === undefined ? "" : String(row.limit_value),
+      isEnabled: row?.is_enabled ?? true,
+      sortOrder: row?.sort_order ?? index + 1,
+    };
+  });
+  let extra = drafts.length;
+  for (const row of byKey.values()) {
+    extra += 1;
+    drafts.push({
+      metricKey: row.metric_key,
+      label: row.label,
+      unit: row.unit ?? "",
+      limitValue: row.limit_value === null ? "" : String(row.limit_value),
+      isEnabled: row.is_enabled,
+      sortOrder: row.sort_order || extra,
+    });
+  }
+  return drafts;
 }
 
 function AdminPage() {
@@ -102,12 +142,24 @@ function AdminPage() {
   const { data: overview } = useQuery(adminOverviewQuery(isPlatformAdmin));
   const { data: growth } = useQuery(adminGrowthQuery(isPlatformAdmin));
 
+  const { data: allFeatures } = useQuery(planFeaturesQuery());
+
   const [draft, setDraft] = useState<PlanDraft | null>(null);
+  const [features, setFeatures] = useState<FeatureDraft[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | (typeof STATUS_OPTIONS)[number]>("all");
 
   const updateStatus = useServerFn(setStoreStatus);
   const savePlan = useServerFn(savePlatformPlan);
+  const saveFeatures = useServerFn(savePlanFeatures);
+
+  const featuresByPlan = (planId: string) =>
+    (allFeatures ?? []).filter((row) => row.plan_id === planId);
+
+  const openPlan = (plan?: PlanRow) => {
+    setDraft(toDraft(plan));
+    setFeatures(toFeatureDrafts(plan ? featuresByPlan(plan.id) : []));
+  };
 
   const statusMutation = useMutation({
     mutationFn: (input: { storeId: string; status: (typeof STATUS_OPTIONS)[number] }) =>
@@ -122,19 +174,16 @@ function AdminPage() {
 
   const planMutation = useMutation({
     mutationFn: async (input: PlanDraft) => {
-      let limits: Record<string, number> = {};
-      try {
-        const parsed = JSON.parse(input.limits || "{}");
-        limits = Object.fromEntries(
-          Object.entries(parsed as Record<string, unknown>).map(([key, value]) => [
-            key,
-            Number(value),
+      const limits = Object.fromEntries(
+        features
+          .filter((feature) => feature.isEnabled)
+          .map((feature) => [
+            feature.metricKey,
+            feature.limitValue.trim() === "" ? -1 : Number(feature.limitValue),
           ]),
-        );
-      } catch {
-        throw new Error("Limitler geçerli bir JSON olmalı");
-      }
-      return savePlan({
+      ) as Record<string, number>;
+
+      await savePlan({
         data: {
           id: input.id,
           code: input.code.trim(),
@@ -149,12 +198,29 @@ function AdminPage() {
           limits,
         },
       });
+
+      if (input.id) {
+        await saveFeatures({
+          data: {
+            planId: input.id,
+            features: features.map((feature, index) => ({
+              metricKey: feature.metricKey,
+              label: feature.label.trim() || feature.metricKey,
+              unit: feature.unit.trim() || null,
+              limitValue: feature.limitValue.trim() === "" ? null : Number(feature.limitValue),
+              isEnabled: feature.isEnabled,
+              sortOrder: feature.sortOrder || index + 1,
+            })),
+          },
+        });
+      }
     },
     onSuccess: () => {
-      toast.success("Paket kaydedildi");
+      toast.success("Paket ve limitler kaydedildi");
       setDraft(null);
       queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
       queryClient.invalidateQueries({ queryKey: ["plans"] });
+      queryClient.invalidateQueries({ queryKey: ["plan-features"] });
     },
     onError: (error: Error) => toast.error(error.message),
   });
