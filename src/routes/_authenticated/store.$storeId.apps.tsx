@@ -62,7 +62,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/apps")({
 type CatalogApp = {
   id: string;
   name: string;
-  slug: string;
+  slug?: string;
   category: string;
   tagline: string | null;
   description: string | null;
@@ -139,7 +139,7 @@ function AppsPage() {
   }, [installs]);
 
   const apps = useMemo(() => {
-    const list = (catalog ?? []) as CatalogApp[];
+    const list = (catalog ?? []) as unknown as CatalogApp[];
     const needle = search.trim().toLowerCase();
     return list.filter((app) => {
       if (category !== "all" && app.category !== category) return false;
@@ -170,15 +170,12 @@ function AppsPage() {
   }
 
   return (
-    <AppShell storeId={storeId}>
+    <AppShell
+      storeId={storeId}
+      title="Uygulama Mağazası"
+      description={`${installedCount} kurulu uygulama · ${(catalog ?? []).length} uygulama listede`}
+    >
       <div className="space-y-6">
-        <header className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Uygulama Mağazası</h1>
-          <p className="text-sm text-muted-foreground">
-            {installedCount} kurulu uygulama · {(catalog ?? []).length} uygulama listede
-          </p>
-        </header>
-
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Input
             value={search}
