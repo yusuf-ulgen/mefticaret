@@ -141,7 +141,7 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
 
     const { data: product, error: productError } = await supabase
       .from("products")
-      .select("id, title, slug, description, base_price, compare_at_price, currency, product_type, tags, seo")
+      .select("id, title, slug, description, base_price, compare_at_price, currency, product_type, tags, seo, vendor, seller_name, sku, barcode, video_url, weight_grams, length_cm, width_cm, height_cm")
       .eq("store_id", store.id)
       .eq("slug", data.productSlug)
       .eq("status", "active")

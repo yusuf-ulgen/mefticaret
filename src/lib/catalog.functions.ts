@@ -128,6 +128,24 @@ export const updateProduct = createServerFn({ method: "POST" })
             compare_at_price: z.number().min(0).max(9_999_999).nullable().optional(),
             status: statusEnum.optional(),
             track_inventory: z.boolean().optional(),
+            sku: z.string().trim().max(60).nullable().optional(),
+            barcode: z.string().trim().max(60).nullable().optional(),
+            seller_name: z.string().trim().max(80).nullable().optional(),
+            video_url: z.string().trim().url().max(500).nullable().optional(),
+            cost_price: z.number().min(0).max(9_999_999).nullable().optional(),
+            tax_rate: z.number().min(0).max(100).optional(),
+            weight_grams: z.number().int().min(0).max(500_000).nullable().optional(),
+            length_cm: z.number().min(0).max(1000).nullable().optional(),
+            width_cm: z.number().min(0).max(1000).nullable().optional(),
+            height_cm: z.number().min(0).max(1000).nullable().optional(),
+            tags: z.array(z.string().trim().min(1).max(40)).max(30).optional(),
+            slug: z
+              .string()
+              .trim()
+              .min(2)
+              .max(90)
+              .regex(/^[a-z0-9-]+$/, "SEO adresi yalnızca küçük harf, sayı ve tire içerebilir")
+              .optional(),
             seo: z
               .object({
                 title: z.string().trim().max(70).default(""),
@@ -144,6 +162,24 @@ export const updateProduct = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const patch = compact(data.patch);
+
+    if (typeof patch['slug'] === "string") {
+      const { data: current } = await supabase
+        .from("products")
+        .select("store_id")
+        .eq("id", data.productId)
+        .maybeSingle();
+      if (current) {
+        const { data: clash } = await supabase
+          .from("products")
+          .select("id")
+          .eq("store_id", current.store_id)
+          .eq("slug", patch['slug'] as string)
+          .neq("id", data.productId)
+          .maybeSingle();
+        if (clash) throw new Error("Bu SEO adresi başka bir üründe kullanılıyor");
+      }
+    }
 
     const { data: product, error } = await supabase
       .from("products")
