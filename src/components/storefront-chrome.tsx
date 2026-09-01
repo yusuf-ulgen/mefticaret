@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
@@ -7,6 +7,8 @@ import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import { fontStack } from "@/lib/theme-presets";
+import type { ResolvedSection } from "@/lib/theme-sections";
+
 
 /** Menü bağlantısını vitrin adresine çevirir. */
 export function menuHref(slug: string, item: Pick<MenuItem, "kind" | "target">) {
