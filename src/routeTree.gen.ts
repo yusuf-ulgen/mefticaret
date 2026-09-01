@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
@@ -105,6 +108,7 @@ import { Route as AuthenticatedStoreStoreIdLifecycleRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdLocalizationRouteImport } from './routes/_authenticated/store.$storeId.localization'
 import { Route as AuthenticatedStoreStoreIdLossesRouteImport } from './routes/_authenticated/store.$storeId.losses'
 import { Route as AuthenticatedStoreStoreIdLtvRouteImport } from './routes/_authenticated/store.$storeId.ltv'
+import { Route as AuthenticatedStoreStoreIdMarketingRouteImport } from './routes/_authenticated/store.$storeId.marketing'
 import { Route as AuthenticatedStoreStoreIdMediaRouteImport } from './routes/_authenticated/store.$storeId.media'
 import { Route as AuthenticatedStoreStoreIdNavigationRouteImport } from './routes/_authenticated/store.$storeId.navigation'
 import { Route as AuthenticatedStoreStoreIdNotificationsRouteImport } from './routes/_authenticated/store.$storeId.notifications'
@@ -175,6 +179,7 @@ import { Route as AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport } from
 import { Route as AuthenticatedStoreStoreIdOrdersOrderIdRouteImport } from './routes/_authenticated/store.$storeId.orders.$orderId'
 import { Route as AuthenticatedStoreStoreIdOrdersNewRouteImport } from './routes/_authenticated/store.$storeId.orders.new'
 import { Route as AuthenticatedStoreStoreIdProductsProductIdRouteImport } from './routes/_authenticated/store.$storeId.products.$productId'
+import { Route as AuthenticatedStoreStoreIdProductsNewRouteImport } from './routes/_authenticated/store.$storeId.products.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -188,6 +193,21 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -713,6 +733,12 @@ const AuthenticatedStoreStoreIdLtvRoute =
     path: '/store/$storeId/ltv',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdMarketingRoute =
+  AuthenticatedStoreStoreIdMarketingRouteImport.update({
+    id: '/store/$storeId/marketing',
+    path: '/store/$storeId/marketing',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdMediaRoute =
   AuthenticatedStoreStoreIdMediaRouteImport.update({
     id: '/store/$storeId/media',
@@ -1123,10 +1149,19 @@ const AuthenticatedStoreStoreIdProductsProductIdRoute =
     path: '/$productId',
     getParentRoute: () => AuthenticatedStoreStoreIdProductsRoute,
   } as any)
+const AuthenticatedStoreStoreIdProductsNewRoute =
+  AuthenticatedStoreStoreIdProductsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedStoreStoreIdProductsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
@@ -1220,6 +1255,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
+  '/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -1290,10 +1326,14 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
+  '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
@@ -1386,6 +1426,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
+  '/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -1456,12 +1497,16 @@ export interface FileRoutesByTo {
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
+  '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
@@ -1555,6 +1600,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/_authenticated/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/_authenticated/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
+  '/_authenticated/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
   '/_authenticated/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/_authenticated/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/_authenticated/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -1625,12 +1671,16 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/_authenticated/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/_authenticated/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
+  '/_authenticated/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/forgot-password'
+    | '/login'
+    | '/register'
     | '/admin'
     | '/onboarding'
     | '/sellers'
@@ -1724,6 +1774,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/localization'
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
+    | '/store/$storeId/marketing'
     | '/store/$storeId/media'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
@@ -1794,10 +1845,14 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
+    | '/store/$storeId/products/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/forgot-password'
+    | '/login'
+    | '/register'
     | '/onboarding'
     | '/sellers'
     | '/stores'
@@ -1890,6 +1945,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/localization'
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
+    | '/store/$storeId/marketing'
     | '/store/$storeId/media'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
@@ -1960,11 +2016,15 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
+    | '/store/$storeId/products/new'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/forgot-password'
+    | '/login'
+    | '/register'
     | '/_authenticated/admin'
     | '/_authenticated/onboarding'
     | '/_authenticated/sellers'
@@ -2058,6 +2118,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/localization'
     | '/_authenticated/store/$storeId/losses'
     | '/_authenticated/store/$storeId/ltv'
+    | '/_authenticated/store/$storeId/marketing'
     | '/_authenticated/store/$storeId/media'
     | '/_authenticated/store/$storeId/navigation'
     | '/_authenticated/store/$storeId/notifications'
@@ -2128,12 +2189,16 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/orders/$orderId'
     | '/_authenticated/store/$storeId/orders/new'
     | '/_authenticated/store/$storeId/products/$productId'
+    | '/_authenticated/store/$storeId/products/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
   ApiV1SplatRoute: typeof ApiV1SplatRoute
   SSlugAboutRoute: typeof SSlugAboutRoute
   SSlugAccountRoute: typeof SSlugAccountRoute
@@ -2195,6 +2260,27 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -2848,6 +2934,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLtvRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/marketing': {
+      id: '/_authenticated/store/$storeId/marketing'
+      path: '/store/$storeId/marketing'
+      fullPath: '/store/$storeId/marketing'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/media': {
       id: '/_authenticated/store/$storeId/media'
       path: '/store/$storeId/media'
@@ -3338,6 +3431,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdProductsProductIdRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdProductsRoute
     }
+    '/_authenticated/store/$storeId/products/new': {
+      id: '/_authenticated/store/$storeId/products/new'
+      path: '/new'
+      fullPath: '/store/$storeId/products/new'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdProductsNewRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdProductsRoute
+    }
   }
 }
 
@@ -3433,12 +3533,15 @@ const AuthenticatedStoreStoreIdOrdersRouteWithChildren =
 
 interface AuthenticatedStoreStoreIdProductsRouteChildren {
   AuthenticatedStoreStoreIdProductsProductIdRoute: typeof AuthenticatedStoreStoreIdProductsProductIdRoute
+  AuthenticatedStoreStoreIdProductsNewRoute: typeof AuthenticatedStoreStoreIdProductsNewRoute
 }
 
 const AuthenticatedStoreStoreIdProductsRouteChildren: AuthenticatedStoreStoreIdProductsRouteChildren =
   {
     AuthenticatedStoreStoreIdProductsProductIdRoute:
       AuthenticatedStoreStoreIdProductsProductIdRoute,
+    AuthenticatedStoreStoreIdProductsNewRoute:
+      AuthenticatedStoreStoreIdProductsNewRoute,
   }
 
 const AuthenticatedStoreStoreIdProductsRouteWithChildren =
@@ -3493,6 +3596,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdLocalizationRoute: typeof AuthenticatedStoreStoreIdLocalizationRoute
   AuthenticatedStoreStoreIdLossesRoute: typeof AuthenticatedStoreStoreIdLossesRoute
   AuthenticatedStoreStoreIdLtvRoute: typeof AuthenticatedStoreStoreIdLtvRoute
+  AuthenticatedStoreStoreIdMarketingRoute: typeof AuthenticatedStoreStoreIdMarketingRoute
   AuthenticatedStoreStoreIdMediaRoute: typeof AuthenticatedStoreStoreIdMediaRoute
   AuthenticatedStoreStoreIdNavigationRoute: typeof AuthenticatedStoreStoreIdNavigationRoute
   AuthenticatedStoreStoreIdNotificationsRoute: typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -3614,6 +3718,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdLocalizationRoute,
   AuthenticatedStoreStoreIdLossesRoute: AuthenticatedStoreStoreIdLossesRoute,
   AuthenticatedStoreStoreIdLtvRoute: AuthenticatedStoreStoreIdLtvRoute,
+  AuthenticatedStoreStoreIdMarketingRoute:
+    AuthenticatedStoreStoreIdMarketingRoute,
   AuthenticatedStoreStoreIdMediaRoute: AuthenticatedStoreStoreIdMediaRoute,
   AuthenticatedStoreStoreIdNavigationRoute:
     AuthenticatedStoreStoreIdNavigationRoute,
@@ -3707,6 +3813,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
   ApiV1SplatRoute: ApiV1SplatRoute,
   SSlugAboutRoute: SSlugAboutRoute,
   SSlugAccountRoute: SSlugAccountRoute,
