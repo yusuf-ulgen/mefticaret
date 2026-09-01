@@ -2481,6 +2481,9 @@ export type Database = {
           accent_color: string
           announcement: string | null
           background_color: string
+          button_style: string
+          card_style: string
+          content_width: number
           created_at: string
           custom_css: string | null
           custom_js: string | null
@@ -2490,10 +2493,12 @@ export type Database = {
           hero_title: string
           is_published: boolean
           layout: string
+          logo_url: string | null
           preset: string
           primary_color: string
           published_at: string | null
           radius: number
+          section_spacing: number
           show_announcement: boolean
           store_id: string
           updated_at: string
@@ -2502,6 +2507,9 @@ export type Database = {
           accent_color?: string
           announcement?: string | null
           background_color?: string
+          button_style?: string
+          card_style?: string
+          content_width?: number
           created_at?: string
           custom_css?: string | null
           custom_js?: string | null
@@ -2511,10 +2519,12 @@ export type Database = {
           hero_title?: string
           is_published?: boolean
           layout?: string
+          logo_url?: string | null
           preset?: string
           primary_color?: string
           published_at?: string | null
           radius?: number
+          section_spacing?: number
           show_announcement?: boolean
           store_id: string
           updated_at?: string
@@ -2523,6 +2533,9 @@ export type Database = {
           accent_color?: string
           announcement?: string | null
           background_color?: string
+          button_style?: string
+          card_style?: string
+          content_width?: number
           created_at?: string
           custom_css?: string | null
           custom_js?: string | null
@@ -2532,10 +2545,12 @@ export type Database = {
           hero_title?: string
           is_published?: boolean
           layout?: string
+          logo_url?: string | null
           preset?: string
           primary_color?: string
           published_at?: string | null
           radius?: number
+          section_spacing?: number
           show_announcement?: boolean
           store_id?: string
           updated_at?: string

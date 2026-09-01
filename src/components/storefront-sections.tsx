@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 
 import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
-import { storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
+import { buttonStyles, cardStyles, storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
 import {
   parsePairs,
@@ -74,7 +74,9 @@ export function StorefrontSections({
       {sections
         .filter((section) => section.isEnabled && section.definition.slot === "body")
         .map((section) => (
-          <StorefrontSection key={section.id} section={section} context={context} />
+          <div key={section.id} style={{ marginBottom: storefrontTokens(context.theme).sectionSpacing }}>
+            <StorefrontSection section={section} context={context} />
+          </div>
         ))}
     </>
   );
@@ -129,19 +131,8 @@ function Cta({
   theme: StoreTheme;
   preview?: boolean | undefined;
 }) {
-  const { t, radius } = storefrontTokens(theme);
   if (!label.trim()) return null;
-  const style = {
-    display: "inline-block",
-    marginTop: 20,
-    background: t.accent_color,
-    color: "#12181f",
-    padding: "12px 22px",
-    borderRadius: radius,
-    fontSize: 14,
-    fontWeight: 600,
-    textDecoration: "none",
-  } as const;
+  const style = { ...buttonStyles(theme), marginTop: 20 };
   if (preview || !url.trim()) return <span style={style}>{label}</span>;
   return (
     <a href={url} style={style}>
@@ -282,18 +273,15 @@ function ProductCard({
   );
 
   const shell = {
-    background: cardBg,
-    border: `1px solid ${border}`,
-    borderRadius: radius,
-    padding: 16,
+    ...cardStyles(context.theme),
     textDecoration: "none",
     color: "inherit",
     display: "block",
-    position: "relative",
+    position: "relative" as const,
     minWidth: width,
     maxWidth: width,
     flex: width ? "0 0 auto" : undefined,
-  } as const;
+  };
 
   if (context.preview) {
     return <div style={shell}>{body}</div>;

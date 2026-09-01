@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, ExternalLink, Palette, Save } from "lucide-react";
+import { Check, ExternalLink, ImageUp, Palette, Save, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { DeviceFrame, DeviceSwitcher, type PreviewDevice } from "@/components/device-preview";
 import { StorefrontPreview, type ThemeDraft } from "@/components/storefront-preview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth-context";
 import { productsQuery } from "@/lib/catalog-queries";
+import { uploadStoreLogo } from "@/lib/media";
 import { myStoresQuery } from "@/lib/store-queries";
 import { FONT_PAIRS, THEME_LAYOUTS, THEME_PRESETS } from "@/lib/theme-presets";
 import { storeThemeQuery } from "@/lib/theme-queries";
@@ -50,7 +52,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/themes")({
   component: ThemesPage,
 });
 
-const DEFAULT_DRAFT: ThemeDraft & { preset: string; isPublished: boolean } = {
+const DEFAULT_DRAFT: Required<ThemeDraft> & { preset: string; isPublished: boolean } = {
   preset: "ink-saffron",
   primaryColor: "#1f2933",
   accentColor: "#e0a136",
@@ -64,7 +66,27 @@ const DEFAULT_DRAFT: ThemeDraft & { preset: string; isPublished: boolean } = {
   announcement: "",
   showAnnouncement: false,
   isPublished: false,
+  logoUrl: "",
+  buttonStyle: "solid",
+  cardStyle: "soft",
+  contentWidth: 1140,
+  sectionSpacing: 48,
 };
+
+const BUTTON_STYLES = [
+  { value: "solid", label: "Dolgulu" },
+  { value: "outline", label: "Çerçeveli" },
+  { value: "pill", label: "Kapsül" },
+  { value: "ghost", label: "Yumuşak" },
+  { value: "square", label: "Keskin köşe" },
+];
+
+const CARD_STYLES = [
+  { value: "soft", label: "Yumuşak kart" },
+  { value: "bordered", label: "Çerçeveli kart" },
+  { value: "flat", label: "Çerçevesiz" },
+  { value: "shadow", label: "Gölgeli" },
+];
 
 function ThemesPage() {
   const { storeId } = Route.useParams();
@@ -93,6 +115,11 @@ function ThemesPage() {
       announcement: theme.announcement ?? "",
       showAnnouncement: theme.show_announcement,
       isPublished: theme.is_published,
+      logoUrl: theme.logo_url ?? "",
+      buttonStyle: theme.button_style ?? "solid",
+      cardStyle: theme.card_style ?? "soft",
+      contentWidth: Number(theme.content_width ?? 1140),
+      sectionSpacing: Number(theme.section_spacing ?? 48),
     });
   }, [theme]);
 
@@ -118,6 +145,11 @@ function ThemesPage() {
           announcement: draft.announcement || null,
           showAnnouncement: draft.showAnnouncement,
           isPublished: draft.isPublished,
+          logoUrl: draft.logoUrl || null,
+          buttonStyle: draft.buttonStyle as "solid",
+          cardStyle: draft.cardStyle as "soft",
+          contentWidth: draft.contentWidth,
+          sectionSpacing: draft.sectionSpacing,
         },
       }),
     onSuccess: async () => {
@@ -126,6 +158,22 @@ function ThemesPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+
+  const [device, setDevice] = useState<PreviewDevice>("desktop");
+  const [uploading, setUploading] = useState(false);
+
+  const handleLogo = async (file: File) => {
+    setUploading(true);
+    try {
+      const url = await uploadStoreLogo(storeId, file);
+      setDraft((current) => ({ ...current, logoUrl: url }));
+      toast.success("Logo yüklendi, kaydetmeyi unutma");
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const set = <K extends keyof typeof draft>(key: K, value: (typeof draft)[K]) =>
     setDraft((current) => ({ ...current, [key]: value }));
@@ -269,6 +317,100 @@ function ThemesPage() {
           </section>
 
           <section className="surface-card space-y-4 p-5">
+            <h2 className="text-sm font-semibold uppercase tracking-wide">Logo & bileşenler</h2>
+
+            <div className="space-y-2">
+              <Label>Logo</Label>
+              {draft.logoUrl ? (
+                <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                  <img src={draft.logoUrl} alt="Mağaza logosu" className="h-10 w-auto" />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => set("logoUrl", "")}
+                    aria-label="Logoyu kaldır"
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              ) : null}
+              <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground hover:border-primary">
+                <ImageUp className="size-4" />
+                {uploading ? "Yükleniyor…" : "Logo yükle (PNG, SVG, JPG)"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void handleLogo(file);
+                    event.target.value = "";
+                  }}
+                />
+              </label>
+              <Input
+                placeholder="veya logo adresi (https://…)"
+                value={draft.logoUrl}
+                onChange={(event) => set("logoUrl", event.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Buton stili</Label>
+              <Select value={draft.buttonStyle} onValueChange={(value) => set("buttonStyle", value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {BUTTON_STYLES.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Ürün kartı stili</Label>
+              <Select value={draft.cardStyle} onValueChange={(value) => set("cardStyle", value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CARD_STYLES.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>İçerik genişliği: {draft.contentWidth}px</Label>
+              <Slider
+                min={900}
+                max={1600}
+                step={20}
+                value={[draft.contentWidth]}
+                onValueChange={([value]) => set("contentWidth", value ?? 1140)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Bölüm boşluğu: {draft.sectionSpacing}px</Label>
+              <Slider
+                min={0}
+                max={140}
+                step={4}
+                value={[draft.sectionSpacing]}
+                onValueChange={([value]) => set("sectionSpacing", value ?? 48)}
+              />
+            </div>
+          </section>
+
+          <section className="surface-card space-y-4 p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wide">Vitrin içeriği</h2>
             <div className="space-y-2">
               <Label htmlFor="hero-title">Hero başlık</Label>
@@ -327,23 +469,29 @@ function ThemesPage() {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold uppercase tracking-wide">Canlı önizleme</h2>
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
+            <div className="flex min-w-0 items-center gap-2">
+            <h2 className="truncate text-sm font-semibold uppercase tracking-wide">Canlı önizleme</h2>
             <Badge variant={draft.isPublished ? "default" : "secondary"}>
               {draft.isPublished ? "Yayında" : "Taslak"}
             </Badge>
             {isLoading ? <span className="text-xs text-muted-foreground">Yükleniyor…</span> : null}
+            </div>
+            <DeviceSwitcher value={device} onChange={setDevice} />
           </div>
-          <StorefrontPreview
-            theme={draft}
-            storeName={storeName}
-            products={(products ?? []).map((product) => ({
-              id: product.id,
-              title: product.title,
-              base_price: Number(product.base_price),
-              currency: product.currency,
-            }))}
-          />
+          <DeviceFrame device={device}>
+            <StorefrontPreview
+              theme={draft}
+              storeName={storeName}
+              device={device}
+              products={(products ?? []).map((product) => ({
+                id: product.id,
+                title: product.title,
+                base_price: Number(product.base_price),
+                currency: product.currency,
+              }))}
+            />
+          </DeviceFrame>
         </div>
       </div>
     </AppShell>
