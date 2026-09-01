@@ -52,7 +52,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/themes")({
   component: ThemesPage,
 });
 
-const DEFAULT_DRAFT: ThemeDraft & { preset: string; isPublished: boolean } = {
+const DEFAULT_DRAFT: Required<ThemeDraft> & { preset: string; isPublished: boolean } = {
   preset: "ink-saffron",
   primaryColor: "#1f2933",
   accentColor: "#e0a136",
