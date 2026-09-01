@@ -60,6 +60,7 @@ import {
   ArrowLeftRight,
   Webhook,
   KeyRound,
+  MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -199,6 +200,8 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "AI Asistan", to: `/store/${storeId}/ai`, icon: Sparkles },
         { label: "Uygulama Mağazası", to: `/store/${storeId}/apps`, icon: Blocks },
         { label: "API Anahtarları", to: `/store/${storeId}/api`, icon: KeyRound },
+        { label: "OAuth Uygulamaları", to: `/store/${storeId}/oauth`, icon: KeyRound },
+        { label: "Destek Talepleri", to: `/store/${storeId}/support`, icon: MessageSquare },
         { label: "Webhook & Bildirim", to: `/store/${storeId}/webhooks`, icon: Webhook },
         { label: "İçe / Dışa Aktarma", to: `/store/${storeId}/import-export`, icon: FileSpreadsheet },
         { label: "Denetim Kaydı", to: `/store/${storeId}/activity`, icon: History },
