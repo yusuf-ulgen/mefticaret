@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Json } from "@/integrations/supabase/types";
 
 /**
  * SEO editörü yazma işlemleri: ürün, koleksiyon, sayfa/blog ve mağaza
@@ -59,9 +60,9 @@ export const saveEntitySeo = createServerFn({ method: "POST" })
       store_id: data.storeId,
       actor_id: userId,
       action: "seo.entity_updated",
-      entity_type: data.entity,
+      entity: data.entity,
       entity_id: data.id,
-      metadata: { seo } as Json,
+      new_value: { seo } as Json,
     });
 
     return row;
@@ -111,16 +112,16 @@ export const saveStoreSeo = createServerFn({ method: "POST" })
 
     const { error } = await supabase
       .from("store_settings")
-      .upsert({ store_id: storeId, seo }, { onConflict: "store_id" });
+      .upsert({ store_id: storeId, seo: seo as Json }, { onConflict: "store_id" });
     if (error) throw new Error(error.message);
 
     await supabase.from("audit_logs").insert({
       store_id: storeId,
       actor_id: userId,
       action: "seo.store_updated",
-      entity_type: "store_settings",
+      entity: "store_settings",
       entity_id: storeId,
-      metadata: { keys: Object.keys(seo) },
+      new_value: { keys: Object.keys(seo) } as Json,
     });
 
     return { ok: true };
