@@ -279,11 +279,87 @@ function AnalyticsPage() {
               <card.icon className="size-4 text-brand-foreground" />
             </div>
             <p className="mt-2 font-display text-2xl font-semibold">
-              {isLoading ? <Skeleton className="h-7 w-24" /> : card.value}
+              {isLoading || eventsLoading ? <Skeleton className="h-7 w-24" /> : card.value}
             </p>
           </div>
         ))}
       </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="surface-card p-6">
+          <h2 className="font-display text-lg font-semibold">Dönüşüm hunisi</h2>
+          <p className="text-sm text-muted-foreground">
+            Oturum → ürün görüntüleme → sepete ekleme → checkout → satın alma. Oturum başına ciro:{" "}
+            {formatMoney(traffic.revenuePerSession, currency)}
+          </p>
+          <ul className="mt-5 space-y-3">
+            {funnel.map((step) => (
+              <li key={step.label} className="space-y-1">
+                <div className="flex items-center justify-between text-sm">
+                  <span>{step.label}</span>
+                  <span className="text-muted-foreground">{formatNumber(step.value)}</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted">
+                  <div
+                    className="h-2 rounded-full bg-primary/80"
+                    style={{ width: `${(step.value / funnelPeak) * 100}%` }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-muted-foreground sm:grid-cols-4">
+            <span>Sepet oranı: {formatPercent(traffic.cartRate)}</span>
+            <span>Checkout oranı: {formatPercent(traffic.checkoutRate)}</span>
+            <span>Satın alma oranı: {formatPercent(traffic.purchaseRate)}</span>
+            <span>Hemen çıkma: {formatPercent(traffic.bounceRate)}</span>
+          </div>
+        </section>
+
+        <section className="surface-card p-6">
+          <h2 className="font-display text-lg font-semibold">En çok görüntülenen sayfalar</h2>
+          <p className="text-sm text-muted-foreground">
+            Oturum başına sayfa: {traffic.pagesPerSession.toFixed(1)}
+          </p>
+          {traffic.topPages.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">Bu dönemde ziyaret verisi yok.</p>
+          ) : (
+            <ul className="mt-4 space-y-2 text-sm">
+              {traffic.topPages.map((row) => (
+                <li key={row.key} className="flex items-center justify-between gap-3">
+                  <span className="truncate font-mono text-xs">{row.key}</span>
+                  <span className="text-muted-foreground">{formatNumber(row.count)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {breakdowns.map((block) => (
+          <section key={block.title} className="surface-card p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-sm font-semibold">{block.title}</h2>
+              <block.icon className="size-4 text-brand-foreground" />
+            </div>
+            {block.rows.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">Veri yok</p>
+            ) : (
+              <ul className="mt-3 space-y-2 text-sm">
+                {block.rows.slice(0, 6).map((row) => (
+                  <li key={row.key} className="flex items-center justify-between gap-2">
+                    <span className="truncate">{block.mapLabel(row.key)}</span>
+                    <Badge variant="secondary">{formatNumber(row.count)}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ))}
+      </div>
+
+
 
       <section className="surface-card p-6">
         <h2 className="font-display text-lg font-semibold">Ciro trendi</h2>
