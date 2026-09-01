@@ -182,6 +182,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Temalar", to: `/store/${storeId}/themes`, icon: Palette },
         { label: "Tema Bileşenleri", to: `/store/${storeId}/theme-sections`, icon: Blocks },
         { label: "SEO Denetimi", to: `/store/${storeId}/seo`, icon: Search },
+        { label: "SEO Editörü", to: `/store/${storeId}/seo-editor`, icon: Search },
         { label: "İçerik Sayfaları", to: `/store/${storeId}/pages`, icon: FileText },
         { label: "Vitrin Menüleri", to: `/store/${storeId}/navigation`, icon: Menu },
         { label: "AI Asistan", to: `/store/${storeId}/ai`, icon: Sparkles },

@@ -5,30 +5,35 @@ import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chro
 import { Breadcrumb, StorefrontFallback } from "@/components/storefront-parts";
 import { formatDateTime } from "@/lib/mefti";
 import { storefrontPagesQuery, storefrontQuery } from "@/lib/storefront-queries";
+import { getRequestOrigin } from "@/lib/origin.functions";
+import { getStoreSeoContext } from "@/lib/seo-public.functions";
+import { missingHead, storefrontHead } from "@/lib/storefront-seo";
 
 export const Route = createFileRoute("/s/$slug/blog")({
   loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
+    const [data, ctx, origin] = await Promise.all([
+      context.queryClient.ensureQueryData(storefrontQuery(params.slug)),
+      getStoreSeoContext({ data: { slug: params.slug } }),
+      getRequestOrigin(),
+    ]);
     if (!data) throw notFound();
-    return { storeName: data.store.name };
+    return { storeName: data.store.name, ctx, origin };
   },
   head: ({ loaderData, params }) => {
-    if (!loaderData) {
-      return { meta: [{ title: "Mağaza bulunamadı" }, { name: "robots", content: "noindex" }] };
-    }
-    const title = `Blog — ${loaderData.storeName}`;
-    const description = `${loaderData.storeName} blogu: ürün rehberleri, bakım önerileri, kampanya duyuruları ve mağaza haberleri.`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
+    if (!loaderData) return missingHead("Mağaza bulunamadı");
+    const base = `/s/${params.slug}`;
+    return storefrontHead({
+      ctx: loaderData.ctx,
+      origin: loaderData.origin,
+      slug: params.slug,
+      path: `${base}/blog`,
+      fallbackTitle: "Blog",
+      fallbackDescription: `${loaderData.storeName} blogu: ürün rehberleri, bakım önerileri, kampanya duyuruları ve mağaza haberleri.`,
+      breadcrumbs: [
+        { name: "Ana sayfa", path: base },
+        { name: "Blog", path: `${base}/blog` },
       ],
-      links: [{ rel: "canonical", href: `/s/${params.slug}/blog` }],
-    };
+    });
   },
   errorComponent: () => <StorefrontFallback text="Blog şu anda yüklenemedi." />,
   notFoundComponent: () => <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />,

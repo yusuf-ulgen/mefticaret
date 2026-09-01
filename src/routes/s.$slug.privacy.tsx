@@ -1,10 +1,10 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
-import { InfoPage, infoHead, type InfoContent } from "@/components/storefront-info-route";
+import { InfoPage, infoHead, infoLoader, type InfoContent } from "@/components/storefront-info-route";
 import { StorefrontFallback } from "@/components/storefront-parts";
-import { storefrontQuery } from "@/lib/storefront-queries";
 
 const content: InfoContent = {
+  route: "privacy",
   title: "Gizlilik politikası",
   description: "Kişisel verilerin hangi amaçla işlendiği, saklandığı ve KVKK kapsamındaki haklarınız.",
   intro: "6698 sayılı KVKK kapsamında veri sorumlusu olarak kişisel verilerini yalnızca aşağıda belirtilen amaçlarla işliyoruz.",
@@ -19,12 +19,8 @@ const content: InfoContent = {
 };
 
 export const Route = createFileRoute("/s/$slug/privacy")({
-  loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
-    if (!data) throw notFound();
-    return { storeName: data.store.name };
-  },
-  head: ({ loaderData }) => infoHead(loaderData, content),
+  loader: ({ context, params }) => infoLoader(context.queryClient, params.slug),
+  head: ({ loaderData, params }) => infoHead(loaderData, content, params.slug),
   errorComponent: () => <StorefrontFallback text="Sayfa şu anda yüklenemedi." />,
   notFoundComponent: () => <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />,
   component: PrivacyPage,

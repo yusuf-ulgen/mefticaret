@@ -7,37 +7,46 @@ import { QuickAddButton } from "@/components/quick-add-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontCollectionQuery } from "@/lib/storefront-queries";
+import { getRequestOrigin } from "@/lib/origin.functions";
+import { getStoreSeoContext } from "@/lib/seo-public.functions";
+import { plainText } from "@/lib/seo";
+import { missingHead, storefrontHead } from "@/lib/storefront-seo";
 
 export const Route = createFileRoute("/s/$slug/c/$collectionSlug")({
   loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(
-      storefrontCollectionQuery(params.slug, params.collectionSlug),
-    );
+    const [data, ctx, origin] = await Promise.all([
+      context.queryClient.ensureQueryData(storefrontCollectionQuery(params.slug, params.collectionSlug)),
+      getStoreSeoContext({ data: { slug: params.slug, collectionSlug: params.collectionSlug } }),
+      getRequestOrigin(),
+    ]);
     if (!data) throw notFound();
     return {
       storeName: data.store.name,
       title: data.collection.title,
-      description: data.collection.description ?? "",
+      description: plainText(data.collection.description ?? ""),
+      ctx,
+      origin,
     };
   },
   head: ({ loaderData, params }) => {
-    if (!loaderData) {
-      return { meta: [{ title: "Koleksiyon bulunamadı" }, { name: "robots", content: "noindex" }] };
-    }
-    const title = `${loaderData.title} — ${loaderData.storeName}`;
-    const description =
-      loaderData.description || `${loaderData.storeName} ${loaderData.title} koleksiyonundaki ürünleri keşfet.`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
+    if (!loaderData) return missingHead("Koleksiyon bulunamadı");
+    const base = `/s/${params.slug}`;
+    return storefrontHead({
+      ctx: loaderData.ctx,
+      origin: loaderData.origin,
+      slug: params.slug,
+      path: `${base}/c/${params.collectionSlug}`,
+      fallbackTitle: loaderData.title,
+      fallbackDescription:
+        loaderData.description ||
+        `${loaderData.storeName} ${loaderData.title} koleksiyonundaki ürünleri keşfedin.`,
+      seo: loaderData.ctx?.entity ?? null,
+      breadcrumbs: [
+        { name: "Ana sayfa", path: base },
+        { name: "Koleksiyonlar", path: `${base}/collections` },
+        { name: loaderData.title, path: `${base}/c/${params.collectionSlug}` },
       ],
-      links: [{ rel: "canonical", href: `/s/${params.slug}/c/${params.collectionSlug}` }],
-    };
+    });
   },
   notFoundComponent: () => (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
