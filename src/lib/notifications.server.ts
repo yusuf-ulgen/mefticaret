@@ -127,9 +127,9 @@ export async function createSystemNotification(
     _store_id: input.storeId,
     _kind: input.kind,
     _title: input.title,
-    _message: input.message ?? null,
+    _message: input.message,
     _entity: "system",
-    _entity_id: null,
+    
     _meta: {},
   });
   if (error) throw new Error(error.message);
