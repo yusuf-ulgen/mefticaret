@@ -2409,6 +2409,62 @@ export type Database = {
           },
         ]
       }
+      notification_settings: {
+        Row: {
+          created_at: string
+          email: boolean
+          email_to: string | null
+          id: string
+          in_app: boolean
+          kind: Database["public"]["Enums"]["notification_kind"]
+          push: boolean
+          sms: boolean
+          sms_to: string | null
+          store_id: string
+          updated_at: string
+          whatsapp: boolean
+          whatsapp_to: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: boolean
+          email_to?: string | null
+          id?: string
+          in_app?: boolean
+          kind: Database["public"]["Enums"]["notification_kind"]
+          push?: boolean
+          sms?: boolean
+          sms_to?: string | null
+          store_id: string
+          updated_at?: string
+          whatsapp?: boolean
+          whatsapp_to?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: boolean
+          email_to?: string | null
+          id?: string
+          in_app?: boolean
+          kind?: Database["public"]["Enums"]["notification_kind"]
+          push?: boolean
+          sms?: boolean
+          sms_to?: string | null
+          store_id?: string
+          updated_at?: string
+          whatsapp?: boolean
+          whatsapp_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -5861,6 +5917,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      emit_notification: {
+        Args: {
+          _entity?: string
+          _entity_id?: string
+          _kind: Database["public"]["Enums"]["notification_kind"]
+          _message?: string
+          _meta?: Json
+          _store_id: string
+          _title: string
+        }
+        Returns: string
+      }
       ensure_ledger_account: {
         Args: {
           _currency?: string
@@ -6014,6 +6082,11 @@ export type Database = {
         | "abandoned_cart"
         | "review"
         | "question"
+        | "payment"
+        | "payment_failed"
+        | "customer"
+        | "subscription"
+        | "app_update"
       order_status:
         | "pending"
         | "awaiting_payment"
@@ -6335,6 +6408,11 @@ export const Constants = {
         "abandoned_cart",
         "review",
         "question",
+        "payment",
+        "payment_failed",
+        "customer",
+        "subscription",
+        "app_update",
       ],
       order_status: [
         "pending",
