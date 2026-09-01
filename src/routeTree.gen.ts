@@ -18,6 +18,7 @@ import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
 import { Route as SSlugAboutRouteImport } from './routes/s.$slug.about'
 import { Route as SSlugAccountRouteImport } from './routes/s.$slug.account'
+import { Route as SSlugBlogRouteImport } from './routes/s.$slug.blog'
 import { Route as SSlugCartRouteImport } from './routes/s.$slug.cart'
 import { Route as SSlugCategoriesRouteImport } from './routes/s.$slug.categories'
 import { Route as SSlugCheckoutRouteImport } from './routes/s.$slug.checkout'
@@ -162,6 +163,11 @@ const SSlugAboutRoute = SSlugAboutRouteImport.update({
 const SSlugAccountRoute = SSlugAccountRouteImport.update({
   id: '/s/$slug/account',
   path: '/s/$slug/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugBlogRoute = SSlugBlogRouteImport.update({
+  id: '/s/$slug/blog',
+  path: '/s/$slug/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugCartRoute = SSlugCartRouteImport.update({
@@ -756,6 +762,7 @@ export interface FileRoutesByFullPath {
   '/stores': typeof AuthenticatedStoresRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
+  '/s/$slug/blog': typeof SSlugBlogRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/categories': typeof SSlugCategoriesRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
@@ -867,6 +874,7 @@ export interface FileRoutesByTo {
   '/stores': typeof AuthenticatedStoresRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
+  '/s/$slug/blog': typeof SSlugBlogRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/categories': typeof SSlugCategoriesRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
@@ -980,6 +988,7 @@ export interface FileRoutesById {
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
+  '/s/$slug/blog': typeof SSlugBlogRoute
   '/s/$slug/cart': typeof SSlugCartRoute
   '/s/$slug/categories': typeof SSlugCategoriesRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
@@ -1093,6 +1102,7 @@ export interface FileRouteTypes {
     | '/stores'
     | '/s/$slug/about'
     | '/s/$slug/account'
+    | '/s/$slug/blog'
     | '/s/$slug/cart'
     | '/s/$slug/categories'
     | '/s/$slug/checkout'
@@ -1204,6 +1214,7 @@ export interface FileRouteTypes {
     | '/stores'
     | '/s/$slug/about'
     | '/s/$slug/account'
+    | '/s/$slug/blog'
     | '/s/$slug/cart'
     | '/s/$slug/categories'
     | '/s/$slug/checkout'
@@ -1316,6 +1327,7 @@ export interface FileRouteTypes {
     | '/_authenticated/stores'
     | '/s/$slug/about'
     | '/s/$slug/account'
+    | '/s/$slug/blog'
     | '/s/$slug/cart'
     | '/s/$slug/categories'
     | '/s/$slug/checkout'
@@ -1426,6 +1438,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   SSlugAboutRoute: typeof SSlugAboutRoute
   SSlugAccountRoute: typeof SSlugAccountRoute
+  SSlugBlogRoute: typeof SSlugBlogRoute
   SSlugCartRoute: typeof SSlugCartRoute
   SSlugCategoriesRoute: typeof SSlugCategoriesRoute
   SSlugCheckoutRoute: typeof SSlugCheckoutRoute
@@ -1516,6 +1529,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug/account'
       fullPath: '/s/$slug/account'
       preLoaderRoute: typeof SSlugAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/blog': {
+      id: '/s/$slug/blog'
+      path: '/s/$slug/blog'
+      fullPath: '/s/$slug/blog'
+      preLoaderRoute: typeof SSlugBlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/cart': {
@@ -2487,6 +2507,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   SSlugAboutRoute: SSlugAboutRoute,
   SSlugAccountRoute: SSlugAccountRoute,
+  SSlugBlogRoute: SSlugBlogRoute,
   SSlugCartRoute: SSlugCartRoute,
   SSlugCategoriesRoute: SSlugCategoriesRoute,
   SSlugCheckoutRoute: SSlugCheckoutRoute,
