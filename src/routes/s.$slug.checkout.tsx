@@ -348,6 +348,57 @@ function CheckoutPage() {
           <div style={{ display: "grid", gap: 20 }}>
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
               <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>İletişim ve teslimat</h2>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 10,
+                  border: `1px solid ${border}`,
+                  borderRadius: radius,
+                  padding: "10px 12px",
+                  marginBottom: 14,
+                  fontSize: 13,
+                }}
+              >
+                <span style={{ color: muted }}>
+                  {authLoading
+                    ? "Oturum kontrol ediliyor…"
+                    : memberMode
+                      ? `Üyelikle ödeme · ${user?.email ?? ""}`
+                      : guestAllowed
+                        ? "Misafir olarak ödeme yapıyorsunuz."
+                        : "Bu mağazada sipariş vermek için üyelik gerekli."}
+                </span>
+                {!memberMode ? (
+                  <Link
+                    to="/auth"
+                    search={{ redirect: `/s/${slug}/checkout` }}
+                    style={{ color: t.accent_color, fontWeight: 600 }}
+                  >
+                    Giriş yap / Üye ol
+                  </Link>
+                ) : null}
+              </div>
+              {memberMode && (savedAddresses.data?.length ?? 0) > 0 ? (
+                <div style={{ display: "grid", gap: 8, marginBottom: 14 }}>
+                  <span style={{ fontSize: 12, color: muted }}>Kayıtlı adreslerim</span>
+                  {(savedAddresses.data ?? []).map((address) => (
+                    <Option
+                      key={address.id}
+                      active={line1 === address.line1 && city === address.city}
+                      onClick={() => applySavedAddress(address)}
+                      border={border}
+                      radius={radius}
+                      accent={t.accent_color}
+                      title={address.label || address.recipient}
+                      subtitle={[address.line1, address.district, address.city].filter(Boolean).join(", ")}
+                      muted={muted}
+                    />
+                  ))}
+                </div>
+              ) : null}
               <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
                 <Field label="Ad soyad" muted={muted}>
                   <input style={inputStyle} value={fullName} onChange={(e) => setFullName(e.target.value)} />
@@ -380,6 +431,48 @@ function CheckoutPage() {
                   />
                 </Field>
               </div>
+            </section>
+
+            <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
+              <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>Fatura adresi</h2>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: muted }}>
+                <input type="checkbox" checked={billingSame} onChange={(e) => setBillingSame(e.target.checked)} />
+                Fatura adresim teslimat adresimle aynı
+              </label>
+              {!billingSame ? (
+                <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
+                  <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
+                    <Field label="Fatura sahibi" muted={muted}>
+                      <input style={inputStyle} value={billingRecipient} onChange={(e) => setBillingRecipient(e.target.value)} />
+                    </Field>
+                    <Field label="Firma (opsiyonel)" muted={muted}>
+                      <input style={inputStyle} value={billingCompany} onChange={(e) => setBillingCompany(e.target.value)} />
+                    </Field>
+                    <Field label="Vergi / TC no (opsiyonel)" muted={muted}>
+                      <input style={inputStyle} value={billingTaxId} onChange={(e) => setBillingTaxId(e.target.value)} />
+                    </Field>
+                    <Field label="Ülke" muted={muted}>
+                      <input style={inputStyle} value={billingCountry} onChange={(e) => setBillingCountry(e.target.value)} />
+                    </Field>
+                    <Field label="Şehir" muted={muted}>
+                      <input style={inputStyle} value={billingCity} onChange={(e) => setBillingCity(e.target.value)} />
+                    </Field>
+                    <Field label="İlçe" muted={muted}>
+                      <input style={inputStyle} value={billingDistrict} onChange={(e) => setBillingDistrict(e.target.value)} />
+                    </Field>
+                    <Field label="Posta kodu" muted={muted}>
+                      <input style={inputStyle} value={billingPostalCode} onChange={(e) => setBillingPostalCode(e.target.value)} />
+                    </Field>
+                  </div>
+                  <Field label="Fatura adresi" muted={muted}>
+                    <textarea
+                      style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
+                      value={billingLine1}
+                      onChange={(e) => setBillingLine1(e.target.value)}
+                    />
+                  </Field>
+                </div>
+              ) : null}
             </section>
 
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
