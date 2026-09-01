@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateTime } from "@/lib/mefti";
 import {
   NOTIFICATION_KIND_LABELS,
-  WEBHOOK_EVENTS,
+  WEBHOOK_EVENT_GROUPS,
   WEBHOOK_EVENT_LABELS,
   type WebhookEvent,
 } from "@/lib/webhook-events";
@@ -186,29 +186,42 @@ function WebhooksPage() {
 
             <div className="mt-4 space-y-2">
               <Label>Olaylar</Label>
-              <div className="flex flex-wrap gap-2">
-                {WEBHOOK_EVENTS.map((event) => {
-                  const selected = events.includes(event);
-                  return (
-                    <button
-                      key={event}
-                      type="button"
-                      onClick={() =>
-                        setEvents((prev) =>
-                          prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event],
-                        )
-                      }
-                      className={
-                        selected
-                          ? "rounded-full border border-primary bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
-                          : "rounded-full border px-3 py-1 text-xs text-muted-foreground hover:bg-muted"
-                      }
-                    >
-                      {WEBHOOK_EVENT_LABELS[event]}
-                    </button>
-                  );
-                })}
+              <div className="space-y-3">
+                {WEBHOOK_EVENT_GROUPS.map((group) => (
+                  <div key={group.label} className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground">{group.label}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {group.events.map((event) => {
+                        const selected = events.includes(event);
+                        return (
+                          <button
+                            key={event}
+                            type="button"
+                            onClick={() =>
+                              setEvents((prev) =>
+                                prev.includes(event)
+                                  ? prev.filter((item) => item !== event)
+                                  : [...prev, event],
+                              )
+                            }
+                            className={
+                              selected
+                                ? "rounded-full border border-primary bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+                                : "rounded-full border px-3 py-1 text-xs text-muted-foreground hover:bg-muted"
+                            }
+                          >
+                            {WEBHOOK_EVENT_LABELS[event]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
+              <p className="text-xs text-muted-foreground">
+                Başarısız gönderimler 1, 5, 15, 60 ve 360 dakika aralıklarıyla otomatik yeniden
+                denenir; imza <code>x-mefti-signature</code> başlığında HMAC-SHA256 olarak gönderilir.
+              </p>
             </div>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -321,6 +334,14 @@ function WebhooksPage() {
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {row.attempt ?? 1}
+                        {row.next_retry_at ? (
+                          <span className="ml-1 text-xs text-amber-600">
+                            → {formatDateTime(row.next_retry_at)}
+                          </span>
+                        ) : null}
+                        {row.duration_ms ? (
+                          <span className="ml-1 text-xs opacity-70">{row.duration_ms} ms</span>
+                        ) : null}
                       </TableCell>
                       <TableCell className="max-w-[18rem] truncate text-sm text-muted-foreground">
                         {row.response_status ?? "—"} {row.response_body ?? ""}
