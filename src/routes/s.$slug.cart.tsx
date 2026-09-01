@@ -263,15 +263,137 @@ function CartPage() {
             }}
           >
             <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 12px" }}>Özet</h2>
-            <Row label="Ara toplam" value={formatMoney(subtotal, store.currency)} muted={muted} />
+
+            {/* Kupon */}
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontSize: 12.5, color: muted, display: "block", marginBottom: 6 }}>İndirim kuponu</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  value={couponInput}
+                  onChange={(event) => setCouponInput(event.target.value)}
+                  placeholder="KUPONKODU"
+                  disabled={Boolean(coupon)}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    padding: "9px 10px",
+                    border: `1px solid ${border}`,
+                    borderRadius: radius,
+                    background: "transparent",
+                    color: "inherit",
+                    fontSize: 13,
+                    textTransform: "uppercase",
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={coupon ? clearCoupon : () => void applyCoupon()}
+                  disabled={couponLoading || (!coupon && !couponInput.trim())}
+                  style={{
+                    border: `1px solid ${border}`,
+                    background: coupon ? "transparent" : t.accent_color,
+                    color: coupon ? "inherit" : "#12181f",
+                    borderRadius: radius,
+                    padding: "9px 12px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: couponLoading ? "wait" : "pointer",
+                  }}
+                >
+                  {couponLoading ? "..." : coupon ? "Kaldır" : "Uygula"}
+                </button>
+              </div>
+              {coupon ? (
+                <p style={{ fontSize: 12, margin: "6px 0 0", color: t.accent_color }}>
+                  {coupon.code} · {coupon.label}
+                </p>
+              ) : null}
+              {couponError ? <p style={{ fontSize: 12, margin: "6px 0 0", color: "#e5484d" }}>{couponError}</p> : null}
+            </div>
+
+            {/* Kargo seçimi */}
+            {rates.length ? (
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 12.5, color: muted, display: "block", marginBottom: 6 }}>Kargo yöntemi</span>
+                <div style={{ display: "grid", gap: 6 }}>
+                  {rates.map((rate) => {
+                    const active = shippingRateId === rate.id;
+                    const eta = estimatedDeliveryLabel(rate.eta_days);
+                    return (
+                      <button
+                        key={rate.id}
+                        type="button"
+                        onClick={() => chooseRate(rate.id)}
+                        style={{
+                          textAlign: "left",
+                          border: `1px solid ${active ? t.accent_color : border}`,
+                          background: "transparent",
+                          color: "inherit",
+                          borderRadius: radius,
+                          padding: "9px 11px",
+                          cursor: "pointer",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: 8,
+                          fontSize: 13,
+                        }}
+                      >
+                        <span>
+                          {rate.title}
+                          {eta ? <span style={{ display: "block", color: muted, fontSize: 11.5 }}>{eta}</span> : null}
+                        </span>
+                        <span style={{ fontWeight: 600 }}>
+                          {Number(rate.price) === 0 ? "Ücretsiz" : formatMoney(Number(rate.price), currency)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
+            <Row label="Ara toplam" value={formatMoney(subtotal, currency)} muted={muted} />
+            {discountTotal > 0 ? (
+              <Row label="İndirim" value={`- ${formatMoney(discountTotal, currency)}`} muted={muted} />
+            ) : null}
+            <Row
+              label="Kargo"
+              value={
+                selectedRate
+                  ? shippingTotal === 0
+                    ? "Ücretsiz"
+                    : formatMoney(shippingTotal, currency)
+                  : "Yöntem seçin"
+              }
+              muted={muted}
+            />
+            <Row
+              label={taxIncluded ? `Vergi (fiyatlara dahil, %${taxRate})` : `Vergi (%${taxRate})`}
+              value={taxIncluded ? "Dahil" : formatMoney(taxTotal, currency)}
+              muted={muted}
+            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                borderTop: `1px solid ${border}`,
+                marginTop: 8,
+                paddingTop: 10,
+                fontSize: 16,
+                fontWeight: 700,
+              }}
+            >
+              <span>Genel toplam</span>
+              <span>{formatMoney(grandTotal, currency)}</span>
+            </div>
             <p style={{ fontSize: 12, color: muted, marginTop: 8 }}>
-              Kargo ve vergi kasada hesaplanır.
+              {deliveryLabel ? `Tahmini teslimat: ${deliveryLabel}` : "Tahmini teslimat için kargo yöntemi seçin."}
             </p>
             {freeShippingThreshold ? (
               <div style={{ marginTop: 14 }}>
                 <p style={{ fontSize: 12.5, margin: 0 }}>
                   {freeShippingRemaining > 0
-                    ? `Ücretsiz kargoya ${formatMoney(freeShippingRemaining, store.currency)} kaldı`
+                    ? `Ücretsiz kargoya ${formatMoney(freeShippingRemaining, currency)} kaldı`
                     : "Ücretsiz kargo kazandın 🎉"}
                 </p>
                 <div
@@ -294,6 +416,7 @@ function CartPage() {
                 </div>
               </div>
             ) : null}
+
             <Link
               to="/s/$slug/checkout"
               params={{ slug }}
