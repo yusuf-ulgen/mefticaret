@@ -162,6 +162,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Hediye Kartı Yükümlülüğü", to: `/store/${storeId}/gift-liability`, icon: Wallet },
         { label: "Tahsilat Takibi", to: `/store/${storeId}/receivables`, icon: Banknote },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
+        { label: "Finansal Defter", to: `/store/${storeId}/ledger`, icon: Wallet },
         { label: "Nakit Akışı", to: `/store/${storeId}/cashflow`, icon: Wallet },
         { label: "KDV Raporu", to: `/store/${storeId}/tax`, icon: Receipt },
         { label: "Aylık Rapor", to: `/store/${storeId}/report-monthly`, icon: FileText },
