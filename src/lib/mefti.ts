@@ -179,13 +179,29 @@ export function compact<T extends Record<string, unknown>>(input: T): Record<str
 }
 
 export const ORDER_STATUS_LABELS: Record<string, string> = {
-  pending: "Bekliyor",
+  pending: "Beklemede",
+  awaiting_payment: "Ödeme bekleniyor",
+  paid: "Ödendi",
   processing: "Hazırlanıyor",
-  shipped: "Kargoda",
+  packed: "Paketlendi",
+  shipped: "Kargoya verildi",
   delivered: "Teslim edildi",
-  cancelled: "İptal",
-  refunded: "İade",
+  cancelled: "İptal edildi",
+  returned: "İade edildi",
+  refunded: "Geri ödeme yapıldı",
 };
+
+/** Sipariş yaşam döngüsü sırası — zaman çizelgesi ve ilerleme göstergesi için. */
+export const ORDER_STATUS_FLOW = [
+  "pending",
+  "awaiting_payment",
+  "paid",
+  "processing",
+  "packed",
+  "shipped",
+  "delivered",
+] as const;
+
 
 export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   pending: "Ödeme bekliyor",

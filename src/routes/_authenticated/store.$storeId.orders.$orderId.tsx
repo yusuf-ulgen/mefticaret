@@ -1,8 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Save, StickyNote } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  ArrowLeft,
+  CreditCard,
+  FileText,
+  Percent,
+  Save,
+  StickyNote,
+  Truck,
+  User,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -25,9 +34,11 @@ import { orderQuery } from "@/lib/sales-queries";
 import { addOrderNote, updateOrder } from "@/lib/sales.functions";
 import {
   FULFILLMENT_STATUS_LABELS,
+  ORDER_STATUS_FLOW,
   ORDER_STATUS_LABELS,
   PAYMENT_STATUS_LABELS,
   SHIPPING_CARRIERS,
+  formatDate,
   formatDateTime,
   formatMoney,
 } from "@/lib/mefti";
@@ -38,12 +49,13 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/orders/$ord
       { title: "Sipariş detayı — Mefticaret" },
       {
         name: "description",
-        content: "Sipariş kalemleri, ödeme durumu, kargo takibi ve sipariş geçmişi.",
+        content:
+          "Müşteri, ürünler, adresler, ödeme, kargo, fatura, indirim, notlar ve sipariş geçmişi tek ekranda.",
       },
       { property: "og:title", content: "Sipariş detayı — Mefticaret" },
       {
         property: "og:description",
-        content: "Sipariş kalemleri, durum yönetimi ve kargo takip bilgileri.",
+        content: "Sipariş kalemleri, durum yönetimi, fatura bilgileri ve kargo takibi.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -54,6 +66,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/orders/$ord
 
 type AddressShape = {
   recipient?: string;
+  phone?: string;
   line1?: string;
   line2?: string;
   district?: string;
@@ -68,11 +81,39 @@ function AddressBlock({ title, address }: { title: string; address: AddressShape
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{title}</p>
       <p className="mt-1 text-sm font-medium">{address.recipient ?? "—"}</p>
       <p className="text-sm text-muted-foreground">
-        {[address.line1, address.line2, address.district, address.city, address.postal_code]
+        {[
+          address.line1,
+          address.line2,
+          address.district,
+          address.city,
+          address.postal_code,
+          address.country,
+        ]
           .filter(Boolean)
           .join(", ") || "—"}
       </p>
+      {address.phone ? <p className="text-sm text-muted-foreground">{address.phone}</p> : null}
     </div>
+  );
+}
+
+function SectionCard({
+  title,
+  icon: Icon,
+  children,
+}: {
+  title: string;
+  icon: typeof User;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="surface-card space-y-4 p-6">
+      <h2 className="flex items-center gap-2 text-lg font-semibold">
+        <Icon className="size-4 text-muted-foreground" />
+        {title}
+      </h2>
+      {children}
+    </section>
   );
 }
 
@@ -88,6 +129,9 @@ function OrderDetailPage() {
   const [fulfillment, setFulfillment] = useState("unfulfilled");
   const [carrier, setCarrier] = useState("");
   const [tracking, setTracking] = useState("");
+  const [phone, setPhone] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [invoicedAt, setInvoicedAt] = useState("");
   const [note, setNote] = useState("");
 
   useEffect(() => {
@@ -97,6 +141,9 @@ function OrderDetailPage() {
     setFulfillment(order.fulfillment_status);
     setCarrier(order.shipping_carrier ?? "");
     setTracking(order.tracking_number ?? "");
+    setPhone(order.customer_phone ?? order.customers?.phone ?? "");
+    setInvoiceNumber(order.invoice_number ?? "");
+    setInvoicedAt(order.invoiced_at ? order.invoiced_at.slice(0, 10) : "");
   }, [order]);
 
   const invalidate = async () => {
@@ -115,12 +162,31 @@ function OrderDetailPage() {
             fulfillment_status: fulfillment as never,
             shipping_carrier: carrier || null,
             tracking_number: tracking || null,
+            customer_phone: phone || null,
           },
         },
       }),
     onSuccess: async () => {
       await invalidate();
       toast.success("Sipariş güncellendi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const invoiceMutation = useMutation({
+    mutationFn: () =>
+      update({
+        data: {
+          orderId,
+          patch: {
+            invoice_number: invoiceNumber || null,
+            invoiced_at: invoicedAt ? new Date(invoicedAt).toISOString() : null,
+          },
+        },
+      }),
+    onSuccess: async () => {
+      await invalidate();
+      toast.success("Fatura bilgileri kaydedildi");
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -134,6 +200,35 @@ function OrderDetailPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+
+  const items = useMemo(
+    () =>
+      ((order?.order_items ?? []) as Array<{
+        id: string;
+        title: string;
+        variant_title: string | null;
+        sku: string | null;
+        quantity: number;
+        unit_price: number;
+        line_total: number;
+        tax_rate?: number | null;
+        tax_total?: number | null;
+      }>).slice(),
+    [order],
+  );
+
+  const events = useMemo(
+    () =>
+      ((order?.order_events ?? []) as Array<{
+        id: string;
+        kind: string;
+        message: string | null;
+        created_at: string;
+      }>)
+        .slice()
+        .sort((a, b) => (a.created_at < b.created_at ? 1 : -1)),
+    [order],
+  );
 
   if (isLoading) {
     return (
@@ -155,23 +250,9 @@ function OrderDetailPage() {
     );
   }
 
-  const items = (order.order_items ?? []) as Array<{
-    id: string;
-    title: string;
-    variant_title: string | null;
-    sku: string | null;
-    quantity: number;
-    unit_price: number;
-    line_total: number;
-  }>;
-  const events = ((order.order_events ?? []) as Array<{
-    id: string;
-    kind: string;
-    message: string | null;
-    created_at: string;
-  }>)
-    .slice()
-    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+  const notes = events.filter((event) => event.kind === "note");
+  const history = events.filter((event) => event.kind !== "note");
+  const flowIndex = ORDER_STATUS_FLOW.indexOf(order.status as (typeof ORDER_STATUS_FLOW)[number]);
 
   return (
     <AppShell
@@ -189,6 +270,25 @@ function OrderDetailPage() {
         </div>
       }
     >
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        {ORDER_STATUS_FLOW.map((step, index) => (
+          <Badge
+            key={step}
+            variant={
+              flowIndex >= 0 && index <= flowIndex
+                ? index === flowIndex
+                  ? "default"
+                  : "secondary"
+                : "outline"
+            }
+          >
+            {ORDER_STATUS_LABELS[step]}
+          </Badge>
+        ))}
+        {["cancelled", "returned", "refunded"].includes(order.status) ? (
+          <Badge variant="destructive">{ORDER_STATUS_LABELS[order.status]}</Badge>
+        ) : null}
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
@@ -200,6 +300,7 @@ function OrderDetailPage() {
                   <th className="px-4 py-3">SKU</th>
                   <th className="px-4 py-3 text-right">Adet</th>
                   <th className="px-4 py-3 text-right">Birim</th>
+                  <th className="px-4 py-3 text-right">KDV</th>
                   <th className="px-4 py-3 text-right">Toplam</th>
                 </tr>
               </thead>
@@ -216,6 +317,11 @@ function OrderDetailPage() {
                     <td className="px-4 py-3 text-right">{item.quantity}</td>
                     <td className="px-4 py-3 text-right">
                       {formatMoney(Number(item.unit_price), order.currency)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-muted-foreground">
+                      {Number(item.tax_rate ?? 0) > 0
+                        ? `%${Number(item.tax_rate)} · ${formatMoney(Number(item.tax_total ?? 0), order.currency)}`
+                        : "—"}
                     </td>
                     <td className="px-4 py-3 text-right font-semibold">
                       {formatMoney(Number(item.line_total), order.currency)}
@@ -249,8 +355,24 @@ function OrderDetailPage() {
             </div>
           </div>
 
-          <div className="surface-card space-y-4 p-6">
-            <h2 className="text-lg font-semibold">Sipariş geçmişi</h2>
+          <SectionCard title="İndirim" icon={Percent}>
+            {order.discount_code || Number(order.discount_total) > 0 ? (
+              <div className="flex flex-wrap items-center gap-3 text-sm">
+                {order.discount_code ? (
+                  <Badge variant="secondary" className="font-mono">
+                    {order.discount_code}
+                  </Badge>
+                ) : null}
+                <span className="text-muted-foreground">
+                  Uygulanan indirim: {formatMoney(Number(order.discount_total), order.currency)}
+                </span>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Bu siparişte indirim uygulanmadı.</p>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Notlar" icon={StickyNote}>
             <form
               className="flex flex-col gap-3 sm:flex-row"
               onSubmit={(event) => {
@@ -270,24 +392,49 @@ function OrderDetailPage() {
               </Button>
             </form>
             <ul className="space-y-3">
-              {events.map((event) => (
-                <li key={event.id} className="border-l-2 border-border pl-3">
-                  <p className="text-sm">{event.message ?? event.kind}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDateTime(event.created_at)}
-                  </p>
-                </li>
-              ))}
+              {notes.length === 0 ? (
+                <li className="text-sm text-muted-foreground">Henüz not yok.</li>
+              ) : (
+                notes.map((event) => (
+                  <li key={event.id} className="rounded-lg border border-border/50 px-4 py-3">
+                    <p className="text-sm">{event.message}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDateTime(event.created_at)}
+                    </p>
+                  </li>
+                ))
+              )}
             </ul>
-          </div>
+            {order.note ? (
+              <p className="rounded-lg bg-muted/40 px-4 py-3 text-sm">
+                <span className="text-muted-foreground">Müşteri notu: </span>
+                {order.note}
+              </p>
+            ) : null}
+          </SectionCard>
+
+          <SectionCard title="Sipariş geçmişi" icon={FileText}>
+            <ul className="space-y-3">
+              {history.length === 0 ? (
+                <li className="text-sm text-muted-foreground">Kayıt yok.</li>
+              ) : (
+                history.map((event) => (
+                  <li key={event.id} className="border-l-2 border-border pl-3">
+                    <p className="text-sm">{event.message ?? event.kind}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDateTime(event.created_at)}
+                    </p>
+                  </li>
+                ))
+              )}
+            </ul>
+          </SectionCard>
 
           <ShipmentsPanel storeId={storeId} orderId={orderId} items={items} />
-
         </div>
 
         <div className="space-y-6">
-          <div className="surface-card space-y-4 p-6">
-            <h2 className="text-lg font-semibold">Durum yönetimi</h2>
+          <SectionCard title="Durum yönetimi" icon={FileText}>
             <div className="space-y-2">
               <Label>Sipariş durumu</Label>
               <Select value={status} onValueChange={setStatus}>
@@ -333,9 +480,79 @@ function OrderDetailPage() {
                 </SelectContent>
               </Select>
             </div>
+            <Button
+              className="w-full gap-2"
+              onClick={() => saveMutation.mutate()}
+              disabled={saveMutation.isPending}
+            >
+              <Save className="size-4" />
+              {saveMutation.isPending ? "Kaydediliyor…" : "Kaydet"}
+            </Button>
+          </SectionCard>
+
+          <SectionCard title="Müşteri" icon={User}>
+            <div>
+              <p className="font-medium">{order.customer_name ?? "Misafir"}</p>
+              <p className="text-sm text-muted-foreground">{order.customer_email ?? "—"}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="order-phone">Telefon</Label>
+              <Input
+                id="order-phone"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                placeholder="+90 5xx xxx xx xx"
+              />
+            </div>
+            {order.customers?.id ? (
+              <Button asChild variant="outline" size="sm">
+                <Link
+                  to="/store/$storeId/customers/$customerId"
+                  params={{ storeId, customerId: order.customers.id }}
+                >
+                  Müşteri kartını aç
+                </Link>
+              </Button>
+            ) : null}
+          </SectionCard>
+
+          <SectionCard title="Adres" icon={User}>
+            <AddressBlock
+              title="Teslimat adresi"
+              address={(order.shipping_address ?? {}) as AddressShape}
+            />
+            <AddressBlock
+              title="Fatura adresi"
+              address={(order.billing_address ?? {}) as AddressShape}
+            />
+          </SectionCard>
+
+          <SectionCard title="Ödeme" icon={CreditCard}>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline">{PAYMENT_STATUS_LABELS[order.payment_status]}</Badge>
+              <Badge variant="secondary">{order.currency}</Badge>
+            </div>
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Tahsil edilecek</span>
+                <span className="font-semibold">
+                  {formatMoney(Number(order.grand_total), order.currency)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Sipariş tarihi</span>
+                <span>{formatDateTime(order.placed_at)}</span>
+              </div>
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Kargo" icon={Truck}>
             <div className="space-y-2">
               <Label>Kargo firması</Label>
-              <Select value={carrier || "none"} onValueChange={(value) => setCarrier(value === "none" ? "" : value)}>
+              <Select
+                value={carrier || "none"}
+                onValueChange={(value) => setCarrier(value === "none" ? "" : value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -358,35 +575,43 @@ function OrderDetailPage() {
                 placeholder="TR000000000"
               />
             </div>
-            <Button
-              className="w-full gap-2"
-              onClick={() => saveMutation.mutate()}
-              disabled={saveMutation.isPending}
-            >
-              <Save className="size-4" />
-              {saveMutation.isPending ? "Kaydediliyor…" : "Kaydet"}
-            </Button>
-          </div>
+            <p className="text-xs text-muted-foreground">
+              Kargo bilgileri “Kaydet” ile birlikte güncellenir.
+            </p>
+          </SectionCard>
 
-          <div className="surface-card space-y-4 p-6">
-            <h2 className="text-lg font-semibold">Müşteri</h2>
-            <div>
-              <p className="font-medium">{order.customer_name ?? "Misafir"}</p>
-              <p className="text-sm text-muted-foreground">{order.customer_email ?? "—"}</p>
+          <SectionCard title="Fatura" icon={FileText}>
+            <div className="space-y-2">
+              <Label htmlFor="invoice-number">Fatura numarası</Label>
+              <Input
+                id="invoice-number"
+                value={invoiceNumber}
+                onChange={(event) => setInvoiceNumber(event.target.value)}
+                placeholder="MFT-2026-000123"
+              />
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary">{ORDER_STATUS_LABELS[order.status]}</Badge>
-              <Badge variant="outline">{PAYMENT_STATUS_LABELS[order.payment_status]}</Badge>
+            <div className="space-y-2">
+              <Label htmlFor="invoice-date">Fatura tarihi</Label>
+              <Input
+                id="invoice-date"
+                type="date"
+                value={invoicedAt}
+                onChange={(event) => setInvoicedAt(event.target.value)}
+              />
             </div>
-            <AddressBlock
-              title="Teslimat adresi"
-              address={(order.shipping_address ?? {}) as AddressShape}
-            />
-            <AddressBlock
-              title="Fatura adresi"
-              address={(order.billing_address ?? {}) as AddressShape}
-            />
-          </div>
+            <p className="text-xs text-muted-foreground">
+              Kayıtlı fatura: {order.invoice_number ?? "—"}
+              {order.invoiced_at ? ` · ${formatDate(order.invoiced_at)}` : ""}
+            </p>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => invoiceMutation.mutate()}
+              disabled={invoiceMutation.isPending}
+            >
+              {invoiceMutation.isPending ? "Kaydediliyor…" : "Fatura bilgilerini kaydet"}
+            </Button>
+          </SectionCard>
         </div>
       </div>
     </AppShell>

@@ -4,10 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type OrderStatus =
   | "pending"
+  | "awaiting_payment"
+  | "paid"
   | "processing"
+  | "packed"
   | "shipped"
   | "delivered"
   | "cancelled"
+  | "returned"
   | "refunded";
 
 export const ordersQuery = (storeId: string) =>
