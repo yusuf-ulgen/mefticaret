@@ -163,6 +163,98 @@ function CheckoutPage() {
     }
   }
 
+  // Üye girişi varsa iletişim bilgilerini hesaptan doldur.
+  useEffect(() => {
+    if (!user || profileFilled.current) return;
+    profileFilled.current = true;
+    if (user.email) setEmail(user.email);
+    const metaName = (user.user_metadata?.["full_name"] ?? user.user_metadata?.["name"]) as string | undefined;
+    if (metaName) setFullName((current) => current || metaName);
+  }, [user]);
+
+  // Kayıtlı adresleri ilk yüklemede otomatik uygula.
+  const addressFilled = useRef(false);
+  useEffect(() => {
+    const list = savedAddresses.data;
+    if (!list?.length || addressFilled.current) return;
+    addressFilled.current = true;
+    const chosen = list.find((address) => address.is_default) ?? list[0];
+    if (!chosen) return;
+    applySavedAddress(chosen);
+  }, [savedAddresses.data]);
+
+  function applySavedAddress(address: {
+    recipient: string;
+    phone: string | null;
+    country: string;
+    city: string;
+    district: string | null;
+    line1: string;
+    postal_code: string | null;
+  }) {
+    setFullName((current) => current || address.recipient);
+    if (address.phone) setPhone((current) => current || address.phone!);
+    setCountry(address.country);
+    setCity(address.city);
+    setDistrict(address.district ?? "");
+    setLine1(address.line1);
+    setPostalCode(address.postal_code ?? "");
+  }
+
+  // Sunucu tarafı fiyat teklifi: ara toplam, indirim, kargo, vergi, ödeme farkı ve
+  // hediye kartı burada hesaplanır; ekranda gösterilen tutarlar buradan gelir.
+  const itemsKey = lines.map((line) => `${line.variantId}:${line.quantity}`).join(",");
+  const quote = useQuery({
+    queryKey: [
+      "storefront",
+      slug,
+      "checkout-quote",
+      itemsKey,
+      appliedDiscount?.code ?? "",
+      appliedGiftCard?.code ?? "",
+      shippingRateId,
+      paymentMethodId,
+    ],
+    enabled: lines.length > 0,
+    staleTime: 5_000,
+    queryFn: () =>
+      getCheckoutQuote({
+        data: {
+          slug,
+          items: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
+          shippingRateId: shippingRateId || undefined,
+          paymentMethodId: paymentMethodId || undefined,
+          discountCode: appliedDiscount?.code || undefined,
+          giftCardCode: appliedGiftCard?.code || undefined,
+        },
+      }),
+  });
+  const q = quote.data?.ok ? quote.data : null;
+
+  async function applyGiftCard() {
+    const code = giftCardCode.trim();
+    if (!code) {
+      setAppliedGiftCard(null);
+      return;
+    }
+    setCheckingGiftCard(true);
+    try {
+      const result = await checkGiftCardBalance({ data: { slug, code } });
+      if (!result.found || !result.usable) {
+        setAppliedGiftCard(null);
+        toast.error(result.reason ?? "Hediye kartı kullanılamıyor");
+        return;
+      }
+      setAppliedGiftCard({ code, balance: result.balance ?? 0 });
+      toast.success(`Hediye kartı eklendi · Bakiye: ${result.balance ?? 0}`);
+    } catch (error) {
+      setAppliedGiftCard(null);
+      toast.error(error instanceof Error ? error.message : "Hediye kartı doğrulanamadı");
+    } finally {
+      setCheckingGiftCard(false);
+    }
+  }
+
   if (!data) return null;
   const { store, theme } = data;
   const { t, fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
