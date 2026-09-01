@@ -125,6 +125,10 @@ function LocalizationPage() {
         data: { storeId, baseCurrency, quoteCurrencies: displayCurrencies },
       }),
     onSuccess: (result) => {
+      if (result.updated === 0) {
+        toast.info("Ana para birimi dışında görüntüleme para birimi seçilmedi.");
+        return;
+      }
       toast.success(`${result.updated} kur güncellendi`);
       void queryClient.invalidateQueries({ queryKey: ["currency-rates", storeId] });
     },
