@@ -93,25 +93,86 @@ function CartPage() {
       cancelled = true;
     };
   }, [recover, slug, cart]);
+  // Kupon / kargo tercihlerini tarayıcıdan geri yükle (kasa ile paylaşılır).
+  useEffect(() => {
+    if (prefsLoaded.current) return;
+    prefsLoaded.current = true;
+    const prefs = getCartPrefs(slug);
+    if (prefs.couponCode) setCouponInput(prefs.couponCode);
+    if (prefs.shippingRateId) setShippingRateId(prefs.shippingRateId);
+  }, [slug]);
 
   if (!data) return null;
   const { store, theme } = data;
   const { t, fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
   const lines = cart.linesFor(slug);
   const subtotal = cart.subtotalFor(slug);
+  const currency = store.currency;
+
+  const rates = options.data?.shippingRates ?? [];
+  const settings = options.data?.settings ?? null;
 
   // Ücretsiz kargo eşiği: aktif kargo tarifelerindeki en düşük "free_over" değeri.
-  const options = useQuery(checkoutOptionsQuery(slug));
   const freeShippingThreshold = (() => {
-    const values = (options.data?.shippingRates ?? [])
-      .map((rate) => Number(rate.free_over ?? 0))
-      .filter((value) => value > 0);
+    const values = rates.map((rate) => Number(rate.free_over ?? 0)).filter((value) => value > 0);
     return values.length ? Math.min(...values) : null;
   })();
   const freeShippingRemaining = freeShippingThreshold ? Math.max(0, freeShippingThreshold - subtotal) : 0;
   const freeShippingProgress = freeShippingThreshold
     ? Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100))
     : 0;
+
+  // Tutarlar: indirim -> kargo -> vergi -> genel toplam (kasada sunucuda tekrar doğrulanır).
+  const discountTotal = Math.min(subtotal, coupon?.discountTotal ?? 0);
+  const selectedRate = rates.find((rate) => rate.id === shippingRateId) ?? null;
+  const shippingTotal = (() => {
+    if (!selectedRate) return 0;
+    if (coupon?.freeShipping) return 0;
+    if (selectedRate.free_over !== null && subtotal - discountTotal >= Number(selectedRate.free_over)) return 0;
+    return Number(selectedRate.price);
+  })();
+  const taxRate = Number(settings?.default_tax_rate ?? 0);
+  const taxIncluded = Boolean(settings?.tax_included_prices);
+  const taxable = Math.max(0, subtotal - discountTotal);
+  const taxTotal = taxIncluded ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
+  const grandTotal = Number((taxable + shippingTotal + taxTotal).toFixed(2));
+  const deliveryLabel = estimatedDeliveryLabel(selectedRate?.eta_days ?? null);
+
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    setCouponError(null);
+    try {
+      const preview = await previewCheckoutDiscount({ data: { slug, code, subtotal } });
+      setCoupon({
+        code: preview.code,
+        label: preview.label,
+        discountTotal: preview.discountTotal,
+        freeShipping: preview.freeShipping,
+      });
+      setCartPrefs(slug, { couponCode: preview.code });
+    } catch (error) {
+      setCoupon(null);
+      setCouponError(error instanceof Error ? error.message : "Kupon uygulanamadı");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const clearCoupon = () => {
+    setCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+    setCartPrefs(slug, { couponCode: "" });
+  };
+
+  const chooseRate = (id: string) => {
+    setShippingRateId(id);
+    setCartPrefs(slug, { shippingRateId: id });
+  };
+
+
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
