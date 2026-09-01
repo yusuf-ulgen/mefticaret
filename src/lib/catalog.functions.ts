@@ -163,6 +163,24 @@ export const updateProduct = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const patch = compact(data.patch);
 
+    if (typeof patch['slug'] === "string") {
+      const { data: current } = await supabase
+        .from("products")
+        .select("store_id")
+        .eq("id", data.productId)
+        .maybeSingle();
+      if (current) {
+        const { data: clash } = await supabase
+          .from("products")
+          .select("id")
+          .eq("store_id", current.store_id)
+          .eq("slug", patch['slug'] as string)
+          .neq("id", data.productId)
+          .maybeSingle();
+        if (clash) throw new Error("Bu SEO adresi başka bir üründe kullanılıyor");
+      }
+    }
+
     const { data: product, error } = await supabase
       .from("products")
       .update(patch as never)
