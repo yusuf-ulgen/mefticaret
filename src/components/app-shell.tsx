@@ -437,7 +437,7 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
+        <main id="panel-content" tabIndex={-1} className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
           <div className="mx-auto w-full max-w-7xl space-y-6">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
