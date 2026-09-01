@@ -42,7 +42,7 @@ export const getStorefront = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!store) return null;
 
-    const [themeRes, productsRes, collectionsRes, pagesRes] = await Promise.all([
+    const [themeRes, productsRes, collectionsRes, pagesRes, sectionsRes, blogRes] = await Promise.all([
       supabase.from("store_themes").select("*").eq("store_id", store.id).maybeSingle(),
       supabase
         .from("products")
@@ -63,11 +63,26 @@ export const getStorefront = createServerFn({ method: "GET" })
         .eq("is_published", true)
         .eq("show_in_footer", true)
         .order("sort_order"),
+      supabase
+        .from("store_theme_sections")
+        .select("id, store_id, type, position, is_enabled, settings")
+        .eq("store_id", store.id)
+        .eq("is_enabled", true)
+        .order("position"),
+      supabase
+        .from("store_pages")
+        .select("title, slug, excerpt")
+        .eq("store_id", store.id)
+        .eq("is_published", true)
+        .order("updated_at", { ascending: false })
+        .limit(12),
     ]);
     if (themeRes.error) throw new Error(themeRes.error.message);
     if (productsRes.error) throw new Error(productsRes.error.message);
     if (collectionsRes.error) throw new Error(collectionsRes.error.message);
     if (pagesRes.error) throw new Error(pagesRes.error.message);
+    if (sectionsRes.error) throw new Error(sectionsRes.error.message);
+    if (blogRes.error) throw new Error(blogRes.error.message);
 
     // Ürün kartları için kapak görselleri (imzalı adres).
     const products = productsRes.data ?? [];
@@ -104,6 +119,8 @@ export const getStorefront = createServerFn({ method: "GET" })
       products: products.map((product) => ({ ...product, coverUrl: coverByProduct[product.id] ?? null })),
       collections: collectionsRes.data ?? [],
       footerPages: pagesRes.data ?? [],
+      sections: sectionsRes.data ?? [],
+      blogPages: blogRes.data ?? [],
     };
 
   });

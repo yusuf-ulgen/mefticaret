@@ -6,6 +6,8 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
+import { StorefrontSections } from "@/components/storefront-sections";
+import { resolveSections, type ThemeSectionRow } from "@/lib/theme-sections";
 import { storefrontQuery } from "@/lib/storefront-queries";
 
 export const Route = createFileRoute("/s/$slug/")({
@@ -76,12 +78,37 @@ function StorefrontHome() {
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
   const { store, theme, products, collections, footerPages } = data;
+  const sections = resolveSections(data.sections as ThemeSectionRow[]);
+  const bodySections = sections.filter((section) => section.isEnabled && section.definition.slot === "body");
   const { t, fonts, muted, cardBg, border, radius, dark } = storefrontTokens(theme);
   const split = t.layout === "split-screen";
   const columns = t.layout === "magazine" ? "repeat(auto-fill, minmax(320px, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))";
 
   return (
-    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} footerPages={footerPages}>
+    <StorefrontChrome
+      theme={theme}
+      storeName={store.name}
+      storeSlug={store.slug}
+      footerPages={footerPages}
+      sections={sections}
+      customCss={theme?.custom_css ?? null}
+      customJs={theme?.custom_js ?? null}
+    >
+      {bodySections.length ? (
+        <StorefrontSections
+          sections={sections}
+          context={{
+            theme,
+            storeSlug: store.slug,
+            storeName: store.name,
+            storeCurrency: store.currency,
+            products,
+            collections,
+            pages: data.blogPages,
+          }}
+        />
+      ) : (
+        <>
       <section
         style={{
           display: split ? "grid" : "block",
@@ -250,6 +277,8 @@ function StorefrontHome() {
           </div>
         )}
       </section>
+        </>
+      )}
     </StorefrontChrome>
   );
 }

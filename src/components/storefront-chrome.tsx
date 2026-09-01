@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
@@ -7,6 +7,8 @@ import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import { fontStack } from "@/lib/theme-presets";
+import type { ResolvedSection } from "@/lib/theme-sections";
+
 
 /** Menü bağlantısını vitrin adresine çevirir. */
 export function menuHref(slug: string, item: Pick<MenuItem, "kind" | "target">) {
@@ -90,12 +92,19 @@ export function StorefrontChrome({
   storeName,
   storeSlug,
   footerPages,
+  sections,
+  customCss,
+  customJs,
   children,
 }: {
   theme: StoreTheme;
   storeName: string;
   storeSlug: string;
   footerPages?: { title: string; slug: string }[];
+  /** Modüler tema bileşenleri (header/footer/duyuru çubuğu ayarları buradan okunur). */
+  sections?: ResolvedSection[] | undefined;
+  customCss?: string | null | undefined;
+  customJs?: string | null | undefined;
   children: ReactNode;
 }) {
   const { t, fonts, text, muted, border, radius } = storefrontTokens(theme);
@@ -110,6 +119,34 @@ export function StorefrontChrome({
   const favoriteCount = favorites.countFor(storeSlug);
   const compareCount = compare.countFor(storeSlug);
 
+  const chrome = (type: string) =>
+    (sections ?? []).find((section) => section.type === type && section.isEnabled)?.settings ?? null;
+  const headerCfg = chrome("header");
+  const footerCfg = chrome("footer");
+  const barCfg = chrome("announcement_bar");
+
+  const flag = (settings: Record<string, string | number | boolean> | null, key: string, fallback = true) =>
+    settings ? Boolean(settings[key]) : fallback;
+  const value = (settings: Record<string, string | number | boolean> | null, key: string) =>
+    settings ? String(settings[key] ?? "") : "";
+
+  const barText = barCfg ? value(barCfg, "text") : t.show_announcement ? (t.announcement ?? "") : "";
+  const barTone = barCfg ? value(barCfg, "tone") : "primary";
+  const barBackground =
+    barTone === "accent" ? t.accent_color : barTone === "soft" ? `${t.accent_color}22` : t.primary_color;
+
+  // Özel JavaScript, mağaza sahibinin bilinçli tercihidir; yalnızca istemcide çalışır.
+  useEffect(() => {
+    if (!customJs?.trim()) return;
+    const element = document.createElement("script");
+    element.type = "text/javascript";
+    element.text = customJs;
+    document.body.appendChild(element);
+    return () => {
+      element.remove();
+    };
+  }, [customJs]);
+
   return (
     <div
       style={{
@@ -119,20 +156,31 @@ export function StorefrontChrome({
         minHeight: "100vh",
       }}
     >
-      {t.show_announcement && t.announcement ? (
+      {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: customCss }} /> : null}
+
+      {barText ? (
         <div
           style={{
-            background: t.primary_color,
-            color: "#fff",
+            background: barBackground,
+            color: barTone === "soft" ? text : "#fff",
             fontSize: 12,
             letterSpacing: ".04em",
             textAlign: "center",
             padding: "10px 16px",
           }}
         >
-          {t.announcement}
+          {barText}
+          {barCfg && value(barCfg, "linkLabel") && value(barCfg, "linkUrl") ? (
+            <>
+              {" "}
+              <a href={value(barCfg, "linkUrl")} style={{ color: "inherit", textDecoration: "underline" }}>
+                {value(barCfg, "linkLabel")}
+              </a>
+            </>
+          ) : null}
         </div>
       ) : null}
+
 
       <header
         style={{
@@ -143,15 +191,24 @@ export function StorefrontChrome({
           borderBottom: `1px solid ${border}`,
           maxWidth: 1140,
           margin: "0 auto",
+          position: flag(headerCfg, "sticky", false) ? "sticky" : undefined,
+          top: flag(headerCfg, "sticky", false) ? 0 : undefined,
+          zIndex: flag(headerCfg, "sticky", false) ? 20 : undefined,
+          background: flag(headerCfg, "sticky", false) ? t.background_color : undefined,
         }}
       >
-        <Link
-          to="/s/$slug"
-          params={{ slug: storeSlug }}
-          style={{ fontFamily: fonts.heading, fontWeight: 700, fontSize: 20, color: text, textDecoration: "none" }}
-        >
-          {storeName}
-        </Link>
+        <div>
+          <Link
+            to="/s/$slug"
+            params={{ slug: storeSlug }}
+            style={{ fontFamily: fonts.heading, fontWeight: 700, fontSize: 20, color: text, textDecoration: "none" }}
+          >
+            {storeName}
+          </Link>
+          {value(headerCfg, "tagline") ? (
+            <div style={{ color: muted, fontSize: 12, marginTop: 2 }}>{value(headerCfg, "tagline")}</div>
+          ) : null}
+        </div>
         <nav style={{ display: "flex", gap: 18, fontSize: 13, color: muted }}>
           {headerItems.length ? (
             headerItems.map((item) => (
@@ -211,21 +268,25 @@ export function StorefrontChrome({
             </>
           )}
 
-          <Link
-            to="/s/$slug/search"
-            params={{ slug: storeSlug }}
-            style={{ color: muted, textDecoration: "none" }}
-          >
-            Arama
-          </Link>
+          {flag(headerCfg, "showSearch") ? (
+            <Link
+              to="/s/$slug/search"
+              params={{ slug: storeSlug }}
+              style={{ color: muted, textDecoration: "none" }}
+            >
+              Arama
+            </Link>
+          ) : null}
 
-          <Link
-            to="/s/$slug/favorites"
-            params={{ slug: storeSlug }}
-            style={{ color: muted, textDecoration: "none" }}
-          >
-            Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
-          </Link>
+          {flag(headerCfg, "showFavorites") ? (
+            <Link
+              to="/s/$slug/favorites"
+              params={{ slug: storeSlug }}
+              style={{ color: muted, textDecoration: "none" }}
+            >
+              Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
+            </Link>
+          ) : null}
 
 
           <Link
@@ -248,20 +309,22 @@ export function StorefrontChrome({
             </Link>
           ) : null}
 
-          <Link
-            to="/s/$slug/cart"
-            params={{ slug: storeSlug }}
-            style={{
-              color: text,
-              textDecoration: "none",
-              border: `1px solid ${border}`,
-              borderRadius: radius,
-              padding: "5px 12px",
-              fontWeight: 600,
-            }}
-          >
-            Sepet{cartCount ? ` (${cartCount})` : ""}
-          </Link>
+          {flag(headerCfg, "showCart") ? (
+            <Link
+              to="/s/$slug/cart"
+              params={{ slug: storeSlug }}
+              style={{
+                color: text,
+                textDecoration: "none",
+                border: `1px solid ${border}`,
+                borderRadius: radius,
+                padding: "5px 12px",
+                fontWeight: 600,
+              }}
+            >
+              Sepet{cartCount ? ` (${cartCount})` : ""}
+            </Link>
+          ) : null}
         </nav>
       </header>
 
@@ -276,7 +339,20 @@ export function StorefrontChrome({
           color: muted,
         }}
       >
-        {footerItems.length || footerPages?.length ? (
+        {value(footerCfg, "about") ? (
+          <p style={{ maxWidth: 620, margin: "0 auto 14px", fontSize: 13, lineHeight: 1.7 }}>
+            {value(footerCfg, "about")}
+          </p>
+        ) : null}
+
+        {value(footerCfg, "email") || value(footerCfg, "phone") ? (
+          <div style={{ marginBottom: 14, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
+            {value(footerCfg, "email") ? <span>{value(footerCfg, "email")}</span> : null}
+            {value(footerCfg, "phone") ? <span>{value(footerCfg, "phone")}</span> : null}
+          </div>
+        ) : null}
+
+        {flag(footerCfg, "showPages") && (footerItems.length || footerPages?.length) ? (
           <nav
             style={{
               display: "flex",
@@ -308,6 +384,7 @@ export function StorefrontChrome({
           </nav>
         ) : null}
 
+        {flag(footerCfg, "showLegalLinks") ? (
         <nav
           style={{
             display: "flex",
@@ -335,8 +412,9 @@ export function StorefrontChrome({
             </Link>
           ))}
         </nav>
+        ) : null}
 
-        {storeName} — Mefticaret altyapısıyla çalışır.
+        {value(footerCfg, "copyright") || `${storeName} — Mefticaret altyapısıyla çalışır.`}
       </footer>
 
     </div>
