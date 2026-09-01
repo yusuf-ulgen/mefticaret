@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, ImagePlus, Plus, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, ImagePlus, Star, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { VariantManager } from "@/components/variant-manager";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,20 +19,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { collectionsQuery, productQuery } from "@/lib/catalog-queries";
-import {
-  deleteProduct,
-  deleteVariant,
-  setProductCollections,
-  updateProduct,
-  upsertVariant,
-} from "@/lib/catalog.functions";
+import { deleteProduct, setProductCollections, updateProduct } from "@/lib/catalog.functions";
 import {
   addProductImage,
   deleteProductImage,
   updateProductImage,
 } from "@/lib/media.functions";
 import { productImagesQuery, uploadProductImage, type ProductImage } from "@/lib/media";
-import { formatMoney, slugify } from "@/lib/mefti";
+import { slugify } from "@/lib/mefti";
 
 /** Boş metni null'a, dolu metni sayıya çevirir. */
 function numOrNull(value: string) {
@@ -59,15 +54,6 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/products/$p
   component: ProductDetailPage,
 });
 
-type VariantDraft = {
-  title: string;
-  sku: string;
-  price: string;
-  stock: string;
-};
-
-const EMPTY_DRAFT: VariantDraft = { title: "", sku: "", price: "", stock: "0" };
-
 function ProductDetailPage() {
   const { storeId, productId } = Route.useParams();
   const navigate = useNavigate();
@@ -78,8 +64,6 @@ function ProductDetailPage() {
 
   const saveProduct = useServerFn(updateProduct);
   const removeProduct = useServerFn(deleteProduct);
-  const saveVariant = useServerFn(upsertVariant);
-  const removeVariant = useServerFn(deleteVariant);
   const saveCollections = useServerFn(setProductCollections);
 
   const [form, setForm] = useState({
@@ -105,7 +89,6 @@ function ProductDetailPage() {
     seo_title: "",
     seo_description: "",
   });
-  const [draft, setDraft] = useState<VariantDraft>(EMPTY_DRAFT);
 
   useEffect(() => {
     if (!product) return;
@@ -183,31 +166,6 @@ function ProductDetailPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const variantMutation = useMutation({
-    mutationFn: (input: {
-      variantId?: string;
-      title: string;
-      sku: string;
-      price: number;
-      stock: number;
-    }) => saveVariant({ data: { productId, ...input } }),
-    onSuccess: async () => {
-      await invalidate();
-      setDraft(EMPTY_DRAFT);
-      toast.success("Varyant kaydedildi");
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
-  const variantDeleteMutation = useMutation({
-    mutationFn: (variantId: string) => removeVariant({ data: { variantId } }),
-    onSuccess: async () => {
-      await invalidate();
-      toast.success("Varyant silindi");
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
   const collectionMutation = useMutation({
     mutationFn: (collectionIds: string[]) =>
       saveCollections({ data: { productId, collectionIds } }),
@@ -228,7 +186,6 @@ function ProductDetailPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const variants = product?.product_variants ?? [];
   const selectedCollections = (product?.product_collections ?? []).map((row) => row.collection_id);
 
   return (
@@ -608,103 +565,8 @@ function ProductDetailPage() {
 
           <ProductGallery storeId={storeId} productId={productId} />
 
-          <div className="surface-card p-6 lg:col-span-3">
-            <h2 className="mb-4 text-lg font-semibold">Varyantlar</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <tr>
-                    <th className="py-2 pr-3">Varyant</th>
-                    <th className="py-2 pr-3">SKU</th>
-                    <th className="py-2 pr-3">Fiyat</th>
-                    <th className="py-2 pr-3">Stok</th>
-                    <th className="py-2" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {variants.map((variant) => (
-                    <VariantRow
-                      key={variant.id}
-                      variant={variant}
-                      currency={product.currency}
-                      onSave={(input) => variantMutation.mutate({ variantId: variant.id, ...input })}
-                      onDelete={() => variantDeleteMutation.mutate(variant.id)}
-                    />
-                  ))}
-                  <tr>
-                    <td className="py-2 pr-3">
-                      <Input
-                        placeholder="Örn. Siyah / M"
-                        value={draft.title}
-                        onChange={(event) =>
-                          setDraft((prev) => ({ ...prev, title: event.target.value }))
-                        }
-                      />
-                    </td>
-                    <td className="py-2 pr-3">
-                      <Input
-                        placeholder="SKU"
-                        value={draft.sku}
-                        onChange={(event) =>
-                          setDraft((prev) => ({ ...prev, sku: event.target.value }))
-                        }
-                      />
-                    </td>
-                    <td className="py-2 pr-3">
-                      <Input
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        value={draft.price}
-                        onChange={(event) =>
-                          setDraft((prev) => ({ ...prev, price: event.target.value }))
-                        }
-                      />
-                    </td>
-                    <td className="py-2 pr-3">
-                      <Input
-                        type="number"
-                        min={0}
-                        value={draft.stock}
-                        onChange={(event) =>
-                          setDraft((prev) => ({ ...prev, stock: event.target.value }))
-                        }
-                      />
-                    </td>
-                    <td className="py-2">
-                      <Button
-                        size="sm"
-                        className="gap-1"
-                        disabled={draft.title.trim().length === 0 || variantMutation.isPending}
-                        onClick={() =>
-                          variantMutation.mutate({
-                            title: draft.title,
-                            sku: draft.sku,
-                            price: Number(draft.price || 0),
-                            stock: Number(draft.stock || 0),
-                          })
-                        }
-                      >
-                        <Plus className="size-4" /> Ekle
-                      </Button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Toplam stok:{" "}
-              {variants.reduce((sum, variant) => sum + (variant.stock ?? 0), 0)} adet · Ortalama
-              fiyat{" "}
-              {formatMoney(
-                variants.length
-                  ? variants.reduce((sum, variant) => sum + Number(variant.price ?? 0), 0) /
-                      variants.length
-                  : 0,
-                product.currency,
-              )}
-            </p>
-          </div>
+          <VariantManager productId={productId} currency={product.currency} />
+
         </div>
       )}
     </AppShell>
@@ -849,81 +711,5 @@ function ProductGallery({ storeId, productId }: { storeId: string; productId: st
         </div>
       )}
     </div>
-  );
-}
-
-function VariantRow({
-  variant,
-  currency,
-  onSave,
-  onDelete,
-}: {
-  variant: { id: string; title: string; sku: string | null; price: number; stock: number };
-  currency: string;
-  onSave: (input: { title: string; sku: string; price: number; stock: number }) => void;
-  onDelete: () => void;
-}) {
-  const [title, setTitle] = useState(variant.title);
-  const [sku, setSku] = useState(variant.sku ?? "");
-  const [price, setPrice] = useState(String(variant.price));
-  const [stock, setStock] = useState(String(variant.stock));
-
-  const dirty =
-    title !== variant.title ||
-    sku !== (variant.sku ?? "") ||
-    Number(price) !== Number(variant.price) ||
-    Number(stock) !== Number(variant.stock);
-
-  return (
-    <tr>
-      <td className="py-2 pr-3">
-        <Input value={title} onChange={(event) => setTitle(event.target.value)} />
-      </td>
-      <td className="py-2 pr-3">
-        <Input value={sku} onChange={(event) => setSku(event.target.value)} />
-      </td>
-      <td className="py-2 pr-3">
-        <Input
-          type="number"
-          min={0}
-          step="0.01"
-          value={price}
-          onChange={(event) => setPrice(event.target.value)}
-        />
-        <span className="text-[0.7rem] text-muted-foreground">
-          {formatMoney(Number(price || 0), currency)}
-        </span>
-      </td>
-      <td className="py-2 pr-3">
-        <Input
-          type="number"
-          min={0}
-          value={stock}
-          onChange={(event) => setStock(event.target.value)}
-        />
-      </td>
-      <td className="py-2">
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={!dirty}
-            onClick={() =>
-              onSave({
-                title,
-                sku,
-                price: Number(price || 0),
-                stock: Number(stock || 0),
-              })
-            }
-          >
-            Kaydet
-          </Button>
-          <Button size="icon" variant="ghost" onClick={onDelete} aria-label="Varyantı sil">
-            <Trash2 className="size-4" />
-          </Button>
-        </div>
-      </td>
-    </tr>
   );
 }

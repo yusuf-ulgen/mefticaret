@@ -141,7 +141,7 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
 
     const { data: product, error: productError } = await supabase
       .from("products")
-      .select("id, title, slug, description, base_price, compare_at_price, currency, product_type, tags, seo, vendor, seller_name, sku, barcode, video_url, weight_grams, length_cm, width_cm, height_cm")
+      .select("id, title, slug, description, base_price, compare_at_price, currency, product_type, tags, seo, vendor, seller_name, sku, barcode, video_url, weight_grams, length_cm, width_cm, height_cm, variant_options")
       .eq("store_id", store.id)
       .eq("slug", data.productSlug)
       .eq("status", "active")
@@ -153,7 +153,7 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
       supabase.from("store_themes").select("*").eq("store_id", store.id).maybeSingle(),
       supabase
         .from("product_variants")
-        .select("id, title, sku, price, stock, options, position")
+        .select("id, title, sku, barcode, price, compare_at_price, stock, weight_grams, options, image_id, position")
         .eq("product_id", product.id)
         .order("position"),
       supabase
@@ -263,7 +263,12 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
       store,
       theme: themeRes.data,
       product,
-      variants: variantsRes.data ?? [],
+      variants: (variantsRes.data ?? []).map((variant) => ({
+        ...variant,
+        imageUrl:
+          images.find((image) => image.id === (variant as { image_id?: string | null }).image_id)
+            ?.url ?? null,
+      })),
       images,
       reviews,
       ratingAverage,
