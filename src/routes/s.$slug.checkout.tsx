@@ -275,27 +275,42 @@ function CheckoutPage() {
       toast.error("Sepetiniz boş");
       return;
     }
+    if (!memberMode && !guestAllowed) {
+      toast.error("Bu mağazada misafir ödeme kapalı. Lütfen giriş yapın.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const result = await placeOrder({
-        data: {
-          slug,
-          items: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
-          customer: { fullName, email, phone, acceptsMarketing: false },
-          address: {
-            country,
-            city,
-            district: district || undefined,
-            line1,
-            postalCode: postalCode || undefined,
-          },
-          shippingRateId: shippingRateId || undefined,
-          paymentMethodId: paymentMethodId || undefined,
-          discountCode: discountCode.trim() ? discountCode.trim() : undefined,
-          giftCardCode: giftCardCode.trim() ? giftCardCode.trim() : undefined,
-          note: note.trim() ? note.trim() : undefined,
+      const payload = {
+        slug,
+        items: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
+        customer: { fullName, email, phone, acceptsMarketing: false },
+        address: {
+          country,
+          city,
+          district: district || undefined,
+          line1,
+          postalCode: postalCode || undefined,
         },
-      });
+        billingAddress: billingSame
+          ? undefined
+          : {
+              recipient: billingRecipient || undefined,
+              company: billingCompany || undefined,
+              taxId: billingTaxId || undefined,
+              country: billingCountry,
+              city: billingCity,
+              district: billingDistrict || undefined,
+              line1: billingLine1,
+              postalCode: billingPostalCode || undefined,
+            },
+        shippingRateId: shippingRateId || undefined,
+        paymentMethodId: paymentMethodId || undefined,
+        discountCode: appliedDiscount?.code ?? (discountCode.trim() ? discountCode.trim() : undefined),
+        giftCardCode: appliedGiftCard?.code ?? (giftCardCode.trim() ? giftCardCode.trim() : undefined),
+        note: note.trim() ? note.trim() : undefined,
+      };
+      const result = memberMode ? await placeMemberOrder({ data: payload }) : await placeOrder({ data: payload });
       void markCartRecovered({
         data: { slug, cartToken: getCartToken(slug), orderNumber: result.orderNumber },
       }).catch(() => {});
