@@ -32,7 +32,7 @@ export function SmartImage({
   style,
 }: SmartImageProps) {
   if (!src) return null;
-  const optimized = optimizedImageUrl(src, { width, height }) ?? src;
+  const optimized = optimizedImageUrl(src, height ? { width, height } : { width }) ?? src;
   const srcSet = imageSrcSet(src, widths, height ? { height } : {});
 
   return (
