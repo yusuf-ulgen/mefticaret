@@ -56,6 +56,7 @@ import {
   Building2,
   ArrowLeftRight,
   Webhook,
+  KeyRound,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -184,6 +185,8 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "İçerik Sayfaları", to: `/store/${storeId}/pages`, icon: FileText },
         { label: "Vitrin Menüleri", to: `/store/${storeId}/navigation`, icon: Menu },
         { label: "AI Asistan", to: `/store/${storeId}/ai`, icon: Sparkles },
+        { label: "Uygulama Mağazası", to: `/store/${storeId}/apps`, icon: Blocks },
+        { label: "API Anahtarları", to: `/store/${storeId}/api`, icon: KeyRound },
         { label: "Webhook & Bildirim", to: `/store/${storeId}/webhooks`, icon: Webhook },
         { label: "İçe / Dışa Aktarma", to: `/store/${storeId}/import-export`, icon: FileSpreadsheet },
         { label: "Denetim Kaydı", to: `/store/${storeId}/activity`, icon: History },

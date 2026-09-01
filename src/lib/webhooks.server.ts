@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
-import { WEBHOOK_EVENTS } from "@/lib/webhook-events";
+import { WEBHOOK_EVENTS, WEBHOOK_RETRY_BACKOFF_MINUTES } from "@/lib/webhook-events";
 
 type Client = SupabaseClient<Database>;
 
@@ -88,13 +88,14 @@ export async function listDeliveries(supabase: Client, storeId: string) {
   return data ?? [];
 }
 
-/** Webhook'u tetikler, imzalar ve gönderim kaydını yazar. */
+/** Webhook'u tetikler, imzalar, süresini ölçer ve gönderim kaydını yazar. */
 export async function dispatchWebhook(
   supabase: Client,
   webhookId: string,
   event: string,
   payload: Record<string, unknown>,
   attempt = 1,
+  manualRetry = false,
 ) {
   const { data: hook, error } = await supabase
     .from("store_webhooks")
@@ -104,20 +105,35 @@ export async function dispatchWebhook(
   if (error) throw new Error(error.message);
   if (!hook) throw new Error("Webhook bulunamadı");
 
-  const body = JSON.stringify({ event, sent_at: new Date().toISOString(), data: payload });
+  const deliveryId = crypto.randomUUID();
+  const timestamp = new Date().toISOString();
+  const body = JSON.stringify({
+    id: deliveryId,
+    event,
+    api_version: hook.api_version ?? "v1",
+    store_id: hook.store_id,
+    sent_at: timestamp,
+    attempt,
+    data: payload,
+  });
   const signature = signPayload(hook.secret, body);
 
   let status: "success" | "failed" = "failed";
   let responseStatus: number | null = null;
   let responseBody: string | null = null;
+  let errorMessage: string | null = null;
+  const started = Date.now();
 
   try {
     const response = await fetch(hook.target_url, {
       method: "POST",
       headers: {
         "content-type": "application/json",
+        "user-agent": "Mefticaret-Webhooks/1.0",
         "x-mefti-event": event,
-        "x-mefti-signature": signature,
+        "x-mefti-delivery": deliveryId,
+        "x-mefti-timestamp": timestamp,
+        "x-mefti-signature": `sha256=${signature}`,
       },
       body,
       signal: AbortSignal.timeout(10_000),
@@ -125,12 +141,23 @@ export async function dispatchWebhook(
     responseStatus = response.status;
     responseBody = (await response.text()).slice(0, 2000);
     status = response.ok ? "success" : "failed";
+    if (!response.ok) errorMessage = `HTTP ${response.status}`;
   } catch (cause) {
-    responseBody = cause instanceof Error ? cause.message : "Bilinmeyen hata";
+    errorMessage = cause instanceof Error ? cause.message : "Bilinmeyen hata";
+    responseBody = errorMessage;
   }
+
+  const durationMs = Date.now() - started;
+  const maxAttempts = hook.max_attempts ?? 5;
+  const backoff = WEBHOOK_RETRY_BACKOFF_MINUTES[Math.min(attempt - 1, WEBHOOK_RETRY_BACKOFF_MINUTES.length - 1)] ?? 60;
+  const nextRetryAt =
+    status === "failed" && attempt < maxAttempts
+      ? new Date(Date.now() + backoff * 60_000).toISOString()
+      : null;
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   await supabaseAdmin.from("webhook_deliveries").insert({
+    id: deliveryId,
     webhook_id: hook.id,
     store_id: hook.store_id,
     event,
@@ -139,20 +166,33 @@ export async function dispatchWebhook(
     response_status: responseStatus,
     response_body: responseBody,
     attempt,
+    signature,
+    duration_ms: durationMs,
+    error_message: errorMessage,
+    next_retry_at: nextRetryAt,
+    delivered_at: status === "success" ? new Date().toISOString() : null,
+    manual_retry: manualRetry,
   });
 
   await supabase
     .from("store_webhooks")
     .update({
       last_triggered_at: new Date().toISOString(),
-      last_error: status === "failed" ? responseBody : null,
+      last_error: status === "failed" ? errorMessage : null,
     })
     .eq("id", hook.id);
 
-  return { ok: status === "success", status: responseStatus, body: responseBody };
+  return {
+    ok: status === "success",
+    status: responseStatus,
+    body: responseBody,
+    attempt,
+    durationMs,
+    nextRetryAt,
+  };
 }
 
-/** Başarısız bir gönderimi aynı olay ve payload ile yeniden dener. */
+/** Başarısız bir gönderimi aynı olay ve payload ile elle yeniden dener. */
 export async function retryDelivery(
   supabase: Client,
   input: z.infer<typeof retryDeliverySchema>,
@@ -166,13 +206,89 @@ export async function retryDelivery(
   if (error) throw new Error(error.message);
   if (!delivery) throw new Error("Gönderim kaydı bulunamadı");
 
-  return dispatchWebhook(
+  const result = await dispatchWebhook(
     supabase,
     delivery.webhook_id,
     delivery.event,
     (delivery.payload ?? {}) as Record<string, unknown>,
     (delivery.attempt ?? 1) + 1,
+    true,
   );
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await supabaseAdmin
+    .from("webhook_deliveries")
+    .update({ next_retry_at: null })
+    .eq("id", delivery.id);
+
+  return result;
+}
+
+/** Zamanı gelmiş başarısız gönderimleri otomatik yeniden dener (cron tarafından çağrılır). */
+export async function processRetryQueue(limit = 25) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const client = supabaseAdmin as unknown as Client;
+
+  const { data: pending, error } = await supabaseAdmin
+    .from("webhook_deliveries")
+    .select("id, webhook_id, event, payload, attempt, store_id")
+    .eq("status", "failed")
+    .not("next_retry_at", "is", null)
+    .lte("next_retry_at", new Date().toISOString())
+    .order("next_retry_at", { ascending: true })
+    .limit(limit);
+  if (error) throw new Error(error.message);
+
+  let succeeded = 0;
+  let failed = 0;
+
+  for (const delivery of pending ?? []) {
+    await supabaseAdmin
+      .from("webhook_deliveries")
+      .update({ next_retry_at: null })
+      .eq("id", delivery.id);
+    try {
+      const result = await dispatchWebhook(
+        client,
+        delivery.webhook_id,
+        delivery.event,
+        (delivery.payload ?? {}) as Record<string, unknown>,
+        (delivery.attempt ?? 1) + 1,
+      );
+      if (result.ok) succeeded += 1;
+      else failed += 1;
+    } catch {
+      failed += 1;
+    }
+  }
+
+  return { processed: (pending ?? []).length, succeeded, failed };
+}
+
+/** Bir olayı, olaya abone tüm aktif webhook'lara yayınlar. */
+export async function emitStoreEvent(
+  supabase: Client,
+  storeId: string,
+  event: string,
+  payload: Record<string, unknown>,
+) {
+  const { data: hooks, error } = await supabase
+    .from("store_webhooks")
+    .select("id")
+    .eq("store_id", storeId)
+    .eq("is_active", true)
+    .contains("events", [event]);
+  if (error) throw new Error(error.message);
+
+  const results = [];
+  for (const hook of hooks ?? []) {
+    try {
+      results.push(await dispatchWebhook(supabase, hook.id, event, payload));
+    } catch {
+      results.push({ ok: false });
+    }
+  }
+  return { dispatched: results.length, succeeded: results.filter((item) => item.ok).length };
 }
 
 export async function listNotifications(supabase: Client, storeId: string) {

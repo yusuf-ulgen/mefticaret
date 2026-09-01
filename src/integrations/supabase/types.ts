@@ -77,6 +77,257 @@ export type Database = {
           },
         ]
       }
+      api_keys: {
+        Row: {
+          api_version: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          name: string
+          request_count: number
+          revoked_at: string | null
+          scopes: string[]
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          api_version?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          name: string
+          request_count?: number
+          revoked_at?: string | null
+          scopes?: string[]
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          api_version?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          name?: string
+          request_count?: number
+          revoked_at?: string | null
+          scopes?: string[]
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_request_logs: {
+        Row: {
+          api_key_id: string | null
+          api_version: string
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          ip_address: string | null
+          method: string
+          path: string
+          status_code: number
+          store_id: string
+        }
+        Insert: {
+          api_key_id?: string | null
+          api_version?: string
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          method: string
+          path: string
+          status_code?: number
+          store_id: string
+        }
+        Update: {
+          api_key_id?: string | null
+          api_version?: string
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          ip_address?: string | null
+          method?: string
+          path?: string
+          status_code?: number
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_request_logs_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_request_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_installations: {
+        Row: {
+          app_id: string
+          created_at: string
+          granted_permissions: string[]
+          id: string
+          installed_at: string
+          installed_by: string | null
+          settings: Json
+          status: Database["public"]["Enums"]["app_install_status"]
+          store_id: string
+          uninstalled_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          app_id: string
+          created_at?: string
+          granted_permissions?: string[]
+          id?: string
+          installed_at?: string
+          installed_by?: string | null
+          settings?: Json
+          status?: Database["public"]["Enums"]["app_install_status"]
+          store_id: string
+          uninstalled_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          app_id?: string
+          created_at?: string
+          granted_permissions?: string[]
+          id?: string
+          installed_at?: string
+          installed_by?: string | null
+          settings?: Json
+          status?: Database["public"]["Enums"]["app_install_status"]
+          store_id?: string
+          uninstalled_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_installations_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "app_installations_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      apps: {
+        Row: {
+          category: Database["public"]["Enums"]["app_category"]
+          code: string
+          created_at: string
+          currency: string
+          description: string | null
+          developer: string
+          developer_url: string | null
+          id: string
+          install_count: number
+          is_active: boolean
+          is_featured: boolean
+          logo_emoji: string | null
+          logo_url: string | null
+          name: string
+          permissions: string[]
+          price: number
+          pricing_model: Database["public"]["Enums"]["app_pricing_model"]
+          rating: number
+          settings_schema: Json
+          sort_order: number
+          tagline: string | null
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["app_category"]
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          developer?: string
+          developer_url?: string | null
+          id?: string
+          install_count?: number
+          is_active?: boolean
+          is_featured?: boolean
+          logo_emoji?: string | null
+          logo_url?: string | null
+          name: string
+          permissions?: string[]
+          price?: number
+          pricing_model?: Database["public"]["Enums"]["app_pricing_model"]
+          rating?: number
+          settings_schema?: Json
+          sort_order?: number
+          tagline?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["app_category"]
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          developer?: string
+          developer_url?: string | null
+          id?: string
+          install_count?: number
+          is_active?: boolean
+          is_featured?: boolean
+          logo_emoji?: string | null
+          logo_url?: string | null
+          name?: string
+          permissions?: string[]
+          price?: number
+          pricing_model?: Database["public"]["Enums"]["app_pricing_model"]
+          rating?: number
+          settings_schema?: Json
+          sort_order?: number
+          tagline?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -3244,40 +3495,52 @@ export type Database = {
       }
       store_webhooks: {
         Row: {
+          api_version: string
           created_at: string
+          description: string | null
           events: string[]
           id: string
           is_active: boolean
           last_error: string | null
           last_triggered_at: string | null
+          max_attempts: number
           name: string
           secret: string
+          signature_algorithm: string
           store_id: string
           target_url: string
           updated_at: string
         }
         Insert: {
+          api_version?: string
           created_at?: string
+          description?: string | null
           events?: string[]
           id?: string
           is_active?: boolean
           last_error?: string | null
           last_triggered_at?: string | null
+          max_attempts?: number
           name: string
           secret?: string
+          signature_algorithm?: string
           store_id: string
           target_url: string
           updated_at?: string
         }
         Update: {
+          api_version?: string
           created_at?: string
+          description?: string | null
           events?: string[]
           id?: string
           is_active?: boolean
           last_error?: string | null
           last_triggered_at?: string | null
+          max_attempts?: number
           name?: string
           secret?: string
+          signature_algorithm?: string
           store_id?: string
           target_url?: string
           updated_at?: string
@@ -3711,11 +3974,17 @@ export type Database = {
         Row: {
           attempt: number
           created_at: string
+          delivered_at: string | null
+          duration_ms: number | null
+          error_message: string | null
           event: string
           id: string
+          manual_retry: boolean
+          next_retry_at: string | null
           payload: Json
           response_body: string | null
           response_status: number | null
+          signature: string | null
           status: Database["public"]["Enums"]["webhook_delivery_status"]
           store_id: string
           webhook_id: string
@@ -3723,11 +3992,17 @@ export type Database = {
         Insert: {
           attempt?: number
           created_at?: string
+          delivered_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
           event: string
           id?: string
+          manual_retry?: boolean
+          next_retry_at?: string | null
           payload?: Json
           response_body?: string | null
           response_status?: number | null
+          signature?: string | null
           status?: Database["public"]["Enums"]["webhook_delivery_status"]
           store_id: string
           webhook_id: string
@@ -3735,11 +4010,17 @@ export type Database = {
         Update: {
           attempt?: number
           created_at?: string
+          delivered_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
           event?: string
           id?: string
+          manual_retry?: boolean
+          next_retry_at?: string | null
           payload?: Json
           response_body?: string | null
           response_status?: number | null
+          signature?: string | null
           status?: Database["public"]["Enums"]["webhook_delivery_status"]
           store_id?: string
           webhook_id?: string
@@ -3772,6 +4053,24 @@ export type Database = {
       }
     }
     Enums: {
+      app_category:
+        | "seo"
+        | "marketing"
+        | "payment"
+        | "shipping"
+        | "accounting"
+        | "crm"
+        | "analytics"
+        | "social"
+        | "email"
+        | "sms"
+        | "whatsapp"
+        | "ai"
+        | "reviews"
+        | "loyalty"
+        | "dropshipping"
+      app_install_status: "installed" | "paused" | "uninstalled"
+      app_pricing_model: "free" | "monthly" | "one_time" | "usage"
       app_role: "platform_admin" | "agency" | "seller" | "customer"
       billing_cycle_status: "open" | "closed" | "invoiced"
       billing_interval: "monthly" | "yearly"
@@ -4001,6 +4300,25 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_category: [
+        "seo",
+        "marketing",
+        "payment",
+        "shipping",
+        "accounting",
+        "crm",
+        "analytics",
+        "social",
+        "email",
+        "sms",
+        "whatsapp",
+        "ai",
+        "reviews",
+        "loyalty",
+        "dropshipping",
+      ],
+      app_install_status: ["installed", "paused", "uninstalled"],
+      app_pricing_model: ["free", "monthly", "one_time", "usage"],
       app_role: ["platform_admin", "agency", "seller", "customer"],
       billing_cycle_status: ["open", "closed", "invoiced"],
       billing_interval: ["monthly", "yearly"],

@@ -17,6 +17,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
+import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
 import { Route as SSlugAboutRouteImport } from './routes/s.$slug.about'
 import { Route as SSlugAccountRouteImport } from './routes/s.$slug.account'
@@ -44,6 +45,8 @@ import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdAgingRouteImport } from './routes/_authenticated/store.$storeId.aging'
 import { Route as AuthenticatedStoreStoreIdAiRouteImport } from './routes/_authenticated/store.$storeId.ai'
 import { Route as AuthenticatedStoreStoreIdAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.analytics'
+import { Route as AuthenticatedStoreStoreIdApiRouteImport } from './routes/_authenticated/store.$storeId.api'
+import { Route as AuthenticatedStoreStoreIdAppsRouteImport } from './routes/_authenticated/store.$storeId.apps'
 import { Route as AuthenticatedStoreStoreIdBarcodesRouteImport } from './routes/_authenticated/store.$storeId.barcodes'
 import { Route as AuthenticatedStoreStoreIdBasketRouteImport } from './routes/_authenticated/store.$storeId.basket'
 import { Route as AuthenticatedStoreStoreIdBillingRouteImport } from './routes/_authenticated/store.$storeId.billing'
@@ -117,8 +120,10 @@ import { Route as AuthenticatedStoreStoreIdVendorsRouteImport } from './routes/_
 import { Route as AuthenticatedStoreStoreIdWarehousesRouteImport } from './routes/_authenticated/store.$storeId.warehouses'
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
+import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
+import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
@@ -167,6 +172,11 @@ const AuthenticatedSellerSellerIdRoute =
     path: '/seller/$sellerId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiV1SplatRoute = ApiV1SplatRouteImport.update({
+  id: '/api/v1/$',
+  path: '/api/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SSlugIndexRoute = SSlugIndexRouteImport.update({
   id: '/s/$slug/',
   path: '/s/$slug/',
@@ -305,6 +315,18 @@ const AuthenticatedStoreStoreIdAnalyticsRoute =
   AuthenticatedStoreStoreIdAnalyticsRouteImport.update({
     id: '/store/$storeId/analytics',
     path: '/store/$storeId/analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdApiRoute =
+  AuthenticatedStoreStoreIdApiRouteImport.update({
+    id: '/store/$storeId/api',
+    path: '/store/$storeId/api',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdAppsRoute =
+  AuthenticatedStoreStoreIdAppsRouteImport.update({
+    id: '/store/$storeId/apps',
+    path: '/store/$storeId/apps',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdBarcodesRoute =
@@ -745,6 +767,12 @@ const ApiPublicCronDailyRollupRoute =
     path: '/api/public/cron/daily-rollup',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronWebhookRetriesRoute =
+  ApiPublicCronWebhookRetriesRouteImport.update({
+    id: '/api/public/cron/webhook-retries',
+    path: '/api/public/cron/webhook-retries',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicRobotsSlugRoute = ApiPublicRobotsSlugRouteImport.update({
   id: '/api/public/robots/$slug',
   path: '/api/public/robots/$slug',
@@ -753,6 +781,11 @@ const ApiPublicRobotsSlugRoute = ApiPublicRobotsSlugRouteImport.update({
 const ApiPublicSitemapSlugRoute = ApiPublicSitemapSlugRouteImport.update({
   id: '/api/public/sitemap/$slug',
   path: '/api/public/sitemap/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
+  id: '/api/public/v1/$',
+  path: '/api/public/v1/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugCCollectionSlugRoute = SSlugCCollectionSlugRouteImport.update({
@@ -803,6 +836,7 @@ export interface FileRoutesByFullPath {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -830,6 +864,8 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
   '/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
+  '/store/$storeId/api': typeof AuthenticatedStoreStoreIdApiRoute
+  '/store/$storeId/apps': typeof AuthenticatedStoreStoreIdAppsRoute
   '/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
   '/store/$storeId/basket': typeof AuthenticatedStoreStoreIdBasketRoute
   '/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
@@ -903,8 +939,10 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -921,6 +959,7 @@ export interface FileRoutesByTo {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -948,6 +987,8 @@ export interface FileRoutesByTo {
   '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
   '/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
+  '/store/$storeId/api': typeof AuthenticatedStoreStoreIdApiRoute
+  '/store/$storeId/apps': typeof AuthenticatedStoreStoreIdAppsRoute
   '/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
   '/store/$storeId/basket': typeof AuthenticatedStoreStoreIdBasketRoute
   '/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
@@ -1021,8 +1062,10 @@ export interface FileRoutesByTo {
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -1041,6 +1084,7 @@ export interface FileRoutesById {
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -1068,6 +1112,8 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
   '/_authenticated/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
   '/_authenticated/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
+  '/_authenticated/store/$storeId/api': typeof AuthenticatedStoreStoreIdApiRoute
+  '/_authenticated/store/$storeId/apps': typeof AuthenticatedStoreStoreIdAppsRoute
   '/_authenticated/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
   '/_authenticated/store/$storeId/basket': typeof AuthenticatedStoreStoreIdBasketRoute
   '/_authenticated/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
@@ -1141,8 +1187,10 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -1161,6 +1209,7 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/seller/$sellerId'
+    | '/api/v1/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -1188,6 +1237,8 @@ export interface FileRouteTypes {
     | '/store/$storeId/aging'
     | '/store/$storeId/ai'
     | '/store/$storeId/analytics'
+    | '/store/$storeId/api'
+    | '/store/$storeId/apps'
     | '/store/$storeId/barcodes'
     | '/store/$storeId/basket'
     | '/store/$storeId/billing'
@@ -1261,8 +1312,10 @@ export interface FileRouteTypes {
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/v1/$'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -1279,6 +1332,7 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/seller/$sellerId'
+    | '/api/v1/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -1306,6 +1360,8 @@ export interface FileRouteTypes {
     | '/store/$storeId/aging'
     | '/store/$storeId/ai'
     | '/store/$storeId/analytics'
+    | '/store/$storeId/api'
+    | '/store/$storeId/apps'
     | '/store/$storeId/barcodes'
     | '/store/$storeId/basket'
     | '/store/$storeId/billing'
@@ -1379,8 +1435,10 @@ export interface FileRouteTypes {
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/v1/$'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -1398,6 +1456,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
     | '/_authenticated/seller/$sellerId'
+    | '/api/v1/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -1425,6 +1484,8 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/aging'
     | '/_authenticated/store/$storeId/ai'
     | '/_authenticated/store/$storeId/analytics'
+    | '/_authenticated/store/$storeId/api'
+    | '/_authenticated/store/$storeId/apps'
     | '/_authenticated/store/$storeId/barcodes'
     | '/_authenticated/store/$storeId/basket'
     | '/_authenticated/store/$storeId/billing'
@@ -1498,8 +1559,10 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/warehouses'
     | '/_authenticated/store/$storeId/webhooks'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/v1/$'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -1513,6 +1576,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiV1SplatRoute: typeof ApiV1SplatRoute
   SSlugAboutRoute: typeof SSlugAboutRoute
   SSlugAccountRoute: typeof SSlugAccountRoute
   SSlugBlogRoute: typeof SSlugBlogRoute
@@ -1536,8 +1600,10 @@ export interface RootRouteChildren {
   SSlugTermsRoute: typeof SSlugTermsRoute
   SSlugIndexRoute: typeof SSlugIndexRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
+  ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
+  ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
@@ -1600,6 +1666,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/seller/$sellerId'
       preLoaderRoute: typeof AuthenticatedSellerSellerIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/v1/$': {
+      id: '/api/v1/$'
+      path: '/api/v1/$'
+      fullPath: '/api/v1/$'
+      preLoaderRoute: typeof ApiV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/s/$slug/': {
       id: '/s/$slug/'
@@ -1788,6 +1861,20 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/analytics'
       fullPath: '/store/$storeId/analytics'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/api': {
+      id: '/_authenticated/store/$storeId/api'
+      path: '/store/$storeId/api'
+      fullPath: '/store/$storeId/api'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdApiRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/apps': {
+      id: '/_authenticated/store/$storeId/apps'
+      path: '/store/$storeId/apps'
+      fullPath: '/store/$storeId/apps'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdAppsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/barcodes': {
@@ -2301,6 +2388,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronDailyRollupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/webhook-retries': {
+      id: '/api/public/cron/webhook-retries'
+      path: '/api/public/cron/webhook-retries'
+      fullPath: '/api/public/cron/webhook-retries'
+      preLoaderRoute: typeof ApiPublicCronWebhookRetriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/robots/$slug': {
       id: '/api/public/robots/$slug'
       path: '/api/public/robots/$slug'
@@ -2313,6 +2407,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/sitemap/$slug'
       fullPath: '/api/public/sitemap/$slug'
       preLoaderRoute: typeof ApiPublicSitemapSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/$': {
+      id: '/api/public/v1/$'
+      path: '/api/public/v1/$'
+      fullPath: '/api/public/v1/$'
+      preLoaderRoute: typeof ApiPublicV1SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/c/$collectionSlug': {
@@ -2426,6 +2527,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdAgingRoute: typeof AuthenticatedStoreStoreIdAgingRoute
   AuthenticatedStoreStoreIdAiRoute: typeof AuthenticatedStoreStoreIdAiRoute
   AuthenticatedStoreStoreIdAnalyticsRoute: typeof AuthenticatedStoreStoreIdAnalyticsRoute
+  AuthenticatedStoreStoreIdApiRoute: typeof AuthenticatedStoreStoreIdApiRoute
+  AuthenticatedStoreStoreIdAppsRoute: typeof AuthenticatedStoreStoreIdAppsRoute
   AuthenticatedStoreStoreIdBarcodesRoute: typeof AuthenticatedStoreStoreIdBarcodesRoute
   AuthenticatedStoreStoreIdBasketRoute: typeof AuthenticatedStoreStoreIdBasketRoute
   AuthenticatedStoreStoreIdBillingRoute: typeof AuthenticatedStoreStoreIdBillingRoute
@@ -2513,6 +2616,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdAiRoute: AuthenticatedStoreStoreIdAiRoute,
   AuthenticatedStoreStoreIdAnalyticsRoute:
     AuthenticatedStoreStoreIdAnalyticsRoute,
+  AuthenticatedStoreStoreIdApiRoute: AuthenticatedStoreStoreIdApiRoute,
+  AuthenticatedStoreStoreIdAppsRoute: AuthenticatedStoreStoreIdAppsRoute,
   AuthenticatedStoreStoreIdBarcodesRoute:
     AuthenticatedStoreStoreIdBarcodesRoute,
   AuthenticatedStoreStoreIdBasketRoute: AuthenticatedStoreStoreIdBasketRoute,
@@ -2639,6 +2744,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiV1SplatRoute: ApiV1SplatRoute,
   SSlugAboutRoute: SSlugAboutRoute,
   SSlugAccountRoute: SSlugAccountRoute,
   SSlugBlogRoute: SSlugBlogRoute,
@@ -2662,8 +2768,10 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugTermsRoute: SSlugTermsRoute,
   SSlugIndexRoute: SSlugIndexRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
+  ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
+  ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
