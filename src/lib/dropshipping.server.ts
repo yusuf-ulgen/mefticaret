@@ -238,30 +238,47 @@ export async function runSupplierFeed(
         }
       }
 
-      const { error: upsertError } = await supabase.from("supplier_products").upsert(
-        {
-          store_id: feed.store_id,
-          feed_id: feed.id,
-          supplier_id: feed.supplier_id,
-          external_id: item.external_id,
-          sku: item.sku,
-          barcode: item.barcode,
-          title: item.title,
-          brand: item.brand,
-          category: item.category,
-          supplier_price: item.supplier_price,
-          computed_price: salePrice,
-          stock,
-          images: feed.import_images ? item.images : [],
-          raw: item.raw,
-          product_id: variant?.product_id ?? null,
-          variant_id: variant?.id ?? null,
-          matched_at: variant ? now : null,
-          last_seen_at: now,
-        },
-        { onConflict: "feed_id,external_id" },
-      );
-      if (upsertError) totals.skipped += 1;
+      const payload = {
+        store_id: feed.store_id,
+        feed_id: feed.id,
+        supplier_id: feed.supplier_id,
+        external_id: item.external_id,
+        sku: item.sku,
+        barcode: item.barcode,
+        title: item.title,
+        brand: item.brand,
+        category: item.category,
+        supplier_price: item.supplier_price,
+        computed_price: salePrice,
+        stock,
+        images: feed.import_images ? item.images : [],
+        raw: item.raw,
+        product_id: variant?.product_id ?? null,
+        variant_id: variant?.id ?? null,
+        matched_at: variant ? now : null,
+        last_seen_at: now,
+      };
+
+      const identityColumn =
+        item.external_id ? "external_id" : item.sku ? "sku" : item.barcode ? "barcode" : "title";
+      const identityValue =
+        item.external_id ?? item.sku ?? item.barcode ?? item.title;
+
+      const { data: existing } = await supabase
+        .from("supplier_products")
+        .select("id")
+        .eq("feed_id", feed.id)
+        .eq(identityColumn, identityValue)
+        .limit(1)
+        .maybeSingle();
+
+      const { error: writeError } = existing
+        ? await supabase
+            .from("supplier_products")
+            .update(payload)
+            .eq("id", (existing as { id: string }).id)
+        : await supabase.from("supplier_products").insert(payload);
+      if (writeError) totals.skipped += 1;
       else totals.imported += 1;
     }
 
