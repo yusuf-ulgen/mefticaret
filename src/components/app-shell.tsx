@@ -14,6 +14,7 @@ import {
   Cog,
   FileSpreadsheet,
   FileText,
+  PenLine,
   CreditCard,
   Globe,
   Grid3x3,
