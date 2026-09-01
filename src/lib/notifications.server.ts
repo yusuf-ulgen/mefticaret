@@ -127,7 +127,7 @@ export async function createSystemNotification(
     _store_id: input.storeId,
     _kind: input.kind,
     _title: input.title,
-    _message: input.message,
+    ...(input.message ? { _message: input.message } : {}),
     _entity: "system",
     
     _meta: {},
