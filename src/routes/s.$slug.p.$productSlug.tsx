@@ -155,6 +155,31 @@ function ProductPage() {
               }}
             />
           )}
+
+          {product.video_url ? (
+            <div style={{ marginTop: 16 }}>
+              {/\.(mp4|webm)$/i.test(product.video_url) ? (
+                <video
+                  src={product.video_url}
+                  controls
+                  style={{ width: "100%", borderRadius: radius, border: `1px solid ${border}` }}
+                />
+              ) : (
+                <iframe
+                  src={embedUrl(product.video_url)}
+                  title={`${product.title} tanıtım videosu`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  style={{
+                    width: "100%",
+                    aspectRatio: "16 / 9",
+                    border: `1px solid ${border}`,
+                    borderRadius: radius,
+                  }}
+                />
+              )}
+            </div>
+          ) : null}
         </div>
 
         <div>
@@ -200,8 +225,39 @@ function ProductPage() {
 
           <div style={{ marginTop: 14, fontSize: 13, color: muted }}>
             {inStock ? "Stokta var" : "Tükendi"}
-            {selected?.sku ? ` · SKU: ${selected.sku}` : ""}
+            {selected?.sku ?? product.sku ? ` · SKU: ${selected?.sku ?? product.sku}` : ""}
           </div>
+
+          <dl
+            style={{
+              marginTop: 16,
+              display: "grid",
+              gridTemplateColumns: "auto minmax(0,1fr)",
+              gap: "6px 14px",
+              fontSize: 13,
+            }}
+          >
+            {[
+              ["Marka", product.vendor],
+              ["Satıcı", product.seller_name],
+              ["Kategori", product.product_type],
+              ["Barkod", product.barcode],
+              ["Ağırlık", product.weight_grams ? `${product.weight_grams} g` : null],
+              [
+                "Boyut",
+                product.length_cm || product.width_cm || product.height_cm
+                  ? `${product.length_cm ?? 0} × ${product.width_cm ?? 0} × ${product.height_cm ?? 0} cm`
+                  : null,
+              ],
+            ]
+              .filter(([, value]) => Boolean(value))
+              .map(([label, value]) => (
+                <Fragment key={String(label)}>
+                  <dt style={{ color: muted }}>{label}</dt>
+                  <dd style={{ margin: 0 }}>{value}</dd>
+                </Fragment>
+              ))}
+          </dl>
 
           <button
             type="button"
