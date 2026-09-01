@@ -127,6 +127,63 @@ export type Database = {
           },
         ]
       }
+      billing_cycles: {
+        Row: {
+          amount_due: number
+          closed_at: string | null
+          created_at: string
+          currency: string
+          id: string
+          period_end: string
+          period_start: string
+          status: Database["public"]["Enums"]["billing_cycle_status"]
+          store_id: string
+          subscription_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_due?: number
+          closed_at?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          period_end: string
+          period_start: string
+          status?: Database["public"]["Enums"]["billing_cycle_status"]
+          store_id: string
+          subscription_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_due?: number
+          closed_at?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          status?: Database["public"]["Enums"]["billing_cycle_status"]
+          store_id?: string
+          subscription_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_cycles_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_cycles_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       channel_listings: {
         Row: {
           channel_id: string
@@ -764,6 +821,85 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          billing_cycle_id: string | null
+          created_at: string
+          currency: string
+          due_at: string | null
+          id: string
+          invoice_number: string
+          issued_at: string
+          line_items: Json
+          paid_at: string | null
+          status: Database["public"]["Enums"]["invoice_status"]
+          store_id: string
+          subscription_id: string | null
+          subtotal: number
+          tax_total: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          billing_cycle_id?: string | null
+          created_at?: string
+          currency?: string
+          due_at?: string | null
+          id?: string
+          invoice_number: string
+          issued_at?: string
+          line_items?: Json
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          store_id: string
+          subscription_id?: string | null
+          subtotal?: number
+          tax_total?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          billing_cycle_id?: string | null
+          created_at?: string
+          currency?: string
+          due_at?: string | null
+          id?: string
+          invoice_number?: string
+          issued_at?: string
+          line_items?: Json
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          store_id?: string
+          subscription_id?: string | null
+          subtotal?: number
+          tax_total?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_billing_cycle_id_fkey"
+            columns: ["billing_cycle_id"]
+            isOneToOne: false
+            referencedRelation: "billing_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ledger_entries: {
         Row: {
           amount: number
@@ -1296,6 +1432,53 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_features: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          label: string
+          limit_value: number | null
+          metric_key: string
+          plan_id: string
+          sort_order: number
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          label: string
+          limit_value?: number | null
+          metric_key: string
+          plan_id: string
+          sort_order?: number
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          label?: string
+          limit_value?: number | null
+          metric_key?: string
+          plan_id?: string
+          sort_order?: number
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_features_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
             referencedColumns: ["id"]
           },
         ]
@@ -3177,6 +3360,135 @@ export type Database = {
           },
         ]
       }
+      subscription_items: {
+        Row: {
+          created_at: string
+          currency: string
+          description: string
+          id: string
+          kind: Database["public"]["Enums"]["subscription_item_kind"]
+          metric_key: string | null
+          quantity: number
+          store_id: string
+          subscription_id: string
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          description: string
+          id?: string
+          kind?: Database["public"]["Enums"]["subscription_item_kind"]
+          metric_key?: string | null
+          quantity?: number
+          store_id: string
+          subscription_id: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          description?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["subscription_item_kind"]
+          metric_key?: string | null
+          quantity?: number
+          store_id?: string
+          subscription_id?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_items_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          amount: number
+          billing_interval: Database["public"]["Enums"]["billing_interval"]
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          created_at: string
+          currency: string
+          current_period_end: string
+          current_period_start: string
+          id: string
+          meta: Json
+          plan_id: string | null
+          started_at: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          store_id: string
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          billing_interval?: Database["public"]["Enums"]["billing_interval"]
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          currency?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          meta?: Json
+          plan_id?: string | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          store_id: string
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          billing_interval?: Database["public"]["Enums"]["billing_interval"]
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          currency?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          meta?: Json
+          plan_id?: string | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          store_id?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
           address: string | null
@@ -3226,6 +3538,57 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      usage_records: {
+        Row: {
+          created_at: string
+          id: string
+          meta: Json
+          metric_key: string
+          period_start: string
+          quantity: number
+          recorded_at: string
+          store_id: string
+          subscription_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meta?: Json
+          metric_key: string
+          period_start?: string
+          quantity?: number
+          recorded_at?: string
+          store_id: string
+          subscription_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meta?: Json
+          metric_key?: string
+          period_start?: string
+          quantity?: number
+          recorded_at?: string
+          store_id?: string
+          subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usage_records_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "usage_records_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
             referencedColumns: ["id"]
           },
         ]
@@ -3410,6 +3773,8 @@ export type Database = {
     }
     Enums: {
       app_role: "platform_admin" | "agency" | "seller" | "customer"
+      billing_cycle_status: "open" | "closed" | "invoiced"
+      billing_interval: "monthly" | "yearly"
       channel_status: "disconnected" | "connected" | "error" | "paused"
       connector_kind: "payment" | "shipping"
       discount_type: "percentage" | "fixed_amount" | "free_shipping"
@@ -3431,6 +3796,7 @@ export type Database = {
         | "transfer_in"
         | "reserve"
         | "release"
+      invoice_status: "draft" | "open" | "paid" | "void" | "uncollectible"
       ledger_direction: "credit" | "debit"
       ledger_entry_kind:
         | "sale"
@@ -3494,6 +3860,13 @@ export type Database = {
       stock_transfer_status: "draft" | "in_transit" | "received" | "cancelled"
       store_role: "owner" | "admin" | "staff" | "marketing" | "support"
       store_status: "draft" | "active" | "suspended" | "archived"
+      subscription_item_kind: "plan" | "addon" | "usage"
+      subscription_status:
+        | "trialing"
+        | "active"
+        | "past_due"
+        | "canceled"
+        | "expired"
       warehouse_kind:
         | "warehouse"
         | "branch"
@@ -3629,6 +4002,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["platform_admin", "agency", "seller", "customer"],
+      billing_cycle_status: ["open", "closed", "invoiced"],
+      billing_interval: ["monthly", "yearly"],
       channel_status: ["disconnected", "connected", "error", "paused"],
       connector_kind: ["payment", "shipping"],
       discount_type: ["percentage", "fixed_amount", "free_shipping"],
@@ -3652,6 +4027,7 @@ export const Constants = {
         "reserve",
         "release",
       ],
+      invoice_status: ["draft", "open", "paid", "void", "uncollectible"],
       ledger_direction: ["credit", "debit"],
       ledger_entry_kind: [
         "sale",
@@ -3722,6 +4098,14 @@ export const Constants = {
       stock_transfer_status: ["draft", "in_transit", "received", "cancelled"],
       store_role: ["owner", "admin", "staff", "marketing", "support"],
       store_status: ["draft", "active", "suspended", "archived"],
+      subscription_item_kind: ["plan", "addon", "usage"],
+      subscription_status: [
+        "trialing",
+        "active",
+        "past_due",
+        "canceled",
+        "expired",
+      ],
       warehouse_kind: [
         "warehouse",
         "branch",

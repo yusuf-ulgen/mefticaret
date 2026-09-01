@@ -43,6 +43,9 @@ import {
   YAxis,
 } from "recharts";
 import { savePlatformPlan, setStoreStatus } from "@/lib/admin.functions";
+import { savePlanFeatures } from "@/lib/subscription.functions";
+import { planFeaturesQuery, type PlanFeatureRow } from "@/lib/subscription-queries";
+import { METRIC_CATALOG, limitLabel } from "@/lib/subscription";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -74,7 +77,15 @@ type PlanDraft = {
   trialDays: string;
   sortOrder: string;
   isActive: boolean;
-  limits: string;
+};
+
+type FeatureDraft = {
+  metricKey: string;
+  label: string;
+  unit: string;
+  limitValue: string;
+  isEnabled: boolean;
+  sortOrder: number;
 };
 
 function toDraft(plan?: PlanRow): PlanDraft {
@@ -89,8 +100,37 @@ function toDraft(plan?: PlanRow): PlanDraft {
     trialDays: String(plan?.trial_days ?? 0),
     sortOrder: String(plan?.sort_order ?? 0),
     isActive: plan?.is_active ?? true,
-    limits: JSON.stringify(plan?.limits ?? {}, null, 2),
   };
+}
+
+/** Paket limitleri veritabanından okunur; eksik metrikler katalogdan boş (sınırsız) eklenir. */
+function toFeatureDrafts(rows: PlanFeatureRow[]): FeatureDraft[] {
+  const byKey = new Map(rows.map((row) => [row.metric_key, row]));
+  const drafts: FeatureDraft[] = METRIC_CATALOG.map((metric, index) => {
+    const row = byKey.get(metric.key);
+    byKey.delete(metric.key);
+    return {
+      metricKey: metric.key,
+      label: row?.label ?? metric.label,
+      unit: row?.unit ?? metric.unit,
+      limitValue: row?.limit_value === null || row?.limit_value === undefined ? "" : String(row.limit_value),
+      isEnabled: row?.is_enabled ?? true,
+      sortOrder: row?.sort_order ?? index + 1,
+    };
+  });
+  let extra = drafts.length;
+  for (const row of byKey.values()) {
+    extra += 1;
+    drafts.push({
+      metricKey: row.metric_key,
+      label: row.label,
+      unit: row.unit ?? "",
+      limitValue: row.limit_value === null ? "" : String(row.limit_value),
+      isEnabled: row.is_enabled,
+      sortOrder: row.sort_order || extra,
+    });
+  }
+  return drafts;
 }
 
 function AdminPage() {
@@ -102,12 +142,24 @@ function AdminPage() {
   const { data: overview } = useQuery(adminOverviewQuery(isPlatformAdmin));
   const { data: growth } = useQuery(adminGrowthQuery(isPlatformAdmin));
 
+  const { data: allFeatures } = useQuery(planFeaturesQuery());
+
   const [draft, setDraft] = useState<PlanDraft | null>(null);
+  const [features, setFeatures] = useState<FeatureDraft[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | (typeof STATUS_OPTIONS)[number]>("all");
 
   const updateStatus = useServerFn(setStoreStatus);
   const savePlan = useServerFn(savePlatformPlan);
+  const saveFeatures = useServerFn(savePlanFeatures);
+
+  const featuresByPlan = (planId: string) =>
+    (allFeatures ?? []).filter((row) => row.plan_id === planId);
+
+  const openPlan = (plan?: PlanRow) => {
+    setDraft(toDraft(plan));
+    setFeatures(toFeatureDrafts(plan ? featuresByPlan(plan.id) : []));
+  };
 
   const statusMutation = useMutation({
     mutationFn: (input: { storeId: string; status: (typeof STATUS_OPTIONS)[number] }) =>
@@ -122,19 +174,16 @@ function AdminPage() {
 
   const planMutation = useMutation({
     mutationFn: async (input: PlanDraft) => {
-      let limits: Record<string, number> = {};
-      try {
-        const parsed = JSON.parse(input.limits || "{}");
-        limits = Object.fromEntries(
-          Object.entries(parsed as Record<string, unknown>).map(([key, value]) => [
-            key,
-            Number(value),
+      const limits = Object.fromEntries(
+        features
+          .filter((feature) => feature.isEnabled)
+          .map((feature) => [
+            feature.metricKey,
+            feature.limitValue.trim() === "" ? -1 : Number(feature.limitValue),
           ]),
-        );
-      } catch {
-        throw new Error("Limitler geçerli bir JSON olmalı");
-      }
-      return savePlan({
+      ) as Record<string, number>;
+
+      await savePlan({
         data: {
           id: input.id,
           code: input.code.trim(),
@@ -149,12 +198,29 @@ function AdminPage() {
           limits,
         },
       });
+
+      if (input.id) {
+        await saveFeatures({
+          data: {
+            planId: input.id,
+            features: features.map((feature, index) => ({
+              metricKey: feature.metricKey,
+              label: feature.label.trim() || feature.metricKey,
+              unit: feature.unit.trim() || null,
+              limitValue: feature.limitValue.trim() === "" ? null : Number(feature.limitValue),
+              isEnabled: feature.isEnabled,
+              sortOrder: feature.sortOrder || index + 1,
+            })),
+          },
+        });
+      }
     },
     onSuccess: () => {
-      toast.success("Paket kaydedildi");
+      toast.success("Paket ve limitler kaydedildi");
       setDraft(null);
       queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
       queryClient.invalidateQueries({ queryKey: ["plans"] });
+      queryClient.invalidateQueries({ queryKey: ["plan-features"] });
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -326,7 +392,7 @@ function AdminPage() {
             <p className="text-sm text-muted-foreground">
               Paket fiyatları, komisyon oranı ve kiracı limitleri buradan yönetilir.
             </p>
-            <Button size="sm" onClick={() => setDraft(toDraft())}>
+            <Button size="sm" onClick={() => openPlan()}>
               <Plus className="size-4" /> Yeni paket
             </Button>
           </div>
@@ -335,7 +401,7 @@ function AdminPage() {
               <button
                 key={plan.id}
                 type="button"
-                onClick={() => setDraft(toDraft(plan))}
+                onClick={() => openPlan(plan)}
                 className="surface-card p-5 text-left transition hover:border-primary/50"
               >
                 <div className="flex items-center justify-between gap-2">
@@ -347,11 +413,22 @@ function AdminPage() {
                 <p className="mt-1 text-xs text-muted-foreground">{plan.code}</p>
                 <p className="mt-3 text-sm">
                   {formatMoney(Number(plan.price_monthly), plan.currency)} / ay ·{" "}
+                  {formatMoney(Number(plan.price_yearly), plan.currency)} / yıl ·{" "}
                   {(Number(plan.commission_rate) * 100).toFixed(2)}% komisyon
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {Object.keys(plan.limits ?? {}).length} limit tanımı · {plan.trial_days} gün deneme
+                  {featuresByPlan(plan.id).length} limit tanımı · {plan.trial_days} gün deneme
                 </p>
+                <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+                  {featuresByPlan(plan.id)
+                    .slice(0, 4)
+                    .map((feature) => (
+                      <li key={feature.id}>
+                        {feature.label}: {limitLabel(feature.limit_value)}
+                        {feature.unit ? ` ${feature.unit}` : ""}
+                      </li>
+                    ))}
+                </ul>
               </button>
             ))}
           </div>
@@ -523,15 +600,72 @@ function AdminPage() {
                   <Label htmlFor="plan-active">Satışta</Label>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="plan-limits">Limitler (JSON)</Label>
-                <Textarea
-                  id="plan-limits"
-                  rows={6}
-                  className="font-mono text-xs"
-                  value={draft.limits}
-                  onChange={(event) => setDraft({ ...draft, limits: event.target.value })}
-                />
+              <div className="space-y-3">
+                <div>
+                  <Label>Paket limitleri</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Limitler veritabanında tutulur. Boş bırakılan alan sınırsız kabul edilir.
+                  </p>
+                </div>
+                {draft.id ? (
+                  <div className="space-y-2">
+                    {features.map((feature, index) => (
+                      <div
+                        key={feature.metricKey}
+                        className="grid grid-cols-[1fr_110px_70px_auto] items-center gap-2 rounded-lg border border-border p-2"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium">{feature.label}</p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {feature.metricKey}
+                          </p>
+                        </div>
+                        <Input
+                          type="number"
+                          min={0}
+                          placeholder="Sınırsız"
+                          value={feature.limitValue}
+                          aria-label={`${feature.label} limiti`}
+                          onChange={(event) =>
+                            setFeatures(
+                              features.map((row, rowIndex) =>
+                                rowIndex === index
+                                  ? { ...row, limitValue: event.target.value }
+                                  : row,
+                              ),
+                            )
+                          }
+                        />
+                        <Input
+                          value={feature.unit}
+                          aria-label={`${feature.label} birimi`}
+                          onChange={(event) =>
+                            setFeatures(
+                              features.map((row, rowIndex) =>
+                                rowIndex === index ? { ...row, unit: event.target.value } : row,
+                              ),
+                            )
+                          }
+                        />
+                        <Switch
+                          checked={feature.isEnabled}
+                          aria-label={`${feature.label} aktif`}
+                          onCheckedChange={(checked) =>
+                            setFeatures(
+                              features.map((row, rowIndex) =>
+                                rowIndex === index ? { ...row, isEnabled: checked } : row,
+                              ),
+                            )
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+                    Paketi kaydettikten sonra limitleri düzenleyebilirsin.
+                  </p>
+                )}
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setDraft(null)}>
