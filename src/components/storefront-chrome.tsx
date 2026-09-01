@@ -191,15 +191,24 @@ export function StorefrontChrome({
           borderBottom: `1px solid ${border}`,
           maxWidth: 1140,
           margin: "0 auto",
+          position: flag(headerCfg, "sticky", false) ? "sticky" : undefined,
+          top: flag(headerCfg, "sticky", false) ? 0 : undefined,
+          zIndex: flag(headerCfg, "sticky", false) ? 20 : undefined,
+          background: flag(headerCfg, "sticky", false) ? t.background_color : undefined,
         }}
       >
-        <Link
-          to="/s/$slug"
-          params={{ slug: storeSlug }}
-          style={{ fontFamily: fonts.heading, fontWeight: 700, fontSize: 20, color: text, textDecoration: "none" }}
-        >
-          {storeName}
-        </Link>
+        <div>
+          <Link
+            to="/s/$slug"
+            params={{ slug: storeSlug }}
+            style={{ fontFamily: fonts.heading, fontWeight: 700, fontSize: 20, color: text, textDecoration: "none" }}
+          >
+            {storeName}
+          </Link>
+          {value(headerCfg, "tagline") ? (
+            <div style={{ color: muted, fontSize: 12, marginTop: 2 }}>{value(headerCfg, "tagline")}</div>
+          ) : null}
+        </div>
         <nav style={{ display: "flex", gap: 18, fontSize: 13, color: muted }}>
           {headerItems.length ? (
             headerItems.map((item) => (
@@ -259,21 +268,25 @@ export function StorefrontChrome({
             </>
           )}
 
-          <Link
-            to="/s/$slug/search"
-            params={{ slug: storeSlug }}
-            style={{ color: muted, textDecoration: "none" }}
-          >
-            Arama
-          </Link>
+          {flag(headerCfg, "showSearch") ? (
+            <Link
+              to="/s/$slug/search"
+              params={{ slug: storeSlug }}
+              style={{ color: muted, textDecoration: "none" }}
+            >
+              Arama
+            </Link>
+          ) : null}
 
-          <Link
-            to="/s/$slug/favorites"
-            params={{ slug: storeSlug }}
-            style={{ color: muted, textDecoration: "none" }}
-          >
-            Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
-          </Link>
+          {flag(headerCfg, "showFavorites") ? (
+            <Link
+              to="/s/$slug/favorites"
+              params={{ slug: storeSlug }}
+              style={{ color: muted, textDecoration: "none" }}
+            >
+              Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
+            </Link>
+          ) : null}
 
 
           <Link
@@ -296,20 +309,22 @@ export function StorefrontChrome({
             </Link>
           ) : null}
 
-          <Link
-            to="/s/$slug/cart"
-            params={{ slug: storeSlug }}
-            style={{
-              color: text,
-              textDecoration: "none",
-              border: `1px solid ${border}`,
-              borderRadius: radius,
-              padding: "5px 12px",
-              fontWeight: 600,
-            }}
-          >
-            Sepet{cartCount ? ` (${cartCount})` : ""}
-          </Link>
+          {flag(headerCfg, "showCart") ? (
+            <Link
+              to="/s/$slug/cart"
+              params={{ slug: storeSlug }}
+              style={{
+                color: text,
+                textDecoration: "none",
+                border: `1px solid ${border}`,
+                borderRadius: radius,
+                padding: "5px 12px",
+                fontWeight: 600,
+              }}
+            >
+              Sepet{cartCount ? ` (${cartCount})` : ""}
+            </Link>
+          ) : null}
         </nav>
       </header>
 
@@ -324,7 +339,20 @@ export function StorefrontChrome({
           color: muted,
         }}
       >
-        {footerItems.length || footerPages?.length ? (
+        {value(footerCfg, "about") ? (
+          <p style={{ maxWidth: 620, margin: "0 auto 14px", fontSize: 13, lineHeight: 1.7 }}>
+            {value(footerCfg, "about")}
+          </p>
+        ) : null}
+
+        {value(footerCfg, "email") || value(footerCfg, "phone") ? (
+          <div style={{ marginBottom: 14, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
+            {value(footerCfg, "email") ? <span>{value(footerCfg, "email")}</span> : null}
+            {value(footerCfg, "phone") ? <span>{value(footerCfg, "phone")}</span> : null}
+          </div>
+        ) : null}
+
+        {flag(footerCfg, "showPages") && (footerItems.length || footerPages?.length) ? (
           <nav
             style={{
               display: "flex",
@@ -356,6 +384,7 @@ export function StorefrontChrome({
           </nav>
         ) : null}
 
+        {flag(footerCfg, "showLegalLinks") ? (
         <nav
           style={{
             display: "flex",
@@ -383,8 +412,9 @@ export function StorefrontChrome({
             </Link>
           ))}
         </nav>
+        ) : null}
 
-        {storeName} — Mefticaret altyapısıyla çalışır.
+        {value(footerCfg, "copyright") || `${storeName} — Mefticaret altyapısıyla çalışır.`}
       </footer>
 
     </div>
