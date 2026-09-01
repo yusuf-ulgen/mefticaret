@@ -186,7 +186,15 @@ export const previewSupplierFeed = createServerFn({ method: "POST" })
     const body = await response.text();
     const records = parseFeedPayload(data.kind, body, data.itemPath);
     const fields = Array.from(new Set(records.slice(0, 20).flatMap((r) => Object.keys(r)))).slice(0, 80);
-    return { total: records.length, fields, sample: records.slice(0, 3) };
+    const sample = records.slice(0, 3).map((record) =>
+      Object.fromEntries(
+        Object.entries(record).map(([key, value]) => [
+          key,
+          typeof value === "object" ? JSON.stringify(value) : String(value ?? ""),
+        ]),
+      ),
+    );
+    return { total: records.length, fields, sample };
   });
 
 export const saveDropshipSupplierSettings = createServerFn({ method: "POST" })
