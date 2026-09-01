@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION app_private.order_has_seller_product(uuid, uuid) TO authenticated, service_role;

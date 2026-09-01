@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { DeviceFrame, DeviceSwitcher, type PreviewDevice } from "@/components/device-preview";
 import { StorefrontSections, type SectionProduct } from "@/components/storefront-sections";
+import { ThemeVersionsPanel } from "@/components/theme-versions-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -292,6 +293,10 @@ function ThemeSectionsPage() {
             </div>
           </CardContent>
         </Card>
+
+        <ThemeVersionsPanel storeId={storeId} />
+
+
 
         <Card>
           <CardHeader>

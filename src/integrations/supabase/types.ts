@@ -6797,6 +6797,7 @@ export type Database = {
           store_id: string
           type: string
           updated_at: string
+          visibility: Json
         }
         Insert: {
           created_at?: string
@@ -6807,6 +6808,7 @@ export type Database = {
           store_id: string
           type: string
           updated_at?: string
+          visibility?: Json
         }
         Update: {
           created_at?: string
@@ -6817,10 +6819,49 @@ export type Database = {
           store_id?: string
           type?: string
           updated_at?: string
+          visibility?: Json
         }
         Relationships: [
           {
             foreignKeyName: "store_theme_sections_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_theme_versions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_published: boolean
+          label: string
+          snapshot: Json
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          label?: string
+          snapshot: Json
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_published?: boolean
+          label?: string
+          snapshot?: Json
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_theme_versions_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -8490,6 +8531,14 @@ export type Database = {
         Returns: string
       }
       publish_due_blog_posts: { Args: never; Returns: number }
+      publish_theme_version: {
+        Args: { _label?: string; _store_id: string }
+        Returns: string
+      }
+      restore_theme_version: {
+        Args: { _version_id: string }
+        Returns: undefined
+      }
       rollup_store_daily_stats: {
         Args: { target_day?: string }
         Returns: number
@@ -8509,6 +8558,7 @@ export type Database = {
           title: string
         }[]
       }
+      seed_demo_store: { Args: { _store_id: string }; Returns: Json }
     }
     Enums: {
       app_category:
