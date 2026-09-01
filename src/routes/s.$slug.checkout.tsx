@@ -8,7 +8,10 @@ import { markCartRecovered, syncAbandonedCart } from "@/lib/abandoned.functions"
 import { useCart } from "@/lib/cart";
 import { getCartPrefs } from "@/lib/cart-prefs";
 import { getCartToken } from "@/lib/cart-token";
-import { placeOrder, previewCheckoutDiscount } from "@/lib/checkout.functions";
+import { myAddressesQuery } from "@/lib/account-queries";
+import { useAuth } from "@/lib/auth-context";
+import { getCheckoutQuote, placeMemberOrder, placeOrder, previewCheckoutDiscount } from "@/lib/checkout.functions";
+import { checkGiftCardBalance } from "@/lib/gift-cards-public.functions";
 import { formatMoney } from "@/lib/mefti";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 
@@ -43,6 +46,12 @@ function CheckoutPage() {
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   const options = useQuery(checkoutOptionsQuery(slug));
   const cart = useCart();
+  const { user, loading: authLoading } = useAuth();
+  const memberMode = Boolean(user);
+  const guestAllowed = options.data?.settings?.guest_checkout !== false;
+  const savedAddressesQuery = useQuery(myAddressesQuery(data?.store.id ?? "", Boolean(user && data?.store.id)));
+  const savedAddresses = savedAddressesQuery.data?.addresses ?? [];
+  const profileFilled = useRef(false);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -64,6 +73,17 @@ function CheckoutPage() {
   const [checkingDiscount, setCheckingDiscount] = useState(false);
   const [shippingRateId, setShippingRateId] = useState<string>("");
   const [paymentMethodId, setPaymentMethodId] = useState<string>("");
+  const [billingSame, setBillingSame] = useState(true);
+  const [billingRecipient, setBillingRecipient] = useState("");
+  const [billingCompany, setBillingCompany] = useState("");
+  const [billingTaxId, setBillingTaxId] = useState("");
+  const [billingCountry, setBillingCountry] = useState("Türkiye");
+  const [billingCity, setBillingCity] = useState("");
+  const [billingDistrict, setBillingDistrict] = useState("");
+  const [billingLine1, setBillingLine1] = useState("");
+  const [billingPostalCode, setBillingPostalCode] = useState("");
+  const [appliedGiftCard, setAppliedGiftCard] = useState<{ code: string; balance: number } | null>(null);
+  const [checkingGiftCard, setCheckingGiftCard] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const prefsLoaded = useRef(false);
 
@@ -144,6 +164,98 @@ function CheckoutPage() {
     }
   }
 
+  // Üye girişi varsa iletişim bilgilerini hesaptan doldur.
+  useEffect(() => {
+    if (!user || profileFilled.current) return;
+    profileFilled.current = true;
+    if (user.email) setEmail(user.email);
+    const metaName = (user.user_metadata?.["full_name"] ?? user.user_metadata?.["name"]) as string | undefined;
+    if (metaName) setFullName((current) => current || metaName);
+  }, [user]);
+
+  // Kayıtlı adresleri ilk yüklemede otomatik uygula.
+  const addressFilled = useRef(false);
+  useEffect(() => {
+    const list = savedAddresses;
+    if (!list.length || addressFilled.current) return;
+    addressFilled.current = true;
+    const chosen = list.find((address) => address.is_default) ?? list[0];
+    if (!chosen) return;
+    applySavedAddress(chosen);
+  }, [savedAddresses]);
+
+  function applySavedAddress(address: {
+    recipient: string | null;
+    phone: string | null;
+    country: string | null;
+    city: string | null;
+    district: string | null;
+    line1: string | null;
+    postal_code: string | null;
+  }) {
+    if (address.recipient) setFullName((current) => current || address.recipient!);
+    if (address.phone) setPhone((current) => current || address.phone!);
+    if (address.country) setCountry(address.country);
+    setCity(address.city ?? "");
+    setDistrict(address.district ?? "");
+    setLine1(address.line1 ?? "");
+    setPostalCode(address.postal_code ?? "");
+  }
+
+  // Sunucu tarafı fiyat teklifi: ara toplam, indirim, kargo, vergi, ödeme farkı ve
+  // hediye kartı burada hesaplanır; ekranda gösterilen tutarlar buradan gelir.
+  const itemsKey = lines.map((line) => `${line.variantId}:${line.quantity}`).join(",");
+  const quote = useQuery({
+    queryKey: [
+      "storefront",
+      slug,
+      "checkout-quote",
+      itemsKey,
+      appliedDiscount?.code ?? "",
+      appliedGiftCard?.code ?? "",
+      shippingRateId,
+      paymentMethodId,
+    ],
+    enabled: lines.length > 0,
+    staleTime: 5_000,
+    queryFn: () =>
+      getCheckoutQuote({
+        data: {
+          slug,
+          items: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
+          shippingRateId: shippingRateId || undefined,
+          paymentMethodId: paymentMethodId || undefined,
+          discountCode: appliedDiscount?.code || undefined,
+          giftCardCode: appliedGiftCard?.code || undefined,
+        },
+      }),
+  });
+  const q = quote.data?.ok ? quote.data : null;
+
+  async function applyGiftCard() {
+    const code = giftCardCode.trim();
+    if (!code) {
+      setAppliedGiftCard(null);
+      return;
+    }
+    setCheckingGiftCard(true);
+    try {
+      const result = await checkGiftCardBalance({ data: { slug, code } });
+      if (!result.found || !result.usable) {
+        setAppliedGiftCard(null);
+        toast.error(result.reason ?? "Hediye kartı kullanılamıyor");
+        return;
+      }
+      setAppliedGiftCard({ code, balance: result.balance ?? 0 });
+      toast.success(`Hediye kartı eklendi · Bakiye: ${result.balance ?? 0}`);
+    } catch (error) {
+      setAppliedGiftCard(null);
+      toast.error(error instanceof Error ? error.message : "Hediye kartı doğrulanamadı");
+    } finally {
+      setCheckingGiftCard(false);
+    }
+  }
+
   if (!data) return null;
   const { store, theme } = data;
   const { t, fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
@@ -164,27 +276,42 @@ function CheckoutPage() {
       toast.error("Sepetiniz boş");
       return;
     }
+    if (!memberMode && !guestAllowed) {
+      toast.error("Bu mağazada misafir ödeme kapalı. Lütfen giriş yapın.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const result = await placeOrder({
-        data: {
-          slug,
-          items: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
-          customer: { fullName, email, phone, acceptsMarketing: false },
-          address: {
-            country,
-            city,
-            district: district || undefined,
-            line1,
-            postalCode: postalCode || undefined,
-          },
-          shippingRateId: shippingRateId || undefined,
-          paymentMethodId: paymentMethodId || undefined,
-          discountCode: discountCode.trim() ? discountCode.trim() : undefined,
-          giftCardCode: giftCardCode.trim() ? giftCardCode.trim() : undefined,
-          note: note.trim() ? note.trim() : undefined,
+      const payload = {
+        slug,
+        items: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
+        customer: { fullName, email, phone, acceptsMarketing: false },
+        address: {
+          country,
+          city,
+          district: district || undefined,
+          line1,
+          postalCode: postalCode || undefined,
         },
-      });
+        billingAddress: billingSame
+          ? undefined
+          : {
+              recipient: billingRecipient || undefined,
+              company: billingCompany || undefined,
+              taxId: billingTaxId || undefined,
+              country: billingCountry,
+              city: billingCity,
+              district: billingDistrict || undefined,
+              line1: billingLine1,
+              postalCode: billingPostalCode || undefined,
+            },
+        shippingRateId: shippingRateId || undefined,
+        paymentMethodId: paymentMethodId || undefined,
+        discountCode: appliedDiscount?.code ?? (discountCode.trim() ? discountCode.trim() : undefined),
+        giftCardCode: appliedGiftCard?.code ?? (giftCardCode.trim() ? giftCardCode.trim() : undefined),
+        note: note.trim() ? note.trim() : undefined,
+      };
+      const result = memberMode ? await placeMemberOrder({ data: payload }) : await placeOrder({ data: payload });
       void markCartRecovered({
         data: { slug, cartToken: getCartToken(slug), orderNumber: result.orderNumber },
       }).catch(() => {});
@@ -222,6 +349,56 @@ function CheckoutPage() {
           <div style={{ display: "grid", gap: 20 }}>
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
               <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>İletişim ve teslimat</h2>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 10,
+                  border: `1px solid ${border}`,
+                  borderRadius: radius,
+                  padding: "10px 12px",
+                  marginBottom: 14,
+                  fontSize: 13,
+                }}
+              >
+                <span style={{ color: muted }}>
+                  {authLoading
+                    ? "Oturum kontrol ediliyor…"
+                    : memberMode
+                      ? `Üyelikle ödeme · ${user?.email ?? ""}`
+                      : guestAllowed
+                        ? "Misafir olarak ödeme yapıyorsunuz."
+                        : "Bu mağazada sipariş vermek için üyelik gerekli."}
+                </span>
+                {!memberMode ? (
+                  <Link
+                    to="/auth"
+                    style={{ color: t.accent_color, fontWeight: 600 }}
+                  >
+                    Giriş yap / Üye ol
+                  </Link>
+                ) : null}
+              </div>
+              {memberMode && savedAddresses.length > 0 ? (
+                <div style={{ display: "grid", gap: 8, marginBottom: 14 }}>
+                  <span style={{ fontSize: 12, color: muted }}>Kayıtlı adreslerim</span>
+                  {savedAddresses.map((address) => (
+                    <Option
+                      key={address.id}
+                      active={Boolean(address.line1) && line1 === address.line1 && city === (address.city ?? "")}
+                      onClick={() => applySavedAddress(address)}
+                      border={border}
+                      radius={radius}
+                      accent={t.accent_color}
+                      title={address.label || address.recipient || "Adres"}
+                      subtitle={[address.line1, address.district, address.city].filter(Boolean).join(", ")}
+                      muted={muted}
+                    />
+                  ))}
+                </div>
+              ) : null}
               <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
                 <Field label="Ad soyad" muted={muted}>
                   <input style={inputStyle} value={fullName} onChange={(e) => setFullName(e.target.value)} />
@@ -254,6 +431,48 @@ function CheckoutPage() {
                   />
                 </Field>
               </div>
+            </section>
+
+            <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
+              <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>Fatura adresi</h2>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: muted }}>
+                <input type="checkbox" checked={billingSame} onChange={(e) => setBillingSame(e.target.checked)} />
+                Fatura adresim teslimat adresimle aynı
+              </label>
+              {!billingSame ? (
+                <div style={{ marginTop: 14, display: "grid", gap: 12 }}>
+                  <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
+                    <Field label="Fatura sahibi" muted={muted}>
+                      <input style={inputStyle} value={billingRecipient} onChange={(e) => setBillingRecipient(e.target.value)} />
+                    </Field>
+                    <Field label="Firma (opsiyonel)" muted={muted}>
+                      <input style={inputStyle} value={billingCompany} onChange={(e) => setBillingCompany(e.target.value)} />
+                    </Field>
+                    <Field label="Vergi / TC no (opsiyonel)" muted={muted}>
+                      <input style={inputStyle} value={billingTaxId} onChange={(e) => setBillingTaxId(e.target.value)} />
+                    </Field>
+                    <Field label="Ülke" muted={muted}>
+                      <input style={inputStyle} value={billingCountry} onChange={(e) => setBillingCountry(e.target.value)} />
+                    </Field>
+                    <Field label="Şehir" muted={muted}>
+                      <input style={inputStyle} value={billingCity} onChange={(e) => setBillingCity(e.target.value)} />
+                    </Field>
+                    <Field label="İlçe" muted={muted}>
+                      <input style={inputStyle} value={billingDistrict} onChange={(e) => setBillingDistrict(e.target.value)} />
+                    </Field>
+                    <Field label="Posta kodu" muted={muted}>
+                      <input style={inputStyle} value={billingPostalCode} onChange={(e) => setBillingPostalCode(e.target.value)} />
+                    </Field>
+                  </div>
+                  <Field label="Fatura adresi" muted={muted}>
+                    <textarea
+                      style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
+                      value={billingLine1}
+                      onChange={(e) => setBillingLine1(e.target.value)}
+                    />
+                  </Field>
+                </div>
+              ) : null}
             </section>
 
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
@@ -374,15 +593,37 @@ function CheckoutPage() {
             </Field>
             <div style={{ marginTop: 10 }}>
               <Field label="Hediye kartı kodu" muted={muted}>
-                <input
-                  style={inputStyle}
-                  value={giftCardCode}
-                  onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
-                  placeholder="MEF-XXXX-XXXX-XXXX"
-                />
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    style={inputStyle}
+                    value={giftCardCode}
+                    onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
+                    placeholder="MEF-XXXX-XXXX-XXXX"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void applyGiftCard()}
+                    disabled={checkingGiftCard}
+                    style={{
+                      border: `1px solid ${t.accent_color}`,
+                      background: "transparent",
+                      color: t.accent_color,
+                      borderRadius: radius,
+                      padding: "0 14px",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: checkingGiftCard ? "wait" : "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {checkingGiftCard ? "…" : appliedGiftCard ? "Yenile" : "Uygula"}
+                  </button>
+                </div>
               </Field>
               <p style={{ fontSize: 12, color: muted, margin: "6px 0 0" }}>
-                Kart bakiyesi sipariş toplamından sunucuda düşülür.
+                {appliedGiftCard
+                  ? `Kart bakiyesi: ${formatMoney(appliedGiftCard.balance, store.currency)} · toplamdan sunucuda düşülür.`
+                  : "Kart bakiyesi sipariş toplamından sunucuda düşülür."}
               </p>
             </div>
             {appliedDiscount ? (
@@ -409,28 +650,63 @@ function CheckoutPage() {
               </p>
             ) : null}
             <div style={{ marginTop: 12, borderTop: `1px solid ${border}`, paddingTop: 12 }}>
-              <SummaryRow label="Ara toplam" value={formatMoney(subtotal, store.currency)} muted={muted} />
-              {appliedDiscount ? (
+              <SummaryRow
+                label="Ara toplam"
+                value={formatMoney(q?.subtotal ?? subtotal, q?.currency ?? store.currency)}
+                muted={muted}
+              />
+              {(q?.discountTotal ?? discountTotal) > 0 || q?.freeShipping ? (
                 <SummaryRow
-                  label={`İndirim (${appliedDiscount.code})`}
+                  label={`İndirim${q?.discountCode ? ` (${q.discountCode})` : ""}`}
                   value={
-                    appliedDiscount.freeShipping
-                      ? "Ücretsiz kargo"
-                      : `-${formatMoney(discountTotal, store.currency)}`
+                    (q?.discountTotal ?? discountTotal) > 0
+                      ? `-${formatMoney(q?.discountTotal ?? discountTotal, store.currency)}`
+                      : "Ücretsiz kargo"
                   }
                   muted={muted}
                 />
               ) : null}
-              <SummaryRow label="Kargo" value={formatMoney(shippingTotal, store.currency)} muted={muted} />
-              <SummaryRow label="Tahmini toplam" value={formatMoney(estimatedTotal, store.currency)} muted={muted} />
-              <p style={{ fontSize: 12, color: muted, margin: "8px 0 0" }}>
-                Vergi ve nihai tutar, sipariş oluşturulurken sunucuda kesin olarak hesaplanır.
-              </p>
+              <SummaryRow
+                label={q?.shippingTitle ? `Kargo · ${q.shippingTitle}` : "Kargo"}
+                value={formatMoney(q?.shippingTotal ?? shippingTotal, store.currency)}
+                muted={muted}
+              />
+              {q && !q.taxIncluded ? (
+                <SummaryRow
+                  label={`Vergi${q.taxRate ? ` (%${q.taxRate})` : ""}`}
+                  value={formatMoney(q.taxTotal, store.currency)}
+                  muted={muted}
+                />
+              ) : q?.taxIncluded ? (
+                <SummaryRow label="Vergi" value="Fiyatlara dahil" muted={muted} />
+              ) : null}
+              {q && q.paymentFee > 0 ? (
+                <SummaryRow label="Ödeme farkı" value={formatMoney(q.paymentFee, store.currency)} muted={muted} />
+              ) : null}
+              {q && q.giftCardApplied > 0 ? (
+                <SummaryRow
+                  label="Hediye kartı"
+                  value={`-${formatMoney(q.giftCardApplied, store.currency)}`}
+                  muted={muted}
+                />
+              ) : null}
+              <SummaryRow
+                label={q ? "Ödenecek tutar" : "Tahmini toplam"}
+                value={formatMoney(q?.grandTotal ?? estimatedTotal, store.currency)}
+                muted={muted}
+              />
+              {quote.data && !quote.data.ok ? (
+                <p style={{ fontSize: 12, color: "#e0603a", margin: "8px 0 0" }}>{quote.data.error}</p>
+              ) : (
+                <p style={{ fontSize: 12, color: muted, margin: "8px 0 0" }}>
+                  Fiyat, indirim, stok, vergi ve hediye kartı tutarları sunucuda doğrulanır.
+                </p>
+              )}
             </div>
             <button
               type="button"
               onClick={submit}
-              disabled={submitting}
+              disabled={submitting || (!memberMode && !guestAllowed) || quote.data?.ok === false}
               style={{
                 marginTop: 16,
                 width: "100%",

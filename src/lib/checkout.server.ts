@@ -30,6 +30,18 @@ export const placeOrderSchema = z.object({
     line1: z.string().trim().min(5).max(240),
     postalCode: z.string().trim().max(20).optional(),
   }),
+  billingAddress: z
+    .object({
+      recipient: z.string().trim().max(120).optional(),
+      company: z.string().trim().max(160).optional(),
+      taxId: z.string().trim().max(40).optional(),
+      country: z.string().trim().min(2).max(60),
+      city: z.string().trim().min(1).max(80),
+      district: z.string().trim().max(80).optional(),
+      line1: z.string().trim().min(5).max(240),
+      postalCode: z.string().trim().max(20).optional(),
+    })
+    .optional(),
   shippingRateId: z.string().uuid().optional(),
   paymentMethodId: z.string().uuid().optional(),
   discountCode: z.string().trim().max(60).optional(),
@@ -116,11 +128,21 @@ function orderNumber() {
   return `MEF-${stamp}${rand}`;
 }
 
-export async function createStorefrontOrder(input: z.infer<typeof placeOrderSchema>) {
-  const store = await publishedStore(input.slug);
-  if (!store) throw new Error("Mağaza bulunamadı veya yayında değil");
-  const supabase = await admin();
+/** Sunucu tarafı fiyatlandırma çekirdeği: fiyat, stok, indirim, kargo, vergi,
+ * ödeme farkı ve hediye kartı daima veritabanından hesaplanır. */
+type PricingInput = {
+  items: { variantId: string; quantity: number }[];
+  shippingRateId?: string | undefined;
+  paymentMethodId?: string | undefined;
+  discountCode?: string | undefined;
+  giftCardCode?: string | undefined;
+};
 
+async function priceCart(
+  supabase: Awaited<ReturnType<typeof admin>>,
+  store: { id: string; currency: string },
+  input: PricingInput,
+) {
   const variantIds = [...new Set(input.items.map((item) => item.variantId))];
   const { data: variants, error: variantsError } = await supabase
     .from("product_variants")
@@ -189,7 +211,7 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
   if (input.shippingRateId) {
     const { data: rate, error: rateError } = await supabase
       .from("shipping_rates")
-      .select("id, title, price, free_over, is_active")
+      .select("id, title, price, free_over, eta_days, is_active")
       .eq("store_id", store.id)
       .eq("id", input.shippingRateId)
       .maybeSingle();
@@ -208,8 +230,9 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
     .eq("store_id", store.id)
     .maybeSingle();
   const taxRate = Number(settings?.default_tax_rate ?? 0);
+  const taxIncluded = Boolean(settings?.tax_included_prices);
   const taxable = Math.max(0, subtotal - discountTotal);
-  const taxTotal = settings?.tax_included_prices ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
+  const taxTotal = taxIncluded ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
 
   let paymentLabel: string | null = null;
   let extraFee = 0;
@@ -249,6 +272,135 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
 
   const grandTotal = Number((orderTotal - giftCardApplied).toFixed(2));
 
+  return {
+    lines,
+    subtotal,
+    discountTotal,
+    discountRow,
+    freeShipping,
+    shippingTotal,
+    shippingTitle,
+    taxRate,
+    taxIncluded,
+    taxTotal,
+    paymentLabel,
+    extraFee,
+    orderTotal,
+    giftCard,
+    giftCardApplied,
+    grandTotal,
+    currency: store.currency,
+  };
+}
+
+export const quoteCheckoutSchema = z.object({
+  slug: z.string().trim().min(1).max(120),
+  items: z
+    .array(z.object({ variantId: z.string().uuid(), quantity: z.number().int().min(1).max(50) }))
+    .min(1)
+    .max(30),
+  shippingRateId: z.string().uuid().optional(),
+  paymentMethodId: z.string().uuid().optional(),
+  discountCode: z.string().trim().max(60).optional(),
+  giftCardCode: z.string().trim().max(60).optional(),
+});
+
+/**
+ * Kasada gösterilen tutarların tek doğruluk kaynağı. İstemci yalnızca ürün
+ * kimliği/adet ve kod gönderir; tüm tutarlar burada hesaplanır.
+ */
+export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) {
+  const store = await publishedStore(input.slug);
+  if (!store) throw new Error("Mağaza bulunamadı veya yayında değil");
+  const supabase = await admin();
+  try {
+    const quote = await priceCart(supabase, store, input);
+    return {
+      ok: true as const,
+      error: null,
+      currency: quote.currency,
+      lines: quote.lines.map((line) => ({
+        variantId: line.variant.id,
+        title: line.variant.products.title,
+        variantTitle: line.variant.title,
+        quantity: line.quantity,
+        unitPrice: line.unitPrice,
+        lineTotal: line.lineTotal,
+      })),
+      subtotal: quote.subtotal,
+      discountTotal: quote.discountTotal,
+      discountCode: quote.discountRow?.code ?? null,
+      freeShipping: quote.freeShipping,
+      shippingTotal: quote.shippingTotal,
+      shippingTitle: quote.shippingTitle,
+      taxRate: quote.taxRate,
+      taxIncluded: quote.taxIncluded,
+      taxTotal: quote.taxTotal,
+      paymentLabel: quote.paymentLabel,
+      paymentFee: quote.extraFee,
+      giftCardApplied: quote.giftCardApplied,
+      grandTotal: quote.grandTotal,
+    };
+  } catch (error) {
+    return {
+      ok: false as const,
+      error: error instanceof Error ? error.message : "Sepet doğrulanamadı",
+      currency: store.currency,
+      lines: [],
+      subtotal: 0,
+      discountTotal: 0,
+      discountCode: null,
+      freeShipping: false,
+      shippingTotal: 0,
+      shippingTitle: null,
+      taxRate: 0,
+      taxIncluded: false,
+      taxTotal: 0,
+      paymentLabel: null,
+      paymentFee: 0,
+      giftCardApplied: 0,
+      grandTotal: 0,
+    };
+  }
+}
+
+export async function createStorefrontOrder(
+  input: z.infer<typeof placeOrderSchema>,
+  auth?: { userId: string; email: string } | undefined,
+) {
+  const store = await publishedStore(input.slug);
+  if (!store) throw new Error("Mağaza bulunamadı veya yayında değil");
+  const supabase = await admin();
+
+  const { data: checkoutSettings } = await supabase
+    .from("store_settings")
+    .select("guest_checkout")
+    .eq("store_id", store.id)
+    .maybeSingle();
+  if (!auth && checkoutSettings && checkoutSettings.guest_checkout === false) {
+    throw new Error("Bu mağazada misafir ödeme kapalı; lütfen giriş yapın.");
+  }
+  if (auth && auth.email.toLowerCase() !== input.customer.email.trim().toLowerCase()) {
+    throw new Error("Sipariş e-postası hesabınızla eşleşmiyor.");
+  }
+
+  const priced = await priceCart(supabase, store, input);
+  const {
+    lines,
+    subtotal,
+    discountTotal,
+    discountRow,
+    shippingTotal,
+    shippingTitle,
+    taxTotal,
+    paymentLabel,
+    extraFee,
+    giftCard,
+    giftCardApplied,
+    grandTotal,
+  } = priced;
+
+
   // Müşteri kaydı (e-posta ile tekilleştirilir)
   const { data: existingCustomer } = await supabase
     .from("customers")
@@ -267,11 +419,15 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
         email: input.customer.email.toLowerCase(),
         phone: input.customer.phone,
         accepts_marketing: input.customer.acceptsMarketing,
+        ...(auth ? { user_id: auth.userId } : {}),
       })
       .select("id")
       .single();
     if (customerError) throw new Error(customerError.message);
     customerId = inserted.id;
+  } else if (auth) {
+    // Üyelikle ödeme: e-postası doğrulanmış misafir kaydını hesaba bağla.
+    await supabase.from("customers").update({ user_id: auth.userId }).eq("id", customerId).is("user_id", null);
   }
 
   const addressJson = {
@@ -283,6 +439,21 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
     line1: input.address.line1,
     postal_code: input.address.postalCode ?? null,
   };
+
+  const billingJson = input.billingAddress
+    ? {
+        recipient: input.billingAddress.recipient?.length ? input.billingAddress.recipient : input.customer.fullName,
+        phone: input.customer.phone,
+        country: input.billingAddress.country,
+        city: input.billingAddress.city,
+        district: input.billingAddress.district ?? null,
+        line1: input.billingAddress.line1,
+        postal_code: input.billingAddress.postalCode ?? null,
+        tax_id: input.billingAddress.taxId ?? null,
+        company: input.billingAddress.company ?? null,
+      }
+    : addressJson;
+
 
   const number = orderNumber();
   const { data: order, error: orderError } = await supabase
@@ -304,7 +475,7 @@ export async function createStorefrontOrder(input: z.infer<typeof placeOrderSche
       customer_email: input.customer.email.toLowerCase(),
       customer_name: input.customer.fullName,
       shipping_address: addressJson,
-      billing_address: addressJson,
+      billing_address: billingJson,
       shipping_carrier: shippingTitle,
       note: input.note?.length ? input.note : null,
     })
