@@ -60,7 +60,7 @@ async function buildVariables(supabase: Client, run: Run) {
     vars: {
       magaza_adi: store?.name ?? "",
       musteri_adi: customer.data?.full_name ?? String(context["musteri_adi"] ?? "Değerli müşterimiz"),
-      sepet_tutari: cart.data?.cart_total ?? String(context["sepet_tutari"] ?? ""),
+      sepet_tutari: cart.data?.total ?? String(context["sepet_tutari"] ?? ""),
       sepet_linki: String(context["sepet_linki"] ?? ""),
       siparis_no: order.data?.order_number ?? String(context["siparis_no"] ?? ""),
       kargo_takip: order.data?.tracking_number ?? String(context["kargo_takip"] ?? ""),
@@ -94,8 +94,8 @@ async function dispatchMessage(
   const body = renderTemplate(template?.body ?? String((step.config as any)?.body ?? ""), vars);
   const subject = template?.subject ? renderTemplate(template.subject, vars) : null;
 
-  const email = customer?.email ?? cart?.email ?? String(context["email"] ?? "");
-  const phone = customer?.phone ?? cart?.phone ?? String(context["phone"] ?? "");
+  const email = customer?.email ?? cart?.customer_email ?? String(context["email"] ?? "");
+  const phone = customer?.phone ?? String(context["phone"] ?? "");
   const recipient = channel === "email" ? email : channel === "push" ? (customer?.id ?? "") : phone;
 
   if (!recipient) {
