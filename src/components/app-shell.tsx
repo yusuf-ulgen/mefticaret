@@ -148,6 +148,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Senaryo Simülatörü", to: `/store/${storeId}/simulator`, icon: Tag },
         { label: "Hediye Kartları", to: `/store/${storeId}/gift-cards`, icon: Gift },
         { label: "Hediye Kartı Yükümlülüğü", to: `/store/${storeId}/gift-liability`, icon: Wallet },
+        { label: "Tahsilat Takibi", to: `/store/${storeId}/receivables`, icon: Banknote },
         { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
         { label: "Nakit Akışı", to: `/store/${storeId}/cashflow`, icon: Wallet },
         { label: "KDV Raporu", to: `/store/${storeId}/tax`, icon: Receipt },
