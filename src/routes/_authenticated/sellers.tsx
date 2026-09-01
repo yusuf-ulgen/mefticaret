@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Storefront } from "lucide-react";
+import { StoreIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -128,7 +128,7 @@ function SellerAccountsPage() {
 
         <section className="rounded-2xl border border-border p-5">
           <div className="flex items-center gap-2">
-            <Storefront className="size-4 text-muted-foreground" />
+            <StoreIcon className="size-4 text-muted-foreground" />
             <h2 className="font-display text-base font-semibold">Yeni satıcı başvurusu</h2>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
