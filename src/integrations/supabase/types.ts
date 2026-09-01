@@ -2142,10 +2142,18 @@ export type Database = {
       store_domains: {
         Row: {
           created_at: string
+          dns_records: Json
+          dns_target: string | null
           hostname: string
           id: string
           is_primary: boolean
+          last_checked_at: string | null
+          last_error: string | null
+          redirect_to_hostname: string | null
           ssl_active: boolean
+          ssl_expires_at: string | null
+          ssl_issued_at: string | null
+          ssl_status: string
           status: Database["public"]["Enums"]["domain_status"]
           store_id: string
           type: Database["public"]["Enums"]["domain_type"]
@@ -2155,10 +2163,18 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          dns_records?: Json
+          dns_target?: string | null
           hostname: string
           id?: string
           is_primary?: boolean
+          last_checked_at?: string | null
+          last_error?: string | null
+          redirect_to_hostname?: string | null
           ssl_active?: boolean
+          ssl_expires_at?: string | null
+          ssl_issued_at?: string | null
+          ssl_status?: string
           status?: Database["public"]["Enums"]["domain_status"]
           store_id: string
           type?: Database["public"]["Enums"]["domain_type"]
@@ -2168,10 +2184,18 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          dns_records?: Json
+          dns_target?: string | null
           hostname?: string
           id?: string
           is_primary?: boolean
+          last_checked_at?: string | null
+          last_error?: string | null
+          redirect_to_hostname?: string | null
           ssl_active?: boolean
+          ssl_expires_at?: string | null
+          ssl_issued_at?: string | null
+          ssl_status?: string
           status?: Database["public"]["Enums"]["domain_status"]
           store_id?: string
           type?: Database["public"]["Enums"]["domain_type"]
