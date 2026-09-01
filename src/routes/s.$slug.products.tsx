@@ -7,30 +7,35 @@ import { QuickAddButton } from "@/components/quick-add-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
+import { getRequestOrigin } from "@/lib/origin.functions";
+import { getStoreSeoContext } from "@/lib/seo-public.functions";
+import { missingHead, storefrontHead } from "@/lib/storefront-seo";
 
 export const Route = createFileRoute("/s/$slug/products")({
   loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
+    const [data, ctx, origin] = await Promise.all([
+      context.queryClient.ensureQueryData(storefrontQuery(params.slug)),
+      getStoreSeoContext({ data: { slug: params.slug } }),
+      getRequestOrigin(),
+    ]);
     if (!data) throw notFound();
-    return { storeName: data.store.name };
+    return { storeName: data.store.name, ctx, origin };
   },
   head: ({ loaderData, params }) => {
-    if (!loaderData) {
-      return { meta: [{ title: "Mağaza bulunamadı" }, { name: "robots", content: "noindex" }] };
-    }
-    const title = `Tüm ürünler — ${loaderData.storeName}`;
-    const description = `${loaderData.storeName} mağazasındaki tüm ürünleri filtreleyerek keşfet, fiyat ve türe göre sırala.`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
+    if (!loaderData) return missingHead("Mağaza bulunamadı");
+    const base = `/s/${params.slug}`;
+    return storefrontHead({
+      ctx: loaderData.ctx,
+      origin: loaderData.origin,
+      slug: params.slug,
+      path: `${base}/products`,
+      fallbackTitle: "Tüm ürünler",
+      fallbackDescription: `${loaderData.storeName} mağazasındaki tüm ürünleri filtreleyerek keşfedin; fiyat ve türe göre sıralayın.`,
+      breadcrumbs: [
+        { name: "Ana sayfa", path: base },
+        { name: "Ürünler", path: `${base}/products` },
       ],
-      links: [{ rel: "canonical", href: `/s/${params.slug}/products` }],
-    };
+    });
   },
   notFoundComponent: () => (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">

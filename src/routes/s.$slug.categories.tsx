@@ -5,6 +5,9 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { Breadcrumb, ProductGrid, StorefrontFallback } from "@/components/storefront-parts";
 import { storefrontQuery } from "@/lib/storefront-queries";
+import { getRequestOrigin } from "@/lib/origin.functions";
+import { getStoreSeoContext } from "@/lib/seo-public.functions";
+import { missingHead, storefrontHead } from "@/lib/storefront-seo";
 
 type Search = { c?: string | undefined };
 
@@ -13,27 +16,29 @@ export const Route = createFileRoute("/s/$slug/categories")({
     c: typeof search["c"] === "string" && search["c"].trim() ? String(search["c"]).slice(0, 120) : undefined,
   }),
   loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
+    const [data, ctx, origin] = await Promise.all([
+      context.queryClient.ensureQueryData(storefrontQuery(params.slug)),
+      getStoreSeoContext({ data: { slug: params.slug } }),
+      getRequestOrigin(),
+    ]);
     if (!data) throw notFound();
-    return { storeName: data.store.name };
+    return { storeName: data.store.name, ctx, origin };
   },
   head: ({ loaderData, params }) => {
-    if (!loaderData) {
-      return { meta: [{ title: "Mağaza bulunamadı" }, { name: "robots", content: "noindex" }] };
-    }
-    const title = `Kategoriler — ${loaderData.storeName}`;
-    const description = `${loaderData.storeName} ürünlerini kategorilere göre keşfet; ilgilendiğin kategoriyi seçip tüm ürünleri listele.`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
+    if (!loaderData) return missingHead("Mağaza bulunamadı");
+    const base = `/s/${params.slug}`;
+    return storefrontHead({
+      ctx: loaderData.ctx,
+      origin: loaderData.origin,
+      slug: params.slug,
+      path: `${base}/categories`,
+      fallbackTitle: "Kategoriler",
+      fallbackDescription: `${loaderData.storeName} ürünlerini kategorilere göre keşfedin; ilgilendiğiniz kategoriyi seçip tüm ürünleri listeleyin.`,
+      breadcrumbs: [
+        { name: "Ana sayfa", path: base },
+        { name: "Kategoriler", path: `${base}/categories` },
       ],
-      links: [{ rel: "canonical", href: `/s/${params.slug}/categories` }],
-    };
+    });
   },
   errorComponent: () => <StorefrontFallback text="Kategoriler şu anda yüklenemedi." />,
   notFoundComponent: () => <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />,

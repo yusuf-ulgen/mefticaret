@@ -9,37 +9,42 @@ import { formatMoney } from "@/lib/mefti";
 import { StorefrontSections } from "@/components/storefront-sections";
 import { resolveSections, type ThemeSectionRow } from "@/lib/theme-sections";
 import { storefrontQuery } from "@/lib/storefront-queries";
+import { getRequestOrigin } from "@/lib/origin.functions";
+import { getStoreSeoContext } from "@/lib/seo-public.functions";
+import { faqSchema } from "@/lib/seo";
+import { missingHead, storefrontHead } from "@/lib/storefront-seo";
 
 export const Route = createFileRoute("/s/$slug/")({
   loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
+    const [data, ctx, origin] = await Promise.all([
+      context.queryClient.ensureQueryData(storefrontQuery(params.slug)),
+      getStoreSeoContext({ data: { slug: params.slug } }),
+      getRequestOrigin(),
+    ]);
     if (!data) throw notFound();
-    return { name: data.store.name, hero: data.theme?.hero_subtitle ?? "" };
+    return { name: data.store.name, hero: data.theme?.hero_subtitle ?? "", ctx, origin };
   },
   head: ({ loaderData, params }) => {
-    if (!loaderData) {
-      return { meta: [{ title: "Mağaza bulunamadı" }, { name: "robots", content: "noindex" }] };
-    }
-    const title = `${loaderData.name} — Online Mağaza`;
-    const description =
-      loaderData.hero || `${loaderData.name} vitrininde yeni sezon ürünleri keşfet, hızlı ve güvenli alışveriş yap.`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-      links: [
-        {
-          rel: "sitemap",
-          type: "application/xml",
-          href: `/api/public/sitemap/${params.slug}`,
-        },
-      ],
-    };
+    if (!loaderData) return missingHead("Mağaza bulunamadı");
+    const settings = loaderData.ctx?.settings;
+    const faq = settings?.faq ?? [];
+    return storefrontHead({
+      ctx: loaderData.ctx,
+      origin: loaderData.origin,
+      slug: params.slug,
+      path: `/s/${params.slug}`,
+      fallbackTitle: `${loaderData.name} — Online Mağaza`,
+      fallbackDescription:
+        loaderData.hero ||
+        `${loaderData.name} vitrininde yeni sezon ürünlerini keşfedin; hızlı kargo ve güvenli ödeme.`,
+      seo: settings?.homeTitle || settings?.homeDescription
+        ? {
+            ...(settings.homeTitle ? { title: settings.homeTitle } : {}),
+            ...(settings.homeDescription ? { description: settings.homeDescription } : {}),
+          }
+        : null,
+      schemas: faq.length ? [faqSchema(faq)] : [],
+    });
   },
 
   errorComponent: () => <StorefrontFallback text="Vitrin şu anda yüklenemedi." />,

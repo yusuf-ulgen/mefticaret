@@ -4,30 +4,35 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { Breadcrumb, StorefrontFallback } from "@/components/storefront-parts";
 import { storefrontQuery } from "@/lib/storefront-queries";
+import { getRequestOrigin } from "@/lib/origin.functions";
+import { getStoreSeoContext } from "@/lib/seo-public.functions";
+import { missingHead, storefrontHead } from "@/lib/storefront-seo";
 
 export const Route = createFileRoute("/s/$slug/collections")({
   loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
+    const [data, ctx, origin] = await Promise.all([
+      context.queryClient.ensureQueryData(storefrontQuery(params.slug)),
+      getStoreSeoContext({ data: { slug: params.slug } }),
+      getRequestOrigin(),
+    ]);
     if (!data) throw notFound();
-    return { storeName: data.store.name, count: data.collections.length };
+    return { storeName: data.store.name, count: data.collections.length, ctx, origin };
   },
   head: ({ loaderData, params }) => {
-    if (!loaderData) {
-      return { meta: [{ title: "Mağaza bulunamadı" }, { name: "robots", content: "noindex" }] };
-    }
-    const title = `Koleksiyonlar — ${loaderData.storeName}`;
-    const description = `${loaderData.storeName} vitrinindeki ${loaderData.count} koleksiyonu keşfet: sezon seçkileri, kampanyalar ve tematik ürün grupları.`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
+    if (!loaderData) return missingHead("Mağaza bulunamadı");
+    const base = `/s/${params.slug}`;
+    return storefrontHead({
+      ctx: loaderData.ctx,
+      origin: loaderData.origin,
+      slug: params.slug,
+      path: `${base}/collections`,
+      fallbackTitle: "Koleksiyonlar",
+      fallbackDescription: `${loaderData.storeName} vitrinindeki ${loaderData.count} koleksiyonu keşfedin: sezon seçkileri, kampanyalar ve tematik ürün grupları.`,
+      breadcrumbs: [
+        { name: "Ana sayfa", path: base },
+        { name: "Koleksiyonlar", path: `${base}/collections` },
       ],
-      links: [{ rel: "canonical", href: `/s/${params.slug}/collections` }],
-    };
+    });
   },
   errorComponent: () => <StorefrontFallback text="Koleksiyonlar şu anda yüklenemedi." />,
   notFoundComponent: () => <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />,

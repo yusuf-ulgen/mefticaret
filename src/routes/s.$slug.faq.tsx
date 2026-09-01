@@ -1,10 +1,11 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
-import { InfoPage, infoHead, type InfoContent } from "@/components/storefront-info-route";
+import { InfoPage, infoHead, infoLoader, type InfoContent } from "@/components/storefront-info-route";
 import { StorefrontFallback } from "@/components/storefront-parts";
-import { storefrontQuery } from "@/lib/storefront-queries";
 
 const content: InfoContent = {
+  route: "faq",
+  faq: true,
   title: "Sıkça sorulan sorular",
   description: "Kargo, ödeme, iade ve sipariş takibi hakkında en çok sorulan soruların yanıtları.",
   intro: "Aradığın yanıtı bulamazsan iletişim sayfasından bize yazabilirsin.",
@@ -18,12 +19,8 @@ const content: InfoContent = {
 };
 
 export const Route = createFileRoute("/s/$slug/faq")({
-  loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
-    if (!data) throw notFound();
-    return { storeName: data.store.name };
-  },
-  head: ({ loaderData }) => infoHead(loaderData, content),
+  loader: ({ context, params }) => infoLoader(context.queryClient, params.slug),
+  head: ({ loaderData, params }) => infoHead(loaderData, content, params.slug),
   errorComponent: () => <StorefrontFallback text="Sayfa şu anda yüklenemedi." />,
   notFoundComponent: () => <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />,
   component: FaqPage,

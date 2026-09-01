@@ -507,6 +507,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          seo: Json
           slug: string
           sort_order: number
           store_id: string
@@ -517,6 +518,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          seo?: Json
           slug: string
           sort_order?: number
           store_id: string
@@ -527,6 +529,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          seo?: Json
           slug?: string
           sort_order?: number
           store_id?: string
@@ -3149,11 +3152,15 @@ export type Database = {
       }
       store_pages: {
         Row: {
+          author_name: string | null
           body: string
           created_at: string
           excerpt: string | null
           id: string
           is_published: boolean
+          page_kind: string
+          published_at: string | null
+          seo: Json
           seo_description: string | null
           show_in_footer: boolean
           slug: string
@@ -3163,11 +3170,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          author_name?: string | null
           body?: string
           created_at?: string
           excerpt?: string | null
           id?: string
           is_published?: boolean
+          page_kind?: string
+          published_at?: string | null
+          seo?: Json
           seo_description?: string | null
           show_in_footer?: boolean
           slug: string
@@ -3177,11 +3188,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          author_name?: string | null
           body?: string
           created_at?: string
           excerpt?: string | null
           id?: string
           is_published?: boolean
+          page_kind?: string
+          published_at?: string | null
+          seo?: Json
           seo_description?: string | null
           show_in_footer?: boolean
           slug?: string

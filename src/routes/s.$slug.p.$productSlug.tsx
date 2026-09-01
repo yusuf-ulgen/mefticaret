@@ -15,6 +15,17 @@ import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { recordRecentProduct } from "@/lib/recently-viewed";
 import { storefrontProductQuery } from "@/lib/storefront-queries";
+import { getRequestOrigin } from "@/lib/origin.functions";
+import {
+  absoluteUrl,
+  breadcrumbSchema,
+  buildSeoHead,
+  buildTitle,
+  jsonLdScript,
+  plainText,
+  productSchema,
+  readSeo,
+} from "@/lib/seo";
 
 /** YouTube/Vimeo adreslerini gömme adresine çevirir. */
 function embedUrl(url: string) {
@@ -27,19 +38,27 @@ function embedUrl(url: string) {
 
 export const Route = createFileRoute("/s/$slug/p/$productSlug")({
   loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(
-      storefrontProductQuery(params.slug, params.productSlug),
-    );
+    const [data, origin] = await Promise.all([
+      context.queryClient.ensureQueryData(storefrontProductQuery(params.slug, params.productSlug)),
+      getRequestOrigin(),
+    ]);
     if (!data) throw notFound();
-    const seo = (data.product.seo ?? {}) as { title?: string; description?: string };
+    const seo = readSeo(data.product.seo);
     return {
+      origin,
+      slug: params.slug,
+      productSlug: params.productSlug,
       title: data.product.title,
       storeName: data.store.name,
-      description: (seo.description?.trim() || (data.product.description ?? "")).slice(0, 160),
-      seoTitle: seo.title?.trim() ?? "",
+      seo,
+      description: seo.description || plainText(data.product.description),
       price: data.product.base_price,
       currency: data.product.currency,
-      image: data.images[0]?.url ?? null,
+      images: data.images.map((image) => image.url).filter(Boolean).slice(0, 6),
+      brand: data.product.vendor || data.product.seller_name || data.store.name,
+      sku: data.product.sku,
+      barcode: data.product.barcode,
+      category: data.product.product_type,
       ratingAverage: data.ratingAverage ?? 0,
       reviewCount: data.reviews.length,
       inStock: data.variants.length ? data.variants.some((variant) => variant.stock > 0) : true,
@@ -49,43 +68,64 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
     if (!loaderData) {
       return { meta: [{ title: "Ürün bulunamadı" }, { name: "robots", content: "noindex" }] };
     }
-    const title = loaderData.seoTitle || `${loaderData.title} — ${loaderData.storeName}`;
-    const description = loaderData.description || `${loaderData.title} ürününü ${loaderData.storeName} vitrininde keşfet.`;
-    const jsonLd = {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      name: loaderData.title,
+    const base = `/s/${loaderData.slug}`;
+    const path = loaderData.seo.canonical || `${base}/p/${loaderData.productSlug}`;
+    const title = loaderData.seo.title || buildTitle(loaderData.title, loaderData.storeName);
+    const description =
+      loaderData.description ||
+      `${loaderData.title} ürününü ${loaderData.storeName} vitrininde keşfedin.`;
+    const image = loaderData.seo.ogImage || loaderData.images[0] || null;
+    const canonicalUrl = absoluteUrl(path, loaderData.origin);
+
+    const head = buildSeoHead({
+      title,
       description,
-      ...(loaderData.image ? { image: [loaderData.image] } : {}),
-      brand: { "@type": "Brand", name: loaderData.storeName },
-      offers: {
-        "@type": "Offer",
-        price: loaderData.price,
-        priceCurrency: loaderData.currency,
-        availability: loaderData.inStock
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
-      },
-      ...(loaderData.reviewCount > 0
-        ? {
-            aggregateRating: {
-              "@type": "AggregateRating",
-              ratingValue: loaderData.ratingAverage,
-              reviewCount: loaderData.reviewCount,
-            },
-          }
-        : {}),
-    };
+      canonicalPath: path,
+      origin: loaderData.origin,
+      image,
+      ogType: "product",
+      siteName: loaderData.storeName,
+      locale: "tr_TR",
+      ...(loaderData.seo.keywords ? { keywords: loaderData.seo.keywords } : {}),
+      ...(loaderData.seo.noindex ? { noindex: true } : {}),
+    });
+
+    const breadcrumbs = [
+      { name: "Ana sayfa", path: base },
+      { name: "Ürünler", path: `${base}/products` },
+      ...(loaderData.category
+        ? [{ name: loaderData.category, path: `${base}/products?type=${encodeURIComponent(loaderData.category)}` }]
+        : []),
+      { name: loaderData.title, path: `${base}/p/${loaderData.productSlug}` },
+    ];
+
     return {
       meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "product" },
-        { name: "twitter:card", content: "summary_large_image" },
+        ...head.meta,
+        { property: "product:price:amount", content: String(loaderData.price) },
+        { property: "product:price:currency", content: loaderData.currency },
+        { property: "product:availability", content: loaderData.inStock ? "in stock" : "out of stock" },
       ],
-      scripts: [{ type: "application/ld+json", children: JSON.stringify(jsonLd) }],
+      links: head.links,
+      scripts: [
+        jsonLdScript(
+          productSchema({
+            name: loaderData.title,
+            description,
+            url: canonicalUrl,
+            images: loaderData.images.map((src) => absoluteUrl(src, loaderData.origin)),
+            price: loaderData.price,
+            currency: loaderData.currency,
+            inStock: loaderData.inStock,
+            brand: loaderData.brand,
+            sku: loaderData.sku,
+            barcode: loaderData.barcode,
+            ratingValue: loaderData.ratingAverage,
+            reviewCount: loaderData.reviewCount,
+          }),
+        ),
+        jsonLdScript(breadcrumbSchema(breadcrumbs, loaderData.origin)),
+      ],
     };
   },
 

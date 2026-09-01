@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 /**
  * Kiracı bazlı sitemap: /api/public/sitemap/<magaza-slug>
- * Yayınlanmış mağazanın ürün, koleksiyon ve sayfa adreslerini XML olarak döner.
+ * Yayınlanmış mağazanın kurumsal sayfa, ürün, koleksiyon ve blog adreslerini
+ * XML olarak döner. Arama motorlarına kapatılmış içerikler listelenmez.
  */
 export const Route = createFileRoute("/api/public/sitemap/$slug")({
   server: {
@@ -13,82 +14,25 @@ export const Route = createFileRoute("/api/public/sitemap/$slug")({
           return new Response("Not found", { status: 404 });
         }
 
-        const { publicSupabase } = await import("@/lib/public-supabase.server");
-        const supabase = publicSupabase();
+        const { buildStoreSitemap } = await import("@/lib/sitemap.server");
+        const url = new URL(request.url);
+        const forwarded =
+          url.hostname === "localhost" ? request.headers.get("x-forwarded-host") : null;
+        const origin = forwarded ? `https://${forwarded}` : url.origin;
 
-        const { data: store } = await supabase
-          .from("stores")
-          .select("id, slug")
-          .eq("slug", slug)
-          .maybeSingle();
-        if (!store) return new Response("Not found", { status: 404 });
-
-        const [products, collections, pages] = await Promise.all([
-          supabase
-            .from("products")
-            .select("slug, updated_at")
-            .eq("store_id", store.id)
-            .eq("status", "active")
-            .order("updated_at", { ascending: false })
-            .limit(5000),
-          supabase.from("collections").select("slug, updated_at").eq("store_id", store.id).limit(1000),
-          supabase
-            .from("store_pages")
-            .select("slug, updated_at")
-            .eq("store_id", store.id)
-            .eq("is_published", true)
-            .limit(1000),
-        ]);
-
-        const origin = new URL(request.url).origin;
-        const base = `${origin}/s/${store.slug}`;
-        const entries: { loc: string; lastmod?: string; priority: string }[] = [
-          { loc: base, priority: "1.0" },
-          ...(products.data ?? []).map((p) => ({
-            loc: `${base}/p/${p.slug}`,
-            lastmod: p.updated_at ?? undefined,
-            priority: "0.8",
-          })),
-          ...(collections.data ?? []).map((c) => ({
-            loc: `${base}/c/${c.slug}`,
-            lastmod: c.updated_at ?? undefined,
-            priority: "0.6",
-          })),
-          ...(pages.data ?? []).map((p) => ({
-            loc: `${base}/page/${p.slug}`,
-            lastmod: p.updated_at ?? undefined,
-            priority: "0.4",
-          })),
-        ];
-
-        const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${entries
-  .map(
-    (e) =>
-      `  <url><loc>${escapeXml(e.loc)}</loc>${
-        e.lastmod ? `<lastmod>${new Date(e.lastmod).toISOString()}</lastmod>` : ""
-      }<priority>${e.priority}</priority></url>`,
-  )
-  .join("\n")}
-</urlset>`;
-
-        return new Response(xml, {
-          headers: {
-            "content-type": "application/xml; charset=utf-8",
-            "cache-control": "public, max-age=600",
-          },
-        });
+        try {
+          const xml = await buildStoreSitemap(slug, origin);
+          if (!xml) return new Response("Not found", { status: 404 });
+          return new Response(xml, {
+            headers: {
+              "content-type": "application/xml; charset=utf-8",
+              "cache-control": "public, max-age=600",
+            },
+          });
+        } catch (cause) {
+          return new Response(cause instanceof Error ? cause.message : "error", { status: 500 });
+        }
       },
     },
   },
 });
-
-function escapeXml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
