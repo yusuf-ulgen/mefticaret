@@ -3,7 +3,83 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-/** AI asistan sunucu fonksiyonları (thin wrapper — mantık ai.server.ts içinde). */
+/** AI asistan sunucu fonksiyonları (mantık ai.server.ts içinde). */
+
+export const runAiAssistant = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.string().uuid(),
+        task: z.string().trim().min(2).max(60),
+        values: z.record(z.string(), z.string().max(6000)).default({}),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { runAiTask } = await import("@/lib/ai.server");
+    const result = await runAiTask({
+      client: context.supabase,
+      storeId: data.storeId,
+      userId: context.userId,
+      taskKey: data.task,
+      values: data.values,
+    });
+    return {
+      text: result.text,
+      totalTokens: result.totalTokens,
+      model: result.model,
+      providerCode: result.providerCode,
+    };
+  });
+
+export const saveStoreAiSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.string().uuid(),
+        providerCode: z.string().trim().min(2).max(40),
+        model: z.string().trim().min(2).max(120),
+        creativity: z.number().min(0).max(1),
+        brandTone: z.string().trim().min(2).max(40),
+        language: z.string().trim().min(2).max(10),
+        monthlyTokenLimit: z.number().int().min(0).max(50_000_000),
+        isEnabled: z.boolean(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("store_ai_settings")
+      .upsert(
+        {
+          store_id: data.storeId,
+          provider_code: data.providerCode,
+          model: data.model,
+          creativity: data.creativity,
+          brand_tone: data.brandTone,
+          language: data.language,
+          monthly_token_limit: data.monthlyTokenLimit,
+          is_enabled: data.isEnabled,
+        },
+        { onConflict: "store_id" },
+      );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const setAiProviderEnabled = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ providerId: z.string().uuid(), isEnabled: z.boolean() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("ai_providers")
+      .update({ is_enabled: data.isEnabled })
+      .eq("id", data.providerId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
 
 export const generateProductCopy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -19,44 +95,35 @@ export const generateProductCopy = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    const { chatComplete, COPY_SYSTEM_PROMPT } = await import("@/lib/ai.server");
-
-    const { data: store, error } = await context.supabase
-      .from("stores")
-      .select("id, name, industry")
-      .eq("id", data.storeId)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
-
-    const prompt = [
-      `Mağaza: ${store.name}${store.industry ? ` (${store.industry})` : ""}`,
-      `Ürün: ${data.title}`,
-      data.audience ? `Hedef kitle: ${data.audience}` : null,
-      data.keywords ? `Anahtar kelimeler: ${data.keywords}` : null,
-      `Ton: ${data.tone}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const text = await chatComplete([
-      { role: "system", content: COPY_SYSTEM_PROMPT },
-      { role: "user", content: prompt },
-    ]);
-    return { text };
+    const { runAiTask } = await import("@/lib/ai.server");
+    const result = await runAiTask({
+      client: context.supabase,
+      storeId: data.storeId,
+      userId: context.userId,
+      taskKey: "product_description",
+      values: {
+        product: data.title,
+        details: data.keywords ?? "",
+        audience: data.audience ?? "",
+        tone: data.tone,
+      },
+    });
+    return { text: result.text };
   });
 
 export const generateStoreInsight = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid(), days: z.number().int().min(7).max(180).default(30) }).parse(data))
+  .inputValidator((data) =>
+    z.object({ storeId: z.string().uuid(), days: z.number().int().min(7).max(180).default(30) }).parse(data),
+  )
   .handler(async ({ data, context }) => {
-    const { chatComplete, INSIGHT_SYSTEM_PROMPT } = await import("@/lib/ai.server");
-    const { buildInsightPrompt, collectStoreMetrics } = await import("@/lib/analytics.server");
-
-    const metrics = await collectStoreMetrics(context.supabase, data.storeId, data.days);
-    const text = await chatComplete([
-      { role: "system", content: INSIGHT_SYSTEM_PROMPT },
-      { role: "user", content: buildInsightPrompt(metrics, data.days) },
-    ]);
-    return { text, metrics };
+    const { runAiTask } = await import("@/lib/ai.server");
+    const result = await runAiTask({
+      client: context.supabase,
+      storeId: data.storeId,
+      userId: context.userId,
+      taskKey: "sales_analysis",
+      values: { days: String(data.days) },
+    });
+    return { text: result.text };
   });
