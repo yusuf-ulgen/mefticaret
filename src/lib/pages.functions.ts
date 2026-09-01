@@ -67,7 +67,7 @@ export const savePage = createServerFn({ method: "POST" })
       sort_order: data.sortOrder,
       page_kind: data.pageKind ?? "page",
       status,
-      scheduled_at: status === "scheduled" ? data.scheduledAt : null,
+      scheduled_at: status === "scheduled" ? (data.scheduledAt ?? null) : null,
       category_id: data.categoryId ?? null,
       author_id: data.authorId ?? null,
       author_name: data.authorName ?? null,
