@@ -77,6 +77,122 @@ export type Database = {
           },
         ]
       }
+      ai_generations: {
+        Row: {
+          created_at: string
+          duration_ms: number
+          entity: string | null
+          entity_id: string | null
+          error: string | null
+          id: string
+          input_tokens: number
+          meta: Json
+          model: string
+          output: string | null
+          output_tokens: number
+          prompt: string | null
+          provider_code: string
+          status: string
+          store_id: string
+          task: string
+          total_tokens: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number
+          entity?: string | null
+          entity_id?: string | null
+          error?: string | null
+          id?: string
+          input_tokens?: number
+          meta?: Json
+          model: string
+          output?: string | null
+          output_tokens?: number
+          prompt?: string | null
+          provider_code?: string
+          status?: string
+          store_id: string
+          task: string
+          total_tokens?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number
+          entity?: string | null
+          entity_id?: string | null
+          error?: string | null
+          id?: string
+          input_tokens?: number
+          meta?: Json
+          model?: string
+          output?: string | null
+          output_tokens?: number
+          prompt?: string | null
+          provider_code?: string
+          status?: string
+          store_id?: string
+          task?: string
+          total_tokens?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_generations_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_providers: {
+        Row: {
+          api_key_secret_name: string | null
+          code: string
+          created_at: string
+          default_model: string | null
+          description: string | null
+          id: string
+          is_enabled: boolean
+          models: Json
+          name: string
+          requires_api_key: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          api_key_secret_name?: string | null
+          code: string
+          created_at?: string
+          default_model?: string | null
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          models?: Json
+          name: string
+          requires_api_key?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          api_key_secret_name?: string | null
+          code?: string
+          created_at?: string
+          default_model?: string | null
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          models?: Json
+          name?: string
+          requires_api_key?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       api_keys: {
         Row: {
           api_version: string
@@ -3582,6 +3698,56 @@ export type Database = {
             columns: ["to_warehouse_id"]
             isOneToOne: false
             referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_ai_settings: {
+        Row: {
+          brand_tone: string
+          created_at: string
+          creativity: number
+          id: string
+          is_enabled: boolean
+          language: string
+          model: string
+          monthly_token_limit: number
+          provider_code: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          brand_tone?: string
+          created_at?: string
+          creativity?: number
+          id?: string
+          is_enabled?: boolean
+          language?: string
+          model?: string
+          monthly_token_limit?: number
+          provider_code?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          brand_tone?: string
+          created_at?: string
+          creativity?: number
+          id?: string
+          is_enabled?: boolean
+          language?: string
+          model?: string
+          monthly_token_limit?: number
+          provider_code?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_ai_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]

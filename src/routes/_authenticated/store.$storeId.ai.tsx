@@ -1,27 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Copy, Sparkles, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { generateProductCopy, generateStoreInsight } from "@/lib/ai.functions";
+import { AI_TASKS, AI_TASK_GROUP_LABELS, taskLabel, type AiTask } from "@/lib/ai-tasks";
+import { aiGenerationsQuery, aiProvidersQuery, aiUsageQuery, storeAiSettingsQuery } from "@/lib/ai-queries";
+import { runAiAssistant, saveStoreAiSettings } from "@/lib/ai.functions";
+import { formatDateTime, formatNumber } from "@/lib/mefti";
 import { storeQuery } from "@/lib/store-queries";
-
-const TONES = [
-  { value: "premium", label: "Premium" },
-  { value: "samimi", label: "Samimi" },
-  { value: "teknik", label: "Teknik" },
-  { value: "minimal", label: "Minimal" },
-] as const;
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/ai")({
   head: () => ({
@@ -29,10 +29,14 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/ai")({
       { title: "AI Asistan — Mefticaret" },
       {
         name: "description",
-        content: "Ürün açıklaması ve SEO metni üret, mağaza metriklerini AI ile yorumlat.",
+        content:
+          "Ürün açıklaması, SEO metni, blog, kampanya, e-posta, çeviri ve satış analizi üretin; AI sağlayıcınızı seçin ve mağaza bazlı kullanımı izleyin.",
       },
       { property: "og:title", content: "AI Asistan — Mefticaret" },
-      { property: "og:description", content: "Mefticaret AI asistanı ile metin üretimi ve satış analizi." },
+      {
+        property: "og:description",
+        content: "Modüler AI sağlayıcı desteği, 14 hazır görev ve mağaza bazlı kullanım takibi.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -63,118 +67,426 @@ function ResultBox({ text }: { text: string }) {
 
 function AiPage() {
   const { storeId } = Route.useParams();
+  const queryClient = useQueryClient();
+
   const { data: store } = useQuery(storeQuery(storeId));
-  const copyFn = useServerFn(generateProductCopy);
-  const insightFn = useServerFn(generateStoreInsight);
+  const { data: providers } = useQuery(aiProvidersQuery());
+  const { data: settings } = useQuery(storeAiSettingsQuery(storeId));
+  const { data: usage } = useQuery(aiUsageQuery(storeId));
+  const { data: history } = useQuery(aiGenerationsQuery(storeId));
 
-  const [title, setTitle] = useState("");
-  const [audience, setAudience] = useState("");
-  const [keywords, setKeywords] = useState("");
-  const [tone, setTone] = useState<(typeof TONES)[number]["value"]>("premium");
+  const run = useServerFn(runAiAssistant);
+  const saveSettings = useServerFn(saveStoreAiSettings);
 
-  const copy = useMutation({
+  const [taskKey, setTaskKey] = useState(AI_TASKS[0]!.key);
+  const [values, setValues] = useState<Record<string, string>>({});
+  const task = useMemo<AiTask>(() => AI_TASKS.find((item) => item.key === taskKey) ?? AI_TASKS[0]!, [taskKey]);
+
+  const [form, setForm] = useState({
+    providerCode: settings?.provider_code ?? "lovable",
+    model: settings?.model ?? "google/gemini-3.7-flash",
+    creativity: String(settings?.creativity ?? 0.7),
+    brandTone: settings?.brand_tone ?? "premium",
+    language: settings?.language ?? "tr",
+    monthlyTokenLimit: String(settings?.monthly_token_limit ?? 500000),
+    isEnabled: settings?.is_enabled ?? true,
+  });
+
+  const selectedProvider = (providers ?? []).find((item) => item.code === form.providerCode);
+  const limit = settings?.monthly_token_limit ?? 500000;
+  const usedPercent = limit > 0 ? Math.min(100, Math.round(((usage?.monthTokens ?? 0) / limit) * 100)) : 0;
+
+  const generate = useMutation({
+    mutationFn: () => run({ data: { storeId, task: taskKey, values } }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["ai-usage", storeId] }),
+        queryClient.invalidateQueries({ queryKey: ["ai-generations", storeId] }),
+      ]);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const settingsMutation = useMutation({
     mutationFn: () =>
-      copyFn({
+      saveSettings({
         data: {
           storeId,
-          title: title.trim(),
-          audience: audience.trim() || undefined,
-          keywords: keywords.trim() || undefined,
-          tone,
+          providerCode: form.providerCode,
+          model: form.model,
+          creativity: Number(form.creativity),
+          brandTone: form.brandTone,
+          language: form.language,
+          monthlyTokenLimit: Number(form.monthlyTokenLimit) || 0,
+          isEnabled: form.isEnabled,
         },
       }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["store-ai-settings", storeId] });
+      toast.success("AI ayarları kaydedildi");
+    },
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const insight = useMutation({
-    mutationFn: () => insightFn({ data: { storeId, days: 30 } }),
-    onError: (error: Error) => toast.error(error.message),
-  });
+  const groups = useMemo(() => {
+    const map = new Map<string, AiTask[]>();
+    for (const item of AI_TASKS) {
+      map.set(item.group, [...(map.get(item.group) ?? []), item]);
+    }
+    return [...map.entries()];
+  }, []);
 
   return (
     <AppShell
       storeId={storeId}
       title="AI Asistan"
-      description={`${store?.name ?? "Mağaza"} için metin üretimi ve satış analizi.`}
+      description={`${store?.name ?? "Mağaza"} için 14 hazır AI görevi, modüler sağlayıcı seçimi ve kullanım takibi.`}
     >
-      <Tabs defaultValue="copy" className="space-y-4">
+      <Tabs defaultValue="assistant" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="copy">Ürün metni</TabsTrigger>
-          <TabsTrigger value="insight">Satış analizi</TabsTrigger>
+          <TabsTrigger value="assistant">Asistan</TabsTrigger>
+          <TabsTrigger value="usage">Kullanım</TabsTrigger>
+          <TabsTrigger value="settings">Sağlayıcı & ayarlar</TabsTrigger>
+          <TabsTrigger value="history">Geçmiş</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="copy">
-          <section className="surface-card p-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="ai-title">Ürün adı</Label>
-                <Input
-                  id="ai-title"
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  placeholder="Örn. Su itici trençkot"
-                />
+        <TabsContent value="assistant" className="grid gap-4 lg:grid-cols-[280px_1fr]">
+          <nav className="surface-card space-y-4 p-4">
+            {groups.map(([group, items]) => (
+              <div key={group} className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {AI_TASK_GROUP_LABELS[group as keyof typeof AI_TASK_GROUP_LABELS]}
+                </p>
+                {items.map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => {
+                      setTaskKey(item.key);
+                      setValues({});
+                      generate.reset();
+                    }}
+                    className={cn(
+                      "w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-muted/60",
+                      taskKey === item.key && "bg-muted font-medium",
+                    )}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
+            ))}
+          </nav>
+
+          <section className="surface-card p-6">
+            <header className="mb-4">
+              <h2 className="font-display text-lg font-semibold">{task.label}</h2>
+              <p className="text-sm text-muted-foreground">{task.description}</p>
+            </header>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {task.fields.map((field) => (
+                <div
+                  key={field.name}
+                  className={cn("space-y-2", field.type === "textarea" && "md:col-span-2")}
+                >
+                  <Label htmlFor={`ai-${field.name}`}>
+                    {field.label}
+                    {field.required ? " *" : ""}
+                  </Label>
+                  {field.type === "text" ? (
+                    <Input
+                      id={`ai-${field.name}`}
+                      value={values[field.name] ?? ""}
+                      placeholder={field.placeholder}
+                      onChange={(event) =>
+                        setValues((prev) => ({ ...prev, [field.name]: event.target.value }))
+                      }
+                    />
+                  ) : null}
+                  {field.type === "textarea" ? (
+                    <Textarea
+                      id={`ai-${field.name}`}
+                      rows={field.rows ?? 3}
+                      value={values[field.name] ?? ""}
+                      placeholder={field.placeholder}
+                      onChange={(event) =>
+                        setValues((prev) => ({ ...prev, [field.name]: event.target.value }))
+                      }
+                    />
+                  ) : null}
+                  {field.type === "select" ? (
+                    <Select
+                      value={values[field.name] ?? field.options?.[0]?.value ?? ""}
+                      onValueChange={(value) => setValues((prev) => ({ ...prev, [field.name]: value }))}
+                    >
+                      <SelectTrigger id={`ai-${field.name}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(field.options ?? []).map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+
+            <Button className="mt-4" disabled={generate.isPending} onClick={() => generate.mutate()}>
+              <Wand2 className="mr-2 size-4" />
+              {generate.isPending ? "Üretiliyor…" : "Üret"}
+            </Button>
+            {generate.isPending ? <Skeleton className="mt-4 h-40 w-full" /> : null}
+            {generate.data ? (
+              <>
+                <ResultBox text={generate.data.text} />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {generate.data.providerCode} · {generate.data.model} ·{" "}
+                  {formatNumber(generate.data.totalTokens)} token
+                </p>
+              </>
+            ) : null}
+          </section>
+        </TabsContent>
+
+        <TabsContent value="usage" className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <article className="surface-card p-4">
+              <p className="text-sm text-muted-foreground">Bu ay kullanılan token</p>
+              <p className="font-display text-2xl font-semibold">{formatNumber(usage?.monthTokens ?? 0)}</p>
+              <Progress className="mt-3" value={usedPercent} />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Limit: {limit > 0 ? formatNumber(limit) : "Sınırsız"} · %{usedPercent}
+              </p>
+            </article>
+            <article className="surface-card p-4">
+              <p className="text-sm text-muted-foreground">Bu ay istek</p>
+              <p className="font-display text-2xl font-semibold">{formatNumber(usage?.monthRequests ?? 0)}</p>
+            </article>
+            <article className="surface-card p-4">
+              <p className="text-sm text-muted-foreground">Toplam token</p>
+              <p className="font-display text-2xl font-semibold">{formatNumber(usage?.totalTokens ?? 0)}</p>
+            </article>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <section className="surface-card p-4">
+              <h3 className="mb-3 font-semibold">Göreve göre kullanım</h3>
+              {(usage?.byTask ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">Henüz kayıt yok.</p>
+              ) : (
+                <ul className="space-y-2 text-sm">
+                  {(usage?.byTask ?? []).map((row) => (
+                    <li key={row.task} className="flex items-center justify-between gap-2">
+                      <span>{taskLabel(row.task)}</span>
+                      <span className="text-muted-foreground">
+                        {formatNumber(row.tokens)} token · {row.requests} istek
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+            <section className="surface-card p-4">
+              <h3 className="mb-3 font-semibold">Sağlayıcıya göre kullanım</h3>
+              {(usage?.byProvider ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">Henüz kayıt yok.</p>
+              ) : (
+                <ul className="space-y-2 text-sm">
+                  {(usage?.byProvider ?? []).map((row) => (
+                    <li key={row.provider} className="flex items-center justify-between gap-2">
+                      <span>{row.provider}</span>
+                      <span className="text-muted-foreground">
+                        {formatNumber(row.tokens)} token · {row.requests} istek
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="settings" className="grid gap-4 lg:grid-cols-[1fr_360px]">
+          <form
+            className="surface-card space-y-4 p-6"
+            onSubmit={(event) => {
+              event.preventDefault();
+              settingsMutation.mutate();
+            }}
+          >
+            <h2 className="font-display text-lg font-semibold">Mağaza AI ayarları</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="ai-tone">Ton</Label>
-                <Select value={tone} onValueChange={(value) => setTone(value as typeof tone)}>
-                  <SelectTrigger id="ai-tone">
+                <Label>Sağlayıcı</Label>
+                <Select
+                  value={form.providerCode}
+                  onValueChange={(value) => {
+                    const provider = (providers ?? []).find((item) => item.code === value);
+                    setForm((prev) => ({
+                      ...prev,
+                      providerCode: value,
+                      model: provider?.default_model ?? provider?.models[0] ?? prev.model,
+                    }));
+                  }}
+                >
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {TONES.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
+                    {(providers ?? []).map((provider) => (
+                      <SelectItem key={provider.id} value={provider.code}>
+                        {provider.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="ai-audience">Hedef kitle</Label>
+                <Label>Model</Label>
+                <Select
+                  value={form.model}
+                  onValueChange={(value) => setForm((prev) => ({ ...prev, model: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(selectedProvider?.models ?? [form.model]).map((model) => (
+                      <SelectItem key={model} value={model}>
+                        {model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ai-creativity">Yaratıcılık (0-1)</Label>
                 <Input
-                  id="ai-audience"
-                  value={audience}
-                  onChange={(event) => setAudience(event.target.value)}
-                  placeholder="Örn. 25-40 yaş şehirli kadın"
+                  id="ai-creativity"
+                  type="number"
+                  min={0}
+                  max={1}
+                  step={0.1}
+                  value={form.creativity}
+                  onChange={(event) => setForm((prev) => ({ ...prev, creativity: event.target.value }))}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="ai-keywords">Anahtar kelimeler</Label>
-                <Textarea
-                  id="ai-keywords"
-                  rows={2}
-                  value={keywords}
-                  onChange={(event) => setKeywords(event.target.value)}
-                  placeholder="trençkot, su itici kumaş, sonbahar"
+                <Label>Marka tonu</Label>
+                <Select
+                  value={form.brandTone}
+                  onValueChange={(value) => setForm((prev) => ({ ...prev, brandTone: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["premium", "samimi", "teknik", "minimal", "esprili"].map((tone) => (
+                      <SelectItem key={tone} value={tone}>
+                        {tone}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Çıktı dili</Label>
+                <Select
+                  value={form.language}
+                  onValueChange={(value) => setForm((prev) => ({ ...prev, language: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tr">Türkçe</SelectItem>
+                    <SelectItem value="en">İngilizce</SelectItem>
+                    <SelectItem value="de">Almanca</SelectItem>
+                    <SelectItem value="ar">Arapça</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ai-limit">Aylık token limiti (0 = sınırsız)</Label>
+                <Input
+                  id="ai-limit"
+                  type="number"
+                  min={0}
+                  value={form.monthlyTokenLimit}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, monthlyTokenLimit: event.target.value }))
+                  }
                 />
               </div>
             </div>
-            <Button
-              className="mt-4"
-              disabled={title.trim().length < 2 || copy.isPending}
-              onClick={() => copy.mutate()}
-            >
-              <Wand2 className="mr-2 size-4" />
-              {copy.isPending ? "Üretiliyor…" : "Metin üret"}
+            <div className="flex items-center justify-between rounded-lg border border-border p-3">
+              <span className="text-sm">Bu mağaza için AI aktif</span>
+              <Switch
+                checked={form.isEnabled}
+                onCheckedChange={(checked) => setForm((prev) => ({ ...prev, isEnabled: checked }))}
+              />
+            </div>
+            <Button type="submit" disabled={settingsMutation.isPending}>
+              Ayarları kaydet
             </Button>
-            {copy.isPending ? <Skeleton className="mt-4 h-40 w-full" /> : null}
-            {copy.data ? <ResultBox text={copy.data.text} /> : null}
-          </section>
+          </form>
+
+          <aside className="surface-card space-y-3 p-6">
+            <h3 className="font-semibold">Sağlayıcılar</h3>
+            <p className="text-sm text-muted-foreground">
+              Sağlayıcı katmanı modülerdir; yeni sağlayıcı eklemek için sağlayıcı kaydı ve anahtarı
+              yeterlidir.
+            </p>
+            {(providers ?? []).map((provider) => (
+              <article key={provider.id} className="rounded-lg border border-border p-3">
+                <header className="flex items-center justify-between gap-2">
+                  <span className="font-medium">{provider.name}</span>
+                  <Badge variant={provider.is_enabled ? "default" : "outline"}>
+                    {provider.is_enabled ? "Hazır" : "Anahtar bekliyor"}
+                  </Badge>
+                </header>
+                <p className="pt-1 text-xs text-muted-foreground">{provider.description}</p>
+                {provider.requires_api_key ? (
+                  <p className="pt-1 text-xs text-muted-foreground">
+                    Gerekli anahtar: <code>{provider.api_key_secret_name}</code>
+                  </p>
+                ) : null}
+              </article>
+            ))}
+          </aside>
         </TabsContent>
 
-        <TabsContent value="insight">
-          <section className="surface-card p-6">
-            <h2 className="font-display text-lg font-semibold">Son 30 günün AI yorumu</h2>
-            <p className="text-sm text-muted-foreground">
-              Ciro, sepet ortalaması, ödeme tamamlanma oranı, kritik stok ve en çok satan ürünler analiz edilir.
-            </p>
-            <Button className="mt-4" disabled={insight.isPending} onClick={() => insight.mutate()}>
-              <Sparkles className="mr-2 size-4" />
-              {insight.isPending ? "Analiz ediliyor…" : "Analiz et"}
-            </Button>
-            {insight.isPending ? <Skeleton className="mt-4 h-40 w-full" /> : null}
-            {insight.data ? <ResultBox text={insight.data.text} /> : null}
+        <TabsContent value="history">
+          <section className="surface-card divide-y divide-border">
+            {(history ?? []).length === 0 ? (
+              <p className="p-6 text-sm text-muted-foreground">
+                <Sparkles className="mb-2 size-5" /> Henüz AI üretimi yok.
+              </p>
+            ) : (
+              (history ?? []).map((row) => (
+                <article key={row.id} className="space-y-1 p-4">
+                  <header className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium">{taskLabel(row.task)}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDateTime(row.created_at)} · {row.provider_code}/{row.model} ·{" "}
+                      {formatNumber(row.total_tokens)} token
+                    </span>
+                  </header>
+                  {row.status === "error" ? (
+                    <p className="text-sm text-destructive">{row.error}</p>
+                  ) : (
+                    <p className="line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground">
+                      {row.output}
+                    </p>
+                  )}
+                </article>
+              ))
+            )}
           </section>
         </TabsContent>
       </Tabs>
