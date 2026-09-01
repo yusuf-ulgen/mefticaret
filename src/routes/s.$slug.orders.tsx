@@ -125,9 +125,9 @@ function OrdersBody({
             >
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
                 <strong style={{ fontSize: 15 }}>#{order.order_number}</strong>
-                <span style={{ fontWeight: 700 }}>{formatMoney(Number(order.total), order.currency)}</span>
+                <span style={{ fontWeight: 700 }}>{formatMoney(Number(order.grand_total), order.currency)}</span>
               </div>
-              <p style={{ margin: 0, color: muted, fontSize: 13 }}>{formatDateTime(order.created_at)}</p>
+              <p style={{ margin: 0, color: muted, fontSize: 13 }}>{formatDateTime(order.placed_at)}</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 12, color: muted }}>
                 <span style={{ border: `1px solid ${border}`, borderRadius: 999, padding: "3px 10px" }}>
                   {ORDER_STATUS_LABELS[order.status] ?? order.status}
