@@ -1953,11 +1953,81 @@ export type Database = {
           },
         ]
       }
-      ledger_entries: {
+      ledger_accounts: {
         Row: {
-          amount: number
+          code: string | null
           created_at: string
           currency: string
+          customer_id: string | null
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["ledger_account_kind"]
+          meta: Json
+          name: string
+          seller_id: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["ledger_account_kind"]
+          meta?: Json
+          name: string
+          seller_id?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["ledger_account_kind"]
+          meta?: Json
+          name?: string
+          seller_id?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_accounts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_accounts_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_sellers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_accounts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_entries: {
+        Row: {
+          account_id: string | null
+          amount: number
+          counter_account_id: string | null
+          created_at: string
+          currency: string
+          customer_id: string | null
           description: string | null
           direction: Database["public"]["Enums"]["ledger_direction"]
           id: string
@@ -1966,12 +2036,19 @@ export type Database = {
           occurred_at: string
           order_id: string | null
           payout_id: string | null
+          reference: string | null
+          reverses_entry_id: string | null
+          seller_id: string | null
+          status: Database["public"]["Enums"]["ledger_entry_status"]
           store_id: string
         }
         Insert: {
+          account_id?: string | null
           amount: number
+          counter_account_id?: string | null
           created_at?: string
           currency?: string
+          customer_id?: string | null
           description?: string | null
           direction: Database["public"]["Enums"]["ledger_direction"]
           id?: string
@@ -1980,12 +2057,19 @@ export type Database = {
           occurred_at?: string
           order_id?: string | null
           payout_id?: string | null
+          reference?: string | null
+          reverses_entry_id?: string | null
+          seller_id?: string | null
+          status?: Database["public"]["Enums"]["ledger_entry_status"]
           store_id: string
         }
         Update: {
+          account_id?: string | null
           amount?: number
+          counter_account_id?: string | null
           created_at?: string
           currency?: string
+          customer_id?: string | null
           description?: string | null
           direction?: Database["public"]["Enums"]["ledger_direction"]
           id?: string
@@ -1994,9 +2078,34 @@ export type Database = {
           occurred_at?: string
           order_id?: string | null
           payout_id?: string | null
+          reference?: string | null
+          reverses_entry_id?: string | null
+          seller_id?: string | null
+          status?: Database["public"]["Enums"]["ledger_entry_status"]
           store_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ledger_entries_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_counter_account_id_fkey"
+            columns: ["counter_account_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ledger_entries_order_id_fkey"
             columns: ["order_id"]
@@ -2009,6 +2118,20 @@ export type Database = {
             columns: ["payout_id"]
             isOneToOne: false
             referencedRelation: "payouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_reverses_entry_id_fkey"
+            columns: ["reverses_entry_id"]
+            isOneToOne: false
+            referencedRelation: "ledger_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_sellers"
             referencedColumns: ["id"]
           },
           {
@@ -5738,6 +5861,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_ledger_account: {
+        Args: {
+          _currency?: string
+          _customer_id?: string
+          _kind: Database["public"]["Enums"]["ledger_account_kind"]
+          _name?: string
+          _seller_id?: string
+          _store_id: string
+        }
+        Returns: string
+      }
+      ledger_account_balance: { Args: { _account_id: string }; Returns: number }
+      ledger_store_balances: {
+        Args: { _store_id: string }
+        Returns: {
+          account_id: string
+          account_kind: Database["public"]["Enums"]["ledger_account_kind"]
+          account_name: string
+          balance: number
+          credit: number
+          currency: string
+          debit: number
+          pending: number
+          seller_id: string
+        }[]
+      }
       publish_due_blog_posts: { Args: never; Returns: number }
       rollup_store_daily_stats: {
         Args: { target_day?: string }
@@ -5825,6 +5974,13 @@ export type Database = {
         | "reserve"
         | "release"
       invoice_status: "draft" | "open" | "paid" | "void" | "uncollectible"
+      ledger_account_kind:
+        | "store"
+        | "seller"
+        | "platform"
+        | "customer"
+        | "payment_provider"
+        | "gateway"
       ledger_direction: "credit" | "debit"
       ledger_entry_kind:
         | "sale"
@@ -5835,6 +5991,13 @@ export type Database = {
         | "refund"
         | "payout"
         | "adjustment"
+        | "customer_payment"
+        | "seller_earning"
+        | "marketplace_commission"
+        | "withdrawal"
+        | "wallet_in"
+        | "wallet_out"
+      ledger_entry_status: "pending" | "posted" | "cancelled" | "failed"
       listing_status: "draft" | "queued" | "listed" | "error" | "removed"
       message_channel: "email" | "sms" | "whatsapp" | "push"
       message_delivery_status:
@@ -6129,6 +6292,14 @@ export const Constants = {
         "release",
       ],
       invoice_status: ["draft", "open", "paid", "void", "uncollectible"],
+      ledger_account_kind: [
+        "store",
+        "seller",
+        "platform",
+        "customer",
+        "payment_provider",
+        "gateway",
+      ],
       ledger_direction: ["credit", "debit"],
       ledger_entry_kind: [
         "sale",
@@ -6139,7 +6310,14 @@ export const Constants = {
         "refund",
         "payout",
         "adjustment",
+        "customer_payment",
+        "seller_earning",
+        "marketplace_commission",
+        "withdrawal",
+        "wallet_in",
+        "wallet_out",
       ],
+      ledger_entry_status: ["pending", "posted", "cancelled", "failed"],
       listing_status: ["draft", "queued", "listed", "error", "removed"],
       message_channel: ["email", "sms", "whatsapp", "push"],
       message_delivery_status: [
