@@ -227,6 +227,113 @@ export const deleteProduct = createServerFn({ method: "POST" })
     return { id: product.id };
   });
 
+const variantOptionsSchema = z
+  .array(
+    z.object({
+      name: z.string().trim().min(1).max(40),
+      values: z.array(z.string().trim().min(1).max(60)).max(50),
+    }),
+  )
+  .max(6);
+
+/** Ürün seçenek tanımlarını (Renk, Beden vb.) kaydeder. */
+export const setVariantOptions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z.object({ productId: z.string().uuid(), options: variantOptionsSchema }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: product, error } = await supabase
+      .from("products")
+      .update({ variant_options: data.options as never })
+      .eq("id", data.productId)
+      .select("id, variant_options")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!product) throw new Error("Bu ürünü düzenleme yetkiniz yok");
+    return product;
+  });
+
+/**
+ * Seçenek değerlerinin tüm kombinasyonlarını üretip eksik varyantları oluşturur.
+ * Mevcut kombinasyonlar korunur, yalnızca eksik olanlar eklenir.
+ */
+export const generateVariants = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        productId: z.string().uuid(),
+        options: variantOptionsSchema.optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+
+    const { data: product, error: productError } = await supabase
+      .from("products")
+      .select("id, store_id, base_price, variant_options")
+      .eq("id", data.productId)
+      .maybeSingle();
+    if (productError) throw new Error(productError.message);
+    if (!product) throw new Error("Ürün bulunamadı veya yetkiniz yok");
+
+    const groups = (data.options ??
+      ((product as { variant_options?: unknown }).variant_options as
+        | { name: string; values: string[] }[]
+        | undefined) ??
+      []) as { name: string; values: string[] }[];
+    const usable = groups.filter((group) => group.name.trim() && group.values.length > 0);
+    if (!usable.length) throw new Error("Önce en az bir seçenek ve değer tanımlayın");
+
+    let combos: Record<string, string>[] = [{}];
+    for (const group of usable) {
+      const next: Record<string, string>[] = [];
+      for (const combo of combos) {
+        for (const value of group.values) next.push({ ...combo, [group.name]: value });
+      }
+      combos = next;
+      if (combos.length > 300) throw new Error("Kombinasyon sayısı 300'ü aşamaz");
+    }
+
+    const { data: existing, error: existingError } = await supabase
+      .from("product_variants")
+      .select("id, options, position")
+      .eq("product_id", product.id);
+    if (existingError) throw new Error(existingError.message);
+
+    const key = (options: Record<string, string>) =>
+      usable.map((group) => `${group.name}=${options[group.name] ?? ""}`).join("|");
+    const taken = new Set(
+      (existing ?? []).map((row) => key((row.options ?? {}) as Record<string, string>)),
+    );
+
+    let position = (existing ?? []).reduce((max, row) => Math.max(max, row.position ?? 0), 0);
+    const rows = combos
+      .filter((combo) => !taken.has(key(combo)))
+      .map((combo) => {
+        position += 1;
+        return {
+          product_id: product.id,
+          store_id: product.store_id,
+          title: usable.map((group) => combo[group.name]).join(" / "),
+          price: product.base_price,
+          stock: 0,
+          options: combo as never,
+          position,
+        };
+      });
+
+    if (rows.length) {
+      const { error } = await supabase.from("product_variants").insert(rows);
+      if (error) throw new Error(error.message);
+    }
+
+    return { created: rows.length, total: combos.length };
+  });
+
 export const upsertVariant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
@@ -236,9 +343,13 @@ export const upsertVariant = createServerFn({ method: "POST" })
         productId: z.string().uuid(),
         title: z.string().trim().min(1).max(80),
         sku: z.string().trim().max(60).optional(),
+        barcode: z.string().trim().max(60).optional(),
         price: z.number().min(0).max(9_999_999),
-        costPrice: z.number().min(0).max(9_999_999).optional(),
+        compareAtPrice: z.number().min(0).max(9_999_999).nullable().optional(),
+        costPrice: z.number().min(0).max(9_999_999).nullable().optional(),
         stock: z.number().int().min(0).max(1_000_000),
+        weightGrams: z.number().int().min(0).max(500_000).nullable().optional(),
+        imageId: z.string().uuid().nullable().optional(),
         options: z.record(z.string(), z.string()).default({}),
       })
       .parse(data),
@@ -259,9 +370,13 @@ export const upsertVariant = createServerFn({ method: "POST" })
       store_id: product.store_id,
       title: data.title,
       sku: data.sku && data.sku.length > 0 ? data.sku : null,
+      barcode: data.barcode && data.barcode.length > 0 ? data.barcode : null,
       price: data.price,
+      compare_at_price: data.compareAtPrice ?? null,
       cost_price: data.costPrice ?? null,
       stock: data.stock,
+      weight_grams: data.weightGrams ?? null,
+      image_id: data.imageId ?? null,
       options: data.options as never,
     };
 
@@ -270,7 +385,12 @@ export const upsertVariant = createServerFn({ method: "POST" })
       : supabase.from("product_variants").insert(payload);
 
     const { data: variant, error } = await query.select("*").maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (error.code === "23505" || /duplicate key/i.test(error.message)) {
+        throw new Error("Bu SKU veya barkod başka bir varyantta kullanılıyor");
+      }
+      throw new Error(error.message);
+    }
     if (!variant) throw new Error("Varyant kaydedilemedi");
 
     await supabase.from("audit_logs").insert({
@@ -294,6 +414,7 @@ export const deleteVariant = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { id: data.variantId };
   });
+
 
 export const createCollection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
