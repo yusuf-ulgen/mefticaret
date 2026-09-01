@@ -1205,6 +1205,72 @@ export type Database = {
         }
         Relationships: []
       }
+      consent_records: {
+        Row: {
+          consent_type: string
+          created_at: string
+          customer_id: string | null
+          granted: boolean
+          id: string
+          ip: string | null
+          meta: Json
+          policy_version: string
+          source: string
+          store_id: string | null
+          subject_email: string | null
+          subject_token: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          consent_type: string
+          created_at?: string
+          customer_id?: string | null
+          granted?: boolean
+          id?: string
+          ip?: string | null
+          meta?: Json
+          policy_version?: string
+          source?: string
+          store_id?: string | null
+          subject_email?: string | null
+          subject_token?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          consent_type?: string
+          created_at?: string
+          customer_id?: string | null
+          granted?: boolean
+          id?: string
+          ip?: string | null
+          meta?: Json
+          policy_version?: string
+          source?: string
+          store_id?: string | null
+          subject_email?: string | null
+          subject_token?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_records_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consent_records_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       currency_rates: {
         Row: {
           base_currency: string
@@ -1438,6 +1504,134 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "customers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      data_processing_records: {
+        Row: {
+          activity: string
+          created_at: string
+          cross_border_transfer: boolean
+          data_categories: string[]
+          data_subjects: string[]
+          id: string
+          legal_basis: string
+          purpose: string
+          recipients: string[]
+          responsible_person: string | null
+          retention_period: string | null
+          security_measures: string | null
+          store_id: string
+          transfer_details: string | null
+          updated_at: string
+        }
+        Insert: {
+          activity: string
+          created_at?: string
+          cross_border_transfer?: boolean
+          data_categories?: string[]
+          data_subjects?: string[]
+          id?: string
+          legal_basis?: string
+          purpose: string
+          recipients?: string[]
+          responsible_person?: string | null
+          retention_period?: string | null
+          security_measures?: string | null
+          store_id: string
+          transfer_details?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activity?: string
+          created_at?: string
+          cross_border_transfer?: boolean
+          data_categories?: string[]
+          data_subjects?: string[]
+          id?: string
+          legal_basis?: string
+          purpose?: string
+          recipients?: string[]
+          responsible_person?: string | null
+          retention_period?: string | null
+          security_measures?: string | null
+          store_id?: string
+          transfer_details?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_processing_records_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      data_subject_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          customer_id: string | null
+          handled_by: string | null
+          id: string
+          kind: string
+          reason: string | null
+          result_meta: Json
+          result_path: string | null
+          status: string
+          store_id: string | null
+          subject_email: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          customer_id?: string | null
+          handled_by?: string | null
+          id?: string
+          kind?: string
+          reason?: string | null
+          result_meta?: Json
+          result_path?: string | null
+          status?: string
+          store_id?: string | null
+          subject_email: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          customer_id?: string | null
+          handled_by?: string | null
+          id?: string
+          kind?: string
+          reason?: string | null
+          result_meta?: Json
+          result_path?: string | null
+          status?: string
+          store_id?: string | null
+          subject_email?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_subject_requests_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "data_subject_requests_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -3652,6 +3846,33 @@ export type Database = {
           },
         ]
       }
+      rate_limit_counters: {
+        Row: {
+          bucket_key: string
+          created_at: string
+          hits: number
+          id: string
+          updated_at: string
+          window_started_at: string
+        }
+        Insert: {
+          bucket_key: string
+          created_at?: string
+          hits?: number
+          id?: string
+          updated_at?: string
+          window_started_at: string
+        }
+        Update: {
+          bucket_key?: string
+          created_at?: string
+          hits?: number
+          id?: string
+          updated_at?: string
+          window_started_at?: string
+        }
+        Relationships: []
+      }
       return_items: {
         Row: {
           created_at: string
@@ -3792,6 +4013,50 @@ export type Database = {
           },
           {
             foreignKeyName: "return_requests_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      security_events: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string | null
+          kind: string
+          meta: Json
+          severity: string
+          store_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          kind: string
+          meta?: Json
+          severity?: string
+          store_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          kind?: string
+          meta?: Json
+          severity?: string
+          store_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "security_events_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -6073,6 +6338,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      consume_rate_limit: {
+        Args: { _bucket_key: string; _limit: number; _window_seconds: number }
+        Returns: Json
+      }
       emit_notification: {
         Args: {
           _entity?: string

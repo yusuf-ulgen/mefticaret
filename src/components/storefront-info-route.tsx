@@ -65,7 +65,16 @@ export function infoHead(loaderData: InfoLoaderData | undefined, content: InfoCo
 }
 
 /** Ortak bilgi sayfası gövdesi. */
-export function InfoPage({ slug, content }: { slug: string; content: InfoContent }) {
+export function InfoPage({
+  slug,
+  content,
+  extra,
+}: {
+  slug: string;
+  content: InfoContent;
+  /** Sayfa altına eklenecek ek içerik (örn. KVKK veri talebi formu). */
+  extra?: React.ReactNode;
+}) {
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
   const { store, theme, footerPages } = data;
@@ -73,6 +82,7 @@ export function InfoPage({ slug, content }: { slug: string; content: InfoContent
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} footerPages={footerPages}>
       <Breadcrumb theme={theme} slug={slug} storeName={store.name} current={content.title} />
       <InfoSections theme={theme} title={content.title} intro={content.intro} sections={content.sections} />
+      {extra ? <div className="mx-auto w-full max-w-3xl px-4 pb-12">{extra}</div> : null}
     </StorefrontChrome>
   );
 }
