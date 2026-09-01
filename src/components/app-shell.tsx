@@ -102,6 +102,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Ürün Raporu", to: `/store/${storeId}/reports`, icon: PackageSearch },
         { label: "Bildirimler", to: `/store/${storeId}/notifications`, icon: Bell },
         { label: "Yayına Hazırlık", to: `/store/${storeId}/health`, icon: ShieldCheck },
+        { label: "Kuyruk & Önbellek", to: `/store/${storeId}/jobs`, icon: Timer },
       ],
     },
     {
