@@ -113,6 +113,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "Depo Transferleri", to: `/store/${storeId}/transfers`, icon: ArrowLeftRight },
         { label: "Stok Sayımı", to: `/store/${storeId}/stock-count`, icon: ClipboardList },
         { label: "Tedarik & Satın Alma", to: `/store/${storeId}/purchasing`, icon: Truck },
+        { label: "Dropshipping & XML", to: `/store/${storeId}/dropshipping`, icon: Truck },
         { label: "Yeniden Sipariş", to: `/store/${storeId}/reorder`, icon: RefreshCcw },
         { label: "Stok Tükenme Radarı", to: `/store/${storeId}/stockout`, icon: Timer },
         { label: "Barkod Etiketi", to: `/store/${storeId}/barcodes`, icon: Barcode },

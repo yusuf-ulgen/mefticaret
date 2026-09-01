@@ -63,6 +63,7 @@ import { Route as AuthenticatedStoreStoreIdCustomersRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdDashboardRouteImport } from './routes/_authenticated/store.$storeId.dashboard'
 import { Route as AuthenticatedStoreStoreIdDiscountsRouteImport } from './routes/_authenticated/store.$storeId.discounts'
 import { Route as AuthenticatedStoreStoreIdDomainsRouteImport } from './routes/_authenticated/store.$storeId.domains'
+import { Route as AuthenticatedStoreStoreIdDropshippingRouteImport } from './routes/_authenticated/store.$storeId.dropshipping'
 import { Route as AuthenticatedStoreStoreIdElasticityRouteImport } from './routes/_authenticated/store.$storeId.elasticity'
 import { Route as AuthenticatedStoreStoreIdFinanceRouteImport } from './routes/_authenticated/store.$storeId.finance'
 import { Route as AuthenticatedStoreStoreIdForecastRouteImport } from './routes/_authenticated/store.$storeId.forecast'
@@ -127,6 +128,7 @@ import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/_authenticated/store.$storeId.whatsapp'
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
+import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
@@ -432,6 +434,12 @@ const AuthenticatedStoreStoreIdDomainsRoute =
   AuthenticatedStoreStoreIdDomainsRouteImport.update({
     id: '/store/$storeId/domains',
     path: '/store/$storeId/domains',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdDropshippingRoute =
+  AuthenticatedStoreStoreIdDropshippingRouteImport.update({
+    id: '/store/$storeId/dropshipping',
+    path: '/store/$storeId/dropshipping',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdElasticityRoute =
@@ -818,6 +826,11 @@ const ApiPublicCronDailyRollupRoute =
     path: '/api/public/cron/daily-rollup',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronFeedSyncRoute = ApiPublicCronFeedSyncRouteImport.update({
+  id: '/api/public/cron/feed-sync',
+  path: '/api/public/cron/feed-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronWebhookRetriesRoute =
   ApiPublicCronWebhookRetriesRouteImport.update({
     id: '/api/public/cron/webhook-retries',
@@ -944,6 +957,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
+  '/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
@@ -1008,6 +1022,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -1076,6 +1091,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
+  '/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
@@ -1140,6 +1156,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -1210,6 +1227,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/_authenticated/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/_authenticated/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
+  '/_authenticated/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/_authenticated/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
   '/_authenticated/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/_authenticated/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
@@ -1274,6 +1292,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -1344,6 +1363,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/dashboard'
     | '/store/$storeId/discounts'
     | '/store/$storeId/domains'
+    | '/store/$storeId/dropshipping'
     | '/store/$storeId/elasticity'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
@@ -1408,6 +1428,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
@@ -1476,6 +1497,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/dashboard'
     | '/store/$storeId/discounts'
     | '/store/$storeId/domains'
+    | '/store/$storeId/dropshipping'
     | '/store/$storeId/elasticity'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
@@ -1540,6 +1562,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
@@ -1609,6 +1632,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/dashboard'
     | '/_authenticated/store/$storeId/discounts'
     | '/_authenticated/store/$storeId/domains'
+    | '/_authenticated/store/$storeId/dropshipping'
     | '/_authenticated/store/$storeId/elasticity'
     | '/_authenticated/store/$storeId/finance'
     | '/_authenticated/store/$storeId/forecast'
@@ -1673,6 +1697,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
@@ -1717,6 +1742,7 @@ export interface RootRouteChildren {
   SSlugIndexRoute: typeof SSlugIndexRoute
   ApiPublicCronAutomationTickRoute: typeof ApiPublicCronAutomationTickRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
+  ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
@@ -2106,6 +2132,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/domains'
       fullPath: '/store/$storeId/domains'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdDomainsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/dropshipping': {
+      id: '/_authenticated/store/$storeId/dropshipping'
+      path: '/store/$storeId/dropshipping'
+      fullPath: '/store/$storeId/dropshipping'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdDropshippingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/elasticity': {
@@ -2556,6 +2589,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronDailyRollupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/feed-sync': {
+      id: '/api/public/cron/feed-sync'
+      path: '/api/public/cron/feed-sync'
+      fullPath: '/api/public/cron/feed-sync'
+      preLoaderRoute: typeof ApiPublicCronFeedSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/webhook-retries': {
       id: '/api/public/cron/webhook-retries'
       path: '/api/public/cron/webhook-retries'
@@ -2727,6 +2767,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdDashboardRoute: typeof AuthenticatedStoreStoreIdDashboardRoute
   AuthenticatedStoreStoreIdDiscountsRoute: typeof AuthenticatedStoreStoreIdDiscountsRoute
   AuthenticatedStoreStoreIdDomainsRoute: typeof AuthenticatedStoreStoreIdDomainsRoute
+  AuthenticatedStoreStoreIdDropshippingRoute: typeof AuthenticatedStoreStoreIdDropshippingRoute
   AuthenticatedStoreStoreIdElasticityRoute: typeof AuthenticatedStoreStoreIdElasticityRoute
   AuthenticatedStoreStoreIdFinanceRoute: typeof AuthenticatedStoreStoreIdFinanceRoute
   AuthenticatedStoreStoreIdForecastRoute: typeof AuthenticatedStoreStoreIdForecastRoute
@@ -2832,6 +2873,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdDiscountsRoute:
     AuthenticatedStoreStoreIdDiscountsRoute,
   AuthenticatedStoreStoreIdDomainsRoute: AuthenticatedStoreStoreIdDomainsRoute,
+  AuthenticatedStoreStoreIdDropshippingRoute:
+    AuthenticatedStoreStoreIdDropshippingRoute,
   AuthenticatedStoreStoreIdElasticityRoute:
     AuthenticatedStoreStoreIdElasticityRoute,
   AuthenticatedStoreStoreIdFinanceRoute: AuthenticatedStoreStoreIdFinanceRoute,
@@ -2968,6 +3011,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugIndexRoute: SSlugIndexRoute,
   ApiPublicCronAutomationTickRoute: ApiPublicCronAutomationTickRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
+  ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,

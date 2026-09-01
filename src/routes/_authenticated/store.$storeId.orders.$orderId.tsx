@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { ShipmentsPanel } from "@/components/shipments-panel";
+import { DropshipPanel } from "@/components/dropship-panel";
 import { OrderPrintDialog } from "@/components/order-print";
 
 import { Badge } from "@/components/ui/badge";
@@ -431,6 +432,8 @@ function OrderDetailPage() {
           </SectionCard>
 
           <ShipmentsPanel storeId={storeId} orderId={orderId} items={items} />
+
+          <DropshipPanel storeId={storeId} orderId={orderId} />
         </div>
 
         <div className="space-y-6">
