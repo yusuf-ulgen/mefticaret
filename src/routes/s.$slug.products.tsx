@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
+import { SmartImage } from "@/components/smart-image";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
@@ -221,14 +222,12 @@ function StorefrontProductsPage() {
                 muted={muted}
               />
               <div style={{ aspectRatio: "1 / 1", background: border, overflow: "hidden" }}>
-                {product.coverUrl ? (
-                  <img
-                    src={product.coverUrl}
-                    alt={product.title}
-                    loading="lazy"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                ) : null}
+                <SmartImage
+                  src={product.coverUrl}
+                  alt={product.title}
+                  width={480}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
               </div>
               <div style={{ padding: 14 }}>
                 <p style={{ margin: 0, fontWeight: 600, fontSize: 15 }}>{product.title}</p>
