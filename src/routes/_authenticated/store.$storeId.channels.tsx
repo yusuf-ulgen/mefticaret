@@ -20,6 +20,11 @@ import {
 } from "@/components/ui/select";
 import { productsQuery } from "@/lib/catalog-queries";
 import {
+  CAPABILITY_LABELS,
+  connectorSupports,
+  getMarketplaceConnector,
+} from "@/lib/marketplace";
+import {
   CHANNEL_STATUS_LABELS,
   LISTING_STATUS_LABELS,
   MARKETPLACE_PROVIDERS,
@@ -62,7 +67,7 @@ function ChannelsPage() {
   const { data: products } = useQuery(productsQuery(storeId));
 
   const [activeChannel, setActiveChannel] = useState<string | null>(null);
-  const [provider, setProvider] = useState<string>(MARKETPLACE_PROVIDERS[0].code);
+  const [provider, setProvider] = useState<string>(MARKETPLACE_PROVIDERS[0]?.code ?? "trendyol");
   const [selected, setSelected] = useState<string[]>([]);
 
   const currentChannel =
@@ -128,10 +133,21 @@ function ChannelsPage() {
   });
 
   const syncMutation = useMutation({
-    mutationFn: (channelId: string) => sync({ data: { storeId, channelId } }),
+    mutationFn: (input: { channelId: string; scope: "full" | "price" | "stock" | "orders" }) =>
+      sync({ data: { storeId, ...input } }),
     onSuccess: async (result) => {
       await invalidate();
-      toast.success(`${result.synced} listeleme senkronize edildi`);
+      const parts = [
+        `${result.listed} listeleme`,
+        `${result.priceUpdated} fiyat`,
+        `${result.stockUpdated} stok`,
+        `${result.ordersFetched} sipariş`,
+      ].join(" · ");
+      if (result.dryRun) {
+        toast.info(`Kuru çalışma tamamlandı (${parts}). Kimlik bilgisi tanımlı değil.`);
+      } else {
+        toast.success(`Senkronizasyon tamamlandı: ${parts}`);
+      }
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -188,14 +204,33 @@ function ChannelsPage() {
                       <Badge variant={channel.status === "connected" ? "default" : "secondary"}>
                         {CHANNEL_STATUS_LABELS[channel.status] ?? channel.status}
                       </Badge>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => syncMutation.mutate(channel.id)}
-                        disabled={syncMutation.isPending}
-                      >
-                        <RefreshCw className="mr-1 size-4" /> Senkronize et
-                      </Button>
+                      {(
+                        [
+                          { scope: "full" as const, label: "Tümünü senkronize et" },
+                          { scope: "price" as const, label: "Fiyat" },
+                          { scope: "stock" as const, label: "Stok" },
+                          { scope: "orders" as const, label: "Sipariş" },
+                        ] satisfies Array<{ scope: "full" | "price" | "stock" | "orders"; label: string }>
+                      )
+                        .filter(
+                          (action) =>
+                            action.scope === "full" ||
+                            connectorSupports(channel.provider, action.scope),
+                        )
+                        .map((action) => (
+                          <Button
+                            key={action.scope}
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              syncMutation.mutate({ channelId: channel.id, scope: action.scope })
+                            }
+                            disabled={syncMutation.isPending}
+                          >
+                            {action.scope === "full" && <RefreshCw className="mr-1 size-4" />}
+                            {action.label}
+                          </Button>
+                        ))}
                       <Button
                         size="icon"
                         variant="ghost"
@@ -207,9 +242,28 @@ function ChannelsPage() {
                     </div>
                   </div>
 
+                  <div className="flex flex-wrap gap-1.5">
+                    {(getMarketplaceConnector(channel.provider)?.capabilities ?? []).map(
+                      (capability) => (
+                        <Badge key={capability} variant="outline">
+                          {CAPABILITY_LABELS[capability]}
+                        </Badge>
+                      ),
+                    )}
+                    <Badge variant="secondary">
+                      Tahmini komisyon %
+                      {(
+                        (getMarketplaceConnector(channel.provider)?.defaultCommissionRate ?? 0) * 100
+                      ).toFixed(1)}
+                    </Badge>
+                  </div>
+
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor={`seller-${channel.id}`}>Satıcı kimliği</Label>
+                      <Label htmlFor={`seller-${channel.id}`}>
+                        {getMarketplaceConnector(channel.provider)?.sellerIdLabel ??
+                          "Satıcı kimliği"}
+                      </Label>
                       <Input
                         id={`seller-${channel.id}`}
                         defaultValue={channel.seller_id ?? ""}
@@ -342,7 +396,8 @@ function ChannelsPage() {
                   <SelectContent>
                     {availableProviders.map((item) => (
                       <SelectItem key={item.code} value={item.code}>
-                        {item.name}
+                        {item.name} · {item.kind === "platform" ? "Platform" : "Pazaryeri"} (
+                        {item.region})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -354,6 +409,36 @@ function ChannelsPage() {
                 >
                   <Plus className="mr-1 size-4" /> Kanalı bağla
                 </Button>
+                {(() => {
+                  const meta = getMarketplaceConnector(provider);
+                  if (!meta) return null;
+                  return (
+                    <div className="space-y-2 rounded-lg border border-border/60 p-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        {meta.capabilities.map((capability) => (
+                          <Badge key={capability} variant="outline">
+                            {CAPABILITY_LABELS[capability]}
+                          </Badge>
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Gerekli kimlik alanları:{" "}
+                        {meta.credentialFields.map((field) => field.label).join(", ")}
+                      </p>
+                      {meta.notes && (
+                        <p className="text-xs text-muted-foreground">{meta.notes}</p>
+                      )}
+                      <a
+                        className="text-xs underline"
+                        href={meta.docsUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Sağlayıcı dokümanı
+                      </a>
+                    </div>
+                  );
+                })()}
                 <p className="text-xs text-muted-foreground">
                   API anahtarları veritabanında saklanmaz; yalnızca güvenli referans tutulur.
                 </p>
