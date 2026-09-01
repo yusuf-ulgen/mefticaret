@@ -315,15 +315,12 @@ function DropshippingPage() {
   const dropshipSuppliers = (suppliers ?? []).filter((s) => s.is_active);
 
   return (
-    <AppShell>
-      <div className="space-y-8 p-6">
-        <header className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Dropshipping & XML Entegrasyonu</h1>
-          <p className="text-sm text-muted-foreground">
-            Tedarikçi XML / CSV / API beslemelerini bağla, fiyat ve stok kurallarıyla otomatik
-            senkronize et, siparişleri tedarikçiye ilet.
-          </p>
-        </header>
+    <AppShell
+      storeId={storeId}
+      title="Dropshipping & XML Entegrasyonu"
+      description="Tedarikçi XML / CSV / API beslemeleri, fiyat ve stok kuralları, tedarikçiye sipariş gönderimi."
+    >
+      <div className="space-y-8">
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-xl border bg-card p-5 space-y-4">
