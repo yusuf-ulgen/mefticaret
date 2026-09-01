@@ -45,10 +45,12 @@ function CustomersPage() {
   const save = useServerFn(upsertCustomer);
   const remove = useServerFn(deleteCustomer);
 
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
+  const [tags, setTags] = useState("");
   const [marketing, setMarketing] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -60,20 +62,27 @@ function CustomersPage() {
       save({
         data: {
           storeId,
-          fullName,
+          firstName: firstName || undefined,
+          lastName: lastName || undefined,
           email: email || undefined,
           phone: phone || undefined,
           notes: notes || undefined,
           acceptsMarketing: marketing,
+          tags: tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
         },
       }),
     onSuccess: async () => {
       await invalidate();
       toast.success("Müşteri kaydedildi");
-      setFullName("");
+      setFirstName("");
+      setLastName("");
       setEmail("");
       setPhone("");
       setNotes("");
+      setTags("");
       setMarketing(false);
     },
     onError: (error: Error) => toast.error(error.message),
@@ -114,15 +123,25 @@ function CustomersPage() {
           }}
         >
           <h2 className="text-lg font-semibold">Yeni müşteri</h2>
-          <div className="space-y-2">
-            <Label htmlFor="cu-name">Ad Soyad</Label>
-            <Input
-              id="cu-name"
-              required
-              minLength={2}
-              value={fullName}
-              onChange={(event) => setFullName(event.target.value)}
-            />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="cu-first">Ad</Label>
+              <Input
+                id="cu-first"
+                required
+                minLength={2}
+                value={firstName}
+                onChange={(event) => setFirstName(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cu-last">Soyad</Label>
+              <Input
+                id="cu-last"
+                value={lastName}
+                onChange={(event) => setLastName(event.target.value)}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="cu-mail">E-posta</Label>
@@ -150,6 +169,16 @@ function CustomersPage() {
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cu-tags">Etiketler</Label>
+            <Input
+              id="cu-tags"
+              value={tags}
+              onChange={(event) => setTags(event.target.value)}
+              placeholder="vip, toptan"
+            />
+            <p className="text-xs text-muted-foreground">Virgülle ayır.</p>
           </div>
           <div className="flex items-center justify-between rounded-lg border border-border p-3">
             <span className="text-sm">Pazarlama izni</span>
@@ -213,6 +242,7 @@ function CustomersPage() {
                     <th className="px-4 py-3">İletişim</th>
                     <th className="px-4 py-3 text-right">Sipariş</th>
                     <th className="px-4 py-3 text-right">Harcama</th>
+                    <th className="px-4 py-3">Son aktivite</th>
                     <th className="px-4 py-3">Kayıt</th>
                     <th className="px-4 py-3" />
                   </tr>
@@ -249,6 +279,9 @@ function CustomersPage() {
                       <td className="px-4 py-3 text-right">{customer.orders_count}</td>
                       <td className="px-4 py-3 text-right font-semibold">
                         {formatMoney(Number(customer.total_spent))}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                        {customer.last_activity_at ? formatDate(customer.last_activity_at) : "—"}
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">
                         {formatDate(customer.created_at)}
