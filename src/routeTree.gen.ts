@@ -17,6 +17,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminStoresRouteImport } from './routes/_authenticated/admin.stores'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
@@ -185,6 +186,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminStoresRoute =
+  AuthenticatedAdminStoresRouteImport.update({
+    id: '/stores',
+    path: '/stores',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedSellerSellerIdRoute =
   AuthenticatedSellerSellerIdRouteImport.update({
     id: '/seller/$sellerId',
@@ -930,6 +937,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -1066,6 +1074,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -1205,6 +1214,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
+  '/_authenticated/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -1344,6 +1354,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/sellers'
     | '/stores'
+    | '/admin/stores'
     | '/seller/$sellerId'
     | '/api/v1/$'
     | '/s/$slug/about'
@@ -1480,6 +1491,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/sellers'
     | '/stores'
+    | '/admin/stores'
     | '/seller/$sellerId'
     | '/api/v1/$'
     | '/s/$slug/about'
@@ -1618,6 +1630,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
+    | '/_authenticated/admin/stores'
     | '/_authenticated/seller/$sellerId'
     | '/api/v1/$'
     | '/s/$slug/about'
@@ -1846,6 +1859,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/stores': {
+      id: '/_authenticated/admin/stores'
+      path: '/stores'
+      fullPath: '/admin/stores'
+      preLoaderRoute: typeof AuthenticatedAdminStoresRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/seller/$sellerId': {
@@ -2748,10 +2768,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminStoresRoute: typeof AuthenticatedAdminStoresRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminStoresRoute: AuthenticatedAdminStoresRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
