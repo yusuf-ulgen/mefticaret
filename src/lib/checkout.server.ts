@@ -407,11 +407,15 @@ export async function createStorefrontOrder(
         email: input.customer.email.toLowerCase(),
         phone: input.customer.phone,
         accepts_marketing: input.customer.acceptsMarketing,
+        ...(auth ? { user_id: auth.userId } : {}),
       })
       .select("id")
       .single();
     if (customerError) throw new Error(customerError.message);
     customerId = inserted.id;
+  } else if (auth) {
+    // Üyelikle ödeme: e-postası doğrulanmış misafir kaydını hesaba bağla.
+    await supabase.from("customers").update({ user_id: auth.userId }).eq("id", customerId).is("user_id", null);
   }
 
   const addressJson = {
@@ -423,6 +427,21 @@ export async function createStorefrontOrder(
     line1: input.address.line1,
     postal_code: input.address.postalCode ?? null,
   };
+
+  const billingJson = input.billingAddress
+    ? {
+        recipient: input.billingAddress.recipient?.length ? input.billingAddress.recipient : input.customer.fullName,
+        phone: input.customer.phone,
+        country: input.billingAddress.country,
+        city: input.billingAddress.city,
+        district: input.billingAddress.district ?? null,
+        line1: input.billingAddress.line1,
+        postal_code: input.billingAddress.postalCode ?? null,
+        tax_id: input.billingAddress.taxId ?? null,
+        company: input.billingAddress.company ?? null,
+      }
+    : addressJson;
+
 
   const number = orderNumber();
   const { data: order, error: orderError } = await supabase
