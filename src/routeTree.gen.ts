@@ -29,6 +29,7 @@ import { Route as SSlugFavoritesRouteImport } from './routes/s.$slug.favorites'
 import { Route as SSlugGiftCardRouteImport } from './routes/s.$slug.gift-card'
 import { Route as SSlugLoginRouteImport } from './routes/s.$slug.login'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
+import { Route as SSlugOrdersRouteImport } from './routes/s.$slug.orders'
 import { Route as SSlugPrivacyRouteImport } from './routes/s.$slug.privacy'
 import { Route as SSlugProductsRouteImport } from './routes/s.$slug.products'
 import { Route as SSlugRegisterRouteImport } from './routes/s.$slug.register'
@@ -216,6 +217,11 @@ const SSlugLoginRoute = SSlugLoginRouteImport.update({
 const SSlugOrderRoute = SSlugOrderRouteImport.update({
   id: '/s/$slug/order',
   path: '/s/$slug/order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugOrdersRoute = SSlugOrdersRouteImport.update({
+  id: '/s/$slug/orders',
+  path: '/s/$slug/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugPrivacyRoute = SSlugPrivacyRouteImport.update({
@@ -761,6 +767,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/gift-card': typeof SSlugGiftCardRoute
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
+  '/s/$slug/orders': typeof SSlugOrdersRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/register': typeof SSlugRegisterRoute
@@ -871,6 +878,7 @@ export interface FileRoutesByTo {
   '/s/$slug/gift-card': typeof SSlugGiftCardRoute
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
+  '/s/$slug/orders': typeof SSlugOrdersRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/register': typeof SSlugRegisterRoute
@@ -983,6 +991,7 @@ export interface FileRoutesById {
   '/s/$slug/gift-card': typeof SSlugGiftCardRoute
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
+  '/s/$slug/orders': typeof SSlugOrdersRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/register': typeof SSlugRegisterRoute
@@ -1095,6 +1104,7 @@ export interface FileRouteTypes {
     | '/s/$slug/gift-card'
     | '/s/$slug/login'
     | '/s/$slug/order'
+    | '/s/$slug/orders'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
     | '/s/$slug/register'
@@ -1205,6 +1215,7 @@ export interface FileRouteTypes {
     | '/s/$slug/gift-card'
     | '/s/$slug/login'
     | '/s/$slug/order'
+    | '/s/$slug/orders'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
     | '/s/$slug/register'
@@ -1316,6 +1327,7 @@ export interface FileRouteTypes {
     | '/s/$slug/gift-card'
     | '/s/$slug/login'
     | '/s/$slug/order'
+    | '/s/$slug/orders'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
     | '/s/$slug/register'
@@ -1425,6 +1437,7 @@ export interface RootRouteChildren {
   SSlugGiftCardRoute: typeof SSlugGiftCardRoute
   SSlugLoginRoute: typeof SSlugLoginRoute
   SSlugOrderRoute: typeof SSlugOrderRoute
+  SSlugOrdersRoute: typeof SSlugOrdersRoute
   SSlugPrivacyRoute: typeof SSlugPrivacyRoute
   SSlugProductsRoute: typeof SSlugProductsRoute
   SSlugRegisterRoute: typeof SSlugRegisterRoute
@@ -1580,6 +1593,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug/order'
       fullPath: '/s/$slug/order'
       preLoaderRoute: typeof SSlugOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/orders': {
+      id: '/s/$slug/orders'
+      path: '/s/$slug/orders'
+      fullPath: '/s/$slug/orders'
+      preLoaderRoute: typeof SSlugOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/privacy': {
@@ -2478,6 +2498,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugGiftCardRoute: SSlugGiftCardRoute,
   SSlugLoginRoute: SSlugLoginRoute,
   SSlugOrderRoute: SSlugOrderRoute,
+  SSlugOrdersRoute: SSlugOrdersRoute,
   SSlugPrivacyRoute: SSlugPrivacyRoute,
   SSlugProductsRoute: SSlugProductsRoute,
   SSlugRegisterRoute: SSlugRegisterRoute,

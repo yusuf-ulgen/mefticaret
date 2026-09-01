@@ -107,11 +107,11 @@ function OrdersBody({
         </div>
       ) : orders.isLoading ? (
         <p style={{ color: muted, marginTop: 24 }}>Siparişler getiriliyor…</p>
-      ) : !orders.data?.length ? (
+      ) : !orders.data?.orders.length ? (
         <p style={{ color: muted, marginTop: 24 }}>Henüz bir siparişin yok.</p>
       ) : (
         <div style={{ display: "grid", gap: 12, marginTop: 24 }}>
-          {orders.data.map((order) => (
+          {orders.data.orders.map((order) => (
             <article
               key={order.id}
               style={{
