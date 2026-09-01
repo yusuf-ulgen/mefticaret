@@ -74,6 +74,7 @@ import { Route as AuthenticatedStoreStoreIdHealthRouteImport } from './routes/_a
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
 import { Route as AuthenticatedStoreStoreIdLifecycleRouteImport } from './routes/_authenticated/store.$storeId.lifecycle'
+import { Route as AuthenticatedStoreStoreIdLocalizationRouteImport } from './routes/_authenticated/store.$storeId.localization'
 import { Route as AuthenticatedStoreStoreIdLossesRouteImport } from './routes/_authenticated/store.$storeId.losses'
 import { Route as AuthenticatedStoreStoreIdLtvRouteImport } from './routes/_authenticated/store.$storeId.ltv'
 import { Route as AuthenticatedStoreStoreIdMediaRouteImport } from './routes/_authenticated/store.$storeId.media'
@@ -497,6 +498,12 @@ const AuthenticatedStoreStoreIdLifecycleRoute =
   AuthenticatedStoreStoreIdLifecycleRouteImport.update({
     id: '/store/$storeId/lifecycle',
     path: '/store/$storeId/lifecycle',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdLocalizationRoute =
+  AuthenticatedStoreStoreIdLocalizationRouteImport.update({
+    id: '/store/$storeId/localization',
+    path: '/store/$storeId/localization',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdLossesRoute =
@@ -948,6 +955,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
+  '/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
@@ -1079,6 +1087,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
+  '/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
@@ -1212,6 +1221,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/_authenticated/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
+  '/_authenticated/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/_authenticated/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/_authenticated/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/_authenticated/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
@@ -1345,6 +1355,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/import-export'
     | '/store/$storeId/inventory'
     | '/store/$storeId/lifecycle'
+    | '/store/$storeId/localization'
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
     | '/store/$storeId/media'
@@ -1476,6 +1487,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/import-export'
     | '/store/$storeId/inventory'
     | '/store/$storeId/lifecycle'
+    | '/store/$storeId/localization'
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
     | '/store/$storeId/media'
@@ -1608,6 +1620,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/import-export'
     | '/_authenticated/store/$storeId/inventory'
     | '/_authenticated/store/$storeId/lifecycle'
+    | '/_authenticated/store/$storeId/localization'
     | '/_authenticated/store/$storeId/losses'
     | '/_authenticated/store/$storeId/ltv'
     | '/_authenticated/store/$storeId/media'
@@ -2172,6 +2185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLifecycleRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/localization': {
+      id: '/_authenticated/store/$storeId/localization'
+      path: '/store/$storeId/localization'
+      fullPath: '/store/$storeId/localization'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdLocalizationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/losses': {
       id: '/_authenticated/store/$storeId/losses'
       path: '/store/$storeId/losses'
@@ -2718,6 +2738,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
   AuthenticatedStoreStoreIdLifecycleRoute: typeof AuthenticatedStoreStoreIdLifecycleRoute
+  AuthenticatedStoreStoreIdLocalizationRoute: typeof AuthenticatedStoreStoreIdLocalizationRoute
   AuthenticatedStoreStoreIdLossesRoute: typeof AuthenticatedStoreStoreIdLossesRoute
   AuthenticatedStoreStoreIdLtvRoute: typeof AuthenticatedStoreStoreIdLtvRoute
   AuthenticatedStoreStoreIdMediaRoute: typeof AuthenticatedStoreStoreIdMediaRoute
@@ -2829,6 +2850,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdInventoryRoute,
   AuthenticatedStoreStoreIdLifecycleRoute:
     AuthenticatedStoreStoreIdLifecycleRoute,
+  AuthenticatedStoreStoreIdLocalizationRoute:
+    AuthenticatedStoreStoreIdLocalizationRoute,
   AuthenticatedStoreStoreIdLossesRoute: AuthenticatedStoreStoreIdLossesRoute,
   AuthenticatedStoreStoreIdLtvRoute: AuthenticatedStoreStoreIdLtvRoute,
   AuthenticatedStoreStoreIdMediaRoute: AuthenticatedStoreStoreIdMediaRoute,
