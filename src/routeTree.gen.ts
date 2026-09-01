@@ -119,6 +119,7 @@ import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
+import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
@@ -755,6 +756,11 @@ const ApiPublicSitemapSlugRoute = ApiPublicSitemapSlugRouteImport.update({
   path: '/api/public/sitemap/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
+  id: '/api/public/v1/$',
+  path: '/api/public/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SSlugCCollectionSlugRoute = SSlugCCollectionSlugRouteImport.update({
   id: '/s/$slug/c/$collectionSlug',
   path: '/s/$slug/c/$collectionSlug',
@@ -905,6 +911,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -1023,6 +1030,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -1143,6 +1151,7 @@ export interface FileRoutesById {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -1263,6 +1272,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/v1/$'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -1381,6 +1391,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/v1/$'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -1500,6 +1511,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/v1/$'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -1538,6 +1550,7 @@ export interface RootRouteChildren {
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
+  ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
@@ -2315,6 +2328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSitemapSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/$': {
+      id: '/api/public/v1/$'
+      path: '/api/public/v1/$'
+      fullPath: '/api/public/v1/$'
+      preLoaderRoute: typeof ApiPublicV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/c/$collectionSlug': {
       id: '/s/$slug/c/$collectionSlug'
       path: '/s/$slug/c/$collectionSlug'
@@ -2664,6 +2684,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
+  ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
