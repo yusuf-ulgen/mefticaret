@@ -54,7 +54,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/api")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: ApiPage;
+  component: ApiPage,
 });
 
 type ApiKeyRow = {
