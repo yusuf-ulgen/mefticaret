@@ -51,6 +51,17 @@ function CartPage() {
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   const cart = useCart();
   const restored = useRef<string | null>(null);
+  const options = useQuery(checkoutOptionsQuery(slug));
+
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; label: string; discountTotal: number; freeShipping: boolean } | null>(
+    null,
+  );
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [shippingRateId, setShippingRateId] = useState("");
+  const prefsLoaded = useRef(false);
+
 
   // Kurtarma linki: panelden gönderilen token ile sepet satırlarını geri yükle.
   useEffect(() => {
