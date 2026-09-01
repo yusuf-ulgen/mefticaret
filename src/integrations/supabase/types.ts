@@ -1504,6 +1504,79 @@ export type Database = {
           },
         ]
       }
+      dropship_orders: {
+        Row: {
+          carrier: string | null
+          created_at: string
+          error: string | null
+          external_ref: string | null
+          id: string
+          order_id: string
+          payload: Json
+          response: Json | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["dropship_order_status"]
+          store_id: string
+          supplier_id: string | null
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string
+          error?: string | null
+          external_ref?: string | null
+          id?: string
+          order_id: string
+          payload?: Json
+          response?: Json | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["dropship_order_status"]
+          store_id: string
+          supplier_id?: string | null
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string
+          error?: string | null
+          external_ref?: string | null
+          id?: string
+          order_id?: string
+          payload?: Json
+          response?: Json | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["dropship_order_status"]
+          store_id?: string
+          supplier_id?: string | null
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dropship_orders_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dropship_orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dropship_orders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gift_card_transactions: {
         Row: {
           amount: number
@@ -4779,16 +4852,294 @@ export type Database = {
           },
         ]
       }
+      supplier_feed_runs: {
+        Row: {
+          created_at: string
+          error: string | null
+          feed_id: string
+          finished_at: string | null
+          id: string
+          started_at: string
+          status: Database["public"]["Enums"]["supplier_feed_run_status"]
+          store_id: string
+          totals: Json
+          trigger: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          feed_id: string
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          status?: Database["public"]["Enums"]["supplier_feed_run_status"]
+          store_id: string
+          totals?: Json
+          trigger?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          feed_id?: string
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          status?: Database["public"]["Enums"]["supplier_feed_run_status"]
+          store_id?: string
+          totals?: Json
+          trigger?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_feed_runs_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_feed_runs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_feeds: {
+        Row: {
+          auth_header: string | null
+          brand_map: Json
+          category_map: Json
+          create_missing: boolean
+          created_at: string
+          field_map: Json
+          id: string
+          import_images: boolean
+          is_active: boolean
+          item_path: string | null
+          kind: Database["public"]["Enums"]["supplier_feed_kind"]
+          last_error: string | null
+          last_run_at: string | null
+          last_status:
+            | Database["public"]["Enums"]["supplier_feed_run_status"]
+            | null
+          match_key: Database["public"]["Enums"]["supplier_match_key"]
+          name: string
+          next_run_at: string | null
+          price_rules: Json
+          schedule: Database["public"]["Enums"]["supplier_feed_schedule"]
+          source_url: string
+          stats: Json
+          stock_rules: Json
+          store_id: string
+          supplier_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          auth_header?: string | null
+          brand_map?: Json
+          category_map?: Json
+          create_missing?: boolean
+          created_at?: string
+          field_map?: Json
+          id?: string
+          import_images?: boolean
+          is_active?: boolean
+          item_path?: string | null
+          kind?: Database["public"]["Enums"]["supplier_feed_kind"]
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?:
+            | Database["public"]["Enums"]["supplier_feed_run_status"]
+            | null
+          match_key?: Database["public"]["Enums"]["supplier_match_key"]
+          name: string
+          next_run_at?: string | null
+          price_rules?: Json
+          schedule?: Database["public"]["Enums"]["supplier_feed_schedule"]
+          source_url: string
+          stats?: Json
+          stock_rules?: Json
+          store_id: string
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          auth_header?: string | null
+          brand_map?: Json
+          category_map?: Json
+          create_missing?: boolean
+          created_at?: string
+          field_map?: Json
+          id?: string
+          import_images?: boolean
+          is_active?: boolean
+          item_path?: string | null
+          kind?: Database["public"]["Enums"]["supplier_feed_kind"]
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?:
+            | Database["public"]["Enums"]["supplier_feed_run_status"]
+            | null
+          match_key?: Database["public"]["Enums"]["supplier_match_key"]
+          name?: string
+          next_run_at?: string | null
+          price_rules?: Json
+          schedule?: Database["public"]["Enums"]["supplier_feed_schedule"]
+          source_url?: string
+          stats?: Json
+          stock_rules?: Json
+          store_id?: string
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_feeds_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_feeds_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_products: {
+        Row: {
+          barcode: string | null
+          brand: string | null
+          category: string | null
+          computed_price: number | null
+          created_at: string
+          currency: string
+          external_id: string | null
+          feed_id: string
+          id: string
+          images: Json
+          last_seen_at: string
+          matched_at: string | null
+          product_id: string | null
+          raw: Json
+          sku: string | null
+          stock: number
+          store_id: string
+          supplier_id: string | null
+          supplier_price: number
+          title: string
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          barcode?: string | null
+          brand?: string | null
+          category?: string | null
+          computed_price?: number | null
+          created_at?: string
+          currency?: string
+          external_id?: string | null
+          feed_id: string
+          id?: string
+          images?: Json
+          last_seen_at?: string
+          matched_at?: string | null
+          product_id?: string | null
+          raw?: Json
+          sku?: string | null
+          stock?: number
+          store_id: string
+          supplier_id?: string | null
+          supplier_price?: number
+          title: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          barcode?: string | null
+          brand?: string | null
+          category?: string | null
+          computed_price?: number | null
+          created_at?: string
+          currency?: string
+          external_id?: string | null
+          feed_id?: string
+          id?: string
+          images?: Json
+          last_seen_at?: string
+          matched_at?: string | null
+          product_id?: string | null
+          raw?: Json
+          sku?: string | null
+          stock?: number
+          store_id?: string
+          supplier_id?: string | null
+          supplier_price?: number
+          title?: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_products_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_products_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_products_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
           address: string | null
+          auto_send_orders: boolean
           contact_name: string | null
           created_at: string
+          currency: string
           email: string | null
           id: string
           is_active: boolean
+          is_dropship: boolean
+          lead_time_days: number
           name: string
           note: string | null
+          order_endpoint: string | null
           phone: string | null
           store_id: string
           tax_number: string | null
@@ -4796,13 +5147,18 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          auto_send_orders?: boolean
           contact_name?: string | null
           created_at?: string
+          currency?: string
           email?: string | null
           id?: string
           is_active?: boolean
+          is_dropship?: boolean
+          lead_time_days?: number
           name: string
           note?: string | null
+          order_endpoint?: string | null
           phone?: string | null
           store_id: string
           tax_number?: string | null
@@ -4810,13 +5166,18 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          auto_send_orders?: boolean
           contact_name?: string | null
           created_at?: string
+          currency?: string
           email?: string | null
           id?: string
           is_active?: boolean
+          is_dropship?: boolean
+          lead_time_days?: number
           name?: string
           note?: string | null
+          order_endpoint?: string | null
           phone?: string | null
           store_id?: string
           tax_number?: string | null
@@ -5440,6 +5801,13 @@ export type Database = {
       discount_type: "percentage" | "fixed_amount" | "free_shipping"
       domain_status: "pending" | "verifying" | "verified" | "failed"
       domain_type: "subdomain" | "custom"
+      dropship_order_status:
+        | "pending"
+        | "sent"
+        | "accepted"
+        | "shipped"
+        | "cancelled"
+        | "failed"
       fulfillment_status:
         | "unfulfilled"
         | "partially_fulfilled"
@@ -5534,6 +5902,10 @@ export type Database = {
         | "past_due"
         | "canceled"
         | "expired"
+      supplier_feed_kind: "xml" | "csv" | "api"
+      supplier_feed_run_status: "running" | "success" | "failed"
+      supplier_feed_schedule: "manual" | "hourly" | "six_hourly" | "daily"
+      supplier_match_key: "sku" | "barcode" | "external_id"
       warehouse_kind:
         | "warehouse"
         | "branch"
@@ -5730,6 +6102,14 @@ export const Constants = {
       discount_type: ["percentage", "fixed_amount", "free_shipping"],
       domain_status: ["pending", "verifying", "verified", "failed"],
       domain_type: ["subdomain", "custom"],
+      dropship_order_status: [
+        "pending",
+        "sent",
+        "accepted",
+        "shipped",
+        "cancelled",
+        "failed",
+      ],
       fulfillment_status: [
         "unfulfilled",
         "partially_fulfilled",
@@ -5835,6 +6215,10 @@ export const Constants = {
         "canceled",
         "expired",
       ],
+      supplier_feed_kind: ["xml", "csv", "api"],
+      supplier_feed_run_status: ["running", "success", "failed"],
+      supplier_feed_schedule: ["manual", "hourly", "six_hourly", "daily"],
+      supplier_match_key: ["sku", "barcode", "external_id"],
       warehouse_kind: [
         "warehouse",
         "branch",
