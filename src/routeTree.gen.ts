@@ -158,6 +158,7 @@ import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
+import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
@@ -1028,6 +1029,12 @@ const ApiPublicCronFeedSyncRoute = ApiPublicCronFeedSyncRouteImport.update({
   path: '/api/public/cron/feed-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronQueueWorkerRoute =
+  ApiPublicCronQueueWorkerRouteImport.update({
+    id: '/api/public/cron/queue-worker',
+    path: '/api/public/cron/queue-worker',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronWebhookRetriesRoute =
   ApiPublicCronWebhookRetriesRouteImport.update({
     id: '/api/public/cron/webhook-retries',
@@ -1259,6 +1266,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -1423,6 +1431,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -1590,6 +1599,7 @@ export interface FileRoutesById {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -1757,6 +1767,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/queue-worker'
     | '/api/public/cron/webhook-retries'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -1921,6 +1932,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/queue-worker'
     | '/api/public/cron/webhook-retries'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -2087,6 +2099,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/queue-worker'
     | '/api/public/cron/webhook-retries'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -2134,6 +2147,7 @@ export interface RootRouteChildren {
   ApiPublicCronAutomationTickRoute: typeof ApiPublicCronAutomationTickRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
+  ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
@@ -3192,6 +3206,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronFeedSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/queue-worker': {
+      id: '/api/public/cron/queue-worker'
+      path: '/api/public/cron/queue-worker'
+      fullPath: '/api/public/cron/queue-worker'
+      preLoaderRoute: typeof ApiPublicCronQueueWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/webhook-retries': {
       id: '/api/public/cron/webhook-retries'
       path: '/api/public/cron/webhook-retries'
@@ -3690,6 +3711,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronAutomationTickRoute: ApiPublicCronAutomationTickRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
+  ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,

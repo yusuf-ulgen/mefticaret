@@ -1128,6 +1128,44 @@ export type Database = {
           },
         ]
       }
+      cache_entries: {
+        Row: {
+          cache_key: string
+          created_at: string
+          expires_at: string
+          namespace: string
+          store_id: string | null
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          expires_at: string
+          namespace: string
+          store_id?: string | null
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          expires_at?: string
+          namespace?: string
+          store_id?: string | null
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cache_entries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_items: {
         Row: {
           cart_id: string
@@ -2616,6 +2654,77 @@ export type Database = {
             columns: ["subscription_id"]
             isOneToOne: false
             referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          created_by: string | null
+          dedupe_key: string | null
+          finished_at: string | null
+          id: string
+          kind: Database["public"]["Enums"]["job_kind"]
+          last_error: string | null
+          locked_at: string | null
+          max_attempts: number
+          payload: Json
+          priority: number
+          result: Json | null
+          run_at: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["job_status"]
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          created_by?: string | null
+          dedupe_key?: string | null
+          finished_at?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["job_kind"]
+          last_error?: string | null
+          locked_at?: string | null
+          max_attempts?: number
+          payload?: Json
+          priority?: number
+          result?: Json | null
+          run_at?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["job_status"]
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          created_by?: string | null
+          dedupe_key?: string | null
+          finished_at?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["job_kind"]
+          last_error?: string | null
+          locked_at?: string | null
+          max_attempts?: number
+          payload?: Json
+          priority?: number
+          result?: Json | null
+          run_at?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["job_status"]
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_queue_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]
@@ -8243,9 +8352,64 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cache_get: { Args: { _key: string }; Returns: Json }
+      cache_invalidate: {
+        Args: { _namespace?: string; _prefix?: string; _store_id?: string }
+        Returns: number
+      }
+      cache_set: {
+        Args: {
+          _key: string
+          _namespace: string
+          _store_id?: string
+          _ttl_seconds: number
+          _value: Json
+        }
+        Returns: undefined
+      }
+      claim_jobs: {
+        Args: {
+          _kinds?: Database["public"]["Enums"]["job_kind"][]
+          _limit?: number
+        }
+        Returns: {
+          attempts: number
+          created_at: string
+          created_by: string | null
+          dedupe_key: string | null
+          finished_at: string | null
+          id: string
+          kind: Database["public"]["Enums"]["job_kind"]
+          last_error: string | null
+          locked_at: string | null
+          max_attempts: number
+          payload: Json
+          priority: number
+          result: Json | null
+          run_at: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["job_status"]
+          store_id: string | null
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "job_queue"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      complete_job: {
+        Args: { _id: string; _result?: Json }
+        Returns: undefined
+      }
       consume_rate_limit: {
         Args: { _bucket_key: string; _limit: number; _window_seconds: number }
         Returns: Json
+      }
+      customer_fts_text: {
+        Args: { _email: string; _full_name: string; _phone: string }
+        Returns: string
       }
       emit_notification: {
         Args: {
@@ -8256,6 +8420,18 @@ export type Database = {
           _meta?: Json
           _store_id: string
           _title: string
+        }
+        Returns: string
+      }
+      enqueue_job: {
+        Args: {
+          _dedupe_key?: string
+          _kind: Database["public"]["Enums"]["job_kind"]
+          _max_attempts?: number
+          _payload?: Json
+          _priority?: number
+          _run_at?: string
+          _store_id?: string
         }
         Returns: string
       }
@@ -8270,6 +8446,8 @@ export type Database = {
         }
         Returns: string
       }
+      fail_job: { Args: { _error: string; _id: string }; Returns: undefined }
+      fts_simple: { Args: { _text: string }; Returns: unknown }
       ledger_account_balance: { Args: { _account_id: string }; Returns: number }
       ledger_store_balances: {
         Args: { _store_id: string }
@@ -8285,10 +8463,51 @@ export type Database = {
           seller_id: string
         }[]
       }
+      order_fts_text: {
+        Args: {
+          _customer_email: string
+          _customer_name: string
+          _customer_phone: string
+          _invoice_number: string
+          _order_number: string
+          _tracking_number: string
+        }
+        Returns: string
+      }
+      page_fts_text: {
+        Args: { _body: string; _excerpt: string; _slug: string; _title: string }
+        Returns: string
+      }
+      product_fts_text: {
+        Args: {
+          _barcode: string
+          _description: string
+          _sku: string
+          _slug: string
+          _title: string
+          _vendor: string
+        }
+        Returns: string
+      }
       publish_due_blog_posts: { Args: never; Returns: number }
       rollup_store_daily_stats: {
         Args: { target_day?: string }
         Returns: number
+      }
+      search_store: {
+        Args: {
+          _kinds?: string[]
+          _limit?: number
+          _store_id: string
+          _term: string
+        }
+        Returns: {
+          id: string
+          kind: string
+          rank: number
+          subtitle: string
+          title: string
+        }[]
       }
     }
     Enums: {
@@ -8372,6 +8591,19 @@ export type Database = {
         | "reserve"
         | "release"
       invoice_status: "draft" | "open" | "paid" | "void" | "uncollectible"
+      job_kind:
+        | "email"
+        | "sms"
+        | "whatsapp"
+        | "image"
+        | "feed_sync"
+        | "marketplace_sync"
+        | "webhook"
+        | "analytics"
+        | "ai"
+        | "sitemap"
+        | "invoice"
+      job_status: "queued" | "running" | "succeeded" | "failed" | "cancelled"
       ledger_account_kind:
         | "store"
         | "seller"
@@ -8712,6 +8944,20 @@ export const Constants = {
         "release",
       ],
       invoice_status: ["draft", "open", "paid", "void", "uncollectible"],
+      job_kind: [
+        "email",
+        "sms",
+        "whatsapp",
+        "image",
+        "feed_sync",
+        "marketplace_sync",
+        "webhook",
+        "analytics",
+        "ai",
+        "sitemap",
+        "invoice",
+      ],
+      job_status: ["queued", "running", "succeeded", "failed", "cancelled"],
       ledger_account_kind: [
         "store",
         "seller",
