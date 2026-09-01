@@ -8,6 +8,7 @@ import { markCartRecovered, syncAbandonedCart } from "@/lib/abandoned.functions"
 import { useCart } from "@/lib/cart";
 import { getCartPrefs } from "@/lib/cart-prefs";
 import { getCartToken } from "@/lib/cart-token";
+import { trackEvent } from "@/lib/track";
 import { myAddressesQuery } from "@/lib/account-queries";
 import { useAuth } from "@/lib/auth-context";
 import { getCheckoutQuote, placeMemberOrder, placeOrder, previewCheckoutDiscount } from "@/lib/checkout.functions";
@@ -98,6 +99,15 @@ function CheckoutPage() {
 
   const lines = cart.linesFor(slug);
   const subtotal = cart.subtotalFor(slug);
+
+  // Analitik: kasa adımına ulaşan oturumları dönüşüm hunisi için kaydet.
+  useEffect(() => {
+    if (lines.length === 0) return;
+    trackEvent(slug, "checkout", {
+      value: subtotal,
+      quantity: lines.reduce((sum, line) => sum + line.quantity, 0),
+    });
+  }, [slug, lines.length, subtotal]);
 
 
   // Kasada e-posta giren ziyaretçinin sepetini iletişim bilgisiyle eşle (terk edilmiş sepet takibi)
@@ -315,6 +325,11 @@ function CheckoutPage() {
       void markCartRecovered({
         data: { slug, cartToken: getCartToken(slug), orderNumber: result.orderNumber },
       }).catch(() => {});
+      trackEvent(slug, "purchase", {
+        value: lines.reduce((sum, line) => sum + line.price * line.quantity, 0),
+        quantity: lines.reduce((sum, line) => sum + line.quantity, 0),
+        currency: store.currency,
+      });
       cart.clear(slug);
       toast.success(
         result.giftCardApplied > 0

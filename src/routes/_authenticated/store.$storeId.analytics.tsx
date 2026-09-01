@@ -5,6 +5,10 @@ import {
   Activity,
   CreditCard,
   Download,
+  Eye,
+  Globe2,
+  MonitorSmartphone,
+  MousePointerClick,
   Percent,
   Repeat,
   ShoppingBag,
@@ -16,8 +20,16 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { analyticsItemsQuery, analyticsOrdersQuery, buildDailySeries } from "@/lib/analytics-queries";
+import { analyticsItemsQuery } from "@/lib/analytics-queries";
+import {
+  analyticsEventsQuery,
+  analyticsRangeOrdersQuery,
+  buildTrafficSeries,
+  summarizeEvents,
+} from "@/lib/analytics-events-queries";
+import { buildRange, RANGE_PRESETS, type RangePreset } from "@/lib/analytics-range";
 import { storeQuery } from "@/lib/store-queries";
 import { downloadCsv, toCsv } from "@/lib/csv";
 import {
@@ -29,8 +41,12 @@ import {
   PAYMENT_STATUS_LABELS,
 } from "@/lib/mefti";
 
-
-const RANGES = [7, 30, 90] as const;
+const DEVICE_LABELS: Record<string, string> = {
+  desktop: "Masaüstü",
+  mobile: "Mobil",
+  tablet: "Tablet",
+  bilinmiyor: "Bilinmiyor",
+};
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/analytics")({
   head: () => ({
@@ -38,10 +54,11 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/analytics")
       { title: "Analitik & Raporlar — Mefticaret" },
       {
         name: "description",
-        content: "Ciro trendi, sepet ortalaması, en çok satan ürünler ve sipariş durum dağılımı raporları.",
+        content:
+          "Ziyaretçi, oturum, dönüşüm hunisi, trafik kaynağı, cihaz ve ülke kırılımlarıyla mağaza analitiği.",
       },
       { property: "og:title", content: "Analitik & Raporlar — Mefticaret" },
-      { property: "og:description", content: "Mağazanın satış performansını dönemsel raporlarla incele." },
+      { property: "og:description", content: "Ziyaretçiden satın almaya tüm dönüşüm hunisini dönemsel izle." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -51,10 +68,16 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/analytics")
 
 function AnalyticsPage() {
   const { storeId } = Route.useParams();
-  const [days, setDays] = useState<number>(30);
+  const [preset, setPreset] = useState<RangePreset>("30d");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
+  const range = useMemo(() => buildRange(preset, customFrom, customTo), [preset, customFrom, customTo]);
+  const days = range.days;
+
   const { data: store } = useQuery(storeQuery(storeId));
-  const { data: orders, isLoading } = useQuery(analyticsOrdersQuery(storeId, days));
+  const { data: orders, isLoading } = useQuery(analyticsRangeOrdersQuery(storeId, range));
   const { data: items } = useQuery(analyticsItemsQuery(storeId, days));
+  const { data: events, isLoading: eventsLoading } = useQuery(analyticsEventsQuery(storeId, range));
 
   const currency = store?.currency ?? "TRY";
   const rows = orders ?? [];
@@ -74,7 +97,12 @@ function AnalyticsPage() {
     };
   }, [rows]);
 
-  const series = useMemo(() => buildDailySeries(rows as never[], days), [rows, days]);
+  const series = useMemo(() => buildTrafficSeries(events ?? [], rows, range), [events, rows, range]);
+
+  const traffic = useMemo(
+    () => summarizeEvents(events ?? [], summary.revenue, summary.orders),
+    [events, summary.revenue, summary.orders],
+  );
 
   const statusBreakdown = useMemo(() => {
     const map = new Map<string, number>();
@@ -149,49 +177,100 @@ function AnalyticsPage() {
 
   function exportReport() {
     const content = toCsv(
-      ["tarih", "ciro", "siparis"],
-      series.map((point) => [point.date, point.revenue.toFixed(2), point.orders]),
+      ["tarih", "ziyaretci", "oturum", "sayfa_goruntuleme", "satin_alma", "siparis", "ciro", "donusum_yuzde"],
+      series.map((point) => [
+        point.date,
+        point.visitors,
+        point.sessions,
+        point.pageViews,
+        point.purchases,
+        point.orders,
+        point.revenue.toFixed(2),
+        point.conversion.toFixed(2),
+      ]),
     );
-    downloadCsv(`rapor-${days}gun-${new Date().toISOString().slice(0, 10)}.csv`, content);
+    downloadCsv(`analitik-${range.from}_${range.to}.csv`, content);
   }
 
   const cards = [
-    { label: `Ciro (${days} gün)`, value: formatMoney(summary.revenue, currency), icon: TrendingUp },
+    { label: "Ziyaretçi", value: formatNumber(traffic.visitors), icon: Users },
+    { label: "Oturum", value: formatNumber(traffic.sessions), icon: Activity },
+    { label: "Sayfa görüntüleme", value: formatNumber(traffic.pageViews), icon: Eye },
+    { label: "Ürün görüntüleme", value: formatNumber(traffic.productViews), icon: MousePointerClick },
+    { label: "Sepete ekleme", value: formatNumber(traffic.addToCart), icon: ShoppingBag },
+    { label: "Dönüşüm oranı", value: formatPercent(traffic.conversion), icon: Percent },
+    { label: "Ciro", value: formatMoney(summary.revenue, currency), icon: TrendingUp },
+    { label: "Ortalama sepet", value: formatMoney(summary.aov, currency), icon: CreditCard },
     { label: "Sipariş", value: formatNumber(summary.orders), icon: ShoppingBag },
-    { label: "Sepet ortalaması", value: formatMoney(summary.aov, currency), icon: CreditCard },
     { label: "Ödeme tamamlanma", value: formatPercent(summary.paidRatio), icon: Activity },
     { label: "Alıcı sayısı", value: formatNumber(summary.buyers), icon: Users },
-    { label: "İndirim tutarı", value: formatMoney(summary.discount, currency), icon: Percent },
     { label: "Tekrar eden müşteri", value: formatPercent(retention.ratio), icon: Repeat },
   ];
 
+  const funnel = [
+    { label: "Oturum", value: traffic.sessions },
+    { label: "Ürün görüntüleme", value: traffic.productViews },
+    { label: "Sepete ekleme", value: traffic.cartSessions },
+    { label: "Checkout", value: traffic.checkoutSessions },
+    { label: "Satın alma", value: traffic.purchaseSessions },
+  ];
+  const funnelPeak = Math.max(1, ...funnel.map((step) => step.value));
+
+  const breakdowns = [
+    { title: "Trafik kaynağı", rows: traffic.sources, icon: Globe2, mapLabel: (key: string) => (key === "direct" ? "Doğrudan" : key) },
+    { title: "Cihaz", rows: traffic.devices, icon: MonitorSmartphone, mapLabel: (key: string) => DEVICE_LABELS[key] ?? key },
+    { title: "Ülke", rows: traffic.countries, icon: Globe2, mapLabel: (key: string) => key },
+    { title: "Referrer", rows: traffic.referrers, icon: MousePointerClick, mapLabel: (key: string) => key },
+  ];
 
   return (
     <AppShell
       storeId={storeId}
       title="Analitik & Raporlar"
-      description="Dönemsel satış performansı, ürün kırılımı ve sipariş durum dağılımı."
+      description="Ziyaretçi, oturum, dönüşüm hunisi, trafik kaynağı, cihaz ve ülke kırılımları."
       actions={
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex gap-1 rounded-lg border border-border/60 p-1">
-            {RANGES.map((range) => (
+          <div className="flex flex-wrap gap-1 rounded-lg border border-border/60 p-1">
+            {RANGE_PRESETS.map((item) => (
               <Button
-                key={range}
+                key={item.id}
                 size="sm"
-                variant={days === range ? "default" : "ghost"}
-                onClick={() => setDays(range)}
+                variant={preset === item.id ? "default" : "ghost"}
+                onClick={() => setPreset(item.id)}
               >
-                {range} gün
+                {item.label}
               </Button>
             ))}
           </div>
+          {preset === "custom" ? (
+            <div className="flex items-center gap-2">
+              <Input
+                type="date"
+                value={customFrom}
+                max={customTo || undefined}
+                onChange={(event) => setCustomFrom(event.target.value)}
+                className="h-9 w-[150px]"
+              />
+              <span className="text-muted-foreground">–</span>
+              <Input
+                type="date"
+                value={customTo}
+                min={customFrom || undefined}
+                onChange={(event) => setCustomTo(event.target.value)}
+                className="h-9 w-[150px]"
+              />
+            </div>
+          ) : null}
           <Button size="sm" variant="outline" onClick={exportReport} disabled={series.length === 0}>
             <Download className="mr-2 size-4" /> CSV indir
           </Button>
         </div>
       }
-
     >
+      <p className="text-xs text-muted-foreground">
+        Dönem: {formatDate(range.from)} – {formatDate(range.to)} ({days} gün)
+      </p>
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => (
           <div key={card.label} className="surface-card p-4">
@@ -200,11 +279,87 @@ function AnalyticsPage() {
               <card.icon className="size-4 text-brand-foreground" />
             </div>
             <p className="mt-2 font-display text-2xl font-semibold">
-              {isLoading ? <Skeleton className="h-7 w-24" /> : card.value}
+              {isLoading || eventsLoading ? <Skeleton className="h-7 w-24" /> : card.value}
             </p>
           </div>
         ))}
       </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="surface-card p-6">
+          <h2 className="font-display text-lg font-semibold">Dönüşüm hunisi</h2>
+          <p className="text-sm text-muted-foreground">
+            Oturum → ürün görüntüleme → sepete ekleme → checkout → satın alma. Oturum başına ciro:{" "}
+            {formatMoney(traffic.revenuePerSession, currency)}
+          </p>
+          <ul className="mt-5 space-y-3">
+            {funnel.map((step) => (
+              <li key={step.label} className="space-y-1">
+                <div className="flex items-center justify-between text-sm">
+                  <span>{step.label}</span>
+                  <span className="text-muted-foreground">{formatNumber(step.value)}</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted">
+                  <div
+                    className="h-2 rounded-full bg-primary/80"
+                    style={{ width: `${(step.value / funnelPeak) * 100}%` }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-muted-foreground sm:grid-cols-4">
+            <span>Sepet oranı: {formatPercent(traffic.cartRate)}</span>
+            <span>Checkout oranı: {formatPercent(traffic.checkoutRate)}</span>
+            <span>Satın alma oranı: {formatPercent(traffic.purchaseRate)}</span>
+            <span>Hemen çıkma: {formatPercent(traffic.bounceRate)}</span>
+          </div>
+        </section>
+
+        <section className="surface-card p-6">
+          <h2 className="font-display text-lg font-semibold">En çok görüntülenen sayfalar</h2>
+          <p className="text-sm text-muted-foreground">
+            Oturum başına sayfa: {traffic.pagesPerSession.toFixed(1)}
+          </p>
+          {traffic.topPages.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">Bu dönemde ziyaret verisi yok.</p>
+          ) : (
+            <ul className="mt-4 space-y-2 text-sm">
+              {traffic.topPages.map((row) => (
+                <li key={row.key} className="flex items-center justify-between gap-3">
+                  <span className="truncate font-mono text-xs">{row.key}</span>
+                  <span className="text-muted-foreground">{formatNumber(row.count)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {breakdowns.map((block) => (
+          <section key={block.title} className="surface-card p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-sm font-semibold">{block.title}</h2>
+              <block.icon className="size-4 text-brand-foreground" />
+            </div>
+            {block.rows.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">Veri yok</p>
+            ) : (
+              <ul className="mt-3 space-y-2 text-sm">
+                {block.rows.slice(0, 6).map((row) => (
+                  <li key={row.key} className="flex items-center justify-between gap-2">
+                    <span className="truncate">{block.mapLabel(row.key)}</span>
+                    <Badge variant="secondary">{formatNumber(row.count)}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ))}
+      </div>
+
+
 
       <section className="surface-card p-6">
         <h2 className="font-display text-lg font-semibold">Ciro trendi</h2>

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 import { syncAbandonedCart } from "@/lib/abandoned.functions";
 import { getCartToken } from "@/lib/cart-token";
+import { trackEvent } from "@/lib/track";
 
 export type CartLine = {
   storeSlug: string;
@@ -90,6 +91,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [lines, hydrated]);
 
   const add = useCallback((line: Omit<CartLine, "quantity">, quantity = 1) => {
+    trackEvent(line.storeSlug, "add_to_cart", {
+      variantId: line.variantId,
+      value: line.price * Math.max(1, quantity),
+      quantity: Math.max(1, quantity),
+      currency: line.currency,
+    });
     setLines((current) => {
       const existing = current.find((item) => item.variantId === line.variantId);
       if (existing) {

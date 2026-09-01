@@ -15,6 +15,7 @@ import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { recordRecentProduct } from "@/lib/recently-viewed";
 import { storefrontProductQuery } from "@/lib/storefront-queries";
+import { trackEvent } from "@/lib/track";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import {
   absoluteUrl,
@@ -163,6 +164,11 @@ function ProductPage() {
       price: Number(data.product.base_price),
       currency: data.product.currency,
       image: data.images[0]?.url ?? null,
+    });
+    trackEvent(data.store.slug, "product_view", {
+      productId: data.product.id,
+      value: Number(data.product.base_price ?? 0),
+      currency: data.product.currency,
     });
   }, [data]);
 

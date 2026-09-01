@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { useCart } from "@/lib/cart";
@@ -7,6 +7,7 @@ import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import { fontStack } from "@/lib/theme-presets";
+import { trackEvent } from "@/lib/track";
 import type { ResolvedSection } from "@/lib/theme-sections";
 
 
@@ -170,6 +171,7 @@ export function StorefrontChrome({
   children: ReactNode;
 }) {
   const { t, fonts, text, muted, border, radius, logoUrl, contentWidth } = storefrontTokens(theme);
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const cart = useCart();
   const favorites = useFavorites();
   const compare = useCompare();
@@ -196,6 +198,11 @@ export function StorefrontChrome({
   const barTone = barCfg ? value(barCfg, "tone") : "primary";
   const barBackground =
     barTone === "accent" ? t.accent_color : barTone === "soft" ? `${t.accent_color}22` : t.primary_color;
+
+  // Analitik: her vitrin sayfası görüntülemesini ziyaretçi/oturum bazında kaydet.
+  useEffect(() => {
+    trackEvent(storeSlug, "page_view", { path: pathname });
+  }, [storeSlug, pathname]);
 
   // Özel JavaScript, mağaza sahibinin bilinçli tercihidir; yalnızca istemcide çalışır.
   useEffect(() => {
