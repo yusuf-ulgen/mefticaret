@@ -308,8 +308,37 @@ export function StorefrontChrome({
           </nav>
         ) : null}
 
+        <nav
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 16,
+            justifyContent: "center",
+            marginBottom: 14,
+          }}
+        >
+          {[
+            { to: "/s/$slug/about", label: "Hakkımızda" },
+            { to: "/s/$slug/contact", label: "İletişim" },
+            { to: "/s/$slug/faq", label: "SSS" },
+            { to: "/s/$slug/returns", label: "İade politikası" },
+            { to: "/s/$slug/privacy", label: "Gizlilik politikası" },
+            { to: "/s/$slug/terms", label: "Kullanım şartları" },
+          ].map((link) => (
+            <Link
+              key={link.label}
+              to={link.to as "/s/$slug/about"}
+              params={{ slug: storeSlug }}
+              style={{ color: muted, textDecoration: "none" }}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
         {storeName} — Mefticaret altyapısıyla çalışır.
       </footer>
+
     </div>
   );
 }
