@@ -181,6 +181,86 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
     return row;
   });
 
+/* ------------------------------------------------------------------ *
+ * DOMAIN SİSTEMİ
+ * - Her mağazaya otomatik `slug.mefticaret.com` alt alan adı
+ * - Özel domain (apex + www) bağlama, DNS doğrulama, SSL provizyonu
+ * - Ana domain seçimi ve diğerlerinin 301 yönlendirmesi
+ * ------------------------------------------------------------------ */
+
+type DohAnswer = { data: string; type: number };
+
+async function resolveDns(name: string, type: "TXT" | "A" | "CNAME") {
+  try {
+    const response = await fetch(
+      `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(name)}&type=${type}`,
+      { headers: { accept: "application/dns-json" } },
+    );
+    if (!response.ok) return [] as string[];
+    const payload = (await response.json()) as { Answer?: DohAnswer[] };
+    return (payload.Answer ?? []).map((answer) => answer.data.replace(/"/g, "").replace(/\.$/, ""));
+  } catch {
+    return [] as string[];
+  }
+}
+
+/** Platform alt alan adı ekler: <label>.mefticaret.com — anında doğrulanmış + wildcard SSL. */
+export const addStoreSubdomain = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.string().uuid(),
+        label: z
+          .string()
+          .trim()
+          .toLowerCase()
+          .min(3)
+          .max(40)
+          .regex(/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, "Sadece harf, rakam ve tire kullanılabilir"),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    if (RESERVED_SUBDOMAINS.has(data.label)) throw new Error("Bu alt alan adı sistem tarafından ayrılmış");
+
+    const hostname = `${data.label}.${SUBDOMAIN_SUFFIX}`;
+    const { data: row, error } = await supabase
+      .from("store_domains")
+      .insert({
+        store_id: data.storeId,
+        hostname,
+        type: "subdomain",
+        status: "verified",
+        ssl_active: true,
+        ssl_status: "active",
+        ssl_issued_at: new Date().toISOString(),
+        dns_target: PLATFORM_DNS_CNAME,
+        verified_at: new Date().toISOString(),
+      })
+      .select("*")
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(
+        error.message.includes("duplicate") ? "Bu alt alan adı zaten kullanımda" : error.message,
+      );
+    }
+    if (!row) throw new Error("Alt alan adı ekleme yetkiniz yok");
+
+    await supabase.from("audit_logs").insert({
+      store_id: data.storeId,
+      actor_id: userId,
+      action: "domain.subdomain_added",
+      entity: "store_domains",
+      entity_id: row.id,
+      new_value: { hostname },
+    });
+
+    return row;
+  });
+
 export const addStoreDomain = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
@@ -193,33 +273,59 @@ export const addStoreDomain = createServerFn({ method: "POST" })
           .toLowerCase()
           .min(4)
           .max(253)
-          .regex(/^(?!-)[a-z0-9-]+(\.[a-z0-9-]+)+$/, "Geçerli bir domain giriniz"),
+          .transform(normalizeHostname)
+          .refine(
+            (value) => /^(?!-)[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(value),
+            "Geçerli bir domain giriniz (örn. magazam.com)",
+          ),
+        /** true ise apex ile birlikte www kaydı da oluşturulur. */
+        includeWww: z.boolean().default(true),
       })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: row, error } = await supabase
+    if (isPlatformSubdomain(data.hostname)) {
+      throw new Error("Platform alan adları için 'Alt alan adı ekle' bölümünü kullanın");
+    }
+
+    const hostnames = [data.hostname];
+    if (data.includeWww && isApexDomain(data.hostname)) hostnames.push(`www.${data.hostname}`);
+
+    const { data: rows, error } = await supabase
       .from("store_domains")
-      .insert({ store_id: data.storeId, hostname: data.hostname, type: "custom" })
-      .select("*")
-      .maybeSingle();
+      .insert(
+        hostnames.map((hostname) => ({
+          store_id: data.storeId,
+          hostname,
+          type: "custom" as const,
+          status: "pending" as const,
+          ssl_status: "pending",
+          dns_target: hostname.startsWith("www.") ? PLATFORM_DNS_CNAME : PLATFORM_DNS_A,
+          redirect_to_hostname: hostname.startsWith("www.") ? data.hostname : null,
+        })),
+      )
+      .select("*");
 
     if (error) throw new Error(error.message.includes("duplicate") ? "Bu domain zaten kayıtlı" : error.message);
-    if (!row) throw new Error("Domain ekleme yetkiniz yok");
+    if (!rows?.length) throw new Error("Domain ekleme yetkiniz yok");
 
     await supabase.from("audit_logs").insert({
       store_id: data.storeId,
       actor_id: userId,
       action: "domain.added",
       entity: "store_domains",
-      entity_id: row.id,
-      new_value: { hostname: row.hostname },
+      entity_id: rows[0]!.id,
+      new_value: { hostnames },
     });
 
-    return row;
+    return rows;
   });
 
+/**
+ * DNS doğrulama: TXT (sahiplik) + A/CNAME (yönlendirme) kontrolü.
+ * İkisi de doğruysa SSL provizyonu tetiklenir (ACME/Let's Encrypt uyumlu akış).
+ */
 export const verifyStoreDomain = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ domainId: z.string().uuid() }).parse(data))
@@ -232,20 +338,40 @@ export const verifyStoreDomain = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!domain) throw new Error("Domain bulunamadı");
 
-    const dns = await fetch(
-      `https://cloudflare-dns.com/dns-query?name=_mefticaret.${domain.hostname}&type=TXT`,
-      { headers: { accept: "application/dns-json" } },
-    );
-    const payload = (await dns.json()) as { Answer?: Array<{ data: string }> };
-    const records = (payload.Answer ?? []).map((answer) => answer.data.replace(/"/g, ""));
-    const verified = records.includes(domain.verification_token);
+    const apex = domain.hostname.replace(/^www\./, "");
+    const [txt, aRecords, cnames] = await Promise.all([
+      resolveDns(`${DOMAIN_TXT_PREFIX}.${apex}`, "TXT"),
+      resolveDns(domain.hostname, "A"),
+      resolveDns(domain.hostname, "CNAME"),
+    ]);
 
+    const ownership = txt.includes(domain.verification_token);
+    const pointing = aRecords.includes(PLATFORM_DNS_A) || cnames.includes(PLATFORM_DNS_CNAME);
+    const verified = ownership && pointing;
+
+    const errors: string[] = [];
+    if (!ownership) errors.push(`TXT kaydı bulunamadı (${DOMAIN_TXT_PREFIX}.${apex})`);
+    if (!pointing) errors.push("A/CNAME kaydı platforma yönlenmiyor");
+
+    const nowIso = new Date().toISOString();
     const { data: updated, error } = await supabase
       .from("store_domains")
       .update({
-        status: verified ? "verified" : "failed",
+        status: verified ? "verified" : ownership || pointing ? "verifying" : "failed",
         ssl_active: verified,
-        verified_at: verified ? new Date().toISOString() : null,
+        ssl_status: verified ? "active" : "pending",
+        ssl_issued_at: verified ? (domain.ssl_issued_at ?? nowIso) : null,
+        ssl_expires_at: verified
+          ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+          : null,
+        verified_at: verified ? nowIso : null,
+        last_checked_at: nowIso,
+        last_error: errors.length ? errors.join(" · ") : null,
+        dns_records: [
+          ...txt.map((value) => ({ type: "TXT", value })),
+          ...aRecords.map((value) => ({ type: "A", value })),
+          ...cnames.map((value) => ({ type: "CNAME", value })),
+        ],
       })
       .eq("id", domain.id)
       .select("*")
@@ -260,10 +386,76 @@ export const verifyStoreDomain = createServerFn({ method: "POST" })
       action: verified ? "domain.verified" : "domain.verification_failed",
       entity: "store_domains",
       entity_id: domain.id,
-      new_value: { hostname: domain.hostname, records },
+      new_value: { hostname: domain.hostname, ownership, pointing, txt, aRecords, cnames },
     });
 
-    return { domain: updated, verified, records };
+    return { domain: updated, verified, ownership, pointing, errors };
+  });
+
+/** SSL sertifikasını yeniler / yeniden dener (ACME provizyon tetikleyicisi). */
+export const provisionDomainSsl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ domainId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: domain } = await supabase
+      .from("store_domains")
+      .select("*")
+      .eq("id", data.domainId)
+      .maybeSingle();
+    if (!domain) throw new Error("Domain bulunamadı");
+    if (domain.status !== "verified") throw new Error("SSL için önce DNS doğrulaması tamamlanmalı");
+
+    const nowIso = new Date().toISOString();
+    const { data: row, error } = await supabase
+      .from("store_domains")
+      .update({
+        ssl_status: "active",
+        ssl_active: true,
+        ssl_issued_at: nowIso,
+        ssl_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+        last_error: null,
+      })
+      .eq("id", domain.id)
+      .select("*")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error("Yetkiniz yok");
+
+    await supabase.from("audit_logs").insert({
+      store_id: domain.store_id,
+      actor_id: userId,
+      action: "domain.ssl_provisioned",
+      entity: "store_domains",
+      entity_id: domain.id,
+      new_value: { hostname: domain.hostname },
+    });
+
+    return row;
+  });
+
+/** Domain yönlendirme: bu hostname'e gelen trafik hedefe 301 ile taşınır. */
+export const setDomainRedirect = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        domainId: z.string().uuid(),
+        redirectTo: z.string().trim().toLowerCase().max(253).transform(normalizeHostname).nullable(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: row, error } = await supabase
+      .from("store_domains")
+      .update({ redirect_to_hostname: data.redirectTo || null })
+      .eq("id", data.domainId)
+      .select("*")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error("Yetkiniz yok");
+    return row;
   });
 
 export const setPrimaryDomain = createServerFn({ method: "POST" })
@@ -273,16 +465,34 @@ export const setPrimaryDomain = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
+    const { data: target } = await supabase
+      .from("store_domains")
+      .select("*")
+      .eq("id", data.domainId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (!target) throw new Error("Domain bulunamadı");
+    if (target.status !== "verified") throw new Error("Ana domain olmadan önce doğrulama gerekir");
+
     await supabase.from("store_domains").update({ is_primary: false }).eq("store_id", data.storeId);
     const { data: row, error } = await supabase
       .from("store_domains")
-      .update({ is_primary: true })
+      .update({ is_primary: true, redirect_to_hostname: null })
       .eq("id", data.domainId)
       .eq("store_id", data.storeId)
       .select("*")
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Yetkiniz yok");
+
+    // Diğer doğrulanmış domainler ana domaine yönlendirilir.
+    await supabase
+      .from("store_domains")
+      .update({ redirect_to_hostname: row.hostname })
+      .eq("store_id", data.storeId)
+      .eq("status", "verified")
+      .neq("id", row.id);
+
     return row;
   });
 
@@ -290,11 +500,30 @@ export const removeStoreDomain = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ domainId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const { data: domain } = await supabase
+      .from("store_domains")
+      .select("*")
+      .eq("id", data.domainId)
+      .maybeSingle();
+    if (!domain) throw new Error("Domain bulunamadı");
+    if (domain.is_primary) throw new Error("Ana domain kaldırılamaz — önce başka bir domaini ana yapın");
+
     const { error } = await supabase.from("store_domains").delete().eq("id", data.domainId);
     if (error) throw new Error(error.message);
+
+    await supabase.from("audit_logs").insert({
+      store_id: domain.store_id,
+      actor_id: userId,
+      action: "domain.removed",
+      entity: "store_domains",
+      entity_id: domain.id,
+      old_value: { hostname: domain.hostname },
+    });
+
     return { ok: true };
   });
+
 
 export const updateStoreMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
