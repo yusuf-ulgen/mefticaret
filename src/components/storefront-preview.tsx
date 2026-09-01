@@ -13,6 +13,11 @@ export type ThemeDraft = {
   heroCtaLabel: string;
   announcement: string;
   showAnnouncement: boolean;
+  logoUrl?: string;
+  buttonStyle?: string;
+  cardStyle?: string;
+  contentWidth?: number;
+  sectionSpacing?: number;
 };
 
 type PreviewProduct = { id: string; title: string; base_price: number; currency: string };
@@ -34,10 +39,12 @@ export function StorefrontPreview({
   theme,
   storeName,
   products,
+  device = "desktop",
 }: {
   theme: ThemeDraft;
   storeName: string;
   products: PreviewProduct[];
+  device?: "desktop" | "tablet" | "mobile";
 }) {
   const fonts = fontStack(theme.fontPair);
   const dark = isDark(theme.backgroundColor);
@@ -46,9 +53,35 @@ export function StorefrontPreview({
   const cardBg = dark ? "rgba(255,255,255,.06)" : "#ffffff";
   const border = dark ? "rgba(255,255,255,.12)" : "rgba(31,41,51,.10)";
   const radius = `${theme.radius}rem`;
-  const split = theme.layout === "split-screen";
-  const columns =
-    theme.layout === "magazine" ? "repeat(2, minmax(0,1fr))" : "repeat(3, minmax(0,1fr))";
+  const split = theme.layout === "split-screen" && device === "desktop";
+  const gridCount = device === "mobile" ? 1 : device === "tablet" ? 2 : theme.layout === "magazine" ? 2 : 3;
+  const columns = `repeat(${gridCount}, minmax(0,1fr))`;
+  const spacing = theme.sectionSpacing ?? 48;
+  const buttonStyle = theme.buttonStyle ?? "solid";
+  const cardStyle = theme.cardStyle ?? "soft";
+  const buttonRadius = buttonStyle === "pill" ? "999px" : buttonStyle === "square" ? "0px" : radius;
+  const buttonSkin =
+    buttonStyle === "outline"
+      ? { background: "transparent", color: text, border: `1.5px solid ${theme.accentColor}` }
+      : buttonStyle === "ghost"
+        ? { background: `${theme.accentColor}1f`, color: text, border: "1px solid transparent" }
+        : {
+            background: theme.accentColor,
+            color: isDark(theme.accentColor) ? "#fff" : "#12181f",
+            border: "1px solid transparent",
+          };
+  const cardSkin =
+    cardStyle === "flat"
+      ? { background: "transparent", border: "1px solid transparent" }
+      : cardStyle === "bordered"
+        ? { background: "transparent", border: `1.5px solid ${border}` }
+        : cardStyle === "shadow"
+          ? {
+              background: cardBg,
+              border: "1px solid transparent",
+              boxShadow: "0 18px 40px -24px rgba(15,23,42,.45)",
+            }
+          : { background: cardBg, border: `1px solid ${border}` };
 
   return (
     <div
@@ -58,6 +91,8 @@ export function StorefrontPreview({
         color: text,
         fontFamily: fonts.body,
         borderRadius: radius,
+        maxWidth: theme.contentWidth ? Math.min(theme.contentWidth, 2000) : undefined,
+        marginInline: "auto",
         border: `1px solid ${border}`,
         overflow: "hidden",
       }}
@@ -86,12 +121,30 @@ export function StorefrontPreview({
           borderBottom: `1px solid ${border}`,
         }}
       >
-        <span style={{ fontFamily: fonts.heading, fontWeight: 700, fontSize: 18 }}>{storeName}</span>
-        <nav style={{ display: "flex", gap: 16, fontSize: 13, color: muted }}>
-          <span>Ürünler</span>
-          <span>Koleksiyonlar</span>
-          <span>İletişim</span>
-        </nav>
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            fontFamily: fonts.heading,
+            fontWeight: 700,
+            fontSize: 18,
+          }}
+        >
+          {theme.logoUrl ? (
+            <img src={theme.logoUrl} alt={storeName} style={{ height: 26, width: "auto", display: "block" }} />
+          ) : null}
+          {storeName}
+        </span>
+        {device === "mobile" ? (
+          <span style={{ fontSize: 18, color: muted }}>≡</span>
+        ) : (
+          <nav style={{ display: "flex", gap: 16, fontSize: 13, color: muted }}>
+            <span>Ürünler</span>
+            <span>Koleksiyonlar</span>
+            <span>İletişim</span>
+          </nav>
+        )}
       </header>
 
       <section
@@ -99,7 +152,7 @@ export function StorefrontPreview({
           display: split ? "grid" : "block",
           gridTemplateColumns: split ? "1.1fr .9fr" : undefined,
           gap: 20,
-          padding: "32px 20px",
+          padding: `${spacing}px 20px`,
         }}
       >
         <div style={{ maxWidth: split ? undefined : 520 }}>
@@ -119,10 +172,9 @@ export function StorefrontPreview({
             style={{
               display: "inline-block",
               marginTop: 20,
-              background: theme.accentColor,
-              color: isDark(theme.accentColor) ? "#fff" : "#12181f",
+              ...buttonSkin,
               padding: "10px 18px",
-              borderRadius: radius,
+              borderRadius: buttonRadius,
               fontSize: 14,
               fontWeight: 600,
             }}
@@ -141,7 +193,7 @@ export function StorefrontPreview({
         ) : null}
       </section>
 
-      <section style={{ padding: "0 20px 28px" }}>
+      <section style={{ padding: `0 20px ${spacing}px` }}>
         <div style={{ display: "grid", gridTemplateColumns: columns, gap: 14 }}>
           {(products.length
             ? products
@@ -155,12 +207,7 @@ export function StorefrontPreview({
             .map((product) => (
               <article
                 key={product.id}
-                style={{
-                  background: cardBg,
-                  border: `1px solid ${border}`,
-                  borderRadius: radius,
-                  overflow: "hidden",
-                }}
+                style={{ ...cardSkin, borderRadius: radius, overflow: "hidden" }}
               >
                 <div
                   style={{
