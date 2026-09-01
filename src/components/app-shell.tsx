@@ -399,6 +399,9 @@ export function AppShell({
 
   return (
     <div className="flex min-h-screen bg-background">
+      <a href="#panel-content" className="skip-link">
+        İçeriğe geç
+      </a>
       {sidebar ? (
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-sidebar-border bg-sidebar lg:block">
           {sidebar}
