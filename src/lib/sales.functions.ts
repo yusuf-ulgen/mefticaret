@@ -130,24 +130,34 @@ export const upsertCustomer = createServerFn({ method: "POST" })
       .object({
         customerId: z.string().uuid().optional(),
         storeId: z.string().uuid(),
-        fullName: z.string().trim().min(2).max(120),
+        fullName: z.string().trim().min(2).max(120).optional(),
+        firstName: z.string().trim().max(60).optional(),
+        lastName: z.string().trim().max(60).optional(),
         email: z.string().trim().email().max(160).optional(),
         phone: z.string().trim().max(40).optional(),
         acceptsMarketing: z.boolean().default(false),
         notes: z.string().trim().max(2000).optional(),
+        tags: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
       })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    const composed = [data.firstName, data.lastName].filter(Boolean).join(" ").trim();
+    const fullName = (data.fullName?.trim() || composed).trim();
+    if (fullName.length < 2) throw new Error("Ad Soyad en az 2 karakter olmalı");
+
     const payload = {
       store_id: data.storeId,
-      full_name: data.fullName,
+      full_name: fullName,
+      first_name: data.firstName?.trim() || fullName.split(" ")[0] || null,
+      last_name: data.lastName?.trim() || fullName.split(" ").slice(1).join(" ") || null,
       email: data.email && data.email.length > 0 ? data.email.toLowerCase() : null,
       phone: data.phone && data.phone.length > 0 ? data.phone : null,
       accepts_marketing: data.acceptsMarketing,
       notes: data.notes && data.notes.length > 0 ? data.notes : null,
+      ...(data.tags ? { tags: data.tags } : {}),
     };
 
     const query = data.customerId
@@ -157,6 +167,7 @@ export const upsertCustomer = createServerFn({ method: "POST" })
     const { data: customer, error } = await query.select("*").maybeSingle();
     if (error) throw new Error(error.message);
     if (!customer) throw new Error("Müşteri kaydedilemedi");
+
 
     await supabase.from("audit_logs").insert({
       store_id: data.storeId,
