@@ -31,7 +31,15 @@ import {
   updateProductImage,
 } from "@/lib/media.functions";
 import { productImagesQuery, uploadProductImage, type ProductImage } from "@/lib/media";
-import { formatMoney } from "@/lib/mefti";
+import { formatMoney, slugify } from "@/lib/mefti";
+
+/** Boş metni null'a, dolu metni sayıya çevirir. */
+function numOrNull(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/products/$productId")({
   head: () => ({
@@ -80,6 +88,19 @@ function ProductDetailPage() {
     vendor: "",
     product_type: "",
     base_price: "",
+    compare_at_price: "",
+    cost_price: "",
+    tax_rate: "20",
+    sku: "",
+    barcode: "",
+    seller_name: "",
+    video_url: "",
+    weight_grams: "",
+    length_cm: "",
+    width_cm: "",
+    height_cm: "",
+    tags: "",
+    slug: "",
     status: "draft" as "draft" | "active" | "archived",
     seo_title: "",
     seo_description: "",
@@ -95,6 +116,19 @@ function ProductDetailPage() {
       vendor: product.vendor ?? "",
       product_type: product.product_type ?? "",
       base_price: String(product.base_price ?? 0),
+      compare_at_price: product.compare_at_price == null ? "" : String(product.compare_at_price),
+      cost_price: product.cost_price == null ? "" : String(product.cost_price),
+      tax_rate: String(product.tax_rate ?? 20),
+      sku: product.sku ?? "",
+      barcode: product.barcode ?? "",
+      seller_name: product.seller_name ?? "",
+      video_url: product.video_url ?? "",
+      weight_grams: product.weight_grams == null ? "" : String(product.weight_grams),
+      length_cm: product.length_cm == null ? "" : String(product.length_cm),
+      width_cm: product.width_cm == null ? "" : String(product.width_cm),
+      height_cm: product.height_cm == null ? "" : String(product.height_cm),
+      tags: (product.tags ?? []).join(", "),
+      slug: product.slug,
       status: product.status,
       seo_title: seo.title ?? "",
       seo_description: seo.description ?? "",
@@ -117,6 +151,22 @@ function ProductDetailPage() {
             vendor: form.vendor,
             product_type: form.product_type,
             base_price: Number(form.base_price || 0),
+            compare_at_price: numOrNull(form.compare_at_price),
+            cost_price: numOrNull(form.cost_price),
+            tax_rate: Number(form.tax_rate || 0),
+            sku: form.sku.trim() || null,
+            barcode: form.barcode.trim() || null,
+            seller_name: form.seller_name.trim() || null,
+            video_url: form.video_url.trim() || null,
+            weight_grams: form.weight_grams.trim() ? Math.round(Number(form.weight_grams)) : null,
+            length_cm: numOrNull(form.length_cm),
+            width_cm: numOrNull(form.width_cm),
+            height_cm: numOrNull(form.height_cm),
+            tags: form.tags
+              .split(",")
+              .map((tag) => tag.trim())
+              .filter(Boolean),
+            slug: slugify(form.slug || form.title),
             status: form.status,
             seo: {
               title: form.seo_title.trim(),
@@ -289,6 +339,170 @@ function ProductDetailPage() {
               </div>
             </div>
 
+            <div className="grid gap-3 rounded-lg border border-border p-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <h3 className="text-sm font-semibold">Kimlik & tedarik</h3>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-sku">SKU (stok kodu)</Label>
+                <Input
+                  id="p-sku"
+                  value={form.sku}
+                  onChange={(event) => setForm((prev) => ({ ...prev, sku: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-barcode">Barkod</Label>
+                <Input
+                  id="p-barcode"
+                  value={form.barcode}
+                  onChange={(event) => setForm((prev) => ({ ...prev, barcode: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-seller">Satıcı</Label>
+                <Input
+                  id="p-seller"
+                  placeholder="Satışı yapan firma"
+                  value={form.seller_name}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, seller_name: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-tags">Etiketler (virgülle ayır)</Label>
+                <Input
+                  id="p-tags"
+                  placeholder="yazlık, pamuk, indirim"
+                  value={form.tags}
+                  onChange={(event) => setForm((prev) => ({ ...prev, tags: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="p-video">Video adresi (YouTube / Vimeo / MP4)</Label>
+                <Input
+                  id="p-video"
+                  placeholder="https://…"
+                  value={form.video_url}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, video_url: event.target.value }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-3 rounded-lg border border-border p-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <h3 className="text-sm font-semibold">Fiyatlandırma & vergi</h3>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-compare">İndirimli fiyat referansı ({product.currency})</Label>
+                <Input
+                  id="p-compare"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  placeholder="Üzeri çizili eski fiyat"
+                  value={form.compare_at_price}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, compare_at_price: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-cost">Maliyet ({product.currency})</Label>
+                <Input
+                  id="p-cost"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={form.cost_price}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, cost_price: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-tax">Vergi oranı (%)</Label>
+                <Input
+                  id="p-tax"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="0.01"
+                  value={form.tax_rate}
+                  onChange={(event) => setForm((prev) => ({ ...prev, tax_rate: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Tahmini brüt marj</Label>
+                <p className="rounded-md bg-muted/40 px-3 py-2 text-sm">
+                  {form.cost_price && Number(form.base_price) > 0
+                    ? `${(((Number(form.base_price) - Number(form.cost_price)) / Number(form.base_price)) * 100).toFixed(1)}%`
+                    : "—"}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-3 rounded-lg border border-border p-4 sm:grid-cols-4">
+              <div className="sm:col-span-4">
+                <h3 className="text-sm font-semibold">Kargo ölçüleri</h3>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-weight">Ağırlık (g)</Label>
+                <Input
+                  id="p-weight"
+                  type="number"
+                  min={0}
+                  step="1"
+                  value={form.weight_grams}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, weight_grams: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-len">Uzunluk (cm)</Label>
+                <Input
+                  id="p-len"
+                  type="number"
+                  min={0}
+                  step="0.1"
+                  value={form.length_cm}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, length_cm: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-wid">Genişlik (cm)</Label>
+                <Input
+                  id="p-wid"
+                  type="number"
+                  min={0}
+                  step="0.1"
+                  value={form.width_cm}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, width_cm: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-hei">Yükseklik (cm)</Label>
+                <Input
+                  id="p-hei"
+                  type="number"
+                  min={0}
+                  step="0.1"
+                  value={form.height_cm}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, height_cm: event.target.value }))
+                  }
+                />
+              </div>
+            </div>
+
             <div className="space-y-3 rounded-lg border border-border p-4">
               <div>
                 <h3 className="text-sm font-semibold">Arama motoru görünümü (SEO)</h3>
@@ -323,6 +537,20 @@ function ProductDetailPage() {
                 />
                 <p className="text-xs text-muted-foreground">
                   {form.seo_description.length}/180 karakter
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-slug">SEO adresi (URL)</Label>
+                <Input
+                  id="p-slug"
+                  value={form.slug}
+                  onChange={(event) => setForm((prev) => ({ ...prev, slug: event.target.value }))}
+                  onBlur={(event) =>
+                    setForm((prev) => ({ ...prev, slug: slugify(event.target.value) }))
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  /p/{slugify(form.slug || form.title) || "urun-adresi"}
                 </p>
               </div>
               <div className="rounded-md bg-muted/40 p-3">
