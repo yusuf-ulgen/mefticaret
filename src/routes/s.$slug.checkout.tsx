@@ -64,9 +64,20 @@ function CheckoutPage() {
   const [shippingRateId, setShippingRateId] = useState<string>("");
   const [paymentMethodId, setPaymentMethodId] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const prefsLoaded = useRef(false);
+
+  // Sepette seçilen kupon ve kargo yöntemini kasaya taşı.
+  useEffect(() => {
+    if (prefsLoaded.current) return;
+    prefsLoaded.current = true;
+    const prefs = getCartPrefs(slug);
+    if (prefs.couponCode) setDiscountCode(prefs.couponCode);
+    if (prefs.shippingRateId) setShippingRateId(prefs.shippingRateId);
+  }, [slug]);
 
   const lines = cart.linesFor(slug);
   const subtotal = cart.subtotalFor(slug);
+
 
   // Kasada e-posta giren ziyaretçinin sepetini iletişim bilgisiyle eşle (terk edilmiş sepet takibi)
   useEffect(() => {
