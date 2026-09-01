@@ -2862,6 +2862,200 @@ export type Database = {
           },
         ]
       }
+      oauth_access_tokens: {
+        Row: {
+          api_version: string
+          client_id: string
+          created_at: string
+          expires_at: string
+          grant_type: string
+          id: string
+          last_used_at: string | null
+          refresh_expires_at: string | null
+          refresh_token_hash: string | null
+          request_count: number
+          revoked_at: string | null
+          scopes: string[]
+          store_id: string | null
+          token_hash: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          api_version?: string
+          client_id: string
+          created_at?: string
+          expires_at: string
+          grant_type?: string
+          id?: string
+          last_used_at?: string | null
+          refresh_expires_at?: string | null
+          refresh_token_hash?: string | null
+          request_count?: number
+          revoked_at?: string | null
+          scopes?: string[]
+          store_id?: string | null
+          token_hash: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          api_version?: string
+          client_id?: string
+          created_at?: string
+          expires_at?: string
+          grant_type?: string
+          id?: string
+          last_used_at?: string | null
+          refresh_expires_at?: string | null
+          refresh_token_hash?: string | null
+          request_count?: number
+          revoked_at?: string | null
+          scopes?: string[]
+          store_id?: string | null
+          token_hash?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oauth_access_tokens_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "oauth_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "oauth_access_tokens_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oauth_authorization_codes: {
+        Row: {
+          client_id: string
+          code_challenge: string | null
+          code_challenge_method: string | null
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          redirect_uri: string
+          scopes: string[]
+          store_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          client_id: string
+          code_challenge?: string | null
+          code_challenge_method?: string | null
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          redirect_uri: string
+          scopes?: string[]
+          store_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          client_id?: string
+          code_challenge?: string | null
+          code_challenge_method?: string | null
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          redirect_uri?: string
+          scopes?: string[]
+          store_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oauth_authorization_codes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "oauth_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "oauth_authorization_codes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oauth_clients: {
+        Row: {
+          allowed_scopes: string[]
+          client_id: string
+          client_secret_hash: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          grant_types: string[]
+          id: string
+          is_active: boolean
+          is_trusted: boolean
+          name: string
+          redirect_uris: string[]
+          secret_prefix: string
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          allowed_scopes?: string[]
+          client_id: string
+          client_secret_hash: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          grant_types?: string[]
+          id?: string
+          is_active?: boolean
+          is_trusted?: boolean
+          name: string
+          redirect_uris?: string[]
+          secret_prefix: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allowed_scopes?: string[]
+          client_id?: string
+          client_secret_hash?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          grant_types?: string[]
+          id?: string
+          is_active?: boolean
+          is_trusted?: boolean
+          name?: string
+          redirect_uris?: string[]
+          secret_prefix?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oauth_clients_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_events: {
         Row: {
           actor_id: string | null
@@ -5826,34 +6020,76 @@ export type Database = {
           },
         ]
       }
+      support_departments: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          label: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       support_ticket_messages: {
         Row: {
+          attachments: Json
           author_id: string | null
           author_name: string | null
+          author_role: Database["public"]["Enums"]["support_author_role"]
           body: string
           created_at: string
           id: string
           is_internal: boolean
+          read_at: string | null
           ticket_id: string
           updated_at: string
         }
         Insert: {
+          attachments?: Json
           author_id?: string | null
           author_name?: string | null
+          author_role?: Database["public"]["Enums"]["support_author_role"]
           body: string
           created_at?: string
           id?: string
           is_internal?: boolean
+          read_at?: string | null
           ticket_id: string
           updated_at?: string
         }
         Update: {
+          attachments?: Json
           author_id?: string | null
           author_name?: string | null
+          author_role?: Database["public"]["Enums"]["support_author_role"]
           body?: string
           created_at?: string
           id?: string
           is_internal?: boolean
+          read_at?: string | null
           ticket_id?: string
           updated_at?: string
         }
@@ -5870,8 +6106,13 @@ export type Database = {
       support_tickets: {
         Row: {
           assigned_to: string | null
+          attachments: Json
           category: Database["public"]["Enums"]["support_ticket_category"]
+          channel: Database["public"]["Enums"]["support_channel"]
+          closed_at: string | null
           created_at: string
+          department: string
+          first_response_at: string | null
           id: string
           last_reply_at: string | null
           priority: Database["public"]["Enums"]["support_ticket_priority"]
@@ -5885,8 +6126,13 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          attachments?: Json
           category?: Database["public"]["Enums"]["support_ticket_category"]
+          channel?: Database["public"]["Enums"]["support_channel"]
+          closed_at?: string | null
           created_at?: string
+          department?: string
+          first_response_at?: string | null
           id?: string
           last_reply_at?: string | null
           priority?: Database["public"]["Enums"]["support_ticket_priority"]
@@ -5900,8 +6146,13 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          attachments?: Json
           category?: Database["public"]["Enums"]["support_ticket_category"]
+          channel?: Database["public"]["Enums"]["support_channel"]
+          closed_at?: string | null
           created_at?: string
+          department?: string
+          first_response_at?: string | null
           id?: string
           last_reply_at?: string | null
           priority?: Database["public"]["Enums"]["support_ticket_priority"]
@@ -6697,6 +6948,8 @@ export type Database = {
       supplier_feed_run_status: "running" | "success" | "failed"
       supplier_feed_schedule: "manual" | "hourly" | "six_hourly" | "daily"
       supplier_match_key: "sku" | "barcode" | "external_id"
+      support_author_role: "customer" | "store" | "platform" | "system"
+      support_channel: "ticket" | "chat" | "email"
       support_ticket_category:
         | "billing"
         | "technical"
@@ -7045,6 +7298,8 @@ export const Constants = {
       supplier_feed_run_status: ["running", "success", "failed"],
       supplier_feed_schedule: ["manual", "hourly", "six_hourly", "daily"],
       supplier_match_key: ["sku", "barcode", "external_id"],
+      support_author_role: ["customer", "store", "platform", "system"],
+      support_channel: ["ticket", "chat", "email"],
       support_ticket_category: [
         "billing",
         "technical",
