@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { authenticateApiKey, logApiRequest, type AuthedApiKey } from "@/lib/api-keys.server";
@@ -232,12 +233,13 @@ export async function handleApiRequest(request: Request, splat: string): Promise
     return finish(json({ error: "insufficient_scope", required: needed }, 403), "insufficient_scope");
   }
 
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const admin = (await import("@/integrations/supabase/client.server"))
+    .supabaseAdmin as unknown as SupabaseClient;
 
   try {
     if (method === "GET") {
       if (resourceName === "store") {
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await admin
           .from("stores")
           .select(resource.select)
           .eq("id", auth.storeId)
@@ -247,7 +249,7 @@ export async function handleApiRequest(request: Request, splat: string): Promise
       }
 
       if (resourceId) {
-        const query = supabaseAdmin
+        const query = admin
           .from(resource.table)
           .select(resource.select)
           .eq("id", resourceId);
@@ -262,7 +264,7 @@ export async function handleApiRequest(request: Request, splat: string): Promise
       if (!parsed.success) return finish(json({ error: "invalid_query" }, 400));
       const { limit, offset, status, q } = parsed.data;
 
-      let query = supabaseAdmin
+      let query = admin
         .from(resource.table)
         .select(resource.select, { count: "exact" })
         .eq("store_id", auth.storeId)
@@ -291,9 +293,9 @@ export async function handleApiRequest(request: Request, splat: string): Promise
 
     if (method === "POST") {
       if (resourceName === "inventory") return finish(json({ error: "method_not_allowed" }, 405));
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await admin
         .from(resource.table)
-        .insert({ ...patch, store_id: auth.storeId } as never)
+        .insert({ ...patch, store_id: auth.storeId })
         .select(resource.select)
         .single();
       if (error) throw new Error(error.message);
@@ -302,7 +304,7 @@ export async function handleApiRequest(request: Request, splat: string): Promise
 
     if (!resourceId) return finish(json({ error: "missing_resource_id" }, 400));
 
-    const base = supabaseAdmin.from(resource.table).update(patch as never).eq("id", resourceId);
+    const base = admin.from(resource.table).update(patch).eq("id", resourceId);
     const scoped = resource.table === "product_variants" ? base : base.eq("store_id", auth.storeId);
     const { data, error } = await scoped.select(resource.select).maybeSingle();
     if (error) throw new Error(error.message);
