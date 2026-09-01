@@ -45,7 +45,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/channels")(
   head: () => {
     const title = "Pazaryeri Kanalları — Mefticaret";
     const description =
-      "Trendyol, Hepsiburada, n11 ve Google Shopping kanallarını bağla; ürünlerini tek panelden listeye al ve senkronize et.";
+      "Trendyol, Hepsiburada, n11, Amazon, Etsy, Shopify, WooCommerce ve 20+ pazaryeri kanalını bağımsız connector modülleriyle bağla; ürün, fiyat, stok ve siparişleri tek panelden yönet.";
     return {
       meta: [
         { title },
