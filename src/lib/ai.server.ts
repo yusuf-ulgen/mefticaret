@@ -199,7 +199,8 @@ export async function callProvider(options: {
   maxTokens?: number;
 }): Promise<ProviderResult> {
   const temperature = Math.min(Math.max(options.temperature ?? 0.7, 0), 1);
-  const maxTokens = options.maxTokens ?? 900;
+  // Düşünme adımı olan modeller çıktı öncesi token harcadığı için taban değer yüksek tutulur.
+  const maxTokens = Math.max(options.maxTokens ?? 900, 1500);
   switch (options.providerCode) {
     case "openai":
       return callOpenAi(options.model, options.messages, temperature, maxTokens);
