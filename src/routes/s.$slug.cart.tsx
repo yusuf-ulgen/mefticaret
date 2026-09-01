@@ -1,16 +1,19 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 import { getAbandonedCartByToken } from "@/lib/abandoned.functions";
 import { setCartToken } from "@/lib/cart-token";
+import { estimatedDeliveryLabel, getCartPrefs, setCartPrefs } from "@/lib/cart-prefs";
+import { previewCheckoutDiscount } from "@/lib/checkout.functions";
 
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
 import { formatMoney } from "@/lib/mefti";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
+
 
 const cartSearchSchema = z.object({
   recover: z.string().trim().min(16).max(128).optional(),
@@ -48,6 +51,17 @@ function CartPage() {
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   const cart = useCart();
   const restored = useRef<string | null>(null);
+  const options = useQuery(checkoutOptionsQuery(slug));
+
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; label: string; discountTotal: number; freeShipping: boolean } | null>(
+    null,
+  );
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [shippingRateId, setShippingRateId] = useState("");
+  const prefsLoaded = useRef(false);
+
 
   // Kurtarma linki: panelden gönderilen token ile sepet satırlarını geri yükle.
   useEffect(() => {
@@ -79,25 +93,86 @@ function CartPage() {
       cancelled = true;
     };
   }, [recover, slug, cart]);
+  // Kupon / kargo tercihlerini tarayıcıdan geri yükle (kasa ile paylaşılır).
+  useEffect(() => {
+    if (prefsLoaded.current) return;
+    prefsLoaded.current = true;
+    const prefs = getCartPrefs(slug);
+    if (prefs.couponCode) setCouponInput(prefs.couponCode);
+    if (prefs.shippingRateId) setShippingRateId(prefs.shippingRateId);
+  }, [slug]);
 
   if (!data) return null;
   const { store, theme } = data;
   const { t, fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
   const lines = cart.linesFor(slug);
   const subtotal = cart.subtotalFor(slug);
+  const currency = store.currency;
+
+  const rates = options.data?.shippingRates ?? [];
+  const settings = options.data?.settings ?? null;
 
   // Ücretsiz kargo eşiği: aktif kargo tarifelerindeki en düşük "free_over" değeri.
-  const options = useQuery(checkoutOptionsQuery(slug));
   const freeShippingThreshold = (() => {
-    const values = (options.data?.shippingRates ?? [])
-      .map((rate) => Number(rate.free_over ?? 0))
-      .filter((value) => value > 0);
+    const values = rates.map((rate) => Number(rate.free_over ?? 0)).filter((value) => value > 0);
     return values.length ? Math.min(...values) : null;
   })();
   const freeShippingRemaining = freeShippingThreshold ? Math.max(0, freeShippingThreshold - subtotal) : 0;
   const freeShippingProgress = freeShippingThreshold
     ? Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100))
     : 0;
+
+  // Tutarlar: indirim -> kargo -> vergi -> genel toplam (kasada sunucuda tekrar doğrulanır).
+  const discountTotal = Math.min(subtotal, coupon?.discountTotal ?? 0);
+  const selectedRate = rates.find((rate) => rate.id === shippingRateId) ?? null;
+  const shippingTotal = (() => {
+    if (!selectedRate) return 0;
+    if (coupon?.freeShipping) return 0;
+    if (selectedRate.free_over !== null && subtotal - discountTotal >= Number(selectedRate.free_over)) return 0;
+    return Number(selectedRate.price);
+  })();
+  const taxRate = Number(settings?.default_tax_rate ?? 0);
+  const taxIncluded = Boolean(settings?.tax_included_prices);
+  const taxable = Math.max(0, subtotal - discountTotal);
+  const taxTotal = taxIncluded ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
+  const grandTotal = Number((taxable + shippingTotal + taxTotal).toFixed(2));
+  const deliveryLabel = estimatedDeliveryLabel(selectedRate?.eta_days ?? null);
+
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    setCouponError(null);
+    try {
+      const preview = await previewCheckoutDiscount({ data: { slug, code, subtotal } });
+      setCoupon({
+        code: preview.code,
+        label: preview.label,
+        discountTotal: preview.discountTotal,
+        freeShipping: preview.freeShipping,
+      });
+      setCartPrefs(slug, { couponCode: preview.code });
+    } catch (error) {
+      setCoupon(null);
+      setCouponError(error instanceof Error ? error.message : "Kupon uygulanamadı");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const clearCoupon = () => {
+    setCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+    setCartPrefs(slug, { couponCode: "" });
+  };
+
+  const chooseRate = (id: string) => {
+    setShippingRateId(id);
+    setCartPrefs(slug, { shippingRateId: id });
+  };
+
+
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
@@ -188,15 +263,137 @@ function CartPage() {
             }}
           >
             <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 12px" }}>Özet</h2>
-            <Row label="Ara toplam" value={formatMoney(subtotal, store.currency)} muted={muted} />
+
+            {/* Kupon */}
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontSize: 12.5, color: muted, display: "block", marginBottom: 6 }}>İndirim kuponu</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  value={couponInput}
+                  onChange={(event) => setCouponInput(event.target.value)}
+                  placeholder="KUPONKODU"
+                  disabled={Boolean(coupon)}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    padding: "9px 10px",
+                    border: `1px solid ${border}`,
+                    borderRadius: radius,
+                    background: "transparent",
+                    color: "inherit",
+                    fontSize: 13,
+                    textTransform: "uppercase",
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={coupon ? clearCoupon : () => void applyCoupon()}
+                  disabled={couponLoading || (!coupon && !couponInput.trim())}
+                  style={{
+                    border: `1px solid ${border}`,
+                    background: coupon ? "transparent" : t.accent_color,
+                    color: coupon ? "inherit" : "#12181f",
+                    borderRadius: radius,
+                    padding: "9px 12px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: couponLoading ? "wait" : "pointer",
+                  }}
+                >
+                  {couponLoading ? "..." : coupon ? "Kaldır" : "Uygula"}
+                </button>
+              </div>
+              {coupon ? (
+                <p style={{ fontSize: 12, margin: "6px 0 0", color: t.accent_color }}>
+                  {coupon.code} · {coupon.label}
+                </p>
+              ) : null}
+              {couponError ? <p style={{ fontSize: 12, margin: "6px 0 0", color: "#e5484d" }}>{couponError}</p> : null}
+            </div>
+
+            {/* Kargo seçimi */}
+            {rates.length ? (
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 12.5, color: muted, display: "block", marginBottom: 6 }}>Kargo yöntemi</span>
+                <div style={{ display: "grid", gap: 6 }}>
+                  {rates.map((rate) => {
+                    const active = shippingRateId === rate.id;
+                    const eta = estimatedDeliveryLabel(rate.eta_days);
+                    return (
+                      <button
+                        key={rate.id}
+                        type="button"
+                        onClick={() => chooseRate(rate.id)}
+                        style={{
+                          textAlign: "left",
+                          border: `1px solid ${active ? t.accent_color : border}`,
+                          background: "transparent",
+                          color: "inherit",
+                          borderRadius: radius,
+                          padding: "9px 11px",
+                          cursor: "pointer",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: 8,
+                          fontSize: 13,
+                        }}
+                      >
+                        <span>
+                          {rate.title}
+                          {eta ? <span style={{ display: "block", color: muted, fontSize: 11.5 }}>{eta}</span> : null}
+                        </span>
+                        <span style={{ fontWeight: 600 }}>
+                          {Number(rate.price) === 0 ? "Ücretsiz" : formatMoney(Number(rate.price), currency)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
+            <Row label="Ara toplam" value={formatMoney(subtotal, currency)} muted={muted} />
+            {discountTotal > 0 ? (
+              <Row label="İndirim" value={`- ${formatMoney(discountTotal, currency)}`} muted={muted} />
+            ) : null}
+            <Row
+              label="Kargo"
+              value={
+                selectedRate
+                  ? shippingTotal === 0
+                    ? "Ücretsiz"
+                    : formatMoney(shippingTotal, currency)
+                  : "Yöntem seçin"
+              }
+              muted={muted}
+            />
+            <Row
+              label={taxIncluded ? `Vergi (fiyatlara dahil, %${taxRate})` : `Vergi (%${taxRate})`}
+              value={taxIncluded ? "Dahil" : formatMoney(taxTotal, currency)}
+              muted={muted}
+            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                borderTop: `1px solid ${border}`,
+                marginTop: 8,
+                paddingTop: 10,
+                fontSize: 16,
+                fontWeight: 700,
+              }}
+            >
+              <span>Genel toplam</span>
+              <span>{formatMoney(grandTotal, currency)}</span>
+            </div>
             <p style={{ fontSize: 12, color: muted, marginTop: 8 }}>
-              Kargo ve vergi kasada hesaplanır.
+              {deliveryLabel ? `Tahmini teslimat: ${deliveryLabel}` : "Tahmini teslimat için kargo yöntemi seçin."}
             </p>
             {freeShippingThreshold ? (
               <div style={{ marginTop: 14 }}>
                 <p style={{ fontSize: 12.5, margin: 0 }}>
                   {freeShippingRemaining > 0
-                    ? `Ücretsiz kargoya ${formatMoney(freeShippingRemaining, store.currency)} kaldı`
+                    ? `Ücretsiz kargoya ${formatMoney(freeShippingRemaining, currency)} kaldı`
                     : "Ücretsiz kargo kazandın 🎉"}
                 </p>
                 <div
@@ -219,6 +416,7 @@ function CartPage() {
                 </div>
               </div>
             ) : null}
+
             <Link
               to="/s/$slug/checkout"
               params={{ slug }}

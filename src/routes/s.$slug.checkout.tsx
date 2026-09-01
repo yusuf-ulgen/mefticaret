@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { markCartRecovered, syncAbandonedCart } from "@/lib/abandoned.functions";
 import { useCart } from "@/lib/cart";
+import { getCartPrefs } from "@/lib/cart-prefs";
 import { getCartToken } from "@/lib/cart-token";
 import { placeOrder, previewCheckoutDiscount } from "@/lib/checkout.functions";
 import { formatMoney } from "@/lib/mefti";
@@ -64,9 +65,20 @@ function CheckoutPage() {
   const [shippingRateId, setShippingRateId] = useState<string>("");
   const [paymentMethodId, setPaymentMethodId] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const prefsLoaded = useRef(false);
+
+  // Sepette seçilen kupon ve kargo yöntemini kasaya taşı.
+  useEffect(() => {
+    if (prefsLoaded.current) return;
+    prefsLoaded.current = true;
+    const prefs = getCartPrefs(slug);
+    if (prefs.couponCode) setDiscountCode(prefs.couponCode);
+    if (prefs.shippingRateId) setShippingRateId(prefs.shippingRateId);
+  }, [slug]);
 
   const lines = cart.linesFor(slug);
   const subtotal = cart.subtotalFor(slug);
+
 
   // Kasada e-posta giren ziyaretçinin sepetini iletişim bilgisiyle eşle (terk edilmiş sepet takibi)
   useEffect(() => {
