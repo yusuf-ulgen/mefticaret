@@ -69,3 +69,29 @@ export const productImagesQuery = (productId: string) =>
     },
     staleTime: 30_000,
   });
+
+/**
+ * Mağaza logosunu yükler ve vitrinde kullanılabilecek uzun ömürlü adres döner.
+ * Depo özel olduğu için imzalı adres uzun süreli (10 yıl) üretilir.
+ */
+export async function uploadStoreLogo(storeId: string, file: File) {
+  if (!ALLOWED.includes(file.type) && file.type !== "image/svg+xml") {
+    throw new Error("Yalnızca JPG, PNG, WEBP, AVIF, GIF veya SVG yükleyebilirsiniz.");
+  }
+  if (file.size > 5 * 1024 * 1024) throw new Error("Logo en fazla 5 MB olabilir.");
+
+  const extension = (file.name.split(".").pop() ?? "png").toLowerCase().slice(0, 5);
+  const path = `${storeId}/branding/logo-${crypto.randomUUID()}.${extension}`;
+  const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, {
+    cacheControl: "31536000",
+    contentType: file.type,
+    upsert: false,
+  });
+  if (error) throw new Error(error.message);
+
+  const { data, error: signError } = await supabase.storage
+    .from(MEDIA_BUCKET)
+    .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+  if (signError || !data?.signedUrl) throw new Error(signError?.message ?? "Logo adresi üretilemedi");
+  return data.signedUrl;
+}
