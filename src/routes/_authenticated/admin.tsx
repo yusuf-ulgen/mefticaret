@@ -392,7 +392,7 @@ function AdminPage() {
             <p className="text-sm text-muted-foreground">
               Paket fiyatları, komisyon oranı ve kiracı limitleri buradan yönetilir.
             </p>
-            <Button size="sm" onClick={() => setDraft(toDraft())}>
+            <Button size="sm" onClick={() => openPlan()}>
               <Plus className="size-4" /> Yeni paket
             </Button>
           </div>
@@ -401,7 +401,7 @@ function AdminPage() {
               <button
                 key={plan.id}
                 type="button"
-                onClick={() => setDraft(toDraft(plan))}
+                onClick={() => openPlan(plan)}
                 className="surface-card p-5 text-left transition hover:border-primary/50"
               >
                 <div className="flex items-center justify-between gap-2">
@@ -413,11 +413,22 @@ function AdminPage() {
                 <p className="mt-1 text-xs text-muted-foreground">{plan.code}</p>
                 <p className="mt-3 text-sm">
                   {formatMoney(Number(plan.price_monthly), plan.currency)} / ay ·{" "}
+                  {formatMoney(Number(plan.price_yearly), plan.currency)} / yıl ·{" "}
                   {(Number(plan.commission_rate) * 100).toFixed(2)}% komisyon
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {Object.keys(plan.limits ?? {}).length} limit tanımı · {plan.trial_days} gün deneme
+                  {featuresByPlan(plan.id).length} limit tanımı · {plan.trial_days} gün deneme
                 </p>
+                <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+                  {featuresByPlan(plan.id)
+                    .slice(0, 4)
+                    .map((feature) => (
+                      <li key={feature.id}>
+                        {feature.label}: {limitLabel(feature.limit_value)}
+                        {feature.unit ? ` ${feature.unit}` : ""}
+                      </li>
+                    ))}
+                </ul>
               </button>
             ))}
           </div>
