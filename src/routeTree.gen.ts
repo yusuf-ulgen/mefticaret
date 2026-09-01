@@ -33,6 +33,7 @@ import { Route as AuthenticatedAdminSecurityRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin.sellers'
 import { Route as AuthenticatedAdminStoresRouteImport } from './routes/_authenticated/admin.stores'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
+import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
 import { Route as AuthenticatedAdminThemesRouteImport } from './routes/_authenticated/admin.themes'
 import { Route as AuthenticatedAdminTicketsRouteImport } from './routes/_authenticated/admin.tickets'
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin.transactions'
@@ -294,6 +295,12 @@ const AuthenticatedAdminSubscriptionsRoute =
   AuthenticatedAdminSubscriptionsRouteImport.update({
     id: '/subscriptions',
     path: '/subscriptions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSupportRoute =
+  AuthenticatedAdminSupportRouteImport.update({
+    id: '/support',
+    path: '/support',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminThemesRoute =
@@ -1086,6 +1093,7 @@ export interface FileRoutesByFullPath {
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/themes': typeof AuthenticatedAdminThemesRoute
   '/admin/tickets': typeof AuthenticatedAdminTicketsRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
@@ -1243,6 +1251,7 @@ export interface FileRoutesByTo {
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/themes': typeof AuthenticatedAdminThemesRoute
   '/admin/tickets': typeof AuthenticatedAdminTicketsRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
@@ -1403,6 +1412,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/_authenticated/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
   '/_authenticated/admin/themes': typeof AuthenticatedAdminThemesRoute
   '/_authenticated/admin/tickets': typeof AuthenticatedAdminTicketsRoute
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
@@ -1563,6 +1573,7 @@ export interface FileRouteTypes {
     | '/admin/sellers'
     | '/admin/stores'
     | '/admin/subscriptions'
+    | '/admin/support'
     | '/admin/themes'
     | '/admin/tickets'
     | '/admin/transactions'
@@ -1720,6 +1731,7 @@ export interface FileRouteTypes {
     | '/admin/sellers'
     | '/admin/stores'
     | '/admin/subscriptions'
+    | '/admin/support'
     | '/admin/themes'
     | '/admin/tickets'
     | '/admin/transactions'
@@ -1879,6 +1891,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sellers'
     | '/_authenticated/admin/stores'
     | '/_authenticated/admin/subscriptions'
+    | '/_authenticated/admin/support'
     | '/_authenticated/admin/themes'
     | '/_authenticated/admin/tickets'
     | '/_authenticated/admin/transactions'
@@ -2224,6 +2237,13 @@ declare module '@tanstack/react-router' {
       path: '/subscriptions'
       fullPath: '/admin/subscriptions'
       preLoaderRoute: typeof AuthenticatedAdminSubscriptionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/support': {
+      id: '/_authenticated/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/themes': {
@@ -3177,6 +3197,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSellersRoute: typeof AuthenticatedAdminSellersRoute
   AuthenticatedAdminStoresRoute: typeof AuthenticatedAdminStoresRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
+  AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
   AuthenticatedAdminThemesRoute: typeof AuthenticatedAdminThemesRoute
   AuthenticatedAdminTicketsRoute: typeof AuthenticatedAdminTicketsRoute
   AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
@@ -3202,6 +3223,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSellersRoute: AuthenticatedAdminSellersRoute,
   AuthenticatedAdminStoresRoute: AuthenticatedAdminStoresRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
+  AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
   AuthenticatedAdminThemesRoute: AuthenticatedAdminThemesRoute,
   AuthenticatedAdminTicketsRoute: AuthenticatedAdminTicketsRoute,
   AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
