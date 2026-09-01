@@ -14,7 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
+import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
 import { Route as SSlugAboutRouteImport } from './routes/s.$slug.about'
 import { Route as SSlugAccountRouteImport } from './routes/s.$slug.account'
@@ -89,6 +91,7 @@ import { Route as AuthenticatedStoreStoreIdReturnsAnalyticsRouteImport } from '.
 import { Route as AuthenticatedStoreStoreIdReviewImpactRouteImport } from './routes/_authenticated/store.$storeId.review-impact'
 import { Route as AuthenticatedStoreStoreIdReviewsRouteImport } from './routes/_authenticated/store.$storeId.reviews'
 import { Route as AuthenticatedStoreStoreIdSegmentsRouteImport } from './routes/_authenticated/store.$storeId.segments'
+import { Route as AuthenticatedStoreStoreIdSellersRouteImport } from './routes/_authenticated/store.$storeId.sellers'
 import { Route as AuthenticatedStoreStoreIdSeoRouteImport } from './routes/_authenticated/store.$storeId.seo'
 import { Route as AuthenticatedStoreStoreIdSettingsRouteImport } from './routes/_authenticated/store.$storeId.settings'
 import { Route as AuthenticatedStoreStoreIdShipmentsRouteImport } from './routes/_authenticated/store.$storeId.shipments'
@@ -148,11 +151,22 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSellersRoute = AuthenticatedSellersRouteImport.update({
+  id: '/sellers',
+  path: '/sellers',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStoresRoute = AuthenticatedStoresRouteImport.update({
   id: '/stores',
   path: '/stores',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSellerSellerIdRoute =
+  AuthenticatedSellerSellerIdRouteImport.update({
+    id: '/seller/$sellerId',
+    path: '/seller/$sellerId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const SSlugIndexRoute = SSlugIndexRouteImport.update({
   id: '/s/$slug/',
   path: '/s/$slug/',
@@ -575,6 +589,12 @@ const AuthenticatedStoreStoreIdSegmentsRoute =
     path: '/store/$storeId/segments',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdSellersRoute =
+  AuthenticatedStoreStoreIdSellersRouteImport.update({
+    id: '/store/$storeId/sellers',
+    path: '/store/$storeId/sellers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdSeoRoute =
   AuthenticatedStoreStoreIdSeoRouteImport.update({
     id: '/store/$storeId/seo',
@@ -780,7 +800,9 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -855,6 +877,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/review-impact': typeof AuthenticatedStoreStoreIdReviewImpactRoute
   '/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
   '/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
+  '/store/$storeId/sellers': typeof AuthenticatedStoreStoreIdSellersRoute
   '/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
@@ -895,7 +918,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -970,6 +995,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/review-impact': typeof AuthenticatedStoreStoreIdReviewImpactRoute
   '/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
   '/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
+  '/store/$storeId/sellers': typeof AuthenticatedStoreStoreIdSellersRoute
   '/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
@@ -1012,7 +1038,9 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
+  '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -1087,6 +1115,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/review-impact': typeof AuthenticatedStoreStoreIdReviewImpactRoute
   '/_authenticated/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
   '/_authenticated/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
+  '/_authenticated/store/$storeId/sellers': typeof AuthenticatedStoreStoreIdSellersRoute
   '/_authenticated/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/_authenticated/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/_authenticated/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
@@ -1129,7 +1158,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin'
     | '/onboarding'
+    | '/sellers'
     | '/stores'
+    | '/seller/$sellerId'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -1204,6 +1235,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/review-impact'
     | '/store/$storeId/reviews'
     | '/store/$storeId/segments'
+    | '/store/$storeId/sellers'
     | '/store/$storeId/seo'
     | '/store/$storeId/settings'
     | '/store/$storeId/shipments'
@@ -1244,7 +1276,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin'
     | '/onboarding'
+    | '/sellers'
     | '/stores'
+    | '/seller/$sellerId'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -1319,6 +1353,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/review-impact'
     | '/store/$storeId/reviews'
     | '/store/$storeId/segments'
+    | '/store/$storeId/sellers'
     | '/store/$storeId/seo'
     | '/store/$storeId/settings'
     | '/store/$storeId/shipments'
@@ -1360,7 +1395,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/admin'
     | '/_authenticated/onboarding'
+    | '/_authenticated/sellers'
     | '/_authenticated/stores'
+    | '/_authenticated/seller/$sellerId'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -1435,6 +1472,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/review-impact'
     | '/_authenticated/store/$storeId/reviews'
     | '/_authenticated/store/$storeId/segments'
+    | '/_authenticated/store/$storeId/sellers'
     | '/_authenticated/store/$storeId/seo'
     | '/_authenticated/store/$storeId/settings'
     | '/_authenticated/store/$storeId/shipments'
@@ -1542,11 +1580,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/sellers': {
+      id: '/_authenticated/sellers'
+      path: '/sellers'
+      fullPath: '/sellers'
+      preLoaderRoute: typeof AuthenticatedSellersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/stores': {
       id: '/_authenticated/stores'
       path: '/stores'
       fullPath: '/stores'
       preLoaderRoute: typeof AuthenticatedStoresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/seller/$sellerId': {
+      id: '/_authenticated/seller/$sellerId'
+      path: '/seller/$sellerId'
+      fullPath: '/seller/$sellerId'
+      preLoaderRoute: typeof AuthenticatedSellerSellerIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/s/$slug/': {
@@ -2067,6 +2119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSegmentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/sellers': {
+      id: '/_authenticated/store/$storeId/sellers'
+      path: '/store/$storeId/sellers'
+      fullPath: '/store/$storeId/sellers'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSellersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/seo': {
       id: '/_authenticated/store/$storeId/seo'
       path: '/store/$storeId/seo'
@@ -2359,7 +2418,9 @@ const AuthenticatedStoreStoreIdProductsRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
+  AuthenticatedSellerSellerIdRoute: typeof AuthenticatedSellerSellerIdRoute
   AuthenticatedStoreStoreIdAbcRoute: typeof AuthenticatedStoreStoreIdAbcRoute
   AuthenticatedStoreStoreIdActivityRoute: typeof AuthenticatedStoreStoreIdActivityRoute
   AuthenticatedStoreStoreIdAgingRoute: typeof AuthenticatedStoreStoreIdAgingRoute
@@ -2412,6 +2473,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdReviewImpactRoute: typeof AuthenticatedStoreStoreIdReviewImpactRoute
   AuthenticatedStoreStoreIdReviewsRoute: typeof AuthenticatedStoreStoreIdReviewsRoute
   AuthenticatedStoreStoreIdSegmentsRoute: typeof AuthenticatedStoreStoreIdSegmentsRoute
+  AuthenticatedStoreStoreIdSellersRoute: typeof AuthenticatedStoreStoreIdSellersRoute
   AuthenticatedStoreStoreIdSeoRoute: typeof AuthenticatedStoreStoreIdSeoRoute
   AuthenticatedStoreStoreIdSettingsRoute: typeof AuthenticatedStoreStoreIdSettingsRoute
   AuthenticatedStoreStoreIdShipmentsRoute: typeof AuthenticatedStoreStoreIdShipmentsRoute
@@ -2441,7 +2503,9 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,
+  AuthenticatedSellerSellerIdRoute: AuthenticatedSellerSellerIdRoute,
   AuthenticatedStoreStoreIdAbcRoute: AuthenticatedStoreStoreIdAbcRoute,
   AuthenticatedStoreStoreIdActivityRoute:
     AuthenticatedStoreStoreIdActivityRoute,
@@ -2524,6 +2588,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdReviewsRoute: AuthenticatedStoreStoreIdReviewsRoute,
   AuthenticatedStoreStoreIdSegmentsRoute:
     AuthenticatedStoreStoreIdSegmentsRoute,
+  AuthenticatedStoreStoreIdSellersRoute: AuthenticatedStoreStoreIdSellersRoute,
   AuthenticatedStoreStoreIdSeoRoute: AuthenticatedStoreStoreIdSeoRoute,
   AuthenticatedStoreStoreIdSettingsRoute:
     AuthenticatedStoreStoreIdSettingsRoute,

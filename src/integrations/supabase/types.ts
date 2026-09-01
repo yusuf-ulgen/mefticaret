@@ -890,6 +890,74 @@ export type Database = {
           },
         ]
       }
+      marketplace_sellers: {
+        Row: {
+          about: string | null
+          approved_at: string | null
+          commission_rate: number
+          created_at: string
+          display_name: string
+          email: string | null
+          iban: string | null
+          id: string
+          legal_name: string | null
+          phone: string | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["seller_status"]
+          store_id: string
+          suspended_at: string | null
+          tax_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          about?: string | null
+          approved_at?: string | null
+          commission_rate?: number
+          created_at?: string
+          display_name: string
+          email?: string | null
+          iban?: string | null
+          id?: string
+          legal_name?: string | null
+          phone?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["seller_status"]
+          store_id: string
+          suspended_at?: string | null
+          tax_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          about?: string | null
+          approved_at?: string | null
+          commission_rate?: number
+          created_at?: string
+          display_name?: string
+          email?: string | null
+          iban?: string | null
+          id?: string
+          legal_name?: string | null
+          phone?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["seller_status"]
+          store_id?: string
+          suspended_at?: string | null
+          tax_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_sellers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1602,6 +1670,7 @@ export type Database = {
           id: string
           length_cm: number | null
           product_type: string | null
+          seller_id: string | null
           seller_name: string | null
           seo: Json
           sku: string | null
@@ -1631,6 +1700,7 @@ export type Database = {
           id?: string
           length_cm?: number | null
           product_type?: string | null
+          seller_id?: string | null
           seller_name?: string | null
           seo?: Json
           sku?: string | null
@@ -1660,6 +1730,7 @@ export type Database = {
           id?: string
           length_cm?: number | null
           product_type?: string | null
+          seller_id?: string | null
           seller_name?: string | null
           seo?: Json
           sku?: string | null
@@ -1678,6 +1749,13 @@ export type Database = {
           width_cm?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "products_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_sellers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "products_store_id_fkey"
             columns: ["store_id"]
@@ -1994,6 +2072,66 @@ export type Database = {
           },
           {
             foreignKeyName: "return_requests_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_payout_requests: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          created_at: string
+          currency: string
+          iban: string | null
+          id: string
+          note: string | null
+          processed_at: string | null
+          seller_id: string
+          status: Database["public"]["Enums"]["payout_status"]
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          created_at?: string
+          currency?: string
+          iban?: string | null
+          id?: string
+          note?: string | null
+          processed_at?: string | null
+          seller_id: string
+          status?: Database["public"]["Enums"]["payout_status"]
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          iban?: string | null
+          id?: string
+          note?: string | null
+          processed_at?: string | null
+          seller_id?: string
+          status?: Database["public"]["Enums"]["payout_status"]
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_payout_requests_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_sellers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_payout_requests_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -3346,6 +3484,7 @@ export type Database = {
         | "refunded"
         | "cancelled"
       review_status: "pending" | "published" | "rejected"
+      seller_status: "pending" | "approved" | "rejected" | "suspended"
       shipment_status:
         | "pending"
         | "in_transit"
@@ -3572,6 +3711,7 @@ export const Constants = {
         "cancelled",
       ],
       review_status: ["pending", "published", "rejected"],
+      seller_status: ["pending", "approved", "rejected", "suspended"],
       shipment_status: [
         "pending",
         "in_transit",

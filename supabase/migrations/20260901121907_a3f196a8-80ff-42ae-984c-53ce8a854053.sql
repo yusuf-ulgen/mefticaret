@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.guard_seller_admin_fields() FROM anon, authenticated, public;
