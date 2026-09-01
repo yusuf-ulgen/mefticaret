@@ -53,12 +53,4 @@ export const WEBHOOK_EVENT_GROUPS: { label: string; events: WebhookEvent[] }[] =
 /** Başarısız gönderimler için üstel geri çekilme (dakika). */
 export const WEBHOOK_RETRY_BACKOFF_MINUTES = [1, 5, 15, 60, 360];
 
-export const NOTIFICATION_KIND_LABELS: Record<string, string> = {
-  order: "Sipariş",
-  inventory: "Stok",
-  payout: "Hakediş",
-  review: "Yorum",
-  question: "Soru",
-  system: "Sistem",
-  abandoned_cart: "Terk sepet",
-};
+export { NOTIFICATION_KIND_LABELS } from "@/lib/notifications";
