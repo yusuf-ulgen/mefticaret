@@ -31,6 +31,7 @@ import { Route as SSlugLoginRouteImport } from './routes/s.$slug.login'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
 import { Route as SSlugPrivacyRouteImport } from './routes/s.$slug.privacy'
 import { Route as SSlugProductsRouteImport } from './routes/s.$slug.products'
+import { Route as SSlugRegisterRouteImport } from './routes/s.$slug.register'
 import { Route as SSlugReturnsRouteImport } from './routes/s.$slug.returns'
 import { Route as SSlugSearchRouteImport } from './routes/s.$slug.search'
 import { Route as SSlugTermsRouteImport } from './routes/s.$slug.terms'
@@ -225,6 +226,11 @@ const SSlugPrivacyRoute = SSlugPrivacyRouteImport.update({
 const SSlugProductsRoute = SSlugProductsRouteImport.update({
   id: '/s/$slug/products',
   path: '/s/$slug/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugRegisterRoute = SSlugRegisterRouteImport.update({
+  id: '/s/$slug/register',
+  path: '/s/$slug/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugReturnsRoute = SSlugReturnsRouteImport.update({
@@ -757,6 +763,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
+  '/s/$slug/register': typeof SSlugRegisterRoute
   '/s/$slug/returns': typeof SSlugReturnsRoute
   '/s/$slug/search': typeof SSlugSearchRoute
   '/s/$slug/terms': typeof SSlugTermsRoute
@@ -866,6 +873,7 @@ export interface FileRoutesByTo {
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
+  '/s/$slug/register': typeof SSlugRegisterRoute
   '/s/$slug/returns': typeof SSlugReturnsRoute
   '/s/$slug/search': typeof SSlugSearchRoute
   '/s/$slug/terms': typeof SSlugTermsRoute
@@ -977,6 +985,7 @@ export interface FileRoutesById {
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
+  '/s/$slug/register': typeof SSlugRegisterRoute
   '/s/$slug/returns': typeof SSlugReturnsRoute
   '/s/$slug/search': typeof SSlugSearchRoute
   '/s/$slug/terms': typeof SSlugTermsRoute
@@ -1088,6 +1097,7 @@ export interface FileRouteTypes {
     | '/s/$slug/order'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
+    | '/s/$slug/register'
     | '/s/$slug/returns'
     | '/s/$slug/search'
     | '/s/$slug/terms'
@@ -1197,6 +1207,7 @@ export interface FileRouteTypes {
     | '/s/$slug/order'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
+    | '/s/$slug/register'
     | '/s/$slug/returns'
     | '/s/$slug/search'
     | '/s/$slug/terms'
@@ -1307,6 +1318,7 @@ export interface FileRouteTypes {
     | '/s/$slug/order'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
+    | '/s/$slug/register'
     | '/s/$slug/returns'
     | '/s/$slug/search'
     | '/s/$slug/terms'
@@ -1415,6 +1427,7 @@ export interface RootRouteChildren {
   SSlugOrderRoute: typeof SSlugOrderRoute
   SSlugPrivacyRoute: typeof SSlugPrivacyRoute
   SSlugProductsRoute: typeof SSlugProductsRoute
+  SSlugRegisterRoute: typeof SSlugRegisterRoute
   SSlugReturnsRoute: typeof SSlugReturnsRoute
   SSlugSearchRoute: typeof SSlugSearchRoute
   SSlugTermsRoute: typeof SSlugTermsRoute
@@ -1581,6 +1594,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug/products'
       fullPath: '/s/$slug/products'
       preLoaderRoute: typeof SSlugProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/register': {
+      id: '/s/$slug/register'
+      path: '/s/$slug/register'
+      fullPath: '/s/$slug/register'
+      preLoaderRoute: typeof SSlugRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/returns': {
@@ -2460,6 +2480,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugOrderRoute: SSlugOrderRoute,
   SSlugPrivacyRoute: SSlugPrivacyRoute,
   SSlugProductsRoute: SSlugProductsRoute,
+  SSlugRegisterRoute: SSlugRegisterRoute,
   SSlugReturnsRoute: SSlugReturnsRoute,
   SSlugSearchRoute: SSlugSearchRoute,
   SSlugTermsRoute: SSlugTermsRoute,
