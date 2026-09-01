@@ -97,7 +97,12 @@ function AnalyticsPage() {
     };
   }, [rows]);
 
-  const series = useMemo(() => buildDailySeries(rows as never[], days), [rows, days]);
+  const series = useMemo(() => buildTrafficSeries(events ?? [], rows, range), [events, rows, range]);
+
+  const traffic = useMemo(
+    () => summarizeEvents(events ?? [], summary.revenue, summary.orders),
+    [events, summary.revenue, summary.orders],
+  );
 
   const statusBreakdown = useMemo(() => {
     const map = new Map<string, number>();
