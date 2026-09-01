@@ -99,6 +99,7 @@ import { Route as AuthenticatedStoreStoreIdGiftLiabilityRouteImport } from './ro
 import { Route as AuthenticatedStoreStoreIdHealthRouteImport } from './routes/_authenticated/store.$storeId.health'
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
+import { Route as AuthenticatedStoreStoreIdJobsRouteImport } from './routes/_authenticated/store.$storeId.jobs'
 import { Route as AuthenticatedStoreStoreIdLedgerRouteImport } from './routes/_authenticated/store.$storeId.ledger'
 import { Route as AuthenticatedStoreStoreIdLifecycleRouteImport } from './routes/_authenticated/store.$storeId.lifecycle'
 import { Route as AuthenticatedStoreStoreIdLocalizationRouteImport } from './routes/_authenticated/store.$storeId.localization'
@@ -158,6 +159,7 @@ import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
+import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
@@ -675,6 +677,12 @@ const AuthenticatedStoreStoreIdInventoryRoute =
     path: '/store/$storeId/inventory',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdJobsRoute =
+  AuthenticatedStoreStoreIdJobsRouteImport.update({
+    id: '/store/$storeId/jobs',
+    path: '/store/$storeId/jobs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdLedgerRoute =
   AuthenticatedStoreStoreIdLedgerRouteImport.update({
     id: '/store/$storeId/ledger',
@@ -1028,6 +1036,12 @@ const ApiPublicCronFeedSyncRoute = ApiPublicCronFeedSyncRouteImport.update({
   path: '/api/public/cron/feed-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronQueueWorkerRoute =
+  ApiPublicCronQueueWorkerRouteImport.update({
+    id: '/api/public/cron/queue-worker',
+    path: '/api/public/cron/queue-worker',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronWebhookRetriesRoute =
   ApiPublicCronWebhookRetriesRouteImport.update({
     id: '/api/public/cron/webhook-retries',
@@ -1200,6 +1214,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
+  '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
   '/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
@@ -1259,6 +1274,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -1364,6 +1380,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
+  '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
   '/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
@@ -1423,6 +1440,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -1531,6 +1549,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
+  '/_authenticated/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/_authenticated/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/_authenticated/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
   '/_authenticated/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
@@ -1590,6 +1609,7 @@ export interface FileRoutesById {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -1698,6 +1718,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inventory'
+    | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
     | '/store/$storeId/lifecycle'
     | '/store/$storeId/localization'
@@ -1757,6 +1778,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/queue-worker'
     | '/api/public/cron/webhook-retries'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -1862,6 +1884,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inventory'
+    | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
     | '/store/$storeId/lifecycle'
     | '/store/$storeId/localization'
@@ -1921,6 +1944,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/queue-worker'
     | '/api/public/cron/webhook-retries'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -2028,6 +2052,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/health'
     | '/_authenticated/store/$storeId/import-export'
     | '/_authenticated/store/$storeId/inventory'
+    | '/_authenticated/store/$storeId/jobs'
     | '/_authenticated/store/$storeId/ledger'
     | '/_authenticated/store/$storeId/lifecycle'
     | '/_authenticated/store/$storeId/localization'
@@ -2087,6 +2112,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/queue-worker'
     | '/api/public/cron/webhook-retries'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -2134,6 +2160,7 @@ export interface RootRouteChildren {
   ApiPublicCronAutomationTickRoute: typeof ApiPublicCronAutomationTickRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
+  ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
@@ -2779,6 +2806,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdInventoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/jobs': {
+      id: '/_authenticated/store/$storeId/jobs'
+      path: '/store/$storeId/jobs'
+      fullPath: '/store/$storeId/jobs'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdJobsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/ledger': {
       id: '/_authenticated/store/$storeId/ledger'
       path: '/store/$storeId/ledger'
@@ -3192,6 +3226,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronFeedSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/queue-worker': {
+      id: '/api/public/cron/queue-worker'
+      path: '/api/public/cron/queue-worker'
+      fullPath: '/api/public/cron/queue-worker'
+      preLoaderRoute: typeof ApiPublicCronQueueWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/webhook-retries': {
       id: '/api/public/cron/webhook-retries'
       path: '/api/public/cron/webhook-retries'
@@ -3446,6 +3487,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdHealthRoute: typeof AuthenticatedStoreStoreIdHealthRoute
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
+  AuthenticatedStoreStoreIdJobsRoute: typeof AuthenticatedStoreStoreIdJobsRoute
   AuthenticatedStoreStoreIdLedgerRoute: typeof AuthenticatedStoreStoreIdLedgerRoute
   AuthenticatedStoreStoreIdLifecycleRoute: typeof AuthenticatedStoreStoreIdLifecycleRoute
   AuthenticatedStoreStoreIdLocalizationRoute: typeof AuthenticatedStoreStoreIdLocalizationRoute
@@ -3564,6 +3606,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdImportExportRoute,
   AuthenticatedStoreStoreIdInventoryRoute:
     AuthenticatedStoreStoreIdInventoryRoute,
+  AuthenticatedStoreStoreIdJobsRoute: AuthenticatedStoreStoreIdJobsRoute,
   AuthenticatedStoreStoreIdLedgerRoute: AuthenticatedStoreStoreIdLedgerRoute,
   AuthenticatedStoreStoreIdLifecycleRoute:
     AuthenticatedStoreStoreIdLifecycleRoute,
@@ -3690,6 +3733,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronAutomationTickRoute: ApiPublicCronAutomationTickRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
+  ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
