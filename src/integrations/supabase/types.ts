@@ -584,6 +584,92 @@ export type Database = {
           },
         ]
       }
+      inventory_levels: {
+        Row: {
+          available: number | null
+          bin_location: string | null
+          created_at: string
+          external_ref: string | null
+          external_source: string | null
+          id: string
+          incoming: number
+          last_synced_at: string | null
+          min_stock: number
+          on_hand: number
+          product_id: string | null
+          reserved: number
+          store_id: string
+          updated_at: string
+          variant_id: string
+          warehouse_id: string
+        }
+        Insert: {
+          available?: number | null
+          bin_location?: string | null
+          created_at?: string
+          external_ref?: string | null
+          external_source?: string | null
+          id?: string
+          incoming?: number
+          last_synced_at?: string | null
+          min_stock?: number
+          on_hand?: number
+          product_id?: string | null
+          reserved?: number
+          store_id: string
+          updated_at?: string
+          variant_id: string
+          warehouse_id: string
+        }
+        Update: {
+          available?: number | null
+          bin_location?: string | null
+          created_at?: string
+          external_ref?: string | null
+          external_source?: string | null
+          id?: string
+          incoming?: number
+          last_synced_at?: string | null
+          min_stock?: number
+          on_hand?: number
+          product_id?: string | null
+          reserved?: number
+          store_id?: string
+          updated_at?: string
+          variant_id?: string
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_levels_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_levels_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_levels_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_levels_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_movements: {
         Row: {
           actor_id: string | null
@@ -596,7 +682,10 @@ export type Database = {
           stock_after: number
           stock_before: number
           store_id: string
+          target_warehouse_id: string | null
+          transfer_id: string | null
           variant_id: string | null
+          warehouse_id: string | null
         }
         Insert: {
           actor_id?: string | null
@@ -609,7 +698,10 @@ export type Database = {
           stock_after?: number
           stock_before?: number
           store_id: string
+          target_warehouse_id?: string | null
+          transfer_id?: string | null
           variant_id?: string | null
+          warehouse_id?: string | null
         }
         Update: {
           actor_id?: string | null
@@ -622,7 +714,10 @@ export type Database = {
           stock_after?: number
           stock_before?: number
           store_id?: string
+          target_warehouse_id?: string | null
+          transfer_id?: string | null
           variant_id?: string | null
+          warehouse_id?: string | null
         }
         Relationships: [
           {
@@ -640,10 +735,31 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "inventory_movements_target_warehouse_id_fkey"
+            columns: ["target_warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_transfer_fk"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "stock_transfers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "inventory_movements_variant_id_fkey"
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
             referencedColumns: ["id"]
           },
         ]
@@ -2138,6 +2254,144 @@ export type Database = {
           },
         ]
       }
+      stock_transfer_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string | null
+          quantity: number
+          received_quantity: number
+          sku: string | null
+          store_id: string
+          title: string
+          transfer_id: string
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          received_quantity?: number
+          sku?: string | null
+          store_id: string
+          title: string
+          transfer_id: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          received_quantity?: number
+          sku?: string | null
+          store_id?: string
+          title?: string
+          transfer_id?: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_transfer_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfer_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfer_items_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "stock_transfers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfer_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_transfers: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          from_warehouse_id: string
+          id: string
+          note: string | null
+          received_at: string | null
+          shipped_at: string | null
+          status: Database["public"]["Enums"]["stock_transfer_status"]
+          store_id: string
+          to_warehouse_id: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          from_warehouse_id: string
+          id?: string
+          note?: string | null
+          received_at?: string | null
+          shipped_at?: string | null
+          status?: Database["public"]["Enums"]["stock_transfer_status"]
+          store_id: string
+          to_warehouse_id: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          from_warehouse_id?: string
+          id?: string
+          note?: string | null
+          received_at?: string | null
+          shipped_at?: string | null
+          status?: Database["public"]["Enums"]["stock_transfer_status"]
+          store_id?: string
+          to_warehouse_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_transfers_from_warehouse_id_fkey"
+            columns: ["from_warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfers_to_warehouse_id_fkey"
+            columns: ["to_warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_daily_stats: {
         Row: {
           abandoned_carts: number
@@ -2844,6 +3098,99 @@ export type Database = {
         }
         Relationships: []
       }
+      warehouses: {
+        Row: {
+          address: string | null
+          allows_fulfillment: boolean
+          city: string | null
+          code: string
+          contact_name: string | null
+          country: string
+          created_at: string
+          district: string | null
+          external_ref: string | null
+          external_source: string | null
+          id: string
+          is_active: boolean
+          is_default: boolean
+          kind: Database["public"]["Enums"]["warehouse_kind"]
+          last_synced_at: string | null
+          name: string
+          note: string | null
+          phone: string | null
+          priority: number
+          store_id: string
+          supplier_id: string | null
+          sync_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          allows_fulfillment?: boolean
+          city?: string | null
+          code: string
+          contact_name?: string | null
+          country?: string
+          created_at?: string
+          district?: string | null
+          external_ref?: string | null
+          external_source?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          kind?: Database["public"]["Enums"]["warehouse_kind"]
+          last_synced_at?: string | null
+          name: string
+          note?: string | null
+          phone?: string | null
+          priority?: number
+          store_id: string
+          supplier_id?: string | null
+          sync_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          allows_fulfillment?: boolean
+          city?: string | null
+          code?: string
+          contact_name?: string | null
+          country?: string
+          created_at?: string
+          district?: string | null
+          external_ref?: string | null
+          external_source?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          kind?: Database["public"]["Enums"]["warehouse_kind"]
+          last_synced_at?: string | null
+          name?: string
+          note?: string | null
+          phone?: string | null
+          priority?: number
+          store_id?: string
+          supplier_id?: string | null
+          sync_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warehouses_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "warehouses_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_deliveries: {
         Row: {
           attempt: number
@@ -2927,6 +3274,10 @@ export type Database = {
         | "sale"
         | "return"
         | "damage"
+        | "transfer_out"
+        | "transfer_in"
+        | "reserve"
+        | "release"
       ledger_direction: "credit" | "debit"
       ledger_entry_kind:
         | "sale"
@@ -2982,8 +3333,15 @@ export type Database = {
         | "delivered"
         | "returned"
         | "cancelled"
+      stock_transfer_status: "draft" | "in_transit" | "received" | "cancelled"
       store_role: "owner" | "admin" | "staff" | "marketing" | "support"
       store_status: "draft" | "active" | "suspended" | "archived"
+      warehouse_kind:
+        | "warehouse"
+        | "branch"
+        | "supplier"
+        | "dropship"
+        | "virtual"
       webhook_delivery_status: "pending" | "success" | "failed"
     }
     CompositeTypes: {
@@ -3131,6 +3489,10 @@ export const Constants = {
         "sale",
         "return",
         "damage",
+        "transfer_out",
+        "transfer_in",
+        "reserve",
+        "release",
       ],
       ledger_direction: ["credit", "debit"],
       ledger_entry_kind: [
@@ -3194,8 +3556,16 @@ export const Constants = {
         "returned",
         "cancelled",
       ],
+      stock_transfer_status: ["draft", "in_transit", "received", "cancelled"],
       store_role: ["owner", "admin", "staff", "marketing", "support"],
       store_status: ["draft", "active", "suspended", "archived"],
+      warehouse_kind: [
+        "warehouse",
+        "branch",
+        "supplier",
+        "dropship",
+        "virtual",
+      ],
       webhook_delivery_status: ["pending", "success", "failed"],
     },
   },
