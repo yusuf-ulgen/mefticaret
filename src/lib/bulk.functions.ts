@@ -72,3 +72,85 @@ export const importProducts = createServerFn({ method: "POST" })
 
     return result;
   });
+
+/* ------------------------------------------------------------------ */
+/* Toplu ürün işlemleri                                               */
+/* ------------------------------------------------------------------ */
+
+const operationSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("status"), status: z.enum(["draft", "active", "archived"]) }),
+  z.object({
+    kind: z.literal("price"),
+    mode: z.enum([
+      "set",
+      "increase_percent",
+      "decrease_percent",
+      "increase_amount",
+      "decrease_amount",
+    ]),
+    value: z.number().min(0).max(9_999_999),
+    target: z.enum(["base", "compare_at", "cost"]).default("base"),
+    applyToVariants: z.boolean().default(true),
+    rounding: z.enum(["none", "integer", "ends_99"]).default("none"),
+  }),
+  z.object({
+    kind: z.literal("stock"),
+    mode: z.enum(["set", "increase", "decrease"]),
+    value: z.number().int().min(0).max(1_000_000),
+  }),
+  z.object({
+    kind: z.literal("tags"),
+    mode: z.enum(["add", "remove", "replace"]),
+    tags: z.array(z.string().trim().min(1).max(40)).max(20),
+  }),
+  z.object({
+    kind: z.literal("collections"),
+    mode: z.enum(["add", "remove", "replace"]),
+    collectionIds: z.array(z.string().uuid()).max(30),
+  }),
+  z.object({
+    kind: z.literal("fields"),
+    vendor: z.string().trim().max(80).optional(),
+    productType: z.string().trim().max(80).optional(),
+    taxRate: z.number().min(0).max(100).optional(),
+    trackInventory: z.boolean().optional(),
+  }),
+  z.object({ kind: z.literal("delete") }),
+]);
+
+export const bulkUpdateProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.string().uuid(),
+        productIds: z.array(z.string().uuid()).min(1).max(500),
+        operation: operationSchema,
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { applyBulkOperation } = await import("@/lib/bulk.server");
+
+    const result = await applyBulkOperation(
+      supabase as never,
+      data.storeId,
+      data.productIds,
+      data.operation as never,
+    );
+
+    await supabase.from("audit_logs").insert({
+      store_id: data.storeId,
+      actor_id: userId,
+      action: `catalog.bulk_${data.operation.kind}`,
+      entity: "products",
+      new_value: {
+        operation: data.operation,
+        requested: data.productIds.length,
+        affected: result.affected,
+      } as never,
+    });
+
+    return result;
+  });

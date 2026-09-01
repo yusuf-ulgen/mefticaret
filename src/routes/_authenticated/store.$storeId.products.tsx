@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Download, Package, Plus, Search } from "lucide-react";
+import { Download, Package, Plus, Search, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { BulkProductActions } from "@/components/bulk-product-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,8 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { productsQuery } from "@/lib/catalog-queries";
-import { createProduct, updateProduct } from "@/lib/catalog.functions";
-import { downloadCsv, toCsv } from "@/lib/csv";
+import { createProduct } from "@/lib/catalog.functions";
+import { PRODUCT_CSV_HEADERS, downloadCsv, toCsv } from "@/lib/csv";
 import { formatMoney, formatNumber } from "@/lib/mefti";
 import { storeQuery } from "@/lib/store-queries";
 
@@ -89,22 +90,6 @@ function ProductsPage() {
 
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
-  const [bulkStatus, setBulkStatus] = useState<"draft" | "active" | "archived">("active");
-
-  const update = useServerFn(updateProduct);
-  const bulkMutation = useMutation({
-    mutationFn: async () => {
-      for (const productId of selected) {
-        await update({ data: { productId, patch: { status: bulkStatus } } });
-      }
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["products", storeId] });
-      toast.success(`${selected.length} ürün güncellendi`);
-      setSelected([]);
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
 
   const rows = useMemo(() => {
     const term = search.trim().toLocaleLowerCase("tr");
@@ -123,17 +108,20 @@ function ProductsPage() {
   const exportCsv = () => {
     const source = selected.length > 0 ? rows.filter((r) => selected.includes(r.id)) : rows;
     const csv = toCsv(
-      ["Ürün", "Slug", "Durum", "Fiyat", "Para birimi", "Varyant", "Stok"],
+      [...PRODUCT_CSV_HEADERS],
       source.map((product) => {
         const variants = product.product_variants ?? [];
         return [
           product.title,
-          product.slug,
-          STATUS_LABELS[product.status] ?? product.status,
+          product.description ?? "",
+          product.sku ?? "",
+          product.vendor ?? "",
+          product.product_type ?? "",
           Number(product.base_price),
-          product.currency,
-          variants.length,
+          product.compare_at_price ?? "",
           variants.reduce((sum, v) => sum + (v.stock ?? 0), 0),
+          product.status,
+          (product.tags ?? []).join(","),
         ];
       }),
     );
@@ -157,7 +145,12 @@ function ProductsPage() {
             />
           </div>
           <Button variant="outline" className="gap-2" onClick={exportCsv} disabled={rows.length === 0}>
-            <Download className="size-4" /> CSV
+            <Download className="size-4" /> CSV indir
+          </Button>
+          <Button variant="outline" className="gap-2" asChild>
+            <Link to="/store/$storeId/import-export" params={{ storeId }}>
+              <Upload className="size-4" /> CSV yükle
+            </Link>
           </Button>
           <Select value={filter} onValueChange={(value) => setFilter(value as typeof filter)}>
             <SelectTrigger className="w-36">
@@ -244,25 +237,12 @@ function ProductsPage() {
       }
     >
       {selected.length > 0 ? (
-        <div className="surface-card mb-4 flex flex-wrap items-center gap-3 p-4">
-          <span className="text-sm font-medium">{selected.length} ürün seçildi</span>
-          <Select value={bulkStatus} onValueChange={(value) => setBulkStatus(value as typeof bulkStatus)}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Aktif</SelectItem>
-              <SelectItem value="draft">Taslak</SelectItem>
-              <SelectItem value="archived">Arşiv</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button size="sm" onClick={() => bulkMutation.mutate()} disabled={bulkMutation.isPending}>
-            {bulkMutation.isPending ? "Güncelleniyor…" : "Durumu uygula"}
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setSelected([])}>
-            Seçimi temizle
-          </Button>
-        </div>
+        <BulkProductActions
+          storeId={storeId}
+          productIds={selected}
+          currency={currency}
+          onClear={() => setSelected([])}
+        />
       ) : null}
 
       <div className="surface-card overflow-hidden">
