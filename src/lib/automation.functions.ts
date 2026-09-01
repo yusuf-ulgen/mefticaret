@@ -88,7 +88,7 @@ export const saveWorkflow = createServerFn({ method: "POST" })
       action: data.workflowId ? "automation.updated" : "automation.created",
       entity: "automation_workflow",
       entity_id: workflow.id,
-      meta: { name: data.name, trigger: data.trigger, steps: data.steps.length },
+      meta: { name: data.name, trigger: data.trigger, steps: data.steps.length } as never,
     });
 
     return workflow;
