@@ -139,7 +139,7 @@ const toText = (value: unknown): string | null => {
 
 /** `a.b.c` yolunu veya düz alan adını kayıttan okur. */
 export function pickField(record: Record<string, unknown>, path?: string): unknown {
-  if (!path) return undefined;
+  if (!path || !record || typeof record !== "object") return undefined;
   if (path in record) return record[path];
   let current: unknown = record;
   for (const segment of path.split(".")) {
@@ -170,20 +170,25 @@ export function parseXmlItems(xml: string, itemPath?: string | null): Record<str
   let nodeName = itemPath?.trim() || "";
 
   if (!nodeName) {
+    // Kapanış etiketlerinden aday düğümleri say; en sık yinelenen ve alt
+    // elemanı olan düğüm ürün düğümü kabul edilir.
     const counts = new Map<string, number>();
-    for (const match of cleaned.matchAll(/<([A-Za-z_][\w.:-]*)(\s[^>]*)?>[\s\S]*?<\/\1>/g)) {
+    for (const match of cleaned.matchAll(/<\/([A-Za-z_][\w.:-]*)>/g)) {
       const name = match[1]!;
       counts.set(name, (counts.get(name) ?? 0) + 1);
     }
-    let best = "";
-    let bestScore = 0;
-    for (const [name, count] of counts) {
-      if (count > 1 && count > bestScore) {
-        best = name;
-        bestScore = count;
+    const candidates = Array.from(counts.entries())
+      .filter(([, count]) => count > 1)
+      .sort((a, b) => b[1] - a[1]);
+    for (const [name] of candidates) {
+      const probe = new RegExp(`<${name}(\\s[^>]*)?>([\\s\\S]*?)</${name}>`, "g");
+      const bodies = Array.from(cleaned.matchAll(probe));
+      if (bodies.length > 1 && bodies.every((node) => (node[2] ?? "").includes("<"))) {
+        nodeName = name;
+        break;
       }
     }
-    nodeName = best;
+    if (!nodeName && candidates.length) nodeName = candidates[0]![0];
   }
   if (!nodeName) return [];
 
