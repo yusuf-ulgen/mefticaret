@@ -593,15 +593,37 @@ function CheckoutPage() {
             </Field>
             <div style={{ marginTop: 10 }}>
               <Field label="Hediye kartı kodu" muted={muted}>
-                <input
-                  style={inputStyle}
-                  value={giftCardCode}
-                  onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
-                  placeholder="MEF-XXXX-XXXX-XXXX"
-                />
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    style={inputStyle}
+                    value={giftCardCode}
+                    onChange={(e) => setGiftCardCode(e.target.value.toUpperCase())}
+                    placeholder="MEF-XXXX-XXXX-XXXX"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void applyGiftCard()}
+                    disabled={checkingGiftCard}
+                    style={{
+                      border: `1px solid ${t.accent_color}`,
+                      background: "transparent",
+                      color: t.accent_color,
+                      borderRadius: radius,
+                      padding: "0 14px",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: checkingGiftCard ? "wait" : "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {checkingGiftCard ? "…" : appliedGiftCard ? "Yenile" : "Uygula"}
+                  </button>
+                </div>
               </Field>
               <p style={{ fontSize: 12, color: muted, margin: "6px 0 0" }}>
-                Kart bakiyesi sipariş toplamından sunucuda düşülür.
+                {appliedGiftCard
+                  ? `Kart bakiyesi: ${formatMoney(appliedGiftCard.balance, store.currency)} · toplamdan sunucuda düşülür.`
+                  : "Kart bakiyesi sipariş toplamından sunucuda düşülür."}
               </p>
             </div>
             {appliedDiscount ? (
@@ -628,28 +650,63 @@ function CheckoutPage() {
               </p>
             ) : null}
             <div style={{ marginTop: 12, borderTop: `1px solid ${border}`, paddingTop: 12 }}>
-              <SummaryRow label="Ara toplam" value={formatMoney(subtotal, store.currency)} muted={muted} />
-              {appliedDiscount ? (
+              <SummaryRow
+                label="Ara toplam"
+                value={formatMoney(q?.subtotal ?? subtotal, q?.currency ?? store.currency)}
+                muted={muted}
+              />
+              {(q?.discountTotal ?? discountTotal) > 0 || q?.freeShipping ? (
                 <SummaryRow
-                  label={`İndirim (${appliedDiscount.code})`}
+                  label={`İndirim${q?.discountCode ? ` (${q.discountCode})` : ""}`}
                   value={
-                    appliedDiscount.freeShipping
-                      ? "Ücretsiz kargo"
-                      : `-${formatMoney(discountTotal, store.currency)}`
+                    (q?.discountTotal ?? discountTotal) > 0
+                      ? `-${formatMoney(q?.discountTotal ?? discountTotal, store.currency)}`
+                      : "Ücretsiz kargo"
                   }
                   muted={muted}
                 />
               ) : null}
-              <SummaryRow label="Kargo" value={formatMoney(shippingTotal, store.currency)} muted={muted} />
-              <SummaryRow label="Tahmini toplam" value={formatMoney(estimatedTotal, store.currency)} muted={muted} />
-              <p style={{ fontSize: 12, color: muted, margin: "8px 0 0" }}>
-                Vergi ve nihai tutar, sipariş oluşturulurken sunucuda kesin olarak hesaplanır.
-              </p>
+              <SummaryRow
+                label={q?.shippingTitle ? `Kargo · ${q.shippingTitle}` : "Kargo"}
+                value={formatMoney(q?.shippingTotal ?? shippingTotal, store.currency)}
+                muted={muted}
+              />
+              {q && !q.taxIncluded ? (
+                <SummaryRow
+                  label={`Vergi${q.taxRate ? ` (%${q.taxRate})` : ""}`}
+                  value={formatMoney(q.taxTotal, store.currency)}
+                  muted={muted}
+                />
+              ) : q?.taxIncluded ? (
+                <SummaryRow label="Vergi" value="Fiyatlara dahil" muted={muted} />
+              ) : null}
+              {q && q.paymentFee > 0 ? (
+                <SummaryRow label="Ödeme farkı" value={formatMoney(q.paymentFee, store.currency)} muted={muted} />
+              ) : null}
+              {q && q.giftCardApplied > 0 ? (
+                <SummaryRow
+                  label="Hediye kartı"
+                  value={`-${formatMoney(q.giftCardApplied, store.currency)}`}
+                  muted={muted}
+                />
+              ) : null}
+              <SummaryRow
+                label={q ? "Ödenecek tutar" : "Tahmini toplam"}
+                value={formatMoney(q?.grandTotal ?? estimatedTotal, store.currency)}
+                muted={muted}
+              />
+              {quote.data && !quote.data.ok ? (
+                <p style={{ fontSize: 12, color: "#e0603a", margin: "8px 0 0" }}>{quote.data.error}</p>
+              ) : (
+                <p style={{ fontSize: 12, color: muted, margin: "8px 0 0" }}>
+                  Fiyat, indirim, stok, vergi ve hediye kartı tutarları sunucuda doğrulanır.
+                </p>
+              )}
             </div>
             <button
               type="button"
               onClick={submit}
-              disabled={submitting}
+              disabled={submitting || (!memberMode && !guestAllowed) || quote.data?.ok === false}
               style={{
                 marginTop: 16,
                 width: "100%",
