@@ -1205,6 +1205,50 @@ export type Database = {
         }
         Relationships: []
       }
+      currency_rates: {
+        Row: {
+          base_currency: string
+          created_at: string
+          fetched_at: string
+          id: string
+          quote_currency: string
+          rate: number
+          source: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          base_currency: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          quote_currency: string
+          rate?: number
+          source?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          base_currency?: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          quote_currency?: string
+          rate?: number
+          source?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "currency_rates_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_addresses: {
         Row: {
           city: string | null
@@ -2936,6 +2980,7 @@ export type Database = {
           status: Database["public"]["Enums"]["product_status"]
           store_id: string
           tags: string[]
+          tax_class_id: string | null
           tax_rate: number
           title: string
           track_inventory: boolean
@@ -2966,6 +3011,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["product_status"]
           store_id: string
           tags?: string[]
+          tax_class_id?: string | null
           tax_rate?: number
           title: string
           track_inventory?: boolean
@@ -2996,6 +3042,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["product_status"]
           store_id?: string
           tags?: string[]
+          tax_class_id?: string | null
           tax_rate?: number
           title?: string
           track_inventory?: boolean
@@ -3019,6 +3066,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_tax_class_id_fkey"
+            columns: ["tax_class_id"]
+            isOneToOne: false
+            referencedRelation: "tax_classes"
             referencedColumns: ["id"]
           },
         ]
@@ -4224,15 +4278,20 @@ export type Database = {
       store_settings: {
         Row: {
           address: Json
+          auto_currency_rates: boolean
+          base_currency: string
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          default_locale: string
           default_tax_rate: number
+          display_currencies: string[]
           guest_checkout: boolean
           legal_name: string | null
           seo: Json
           social: Json
           store_id: string
+          supported_locales: string[]
           tax_included_prices: boolean
           tax_number: string | null
           updated_at: string
@@ -4240,15 +4299,20 @@ export type Database = {
         }
         Insert: {
           address?: Json
+          auto_currency_rates?: boolean
+          base_currency?: string
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          default_locale?: string
           default_tax_rate?: number
+          display_currencies?: string[]
           guest_checkout?: boolean
           legal_name?: string | null
           seo?: Json
           social?: Json
           store_id: string
+          supported_locales?: string[]
           tax_included_prices?: boolean
           tax_number?: string | null
           updated_at?: string
@@ -4256,15 +4320,20 @@ export type Database = {
         }
         Update: {
           address?: Json
+          auto_currency_rates?: boolean
+          base_currency?: string
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          default_locale?: string
           default_tax_rate?: number
+          display_currencies?: string[]
           guest_checkout?: boolean
           legal_name?: string | null
           seo?: Json
           social?: Json
           store_id?: string
+          supported_locales?: string[]
           tax_included_prices?: boolean
           tax_number?: string | null
           updated_at?: string
@@ -4759,6 +4828,101 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_classes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_classes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_rules: {
+        Row: {
+          country_code: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          priority: number
+          rate: number
+          region: string | null
+          store_id: string
+          tax_class_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number
+          rate?: number
+          region?: string | null
+          store_id: string
+          tax_class_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number
+          rate?: number
+          region?: string | null
+          store_id?: string
+          tax_class_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_rules_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_rules_tax_class_id_fkey"
+            columns: ["tax_class_id"]
+            isOneToOne: false
+            referencedRelation: "tax_classes"
             referencedColumns: ["id"]
           },
         ]
