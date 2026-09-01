@@ -50,6 +50,9 @@ export const updateOrder = createServerFn({ method: "POST" })
             shipping_carrier: z.string().trim().max(80).nullable().optional(),
             tracking_number: z.string().trim().max(80).nullable().optional(),
             note: z.string().trim().max(2000).nullable().optional(),
+            customer_phone: z.string().trim().max(40).nullable().optional(),
+            invoice_number: z.string().trim().max(40).nullable().optional(),
+            invoiced_at: z.string().trim().max(40).nullable().optional(),
           })
           .strict(),
       })
