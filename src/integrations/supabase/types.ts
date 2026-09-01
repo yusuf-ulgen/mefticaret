@@ -786,13 +786,78 @@ export type Database = {
           },
         ]
       }
+      customer_segments: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          id: string
+          inactive_days: number | null
+          is_system: boolean
+          min_orders: number
+          min_spent: number
+          name: string
+          new_within_days: number | null
+          required_tags: string[]
+          slug: string
+          sort_order: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          inactive_days?: number | null
+          is_system?: boolean
+          min_orders?: number
+          min_spent?: number
+          name: string
+          new_within_days?: number | null
+          required_tags?: string[]
+          slug: string
+          sort_order?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          inactive_days?: number | null
+          is_system?: boolean
+          min_orders?: number
+          min_spent?: number
+          name?: string
+          new_within_days?: number | null
+          required_tags?: string[]
+          slug?: string
+          sort_order?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_segments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           accepts_marketing: boolean
           created_at: string
           email: string | null
+          first_name: string | null
           full_name: string
           id: string
+          last_activity_at: string | null
+          last_name: string | null
           notes: string | null
           orders_count: number
           phone: string | null
@@ -806,8 +871,11 @@ export type Database = {
           accepts_marketing?: boolean
           created_at?: string
           email?: string | null
+          first_name?: string | null
           full_name: string
           id?: string
+          last_activity_at?: string | null
+          last_name?: string | null
           notes?: string | null
           orders_count?: number
           phone?: string | null
@@ -821,8 +889,11 @@ export type Database = {
           accepts_marketing?: boolean
           created_at?: string
           email?: string | null
+          first_name?: string | null
           full_name?: string
           id?: string
+          last_activity_at?: string | null
+          last_name?: string | null
           notes?: string | null
           orders_count?: number
           phone?: string | null
