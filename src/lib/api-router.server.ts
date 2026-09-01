@@ -227,6 +227,13 @@ export async function handleApiRequest(request: Request, splat: string): Promise
   if (!resource) return finish(json({ error: "unknown_resource", resource: resourceName }, 404));
 
   const writing = method === "POST" || method === "PATCH" || method === "PUT";
+
+  // API anahtarı başına hız sınırı: yazma istekleri daha sıkı kotaya tabidir.
+  const { RATE_LIMITS, consumeRateLimit, rateLimitResponse } = await import("@/lib/rate-limit.server");
+  const limitRule = writing ? RATE_LIMITS.api_write : RATE_LIMITS.api;
+  const limit = await consumeRateLimit(`api:${auth.id}:${writing ? "write" : "read"}`, limitRule);
+  if (!limit.allowed) return finish(rateLimitResponse(limit), "rate_limited");
+
   const needed = writing ? resource.writeScope : resource.readScope;
   if (!needed) return finish(json({ error: "method_not_allowed" }, 405));
   if (!auth.scopes.includes(needed)) {
