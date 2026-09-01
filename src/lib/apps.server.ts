@@ -90,12 +90,12 @@ export async function setInstallStatus(
   userId: string,
   input: z.infer<typeof installStatusSchema>,
 ) {
-  const patch: Record<string, unknown> = { status: input.status };
-  patch['uninstalled_at'] = input.status === "uninstalled" ? new Date().toISOString() : null;
-
   const { error } = await supabase
     .from("app_installations")
-    .update(patch)
+    .update({
+      status: input.status,
+      uninstalled_at: input.status === "uninstalled" ? new Date().toISOString() : null,
+    })
     .eq("store_id", input.storeId)
     .eq("app_id", input.appId);
   if (error) throw new Error(error.message);
