@@ -9,7 +9,6 @@ import {
   Megaphone,
   Package,
   RefreshCw,
-  RotateCcw,
   Send,
   ShoppingBag,
   ShoppingCart,
