@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowDown,
   ArrowUp,
+  GripVertical,
   Blocks,
   Code2,
   Eye,
@@ -17,6 +18,7 @@ import {
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { DeviceFrame, DeviceSwitcher, type PreviewDevice } from "@/components/device-preview";
 import { StorefrontSections, type SectionProduct } from "@/components/storefront-sections";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -82,6 +84,8 @@ function ThemeSectionsPage() {
   const persistCode = useServerFn(saveThemeCode);
 
   const [newType, setNewType] = useState<string>(THEME_SECTIONS[0]!.type);
+  const [device, setDevice] = useState<PreviewDevice>("desktop");
+  const [dragId, setDragId] = useState<string | null>(null);
   const [css, setCss] = useState("");
   const [js, setJs] = useState("");
 
@@ -119,14 +123,30 @@ function ThemeSectionsPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const applyOrder = async (ids: string[]) => {
+    await reorder({ data: { storeId, sectionIds: ids } });
+    await invalidate();
+  };
+
+  const dropOn = async (targetId: string) => {
+    if (!sections || !dragId || dragId === targetId) return;
+    const ids = sections.map((section) => section.id);
+    const from = ids.indexOf(dragId);
+    const to = ids.indexOf(targetId);
+    if (from < 0 || to < 0) return;
+    ids.splice(to, 0, ...ids.splice(from, 1));
+    setDragId(null);
+    await applyOrder(ids);
+    toast.success("Sıralama güncellendi");
+  };
+
   const move = async (index: number, direction: -1 | 1) => {
     if (!sections) return;
     const ids = sections.map((section) => section.id);
     const target = index + direction;
     if (target < 0 || target >= ids.length) return;
     [ids[index], ids[target]] = [ids[target]!, ids[index]!];
-    await reorder({ data: { storeId, sectionIds: ids } });
-    await invalidate();
+    await applyOrder(ids);
   };
 
   const previewProducts: SectionProduct[] = useMemo(
@@ -210,6 +230,10 @@ function ThemeSectionsPage() {
                 index={index}
                 total={(sections ?? []).length}
                 collections={(collections ?? []).map((collection) => collection.slug)}
+                isDragging={dragId === section.id}
+                onDragStart={() => setDragId(section.id)}
+                onDragEnd={() => setDragId(null)}
+                onDropOn={() => void dropOn(section.id)}
                 onMove={move}
                 onDelete={async () => {
                   await remove({ data: { storeId, sectionId: section.id } });
@@ -272,16 +296,19 @@ function ThemeSectionsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Canlı önizleme</CardTitle>
-            <CardDescription>Gövde bileşenleri, mağaza temasıyla birlikte önizlenir.</CardDescription>
+            <CardDescription>
+              Gövde bileşenleri mağaza temasıyla birlikte, seçtiğin cihaz genişliğinde önizlenir.
+            </CardDescription>
+            <div className="pt-2">
+              <DeviceSwitcher value={device} onChange={setDevice} />
+            </div>
           </CardHeader>
           <CardContent>
             {bodySections.length === 0 ? (
               <p className="text-sm text-muted-foreground">Önizlenecek aktif gövde bileşeni yok.</p>
             ) : (
-              <div
-                className="overflow-hidden rounded-lg border p-5"
-                style={{ background: theme?.background_color ?? "#fbf9f5" }}
-              >
+              <DeviceFrame device={device}>
+                <div className="p-5" style={{ background: theme?.background_color ?? "#fbf9f5" }}>
                 <StorefrontSections
                   sections={sections ?? []}
                   context={{
@@ -300,7 +327,8 @@ function ThemeSectionsPage() {
                     preview: true,
                   }}
                 />
-              </div>
+                </div>
+              </DeviceFrame>
             )}
           </CardContent>
         </Card>
@@ -314,6 +342,10 @@ function SectionEditor({
   index,
   total,
   collections,
+  isDragging,
+  onDragStart,
+  onDragEnd,
+  onDropOn,
   onMove,
   onDelete,
   onSave,
@@ -322,6 +354,10 @@ function SectionEditor({
   index: number;
   total: number;
   collections: string[];
+  isDragging: boolean;
+  onDragStart: () => void;
+  onDragEnd: () => void;
+  onDropOn: () => void;
   onMove: (index: number, direction: -1 | 1) => void | Promise<void>;
   onDelete: () => void | Promise<void>;
   onSave: (settings: SectionSettings, isEnabled: boolean) => void | Promise<void>;
@@ -339,9 +375,26 @@ function SectionEditor({
     setSettings((current) => ({ ...current, [key]: value }));
 
   return (
-    <Card>
+    <Card
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={(event) => {
+        event.preventDefault();
+        onDropOn();
+      }}
+      className={isDragging ? "opacity-60 ring-2 ring-primary" : undefined}
+    >
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
-        <div>
+        <div className="flex min-w-0 items-start gap-2">
+          <span
+            draggable
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+            title="Sürükleyerek sırala"
+            className="mt-1 cursor-grab text-muted-foreground active:cursor-grabbing"
+          >
+            <GripVertical className="size-4" />
+          </span>
+          <div className="min-w-0">
           <CardTitle className="flex items-center gap-2 text-base">
             {section.definition.label}
             <Badge variant={section.definition.slot === "chrome" ? "secondary" : "outline"}>
@@ -350,6 +403,7 @@ function SectionEditor({
             {enabled ? null : <Badge variant="destructive">Kapalı</Badge>}
           </CardTitle>
           <CardDescription>{section.definition.description}</CardDescription>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => onMove(index, -1)} disabled={index === 0}>
