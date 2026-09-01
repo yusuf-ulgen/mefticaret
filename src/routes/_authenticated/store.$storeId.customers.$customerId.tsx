@@ -1,11 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, MapPin, Package, RotateCcw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  SEGMENT_COLOR_CLASSES,
+  customerSegmentsQuery,
+  segmentsForCustomer,
+  type SegmentCustomer,
+} from "@/lib/customer-segments-queries";
 import { customerDetailQuery } from "@/lib/sales-queries";
+import { upsertCustomer } from "@/lib/sales.functions";
+import { cn } from "@/lib/utils";
 import { RETURN_STATUS_LABELS, type ReturnStatus } from "@/lib/returns-queries";
 import {
   ORDER_STATUS_LABELS,
@@ -39,9 +53,65 @@ export const Route = createFileRoute(
 
 function CustomerDetailPage() {
   const { storeId, customerId } = Route.useParams();
+  const queryClient = useQueryClient();
   const { data, isLoading } = useQuery(customerDetailQuery(customerId));
+  const { data: segments } = useQuery(customerSegmentsQuery(storeId));
+  const save = useServerFn(upsertCustomer);
 
   const customer = data?.customer;
+
+  const [profile, setProfile] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    tags: "",
+    notes: "",
+  });
+
+  useEffect(() => {
+    if (!customer) return;
+    setProfile({
+      firstName: customer.first_name ?? customer.full_name.split(" ")[0] ?? "",
+      lastName: customer.last_name ?? customer.full_name.split(" ").slice(1).join(" "),
+      email: customer.email ?? "",
+      phone: customer.phone ?? "",
+      tags: (customer.tags ?? []).join(", "),
+      notes: customer.notes ?? "",
+    });
+  }, [customer]);
+
+  const profileMutation = useMutation({
+    mutationFn: () =>
+      save({
+        data: {
+          storeId,
+          customerId,
+          firstName: profile.firstName || undefined,
+          lastName: profile.lastName || undefined,
+          email: profile.email || undefined,
+          phone: profile.phone || undefined,
+          notes: profile.notes || undefined,
+          acceptsMarketing: customer?.accepts_marketing ?? false,
+          tags: profile.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+        },
+      }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["customer", customerId] }),
+        queryClient.invalidateQueries({ queryKey: ["customers", storeId] }),
+      ]);
+      toast.success("Müşteri profili güncellendi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const matched = customer
+    ? segmentsForCustomer(customer as unknown as SegmentCustomer, segments ?? [])
+    : [];
   const orders = data?.orders ?? [];
   const returns = data?.returns ?? [];
   const spent = orders.reduce((sum, order) => sum + Number(order.grand_total), 0);
@@ -79,9 +149,15 @@ function CustomerDetailPage() {
             <div className="grid gap-6 lg:grid-cols-3">
               <div className="surface-card space-y-3 p-6">
                 <h2 className="text-lg font-semibold">İletişim</h2>
+                <InfoRow label="Ad" value={customer.first_name ?? "—"} />
+                <InfoRow label="Soyad" value={customer.last_name ?? "—"} />
                 <InfoRow label="E-posta" value={customer.email ?? "—"} />
                 <InfoRow label="Telefon" value={customer.phone ?? "—"} />
                 <InfoRow label="Kayıt" value={formatDate(customer.created_at)} />
+                <InfoRow
+                  label="Son aktivite"
+                  value={customer.last_activity_at ? formatDate(customer.last_activity_at) : "—"}
+                />
                 <InfoRow
                   label="Pazarlama izni"
                   value={customer.accepts_marketing ? "Var" : "Yok"}
@@ -97,6 +173,33 @@ function CustomerDetailPage() {
                       {tag}
                     </Badge>
                   ))}
+                </div>
+                <div className="space-y-2 border-t border-border pt-3">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">Segmentler</p>
+                  {matched.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Bu müşteri tanımlı segment kurallarına uymuyor.
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-1">
+                      {matched.map((segment) => (
+                        <span
+                          key={segment.id}
+                          className={cn(
+                            "rounded-full px-2 py-0.5 text-xs font-medium",
+                            SEGMENT_COLOR_CLASSES[segment.color] ?? SEGMENT_COLOR_CLASSES["slate"],
+                          )}
+                        >
+                          {segment.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <Button asChild variant="link" size="sm" className="px-0">
+                    <Link to="/store/$storeId/customer-segments" params={{ storeId }}>
+                      Segmentleri yönet
+                    </Link>
+                  </Button>
                 </div>
               </div>
 
@@ -136,6 +239,70 @@ function CustomerDetailPage() {
                 )}
               </div>
             </div>
+
+            <form
+              className="surface-card grid gap-4 p-6 sm:grid-cols-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                profileMutation.mutate();
+              }}
+            >
+              <h2 className="text-lg font-semibold sm:col-span-2">Profili düzenle</h2>
+              <div className="space-y-2">
+                <Label htmlFor="p-first">Ad</Label>
+                <Input
+                  id="p-first"
+                  value={profile.firstName}
+                  onChange={(event) => setProfile((p) => ({ ...p, firstName: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-last">Soyad</Label>
+                <Input
+                  id="p-last"
+                  value={profile.lastName}
+                  onChange={(event) => setProfile((p) => ({ ...p, lastName: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-mail">E-posta</Label>
+                <Input
+                  id="p-mail"
+                  type="email"
+                  value={profile.email}
+                  onChange={(event) => setProfile((p) => ({ ...p, email: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="p-phone">Telefon</Label>
+                <Input
+                  id="p-phone"
+                  value={profile.phone}
+                  onChange={(event) => setProfile((p) => ({ ...p, phone: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="p-tags">Etiketler</Label>
+                <Input
+                  id="p-tags"
+                  value={profile.tags}
+                  onChange={(event) => setProfile((p) => ({ ...p, tags: event.target.value }))}
+                  placeholder="vip, toptan"
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="p-notes">Notlar</Label>
+                <Textarea
+                  id="p-notes"
+                  rows={3}
+                  value={profile.notes}
+                  onChange={(event) => setProfile((p) => ({ ...p, notes: event.target.value }))}
+                />
+              </div>
+              <Button type="submit" className="sm:col-span-2" disabled={profileMutation.isPending}>
+                {profileMutation.isPending ? "Kaydediliyor…" : "Profili kaydet"}
+              </Button>
+            </form>
 
             <section className="surface-card overflow-x-auto">
               <h2 className="flex items-center gap-2 p-6 pb-3 text-lg font-semibold">
