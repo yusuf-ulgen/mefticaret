@@ -175,8 +175,8 @@ export function calculateTax(
   const results: TaxLineResult[] = (lines ?? []).map((line) => {
     const resolution = resolveTaxRate(options.rules, {
       taxClassId: line.taxClassId ?? null,
-      country: options.country,
-      region: options.region,
+      country: options.country ?? null,
+      region: options.region ?? null,
       defaultRate: options.defaultRate,
     });
     const amounts = computeTax(line.amount, resolution.rate, options.pricesIncludeTax);
