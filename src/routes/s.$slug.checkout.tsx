@@ -49,7 +49,8 @@ function CheckoutPage() {
   const { user, loading: authLoading } = useAuth();
   const memberMode = Boolean(user);
   const guestAllowed = options.data?.settings?.guest_checkout !== false;
-  const savedAddresses = useQuery(myAddressesQuery(data?.store.id ?? "", Boolean(user && data?.store.id)));
+  const savedAddressesQuery = useQuery(myAddressesQuery(data?.store.id ?? "", Boolean(user && data?.store.id)));
+  const savedAddresses = savedAddressesQuery.data?.addresses ?? [];
   const profileFilled = useRef(false);
 
   const [fullName, setFullName] = useState("");
@@ -175,13 +176,13 @@ function CheckoutPage() {
   // Kayıtlı adresleri ilk yüklemede otomatik uygula.
   const addressFilled = useRef(false);
   useEffect(() => {
-    const list = savedAddresses.data;
-    if (!list?.length || addressFilled.current) return;
+    const list = savedAddresses;
+    if (!list.length || addressFilled.current) return;
     addressFilled.current = true;
     const chosen = list.find((address) => address.is_default) ?? list[0];
     if (!chosen) return;
     applySavedAddress(chosen);
-  }, [savedAddresses.data]);
+  }, [savedAddresses]);
 
   function applySavedAddress(address: {
     recipient: string;
@@ -374,17 +375,16 @@ function CheckoutPage() {
                 {!memberMode ? (
                   <Link
                     to="/auth"
-                    search={{ redirect: `/s/${slug}/checkout` }}
                     style={{ color: t.accent_color, fontWeight: 600 }}
                   >
                     Giriş yap / Üye ol
                   </Link>
                 ) : null}
               </div>
-              {memberMode && (savedAddresses.data?.length ?? 0) > 0 ? (
+              {memberMode && savedAddresses.length > 0 ? (
                 <div style={{ display: "grid", gap: 8, marginBottom: 14 }}>
                   <span style={{ fontSize: 12, color: muted }}>Kayıtlı adreslerim</span>
-                  {(savedAddresses.data ?? []).map((address) => (
+                  {savedAddresses.map((address) => (
                     <Option
                       key={address.id}
                       active={line1 === address.line1 && city === address.city}
