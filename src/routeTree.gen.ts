@@ -16,14 +16,24 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
+import { Route as SSlugAboutRouteImport } from './routes/s.$slug.about'
 import { Route as SSlugAccountRouteImport } from './routes/s.$slug.account'
 import { Route as SSlugCartRouteImport } from './routes/s.$slug.cart'
+import { Route as SSlugCategoriesRouteImport } from './routes/s.$slug.categories'
 import { Route as SSlugCheckoutRouteImport } from './routes/s.$slug.checkout'
+import { Route as SSlugCollectionsRouteImport } from './routes/s.$slug.collections'
 import { Route as SSlugCompareRouteImport } from './routes/s.$slug.compare'
+import { Route as SSlugContactRouteImport } from './routes/s.$slug.contact'
+import { Route as SSlugFaqRouteImport } from './routes/s.$slug.faq'
 import { Route as SSlugFavoritesRouteImport } from './routes/s.$slug.favorites'
 import { Route as SSlugGiftCardRouteImport } from './routes/s.$slug.gift-card'
+import { Route as SSlugLoginRouteImport } from './routes/s.$slug.login'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
+import { Route as SSlugPrivacyRouteImport } from './routes/s.$slug.privacy'
 import { Route as SSlugProductsRouteImport } from './routes/s.$slug.products'
+import { Route as SSlugReturnsRouteImport } from './routes/s.$slug.returns'
+import { Route as SSlugSearchRouteImport } from './routes/s.$slug.search'
+import { Route as SSlugTermsRouteImport } from './routes/s.$slug.terms'
 import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_authenticated/store.$storeId.abc'
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
 import { Route as AuthenticatedStoreStoreIdAgingRouteImport } from './routes/_authenticated/store.$storeId.aging'
@@ -142,6 +152,11 @@ const SSlugIndexRoute = SSlugIndexRouteImport.update({
   path: '/s/$slug/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugAboutRoute = SSlugAboutRouteImport.update({
+  id: '/s/$slug/about',
+  path: '/s/$slug/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SSlugAccountRoute = SSlugAccountRouteImport.update({
   id: '/s/$slug/account',
   path: '/s/$slug/account',
@@ -152,14 +167,34 @@ const SSlugCartRoute = SSlugCartRouteImport.update({
   path: '/s/$slug/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugCategoriesRoute = SSlugCategoriesRouteImport.update({
+  id: '/s/$slug/categories',
+  path: '/s/$slug/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SSlugCheckoutRoute = SSlugCheckoutRouteImport.update({
   id: '/s/$slug/checkout',
   path: '/s/$slug/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugCollectionsRoute = SSlugCollectionsRouteImport.update({
+  id: '/s/$slug/collections',
+  path: '/s/$slug/collections',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SSlugCompareRoute = SSlugCompareRouteImport.update({
   id: '/s/$slug/compare',
   path: '/s/$slug/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugContactRoute = SSlugContactRouteImport.update({
+  id: '/s/$slug/contact',
+  path: '/s/$slug/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugFaqRoute = SSlugFaqRouteImport.update({
+  id: '/s/$slug/faq',
+  path: '/s/$slug/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugFavoritesRoute = SSlugFavoritesRouteImport.update({
@@ -172,14 +207,39 @@ const SSlugGiftCardRoute = SSlugGiftCardRouteImport.update({
   path: '/s/$slug/gift-card',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugLoginRoute = SSlugLoginRouteImport.update({
+  id: '/s/$slug/login',
+  path: '/s/$slug/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SSlugOrderRoute = SSlugOrderRouteImport.update({
   id: '/s/$slug/order',
   path: '/s/$slug/order',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugPrivacyRoute = SSlugPrivacyRouteImport.update({
+  id: '/s/$slug/privacy',
+  path: '/s/$slug/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SSlugProductsRoute = SSlugProductsRouteImport.update({
   id: '/s/$slug/products',
   path: '/s/$slug/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugReturnsRoute = SSlugReturnsRouteImport.update({
+  id: '/s/$slug/returns',
+  path: '/s/$slug/returns',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugSearchRoute = SSlugSearchRouteImport.update({
+  id: '/s/$slug/search',
+  path: '/s/$slug/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugTermsRoute = SSlugTermsRouteImport.update({
+  id: '/s/$slug/terms',
+  path: '/s/$slug/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedStoreStoreIdAbcRoute =
@@ -682,14 +742,24 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
+  '/s/$slug/categories': typeof SSlugCategoriesRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
+  '/s/$slug/collections': typeof SSlugCollectionsRoute
   '/s/$slug/compare': typeof SSlugCompareRoute
+  '/s/$slug/contact': typeof SSlugContactRoute
+  '/s/$slug/faq': typeof SSlugFaqRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
   '/s/$slug/gift-card': typeof SSlugGiftCardRoute
+  '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
+  '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
+  '/s/$slug/returns': typeof SSlugReturnsRoute
+  '/s/$slug/search': typeof SSlugSearchRoute
+  '/s/$slug/terms': typeof SSlugTermsRoute
   '/s/$slug/': typeof SSlugIndexRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
@@ -781,14 +851,24 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
+  '/s/$slug/categories': typeof SSlugCategoriesRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
+  '/s/$slug/collections': typeof SSlugCollectionsRoute
   '/s/$slug/compare': typeof SSlugCompareRoute
+  '/s/$slug/contact': typeof SSlugContactRoute
+  '/s/$slug/faq': typeof SSlugFaqRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
   '/s/$slug/gift-card': typeof SSlugGiftCardRoute
+  '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
+  '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
+  '/s/$slug/returns': typeof SSlugReturnsRoute
+  '/s/$slug/search': typeof SSlugSearchRoute
+  '/s/$slug/terms': typeof SSlugTermsRoute
   '/s/$slug': typeof SSlugIndexRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
@@ -882,14 +962,24 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
+  '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/cart': typeof SSlugCartRoute
+  '/s/$slug/categories': typeof SSlugCategoriesRoute
   '/s/$slug/checkout': typeof SSlugCheckoutRoute
+  '/s/$slug/collections': typeof SSlugCollectionsRoute
   '/s/$slug/compare': typeof SSlugCompareRoute
+  '/s/$slug/contact': typeof SSlugContactRoute
+  '/s/$slug/faq': typeof SSlugFaqRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
   '/s/$slug/gift-card': typeof SSlugGiftCardRoute
+  '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
+  '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
+  '/s/$slug/returns': typeof SSlugReturnsRoute
+  '/s/$slug/search': typeof SSlugSearchRoute
+  '/s/$slug/terms': typeof SSlugTermsRoute
   '/s/$slug/': typeof SSlugIndexRoute
   '/_authenticated/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/_authenticated/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
@@ -983,14 +1073,24 @@ export interface FileRouteTypes {
     | '/admin'
     | '/onboarding'
     | '/stores'
+    | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/cart'
+    | '/s/$slug/categories'
     | '/s/$slug/checkout'
+    | '/s/$slug/collections'
     | '/s/$slug/compare'
+    | '/s/$slug/contact'
+    | '/s/$slug/faq'
     | '/s/$slug/favorites'
     | '/s/$slug/gift-card'
+    | '/s/$slug/login'
     | '/s/$slug/order'
+    | '/s/$slug/privacy'
     | '/s/$slug/products'
+    | '/s/$slug/returns'
+    | '/s/$slug/search'
+    | '/s/$slug/terms'
     | '/s/$slug/'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
@@ -1082,14 +1182,24 @@ export interface FileRouteTypes {
     | '/admin'
     | '/onboarding'
     | '/stores'
+    | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/cart'
+    | '/s/$slug/categories'
     | '/s/$slug/checkout'
+    | '/s/$slug/collections'
     | '/s/$slug/compare'
+    | '/s/$slug/contact'
+    | '/s/$slug/faq'
     | '/s/$slug/favorites'
     | '/s/$slug/gift-card'
+    | '/s/$slug/login'
     | '/s/$slug/order'
+    | '/s/$slug/privacy'
     | '/s/$slug/products'
+    | '/s/$slug/returns'
+    | '/s/$slug/search'
+    | '/s/$slug/terms'
     | '/s/$slug'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
@@ -1182,14 +1292,24 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/onboarding'
     | '/_authenticated/stores'
+    | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/cart'
+    | '/s/$slug/categories'
     | '/s/$slug/checkout'
+    | '/s/$slug/collections'
     | '/s/$slug/compare'
+    | '/s/$slug/contact'
+    | '/s/$slug/faq'
     | '/s/$slug/favorites'
     | '/s/$slug/gift-card'
+    | '/s/$slug/login'
     | '/s/$slug/order'
+    | '/s/$slug/privacy'
     | '/s/$slug/products'
+    | '/s/$slug/returns'
+    | '/s/$slug/search'
+    | '/s/$slug/terms'
     | '/s/$slug/'
     | '/_authenticated/store/$storeId/abc'
     | '/_authenticated/store/$storeId/activity'
@@ -1280,14 +1400,24 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  SSlugAboutRoute: typeof SSlugAboutRoute
   SSlugAccountRoute: typeof SSlugAccountRoute
   SSlugCartRoute: typeof SSlugCartRoute
+  SSlugCategoriesRoute: typeof SSlugCategoriesRoute
   SSlugCheckoutRoute: typeof SSlugCheckoutRoute
+  SSlugCollectionsRoute: typeof SSlugCollectionsRoute
   SSlugCompareRoute: typeof SSlugCompareRoute
+  SSlugContactRoute: typeof SSlugContactRoute
+  SSlugFaqRoute: typeof SSlugFaqRoute
   SSlugFavoritesRoute: typeof SSlugFavoritesRoute
   SSlugGiftCardRoute: typeof SSlugGiftCardRoute
+  SSlugLoginRoute: typeof SSlugLoginRoute
   SSlugOrderRoute: typeof SSlugOrderRoute
+  SSlugPrivacyRoute: typeof SSlugPrivacyRoute
   SSlugProductsRoute: typeof SSlugProductsRoute
+  SSlugReturnsRoute: typeof SSlugReturnsRoute
+  SSlugSearchRoute: typeof SSlugSearchRoute
+  SSlugTermsRoute: typeof SSlugTermsRoute
   SSlugIndexRoute: typeof SSlugIndexRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
@@ -1348,6 +1478,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug/about': {
+      id: '/s/$slug/about'
+      path: '/s/$slug/about'
+      fullPath: '/s/$slug/about'
+      preLoaderRoute: typeof SSlugAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/account': {
       id: '/s/$slug/account'
       path: '/s/$slug/account'
@@ -1362,6 +1499,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugCartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug/categories': {
+      id: '/s/$slug/categories'
+      path: '/s/$slug/categories'
+      fullPath: '/s/$slug/categories'
+      preLoaderRoute: typeof SSlugCategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/checkout': {
       id: '/s/$slug/checkout'
       path: '/s/$slug/checkout'
@@ -1369,11 +1513,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug/collections': {
+      id: '/s/$slug/collections'
+      path: '/s/$slug/collections'
+      fullPath: '/s/$slug/collections'
+      preLoaderRoute: typeof SSlugCollectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/compare': {
       id: '/s/$slug/compare'
       path: '/s/$slug/compare'
       fullPath: '/s/$slug/compare'
       preLoaderRoute: typeof SSlugCompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/contact': {
+      id: '/s/$slug/contact'
+      path: '/s/$slug/contact'
+      fullPath: '/s/$slug/contact'
+      preLoaderRoute: typeof SSlugContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/faq': {
+      id: '/s/$slug/faq'
+      path: '/s/$slug/faq'
+      fullPath: '/s/$slug/faq'
+      preLoaderRoute: typeof SSlugFaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/favorites': {
@@ -1390,6 +1555,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugGiftCardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug/login': {
+      id: '/s/$slug/login'
+      path: '/s/$slug/login'
+      fullPath: '/s/$slug/login'
+      preLoaderRoute: typeof SSlugLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/order': {
       id: '/s/$slug/order'
       path: '/s/$slug/order'
@@ -1397,11 +1569,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug/privacy': {
+      id: '/s/$slug/privacy'
+      path: '/s/$slug/privacy'
+      fullPath: '/s/$slug/privacy'
+      preLoaderRoute: typeof SSlugPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/products': {
       id: '/s/$slug/products'
       path: '/s/$slug/products'
       fullPath: '/s/$slug/products'
       preLoaderRoute: typeof SSlugProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/returns': {
+      id: '/s/$slug/returns'
+      path: '/s/$slug/returns'
+      fullPath: '/s/$slug/returns'
+      preLoaderRoute: typeof SSlugReturnsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/search': {
+      id: '/s/$slug/search'
+      path: '/s/$slug/search'
+      fullPath: '/s/$slug/search'
+      preLoaderRoute: typeof SSlugSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/terms': {
+      id: '/s/$slug/terms'
+      path: '/s/$slug/terms'
+      fullPath: '/s/$slug/terms'
+      preLoaderRoute: typeof SSlugTermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/store/$storeId/abc': {
@@ -2245,14 +2445,24 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  SSlugAboutRoute: SSlugAboutRoute,
   SSlugAccountRoute: SSlugAccountRoute,
   SSlugCartRoute: SSlugCartRoute,
+  SSlugCategoriesRoute: SSlugCategoriesRoute,
   SSlugCheckoutRoute: SSlugCheckoutRoute,
+  SSlugCollectionsRoute: SSlugCollectionsRoute,
   SSlugCompareRoute: SSlugCompareRoute,
+  SSlugContactRoute: SSlugContactRoute,
+  SSlugFaqRoute: SSlugFaqRoute,
   SSlugFavoritesRoute: SSlugFavoritesRoute,
   SSlugGiftCardRoute: SSlugGiftCardRoute,
+  SSlugLoginRoute: SSlugLoginRoute,
   SSlugOrderRoute: SSlugOrderRoute,
+  SSlugPrivacyRoute: SSlugPrivacyRoute,
   SSlugProductsRoute: SSlugProductsRoute,
+  SSlugReturnsRoute: SSlugReturnsRoute,
+  SSlugSearchRoute: SSlugSearchRoute,
+  SSlugTermsRoute: SSlugTermsRoute,
   SSlugIndexRoute: SSlugIndexRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
