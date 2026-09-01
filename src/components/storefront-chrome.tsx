@@ -90,12 +90,19 @@ export function StorefrontChrome({
   storeName,
   storeSlug,
   footerPages,
+  sections,
+  customCss,
+  customJs,
   children,
 }: {
   theme: StoreTheme;
   storeName: string;
   storeSlug: string;
   footerPages?: { title: string; slug: string }[];
+  /** Modüler tema bileşenleri (header/footer/duyuru çubuğu ayarları buradan okunur). */
+  sections?: ResolvedSection[] | undefined;
+  customCss?: string | null | undefined;
+  customJs?: string | null | undefined;
   children: ReactNode;
 }) {
   const { t, fonts, text, muted, border, radius } = storefrontTokens(theme);
@@ -110,6 +117,34 @@ export function StorefrontChrome({
   const favoriteCount = favorites.countFor(storeSlug);
   const compareCount = compare.countFor(storeSlug);
 
+  const chrome = (type: string) =>
+    (sections ?? []).find((section) => section.type === type && section.isEnabled)?.settings ?? null;
+  const headerCfg = chrome("header");
+  const footerCfg = chrome("footer");
+  const barCfg = chrome("announcement_bar");
+
+  const flag = (settings: Record<string, string | number | boolean> | null, key: string, fallback = true) =>
+    settings ? Boolean(settings[key]) : fallback;
+  const value = (settings: Record<string, string | number | boolean> | null, key: string) =>
+    settings ? String(settings[key] ?? "") : "";
+
+  const barText = barCfg ? value(barCfg, "text") : t.show_announcement ? (t.announcement ?? "") : "";
+  const barTone = barCfg ? value(barCfg, "tone") : "primary";
+  const barBackground =
+    barTone === "accent" ? t.accent_color : barTone === "soft" ? `${t.accent_color}22` : t.primary_color;
+
+  // Özel JavaScript, mağaza sahibinin bilinçli tercihidir; yalnızca istemcide çalışır.
+  useEffect(() => {
+    if (!customJs?.trim()) return;
+    const element = document.createElement("script");
+    element.type = "text/javascript";
+    element.text = customJs;
+    document.body.appendChild(element);
+    return () => {
+      element.remove();
+    };
+  }, [customJs]);
+
   return (
     <div
       style={{
@@ -119,20 +154,31 @@ export function StorefrontChrome({
         minHeight: "100vh",
       }}
     >
-      {t.show_announcement && t.announcement ? (
+      {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: customCss }} /> : null}
+
+      {barText ? (
         <div
           style={{
-            background: t.primary_color,
-            color: "#fff",
+            background: barBackground,
+            color: barTone === "soft" ? text : "#fff",
             fontSize: 12,
             letterSpacing: ".04em",
             textAlign: "center",
             padding: "10px 16px",
           }}
         >
-          {t.announcement}
+          {barText}
+          {barCfg && value(barCfg, "linkLabel") && value(barCfg, "linkUrl") ? (
+            <>
+              {" "}
+              <a href={value(barCfg, "linkUrl")} style={{ color: "inherit", textDecoration: "underline" }}>
+                {value(barCfg, "linkLabel")}
+              </a>
+            </>
+          ) : null}
         </div>
       ) : null}
+
 
       <header
         style={{

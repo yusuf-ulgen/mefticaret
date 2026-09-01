@@ -2435,12 +2435,55 @@ export type Database = {
           },
         ]
       }
+      store_theme_sections: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          position: number
+          settings: Json
+          store_id: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          position?: number
+          settings?: Json
+          store_id: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          position?: number
+          settings?: Json
+          store_id?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_theme_sections_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_themes: {
         Row: {
           accent_color: string
           announcement: string | null
           background_color: string
           created_at: string
+          custom_css: string | null
+          custom_js: string | null
           font_pair: string
           hero_cta_label: string
           hero_subtitle: string
@@ -2460,6 +2503,8 @@ export type Database = {
           announcement?: string | null
           background_color?: string
           created_at?: string
+          custom_css?: string | null
+          custom_js?: string | null
           font_pair?: string
           hero_cta_label?: string
           hero_subtitle?: string
@@ -2479,6 +2524,8 @@ export type Database = {
           announcement?: string | null
           background_color?: string
           created_at?: string
+          custom_css?: string | null
+          custom_js?: string | null
           font_pair?: string
           hero_cta_label?: string
           hero_subtitle?: string
