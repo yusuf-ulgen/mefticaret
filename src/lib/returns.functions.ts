@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * İade & geri ödeme akışı. Tenant izolasyonu RLS ile zorlanır; stok geri alımı
@@ -96,7 +97,7 @@ export const createReturn = createServerFn({ method: "POST" })
     );
     if (linesError) throw new Error(linesError.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: created.store_id,
       actor_id: userId,
       action: "return.created",
@@ -201,7 +202,7 @@ export const updateReturn = createServerFn({ method: "POST" })
         .eq("id", current.order_id);
     }
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: current.store_id,
       actor_id: userId,
       action: "return.updated",

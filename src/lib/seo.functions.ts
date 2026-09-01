@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * SEO editörü yazma işlemleri: ürün, koleksiyon, sayfa/blog ve mağaza
@@ -56,7 +57,7 @@ export const saveEntitySeo = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "seo.entity_updated",
@@ -115,7 +116,7 @@ export const saveStoreSeo = createServerFn({ method: "POST" })
       .upsert({ store_id: storeId, seo: seo as Json }, { onConflict: "store_id" });
     if (error) throw new Error(error.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: storeId,
       actor_id: userId,
       action: "seo.store_updated",

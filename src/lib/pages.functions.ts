@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { slugify } from "@/lib/mefti";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * Vitrin içerik sayfaları (CMS). Tenant izolasyonu RLS ile zorlanır;
@@ -91,7 +92,7 @@ export const savePage = createServerFn({ method: "POST" })
       }
     }
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: data.pageId ? "page.updated" : "page.created",
@@ -115,7 +116,7 @@ export const deletePage = createServerFn({ method: "POST" })
       .eq("store_id", data.storeId);
     if (error) throw new Error(error.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "page.deleted",

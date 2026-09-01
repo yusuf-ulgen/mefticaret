@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { insertAuditRow } from "./audit.server";
 
 /** Abonelik sunucu fonksiyonları: paket limitleri (admin), abonelik yönetimi, kullanım kaydı ve fatura üretimi. */
 
@@ -64,7 +65,7 @@ export const savePlanFeatures = createServerFn({ method: "POST" })
       if (upsertError) throw new Error(upsertError.message);
     }
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       actor_id: userId,
       action: "platform.plan_limits_updated",
       entity: "plan_features",
@@ -170,7 +171,7 @@ export const upsertSubscription = createServerFn({ method: "POST" })
       currency: plan.currency ?? "TRY",
     });
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "store.subscription_changed",
@@ -204,7 +205,7 @@ export const setSubscriptionCancellation = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!updated) throw new Error("Abonelik bulunamadı veya yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: data.cancel ? "store.subscription_cancel_scheduled" : "store.subscription_resumed",
@@ -314,7 +315,7 @@ export const issueInvoiceForCycle = createServerFn({ method: "POST" })
       .eq("id", cycle.id);
     if (closeError) throw new Error(closeError.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "store.invoice_issued",
@@ -350,7 +351,7 @@ export const markInvoicePaid = createServerFn({ method: "POST" })
       .update({ status: "active" })
       .eq("store_id", data.storeId);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "store.invoice_paid",

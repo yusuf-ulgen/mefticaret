@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { insertAuditRow } from "./audit.server";
 
 /** Platform yönetim fonksiyonları: mağaza durumu ve paket tanımları (RLS + rol kontrolü). */
 
@@ -57,7 +58,7 @@ export const setStoreStatus = createServerFn({ method: "POST" })
       .eq("id", data.storeId);
     if (updateError) throw new Error(updateError.message);
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "platform.store_status_changed",
@@ -106,7 +107,7 @@ export const savePlatformPlan = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
     }
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       actor_id: userId,
       action: data.id ? "platform.plan_updated" : "platform.plan_created",
       entity: "plans",

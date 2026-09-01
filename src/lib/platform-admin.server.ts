@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { PLATFORM_DATASETS, PLATFORM_DATASET_KEYS, type PlatformDatasetKey } from "@/lib/platform-datasets";
+import { insertAuditRow } from "./audit.server";
 
 /** Süper admin panelinin sunucu tarafı: rol doğrulaması sonrası platform genelinde okuma/yazma. */
 
@@ -169,7 +170,7 @@ export async function updateTicket(input: z.infer<typeof ticketUpdateSchema>, us
   const { error } = await db.from("support_tickets").update(patch).eq("id", input.id);
   if (error) throw new Error(error.message);
 
-  await db.from("audit_logs").insert({
+  await insertAuditRow(db, {
     actor_id: userId,
     action: "platform.ticket_updated",
     entity: "support_tickets",
@@ -234,7 +235,7 @@ export async function saveSetting(input: z.infer<typeof settingSchema>, userId: 
   );
   if (error) throw new Error(error.message);
 
-  await db.from("audit_logs").insert({
+  await insertAuditRow(db, {
     actor_id: userId,
     action: "platform.setting_saved",
     entity: "platform_settings",
@@ -278,7 +279,7 @@ export async function setUserRole(input: z.infer<typeof roleSchema>, userId: str
     if (error) throw new Error(error.message);
   }
 
-  await db.from("audit_logs").insert({
+  await insertAuditRow(db, {
     actor_id: userId,
     action: input.grant ? "platform.role_granted" : "platform.role_revoked",
     entity: "user_roles",

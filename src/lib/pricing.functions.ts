@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { computePrice } from "@/lib/pricing";
+import { insertAuditRow } from "./audit.server";
 
 /** Toplu fiyat güncelleme. Tenant izolasyonu RLS ile zorlanır. */
 
@@ -66,7 +67,7 @@ export const applyBulkPricing = createServerFn({ method: "POST" })
       }
     }
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "pricing.bulk_updated",

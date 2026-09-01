@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { insertAuditRow } from "./audit.server";
 
 const rowSchema = z.object({
   title: z.string().trim().min(2).max(160),
@@ -58,7 +59,7 @@ export const importProducts = createServerFn({ method: "POST" })
       remainingQuota,
     );
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "catalog.imported",
@@ -140,7 +141,7 @@ export const bulkUpdateProducts = createServerFn({ method: "POST" })
       data.operation as never,
     );
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: `catalog.bulk_${data.operation.kind}`,

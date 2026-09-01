@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import { insertAuditRow } from "./audit.server";
 
 /** Uygulama mağazası sunucu mantığı: katalog, kurulum ve uygulama ayarları. */
 
@@ -73,7 +74,7 @@ export async function installApp(
   );
   if (error) throw new Error(error.message);
 
-  await supabase.from("audit_logs").insert({
+  await insertAuditRow(supabase, {
     store_id: input.storeId,
     actor_id: userId,
     action: "app.installed",
@@ -100,7 +101,7 @@ export async function setInstallStatus(
     .eq("app_id", input.appId);
   if (error) throw new Error(error.message);
 
-  await supabase.from("audit_logs").insert({
+  await insertAuditRow(supabase, {
     store_id: input.storeId,
     actor_id: userId,
     action: `app.${input.status}`,

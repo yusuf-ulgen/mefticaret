@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { compact, slugify } from "@/lib/mefti";
+import { insertAuditRow } from "./audit.server";
 
 /**
  * Katalog uygulama katmanı. Tenant izolasyonu RLS ile veritabanında zorlanır;
@@ -100,7 +101,7 @@ export const createProduct = createServerFn({ method: "POST" })
       position: 1,
     });
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "product.created",
@@ -190,7 +191,7 @@ export const updateProduct = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!product) throw new Error("Bu ürünü düzenleme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: product.store_id,
       actor_id: userId,
       action: "product.updated",
@@ -216,7 +217,7 @@ export const deleteProduct = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!product) throw new Error("Bu ürünü silme yetkiniz yok");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: product.store_id,
       actor_id: userId,
       action: "product.deleted",
@@ -393,7 +394,7 @@ export const upsertVariant = createServerFn({ method: "POST" })
     }
     if (!variant) throw new Error("Varyant kaydedilemedi");
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: product.store_id,
       actor_id: userId,
       action: data.variantId ? "variant.updated" : "variant.created",

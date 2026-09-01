@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { insertAuditRow } from "./audit.server";
 
 /** Maliyet (cost_price) güncellemeleri. Tenant izolasyonu RLS ile zorlanır. */
 
@@ -48,7 +49,7 @@ export const setVariantCosts = createServerFn({ method: "POST" })
       updated += 1;
     }
 
-    await supabase.from("audit_logs").insert({
+    await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
       action: "pricing.costs_updated",
