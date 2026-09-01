@@ -286,6 +286,11 @@ function StoreSwitcher({ storeId }: { storeId: string }) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
+          <Link to="/sellers" className="flex items-center gap-2">
+            <Store className="size-4" /> Pazaryeri satıcılığı
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link to="/onboarding" className="flex items-center gap-2">
             <Plus className="size-4" /> Yeni mağaza oluştur
           </Link>
