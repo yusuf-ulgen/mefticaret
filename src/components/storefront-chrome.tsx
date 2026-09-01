@@ -226,6 +226,7 @@ export function StorefrontChrome({
       }}
     >
       {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: customCss }} /> : null}
+      <CookieConsent storeSlug={storeSlug} />
 
       {barText ? (
         <div

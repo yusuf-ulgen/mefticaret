@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { DataRequestForm } from "@/components/data-request-form";
 import { InfoPage, infoHead, infoLoader, type InfoContent } from "@/components/storefront-info-route";
 import { StorefrontFallback } from "@/components/storefront-parts";
 
@@ -28,5 +29,5 @@ export const Route = createFileRoute("/s/$slug/privacy")({
 
 function PrivacyPage() {
   const { slug } = Route.useParams();
-  return <InfoPage slug={slug} content={content} />;
+  return <InfoPage slug={slug} content={content} extra={<DataRequestForm slug={slug} />} />;
 }

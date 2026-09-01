@@ -174,6 +174,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
       items: [
         { label: "Domainler", to: `/store/${storeId}/domains`, icon: Globe },
         { label: "Ekip & Yetkiler", to: `/store/${storeId}/team`, icon: ShieldCheck },
+        { label: "Güvenlik & KVKK", to: `/store/${storeId}/security`, icon: ShieldCheck },
         {
           label: "Personel Performansı",
           to: `/store/${storeId}/team-performance`,
