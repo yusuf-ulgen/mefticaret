@@ -86,6 +86,7 @@ import { Route as AuthenticatedStoreStoreIdSimulatorRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdSlaRouteImport } from './routes/_authenticated/store.$storeId.sla'
 import { Route as AuthenticatedStoreStoreIdStockAlertsRouteImport } from './routes/_authenticated/store.$storeId.stock-alerts'
 import { Route as AuthenticatedStoreStoreIdStockCountRouteImport } from './routes/_authenticated/store.$storeId.stock-count'
+import { Route as AuthenticatedStoreStoreIdStockoutRouteImport } from './routes/_authenticated/store.$storeId.stockout'
 import { Route as AuthenticatedStoreStoreIdSupplierPerformanceRouteImport } from './routes/_authenticated/store.$storeId.supplier-performance'
 import { Route as AuthenticatedStoreStoreIdSupportPerformanceRouteImport } from './routes/_authenticated/store.$storeId.support-performance'
 import { Route as AuthenticatedStoreStoreIdTasksRouteImport } from './routes/_authenticated/store.$storeId.tasks'
@@ -553,6 +554,12 @@ const AuthenticatedStoreStoreIdStockCountRoute =
     path: '/store/$storeId/stock-count',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdStockoutRoute =
+  AuthenticatedStoreStoreIdStockoutRouteImport.update({
+    id: '/store/$storeId/stockout',
+    path: '/store/$storeId/stockout',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdSupplierPerformanceRoute =
   AuthenticatedStoreStoreIdSupplierPerformanceRouteImport.update({
     id: '/store/$storeId/supplier-performance',
@@ -746,6 +753,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
+  '/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
   '/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
   '/store/$storeId/support-performance': typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
   '/store/$storeId/tasks': typeof AuthenticatedStoreStoreIdTasksRoute
@@ -844,6 +852,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
+  '/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
   '/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
   '/store/$storeId/support-performance': typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
   '/store/$storeId/tasks': typeof AuthenticatedStoreStoreIdTasksRoute
@@ -944,6 +953,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
   '/_authenticated/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/_authenticated/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
+  '/_authenticated/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
   '/_authenticated/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
   '/_authenticated/store/$storeId/support-performance': typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
   '/_authenticated/store/$storeId/tasks': typeof AuthenticatedStoreStoreIdTasksRoute
@@ -1044,6 +1054,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/sla'
     | '/store/$storeId/stock-alerts'
     | '/store/$storeId/stock-count'
+    | '/store/$storeId/stockout'
     | '/store/$storeId/supplier-performance'
     | '/store/$storeId/support-performance'
     | '/store/$storeId/tasks'
@@ -1142,6 +1153,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/sla'
     | '/store/$storeId/stock-alerts'
     | '/store/$storeId/stock-count'
+    | '/store/$storeId/stockout'
     | '/store/$storeId/supplier-performance'
     | '/store/$storeId/support-performance'
     | '/store/$storeId/tasks'
@@ -1241,6 +1253,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/sla'
     | '/_authenticated/store/$storeId/stock-alerts'
     | '/_authenticated/store/$storeId/stock-count'
+    | '/_authenticated/store/$storeId/stockout'
     | '/_authenticated/store/$storeId/supplier-performance'
     | '/_authenticated/store/$storeId/support-performance'
     | '/_authenticated/store/$storeId/tasks'
@@ -1825,6 +1838,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdStockCountRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/stockout': {
+      id: '/_authenticated/store/$storeId/stockout'
+      path: '/store/$storeId/stockout'
+      fullPath: '/store/$storeId/stockout'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdStockoutRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/supplier-performance': {
       id: '/_authenticated/store/$storeId/supplier-performance'
       path: '/store/$storeId/supplier-performance'
@@ -2082,6 +2102,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdSlaRoute: typeof AuthenticatedStoreStoreIdSlaRoute
   AuthenticatedStoreStoreIdStockAlertsRoute: typeof AuthenticatedStoreStoreIdStockAlertsRoute
   AuthenticatedStoreStoreIdStockCountRoute: typeof AuthenticatedStoreStoreIdStockCountRoute
+  AuthenticatedStoreStoreIdStockoutRoute: typeof AuthenticatedStoreStoreIdStockoutRoute
   AuthenticatedStoreStoreIdSupplierPerformanceRoute: typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
   AuthenticatedStoreStoreIdSupportPerformanceRoute: typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
   AuthenticatedStoreStoreIdTasksRoute: typeof AuthenticatedStoreStoreIdTasksRoute
@@ -2198,6 +2219,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdStockAlertsRoute,
   AuthenticatedStoreStoreIdStockCountRoute:
     AuthenticatedStoreStoreIdStockCountRoute,
+  AuthenticatedStoreStoreIdStockoutRoute:
+    AuthenticatedStoreStoreIdStockoutRoute,
   AuthenticatedStoreStoreIdSupplierPerformanceRoute:
     AuthenticatedStoreStoreIdSupplierPerformanceRoute,
   AuthenticatedStoreStoreIdSupportPerformanceRoute:
