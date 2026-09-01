@@ -378,6 +378,277 @@ export type Database = {
           },
         ]
       }
+      automation_run_events: {
+        Row: {
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["automation_step_kind"]
+          message: string | null
+          outcome: string
+          run_id: string
+          step_id: string | null
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["automation_step_kind"]
+          message?: string | null
+          outcome?: string
+          run_id: string
+          step_id?: string | null
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["automation_step_kind"]
+          message?: string | null
+          outcome?: string
+          run_id?: string
+          step_id?: string | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_run_events_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "automation_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_run_events_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "automation_steps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_run_events_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_runs: {
+        Row: {
+          cart_id: string | null
+          completed_at: string | null
+          context: Json
+          created_at: string
+          current_position: number
+          customer_id: string | null
+          id: string
+          last_error: string | null
+          next_run_at: string
+          order_id: string | null
+          status: Database["public"]["Enums"]["automation_run_status"]
+          store_id: string
+          updated_at: string
+          workflow_id: string
+        }
+        Insert: {
+          cart_id?: string | null
+          completed_at?: string | null
+          context?: Json
+          created_at?: string
+          current_position?: number
+          customer_id?: string | null
+          id?: string
+          last_error?: string | null
+          next_run_at?: string
+          order_id?: string | null
+          status?: Database["public"]["Enums"]["automation_run_status"]
+          store_id: string
+          updated_at?: string
+          workflow_id: string
+        }
+        Update: {
+          cart_id?: string | null
+          completed_at?: string | null
+          context?: Json
+          created_at?: string
+          current_position?: number
+          customer_id?: string | null
+          id?: string
+          last_error?: string | null
+          next_run_at?: string
+          order_id?: string | null
+          status?: Database["public"]["Enums"]["automation_run_status"]
+          store_id?: string
+          updated_at?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_runs_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "abandoned_carts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_runs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_runs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_runs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_runs_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "automation_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_steps: {
+        Row: {
+          condition_kind:
+            | Database["public"]["Enums"]["automation_condition"]
+            | null
+          config: Json
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["automation_step_kind"]
+          on_false: string
+          on_true: string
+          position: number
+          store_id: string
+          template_id: string | null
+          title: string | null
+          updated_at: string
+          wait_minutes: number
+          workflow_id: string
+        }
+        Insert: {
+          condition_kind?:
+            | Database["public"]["Enums"]["automation_condition"]
+            | null
+          config?: Json
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["automation_step_kind"]
+          on_false?: string
+          on_true?: string
+          position?: number
+          store_id: string
+          template_id?: string | null
+          title?: string | null
+          updated_at?: string
+          wait_minutes?: number
+          workflow_id: string
+        }
+        Update: {
+          condition_kind?:
+            | Database["public"]["Enums"]["automation_condition"]
+            | null
+          config?: Json
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["automation_step_kind"]
+          on_false?: string
+          on_true?: string
+          position?: number
+          store_id?: string
+          template_id?: string | null
+          title?: string | null
+          updated_at?: string
+          wait_minutes?: number
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_steps_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_steps_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "message_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_steps_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "automation_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_workflows: {
+        Row: {
+          completed_count: number
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          messages_sent: number
+          name: string
+          runs_count: number
+          store_id: string
+          trigger_event: Database["public"]["Enums"]["automation_trigger"]
+          updated_at: string
+        }
+        Insert: {
+          completed_count?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          messages_sent?: number
+          name: string
+          runs_count?: number
+          store_id: string
+          trigger_event: Database["public"]["Enums"]["automation_trigger"]
+          updated_at?: string
+        }
+        Update: {
+          completed_count?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          messages_sent?: number
+          name?: string
+          runs_count?: number
+          store_id?: string
+          trigger_event?: Database["public"]["Enums"]["automation_trigger"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_workflows_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_cycles: {
         Row: {
           amount_due: number
@@ -1535,6 +1806,145 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "marketplace_sellers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_deliveries: {
+        Row: {
+          body: string
+          channel: Database["public"]["Enums"]["message_channel"]
+          created_at: string
+          customer_id: string | null
+          error: string | null
+          id: string
+          provider_message_id: string | null
+          recipient: string
+          run_id: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["message_delivery_status"]
+          store_id: string
+          subject: string | null
+          template_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          channel: Database["public"]["Enums"]["message_channel"]
+          created_at?: string
+          customer_id?: string | null
+          error?: string | null
+          id?: string
+          provider_message_id?: string | null
+          recipient: string
+          run_id?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["message_delivery_status"]
+          store_id: string
+          subject?: string | null
+          template_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          channel?: Database["public"]["Enums"]["message_channel"]
+          created_at?: string
+          customer_id?: string | null
+          error?: string | null
+          id?: string
+          provider_message_id?: string | null
+          recipient?: string
+          run_id?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["message_delivery_status"]
+          store_id?: string
+          subject?: string | null
+          template_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_deliveries_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_deliveries_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "automation_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_deliveries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_deliveries_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "message_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_templates: {
+        Row: {
+          body: string
+          channel: Database["public"]["Enums"]["message_channel"]
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          store_id: string
+          subject: string | null
+          updated_at: string
+          variables: Json
+          whatsapp_language: string
+          whatsapp_template_name: string | null
+        }
+        Insert: {
+          body?: string
+          channel: Database["public"]["Enums"]["message_channel"]
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          store_id: string
+          subject?: string | null
+          updated_at?: string
+          variables?: Json
+          whatsapp_language?: string
+          whatsapp_template_name?: string | null
+        }
+        Update: {
+          body?: string
+          channel?: Database["public"]["Enums"]["message_channel"]
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          store_id?: string
+          subject?: string | null
+          updated_at?: string
+          variables?: Json
+          whatsapp_language?: string
+          whatsapp_template_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_templates_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -4323,6 +4733,214 @@ export type Database = {
           },
         ]
       }
+      whatsapp_accounts: {
+        Row: {
+          auto_reply_enabled: boolean
+          business_name: string | null
+          created_at: string
+          display_phone: string
+          id: string
+          phone_number_id: string
+          status: string
+          store_id: string
+          updated_at: string
+          verify_token: string
+          waba_id: string | null
+        }
+        Insert: {
+          auto_reply_enabled?: boolean
+          business_name?: string | null
+          created_at?: string
+          display_phone: string
+          id?: string
+          phone_number_id: string
+          status?: string
+          store_id: string
+          updated_at?: string
+          verify_token?: string
+          waba_id?: string | null
+        }
+        Update: {
+          auto_reply_enabled?: boolean
+          business_name?: string | null
+          created_at?: string
+          display_phone?: string
+          id?: string
+          phone_number_id?: string
+          status?: string
+          store_id?: string
+          updated_at?: string
+          verify_token?: string
+          waba_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_accounts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_auto_replies: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          keyword: string
+          match_type: string
+          reply_body: string
+          sort_order: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keyword: string
+          match_type?: string
+          reply_body: string
+          sort_order?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keyword?: string
+          match_type?: string
+          reply_body?: string
+          sort_order?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_auto_replies_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_conversations: {
+        Row: {
+          contact_name: string | null
+          created_at: string
+          customer_id: string | null
+          id: string
+          last_message_at: string
+          last_message_preview: string | null
+          status: string
+          store_id: string
+          unread_count: number
+          updated_at: string
+          wa_id: string
+        }
+        Insert: {
+          contact_name?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          status?: string
+          store_id: string
+          unread_count?: number
+          updated_at?: string
+          wa_id: string
+        }
+        Update: {
+          contact_name?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          status?: string
+          store_id?: string
+          unread_count?: number
+          updated_at?: string
+          wa_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_conversations_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_conversations_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          direction: Database["public"]["Enums"]["whatsapp_direction"]
+          id: string
+          message_type: string
+          payload: Json
+          status: Database["public"]["Enums"]["message_delivery_status"]
+          store_id: string
+          template_name: string | null
+          wa_message_id: string | null
+        }
+        Insert: {
+          body?: string
+          conversation_id: string
+          created_at?: string
+          direction: Database["public"]["Enums"]["whatsapp_direction"]
+          id?: string
+          message_type?: string
+          payload?: Json
+          status?: Database["public"]["Enums"]["message_delivery_status"]
+          store_id: string
+          template_name?: string | null
+          wa_message_id?: string | null
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          direction?: Database["public"]["Enums"]["whatsapp_direction"]
+          id?: string
+          message_type?: string
+          payload?: Json
+          status?: Database["public"]["Enums"]["message_delivery_status"]
+          store_id?: string
+          template_name?: string | null
+          wa_message_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_messages_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -4354,6 +4972,36 @@ export type Database = {
       app_install_status: "installed" | "paused" | "uninstalled"
       app_pricing_model: "free" | "monthly" | "one_time" | "usage"
       app_role: "platform_admin" | "agency" | "seller" | "customer"
+      automation_condition:
+        | "order_placed"
+        | "order_paid"
+        | "email_opened"
+        | "has_tag"
+        | "cart_still_active"
+      automation_run_status:
+        | "active"
+        | "waiting"
+        | "completed"
+        | "stopped"
+        | "failed"
+      automation_step_kind:
+        | "wait"
+        | "email"
+        | "sms"
+        | "whatsapp"
+        | "push"
+        | "condition"
+        | "end"
+      automation_trigger:
+        | "cart_abandoned"
+        | "order_placed"
+        | "order_paid"
+        | "order_shipped"
+        | "order_delivered"
+        | "customer_created"
+        | "back_in_stock"
+        | "review_received"
+        | "manual"
       billing_cycle_status: "open" | "closed" | "invoiced"
       billing_interval: "monthly" | "yearly"
       channel_status: "disconnected" | "connected" | "error" | "paused"
@@ -4389,6 +5037,13 @@ export type Database = {
         | "payout"
         | "adjustment"
       listing_status: "draft" | "queued" | "listed" | "error" | "removed"
+      message_channel: "email" | "sms" | "whatsapp" | "push"
+      message_delivery_status:
+        | "queued"
+        | "sent"
+        | "delivered"
+        | "read"
+        | "failed"
       notification_kind:
         | "order"
         | "inventory"
@@ -4455,6 +5110,7 @@ export type Database = {
         | "dropship"
         | "virtual"
       webhook_delivery_status: "pending" | "success" | "failed"
+      whatsapp_direction: "inbound" | "outbound"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4602,6 +5258,40 @@ export const Constants = {
       app_install_status: ["installed", "paused", "uninstalled"],
       app_pricing_model: ["free", "monthly", "one_time", "usage"],
       app_role: ["platform_admin", "agency", "seller", "customer"],
+      automation_condition: [
+        "order_placed",
+        "order_paid",
+        "email_opened",
+        "has_tag",
+        "cart_still_active",
+      ],
+      automation_run_status: [
+        "active",
+        "waiting",
+        "completed",
+        "stopped",
+        "failed",
+      ],
+      automation_step_kind: [
+        "wait",
+        "email",
+        "sms",
+        "whatsapp",
+        "push",
+        "condition",
+        "end",
+      ],
+      automation_trigger: [
+        "cart_abandoned",
+        "order_placed",
+        "order_paid",
+        "order_shipped",
+        "order_delivered",
+        "customer_created",
+        "back_in_stock",
+        "review_received",
+        "manual",
+      ],
       billing_cycle_status: ["open", "closed", "invoiced"],
       billing_interval: ["monthly", "yearly"],
       channel_status: ["disconnected", "connected", "error", "paused"],
@@ -4640,6 +5330,14 @@ export const Constants = {
         "adjustment",
       ],
       listing_status: ["draft", "queued", "listed", "error", "removed"],
+      message_channel: ["email", "sms", "whatsapp", "push"],
+      message_delivery_status: [
+        "queued",
+        "sent",
+        "delivered",
+        "read",
+        "failed",
+      ],
       notification_kind: [
         "order",
         "inventory",
@@ -4714,6 +5412,7 @@ export const Constants = {
         "virtual",
       ],
       webhook_delivery_status: ["pending", "success", "failed"],
+      whatsapp_direction: ["inbound", "outbound"],
     },
   },
 } as const

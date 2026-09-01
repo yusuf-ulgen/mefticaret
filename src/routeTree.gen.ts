@@ -47,6 +47,7 @@ import { Route as AuthenticatedStoreStoreIdAiRouteImport } from './routes/_authe
 import { Route as AuthenticatedStoreStoreIdAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.analytics'
 import { Route as AuthenticatedStoreStoreIdApiRouteImport } from './routes/_authenticated/store.$storeId.api'
 import { Route as AuthenticatedStoreStoreIdAppsRouteImport } from './routes/_authenticated/store.$storeId.apps'
+import { Route as AuthenticatedStoreStoreIdAutomationsRouteImport } from './routes/_authenticated/store.$storeId.automations'
 import { Route as AuthenticatedStoreStoreIdBarcodesRouteImport } from './routes/_authenticated/store.$storeId.barcodes'
 import { Route as AuthenticatedStoreStoreIdBasketRouteImport } from './routes/_authenticated/store.$storeId.basket'
 import { Route as AuthenticatedStoreStoreIdBillingRouteImport } from './routes/_authenticated/store.$storeId.billing'
@@ -122,11 +123,14 @@ import { Route as AuthenticatedStoreStoreIdValuationRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdVendorsRouteImport } from './routes/_authenticated/store.$storeId.vendors'
 import { Route as AuthenticatedStoreStoreIdWarehousesRouteImport } from './routes/_authenticated/store.$storeId.warehouses'
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
+import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/_authenticated/store.$storeId.whatsapp'
+import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
+import { Route as ApiPublicWhatsappStoreIdRouteImport } from './routes/api/public/whatsapp.$storeId'
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
@@ -330,6 +334,12 @@ const AuthenticatedStoreStoreIdAppsRoute =
   AuthenticatedStoreStoreIdAppsRouteImport.update({
     id: '/store/$storeId/apps',
     path: '/store/$storeId/apps',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdAutomationsRoute =
+  AuthenticatedStoreStoreIdAutomationsRouteImport.update({
+    id: '/store/$storeId/automations',
+    path: '/store/$storeId/automations',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdBarcodesRoute =
@@ -782,6 +792,18 @@ const AuthenticatedStoreStoreIdWebhooksRoute =
     path: '/store/$storeId/webhooks',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdWhatsappRoute =
+  AuthenticatedStoreStoreIdWhatsappRouteImport.update({
+    id: '/store/$storeId/whatsapp',
+    path: '/store/$storeId/whatsapp',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicCronAutomationTickRoute =
+  ApiPublicCronAutomationTickRouteImport.update({
+    id: '/api/public/cron/automation-tick',
+    path: '/api/public/cron/automation-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronDailyRollupRoute =
   ApiPublicCronDailyRollupRouteImport.update({
     id: '/api/public/cron/daily-rollup',
@@ -809,6 +831,12 @@ const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
   path: '/api/public/v1/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWhatsappStoreIdRoute =
+  ApiPublicWhatsappStoreIdRouteImport.update({
+    id: '/api/public/whatsapp/$storeId',
+    path: '/api/public/whatsapp/$storeId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SSlugCCollectionSlugRoute = SSlugCCollectionSlugRouteImport.update({
   id: '/s/$slug/c/$collectionSlug',
   path: '/s/$slug/c/$collectionSlug',
@@ -887,6 +915,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
   '/store/$storeId/api': typeof AuthenticatedStoreStoreIdApiRoute
   '/store/$storeId/apps': typeof AuthenticatedStoreStoreIdAppsRoute
+  '/store/$storeId/automations': typeof AuthenticatedStoreStoreIdAutomationsRoute
   '/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
   '/store/$storeId/basket': typeof AuthenticatedStoreStoreIdBasketRoute
   '/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
@@ -962,11 +991,14 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/vendors': typeof AuthenticatedStoreStoreIdVendorsRoute
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
+  '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
+  '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
+  '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -1013,6 +1045,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
   '/store/$storeId/api': typeof AuthenticatedStoreStoreIdApiRoute
   '/store/$storeId/apps': typeof AuthenticatedStoreStoreIdAppsRoute
+  '/store/$storeId/automations': typeof AuthenticatedStoreStoreIdAutomationsRoute
   '/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
   '/store/$storeId/basket': typeof AuthenticatedStoreStoreIdBasketRoute
   '/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
@@ -1088,11 +1121,14 @@ export interface FileRoutesByTo {
   '/store/$storeId/vendors': typeof AuthenticatedStoreStoreIdVendorsRoute
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
+  '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
+  '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
+  '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -1141,6 +1177,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
   '/_authenticated/store/$storeId/api': typeof AuthenticatedStoreStoreIdApiRoute
   '/_authenticated/store/$storeId/apps': typeof AuthenticatedStoreStoreIdAppsRoute
+  '/_authenticated/store/$storeId/automations': typeof AuthenticatedStoreStoreIdAutomationsRoute
   '/_authenticated/store/$storeId/barcodes': typeof AuthenticatedStoreStoreIdBarcodesRoute
   '/_authenticated/store/$storeId/basket': typeof AuthenticatedStoreStoreIdBasketRoute
   '/_authenticated/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
@@ -1216,11 +1253,14 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/vendors': typeof AuthenticatedStoreStoreIdVendorsRoute
   '/_authenticated/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
+  '/_authenticated/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
+  '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
+  '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -1269,6 +1309,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/analytics'
     | '/store/$storeId/api'
     | '/store/$storeId/apps'
+    | '/store/$storeId/automations'
     | '/store/$storeId/barcodes'
     | '/store/$storeId/basket'
     | '/store/$storeId/billing'
@@ -1344,11 +1385,14 @@ export interface FileRouteTypes {
     | '/store/$storeId/vendors'
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
+    | '/store/$storeId/whatsapp'
+    | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/v1/$'
+    | '/api/public/whatsapp/$storeId'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -1395,6 +1439,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/analytics'
     | '/store/$storeId/api'
     | '/store/$storeId/apps'
+    | '/store/$storeId/automations'
     | '/store/$storeId/barcodes'
     | '/store/$storeId/basket'
     | '/store/$storeId/billing'
@@ -1470,11 +1515,14 @@ export interface FileRouteTypes {
     | '/store/$storeId/vendors'
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
+    | '/store/$storeId/whatsapp'
+    | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/v1/$'
+    | '/api/public/whatsapp/$storeId'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -1522,6 +1570,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/analytics'
     | '/_authenticated/store/$storeId/api'
     | '/_authenticated/store/$storeId/apps'
+    | '/_authenticated/store/$storeId/automations'
     | '/_authenticated/store/$storeId/barcodes'
     | '/_authenticated/store/$storeId/basket'
     | '/_authenticated/store/$storeId/billing'
@@ -1597,11 +1646,14 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/vendors'
     | '/_authenticated/store/$storeId/warehouses'
     | '/_authenticated/store/$storeId/webhooks'
+    | '/_authenticated/store/$storeId/whatsapp'
+    | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/v1/$'
+    | '/api/public/whatsapp/$storeId'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -1638,11 +1690,13 @@ export interface RootRouteChildren {
   SSlugSearchRoute: typeof SSlugSearchRoute
   SSlugTermsRoute: typeof SSlugTermsRoute
   SSlugIndexRoute: typeof SSlugIndexRoute
+  ApiPublicCronAutomationTickRoute: typeof ApiPublicCronAutomationTickRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
+  ApiPublicWhatsappStoreIdRoute: typeof ApiPublicWhatsappStoreIdRoute
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
@@ -1914,6 +1968,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/apps'
       fullPath: '/store/$storeId/apps'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAppsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/automations': {
+      id: '/_authenticated/store/$storeId/automations'
+      path: '/store/$storeId/automations'
+      fullPath: '/store/$storeId/automations'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdAutomationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/barcodes': {
@@ -2441,6 +2502,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdWebhooksRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/whatsapp': {
+      id: '/_authenticated/store/$storeId/whatsapp'
+      path: '/store/$storeId/whatsapp'
+      fullPath: '/store/$storeId/whatsapp'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdWhatsappRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/cron/automation-tick': {
+      id: '/api/public/cron/automation-tick'
+      path: '/api/public/cron/automation-tick'
+      fullPath: '/api/public/cron/automation-tick'
+      preLoaderRoute: typeof ApiPublicCronAutomationTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/daily-rollup': {
       id: '/api/public/cron/daily-rollup'
       path: '/api/public/cron/daily-rollup'
@@ -2474,6 +2549,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/v1/$'
       fullPath: '/api/public/v1/$'
       preLoaderRoute: typeof ApiPublicV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/whatsapp/$storeId': {
+      id: '/api/public/whatsapp/$storeId'
+      path: '/api/public/whatsapp/$storeId'
+      fullPath: '/api/public/whatsapp/$storeId'
+      preLoaderRoute: typeof ApiPublicWhatsappStoreIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/c/$collectionSlug': {
@@ -2589,6 +2671,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdAnalyticsRoute: typeof AuthenticatedStoreStoreIdAnalyticsRoute
   AuthenticatedStoreStoreIdApiRoute: typeof AuthenticatedStoreStoreIdApiRoute
   AuthenticatedStoreStoreIdAppsRoute: typeof AuthenticatedStoreStoreIdAppsRoute
+  AuthenticatedStoreStoreIdAutomationsRoute: typeof AuthenticatedStoreStoreIdAutomationsRoute
   AuthenticatedStoreStoreIdBarcodesRoute: typeof AuthenticatedStoreStoreIdBarcodesRoute
   AuthenticatedStoreStoreIdBasketRoute: typeof AuthenticatedStoreStoreIdBasketRoute
   AuthenticatedStoreStoreIdBillingRoute: typeof AuthenticatedStoreStoreIdBillingRoute
@@ -2664,6 +2747,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdVendorsRoute: typeof AuthenticatedStoreStoreIdVendorsRoute
   AuthenticatedStoreStoreIdWarehousesRoute: typeof AuthenticatedStoreStoreIdWarehousesRoute
   AuthenticatedStoreStoreIdWebhooksRoute: typeof AuthenticatedStoreStoreIdWebhooksRoute
+  AuthenticatedStoreStoreIdWhatsappRoute: typeof AuthenticatedStoreStoreIdWhatsappRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -2681,6 +2765,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdAnalyticsRoute,
   AuthenticatedStoreStoreIdApiRoute: AuthenticatedStoreStoreIdApiRoute,
   AuthenticatedStoreStoreIdAppsRoute: AuthenticatedStoreStoreIdAppsRoute,
+  AuthenticatedStoreStoreIdAutomationsRoute:
+    AuthenticatedStoreStoreIdAutomationsRoute,
   AuthenticatedStoreStoreIdBarcodesRoute:
     AuthenticatedStoreStoreIdBarcodesRoute,
   AuthenticatedStoreStoreIdBasketRoute: AuthenticatedStoreStoreIdBasketRoute,
@@ -2803,6 +2889,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdWarehousesRoute,
   AuthenticatedStoreStoreIdWebhooksRoute:
     AuthenticatedStoreStoreIdWebhooksRoute,
+  AuthenticatedStoreStoreIdWhatsappRoute:
+    AuthenticatedStoreStoreIdWhatsappRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -2835,11 +2923,13 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugSearchRoute: SSlugSearchRoute,
   SSlugTermsRoute: SSlugTermsRoute,
   SSlugIndexRoute: SSlugIndexRoute,
+  ApiPublicCronAutomationTickRoute: ApiPublicCronAutomationTickRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
+  ApiPublicWhatsappStoreIdRoute: ApiPublicWhatsappStoreIdRoute,
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
