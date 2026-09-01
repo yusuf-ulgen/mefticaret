@@ -186,7 +186,6 @@ function ProductDetailPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const variants = product?.product_variants ?? [];
   const selectedCollections = (product?.product_collections ?? []).map((row) => row.collection_id);
 
   return (
