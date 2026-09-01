@@ -30,6 +30,18 @@ export const placeOrderSchema = z.object({
     line1: z.string().trim().min(5).max(240),
     postalCode: z.string().trim().max(20).optional(),
   }),
+  billingAddress: z
+    .object({
+      recipient: z.string().trim().max(120).optional(),
+      company: z.string().trim().max(160).optional(),
+      taxId: z.string().trim().max(40).optional(),
+      country: z.string().trim().min(2).max(60),
+      city: z.string().trim().min(1).max(80),
+      district: z.string().trim().max(80).optional(),
+      line1: z.string().trim().min(5).max(240),
+      postalCode: z.string().trim().max(20).optional(),
+    })
+    .optional(),
   shippingRateId: z.string().uuid().optional(),
   paymentMethodId: z.string().uuid().optional(),
   discountCode: z.string().trim().max(60).optional(),
@@ -463,7 +475,7 @@ export async function createStorefrontOrder(
       customer_email: input.customer.email.toLowerCase(),
       customer_name: input.customer.fullName,
       shipping_address: addressJson,
-      billing_address: addressJson,
+      billing_address: billingJson,
       shipping_carrier: shippingTitle,
       note: input.note?.length ? input.note : null,
     })
