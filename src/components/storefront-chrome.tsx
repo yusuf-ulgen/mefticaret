@@ -45,6 +45,11 @@ export type StoreTheme = {
   hero_cta_label: string;
   announcement: string | null;
   show_announcement: boolean;
+  logo_url?: string | null;
+  button_style?: string | null;
+  card_style?: string | null;
+  content_width?: number | null;
+  section_spacing?: number | null;
 } | null;
 
 export const FALLBACK_THEME = {
@@ -59,6 +64,11 @@ export const FALLBACK_THEME = {
   hero_cta_label: "Alışverişe başla",
   announcement: null,
   show_announcement: false,
+  logo_url: null,
+  button_style: "solid",
+  card_style: "soft",
+  content_width: 1140,
+  section_spacing: 48,
 };
 
 export function isDark(hex: string) {
@@ -83,7 +93,59 @@ export function storefrontTokens(theme: StoreTheme) {
     cardBg: dark ? "rgba(255,255,255,.06)" : "#ffffff",
     border: dark ? "rgba(255,255,255,.12)" : "rgba(31,41,51,.10)",
     radius: `${t.radius}rem`,
+    logoUrl: t.logo_url ?? null,
+    buttonStyle: t.button_style ?? "solid",
+    cardStyle: t.card_style ?? "soft",
+    contentWidth: Number(t.content_width ?? 1140),
+    sectionSpacing: Number(t.section_spacing ?? 48),
   };
+}
+
+/** Buton stiline göre inline stil üretir (solid / outline / pill / ghost). */
+export function buttonStyles(theme: StoreTheme): Record<string, string | number> {
+  const { t, buttonStyle, radius, text } = storefrontTokens(theme);
+  const base = {
+    display: "inline-block",
+    padding: "12px 22px",
+    fontSize: 14,
+    fontWeight: 600,
+    textDecoration: "none",
+    cursor: "pointer",
+    borderRadius: buttonStyle === "pill" ? "999px" : buttonStyle === "square" ? "0px" : radius,
+  } as Record<string, string | number>;
+  if (buttonStyle === "outline") {
+    return { ...base, background: "transparent", color: text, border: `1.5px solid ${t.accent_color}` };
+  }
+  if (buttonStyle === "ghost") {
+    return { ...base, background: `${t.accent_color}1f`, color: text, border: "1px solid transparent" };
+  }
+  return {
+    ...base,
+    background: t.accent_color,
+    color: isDark(t.accent_color) ? "#ffffff" : "#12181f",
+    border: "1px solid transparent",
+  };
+}
+
+/** Ürün kartı stiline göre inline stil üretir (soft / bordered / flat / shadow). */
+export function cardStyles(theme: StoreTheme): Record<string, string | number> {
+  const { cardBg, border, radius, cardStyle } = storefrontTokens(theme);
+  if (cardStyle === "flat") {
+    return { background: "transparent", border: "1px solid transparent", borderRadius: radius, padding: 4 };
+  }
+  if (cardStyle === "bordered") {
+    return { background: "transparent", border: `1.5px solid ${border}`, borderRadius: radius, padding: 16 };
+  }
+  if (cardStyle === "shadow") {
+    return {
+      background: cardBg,
+      border: "1px solid transparent",
+      borderRadius: radius,
+      padding: 16,
+      boxShadow: "0 18px 40px -24px rgba(15,23,42,.45)",
+    };
+  }
+  return { background: cardBg, border: `1px solid ${border}`, borderRadius: radius, padding: 16 };
 }
 
 /** Kiracıya özel tema ile render edilen vitrin kabuğu (panel temasından bağımsız). */
@@ -107,7 +169,7 @@ export function StorefrontChrome({
   customJs?: string | null | undefined;
   children: ReactNode;
 }) {
-  const { t, fonts, text, muted, border, radius } = storefrontTokens(theme);
+  const { t, fonts, text, muted, border, radius, logoUrl, contentWidth } = storefrontTokens(theme);
   const cart = useCart();
   const favorites = useFavorites();
   const compare = useCompare();
@@ -189,7 +251,7 @@ export function StorefrontChrome({
           justifyContent: "space-between",
           padding: "18px 24px",
           borderBottom: `1px solid ${border}`,
-          maxWidth: 1140,
+          maxWidth: contentWidth,
           margin: "0 auto",
           position: flag(headerCfg, "sticky", false) ? "sticky" : undefined,
           top: flag(headerCfg, "sticky", false) ? 0 : undefined,
@@ -201,8 +263,20 @@ export function StorefrontChrome({
           <Link
             to="/s/$slug"
             params={{ slug: storeSlug }}
-            style={{ fontFamily: fonts.heading, fontWeight: 700, fontSize: 20, color: text, textDecoration: "none" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              fontFamily: fonts.heading,
+              fontWeight: 700,
+              fontSize: 20,
+              color: text,
+              textDecoration: "none",
+            }}
           >
+            {logoUrl ? (
+              <img src={logoUrl} alt={storeName} style={{ height: 34, width: "auto", display: "block" }} />
+            ) : null}
             {storeName}
           </Link>
           {value(headerCfg, "tagline") ? (
@@ -328,7 +402,7 @@ export function StorefrontChrome({
         </nav>
       </header>
 
-      <main style={{ maxWidth: 1140, margin: "0 auto", padding: "0 24px 64px" }}>{children}</main>
+      <main style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>{children}</main>
 
       <footer
         style={{
