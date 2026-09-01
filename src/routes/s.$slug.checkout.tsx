@@ -185,20 +185,20 @@ function CheckoutPage() {
   }, [savedAddresses]);
 
   function applySavedAddress(address: {
-    recipient: string;
+    recipient: string | null;
     phone: string | null;
-    country: string;
-    city: string;
+    country: string | null;
+    city: string | null;
     district: string | null;
-    line1: string;
+    line1: string | null;
     postal_code: string | null;
   }) {
-    setFullName((current) => current || address.recipient);
+    if (address.recipient) setFullName((current) => current || address.recipient!);
     if (address.phone) setPhone((current) => current || address.phone!);
-    setCountry(address.country);
-    setCity(address.city);
+    if (address.country) setCountry(address.country);
+    setCity(address.city ?? "");
     setDistrict(address.district ?? "");
-    setLine1(address.line1);
+    setLine1(address.line1 ?? "");
     setPostalCode(address.postal_code ?? "");
   }
 
@@ -387,12 +387,12 @@ function CheckoutPage() {
                   {savedAddresses.map((address) => (
                     <Option
                       key={address.id}
-                      active={line1 === address.line1 && city === address.city}
+                      active={Boolean(address.line1) && line1 === address.line1 && city === (address.city ?? "")}
                       onClick={() => applySavedAddress(address)}
                       border={border}
                       radius={radius}
                       accent={t.accent_color}
-                      title={address.label || address.recipient}
+                      title={address.label || address.recipient || "Adres"}
                       subtitle={[address.line1, address.district, address.city].filter(Boolean).join(", ")}
                       muted={muted}
                     />
