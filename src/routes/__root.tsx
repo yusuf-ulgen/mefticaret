@@ -15,6 +15,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart";
 import { CompareProvider } from "@/lib/compare";
 import { FavoritesProvider } from "@/lib/favorites";
+import { I18nProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -128,6 +129,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <I18nProvider>
       <AuthProvider>
         <CartProvider>
           <FavoritesProvider>
@@ -139,6 +141,7 @@ function RootComponent() {
         </CartProvider>
         <Toaster richColors position="top-right" />
       </AuthProvider>
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

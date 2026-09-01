@@ -178,6 +178,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
           icon: ShieldCheck,
         },
         { label: "Ayarlar", to: `/store/${storeId}/settings`, icon: Cog },
+        { label: "Dil & Para Birimi", to: `/store/${storeId}/localization`, icon: Globe },
         { label: "Ödeme", to: `/store/${storeId}/payments`, icon: BadgeCheck },
         { label: "Kargo", to: `/store/${storeId}/shipping`, icon: Truck },
         { label: "Pazarlama Otomasyonu", to: `/store/${storeId}/automations`, icon: Zap },
