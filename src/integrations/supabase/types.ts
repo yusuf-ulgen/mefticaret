@@ -1447,58 +1447,88 @@ export type Database = {
       }
       products: {
         Row: {
+          barcode: string | null
           base_price: number
           compare_at_price: number | null
+          cost_price: number | null
           created_at: string
           currency: string
           description: string | null
+          height_cm: number | null
           id: string
+          length_cm: number | null
           product_type: string | null
+          seller_name: string | null
           seo: Json
+          sku: string | null
           slug: string
           status: Database["public"]["Enums"]["product_status"]
           store_id: string
           tags: string[]
+          tax_rate: number
           title: string
           track_inventory: boolean
           updated_at: string
           vendor: string | null
+          video_url: string | null
+          weight_grams: number | null
+          width_cm: number | null
         }
         Insert: {
+          barcode?: string | null
           base_price?: number
           compare_at_price?: number | null
+          cost_price?: number | null
           created_at?: string
           currency?: string
           description?: string | null
+          height_cm?: number | null
           id?: string
+          length_cm?: number | null
           product_type?: string | null
+          seller_name?: string | null
           seo?: Json
+          sku?: string | null
           slug: string
           status?: Database["public"]["Enums"]["product_status"]
           store_id: string
           tags?: string[]
+          tax_rate?: number
           title: string
           track_inventory?: boolean
           updated_at?: string
           vendor?: string | null
+          video_url?: string | null
+          weight_grams?: number | null
+          width_cm?: number | null
         }
         Update: {
+          barcode?: string | null
           base_price?: number
           compare_at_price?: number | null
+          cost_price?: number | null
           created_at?: string
           currency?: string
           description?: string | null
+          height_cm?: number | null
           id?: string
+          length_cm?: number | null
           product_type?: string | null
+          seller_name?: string | null
           seo?: Json
+          sku?: string | null
           slug?: string
           status?: Database["public"]["Enums"]["product_status"]
           store_id?: string
           tags?: string[]
+          tax_rate?: number
           title?: string
           track_inventory?: boolean
           updated_at?: string
           vendor?: string | null
+          video_url?: string | null
+          weight_grams?: number | null
+          width_cm?: number | null
         }
         Relationships: [
           {
