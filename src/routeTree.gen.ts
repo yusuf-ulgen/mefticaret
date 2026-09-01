@@ -127,6 +127,7 @@ import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/_authenticated/store.$storeId.whatsapp'
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
+import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
@@ -818,6 +819,11 @@ const ApiPublicCronDailyRollupRoute =
     path: '/api/public/cron/daily-rollup',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronFeedSyncRoute = ApiPublicCronFeedSyncRouteImport.update({
+  id: '/api/public/cron/feed-sync',
+  path: '/api/public/cron/feed-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronWebhookRetriesRoute =
   ApiPublicCronWebhookRetriesRouteImport.update({
     id: '/api/public/cron/webhook-retries',
@@ -1008,6 +1014,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -1140,6 +1147,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -1274,6 +1282,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -1408,6 +1417,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
@@ -1540,6 +1550,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
@@ -1673,6 +1684,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/feed-sync'
     | '/api/public/cron/webhook-retries'
     | '/api/public/robots/$slug'
     | '/api/public/sitemap/$slug'
@@ -1717,6 +1729,7 @@ export interface RootRouteChildren {
   SSlugIndexRoute: typeof SSlugIndexRoute
   ApiPublicCronAutomationTickRoute: typeof ApiPublicCronAutomationTickRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
+  ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
@@ -2556,6 +2569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronDailyRollupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/feed-sync': {
+      id: '/api/public/cron/feed-sync'
+      path: '/api/public/cron/feed-sync'
+      fullPath: '/api/public/cron/feed-sync'
+      preLoaderRoute: typeof ApiPublicCronFeedSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/webhook-retries': {
       id: '/api/public/cron/webhook-retries'
       path: '/api/public/cron/webhook-retries'
@@ -2968,6 +2988,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugIndexRoute: SSlugIndexRoute,
   ApiPublicCronAutomationTickRoute: ApiPublicCronAutomationTickRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
+  ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
