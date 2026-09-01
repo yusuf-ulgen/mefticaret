@@ -275,7 +275,7 @@ export async function eraseCustomerData(
     action: "customer.erased",
     entity: "customer",
     entity_id: customerId,
-    meta: { anonymized: true } as never,
+    new_value: { anonymized: true } as never,
   });
 
   return { ok: true };
