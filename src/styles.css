@@ -116,14 +116,15 @@
   --chart-4: oklch(0.62 0.11 250);
   --chart-5: oklch(0.68 0.17 22);
 
-  --sidebar: oklch(0.185 0.01 275);
-  --sidebar-foreground: oklch(0.92 0.004 275);
-  --sidebar-primary: oklch(0.62 0.2 288);
+  /* Panel: açık gri kenar çubuğu + koyu üst çubuk (Shopify benzeri) */
+  --sidebar: oklch(0.968 0.002 275);
+  --sidebar-foreground: oklch(0.26 0.01 275);
+  --sidebar-primary: oklch(0.2 0.006 275);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.25 0.014 275);
-  --sidebar-accent-foreground: oklch(0.97 0.003 275);
-  --sidebar-border: oklch(0.29 0.014 275);
-  --sidebar-ring: oklch(0.62 0.2 288);
+  --sidebar-accent: oklch(1 0 0);
+  --sidebar-accent-foreground: oklch(0.17 0.008 275);
+  --sidebar-border: oklch(0.9 0.004 275);
+  --sidebar-ring: oklch(0.56 0.21 288);
 
   --gradient-hero: radial-gradient(
       110% 90% at 50% -10%,

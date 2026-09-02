@@ -10,7 +10,7 @@ export const productsQuery = (storeId: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("*, product_variants(id, stock, price)")
+        .select("*, product_variants(id, stock, price), product_images(url, position)")
         .eq("store_id", storeId)
         .order("created_at", { ascending: false });
       if (error) throw error;

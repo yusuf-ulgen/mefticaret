@@ -152,17 +152,6 @@ function ProductsPage() {
               <Upload className="size-4" /> CSV yükle
             </Link>
           </Button>
-          <Select value={filter} onValueChange={(value) => setFilter(value as typeof filter)}>
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tümü</SelectItem>
-              <SelectItem value="active">Aktif</SelectItem>
-              <SelectItem value="draft">Taslak</SelectItem>
-              <SelectItem value="archived">Arşiv</SelectItem>
-            </SelectContent>
-          </Select>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button className="gap-2">
@@ -245,92 +234,235 @@ function ProductsPage() {
         />
       ) : null}
 
+      {/* Shopify tarzı özet şeridi */}
+      <div className="surface-card grid grid-cols-2 divide-border sm:grid-cols-4 sm:divide-x">
+        {[
+          { label: "Toplam ürün", value: formatNumber(products?.length ?? 0) },
+          {
+            label: "Aktif ürün",
+            value: formatNumber((products ?? []).filter((p) => p.status === "active").length),
+          },
+          {
+            label: "Varyant",
+            value: formatNumber(
+              (products ?? []).reduce((sum, p) => sum + (p.product_variants?.length ?? 0), 0),
+            ),
+          },
+          {
+            label: "Envanter değeri",
+            value: formatMoney(
+              (products ?? []).reduce(
+                (sum, p) =>
+                  sum +
+                  (p.product_variants ?? []).reduce(
+                    (inner, v) => inner + Number(v.price ?? p.base_price) * (v.stock ?? 0),
+                    0,
+                  ),
+                0,
+              ),
+              currency,
+            ),
+          },
+        ].map((metric) => (
+          <div key={metric.label} className="px-4 py-3">
+            <p className="text-xs text-muted-foreground">{metric.label}</p>
+            <p className="mt-0.5 text-base font-semibold tabular-nums">{metric.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Durum sekmeleri */}
+      <div className="surface-card flex flex-wrap gap-1 p-1.5">
+        {(
+          [
+            ["all", "Tümü"],
+            ["active", "Aktif"],
+            ["draft", "Taslak"],
+            ["archived", "Arşiv"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setFilter(value)}
+            className={
+              filter === value
+                ? "rounded-lg bg-secondary px-3 py-1.5 text-sm font-semibold text-secondary-foreground"
+                : "rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+            }
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="surface-card overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
-            <tr>
-              <th className="px-5 py-3">
-                <Checkbox
-                  checked={allSelected}
-                  onCheckedChange={(value) =>
-                    setSelected(value === true ? rows.map((row) => row.id) : [])
-                  }
-                  aria-label="Tümünü seç"
-                />
-              </th>
-              <th className="px-5 py-3">Ürün</th>
-              <th className="px-5 py-3">Durum</th>
-              <th className="px-5 py-3">Fiyat</th>
-              <th className="px-5 py-3">Varyant</th>
-              <th className="px-5 py-3">Stok</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {isLoading ? (
-              <tr>
-                <td colSpan={6} className="px-5 py-8 text-center text-muted-foreground">
-                  Yükleniyor…
-                </td>
-              </tr>
-            ) : rows.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-5 py-10 text-center">
-                  <Package className="mx-auto mb-3 size-6 text-muted-foreground" />
-                  <p className="font-medium">Bu filtrede ürün yok</p>
-                  <p className="text-sm text-muted-foreground">
-                    Sağ üstten yeni ürün ekleyerek kataloğunu başlat.
-                  </p>
-                </td>
-              </tr>
-            ) : (
-              rows.map((product) => {
-                const variants = product.product_variants ?? [];
-                const stockTotal = variants.reduce((sum, variant) => sum + (variant.stock ?? 0), 0);
-                return (
-                  <tr key={product.id} className="hover:bg-muted/40">
-                    <td className="px-5 py-3">
-                      <Checkbox
-                        checked={selected.includes(product.id)}
-                        onCheckedChange={(value) =>
-                          setSelected((prev) =>
-                            value === true
-                              ? [...prev, product.id]
-                              : prev.filter((id) => id !== product.id),
-                          )
-                        }
-                        aria-label={`${product.title} seç`}
-                      />
-                    </td>
-                    <td className="px-5 py-3">
-                      <Link
-                        to="/store/$storeId/products/$productId"
-                        params={{ storeId, productId: product.id }}
-                        className="font-medium hover:underline"
-                      >
-                        {product.title}
-                      </Link>
-                      <p className="text-xs text-muted-foreground">/{product.slug}</p>
-                    </td>
-                    <td className="px-5 py-3">
+        {/* Mobil: kart listesi */}
+        <ul className="divide-y divide-border md:hidden">
+          {isLoading ? (
+            <li className="px-4 py-8 text-center text-muted-foreground">Yükleniyor…</li>
+          ) : rows.length === 0 ? (
+            <li className="px-4 py-10 text-center">
+              <Package className="mx-auto mb-3 size-6 text-muted-foreground" />
+              <p className="font-medium">Bu filtrede ürün yok</p>
+            </li>
+          ) : (
+            rows.map((product) => {
+              const variants = product.product_variants ?? [];
+              const stockTotal = variants.reduce((sum, v) => sum + (v.stock ?? 0), 0);
+              const image = (product.product_images ?? [])
+                .slice()
+                .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))[0];
+              return (
+                <li key={product.id} className="flex gap-3 px-4 py-3">
+                  <Checkbox
+                    className="mt-1"
+                    checked={selected.includes(product.id)}
+                    onCheckedChange={(value) =>
+                      setSelected((prev) =>
+                        value === true ? [...prev, product.id] : prev.filter((id) => id !== product.id),
+                      )
+                    }
+                    aria-label={`${product.title} seç`}
+                  />
+                  <div className="size-11 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                    {image ? (
+                      <img src={image.url} alt="" className="size-full object-cover" loading="lazy" />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      to="/store/$storeId/products/$productId"
+                      params={{ storeId, productId: product.id }}
+                      className="block truncate font-medium hover:underline"
+                    >
+                      {product.title}
+                    </Link>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {variants.length} varyasyon · {formatNumber(stockTotal)} adet stokta
+                    </p>
+                    <div className="mt-1.5 flex items-center gap-2">
                       <Badge variant={product.status === "active" ? "default" : "secondary"}>
                         {STATUS_LABELS[product.status] ?? product.status}
                       </Badge>
-                    </td>
-                    <td className="px-5 py-3">
-                      {formatMoney(Number(product.base_price), product.currency)}
-                    </td>
-                    <td className="px-5 py-3">{variants.length}</td>
-                    <td className="px-5 py-3">
-                      <span className={stockTotal === 0 ? "text-destructive" : undefined}>
-                        {formatNumber(stockTotal)}
+                      <span className="text-sm font-medium tabular-nums">
+                        {formatMoney(Number(product.base_price), product.currency)}
                       </span>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                    </div>
+                  </div>
+                </li>
+              );
+            })
+          )}
+        </ul>
+
+        {/* Masaüstü / tablet: tablo */}
+        <div className="hidden overflow-x-auto md:block">
+          <table className="w-full min-w-[52rem] text-sm">
+            <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={(value) =>
+                      setSelected(value === true ? rows.map((row) => row.id) : [])
+                    }
+                    aria-label="Tümünü seç"
+                  />
+                </th>
+                <th className="px-4 py-3">Ürün</th>
+                <th className="px-4 py-3">Durum</th>
+                <th className="px-4 py-3">Envanter</th>
+                <th className="px-4 py-3">Fiyat</th>
+                <th className="px-4 py-3">Varyant</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-8 text-center text-muted-foreground">
+                    Yükleniyor…
+                  </td>
+                </tr>
+              ) : rows.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-10 text-center">
+                    <Package className="mx-auto mb-3 size-6 text-muted-foreground" />
+                    <p className="font-medium">Bu filtrede ürün yok</p>
+                    <p className="text-sm text-muted-foreground">
+                      Sağ üstten yeni ürün ekleyerek kataloğunu başlat.
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                rows.map((product) => {
+                  const variants = product.product_variants ?? [];
+                  const stockTotal = variants.reduce((sum, variant) => sum + (variant.stock ?? 0), 0);
+                  const image = (product.product_images ?? [])
+                    .slice()
+                    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))[0];
+                  return (
+                    <tr key={product.id} className="hover:bg-muted/40">
+                      <td className="px-4 py-2.5">
+                        <Checkbox
+                          checked={selected.includes(product.id)}
+                          onCheckedChange={(value) =>
+                            setSelected((prev) =>
+                              value === true
+                                ? [...prev, product.id]
+                                : prev.filter((id) => id !== product.id),
+                            )
+                          }
+                          aria-label={`${product.title} seç`}
+                        />
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-3">
+                          <div className="size-10 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+                            {image ? (
+                              <img
+                                src={image.url}
+                                alt=""
+                                className="size-full object-cover"
+                                loading="lazy"
+                              />
+                            ) : null}
+                          </div>
+                          <div className="min-w-0">
+                            <Link
+                              to="/store/$storeId/products/$productId"
+                              params={{ storeId, productId: product.id }}
+                              className="block max-w-[22rem] truncate font-medium hover:underline"
+                            >
+                              {product.title}
+                            </Link>
+                            <p className="truncate text-xs text-muted-foreground">
+                              /{product.slug}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <Badge variant={product.status === "active" ? "default" : "secondary"}>
+                          {STATUS_LABELS[product.status] ?? product.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span className={stockTotal === 0 ? "text-destructive" : undefined}>
+                          {variants.length} varyasyon için {formatNumber(stockTotal)} adet stokta
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 tabular-nums">
+                        {formatMoney(Number(product.base_price), product.currency)}
+                      </td>
+                      <td className="px-4 py-2.5 tabular-nums">{variants.length}</td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </AppShell>
   );
