@@ -19,9 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { productsQuery } from "@/lib/catalog-queries";
-import { createProduct } from "@/lib/catalog.functions";
 import { PRODUCT_CSV_HEADERS, downloadCsv, toCsv } from "@/lib/csv";
 import { formatMoney, formatNumber } from "@/lib/mefti";
 import { storeQuery } from "@/lib/store-queries";
@@ -55,38 +53,9 @@ function ProductsPage() {
   const queryClient = useQueryClient();
   const { data: store } = useQuery(storeQuery(storeId));
   const { data: products, isLoading } = useQuery(productsQuery(storeId));
-  const create = useServerFn(createProduct);
-
-  const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [price, setPrice] = useState("");
-  const [stock, setStock] = useState("0");
-  const [status, setStatus] = useState<"draft" | "active">("draft");
   const [filter, setFilter] = useState<"all" | "draft" | "active" | "archived">("all");
 
   const currency = store?.currency ?? "TRY";
-
-  const mutation = useMutation({
-    mutationFn: () =>
-      create({
-        data: {
-          storeId,
-          title,
-          basePrice: Number(price || 0),
-          stock: Number(stock || 0),
-          status,
-        },
-      }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["products", storeId] });
-      toast.success("Ürün eklendi");
-      setOpen(false);
-      setTitle("");
-      setPrice("");
-      setStock("0");
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
 
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
