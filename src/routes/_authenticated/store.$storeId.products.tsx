@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { Download, Package, Plus, Search, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -11,14 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { productsQuery } from "@/lib/catalog-queries";
 import { PRODUCT_CSV_HEADERS, downloadCsv, toCsv } from "@/lib/csv";
 import { formatMoney, formatNumber } from "@/lib/mefti";
@@ -50,7 +41,6 @@ const STATUS_LABELS: Record<string, string> = {
 
 function ProductsPage() {
   const { storeId } = Route.useParams();
-  const queryClient = useQueryClient();
   const { data: store } = useQuery(storeQuery(storeId));
   const { data: products, isLoading } = useQuery(productsQuery(storeId));
   const [filter, setFilter] = useState<"all" | "draft" | "active" | "archived">("all");
