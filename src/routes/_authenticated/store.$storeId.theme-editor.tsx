@@ -518,7 +518,12 @@ function ThemeEditorPage() {
           </aside>
 
           {/* Orta panel: canlı önizleme */}
-          <main className="min-w-0 flex-1 overflow-auto bg-muted/40 p-4">
+          <main
+            className={cn(
+              "min-h-0 min-w-0 flex-1 overflow-auto bg-muted/40 p-2 sm:p-4",
+              pane === "preview" ? "block" : "hidden lg:block",
+            )}
+          >
             <div
               className="mx-auto overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-all duration-300"
               style={{ maxWidth: deviceWidth ? `${deviceWidth}px` : "100%" }}
