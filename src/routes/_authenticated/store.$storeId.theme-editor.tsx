@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   Check,
   ExternalLink,
+  Layers,
   Loader2,
   Monitor,
   Plus,
@@ -130,6 +131,8 @@ function ThemeEditorPage() {
   const [tab, setTab] = useState<"content" | "design" | "layout">("content");
   const [addOpen, setAddOpen] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
+  /** Mobilde tek seferde tek panel gösterilir. */
+  const [pane, setPane] = useState<"sections" | "preview" | "settings">("preview");
 
   const [history, setHistory] = useState<Draft[]>([]);
   const [cursor, setCursor] = useState(-1);
@@ -357,23 +360,9 @@ function ThemeEditorPage() {
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      <div className="grid place-items-center px-6 py-24 text-center lg:hidden">
-        <div className="max-w-sm space-y-2">
-          <h1 className="text-lg font-semibold">Tema düzenleyici masaüstü gerektirir</h1>
-          <p className="text-sm text-muted-foreground">
-            Lütfen tema düzenleyiciye erişmek için masaüstü tarayıcı kullanın (1024px ve üzeri).
-          </p>
-          <Button asChild variant="outline">
-            <Link to="/store/$storeId/dashboard" params={{ storeId }}>
-              Panele dön
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      <div className="hidden h-full flex-col lg:flex">
+      <div className="flex h-full min-h-0 flex-col">
         {/* Üst çubuk */}
-        <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-border bg-card px-3">
+        <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border bg-card px-2 py-2 lg:h-14 lg:flex-nowrap lg:gap-4 lg:px-3 lg:py-0">
           <div className="flex min-w-0 items-center gap-2">
             <Button asChild variant="ghost" size="icon" aria-label="Panele dön">
               <Link to="/store/$storeId/dashboard" params={{ storeId }}>
@@ -386,15 +375,18 @@ function ThemeEditorPage() {
             </Badge>
           </div>
 
-          <div className="inline-flex rounded-lg border border-border p-1">
+          <div className="order-3 inline-flex w-full justify-center rounded-lg border border-border p-1 sm:order-none sm:w-auto">
             {DEVICES.map((entry) => (
               <button
                 key={entry.value}
                 type="button"
-                onClick={() => setDevice(entry.value)}
+                onClick={() => {
+                  setDevice(entry.value);
+                  setPane("preview");
+                }}
                 aria-pressed={device === entry.value}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition",
+                  "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition sm:flex-none",
                   device === entry.value
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground",
@@ -405,6 +397,7 @@ function ThemeEditorPage() {
               </button>
             ))}
           </div>
+
 
           <div className="flex items-center gap-1">
             <Button
@@ -440,18 +433,19 @@ function ThemeEditorPage() {
               onClick={() => saveMutation.mutate()}
             >
               {saveMutation.isPending ? (
-                <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                <Loader2 className="size-3.5 animate-spin sm:mr-1.5" />
               ) : dirty ? (
-                <Save className="mr-1.5 size-3.5" />
+                <Save className="size-3.5 sm:mr-1.5" />
               ) : (
-                <Check className="mr-1.5 size-3.5" />
+                <Check className="size-3.5 sm:mr-1.5" />
               )}
-              Kaydet
+              <span className="hidden sm:inline">Kaydet</span>
             </Button>
             {storefrontPath ? (
               <Button asChild size="sm" variant="outline">
                 <a href={storefrontPath} target="_blank" rel="noreferrer">
-                  <ExternalLink className="mr-1.5 size-3.5" /> Önizle
+                  <ExternalLink className="size-3.5 sm:mr-1.5" />
+                  <span className="hidden sm:inline">Önizle</span>
                 </a>
               </Button>
             ) : null}
@@ -462,18 +456,23 @@ function ThemeEditorPage() {
               onClick={() => publishMutation.mutate()}
             >
               {publishMutation.isPending ? (
-                <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                <Loader2 className="size-3.5 animate-spin sm:mr-1.5" />
               ) : (
-                <Rocket className="mr-1.5 size-3.5" />
+                <Rocket className="size-3.5 sm:mr-1.5" />
               )}
-              Yayınla
+              <span className="hidden sm:inline">Yayınla</span>
             </Button>
           </div>
         </header>
 
-        <div className="flex min-h-0 flex-1">
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
           {/* Sol panel */}
-          <aside className="flex w-[280px] shrink-0 flex-col border-r border-border bg-card">
+          <aside
+            className={cn(
+              "min-h-0 w-full shrink-0 flex-col border-border bg-card lg:flex lg:w-[280px] lg:border-r",
+              pane === "sections" ? "flex flex-1" : "hidden",
+            )}
+          >
             <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
               <span className="text-sm font-semibold">Bölümler</span>
               <Button size="sm" variant="outline" onClick={() => setAddOpen(true)}>
@@ -491,7 +490,11 @@ function ThemeEditorPage() {
                 <SectionTree
                   items={items}
                   selectedId={selectedId}
-                  onSelect={setSelectedId}
+                  onSelect={(id) => {
+                    setSelectedId(id);
+                    // Mobilde seçimden sonra doğrudan ayarlar paneline geç.
+                    if (window.innerWidth < 1024) setPane("settings");
+                  }}
                   onReorder={(ids) => pushDraft({ order: ids, items: draft.items })}
                   onToggle={(id) => {
                     const current = draft.items[id];
@@ -516,7 +519,12 @@ function ThemeEditorPage() {
           </aside>
 
           {/* Orta panel: canlı önizleme */}
-          <main className="min-w-0 flex-1 overflow-auto bg-muted/40 p-4">
+          <main
+            className={cn(
+              "min-h-0 min-w-0 flex-1 overflow-auto bg-muted/40 p-2 sm:p-4",
+              pane === "preview" ? "block" : "hidden lg:block",
+            )}
+          >
             <div
               className="mx-auto overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-all duration-300"
               style={{ maxWidth: deviceWidth ? `${deviceWidth}px` : "100%" }}
@@ -545,7 +553,12 @@ function ThemeEditorPage() {
           </main>
 
           {/* Sağ panel: ayarlar */}
-          <aside className="flex w-[320px] shrink-0 flex-col border-l border-border bg-card">
+          <aside
+            className={cn(
+              "min-h-0 w-full shrink-0 flex-col border-border bg-card lg:flex lg:w-[320px] lg:border-l",
+              pane === "settings" ? "flex flex-1" : "hidden",
+            )}
+          >
             <div className="border-b border-border px-3 py-2">
               <p className="truncate text-sm font-semibold">
                 {selected?.definition.label ?? "Bölüm seçilmedi"}
@@ -614,7 +627,35 @@ function ThemeEditorPage() {
             ) : null}
           </aside>
         </div>
+
+        {/* Mobil panel geçişi */}
+        <nav className="grid shrink-0 grid-cols-3 gap-1 border-t border-border bg-card p-2 lg:hidden">
+          {(
+            [
+              { value: "sections", label: "Bölümler", icon: Layers },
+              { value: "preview", label: "Önizleme", icon: Monitor },
+              { value: "settings", label: "Ayarlar", icon: Settings2 },
+            ] as const
+          ).map((entry) => (
+            <button
+              key={entry.value}
+              type="button"
+              onClick={() => setPane(entry.value)}
+              aria-pressed={pane === entry.value}
+              className={cn(
+                "flex flex-col items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] font-medium transition",
+                pane === entry.value
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <entry.icon className="size-4" />
+              {entry.label}
+            </button>
+          ))}
+        </nav>
       </div>
+
 
       <AddSectionDialog
         open={addOpen}
