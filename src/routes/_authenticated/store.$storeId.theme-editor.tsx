@@ -626,7 +626,35 @@ function ThemeEditorPage() {
             ) : null}
           </aside>
         </div>
+
+        {/* Mobil panel geçişi */}
+        <nav className="grid shrink-0 grid-cols-3 gap-1 border-t border-border bg-card p-2 lg:hidden">
+          {(
+            [
+              { value: "sections", label: "Bölümler", icon: Layers },
+              { value: "preview", label: "Önizleme", icon: Monitor },
+              { value: "settings", label: "Ayarlar", icon: Settings2 },
+            ] as const
+          ).map((entry) => (
+            <button
+              key={entry.value}
+              type="button"
+              onClick={() => setPane(entry.value)}
+              aria-pressed={pane === entry.value}
+              className={cn(
+                "flex flex-col items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] font-medium transition",
+                pane === entry.value
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <entry.icon className="size-4" />
+              {entry.label}
+            </button>
+          ))}
+        </nav>
       </div>
+
 
       <AddSectionDialog
         open={addOpen}
