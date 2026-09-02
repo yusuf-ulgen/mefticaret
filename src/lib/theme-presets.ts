@@ -89,6 +89,10 @@ export const FONT_STACKS: Record<string, { heading: string; body: string }> = {
   },
   "outfit-figtree": { heading: "Outfit, system-ui, sans-serif", body: "Figtree, system-ui, sans-serif" },
   "archivo-hind": { heading: "Archivo, system-ui, sans-serif", body: "Hind, system-ui, sans-serif" },
+  "tenor-sans-jost": {
+    heading: "'Tenor Sans', 'Times New Roman', serif",
+    body: "Jost, system-ui, sans-serif",
+  },
 };
 
 export const fontStack = (pair: string) =>
