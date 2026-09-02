@@ -391,6 +391,12 @@ function LandingPage() {
           </div>
         </section>
 
+        <BlogSection />
+
+        <FaqSection />
+
+
+
         <section className="mx-auto max-w-7xl px-4 pb-24 lg:px-8">
           <div className="showcase-card px-6 py-14 text-center" style={{ background: "var(--gradient-hero)" }}>
             <h2 className="mx-auto max-w-2xl text-3xl font-extrabold sm:text-4xl">
