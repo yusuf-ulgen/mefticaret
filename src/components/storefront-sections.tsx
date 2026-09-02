@@ -108,7 +108,7 @@ function StorefrontSection({ section, context }: { section: ResolvedSection; con
     case "custom_html":
       return <CustomHtmlSection settings={s} />;
     default:
-      return null;
+      return <ExtendedBlock section={section} context={context} />;
   }
 }
 
