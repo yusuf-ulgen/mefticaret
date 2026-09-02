@@ -204,6 +204,53 @@ function ThemesPage() {
         <div className="space-y-6">
           <section className="surface-card space-y-4 p-5">
             <header className="flex items-center gap-2">
+              <Store className="size-4 text-primary" />
+              <h2 className="text-sm font-semibold uppercase tracking-wide">Tema mağazası</h2>
+            </header>
+            <p className="text-xs text-muted-foreground">
+              Hazır temayı uygula; bölümler mağazana kopyalanır ve tema düzenleyiciden serbestçe değiştirebilirsin.
+            </p>
+            <div className="space-y-3">
+              {THEME_TEMPLATES.map((template) => (
+                <article key={template.code} className="rounded-xl border border-border p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className="text-sm font-semibold">{template.name}</h3>
+                      <p className="text-xs text-muted-foreground">{template.tagline}</p>
+                    </div>
+                    {theme?.preset === template.code ? <Badge variant="secondary">Uygulandı</Badge> : null}
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">{template.description}</p>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {template.tags.map((tag) => (
+                      <span key={tag} className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      className="gap-2"
+                      disabled={applyTemplate.isPending}
+                      onClick={() => applyTemplate.mutate(template.code)}
+                    >
+                      <Download className="size-4" />
+                      Bu temayı uygula
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/store/$storeId/theme-editor" params={{ storeId }}>
+                        Düzenleyicide aç
+                      </Link>
+                    </Button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="surface-card space-y-4 p-5">
+            <header className="flex items-center gap-2">
               <Palette className="size-4 text-primary" />
               <h2 className="text-sm font-semibold uppercase tracking-wide">Hazır şablonlar</h2>
             </header>
