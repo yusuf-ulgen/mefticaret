@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, ExternalLink, ImageUp, Palette, Save, Trash2 } from "lucide-react";
+import { Check, Download, ExternalLink, ImageUp, Palette, Save, Store, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -28,6 +28,8 @@ import { uploadStoreLogo } from "@/lib/media";
 import { myStoresQuery } from "@/lib/store-queries";
 import { FONT_PAIRS, THEME_LAYOUTS, THEME_PRESETS } from "@/lib/theme-presets";
 import { storeThemeQuery } from "@/lib/theme-queries";
+import { THEME_TEMPLATES } from "@/lib/theme-templates";
+import { applyThemeTemplate } from "@/lib/theme-templates.functions";
 import { saveTheme } from "@/lib/theme.functions";
 import { cn } from "@/lib/utils";
 
@@ -96,6 +98,19 @@ function ThemesPage() {
   const { user } = useAuth();
   const { data: stores } = useQuery(myStoresQuery(user?.id));
   const persist = useServerFn(saveTheme);
+  const applyTemplateFn = useServerFn(applyThemeTemplate);
+
+  const applyTemplate = useMutation({
+    mutationFn: (code: string) => applyTemplateFn({ data: { storeId, code } }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["store-theme", storeId] }),
+        queryClient.invalidateQueries({ queryKey: ["theme-sections", storeId] }),
+      ]);
+      toast.success("Tema uygulandı. Tema düzenleyiciden özelleştirebilirsin.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const [draft, setDraft] = useState(DEFAULT_DRAFT);
 
@@ -202,6 +217,53 @@ function ThemesPage() {
     >
       <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
         <div className="space-y-6">
+          <section className="surface-card space-y-4 p-5">
+            <header className="flex items-center gap-2">
+              <Store className="size-4 text-primary" />
+              <h2 className="text-sm font-semibold uppercase tracking-wide">Tema mağazası</h2>
+            </header>
+            <p className="text-xs text-muted-foreground">
+              Hazır temayı uygula; bölümler mağazana kopyalanır ve tema düzenleyiciden serbestçe değiştirebilirsin.
+            </p>
+            <div className="space-y-3">
+              {THEME_TEMPLATES.map((template) => (
+                <article key={template.code} className="rounded-xl border border-border p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className="text-sm font-semibold">{template.name}</h3>
+                      <p className="text-xs text-muted-foreground">{template.tagline}</p>
+                    </div>
+                    {theme?.preset === template.code ? <Badge variant="secondary">Uygulandı</Badge> : null}
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">{template.description}</p>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {template.tags.map((tag) => (
+                      <span key={tag} className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      className="gap-2"
+                      disabled={applyTemplate.isPending}
+                      onClick={() => applyTemplate.mutate(template.code)}
+                    >
+                      <Download className="size-4" />
+                      Bu temayı uygula
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/store/$storeId/theme-editor" params={{ storeId }}>
+                        Düzenleyicide aç
+                      </Link>
+                    </Button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section className="surface-card space-y-4 p-5">
             <header className="flex items-center gap-2">
               <Palette className="size-4 text-primary" />
