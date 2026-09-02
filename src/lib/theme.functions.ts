@@ -28,7 +28,7 @@ export const saveTheme = createServerFn({ method: "POST" })
         heroCtaLabel: z.string().trim().min(2).max(40),
         announcement: z.string().trim().max(160).nullish(),
         showAnnouncement: z.boolean(),
-        logoUrl: z.string().trim().max(500).nullish(),
+        logoUrl: z.string().trim().max(200000).nullish(),
         buttonStyle: z.enum(["solid", "outline", "pill", "ghost", "square"]).default("solid"),
         cardStyle: z.enum(["soft", "bordered", "flat", "shadow"]).default("soft"),
         contentWidth: z.number().int().min(900).max(1600).default(1140),
