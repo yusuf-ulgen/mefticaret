@@ -132,6 +132,140 @@ const BE_YOURS: ThemeTemplate = {
   ],
 };
 
-export const THEME_TEMPLATES: ThemeTemplate[] = [BE_YOURS];
+/**
+ * Giyim / moda mağazaları için profesyonel tema.
+ * Kadın-erkek koleksiyon bantları, beden-renk odaklı ürün vitrinleri,
+ * güven ikonları, lookbook galerisi ve bülten kaydı içerir.
+ */
+const ATELIER_MODE: ThemeTemplate = {
+  code: "atelier-mode",
+  name: "Atelier Mode",
+  tagline: "Giyim & moda · Cormorant + Karla",
+  description:
+    "Giyim mağazaları için hazırlanmış profesyonel tema. Sezon slider'ı, kadın/erkek koleksiyon bantları, yeni gelenler, en çok satanlar, indirimdekiler, lookbook galerisi, güven ikonları, müşteri yorumları ve bülten bloklarıyla gelir.",
+  tags: ["Giyim", "Moda", "Koleksiyon", "Lookbook", "Sezon"],
+  theme: {
+    primaryColor: "#141414",
+    accentColor: "#8a6a4f",
+    backgroundColor: "#fbfaf8",
+    fontPair: "cormorant-karla",
+    radius: 0.15,
+    layout: "magazine",
+    buttonStyle: "square",
+    cardStyle: "flat",
+    contentWidth: 1520,
+    sectionSpacing: 44,
+    heroTitle: "Yeni sezon giyim koleksiyonu",
+    heroSubtitle:
+      "Zamansız kesimler, doğal kumaşlar ve günlük hayata uyum sağlayan sade parçalar.",
+    heroCtaLabel: "Koleksiyonu Keşfet",
+    announcement: "1.000 TL üzeri siparişlerde ücretsiz kargo · 30 gün içinde kolay iade",
+    showAnnouncement: true,
+  },
+  sections: [
+    {
+      type: "announcement_bar",
+      settings: {
+        text: "1.000 TL üzeri siparişlerde ücretsiz kargo · 30 gün içinde kolay iade",
+        linkLabel: "Detaylar",
+        linkUrl: "#urunler",
+        tone: "soft",
+      },
+    },
+    {
+      type: "header",
+      settings: { sticky: true, showSearch: true, showFavorites: true, showCart: true, tagline: "Giyim & Aksesuar" },
+    },
+    {
+      type: "hero_slider",
+      settings: {
+        items:
+          "Sonbahar / Kış koleksiyonu | Yumuşak triko, yün palto ve zamansız kesimler | | Koleksiyonu Keşfet | #urunler\nGünlük denim | Yeni yıkamalar ve rahat kalıplar tek yerde | | Denimi Gör | #urunler\nSezon indirimi | Seçili parçalarda %40'a varan avantaj | | Fırsatları Gör | #urunler",
+        height: 620,
+        autoplay: true,
+        interval: 6,
+      },
+    },
+    {
+      type: "banner_split",
+      settings: {
+        leftTitle: "Kadın",
+        leftText: "Elbise, triko, palto",
+        leftImage: "",
+        leftUrl: "#urunler",
+        rightTitle: "Erkek",
+        rightText: "Gömlek, sweatshirt, pantolon",
+        rightImage: "",
+        rightUrl: "#urunler",
+        height: 320,
+      },
+    },
+    { type: "category_grid", settings: { title: "Kategoriler", source: "collections", limit: 6, columns: 3 } },
+    { type: "product_new", settings: { title: "Yeni gelenler", limit: 8, columns: 4 } },
+    {
+      type: "banner_collection",
+      settings: {
+        collectionSlug: "",
+        title: "Sezonun kapsül gardırobu",
+        text: "Birbiriyle kombinlenebilen 8 parça ile tüm haftayı planla.",
+        imageUrl: "",
+        ctaLabel: "Koleksiyona git",
+        height: 360,
+      },
+    },
+    { type: "product_bestsellers", settings: { title: "En çok satanlar", limit: 8, columns: 4, layout: "slider" } },
+    {
+      type: "icon_boxes",
+      settings: {
+        title: "Alışveriş avantajları",
+        items:
+          "🚚 | Ücretsiz kargo | 1.000 TL üzeri tüm siparişlerde\n↩️ | 30 gün iade | Denemesi kolay, iadesi ücretsiz\n📏 | Beden danışmanı | Doğru bedeni ilk seferde bul\n🧵 | Doğal kumaş | Pamuk, yün ve keten ağırlıklı üretim",
+        columns: 4,
+      },
+    },
+    {
+      type: "image_text",
+      settings: {
+        title: "Atölyemizden",
+        text: "Her parça sınırlı sayıda üretilir; dikiş, kumaş ve kalıp kontrolünden tek tek geçer.",
+        imageUrl: "",
+        imagePosition: "left",
+        ctaLabel: "Hikâyemiz",
+        ctaUrl: "#hakkimizda",
+      },
+    },
+    { type: "product_discounted", settings: { title: "İndirimdekiler", limit: 8, columns: 4, showBadge: true } },
+    { type: "gallery", settings: { title: "Lookbook", images: "", columns: 4, height: 360 } },
+    {
+      type: "testimonials",
+      settings: {
+        title: "Müşteri yorumları",
+        items:
+          "Kalıbı tam beklediğim gibiydi, kumaşı çok kaliteli. | Elif K.\nBeden tablosu doğru, ilk seferde uydu. | Murat S.\nKargo bir günde geldi, paketleme çok özenli. | Zeynep A.\nİade süreci gerçekten sorunsuz işliyor. | Can T.",
+        columns: 4,
+      },
+    },
+    {
+      type: "trust_badges",
+      settings: {
+        items:
+          "🔐 | Güvenli ödeme | 3D Secure altyapısı\n📦 | Hızlı teslimat | 1-3 iş günü içinde kapında\n💬 | Canlı destek | Hafta içi 09:00-18:00",
+        columns: 3,
+      },
+    },
+    {
+      type: "newsletter",
+      settings: {
+        title: "Yeni koleksiyonu ilk sen gör",
+        text: "Bültene katıl, sezon lansmanları ve özel indirimleri kaçırma.",
+        buttonLabel: "Kaydol",
+        successMessage: "Teşekkürler! Listeye eklendin.",
+      },
+    },
+    { type: "footer", settings: { showLegalLinks: true, showPages: true, about: "Zamansız kesimler, doğal kumaşlar." } },
+  ],
+};
+
+export const THEME_TEMPLATES: ThemeTemplate[] = [BE_YOURS, ATELIER_MODE];
 
 export const TEMPLATE_BY_CODE = new Map(THEME_TEMPLATES.map((template) => [template.code, template]));
