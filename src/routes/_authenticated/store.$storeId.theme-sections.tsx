@@ -39,7 +39,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { collectionsQuery, productsQuery } from "@/lib/catalog-queries";
 import {
-  SECTION_CATEGORIES,
+  THEME_SECTIONS,
   sectionsByCategory,
   type ResolvedSection,
   type SectionSettings,
@@ -201,20 +201,16 @@ function ThemeSectionsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-[420px]">
-                  {SECTION_CATEGORIES.map((category) => {
-                    const items = groupedSections[category.value] ?? [];
-                    if (!items.length) return null;
-                    return (
-                      <SelectGroup key={category.value}>
-                        <SelectLabel>{category.label}</SelectLabel>
-                        {items.map((section) => (
-                          <SelectItem key={section.type} value={section.type}>
-                            {section.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    );
-                  })}
+                  {groupedSections.map((group) => (
+                    <SelectGroup key={group.category}>
+                      <SelectLabel>{group.label}</SelectLabel>
+                      {group.items.map((section) => (
+                        <SelectItem key={section.type} value={section.type}>
+                          {section.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
