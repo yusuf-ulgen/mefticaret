@@ -322,6 +322,12 @@ function LandingPage() {
           </div>
         </section>
 
+        <IntegrationsSection />
+
+        <PlatformDemosSection />
+
+
+
         <section id="paketler" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
           <div className="text-center">
             <span className="eyebrow">Fiyatlandırma</span>
