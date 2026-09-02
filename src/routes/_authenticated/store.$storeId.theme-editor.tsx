@@ -552,7 +552,12 @@ function ThemeEditorPage() {
           </main>
 
           {/* Sağ panel: ayarlar */}
-          <aside className="flex w-[320px] shrink-0 flex-col border-l border-border bg-card">
+          <aside
+            className={cn(
+              "min-h-0 w-full shrink-0 flex-col border-border bg-card lg:flex lg:w-[320px] lg:border-l",
+              pane === "settings" ? "flex flex-1" : "hidden",
+            )}
+          >
             <div className="border-b border-border px-3 py-2">
               <p className="truncate text-sm font-semibold">
                 {selected?.definition.label ?? "Bölüm seçilmedi"}
