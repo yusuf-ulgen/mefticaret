@@ -419,13 +419,71 @@ function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-border py-10">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 text-sm text-muted-foreground lg:px-8">
-          <span className="font-display text-base font-extrabold tracking-tighter text-foreground">
-            mefticaret
-          </span>
-          <span>— E-ticaret işletim sistemi</span>
-          <span className="ml-auto">KVKK &amp; GDPR uyumlu mimari</span>
+      <footer className="border-t border-border py-14">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="grid gap-10 md:grid-cols-4">
+            <div>
+              <span className="font-display text-2xl font-extrabold tracking-tighter">
+                mefticaret
+              </span>
+              <p className="mt-3 max-w-xs text-sm text-muted-foreground">
+                Türkiye'nin çok kiracılı e-ticaret işletim sistemi. Mağaza kurun, yönetin, büyütün.
+              </p>
+            </div>
+            {[
+              {
+                title: "Platform",
+                links: [
+                  ["E-Ticaret", "#moduller"],
+                  ["Özellikler", "#ozellikler"],
+                  ["Entegrasyonlar", "#entegrasyonlar"],
+                  ["Fiyatlandırma", "#paketler"],
+                ] as const,
+              },
+              {
+                title: "Kaynaklar",
+                links: [
+                  ["Blog", "#blog"],
+                  ["Referanslar", "#referanslar"],
+                  ["Sıkça Sorulan Sorular", "#sss"],
+                ] as const,
+              },
+            ].map((group) => (
+              <nav key={group.title} aria-label={group.title}>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  {group.title}
+                </p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  {group.links.map(([label, href]) => (
+                    <li key={label}>
+                      <a href={href} className="text-muted-foreground hover:text-foreground">
+                        {label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ))}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Başlayın
+              </p>
+              <div className="mt-4 flex flex-col gap-2">
+                <Button asChild className="rounded-full">
+                  <Link to="/auth" search={{ mode: "register" }}>
+                    Ücretsiz Başlayın
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="rounded-full">
+                  <Link to="/auth">Giriş Yap</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
+            <span>© {new Date().getFullYear()} Mefticaret</span>
+            <span className="ml-auto">KVKK &amp; GDPR uyumlu mimari</span>
+          </div>
         </div>
       </footer>
     </div>
