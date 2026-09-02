@@ -67,6 +67,7 @@ export const FONT_PAIRS = [
   { value: "cormorant-karla", label: "Cormorant + Karla" },
   { value: "outfit-figtree", label: "Outfit + Figtree" },
   { value: "archivo-hind", label: "Archivo + Hind" },
+  { value: "tenor-sans-jost", label: "Tenor Sans + Jost" },
 ] as const;
 
 export const THEME_LAYOUTS = [
