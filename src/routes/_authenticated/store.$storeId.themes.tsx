@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, ExternalLink, ImageUp, Palette, Save, Trash2 } from "lucide-react";
+import { Check, Download, ExternalLink, ImageUp, Palette, Save, Store, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -28,6 +28,8 @@ import { uploadStoreLogo } from "@/lib/media";
 import { myStoresQuery } from "@/lib/store-queries";
 import { FONT_PAIRS, THEME_LAYOUTS, THEME_PRESETS } from "@/lib/theme-presets";
 import { storeThemeQuery } from "@/lib/theme-queries";
+import { THEME_TEMPLATES } from "@/lib/theme-templates";
+import { applyThemeTemplate } from "@/lib/theme-templates.functions";
 import { saveTheme } from "@/lib/theme.functions";
 import { cn } from "@/lib/utils";
 
