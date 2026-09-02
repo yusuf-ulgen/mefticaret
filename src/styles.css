@@ -248,6 +248,53 @@
   background-size: 48px 48px;
 }
 
+/* Forsid tarzı yumuşak vitrin kartı */
+@utility showcase-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  background: var(--color-card);
+  overflow: hidden;
+  box-shadow: 0 1px 2px oklch(0.2 0.01 275 / 0.04), 0 12px 32px oklch(0.2 0.01 275 / 0.05);
+}
+
+@utility eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-brand) 22%, transparent);
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  padding: 0.375rem 0.875rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Dikey sonsuz akış (ürün kolonları) */
+@utility marquee-col {
+  animation: marquee-up 32s linear infinite;
+}
+
+@utility marquee-col-slow {
+  animation: marquee-up 46s linear infinite;
+}
+
+@keyframes marquee-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@utility fade-mask-y {
+  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+}
+
+
 /* Sipariş fişi: yazdırırken yalnızca fiş alanı sayfaya düşer. */
 @media print {
   body * {
