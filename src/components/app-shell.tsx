@@ -97,6 +97,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
       group: "Genel",
       items: [
         { label: "Panel", to: `/store/${storeId}/dashboard`, icon: LayoutDashboard },
+        { label: "Canlı İzleme", to: `/store/${storeId}/live`, icon: Radio },
         { label: "Analitik", to: `/store/${storeId}/analytics`, icon: ChartNoAxesColumn },
         { label: "Ciro Tahmini", to: `/store/${storeId}/forecast`, icon: TrendingUp },
         { label: "Kohortlar", to: `/store/${storeId}/cohorts`, icon: Grid3x3 },
