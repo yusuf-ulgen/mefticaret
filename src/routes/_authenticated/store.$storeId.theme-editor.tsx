@@ -357,23 +357,9 @@ function ThemeEditorPage() {
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      <div className="grid place-items-center px-6 py-24 text-center lg:hidden">
-        <div className="max-w-sm space-y-2">
-          <h1 className="text-lg font-semibold">Tema düzenleyici masaüstü gerektirir</h1>
-          <p className="text-sm text-muted-foreground">
-            Lütfen tema düzenleyiciye erişmek için masaüstü tarayıcı kullanın (1024px ve üzeri).
-          </p>
-          <Button asChild variant="outline">
-            <Link to="/store/$storeId/dashboard" params={{ storeId }}>
-              Panele dön
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      <div className="hidden h-full flex-col lg:flex">
+      <div className="flex h-full min-h-0 flex-col">
         {/* Üst çubuk */}
-        <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-border bg-card px-3">
+        <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border bg-card px-2 py-2 lg:h-14 lg:flex-nowrap lg:gap-4 lg:px-3 lg:py-0">
           <div className="flex min-w-0 items-center gap-2">
             <Button asChild variant="ghost" size="icon" aria-label="Panele dön">
               <Link to="/store/$storeId/dashboard" params={{ storeId }}>
