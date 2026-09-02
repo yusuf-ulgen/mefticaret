@@ -200,6 +200,7 @@ function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
         { label: "İçerik Sayfaları", to: `/store/${storeId}/pages`, icon: FileText },
         { label: "Blog & CMS", to: `/store/${storeId}/blog`, icon: PenLine },
         { label: "Vitrin Menüleri", to: `/store/${storeId}/navigation`, icon: Menu },
+        { label: "Copilot", to: `/store/${storeId}/copilot`, icon: Bot },
         { label: "AI Asistan", to: `/store/${storeId}/ai`, icon: Sparkles },
         { label: "Uygulama Mağazası", to: `/store/${storeId}/apps`, icon: Blocks },
         { label: "API Anahtarları", to: `/store/${storeId}/api`, icon: KeyRound },
