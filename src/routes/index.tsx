@@ -16,6 +16,12 @@ import {
   Zap,
 } from "lucide-react";
 
+import {
+  BlogSection,
+  FaqSection,
+  IntegrationsSection,
+  PlatformDemosSection,
+} from "@/components/landing-sections";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { formatMoney, planLimitLabel } from "@/lib/mefti";
