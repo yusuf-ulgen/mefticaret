@@ -22,12 +22,11 @@ export type LiveAnalyticsEvent = {
   referrer_host: string | null;
   device: string | null;
   country: string | null;
-  city: string | null;
   created_at: string;
 };
 
 const LIVE_COLUMNS =
-  "id, kind, visitor_id, session_id, path, product_id, value, quantity, currency, source, medium, referrer_host, device, country, city, created_at";
+  "id, kind, visitor_id, session_id, path, product_id, value, quantity, currency, source, medium, referrer_host, device, country, created_at";
 
 /** Son `minutes` dakikadaki vitrin olayları (varsayılan 60 dk). */
 export const liveEventsQuery = (storeId: string, minutes = 60) =>
