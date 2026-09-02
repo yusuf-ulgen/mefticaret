@@ -173,11 +173,17 @@ function LandingPage() {
             <a href="#moduller" className="transition-colors hover:text-foreground">
               E-Ticaret
             </a>
+            <a href="#entegrasyonlar" className="transition-colors hover:text-foreground">
+              Entegrasyonlar
+            </a>
             <a href="#paketler" className="transition-colors hover:text-foreground">
               Fiyatlandırma
             </a>
-            <a href="#referanslar" className="transition-colors hover:text-foreground">
-              Referanslar
+            <a href="#blog" className="transition-colors hover:text-foreground">
+              Blog
+            </a>
+            <a href="#sss" className="transition-colors hover:text-foreground">
+              SSS
             </a>
           </nav>
           <div className="ml-auto flex items-center gap-2">
