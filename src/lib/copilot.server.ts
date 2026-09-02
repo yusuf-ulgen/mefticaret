@@ -18,8 +18,28 @@ const SYSTEM_PROMPT = [
   "Önerilerini mümkün olduğunda panel sayfalarına yönlendirerek ver (örn. Stok, Siparişler, Terk Edilen Sepetler, SEO Denetimi).",
 ].join(" ");
 
+export type CopilotSummary = {
+  donem_gun: number;
+  magaza: string;
+  para_birimi: string;
+  ciro: number;
+  siparis: number;
+  ortalama_sepet: number;
+  odenme_orani: number;
+  iptal_iade: number;
+  yeni_musteri: number;
+  aktif_urun: number;
+  bekleyen_siparis: number;
+  hazirlanmayan_siparis: number;
+  terk_edilen_sepet: number;
+  acik_iade_talebi: number;
+  kritik_stok: { title: string; stock: number }[];
+  en_iyi_urunler: { title: string; quantity: number; revenue: number }[];
+  aktif_kuponlar: string[];
+};
+
 export type CopilotContext = {
-  summary: Record<string, unknown>;
+  summary: CopilotSummary;
   promptBlock: string;
 };
 
@@ -63,7 +83,7 @@ export async function collectCopilotContext(
       .limit(10),
   ]);
 
-  const summary = {
+  const summary: CopilotSummary = {
     donem_gun: days,
     magaza: metrics.storeName,
     para_birimi: metrics.currency,
