@@ -108,14 +108,14 @@ function HealthPage() {
                     />
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="flex items-center gap-2 text-sm font-medium">
+                    <div className="flex items-center gap-2 text-sm font-medium">
                       {check.label}
                       {!check.ok ? (
                         <Badge variant={check.severity === "critical" ? "destructive" : "secondary"}>
                           {check.severity === "critical" ? "Kritik" : "Öneri"}
                         </Badge>
                       ) : null}
-                    </p>
+                    </div>
                     <p className="text-xs text-muted-foreground">{check.detail}</p>
                   </div>
                   {check.to ? (

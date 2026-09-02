@@ -278,9 +278,9 @@ function AnalyticsPage() {
               <span className="text-xs text-muted-foreground">{card.label}</span>
               <card.icon className="size-4 text-brand-foreground" />
             </div>
-            <p className="mt-2 font-display text-2xl font-semibold">
+            <div className="mt-2 font-display text-2xl font-semibold">
               {isLoading || eventsLoading ? <Skeleton className="h-7 w-24" /> : card.value}
-            </p>
+            </div>
           </div>
         ))}
       </div>

@@ -261,11 +261,18 @@ function WarehousesPage() {
       <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
           {(warehouses ?? []).map((warehouse) => (
-            <button
+            <div
               key={warehouse.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => setActiveWarehouse(warehouse.id)}
-              className={`surface-card p-5 text-left transition ${
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setActiveWarehouse(warehouse.id);
+                }
+              }}
+              className={`surface-card cursor-pointer p-5 text-left transition ${
                 selected === warehouse.id ? "ring-2 ring-primary" : "hover:border-primary/40"
               }`}
             >
@@ -309,7 +316,7 @@ function WarehousesPage() {
                   </Button>
                 ) : null}
               </div>
-            </button>
+            </div>
           ))}
           {(warehouses ?? []).length === 0 ? (
             <div className="surface-card p-6 text-sm text-muted-foreground">

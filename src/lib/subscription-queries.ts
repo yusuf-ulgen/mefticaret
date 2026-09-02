@@ -119,7 +119,7 @@ export const metricUsageQuery = (storeId: string) =>
       ) => {
         const { count, error } = await supabase
           .from(table)
-          .select("id", { count: "exact", head: true })
+          .select("store_id", { count: "exact", head: true })
           .eq("store_id", storeId);
         if (error) throw error;
         return count ?? 0;

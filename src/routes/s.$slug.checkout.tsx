@@ -136,6 +136,14 @@ function CheckoutPage() {
   const rates = options.data?.shippingRates ?? [];
   const methods = options.data?.paymentMethods ?? [];
   const selectedRate = useMemo(() => rates.find((rate) => rate.id === shippingRateId) ?? null, [rates, shippingRateId]);
+
+  // Kargo seçilmeden sipariş verilmesini engelle: ilk uygun yöntemi ön seç.
+  useEffect(() => {
+    if (rates.length === 0) return;
+    if (shippingRateId && rates.some((rate) => rate.id === shippingRateId)) return;
+    const first = rates[0];
+    if (first) setShippingRateId(first.id);
+  }, [rates, shippingRateId]);
   const discountTotal = appliedDiscount?.discountTotal ?? 0;
   const baseShipping = selectedRate
     ? selectedRate.free_over !== null && subtotal - discountTotal >= selectedRate.free_over

@@ -41,8 +41,30 @@ export const Route = createFileRoute("/_authenticated/oauth/authorize")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  errorComponent: InvalidAuthorizeRequest,
   component: AuthorizePage,
 });
+
+function InvalidAuthorizeRequest() {
+  return (
+    <div className="mx-auto max-w-lg px-4 py-16">
+      <Card>
+        <CardHeader>
+          <CardTitle>Geçersiz yetkilendirme isteği</CardTitle>
+          <CardDescription>
+            Bu ekran yalnızca bir uygulama tarafından yönlendirildiğinde çalışır. Bağlantıda
+            client_id, redirect_uri ve scope bilgileri eksik veya hatalı.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild variant="outline">
+            <a href="/stores">Mağazalarıma dön</a>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 function AuthorizePage() {
   const search = Route.useSearch();
