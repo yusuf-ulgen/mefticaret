@@ -29,14 +29,21 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { collectionsQuery, productsQuery } from "@/lib/catalog-queries";
-import { THEME_SECTIONS, type ResolvedSection, type SectionSettings } from "@/lib/theme-sections";
+import {
+  SECTION_CATEGORIES,
+  sectionsByCategory,
+  type ResolvedSection,
+  type SectionSettings,
+} from "@/lib/theme-sections";
 import { themeSectionsQuery } from "@/lib/theme-sections-queries";
 import {
   addThemeSection,
@@ -167,6 +174,8 @@ function ThemeSectionsPage() {
     [products],
   );
 
+  const groupedSections = useMemo(() => sectionsByCategory(), []);
+
   const bodySections = (sections ?? []).filter(
     (section) => section.isEnabled && section.definition.slot === "body",
   );
@@ -191,12 +200,21 @@ function ThemeSectionsPage() {
                 <SelectTrigger className="w-[260px]">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  {THEME_SECTIONS.map((section) => (
-                    <SelectItem key={section.type} value={section.type}>
-                      {section.label}
-                    </SelectItem>
-                  ))}
+                <SelectContent className="max-h-[420px]">
+                  {SECTION_CATEGORIES.map((category) => {
+                    const items = groupedSections[category.value] ?? [];
+                    if (!items.length) return null;
+                    return (
+                      <SelectGroup key={category.value}>
+                        <SelectLabel>{category.label}</SelectLabel>
+                        {items.map((section) => (
+                          <SelectItem key={section.type} value={section.type}>
+                            {section.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
