@@ -372,15 +372,18 @@ function ThemeEditorPage() {
             </Badge>
           </div>
 
-          <div className="inline-flex rounded-lg border border-border p-1">
+          <div className="order-3 inline-flex w-full justify-center rounded-lg border border-border p-1 sm:order-none sm:w-auto">
             {DEVICES.map((entry) => (
               <button
                 key={entry.value}
                 type="button"
-                onClick={() => setDevice(entry.value)}
+                onClick={() => {
+                  setDevice(entry.value);
+                  setPane("preview");
+                }}
                 aria-pressed={device === entry.value}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition",
+                  "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition sm:flex-none",
                   device === entry.value
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground",
@@ -391,6 +394,7 @@ function ThemeEditorPage() {
               </button>
             ))}
           </div>
+
 
           <div className="flex items-center gap-1">
             <Button
