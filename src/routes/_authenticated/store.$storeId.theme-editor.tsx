@@ -130,6 +130,8 @@ function ThemeEditorPage() {
   const [tab, setTab] = useState<"content" | "design" | "layout">("content");
   const [addOpen, setAddOpen] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
+  /** Mobilde tek seferde tek panel gösterilir. */
+  const [pane, setPane] = useState<"sections" | "preview" | "settings">("preview");
 
   const [history, setHistory] = useState<Draft[]>([]);
   const [cursor, setCursor] = useState(-1);
