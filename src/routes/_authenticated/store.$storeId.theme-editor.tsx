@@ -489,7 +489,11 @@ function ThemeEditorPage() {
                 <SectionTree
                   items={items}
                   selectedId={selectedId}
-                  onSelect={setSelectedId}
+                  onSelect={(id) => {
+                    setSelectedId(id);
+                    // Mobilde seçimden sonra doğrudan ayarlar paneline geç.
+                    if (window.innerWidth < 1024) setPane("settings");
+                  }}
                   onReorder={(ids) => pushDraft({ order: ids, items: draft.items })}
                   onToggle={(id) => {
                     const current = draft.items[id];
