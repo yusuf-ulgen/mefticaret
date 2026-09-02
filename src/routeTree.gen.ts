@@ -180,6 +180,7 @@ import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pa
 import { Route as AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport } from './routes/_authenticated/store.$storeId.customers.$customerId'
 import { Route as AuthenticatedStoreStoreIdOrdersOrderIdRouteImport } from './routes/_authenticated/store.$storeId.orders.$orderId'
 import { Route as AuthenticatedStoreStoreIdOrdersNewRouteImport } from './routes/_authenticated/store.$storeId.orders.new'
+import { Route as AuthenticatedStoreStoreIdProductsIndexRouteImport } from './routes/_authenticated/store.$storeId.products.index'
 import { Route as AuthenticatedStoreStoreIdProductsProductIdRouteImport } from './routes/_authenticated/store.$storeId.products.$productId'
 import { Route as AuthenticatedStoreStoreIdProductsNewRouteImport } from './routes/_authenticated/store.$storeId.products.new'
 
@@ -1157,6 +1158,12 @@ const AuthenticatedStoreStoreIdOrdersNewRoute =
     path: '/new',
     getParentRoute: () => AuthenticatedStoreStoreIdOrdersRoute,
   } as any)
+const AuthenticatedStoreStoreIdProductsIndexRoute =
+  AuthenticatedStoreStoreIdProductsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedStoreStoreIdProductsRoute,
+  } as any)
 const AuthenticatedStoreStoreIdProductsProductIdRoute =
   AuthenticatedStoreStoreIdProductsProductIdRouteImport.update({
     id: '/$productId',
@@ -1343,6 +1350,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1453,7 +1461,6 @@ export interface FileRoutesByTo {
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
   '/store/$storeId/pricing': typeof AuthenticatedStoreStoreIdPricingRoute
-  '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
   '/store/$storeId/profit': typeof AuthenticatedStoreStoreIdProfitRoute
   '/store/$storeId/purchasing': typeof AuthenticatedStoreStoreIdPurchasingRoute
   '/store/$storeId/questions': typeof AuthenticatedStoreStoreIdQuestionsRoute
@@ -1516,6 +1523,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1692,6 +1700,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/_authenticated/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/_authenticated/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/_authenticated/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1868,6 +1877,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
     | '/store/$storeId/products/new'
+    | '/store/$storeId/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1978,7 +1988,6 @@ export interface FileRouteTypes {
     | '/store/$storeId/pages'
     | '/store/$storeId/payments'
     | '/store/$storeId/pricing'
-    | '/store/$storeId/products'
     | '/store/$storeId/profit'
     | '/store/$storeId/purchasing'
     | '/store/$storeId/questions'
@@ -2041,6 +2050,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
     | '/store/$storeId/products/new'
+    | '/store/$storeId/products'
   id:
     | '__root__'
     | '/'
@@ -2216,6 +2226,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/orders/new'
     | '/_authenticated/store/$storeId/products/$productId'
     | '/_authenticated/store/$storeId/products/new'
+    | '/_authenticated/store/$storeId/products/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -3464,6 +3475,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdOrdersNewRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdOrdersRoute
     }
+    '/_authenticated/store/$storeId/products/': {
+      id: '/_authenticated/store/$storeId/products/'
+      path: '/'
+      fullPath: '/store/$storeId/products/'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdProductsIndexRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdProductsRoute
+    }
     '/_authenticated/store/$storeId/products/$productId': {
       id: '/_authenticated/store/$storeId/products/$productId'
       path: '/$productId'
@@ -3574,6 +3592,7 @@ const AuthenticatedStoreStoreIdOrdersRouteWithChildren =
 interface AuthenticatedStoreStoreIdProductsRouteChildren {
   AuthenticatedStoreStoreIdProductsProductIdRoute: typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   AuthenticatedStoreStoreIdProductsNewRoute: typeof AuthenticatedStoreStoreIdProductsNewRoute
+  AuthenticatedStoreStoreIdProductsIndexRoute: typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 
 const AuthenticatedStoreStoreIdProductsRouteChildren: AuthenticatedStoreStoreIdProductsRouteChildren =
@@ -3582,6 +3601,8 @@ const AuthenticatedStoreStoreIdProductsRouteChildren: AuthenticatedStoreStoreIdP
       AuthenticatedStoreStoreIdProductsProductIdRoute,
     AuthenticatedStoreStoreIdProductsNewRoute:
       AuthenticatedStoreStoreIdProductsNewRoute,
+    AuthenticatedStoreStoreIdProductsIndexRoute:
+      AuthenticatedStoreStoreIdProductsIndexRoute,
   }
 
 const AuthenticatedStoreStoreIdProductsRouteWithChildren =
