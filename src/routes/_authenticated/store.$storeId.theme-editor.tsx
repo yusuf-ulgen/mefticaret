@@ -432,18 +432,19 @@ function ThemeEditorPage() {
               onClick={() => saveMutation.mutate()}
             >
               {saveMutation.isPending ? (
-                <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                <Loader2 className="size-3.5 animate-spin sm:mr-1.5" />
               ) : dirty ? (
-                <Save className="mr-1.5 size-3.5" />
+                <Save className="size-3.5 sm:mr-1.5" />
               ) : (
-                <Check className="mr-1.5 size-3.5" />
+                <Check className="size-3.5 sm:mr-1.5" />
               )}
-              Kaydet
+              <span className="hidden sm:inline">Kaydet</span>
             </Button>
             {storefrontPath ? (
               <Button asChild size="sm" variant="outline">
                 <a href={storefrontPath} target="_blank" rel="noreferrer">
-                  <ExternalLink className="mr-1.5 size-3.5" /> Önizle
+                  <ExternalLink className="size-3.5 sm:mr-1.5" />
+                  <span className="hidden sm:inline">Önizle</span>
                 </a>
               </Button>
             ) : null}
@@ -454,18 +455,23 @@ function ThemeEditorPage() {
               onClick={() => publishMutation.mutate()}
             >
               {publishMutation.isPending ? (
-                <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                <Loader2 className="size-3.5 animate-spin sm:mr-1.5" />
               ) : (
-                <Rocket className="mr-1.5 size-3.5" />
+                <Rocket className="size-3.5 sm:mr-1.5" />
               )}
-              Yayınla
+              <span className="hidden sm:inline">Yayınla</span>
             </Button>
           </div>
         </header>
 
-        <div className="flex min-h-0 flex-1">
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
           {/* Sol panel */}
-          <aside className="flex w-[280px] shrink-0 flex-col border-r border-border bg-card">
+          <aside
+            className={cn(
+              "min-h-0 w-full shrink-0 flex-col border-border bg-card lg:flex lg:w-[280px] lg:border-r",
+              pane === "sections" ? "flex flex-1" : "hidden",
+            )}
+          >
             <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
               <span className="text-sm font-semibold">Bölümler</span>
               <Button size="sm" variant="outline" onClick={() => setAddOpen(true)}>
