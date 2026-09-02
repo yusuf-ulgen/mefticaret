@@ -6,13 +6,14 @@
 
 /*
  * MEFTİCARET DESIGN SYSTEM
- * Marka dili: "mürekkep + safran" — premium, minimal, yüksek kontrast.
+ * Marka dili: "beyaz mürekkep + elektrik moru" — premium, minimal, yüksek kontrast.
  * Tüm renkler oklch. Bileşenlerde asla ham renk sınıfı kullanılmaz.
  */
 
 @theme inline {
-  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
