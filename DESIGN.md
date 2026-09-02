@@ -1,12 +1,14 @@
 # Mefticaret Tasarım Dili
 
-Shopify'ın klonu değil: kendi "mürekkep + safran" dilimiz.
+Referans dil: forsid.com — beyaz, ferah, yüksek kontrast minimalizm.
 
 ## Temeller
-- Renk: OKLCH token'ları (`src/styles.css`). Koyu mürekkep sidebar, safran vurgular. Bileşenlerde asla sabit renk (`bg-black`, `#hex`) kullanılmaz; yalnızca semantik token'lar.
-- Tipografi: başlıklar **Sora** (`font-display`, -0.02em tracking), gövde **Manrope**.
-- Yüzeyler: `surface-card`, `hero-surface`, `brand-gradient`, `grid-lines` utility'leri.
-- Ritim: 4/8px ölçek, `space-y-6` sayfa ritmi, `max-w-7xl` içerik genişliği.
+- Renk: OKLCH token'ları (`src/styles.css`). Beyaz yüzey, mürekkep siyahı tipografi/butonlar, elektrik moru vurgular, yeşil metrikler. Bileşenlerde asla sabit renk (`bg-black`, `#hex`) kullanılmaz; yalnızca semantik token'lar.
+- Tipografi: tümü **Geist** (`font-display` = başlık, `font-sans` = gövde), başlıklarda -0.035em tracking, ağır (700/800) başlıklar.
+- Yüzeyler: `showcase-card`, `eyebrow` (mor uppercase etiket), `marquee-col`, `fade-mask-y`, `surface-card`, `hero-surface`, `brand-gradient`, `grid-lines`.
+- Butonlar: pill (`rounded-full`); birincil siyah dolgu, ikincil outline.
+- Ritim: 4/8px ölçek, ortalanmış bölüm başlıkları, `max-w-7xl` içerik genişliği.
+
 
 ## Bileşen kuralları
 - Modern sidebar + sticky header (panel), tablo/kart karışımı listeler, grafikler için `chart`.
