@@ -91,7 +91,7 @@ export const liveCartsQuery = (storeId: string) =>
       const since = new Date(Date.now() - 30 * 60_000).toISOString();
       const { data, error } = await supabase
         .from("carts")
-        .select("id, updated_at, item_count, grand_total, currency, status")
+        .select("id, updated_at, grand_total, currency, completed_at, abandoned_at")
         .eq("store_id", storeId)
         .gte("updated_at", since)
         .order("updated_at", { ascending: false })

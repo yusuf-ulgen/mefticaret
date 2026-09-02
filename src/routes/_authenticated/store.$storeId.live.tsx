@@ -115,7 +115,7 @@ function LiveViewPage() {
 
   const paidOrders = (orders ?? []).filter((order) => order.payment_status === "paid");
   const todayRevenue = paidOrders.reduce((sum, order) => sum + Number(order.grand_total ?? 0), 0);
-  const activeCarts = (carts ?? []).filter((cart) => cart.status !== "converted");
+  const activeCarts = (carts ?? []).filter((cart) => !cart.completed_at);
   const cartValue = activeCarts.reduce((sum, cart) => sum + Number(cart.grand_total ?? 0), 0);
 
   const topPages = useMemo(() => topBy(rows, "path", 6), [rows]);
