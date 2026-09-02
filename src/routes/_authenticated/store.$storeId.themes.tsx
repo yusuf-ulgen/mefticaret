@@ -98,6 +98,19 @@ function ThemesPage() {
   const { user } = useAuth();
   const { data: stores } = useQuery(myStoresQuery(user?.id));
   const persist = useServerFn(saveTheme);
+  const applyTemplateFn = useServerFn(applyThemeTemplate);
+
+  const applyTemplate = useMutation({
+    mutationFn: (code: string) => applyTemplateFn({ data: { storeId, code } }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["store-theme", storeId] }),
+        queryClient.invalidateQueries({ queryKey: ["theme-sections", storeId] }),
+      ]);
+      toast.success("Tema uygulandı. Tema düzenleyiciden özelleştirebilirsin.");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const [draft, setDraft] = useState(DEFAULT_DRAFT);
 
