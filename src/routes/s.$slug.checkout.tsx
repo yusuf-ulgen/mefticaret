@@ -144,6 +144,14 @@ function CheckoutPage() {
     const first = rates[0];
     if (first) setShippingRateId(first.id);
   }, [rates, shippingRateId]);
+
+  // Ödeme yöntemi de ön seçilir; kullanıcı isterse değiştirir.
+  useEffect(() => {
+    if (methods.length === 0) return;
+    if (paymentMethodId && methods.some((method) => method.id === paymentMethodId)) return;
+    const first = methods[0];
+    if (first) setPaymentMethodId(first.id);
+  }, [methods, paymentMethodId]);
   const discountTotal = appliedDiscount?.discountTotal ?? 0;
   const baseShipping = selectedRate
     ? selectedRate.free_over !== null && subtotal - discountTotal >= selectedRate.free_over
