@@ -7,6 +7,7 @@ import {
 
   RotateCcw,
   Blocks,
+  Bot,
   BadgeCheck,
   Boxes,
   ChartNoAxesColumn,
