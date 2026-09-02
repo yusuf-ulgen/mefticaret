@@ -106,6 +106,7 @@ import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdJobsRouteImport } from './routes/_authenticated/store.$storeId.jobs'
 import { Route as AuthenticatedStoreStoreIdLedgerRouteImport } from './routes/_authenticated/store.$storeId.ledger'
 import { Route as AuthenticatedStoreStoreIdLifecycleRouteImport } from './routes/_authenticated/store.$storeId.lifecycle'
+import { Route as AuthenticatedStoreStoreIdLiveRouteImport } from './routes/_authenticated/store.$storeId.live'
 import { Route as AuthenticatedStoreStoreIdLocalizationRouteImport } from './routes/_authenticated/store.$storeId.localization'
 import { Route as AuthenticatedStoreStoreIdLossesRouteImport } from './routes/_authenticated/store.$storeId.losses'
 import { Route as AuthenticatedStoreStoreIdLtvRouteImport } from './routes/_authenticated/store.$storeId.ltv'
@@ -722,6 +723,12 @@ const AuthenticatedStoreStoreIdLifecycleRoute =
     path: '/store/$storeId/lifecycle',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdLiveRoute =
+  AuthenticatedStoreStoreIdLiveRouteImport.update({
+    id: '/store/$storeId/live',
+    path: '/store/$storeId/live',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdLocalizationRoute =
   AuthenticatedStoreStoreIdLocalizationRouteImport.update({
     id: '/store/$storeId/localization',
@@ -1260,6 +1267,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
+  '/store/$storeId/live': typeof AuthenticatedStoreStoreIdLiveRoute
   '/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
@@ -1432,6 +1440,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
+  '/store/$storeId/live': typeof AuthenticatedStoreStoreIdLiveRoute
   '/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
@@ -1607,6 +1616,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/_authenticated/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/_authenticated/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
+  '/_authenticated/store/$storeId/live': typeof AuthenticatedStoreStoreIdLiveRoute
   '/_authenticated/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/_authenticated/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/_authenticated/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
@@ -1782,6 +1792,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
     | '/store/$storeId/lifecycle'
+    | '/store/$storeId/live'
     | '/store/$storeId/localization'
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
@@ -1954,6 +1965,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
     | '/store/$storeId/lifecycle'
+    | '/store/$storeId/live'
     | '/store/$storeId/localization'
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
@@ -2128,6 +2140,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/jobs'
     | '/_authenticated/store/$storeId/ledger'
     | '/_authenticated/store/$storeId/lifecycle'
+    | '/_authenticated/store/$storeId/live'
     | '/_authenticated/store/$storeId/localization'
     | '/_authenticated/store/$storeId/losses'
     | '/_authenticated/store/$storeId/ltv'
@@ -2933,6 +2946,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLifecycleRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/live': {
+      id: '/_authenticated/store/$storeId/live'
+      path: '/store/$storeId/live'
+      fullPath: '/store/$storeId/live'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdLiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/localization': {
       id: '/_authenticated/store/$storeId/localization'
       path: '/store/$storeId/localization'
@@ -3614,6 +3634,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdJobsRoute: typeof AuthenticatedStoreStoreIdJobsRoute
   AuthenticatedStoreStoreIdLedgerRoute: typeof AuthenticatedStoreStoreIdLedgerRoute
   AuthenticatedStoreStoreIdLifecycleRoute: typeof AuthenticatedStoreStoreIdLifecycleRoute
+  AuthenticatedStoreStoreIdLiveRoute: typeof AuthenticatedStoreStoreIdLiveRoute
   AuthenticatedStoreStoreIdLocalizationRoute: typeof AuthenticatedStoreStoreIdLocalizationRoute
   AuthenticatedStoreStoreIdLossesRoute: typeof AuthenticatedStoreStoreIdLossesRoute
   AuthenticatedStoreStoreIdLtvRoute: typeof AuthenticatedStoreStoreIdLtvRoute
@@ -3736,6 +3757,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdLedgerRoute: AuthenticatedStoreStoreIdLedgerRoute,
   AuthenticatedStoreStoreIdLifecycleRoute:
     AuthenticatedStoreStoreIdLifecycleRoute,
+  AuthenticatedStoreStoreIdLiveRoute: AuthenticatedStoreStoreIdLiveRoute,
   AuthenticatedStoreStoreIdLocalizationRoute:
     AuthenticatedStoreStoreIdLocalizationRoute,
   AuthenticatedStoreStoreIdLossesRoute: AuthenticatedStoreStoreIdLossesRoute,
