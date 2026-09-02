@@ -153,13 +153,11 @@ function ThemeEditorPage() {
   }, [sections, resetFromServer]);
 
   const pushDraft = (next: Draft) => {
-    setHistory((current) => {
-      const trimmed = current.slice(0, cursor + 1);
-      trimmed.push(next);
-      const capped = trimmed.slice(-50);
-      setCursor(capped.length - 1);
-      return capped;
-    });
+    const trimmed = history.slice(0, cursor + 1);
+    trimmed.push(next);
+    const capped = trimmed.slice(-50);
+    setHistory(capped);
+    setCursor(capped.length - 1);
   };
 
   const dirty = !sameDraft(draft, baseRef.current);
