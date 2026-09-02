@@ -152,17 +152,6 @@ function ProductsPage() {
               <Upload className="size-4" /> CSV yükle
             </Link>
           </Button>
-          <Select value={filter} onValueChange={(value) => setFilter(value as typeof filter)}>
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tümü</SelectItem>
-              <SelectItem value="active">Aktif</SelectItem>
-              <SelectItem value="draft">Taslak</SelectItem>
-              <SelectItem value="archived">Arşiv</SelectItem>
-            </SelectContent>
-          </Select>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button className="gap-2">
