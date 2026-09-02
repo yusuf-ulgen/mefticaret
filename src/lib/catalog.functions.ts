@@ -475,3 +475,196 @@ export const setProductCollections = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+/**
+ * Shopify tarzı tek adımlı ürün oluşturma: temel bilgiler, fiyatlandırma,
+ * envanter, kargo, SEO, seçenek grupları, varyant matrisi ve konum bazlı stok
+ * aynı istekte kaydedilir. Tüm doğrulama ve limit kontrolü sunucudadır.
+ */
+export const createProductAdvanced = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.string().uuid(),
+        title: z.string().trim().min(2).max(120),
+        description: z.string().trim().max(4000).optional(),
+        vendor: z.string().trim().max(80).optional(),
+        productType: z.string().trim().max(80).optional(),
+        status: statusEnum.default("draft"),
+        basePrice: z.number().min(0).max(9_999_999),
+        compareAtPrice: z.number().min(0).max(9_999_999).nullable().optional(),
+        costPrice: z.number().min(0).max(9_999_999).nullable().optional(),
+        taxRate: z.number().min(0).max(100).optional(),
+        sku: z.string().trim().max(60).optional(),
+        barcode: z.string().trim().max(60).optional(),
+        trackInventory: z.boolean().default(true),
+        weightGrams: z.number().int().min(0).max(500_000).nullable().optional(),
+        lengthCm: z.number().min(0).max(1000).nullable().optional(),
+        widthCm: z.number().min(0).max(1000).nullable().optional(),
+        heightCm: z.number().min(0).max(1000).nullable().optional(),
+        tags: z.array(z.string().trim().min(1).max(40)).max(30).default([]),
+        slug: z
+          .string()
+          .trim()
+          .min(2)
+          .max(90)
+          .regex(/^[a-z0-9-]+$/)
+          .optional(),
+        seo: z
+          .object({
+            title: z.string().trim().max(70).default(""),
+            description: z.string().trim().max(180).default(""),
+          })
+          .optional(),
+        options: variantOptionsSchema.default([]),
+        variants: z
+          .array(
+            z.object({
+              title: z.string().trim().min(1).max(120),
+              options: z.record(z.string(), z.string()).default({}),
+              sku: z.string().trim().max(60).optional(),
+              barcode: z.string().trim().max(60).optional(),
+              price: z.number().min(0).max(9_999_999),
+              stock: z.number().int().min(0).max(1_000_000).default(0),
+            }),
+          )
+          .max(300)
+          .default([]),
+        stock: z.number().int().min(0).max(1_000_000).default(0),
+        warehouseId: z.string().uuid().optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: store, error: storeError } = await supabase
+      .from("stores")
+      .select("id, currency, plan_id, plans(limits)")
+      .eq("id", data.storeId)
+      .maybeSingle();
+    if (storeError) throw new Error(storeError.message);
+    if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
+
+    const limits = ((store as { plans?: { limits?: Record<string, number> } }).plans?.limits ??
+      {}) as { products?: number };
+    if (typeof limits.products === "number" && limits.products >= 0) {
+      const { count } = await supabase
+        .from("products")
+        .select("id", { count: "exact", head: true })
+        .eq("store_id", data.storeId);
+      if ((count ?? 0) >= limits.products) {
+        throw new Error(`Paket ürün limitine ulaştınız (${limits.products}). Paketi yükseltin.`);
+      }
+    }
+
+    let slug = data.slug ?? "";
+    if (slug) {
+      const { data: clash } = await supabase
+        .from("products")
+        .select("id")
+        .eq("store_id", data.storeId)
+        .eq("slug", slug)
+        .maybeSingle();
+      if (clash) throw new Error("Bu SEO adresi başka bir üründe kullanılıyor");
+    } else {
+      slug = await uniqueSlug(supabase as never, data.storeId, data.title);
+    }
+
+    const { data: product, error } = await supabase
+      .from("products")
+      .insert({
+        store_id: data.storeId,
+        title: data.title,
+        slug,
+        description: data.description ?? null,
+        vendor: data.vendor ?? null,
+        product_type: data.productType ?? null,
+        base_price: data.basePrice,
+        compare_at_price: data.compareAtPrice ?? null,
+        cost_price: data.costPrice ?? null,
+        ...(typeof data.taxRate === "number" ? { tax_rate: data.taxRate } : {}),
+        sku: data.sku && data.sku.length ? data.sku : null,
+        barcode: data.barcode && data.barcode.length ? data.barcode : null,
+        track_inventory: data.trackInventory,
+        weight_grams: data.weightGrams ?? null,
+        length_cm: data.lengthCm ?? null,
+        width_cm: data.widthCm ?? null,
+        height_cm: data.heightCm ?? null,
+        tags: data.tags,
+        currency: store.currency,
+        status: data.status,
+        variant_options: data.options as never,
+        ...(data.seo ? { seo: data.seo as never } : {}),
+      })
+      .select("*")
+      .single();
+    if (error || !product) throw new Error(error?.message ?? "Ürün oluşturulamadı");
+
+    const rows =
+      data.variants.length > 0
+        ? data.variants.map((variant, index) => ({
+            product_id: product.id,
+            store_id: data.storeId,
+            title: variant.title,
+            sku: variant.sku && variant.sku.length ? variant.sku : null,
+            barcode: variant.barcode && variant.barcode.length ? variant.barcode : null,
+            price: variant.price,
+            stock: variant.stock,
+            options: variant.options as never,
+            position: index + 1,
+          }))
+        : [
+            {
+              product_id: product.id,
+              store_id: data.storeId,
+              title: "Standart",
+              sku: data.sku && data.sku.length ? data.sku : null,
+              barcode: data.barcode && data.barcode.length ? data.barcode : null,
+              price: data.basePrice,
+              stock: data.stock,
+              options: {} as never,
+              position: 1,
+            },
+          ];
+
+    const { data: variants, error: variantError } = await supabase
+      .from("product_variants")
+      .insert(rows)
+      .select("id, stock");
+    if (variantError) {
+      if (/duplicate key/i.test(variantError.message)) {
+        throw new Error("Aynı SKU veya barkod birden fazla varyantta kullanılamaz");
+      }
+      throw new Error(variantError.message);
+    }
+
+    if (data.warehouseId && variants?.length) {
+      const { error: levelError } = await supabase.from("inventory_levels").insert(
+        variants.map((variant) => ({
+          store_id: data.storeId,
+          warehouse_id: data.warehouseId!,
+          variant_id: variant.id,
+          product_id: product.id,
+          on_hand: variant.stock ?? 0,
+        })),
+      );
+      if (levelError) throw new Error(levelError.message);
+    }
+
+    await insertAuditRow(supabase, {
+      store_id: data.storeId,
+      actor_id: userId,
+      action: "product.created",
+      entity: "products",
+      entity_id: product.id,
+      new_value: {
+        title: product.title,
+        slug: product.slug,
+        variants: rows.length,
+      } as never,
+    });
+
+    return product;
+  });
