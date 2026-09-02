@@ -100,11 +100,7 @@ export function SectionTree({
 }
 
 function useDragState() {
-  // Basit yerel durum; ayrı hook dosyası açmaya gerek yok.
-  const [value, setValue] = require("react").useState<string | null>(null) as [
-    string | null,
-    (next: string | null) => void,
-  ];
+  const [value, setValue] = useState<string | null>(null);
   return [value, setValue] as const;
 }
 
