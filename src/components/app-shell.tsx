@@ -30,6 +30,7 @@ import {
   Package,
   PackageSearch,
   Palette,
+  Wand2,
   Plus,
   Rocket,
   Search,
