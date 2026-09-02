@@ -7,7 +7,9 @@
  * karşılığını render etmek yeterlidir.
  */
 
-export type ThemeSectionType =
+import { EXTENDED_SECTIONS, type ExtendedSectionType } from "@/lib/theme-blocks";
+
+export type CoreSectionType =
   | "header"
   | "footer"
   | "announcement_bar"
@@ -22,6 +24,29 @@ export type ThemeSectionType =
   | "blog"
   | "newsletter"
   | "custom_html";
+
+export type ThemeSectionType = CoreSectionType | ExtendedSectionType;
+
+export type SectionCategory =
+  | "layout"
+  | "hero"
+  | "banner"
+  | "product"
+  | "category"
+  | "content"
+  | "marketing"
+  | "commerce";
+
+export const SECTION_CATEGORIES: { value: SectionCategory; label: string }[] = [
+  { value: "layout", label: "Yerleşim" },
+  { value: "hero", label: "Hero / Slider" },
+  { value: "banner", label: "Banner" },
+  { value: "product", label: "Ürün" },
+  { value: "category", label: "Kategori" },
+  { value: "content", label: "İçerik" },
+  { value: "marketing", label: "Pazarlama" },
+  { value: "commerce", label: "E-ticaret" },
+];
 
 export type SectionFieldKind = "text" | "textarea" | "number" | "boolean" | "select" | "code" | "lines";
 
@@ -41,6 +66,7 @@ export type SectionSettings = Record<string, string | number | boolean>;
 export type ThemeSectionDefinition = {
   type: ThemeSectionType;
   label: string;
+  category: SectionCategory;
   description: string;
   /** chrome bileşenleri sayfa gövdesinin dışında (üst/alt) render edilir. */
   slot: "chrome" | "body";
@@ -60,9 +86,10 @@ const alignField: SectionField = {
   ],
 };
 
-export const THEME_SECTIONS: ThemeSectionDefinition[] = [
+const CORE_SECTIONS: ThemeSectionDefinition[] = [
   {
     type: "announcement_bar",
+    category: "layout",
     label: "Duyuru çubuğu",
     description: "Sayfanın en üstünde kampanya veya kargo duyurusu şeridi.",
     slot: "chrome",
@@ -86,6 +113,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "header",
+    category: "layout",
     label: "Header",
     description: "Üst menü: logo, gezinme bağlantıları, arama ve sepet.",
     slot: "chrome",
@@ -101,6 +129,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "hero",
+    category: "hero",
     label: "Hero alanı",
     description: "Ana sayfanın en üstündeki büyük tanıtım alanı.",
     slot: "body",
@@ -126,6 +155,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "banner",
+    category: "banner",
     label: "Banner",
     description: "Kampanya görseli veya tek satır çağrı bandı.",
     slot: "body",
@@ -158,6 +188,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "product_grid",
+    category: "product",
     label: "Ürün grid",
     description: "Ürünleri ızgara düzeninde listeler.",
     slot: "body",
@@ -174,6 +205,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "product_slider",
+    category: "product",
     label: "Ürün slider",
     description: "Yatay kaydırmalı ürün şeridi.",
     slot: "body",
@@ -188,6 +220,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "category_grid",
+    category: "category",
     label: "Kategori grid",
     description: "Koleksiyon veya ürün tiplerini kart olarak gösterir.",
     slot: "body",
@@ -210,6 +243,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "image_text",
+    category: "content",
     label: "Görsel + metin",
     description: "Yan yana görsel ve anlatım bloğu.",
     slot: "body",
@@ -241,6 +275,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "testimonials",
+    category: "content",
     label: "Referanslar",
     description: "Müşteri yorumları. Her satır: Yorum | İsim",
     slot: "body",
@@ -258,6 +293,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "faq",
+    category: "content",
     label: "SSS",
     description: "Sıkça sorulan sorular akordiyonu. Her satır: Soru | Cevap",
     slot: "body",
@@ -274,6 +310,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "blog",
+    category: "content",
     label: "Blog",
     description: "Yayınlanmış mağaza yazılarından son kayıtlar.",
     slot: "body",
@@ -287,6 +324,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "newsletter",
+    category: "marketing",
     label: "Newsletter",
     description: "E-posta bülten kayıt formu.",
     slot: "body",
@@ -306,6 +344,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "custom_html",
+    category: "content",
     label: "Özel HTML",
     description: "Kendi işaretlemeni ekle (script etiketleri temizlenir).",
     slot: "body",
@@ -318,6 +357,7 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
   },
   {
     type: "footer",
+    category: "layout",
     label: "Footer",
     description: "Alt bilgi: kurumsal bağlantılar, iletişim ve telif satırı.",
     slot: "chrome",
@@ -340,6 +380,17 @@ export const THEME_SECTIONS: ThemeSectionDefinition[] = [
     ],
   },
 ];
+
+export const THEME_SECTIONS: ThemeSectionDefinition[] = [...CORE_SECTIONS, ...EXTENDED_SECTIONS];
+
+/** Kategoriye göre gruplanmış blok listesi (editör seçicisi için). */
+export function sectionsByCategory(): { category: SectionCategory; label: string; items: ThemeSectionDefinition[] }[] {
+  return SECTION_CATEGORIES.map((entry) => ({
+    category: entry.value,
+    label: entry.label,
+    items: THEME_SECTIONS.filter((section) => section.category === entry.value),
+  })).filter((group) => group.items.length > 0);
+}
 
 export const SECTION_BY_TYPE = new Map(THEME_SECTIONS.map((section) => [section.type, section]));
 
