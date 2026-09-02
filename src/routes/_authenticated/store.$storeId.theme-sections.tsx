@@ -29,14 +29,21 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { collectionsQuery, productsQuery } from "@/lib/catalog-queries";
-import { THEME_SECTIONS, type ResolvedSection, type SectionSettings } from "@/lib/theme-sections";
+import {
+  THEME_SECTIONS,
+  sectionsByCategory,
+  type ResolvedSection,
+  type SectionSettings,
+} from "@/lib/theme-sections";
 import { themeSectionsQuery } from "@/lib/theme-sections-queries";
 import {
   addThemeSection,
@@ -167,6 +174,8 @@ function ThemeSectionsPage() {
     [products],
   );
 
+  const groupedSections = useMemo(() => sectionsByCategory(), []);
+
   const bodySections = (sections ?? []).filter(
     (section) => section.isEnabled && section.definition.slot === "body",
   );
@@ -191,11 +200,16 @@ function ThemeSectionsPage() {
                 <SelectTrigger className="w-[260px]">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  {THEME_SECTIONS.map((section) => (
-                    <SelectItem key={section.type} value={section.type}>
-                      {section.label}
-                    </SelectItem>
+                <SelectContent className="max-h-[420px]">
+                  {groupedSections.map((group) => (
+                    <SelectGroup key={group.category}>
+                      <SelectLabel>{group.label}</SelectLabel>
+                      {group.items.map((section) => (
+                        <SelectItem key={section.type} value={section.type}>
+                          {section.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   ))}
                 </SelectContent>
               </Select>

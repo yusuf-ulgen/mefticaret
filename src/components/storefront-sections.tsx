@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 
+import { ExtendedBlock } from "@/components/storefront-blocks";
 import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { buttonStyles, cardStyles, storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
@@ -108,7 +109,7 @@ function StorefrontSection({ section, context }: { section: ResolvedSection; con
     case "custom_html":
       return <CustomHtmlSection settings={s} />;
     default:
-      return null;
+      return <ExtendedBlock section={section} context={context} />;
   }
 }
 

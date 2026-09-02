@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
 import { RecentlyViewed } from "@/components/recently-viewed";
@@ -46,10 +46,10 @@ function Surface({
   padding = "26px 24px",
   style,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   theme: StoreTheme;
   padding?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }) {
   const { cardBg, border, radius } = storefrontTokens(theme);
   return (
@@ -75,8 +75,8 @@ function Clickable({
 }: {
   url: string;
   preview?: boolean | undefined;
-  style: React.CSSProperties;
-  children: React.ReactNode;
+  style: CSSProperties;
+  children: ReactNode;
 }) {
   if (preview || !url.trim()) return <div style={style}>{children}</div>;
   return (
@@ -178,8 +178,8 @@ function CollectionLink({
 }: {
   collection: SectionCollection;
   context: SectionContext;
-  style: React.CSSProperties;
-  children: React.ReactNode;
+  style: CSSProperties;
+  children: ReactNode;
 }) {
   if (context.preview) return <div style={style}>{children}</div>;
   return (
@@ -1715,5 +1715,3 @@ function FeaturedCollection({ settings, context }: SectionProps) {
     </section>
   );
 }
-
-export { ProductCard };
