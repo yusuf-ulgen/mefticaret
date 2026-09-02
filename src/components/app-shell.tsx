@@ -340,8 +340,12 @@ function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <span className="grid size-6 place-items-center rounded-full bg-primary text-[0.7rem] font-bold text-primary-foreground">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2 text-sidebar-primary-foreground hover:bg-white/10 hover:text-sidebar-primary-foreground"
+        >
+          <span className="grid size-6 place-items-center rounded-md bg-primary text-[0.7rem] font-bold text-primary-foreground">
             {(profile?.full_name ?? user?.email ?? "?").slice(0, 1).toUpperCase()}
           </span>
           <span className="hidden max-w-[9rem] truncate sm:inline">
