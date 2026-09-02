@@ -16,6 +16,12 @@ import {
   Zap,
 } from "lucide-react";
 
+import {
+  BlogSection,
+  FaqSection,
+  IntegrationsSection,
+  PlatformDemosSection,
+} from "@/components/landing-sections";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { formatMoney, planLimitLabel } from "@/lib/mefti";
@@ -167,11 +173,17 @@ function LandingPage() {
             <a href="#moduller" className="transition-colors hover:text-foreground">
               E-Ticaret
             </a>
+            <a href="#entegrasyonlar" className="transition-colors hover:text-foreground">
+              Entegrasyonlar
+            </a>
             <a href="#paketler" className="transition-colors hover:text-foreground">
               Fiyatlandırma
             </a>
-            <a href="#referanslar" className="transition-colors hover:text-foreground">
-              Referanslar
+            <a href="#blog" className="transition-colors hover:text-foreground">
+              Blog
+            </a>
+            <a href="#sss" className="transition-colors hover:text-foreground">
+              SSS
             </a>
           </nav>
           <div className="ml-auto flex items-center gap-2">
@@ -310,6 +322,12 @@ function LandingPage() {
           </div>
         </section>
 
+        <IntegrationsSection />
+
+        <PlatformDemosSection />
+
+
+
         <section id="paketler" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
           <div className="text-center">
             <span className="eyebrow">Fiyatlandırma</span>
@@ -373,6 +391,12 @@ function LandingPage() {
           </div>
         </section>
 
+        <BlogSection />
+
+        <FaqSection />
+
+
+
         <section className="mx-auto max-w-7xl px-4 pb-24 lg:px-8">
           <div className="showcase-card px-6 py-14 text-center" style={{ background: "var(--gradient-hero)" }}>
             <h2 className="mx-auto max-w-2xl text-3xl font-extrabold sm:text-4xl">
@@ -395,13 +419,71 @@ function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-border py-10">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 text-sm text-muted-foreground lg:px-8">
-          <span className="font-display text-base font-extrabold tracking-tighter text-foreground">
-            mefticaret
-          </span>
-          <span>— E-ticaret işletim sistemi</span>
-          <span className="ml-auto">KVKK &amp; GDPR uyumlu mimari</span>
+      <footer className="border-t border-border py-14">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="grid gap-10 md:grid-cols-4">
+            <div>
+              <span className="font-display text-2xl font-extrabold tracking-tighter">
+                mefticaret
+              </span>
+              <p className="mt-3 max-w-xs text-sm text-muted-foreground">
+                Türkiye'nin çok kiracılı e-ticaret işletim sistemi. Mağaza kurun, yönetin, büyütün.
+              </p>
+            </div>
+            {[
+              {
+                title: "Platform",
+                links: [
+                  ["E-Ticaret", "#moduller"],
+                  ["Özellikler", "#ozellikler"],
+                  ["Entegrasyonlar", "#entegrasyonlar"],
+                  ["Fiyatlandırma", "#paketler"],
+                ] as const,
+              },
+              {
+                title: "Kaynaklar",
+                links: [
+                  ["Blog", "#blog"],
+                  ["Referanslar", "#referanslar"],
+                  ["Sıkça Sorulan Sorular", "#sss"],
+                ] as const,
+              },
+            ].map((group) => (
+              <nav key={group.title} aria-label={group.title}>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  {group.title}
+                </p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  {group.links.map(([label, href]) => (
+                    <li key={label}>
+                      <a href={href} className="text-muted-foreground hover:text-foreground">
+                        {label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ))}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Başlayın
+              </p>
+              <div className="mt-4 flex flex-col gap-2">
+                <Button asChild className="rounded-full">
+                  <Link to="/auth" search={{ mode: "register" }}>
+                    Ücretsiz Başlayın
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="rounded-full">
+                  <Link to="/auth">Giriş Yap</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
+            <span>© {new Date().getFullYear()} Mefticaret</span>
+            <span className="ml-auto">KVKK &amp; GDPR uyumlu mimari</span>
+          </div>
         </div>
       </footer>
     </div>
