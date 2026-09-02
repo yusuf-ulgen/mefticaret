@@ -385,67 +385,85 @@ export function AppShell({
   const [open, setOpen] = useState(false);
 
   const sidebar = storeId ? (
-    <div className="flex h-full flex-col gap-6 p-4">
-      <Link to="/stores" className="flex items-center gap-2 px-1">
-        <span className="grid size-8 place-items-center rounded-lg brand-gradient text-brand-foreground">
-          <Rocket className="size-4" />
-        </span>
-        <span className="font-display text-lg font-semibold text-sidebar-foreground">
-          Mefticaret
-        </span>
-      </Link>
+    <div className="flex h-full min-h-0 flex-col gap-4 p-3">
+      <div className="lg:hidden">
+        <Link to="/stores" className="flex items-center gap-2 px-1 py-1">
+          <span className="grid size-8 place-items-center rounded-lg brand-gradient text-brand-foreground">
+            <Rocket className="size-4" />
+          </span>
+          <span className="font-display text-lg font-semibold text-sidebar-foreground">
+            Mefticaret
+          </span>
+        </Link>
+      </div>
       <StoreSwitcher storeId={storeId} />
-      <div className="flex-1 overflow-y-auto">
+      <div className="-mr-1 min-h-0 flex-1 overflow-y-auto pr-1">
         <NavList storeId={storeId} onNavigate={() => setOpen(false)} />
       </div>
     </div>
   ) : null;
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <a href="#panel-content" className="skip-link">
         İçeriğe geç
       </a>
-      {sidebar ? (
-        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-sidebar-border bg-sidebar lg:block">
-          {sidebar}
-        </aside>
-      ) : null}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-background/85 px-4 py-3 backdrop-blur lg:px-8">
-          {sidebar ? (
-            <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="lg:hidden" aria-label="Menüyü aç">
-                  <Menu className="size-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-72 border-sidebar-border bg-sidebar p-0">
-                <SheetTitle className="sr-only">Mağaza menüsü</SheetTitle>
-                {sidebar}
-              </SheetContent>
-            </Sheet>
-          ) : (
-            <Link to="/stores" className="flex items-center gap-2">
-              <span className="grid size-8 place-items-center rounded-lg brand-gradient text-brand-foreground">
-                <Rocket className="size-4" />
-              </span>
-              <span className="font-display text-lg font-semibold">Mefticaret</span>
-            </Link>
-          )}
-          <div className="ml-auto flex items-center gap-2">
-            {storeId ? <CommandPalette storeId={storeId} /> : null}
-            {storeId ? <NotificationBell storeId={storeId} /> : null}
-            <UserMenu />
-          </div>
-        </header>
+      {/* Shopify tarzı koyu üst çubuk — tüm genişlik */}
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-2 bg-sidebar-primary px-3 text-sidebar-primary-foreground lg:px-4">
+        {sidebar ? (
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-sidebar-primary-foreground hover:bg-white/10 lg:hidden"
+                aria-label="Menüyü aç"
+              >
+                <Menu className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-80 border-sidebar-border bg-sidebar p-0">
+              <SheetTitle className="sr-only">Mağaza menüsü</SheetTitle>
+              {sidebar}
+            </SheetContent>
+          </Sheet>
+        ) : null}
 
-        <main id="panel-content" tabIndex={-1} className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
-          <div className="mx-auto w-full max-w-7xl space-y-6">
+        <Link to="/stores" className="flex shrink-0 items-center gap-2">
+          <span className="grid size-7 place-items-center rounded-md brand-gradient text-brand-foreground">
+            <Rocket className="size-4" />
+          </span>
+          <span className="hidden font-display text-base font-semibold sm:inline">Mefticaret</span>
+        </Link>
+
+        <div className="mx-auto hidden w-full max-w-xl sm:block">
+          {storeId ? <CommandPalette storeId={storeId} /> : null}
+        </div>
+
+        <div className="ml-auto flex items-center gap-1">
+          <div className="sm:hidden">{storeId ? <CommandPalette storeId={storeId} /> : null}</div>
+          {storeId ? <NotificationBell storeId={storeId} /> : null}
+          <UserMenu />
+        </div>
+      </header>
+
+      <div className="flex">
+        {sidebar ? (
+          <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-64 shrink-0 border-r border-sidebar-border bg-sidebar lg:block">
+            {sidebar}
+          </aside>
+        ) : null}
+
+        <main
+          id="panel-content"
+          tabIndex={-1}
+          className="min-w-0 flex-1 px-3 py-5 sm:px-5 lg:px-8 lg:py-8"
+        >
+          <div className="mx-auto w-full max-w-6xl space-y-5">
             <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h1 className="font-display text-2xl font-semibold sm:text-3xl">{title}</h1>
+              <div className="min-w-0">
+                <h1 className="font-display text-xl font-semibold sm:text-2xl">{title}</h1>
                 {description ? (
                   <p className="mt-1 text-sm text-muted-foreground">{description}</p>
                 ) : null}
