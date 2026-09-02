@@ -79,15 +79,15 @@ export function CommandPalette({ storeId }: { storeId: string }) {
   return (
     <>
       <Button
-        variant="outline"
+        variant="ghost"
         size="sm"
-        className="gap-2 text-muted-foreground"
+        className="w-full justify-start gap-2 rounded-lg border border-white/15 bg-white/10 text-sidebar-primary-foreground/70 hover:bg-white/15 hover:text-sidebar-primary-foreground"
         onClick={() => setOpen(true)}
       >
         <Search className="size-4" />
         <span className="hidden sm:inline">Ara</span>
-        <kbd className="hidden rounded border border-border px-1 text-[0.65rem] font-medium md:inline">
-          ⌘K
+        <kbd className="ml-auto hidden rounded border border-white/20 px-1.5 text-[0.65rem] font-medium md:inline">
+          CTRL K
         </kbd>
       </Button>
 
