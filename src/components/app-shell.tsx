@@ -221,13 +221,13 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   return (
-    <nav aria-label="Mağaza menüsü" className="space-y-6">
+    <nav aria-label="Mağaza menüsü" className="space-y-5">
       {storeNav(storeId).map((section) => (
         <div key={section.group}>
-          <p className="px-3 pb-2 text-[0.7rem] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+          <p className="px-2 pb-1.5 text-[0.68rem] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
             {section.group}
           </p>
-          <ul className="space-y-1">
+          <ul className="space-y-0.5">
             {section.items.map((item) => {
               const active = item.to ? pathname === item.to : false;
               return (
@@ -237,12 +237,13 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
                       to={item.to}
                       onClick={onNavigate}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                        active && "bg-sidebar-accent text-sidebar-accent-foreground",
+                        "flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[0.84rem] font-medium text-sidebar-foreground/85 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        active &&
+                          "bg-sidebar-accent text-sidebar-accent-foreground shadow-[0_1px_2px_rgba(0,0,0,0.08)]",
                       )}
                     >
                       <item.icon className="size-4 shrink-0" />
-                      {item.label}
+                      <span className="truncate">{item.label}</span>
                     </Link>
                   ) : (
                     <span
