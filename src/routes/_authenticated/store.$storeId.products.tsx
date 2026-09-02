@@ -152,76 +152,11 @@ function ProductsPage() {
               <Upload className="size-4" /> CSV yükle
             </Link>
           </Button>
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="size-4" /> Yeni ürün
-              </Button>
-            </SheetTrigger>
-            <SheetContent className="w-full max-w-md overflow-y-auto p-6">
-              <SheetHeader className="p-0 pb-4">
-                <SheetTitle>Yeni ürün</SheetTitle>
-              </SheetHeader>
-              <form
-                className="space-y-4"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  mutation.mutate();
-                }}
-              >
-                <div className="space-y-2">
-                  <Label htmlFor="title">Ürün adı</Label>
-                  <Input
-                    id="title"
-                    required
-                    minLength={2}
-                    value={title}
-                    onChange={(event) => setTitle(event.target.value)}
-                    placeholder="Örn. Merino Yün Triko"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Fiyat ({currency})</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      required
-                      value={price}
-                      onChange={(event) => setPrice(event.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="stock">Başlangıç stoğu</Label>
-                    <Input
-                      id="stock"
-                      type="number"
-                      min={0}
-                      value={stock}
-                      onChange={(event) => setStock(event.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Durum</Label>
-                  <Select value={status} onValueChange={(value) => setStatus(value as "draft")}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Taslak</SelectItem>
-                      <SelectItem value="active">Aktif (satışta)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button type="submit" className="w-full" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Kaydediliyor…" : "Ürünü oluştur"}
-                </Button>
-              </form>
-            </SheetContent>
-          </Sheet>
+          <Button className="gap-2" asChild>
+            <Link to="/store/$storeId/products/new" params={{ storeId }}>
+              <Plus className="size-4" /> Yeni ürün
+            </Link>
+          </Button>
         </div>
       }
     >
