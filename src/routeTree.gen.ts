@@ -107,6 +107,7 @@ import { Route as AuthenticatedStoreStoreIdGiftCardsRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdGiftLiabilityRouteImport } from './routes/_authenticated/store.$storeId.gift-liability'
 import { Route as AuthenticatedStoreStoreIdHealthRouteImport } from './routes/_authenticated/store.$storeId.health'
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
+import { Route as AuthenticatedStoreStoreIdInboxRouteImport } from './routes/_authenticated/store.$storeId.inbox'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
 import { Route as AuthenticatedStoreStoreIdJobsRouteImport } from './routes/_authenticated/store.$storeId.jobs'
 import { Route as AuthenticatedStoreStoreIdLedgerRouteImport } from './routes/_authenticated/store.$storeId.ledger'
@@ -189,6 +190,7 @@ import { Route as AuthenticatedStoreStoreIdOrdersNewRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdProductsIndexRouteImport } from './routes/_authenticated/store.$storeId.products.index'
 import { Route as AuthenticatedStoreStoreIdProductsProductIdRouteImport } from './routes/_authenticated/store.$storeId.products.$productId'
 import { Route as AuthenticatedStoreStoreIdProductsNewRouteImport } from './routes/_authenticated/store.$storeId.products.new'
+import { Route as ApiPublicFeedStoreSlugKindRouteImport } from './routes/api/public/feed.$storeSlug.$kind'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -735,6 +737,12 @@ const AuthenticatedStoreStoreIdImportExportRoute =
     path: '/store/$storeId/import-export',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdInboxRoute =
+  AuthenticatedStoreStoreIdInboxRouteImport.update({
+    id: '/store/$storeId/inbox',
+    path: '/store/$storeId/inbox',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdInventoryRoute =
   AuthenticatedStoreStoreIdInventoryRouteImport.update({
     id: '/store/$storeId/inventory',
@@ -1217,6 +1225,12 @@ const AuthenticatedStoreStoreIdProductsNewRoute =
     path: '/new',
     getParentRoute: () => AuthenticatedStoreStoreIdProductsRoute,
   } as any)
+const ApiPublicFeedStoreSlugKindRoute =
+  ApiPublicFeedStoreSlugKindRouteImport.update({
+    id: '/api/public/feed/$storeSlug/$kind',
+    path: '/api/public/feed/$storeSlug/$kind',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -1316,6 +1330,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/gift-liability': typeof AuthenticatedStoreStoreIdGiftLiabilityRoute
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
+  '/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -1397,6 +1412,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
   '/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -1496,6 +1512,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/gift-liability': typeof AuthenticatedStoreStoreIdGiftLiabilityRoute
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
+  '/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -1576,6 +1593,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRoutesById {
@@ -1678,6 +1696,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/gift-liability': typeof AuthenticatedStoreStoreIdGiftLiabilityRoute
   '/_authenticated/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
+  '/_authenticated/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/_authenticated/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/_authenticated/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -1759,6 +1778,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/_authenticated/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/_authenticated/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
   '/_authenticated/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRouteTypes {
@@ -1861,6 +1881,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/gift-liability'
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
+    | '/store/$storeId/inbox'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
@@ -1942,6 +1963,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
     | '/store/$storeId/products/new'
+    | '/api/public/feed/$storeSlug/$kind'
     | '/store/$storeId/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -2041,6 +2063,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/gift-liability'
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
+    | '/store/$storeId/inbox'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
@@ -2121,6 +2144,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
     | '/store/$storeId/products/new'
+    | '/api/public/feed/$storeSlug/$kind'
     | '/store/$storeId/products'
   id:
     | '__root__'
@@ -2222,6 +2246,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/gift-liability'
     | '/_authenticated/store/$storeId/health'
     | '/_authenticated/store/$storeId/import-export'
+    | '/_authenticated/store/$storeId/inbox'
     | '/_authenticated/store/$storeId/inventory'
     | '/_authenticated/store/$storeId/jobs'
     | '/_authenticated/store/$storeId/ledger'
@@ -2303,6 +2328,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/orders/new'
     | '/_authenticated/store/$storeId/products/$productId'
     | '/_authenticated/store/$storeId/products/new'
+    | '/api/public/feed/$storeSlug/$kind'
     | '/_authenticated/store/$storeId/products/'
   fileRoutesById: FileRoutesById
 }
@@ -2351,6 +2377,7 @@ export interface RootRouteChildren {
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
+  ApiPublicFeedStoreSlugKindRoute: typeof ApiPublicFeedStoreSlugKindRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -3041,6 +3068,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdImportExportRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/inbox': {
+      id: '/_authenticated/store/$storeId/inbox'
+      path: '/store/$storeId/inbox'
+      fullPath: '/store/$storeId/inbox'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdInboxRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/inventory': {
       id: '/_authenticated/store/$storeId/inventory'
       path: '/store/$storeId/inventory'
@@ -3615,6 +3649,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdProductsNewRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdProductsRoute
     }
+    '/api/public/feed/$storeSlug/$kind': {
+      id: '/api/public/feed/$storeSlug/$kind'
+      path: '/api/public/feed/$storeSlug/$kind'
+      fullPath: '/api/public/feed/$storeSlug/$kind'
+      preLoaderRoute: typeof ApiPublicFeedStoreSlugKindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -3780,6 +3821,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdGiftLiabilityRoute: typeof AuthenticatedStoreStoreIdGiftLiabilityRoute
   AuthenticatedStoreStoreIdHealthRoute: typeof AuthenticatedStoreStoreIdHealthRoute
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
+  AuthenticatedStoreStoreIdInboxRoute: typeof AuthenticatedStoreStoreIdInboxRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
   AuthenticatedStoreStoreIdJobsRoute: typeof AuthenticatedStoreStoreIdJobsRoute
   AuthenticatedStoreStoreIdLedgerRoute: typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -3903,6 +3945,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdHealthRoute: AuthenticatedStoreStoreIdHealthRoute,
   AuthenticatedStoreStoreIdImportExportRoute:
     AuthenticatedStoreStoreIdImportExportRoute,
+  AuthenticatedStoreStoreIdInboxRoute: AuthenticatedStoreStoreIdInboxRoute,
   AuthenticatedStoreStoreIdInventoryRoute:
     AuthenticatedStoreStoreIdInventoryRoute,
   AuthenticatedStoreStoreIdJobsRoute: AuthenticatedStoreStoreIdJobsRoute,
@@ -4052,6 +4095,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
+  ApiPublicFeedStoreSlugKindRoute: ApiPublicFeedStoreSlugKindRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
