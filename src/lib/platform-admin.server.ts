@@ -36,6 +36,10 @@ export const settingSchema = z.object({
   isPublic: z.boolean().default(false),
 });
 
+export const settingsBulkSchema = z.object({
+  items: z.array(settingSchema).min(1).max(120),
+});
+
 type SupabaseLike = {
   from: (table: string) => any;
 };
