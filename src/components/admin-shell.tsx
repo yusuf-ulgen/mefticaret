@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronDown, LayoutTemplate, Menu, Search, ShieldAlert, ShieldCheck, Store, X } from "lucide-react";
+import { ChevronDown, Menu, Search, ShieldAlert, ShieldCheck, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
