@@ -36,6 +36,10 @@ export const settingSchema = z.object({
   isPublic: z.boolean().default(false),
 });
 
+export const settingsBulkSchema = z.object({
+  items: z.array(settingSchema).min(1).max(120),
+});
+
 type SupabaseLike = {
   from: (table: string) => any;
 };
@@ -243,6 +247,14 @@ export async function saveSetting(input: z.infer<typeof settingSchema>, userId: 
     new_value: { key: input.key, value: parsed, is_public: input.isPublic },
   });
   return { key: input.key };
+}
+
+/** Birden fazla ayarı tek istekte kaydeder (grup halinde form kaydı için). */
+export async function saveSettings(input: z.infer<typeof settingsBulkSchema>, userId: string) {
+  for (const item of input.items) {
+    await saveSetting(item, userId);
+  }
+  return { saved: input.items.length };
 }
 
 /** Kullanıcı platform rollerini listeler (rol yönetimi ekranı için). */

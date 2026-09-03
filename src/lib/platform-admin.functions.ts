@@ -76,6 +76,15 @@ export const savePlatformSetting = createServerFn({ method: "POST" })
     return server.saveSetting(server.settingSchema.parse(data), context.userId);
   });
 
+export const savePlatformSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.saveSettings(server.settingsBulkSchema.parse(data), context.userId);
+  });
+
 export const fetchPlatformRoles = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
