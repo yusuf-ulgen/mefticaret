@@ -88,6 +88,7 @@ export const Route = createFileRoute("/api/public/track/$slug")({
           referrer_host: referrerHost,
           device,
           country: request.headers.get("cf-ipcountry") ?? null,
+          city: request.headers.get("cf-ipcity") ?? null,
           user_agent: userAgent.slice(0, 400),
         });
         if (error) return Response.json({ error: "Olay kaydedilemedi" }, { status: 500 });

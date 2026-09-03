@@ -231,6 +231,7 @@ export type Database = {
       analytics_events: {
         Row: {
           campaign: string | null
+          city: string | null
           country: string | null
           created_at: string
           currency: string
@@ -254,6 +255,7 @@ export type Database = {
         }
         Insert: {
           campaign?: string | null
+          city?: string | null
           country?: string | null
           created_at?: string
           currency?: string
@@ -277,6 +279,7 @@ export type Database = {
         }
         Update: {
           campaign?: string | null
+          city?: string | null
           country?: string | null
           created_at?: string
           currency?: string
