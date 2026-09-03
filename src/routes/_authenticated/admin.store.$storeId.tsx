@@ -289,7 +289,9 @@ const CONTROL_GROUPS = [
     title: "Ön uç yönetimi",
     description: "Vitrin görünümü, tema blokları, sayfalar, menü, medya ve SEO.",
     links: [
+      { to: "/admin/frontend/$storeId", label: "Ön uç kontrol paneli" },
       { to: "/store/$storeId/theme-editor", label: "Tema editörü" },
+
       { to: "/store/$storeId/themes", label: "Tema mağazası" },
       { to: "/store/$storeId/theme-sections", label: "Tema bölümleri" },
       { to: "/store/$storeId/pages", label: "Sayfalar" },
