@@ -66,10 +66,14 @@ export const supplierPortalUpdateOrder = createServerFn({ method: "POST" })
       throw new Error("Sipariş bulunamadı veya yetkiniz yok");
     }
 
-    const patch: Record<string, unknown> = {};
-    if (data.status) patch["status"] = data.status;
-    if (data.carrier !== undefined) patch["carrier"] = data.carrier || null;
-    if (data.trackingNumber !== undefined) patch["tracking_number"] = data.trackingNumber || null;
+    const patch: {
+      status?: "accepted" | "shipped" | "cancelled";
+      carrier?: string | null;
+      tracking_number?: string | null;
+    } = {};
+    if (data.status) patch.status = data.status;
+    if (data.carrier !== undefined) patch.carrier = data.carrier || null;
+    if (data.trackingNumber !== undefined) patch.tracking_number = data.trackingNumber || null;
     if (!Object.keys(patch).length) return { ok: true };
 
     const { error: updateError } = await supabaseAdmin
