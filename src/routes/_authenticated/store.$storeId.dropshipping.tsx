@@ -32,13 +32,17 @@ import {
   type SupplierFeedRow,
 } from "@/lib/dropshipping-queries";
 import {
+  autoMapFeedCategories,
   deleteSupplierFeed,
   previewSupplierFeed,
+  publishFeedProducts,
   runSupplierFeedNow,
   saveDropshipSupplierSettings,
   saveSupplierFeed,
+  setSupplierPortalAccess,
   updateDropshipOrder,
 } from "@/lib/dropshipping.functions";
+import { channelsQuery } from "@/lib/channels-queries";
 import { suppliersQuery } from "@/lib/purchasing-queries";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/dropshipping")({
