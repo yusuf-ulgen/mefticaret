@@ -22,8 +22,9 @@ import {
 import { toast } from "sonner";
 
 import { AddSectionDialog } from "@/components/theme-editor/add-section-dialog";
-import { SettingField, isWideWidget, widgetFor, type FieldValue } from "@/components/theme-editor/fields";
 import { SectionTree, type DraftSection } from "@/components/theme-editor/section-tree";
+import { ThemeSettingsDialog } from "@/components/theme-editor/theme-settings-dialog";
+import { SettingField, isWideWidget, widgetFor, type FieldValue } from "@/components/theme-editor/fields";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -162,6 +163,7 @@ function ThemeEditorPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState<"content" | "design" | "layout">("content");
   const [addOpen, setAddOpen] = useState(false);
+  const [themeSettingsOpen, setThemeSettingsOpen] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   /** Mobilde tek seferde tek panel gösterilir. */
   const [pane, setPane] = useState<"sections" | "preview" | "settings">("preview");
@@ -542,10 +544,13 @@ function ThemeEditorPage() {
               )}
             </ScrollArea>
             <div className="border-t border-border p-2">
-              <Button asChild variant="ghost" size="sm" className="w-full justify-start">
-                <Link to="/store/$storeId/themes" params={{ storeId }}>
-                  <Settings2 className="mr-2 size-4" /> Tema ayarları
-                </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => setThemeSettingsOpen(true)}
+              >
+                <Settings2 className="mr-2 size-4" /> Tema ayarları
               </Button>
             </div>
           </aside>
@@ -695,6 +700,12 @@ function ThemeEditorPage() {
         onOpenChange={setAddOpen}
         usedTypes={(sections ?? []).map((section) => section.type)}
         onAdd={(type) => addMutation.mutate(type)}
+      />
+      <ThemeSettingsDialog
+        open={themeSettingsOpen}
+        onOpenChange={setThemeSettingsOpen}
+        storeId={storeId}
+        theme={theme}
       />
     </div>
   );
