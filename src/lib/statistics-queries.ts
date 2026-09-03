@@ -441,4 +441,8 @@ export const statisticsQuery = (storeId: string, days: number) =>
     },
   });
 
-export type StatisticsData = Awaited<ReturnType<ReturnType<typeof statisticsQuery>["queryFn"]>>;
+export type StatisticsData = NonNullable<
+  ReturnType<typeof statisticsQuery>["queryFn"]
+> extends (...args: never[]) => Promise<infer T>
+  ? T
+  : never;
