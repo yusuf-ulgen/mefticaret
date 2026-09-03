@@ -3201,6 +3201,8 @@ export type Database = {
           requested_at: string
           resolved_at: string | null
           resolved_by: string | null
+          restocked_at: string | null
+          staff_note: string | null
           status: string
           store_id: string
           total_amount: number
@@ -3224,6 +3226,8 @@ export type Database = {
           requested_at?: string
           resolved_at?: string | null
           resolved_by?: string | null
+          restocked_at?: string | null
+          staff_note?: string | null
           status?: string
           store_id: string
           total_amount?: number
@@ -3247,6 +3251,8 @@ export type Database = {
           requested_at?: string
           resolved_at?: string | null
           resolved_by?: string | null
+          restocked_at?: string | null
+          staff_note?: string | null
           status?: string
           store_id?: string
           total_amount?: number

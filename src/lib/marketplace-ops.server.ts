@@ -23,9 +23,141 @@ async function getDefaultWarehouse(supabase: AnySupabase, storeId: string) {
   return data as { id: string } | null;
 }
 
-export type ResolveReturnAction = "approve" | "reject" | "receive";
+export type ResolveReturnAction = "approve" | "reject" | "receive" | "refund";
 
-/** Pazaryeri iade/değişim talebini onaylar, reddeder veya teslim alınmış işaretler. */
+/** İade kalemlerini stoğa geri ekler (varyant stoğu + inventory_levels + hareket kaydı). */
+async function restockReturnItems(
+  supabase: AnySupabase,
+  params: { storeId: string; actorId: string | null; reference: string; items: unknown },
+) {
+  const items = Array.isArray(params.items) ? (params.items as any[]) : [];
+  if (!items.length) return 0;
+  const warehouse = await getDefaultWarehouse(supabase, params.storeId);
+  let restocked = 0;
+
+  for (const item of items) {
+    const variantId = item?.variant_id ?? item?.variantId ?? null;
+    const productId = item?.product_id ?? item?.productId ?? null;
+    const quantity = Number(item?.quantity ?? 0);
+    if (quantity <= 0 || !variantId) continue;
+
+    const { data: variant } = await supabase
+      .from("product_variants")
+      .select("id, product_id, stock")
+      .eq("id", variantId)
+      .eq("store_id", params.storeId)
+      .maybeSingle();
+    if (!variant) continue;
+
+    const before = Number(variant.stock ?? 0);
+    const after = before + quantity;
+    await supabase.from("product_variants").update({ stock: after }).eq("id", variant.id);
+    await supabase.from("inventory_movements").insert({
+      store_id: params.storeId,
+      product_id: variant.product_id,
+      variant_id: variant.id,
+      warehouse_id: warehouse?.id ?? null,
+      kind: "return",
+      quantity,
+      stock_before: before,
+      stock_after: after,
+      reason: `Pazaryeri iadesi ${params.reference}`,
+      actor_id: params.actorId,
+    });
+    restocked += quantity;
+
+    if (warehouse) {
+      const { data: level } = await supabase
+        .from("inventory_levels")
+        .select("id, on_hand, available")
+        .eq("store_id", params.storeId)
+        .eq("variant_id", variant.id)
+        .eq("warehouse_id", warehouse.id)
+        .maybeSingle();
+      if (level) {
+        await supabase
+          .from("inventory_levels")
+          .update({
+            on_hand: Number(level.on_hand ?? 0) + quantity,
+            available: Number(level.available ?? 0) + quantity,
+          })
+          .eq("id", level.id);
+      } else {
+        await supabase.from("inventory_levels").insert({
+          store_id: params.storeId,
+          product_id: productId ?? variant.product_id,
+          variant_id: variant.id,
+          warehouse_id: warehouse.id,
+          on_hand: quantity,
+          available: quantity,
+        });
+      }
+    }
+  }
+  return restocked;
+}
+
+/** İade durumuna göre bağlı mağaza siparişinin durumunu senkronlar. */
+async function syncOrderFromReturn(
+  supabase: AnySupabase,
+  params: {
+    storeId: string;
+    orderId: string | null;
+    action: ResolveReturnAction;
+    returnAmount: number;
+    isExchange: boolean;
+    actorId: string | null;
+  },
+) {
+  if (!params.orderId) return null;
+  const { data: order } = await supabase
+    .from("orders")
+    .select("id, status, payment_status, grand_total")
+    .eq("id", params.orderId)
+    .eq("store_id", params.storeId)
+    .maybeSingle();
+  if (!order) return null;
+
+  const total = Number(order.grand_total ?? 0);
+  const amount = Number(params.returnAmount ?? 0);
+  const full = total > 0 && amount >= total - 0.01;
+  const patch: Record<string, unknown> = {};
+
+  if (params.action === "receive") {
+    patch["status"] = params.isExchange ? "processing" : "returned";
+    patch["fulfillment_status"] = "returned";
+  } else if (params.action === "refund") {
+    patch["payment_status"] = full ? "refunded" : "partially_refunded";
+    patch["status"] = full ? "refunded" : "returned";
+    patch["fulfillment_status"] = "returned";
+  } else {
+    return null;
+  }
+
+  const { data: updatedOrder } = await supabase
+    .from("orders")
+    .update(patch)
+    .eq("id", order.id)
+    .eq("store_id", params.storeId)
+    .select("id, status, payment_status")
+    .maybeSingle();
+
+  if (updatedOrder) {
+    await supabase.from("order_events").insert({
+      store_id: params.storeId,
+      order_id: order.id,
+      kind: "marketplace_return",
+      message:
+        params.action === "refund"
+          ? `Pazaryeri iadesi geri ödendi (${amount.toFixed(2)})`
+          : "Pazaryeri iadesi teslim alındı",
+      actor_id: params.actorId,
+    });
+  }
+  return updatedOrder ?? null;
+}
+
+/** Pazaryeri iade/değişim talebini onaylar, reddeder, teslim alır veya geri öder. */
 export async function resolveMarketplaceReturn(
   supabase: AnySupabase,
   params: {
@@ -46,13 +178,35 @@ export async function resolveMarketplaceReturn(
   if (!current) throw new Error("İade/değişim kaydı bulunamadı");
 
   const nextStatus =
-    params.action === "approve" ? "approved" : params.action === "reject" ? "rejected" : "received";
+    params.action === "approve"
+      ? "approved"
+      : params.action === "reject"
+        ? "rejected"
+        : params.action === "receive"
+          ? "received"
+          : "refunded";
+
+  // Stok yalnızca teslim alındığında ve bir kez artırılır (idempotent).
+  let restockedQty = 0;
+  const shouldRestock =
+    params.action === "receive" && current.auto_restock && !current.restocked_at;
+  if (shouldRestock) {
+    restockedQty = await restockReturnItems(supabase, {
+      storeId: params.storeId,
+      actorId: params.actorId,
+      reference: current.external_return_id ?? current.id,
+      items: current.items,
+    });
+  }
 
   const patch: Record<string, unknown> = {
     status: nextStatus,
     resolved_at: new Date().toISOString(),
     resolved_by: params.actorId,
   };
+  if (params.staffNote !== undefined) patch["staff_note"] = params.staffNote || null;
+  if (shouldRestock) patch["restocked_at"] = new Date().toISOString();
+
   const { data: updated, error } = await supabase
     .from("marketplace_returns")
     .update(patch)
@@ -63,71 +217,14 @@ export async function resolveMarketplaceReturn(
   if (error) throw new Error(error.message);
   if (!updated) throw new Error("İade güncellenemedi");
 
-  // Onay + otomatik stok artırma: kalemleri stoğa geri ekle (varyant/ürün + inventory_levels).
-  if (params.action === "approve" && current.auto_restock) {
-    const items = Array.isArray(current.items) ? (current.items as any[]) : [];
-    const warehouse = await getDefaultWarehouse(supabase, params.storeId);
-
-    for (const item of items) {
-      const variantId = item?.variant_id ?? item?.variantId ?? null;
-      const productId = item?.product_id ?? item?.productId ?? null;
-      const quantity = Number(item?.quantity ?? 0);
-      if (quantity <= 0) continue;
-
-      if (variantId) {
-        const { data: variant } = await supabase
-          .from("product_variants")
-          .select("id, product_id, stock")
-          .eq("id", variantId)
-          .maybeSingle();
-        if (variant) {
-          const before = Number(variant.stock ?? 0);
-          const after = before + quantity;
-          await supabase.from("product_variants").update({ stock: after }).eq("id", variant.id);
-          await supabase.from("inventory_movements").insert({
-            store_id: params.storeId,
-            product_id: variant.product_id,
-            variant_id: variant.id,
-            warehouse_id: warehouse?.id ?? null,
-            kind: "return",
-            quantity,
-            stock_before: before,
-            stock_after: after,
-            reason: `Pazaryeri iadesi ${current.external_return_id ?? current.id}`,
-            actor_id: params.actorId,
-          });
-
-          if (warehouse) {
-            const { data: level } = await supabase
-              .from("inventory_levels")
-              .select("id, on_hand, available")
-              .eq("store_id", params.storeId)
-              .eq("variant_id", variant.id)
-              .eq("warehouse_id", warehouse.id)
-              .maybeSingle();
-            if (level) {
-              await supabase
-                .from("inventory_levels")
-                .update({
-                  on_hand: Number(level.on_hand ?? 0) + quantity,
-                  available: Number(level.available ?? 0) + quantity,
-                })
-                .eq("id", level.id);
-            } else {
-              await supabase.from("inventory_levels").insert({
-                store_id: params.storeId,
-                product_id: productId,
-                variant_id: variant.id,
-                warehouse_id: warehouse.id,
-                on_hand: quantity,
-                available: quantity,
-              });
-            }
-          }
-        }
-      }
-    }
-  }
+  const orderSync = await syncOrderFromReturn(supabase, {
+    storeId: params.storeId,
+    orderId: current.order_id ?? null,
+    action: params.action,
+    returnAmount: Number(current.total_amount ?? 0),
+    isExchange: Boolean(current.is_exchange),
+    actorId: params.actorId,
+  });
 
   await insertAuditRow(supabase, {
     store_id: params.storeId,
@@ -136,11 +233,17 @@ export async function resolveMarketplaceReturn(
     entity: "marketplace_returns",
     entity_id: current.id,
     old_value: { status: current.status },
-    new_value: { status: nextStatus, staff_note: params.staffNote ?? null },
+    new_value: {
+      status: nextStatus,
+      staff_note: params.staffNote ?? null,
+      restocked_quantity: restockedQty,
+      order_status: orderSync?.status ?? null,
+    },
   });
 
-  return updated;
+  return { ...updated, restocked_quantity: restockedQty, order: orderSync };
 }
+
 
 /** Seçili siparişleri toplu olarak "processing" durumuna alır (store scoped). */
 export async function bulkMarkOrdersProcessing(

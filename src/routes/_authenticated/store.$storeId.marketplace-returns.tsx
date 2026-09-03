@@ -298,7 +298,7 @@ function MarketplaceReturnsPage() {
 
   const resolve = useServerFn(resolveMarketplaceReturnFn);
   const mutation = useMutation({
-    mutationFn: (input: { returnId: string; action: "approve" | "reject" | "receive" }) =>
+    mutationFn: (input: { returnId: string; action: "approve" | "reject" | "receive" | "refund" }) =>
       resolve({ data: { storeId, ...input } }),
     onSuccess: () => {
       toast.success("İade güncellendi");
@@ -421,7 +421,15 @@ function MarketplaceReturnsPage() {
                     disabled={rowStatus !== "approved" || mutation.isPending}
                     onClick={() => mutation.mutate({ returnId: row.id, action: "receive" })}
                   >
-                    Teslim aldım
+                    Teslim aldım (stoğa ekle)
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={rowStatus !== "received" || mutation.isPending}
+                    onClick={() => mutation.mutate({ returnId: row.id, action: "refund" })}
+                  >
+                    Geri ödemeyi tamamla
                   </Button>
                 </div>
               </article>
