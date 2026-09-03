@@ -866,6 +866,143 @@ function DropshippingPage() {
           )}
         </section>
 
+        <section className="rounded-xl border bg-card p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Wand2 className="size-4 text-muted-foreground" aria-hidden />
+            <h2 className="font-medium">Tek tıkla ürün yükleme ve kategori eşleştirme</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Seçili beslemenin ürünlerini mağazanıza aktif ürün olarak aktarın ve aynı anda seçtiğiniz
+            pazaryeri kanallarına yükleme kuyruğuna alın. Kategoriler tedarikçi verisinden otomatik
+            eşleştirilir, eşleşme bulunmazsa kategori oluşturulur.
+          </p>
+
+          {!selectedFeedId ? (
+            <p className="text-sm text-muted-foreground">
+              Önce yukarıdaki listeden bir besleme seçin (Düzenle) — yayınlama o beslemeye uygulanır.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center gap-2 text-sm">
+                  <Switch checked={publishActivate} onCheckedChange={setPublishActivate} />
+                  Ürünleri yayına al (aktif)
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <Switch checked={publishOnlyInStock} onCheckedChange={setPublishOnlyInStock} />
+                  Yalnızca stokta olanlar
+                </label>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs">Pazaryeri kanalları</Label>
+                {(channels ?? []).length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Henüz pazaryeri kanalı bağlı değil. Kanallar sayfasından Trendyol, Hepsiburada,
+                    n11 gibi kanalları bağlayın.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {(channels ?? []).map((channel: { id: string; name: string; provider: string }) => {
+                      const active = publishChannels.includes(channel.id);
+                      return (
+                        <Button
+                          key={channel.id}
+                          type="button"
+                          size="sm"
+                          variant={active ? "default" : "outline"}
+                          onClick={() =>
+                            setPublishChannels((current) =>
+                              active
+                                ? current.filter((id) => id !== channel.id)
+                                : [...current, channel.id],
+                            )
+                          }
+                        >
+                          {channel.name}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={autoMapMutation.isPending}
+                  onClick={() => autoMapMutation.mutate(selectedFeedId)}
+                >
+                  Kategorileri otomatik eşleştir
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={publishMutation.isPending}
+                  onClick={() => publishMutation.mutate(selectedFeedId)}
+                >
+                  <PackageCheck className="mr-1 size-4" aria-hidden />
+                  Tek tıkla yükle
+                </Button>
+              </div>
+
+              {categorySuggestions.length ? (
+                <div className="max-h-64 overflow-auto rounded-lg border">
+                  <table className="w-full text-sm">
+                    <thead className="text-left text-xs uppercase text-muted-foreground">
+                      <tr>
+                        <th className="p-2">Tedarikçi kategorisi</th>
+                        <th className="p-2">Mağaza kategorisi</th>
+                        <th className="p-2">Durum</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categorySuggestions.slice(0, 100).map((row) => (
+                        <tr key={row.source} className="border-t">
+                          <td className="p-2">{row.source}</td>
+                          <td className="p-2">{row.target}</td>
+                          <td className="p-2">
+                            {row.action === "matched" ? (
+                              <Badge variant="secondary">Eşleşti · {row.score}</Badge>
+                            ) : (
+                              <Badge variant="outline">Oluşturulacak</Badge>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-xl border bg-card p-5 space-y-3">
+          <h2 className="font-medium">Tedarikçi paneli erişimi</h2>
+          <p className="text-sm text-muted-foreground">
+            Tedarikçinize kendi panelini açın: gelen siparişleri ürün adı, açıklama, ürün kodu, stok
+            kodu ve kargo firması ile görür, kargo/takip bilgisini bildirir. Tedarikçinin
+            Mefticaret’te kayıtlı bir hesabı olmalıdır.
+          </p>
+          {dropshipSuppliers.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Önce tedarikçi ekleyin.</p>
+          ) : (
+            <div className="space-y-3">
+              {dropshipSuppliers.map((supplier) => (
+                <SupplierPortalRow
+                  key={supplier.id}
+                  supplier={supplier as { id: string; name: string; email?: string | null; portal_enabled?: boolean }}
+                  pending={portalMutation.isPending}
+                  onSave={(input) => portalMutation.mutate({ supplierId: supplier.id, ...input })}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
+
+
         <section className="rounded-xl border bg-card p-5 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-medium">Tedarikçi ürünleri</h2>
