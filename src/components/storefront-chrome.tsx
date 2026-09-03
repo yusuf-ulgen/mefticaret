@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { SiteKitScripts } from "@/components/site-kit-scripts";
 import { CookieConsent } from "@/components/cookie-consent";
 
 import { useCart } from "@/lib/cart";
@@ -233,6 +234,7 @@ export function StorefrontChrome({
     >
       {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: customCss }} /> : null}
       <CookieConsent storeSlug={storeSlug} />
+      <SiteKitScripts storeSlug={storeSlug} />
 
       {barText ? (
         <div

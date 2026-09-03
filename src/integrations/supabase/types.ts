@@ -7737,6 +7737,56 @@ export type Database = {
           },
         ]
       }
+      store_site_kit: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          last_test_result: string | null
+          last_tested_at: string | null
+          provider: string
+          public_config: Json
+          secret_config: Json
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_test_result?: string | null
+          last_tested_at?: string | null
+          provider: string
+          public_config?: Json
+          secret_config?: Json
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_test_result?: string | null
+          last_tested_at?: string | null
+          provider?: string
+          public_config?: Json
+          secret_config?: Json
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_site_kit_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_stories: {
         Row: {
           caption: string
@@ -9575,6 +9625,13 @@ export type Database = {
         }[]
       }
       seed_demo_store: { Args: { _store_id: string }; Returns: Json }
+      site_kit_public_config: {
+        Args: { store_slug: string }
+        Returns: {
+          provider: string
+          public_config: Json
+        }[]
+      }
     }
     Enums: {
       app_category:
