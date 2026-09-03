@@ -145,6 +145,13 @@ function LiveViewPage() {
     { label: "Satın alma", value: summary.purchases },
   ];
   const funnelMax = Math.max(1, ...funnel.map((step) => step.value));
+  const visitorTrend = useMemo(() => {
+    const last = buckets.slice(-30).reduce((sum, bucket) => sum + bucket.count, 0);
+    const prev = buckets.slice(-60, -30).reduce((sum, bucket) => sum + bucket.count, 0);
+    if (prev === 0) return last > 0 ? 100 : 0;
+    return ((last - prev) / prev) * 100;
+  }, [buckets]);
+
 
   function refresh() {
     setLastUpdated(new Date());
