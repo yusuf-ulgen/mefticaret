@@ -156,6 +156,7 @@ import { Route as AuthenticatedStoreStoreIdShippingRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdShippingEconomicsRouteImport } from './routes/_authenticated/store.$storeId.shipping-economics'
 import { Route as AuthenticatedStoreStoreIdShippingPerformanceRouteImport } from './routes/_authenticated/store.$storeId.shipping-performance'
 import { Route as AuthenticatedStoreStoreIdSimulatorRouteImport } from './routes/_authenticated/store.$storeId.simulator'
+import { Route as AuthenticatedStoreStoreIdSiteKitRouteImport } from './routes/_authenticated/store.$storeId.site-kit'
 import { Route as AuthenticatedStoreStoreIdSlaRouteImport } from './routes/_authenticated/store.$storeId.sla'
 import { Route as AuthenticatedStoreStoreIdSocialShareRouteImport } from './routes/_authenticated/store.$storeId.social-share'
 import { Route as AuthenticatedStoreStoreIdStatisticsRouteImport } from './routes/_authenticated/store.$storeId.statistics'
@@ -1040,6 +1041,12 @@ const AuthenticatedStoreStoreIdSimulatorRoute =
     path: '/store/$storeId/simulator',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdSiteKitRoute =
+  AuthenticatedStoreStoreIdSiteKitRouteImport.update({
+    id: '/store/$storeId/site-kit',
+    path: '/store/$storeId/site-kit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdSlaRoute =
   AuthenticatedStoreStoreIdSlaRouteImport.update({
     id: '/store/$storeId/sla',
@@ -1448,6 +1455,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   '/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
+  '/store/$storeId/site-kit': typeof AuthenticatedStoreStoreIdSiteKitRoute
   '/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
   '/store/$storeId/social-share': typeof AuthenticatedStoreStoreIdSocialShareRoute
   '/store/$storeId/statistics': typeof AuthenticatedStoreStoreIdStatisticsRoute
@@ -1639,6 +1647,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   '/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
+  '/store/$storeId/site-kit': typeof AuthenticatedStoreStoreIdSiteKitRoute
   '/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
   '/store/$storeId/social-share': typeof AuthenticatedStoreStoreIdSocialShareRoute
   '/store/$storeId/statistics': typeof AuthenticatedStoreStoreIdStatisticsRoute
@@ -1834,6 +1843,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   '/_authenticated/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/_authenticated/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
+  '/_authenticated/store/$storeId/site-kit': typeof AuthenticatedStoreStoreIdSiteKitRoute
   '/_authenticated/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
   '/_authenticated/store/$storeId/social-share': typeof AuthenticatedStoreStoreIdSocialShareRoute
   '/_authenticated/store/$storeId/statistics': typeof AuthenticatedStoreStoreIdStatisticsRoute
@@ -2029,6 +2039,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/shipping-economics'
     | '/store/$storeId/shipping-performance'
     | '/store/$storeId/simulator'
+    | '/store/$storeId/site-kit'
     | '/store/$storeId/sla'
     | '/store/$storeId/social-share'
     | '/store/$storeId/statistics'
@@ -2220,6 +2231,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/shipping-economics'
     | '/store/$storeId/shipping-performance'
     | '/store/$storeId/simulator'
+    | '/store/$storeId/site-kit'
     | '/store/$storeId/sla'
     | '/store/$storeId/social-share'
     | '/store/$storeId/statistics'
@@ -2414,6 +2426,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/shipping-economics'
     | '/_authenticated/store/$storeId/shipping-performance'
     | '/_authenticated/store/$storeId/simulator'
+    | '/_authenticated/store/$storeId/site-kit'
     | '/_authenticated/store/$storeId/sla'
     | '/_authenticated/store/$storeId/social-share'
     | '/_authenticated/store/$storeId/statistics'
@@ -3540,6 +3553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSimulatorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/site-kit': {
+      id: '/_authenticated/store/$storeId/site-kit'
+      path: '/store/$storeId/site-kit'
+      fullPath: '/store/$storeId/site-kit'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSiteKitRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/sla': {
       id: '/_authenticated/store/$storeId/sla'
       path: '/store/$storeId/sla'
@@ -4070,6 +4090,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdShippingEconomicsRoute: typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   AuthenticatedStoreStoreIdShippingPerformanceRoute: typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   AuthenticatedStoreStoreIdSimulatorRoute: typeof AuthenticatedStoreStoreIdSimulatorRoute
+  AuthenticatedStoreStoreIdSiteKitRoute: typeof AuthenticatedStoreStoreIdSiteKitRoute
   AuthenticatedStoreStoreIdSlaRoute: typeof AuthenticatedStoreStoreIdSlaRoute
   AuthenticatedStoreStoreIdSocialShareRoute: typeof AuthenticatedStoreStoreIdSocialShareRoute
   AuthenticatedStoreStoreIdStatisticsRoute: typeof AuthenticatedStoreStoreIdStatisticsRoute
@@ -4232,6 +4253,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdShippingPerformanceRoute,
   AuthenticatedStoreStoreIdSimulatorRoute:
     AuthenticatedStoreStoreIdSimulatorRoute,
+  AuthenticatedStoreStoreIdSiteKitRoute: AuthenticatedStoreStoreIdSiteKitRoute,
   AuthenticatedStoreStoreIdSlaRoute: AuthenticatedStoreStoreIdSlaRoute,
   AuthenticatedStoreStoreIdSocialShareRoute:
     AuthenticatedStoreStoreIdSocialShareRoute,

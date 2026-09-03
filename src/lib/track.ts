@@ -4,6 +4,8 @@
  * analitik hatası hiçbir zaman mağaza deneyimini bozmaz.
  */
 
+import { pushSiteKitEvent, type SiteKitEventName } from "@/lib/site-kit-client";
+
 const VISITOR_KEY = "mefti-visitor-id";
 const SESSION_KEY = "mefti-session-id";
 const SESSION_TS_KEY = "mefti-session-ts";
@@ -65,6 +67,15 @@ function campaignParams() {
   };
 }
 
+const SITE_KIT_EVENT_MAP: Record<TrackKind, SiteKitEventName> = {
+  page_view: "page_view",
+  product_view: "view_item",
+  add_to_cart: "add_to_cart",
+  checkout: "begin_checkout",
+  purchase: "purchase",
+  search: "search",
+};
+
 /** Aynı olayın çift gönderimini (StrictMode / hızlı re-render) engeller. */
 const recent = new Set<string>();
 
@@ -84,6 +95,18 @@ export function trackEvent(storeSlug: string, kind: TrackKind, payload: TrackPay
       referrer: document.referrer || "",
       ...campaignParams(),
       ...payload,
+    });
+
+    // Site Kit: aynı olayı bağlı reklam/analitik servislerine de yayınla.
+    pushSiteKitEvent(SITE_KIT_EVENT_MAP[kind], {
+      path: payload.path ?? window.location.pathname,
+      value: payload.value,
+      currency: payload.currency,
+      quantity: payload.quantity,
+      itemId: payload.productId,
+      orderId: payload.orderId,
+      searchTerm: payload.searchTerm,
+      eventId: `${kind}-${payload.orderId ?? payload.productId ?? sessionId()}`,
     });
 
     const url = `/api/public/track/${encodeURIComponent(storeSlug)}`;
