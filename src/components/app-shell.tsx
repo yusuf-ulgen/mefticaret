@@ -76,7 +76,7 @@ function NavLinkRow({
   active: boolean;
   pinned: boolean;
   onTogglePin: (label: string) => void;
-  onNavigate?: () => void;
+  onNavigate?: (() => void) | undefined;
 }) {
   return (
     <li className="group/nav relative">
