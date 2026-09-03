@@ -314,6 +314,61 @@ function DropshippingPage() {
 
   const dropshipSuppliers = (suppliers ?? []).filter((s) => s.is_active);
 
+  const autoMapFn = useServerFn(autoMapFeedCategories);
+  const publishFn = useServerFn(publishFeedProducts);
+  const portalFn = useServerFn(setSupplierPortalAccess);
+  const { data: channels } = useQuery(channelsQuery(storeId));
+  const [publishChannels, setPublishChannels] = useState<string[]>([]);
+  const [publishActivate, setPublishActivate] = useState(true);
+  const [publishOnlyInStock, setPublishOnlyInStock] = useState(true);
+  const [categorySuggestions, setCategorySuggestions] = useState<
+    { source: string; target: string; action: "matched" | "create"; score: number }[]
+  >([]);
+
+  const autoMapMutation = useMutation({
+    mutationFn: async (feedId: string) => autoMapFn({ data: { storeId, feedId } }),
+    onSuccess: (result) => {
+      setCategorySuggestions(result.suggestions);
+      setCategoryMapText(mappingToText(result.map));
+      toast.success(`${result.suggestions.length} kategori otomatik eşleştirildi`);
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const publishMutation = useMutation({
+    mutationFn: async (feedId: string) =>
+      publishFn({
+        data: {
+          storeId,
+          feedId,
+          channelIds: publishChannels,
+          activate: publishActivate,
+          onlyInStock: publishOnlyInStock,
+        },
+      }),
+    onSuccess: (totals) => {
+      toast.success(
+        `Yayınlandı · ${totals.productsCreated} yeni ürün, ${totals.productsActivated} aktifleştirme, ${totals.categoriesAssigned} kategori, ${totals.listingsQueued} pazaryeri kaydı`,
+      );
+      invalidate();
+      void queryClient.invalidateQueries({ queryKey: ["products", storeId] });
+      void queryClient.invalidateQueries({ queryKey: ["channel-listings", storeId] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const portalMutation = useMutation({
+    mutationFn: async (input: { supplierId: string; email?: string; enabled: boolean }) =>
+      portalFn({ data: { storeId, ...input } }),
+    onSuccess: () => {
+      toast.success("Tedarikçi portal erişimi güncellendi");
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+
   return (
     <AppShell
       storeId={storeId}
