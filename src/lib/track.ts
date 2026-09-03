@@ -9,7 +9,7 @@ const SESSION_KEY = "mefti-session-id";
 const SESSION_TS_KEY = "mefti-session-ts";
 const SESSION_TTL_MS = 30 * 60 * 1000;
 
-export type TrackKind = "page_view" | "product_view" | "add_to_cart" | "checkout" | "purchase";
+export type TrackKind = "page_view" | "product_view" | "add_to_cart" | "checkout" | "purchase" | "search";
 
 export type TrackPayload = {
   path?: string;
@@ -19,6 +19,9 @@ export type TrackPayload = {
   value?: number;
   quantity?: number;
   currency?: string;
+  /** Arama olayları: aranan terim ve bulunan sonuç sayısı. */
+  searchTerm?: string;
+  searchResults?: number;
 };
 
 function randomId() {
@@ -68,7 +71,7 @@ const recent = new Set<string>();
 export function trackEvent(storeSlug: string, kind: TrackKind, payload: TrackPayload = {}) {
   if (typeof window === "undefined" || !storeSlug) return;
   try {
-    const dedupeKey = `${kind}:${payload.path ?? ""}:${payload.productId ?? ""}:${payload.variantId ?? ""}:${payload.orderId ?? ""}`;
+    const dedupeKey = `${kind}:${payload.path ?? ""}:${payload.productId ?? ""}:${payload.variantId ?? ""}:${payload.orderId ?? ""}:${payload.searchTerm ?? ""}`;
     if (kind !== "add_to_cart" && recent.has(dedupeKey)) return;
     recent.add(dedupeKey);
     setTimeout(() => recent.delete(dedupeKey), 1500);

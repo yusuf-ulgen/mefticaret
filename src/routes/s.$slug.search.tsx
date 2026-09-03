@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { Breadcrumb, ProductGrid, StorefrontFallback } from "@/components/storefront-parts";
 import { storefrontQuery } from "@/lib/storefront-queries";
+import { trackEvent } from "@/lib/track";
 
 type Search = { q?: string | undefined };
 
@@ -65,6 +66,16 @@ function SearchPage() {
       return tokens.every((token) => haystack.includes(token));
     });
   }, [products, q]);
+
+  useEffect(() => {
+    const needle = (q ?? "").trim();
+    if (!needle) return;
+    trackEvent(slug, "search", {
+      path: "/search",
+      searchTerm: needle,
+      searchResults: results.length,
+    });
+  }, [slug, q, results.length]);
 
   const suggestions = useMemo(
     () => [...new Set(products.map((p) => p.product_type).filter((v): v is string => Boolean(v)))].slice(0, 8),

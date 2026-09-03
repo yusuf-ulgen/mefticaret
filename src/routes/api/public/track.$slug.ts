@@ -10,7 +10,9 @@ import { z } from "zod";
 const bodySchema = z.object({
   visitorId: z.string().min(6).max(64),
   sessionId: z.string().min(6).max(64),
-  kind: z.enum(["page_view", "product_view", "add_to_cart", "checkout", "purchase"]),
+  kind: z.enum(["page_view", "product_view", "add_to_cart", "checkout", "purchase", "search"]),
+  searchTerm: z.string().trim().min(1).max(120).optional(),
+  searchResults: z.number().int().min(0).max(100_000).optional(),
   path: z.string().max(300).optional(),
   productId: z.string().uuid().optional(),
   variantId: z.string().uuid().optional(),
@@ -89,6 +91,8 @@ export const Route = createFileRoute("/api/public/track/$slug")({
           device,
           country: request.headers.get("cf-ipcountry") ?? null,
           city: request.headers.get("cf-ipcity") ?? null,
+          search_term: payload.searchTerm ?? null,
+          search_results: payload.searchResults ?? null,
           user_agent: userAgent.slice(0, 400),
         });
         if (error) return Response.json({ error: "Olay kaydedilemedi" }, { status: 500 });
