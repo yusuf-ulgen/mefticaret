@@ -28,6 +28,7 @@ import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin.blog'
 import { Route as AuthenticatedAdminCmsRouteImport } from './routes/_authenticated/admin.cms'
 import { Route as AuthenticatedAdminCommissionsRouteImport } from './routes/_authenticated/admin.commissions'
+import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin.coupons'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminLiveRouteImport } from './routes/_authenticated/admin.live'
@@ -37,6 +38,7 @@ import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
 import { Route as AuthenticatedAdminSecurityRouteImport } from './routes/_authenticated/admin.security'
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin.sellers'
+import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin.seo'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminStoresRouteImport } from './routes/_authenticated/admin.stores'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
@@ -72,6 +74,7 @@ import { Route as SSlugRegisterRouteImport } from './routes/s.$slug.register'
 import { Route as SSlugReturnsRouteImport } from './routes/s.$slug.returns'
 import { Route as SSlugSearchRouteImport } from './routes/s.$slug.search'
 import { Route as SSlugTermsRouteImport } from './routes/s.$slug.terms'
+import { Route as AuthenticatedAdminFrontendIndexRouteImport } from './routes/_authenticated/admin.frontend.index'
 import { Route as AuthenticatedAdminFrontendStoreIdRouteImport } from './routes/_authenticated/admin.frontend.$storeId'
 import { Route as AuthenticatedAdminStoreStoreIdRouteImport } from './routes/_authenticated/admin.store.$storeId'
 import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_authenticated/store.$storeId.abc'
@@ -299,6 +302,12 @@ const AuthenticatedAdminCommissionsRoute =
     path: '/commissions',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminContentRoute =
+  AuthenticatedAdminContentRouteImport.update({
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCouponsRoute =
   AuthenticatedAdminCouponsRouteImport.update({
     id: '/coupons',
@@ -351,6 +360,11 @@ const AuthenticatedAdminSellersRoute =
     path: '/sellers',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
+  id: '/seo',
+  path: '/seo',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
@@ -537,6 +551,12 @@ const SSlugTermsRoute = SSlugTermsRouteImport.update({
   path: '/s/$slug/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminFrontendIndexRoute =
+  AuthenticatedAdminFrontendIndexRouteImport.update({
+    id: '/frontend/',
+    path: '/frontend/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminFrontendStoreIdRoute =
   AuthenticatedAdminFrontendStoreIdRouteImport.update({
     id: '/frontend/$storeId',
@@ -1326,6 +1346,7 @@ export interface FileRoutesByFullPath {
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/admin/commissions': typeof AuthenticatedAdminCommissionsRoute
+  '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
@@ -1335,6 +1356,7 @@ export interface FileRoutesByFullPath {
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
+  '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -1494,6 +1516,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
@@ -1519,6 +1542,7 @@ export interface FileRoutesByTo {
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/admin/commissions': typeof AuthenticatedAdminCommissionsRoute
+  '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
@@ -1528,6 +1552,7 @@ export interface FileRoutesByTo {
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
+  '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -1686,6 +1711,7 @@ export interface FileRoutesByTo {
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/admin/frontend': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
@@ -1714,6 +1740,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/_authenticated/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/_authenticated/admin/commissions': typeof AuthenticatedAdminCommissionsRoute
+  '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/live': typeof AuthenticatedAdminLiveRoute
@@ -1723,6 +1750,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
+  '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -1882,6 +1910,7 @@ export interface FileRoutesById {
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/_authenticated/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/_authenticated/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/_authenticated/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/_authenticated/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
@@ -1910,6 +1939,7 @@ export interface FileRouteTypes {
     | '/admin/blog'
     | '/admin/cms'
     | '/admin/commissions'
+    | '/admin/content'
     | '/admin/coupons'
     | '/admin/finance'
     | '/admin/live'
@@ -1919,6 +1949,7 @@ export interface FileRouteTypes {
     | '/admin/plans'
     | '/admin/security'
     | '/admin/sellers'
+    | '/admin/seo'
     | '/admin/settings'
     | '/admin/stores'
     | '/admin/subscriptions'
@@ -2078,6 +2109,7 @@ export interface FileRouteTypes {
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/admin/frontend/'
     | '/store/$storeId/customers/$customerId'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/orders/new'
@@ -2103,6 +2135,7 @@ export interface FileRouteTypes {
     | '/admin/blog'
     | '/admin/cms'
     | '/admin/commissions'
+    | '/admin/content'
     | '/admin/coupons'
     | '/admin/finance'
     | '/admin/live'
@@ -2112,6 +2145,7 @@ export interface FileRouteTypes {
     | '/admin/plans'
     | '/admin/security'
     | '/admin/sellers'
+    | '/admin/seo'
     | '/admin/settings'
     | '/admin/stores'
     | '/admin/subscriptions'
@@ -2270,6 +2304,7 @@ export interface FileRouteTypes {
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/admin/frontend'
     | '/store/$storeId/customers/$customerId'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/orders/new'
@@ -2297,6 +2332,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/blog'
     | '/_authenticated/admin/cms'
     | '/_authenticated/admin/commissions'
+    | '/_authenticated/admin/content'
     | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/finance'
     | '/_authenticated/admin/live'
@@ -2306,6 +2342,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/plans'
     | '/_authenticated/admin/security'
     | '/_authenticated/admin/sellers'
+    | '/_authenticated/admin/seo'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/stores'
     | '/_authenticated/admin/subscriptions'
@@ -2465,6 +2502,7 @@ export interface FileRouteTypes {
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/_authenticated/admin/frontend/'
     | '/_authenticated/store/$storeId/customers/$customerId'
     | '/_authenticated/store/$storeId/orders/$orderId'
     | '/_authenticated/store/$storeId/orders/new'
@@ -2657,6 +2695,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCommissionsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/content': {
+      id: '/_authenticated/admin/content'
+      path: '/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AuthenticatedAdminContentRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/coupons': {
       id: '/_authenticated/admin/coupons'
       path: '/coupons'
@@ -2718,6 +2763,13 @@ declare module '@tanstack/react-router' {
       path: '/sellers'
       fullPath: '/admin/sellers'
       preLoaderRoute: typeof AuthenticatedAdminSellersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo': {
+      id: '/_authenticated/admin/seo'
+      path: '/seo'
+      fullPath: '/admin/seo'
+      preLoaderRoute: typeof AuthenticatedAdminSeoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/settings': {
@@ -2964,6 +3016,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/s/$slug/terms'
       preLoaderRoute: typeof SSlugTermsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/frontend/': {
+      id: '/_authenticated/admin/frontend/'
+      path: '/frontend'
+      fullPath: '/admin/frontend/'
+      preLoaderRoute: typeof AuthenticatedAdminFrontendIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/frontend/$storeId': {
       id: '/_authenticated/admin/frontend/$storeId'
@@ -3886,6 +3945,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRoute
   AuthenticatedAdminCmsRoute: typeof AuthenticatedAdminCmsRoute
   AuthenticatedAdminCommissionsRoute: typeof AuthenticatedAdminCommissionsRoute
+  AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminLiveRoute: typeof AuthenticatedAdminLiveRoute
@@ -3895,6 +3955,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminSecurityRoute: typeof AuthenticatedAdminSecurityRoute
   AuthenticatedAdminSellersRoute: typeof AuthenticatedAdminSellersRoute
+  AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminStoresRoute: typeof AuthenticatedAdminStoresRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
@@ -3908,6 +3969,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminFrontendStoreIdRoute: typeof AuthenticatedAdminFrontendStoreIdRoute
   AuthenticatedAdminStoreStoreIdRoute: typeof AuthenticatedAdminStoreStoreIdRoute
+  AuthenticatedAdminFrontendIndexRoute: typeof AuthenticatedAdminFrontendIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -3918,6 +3980,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRoute,
   AuthenticatedAdminCmsRoute: AuthenticatedAdminCmsRoute,
   AuthenticatedAdminCommissionsRoute: AuthenticatedAdminCommissionsRoute,
+  AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
   AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
   AuthenticatedAdminLiveRoute: AuthenticatedAdminLiveRoute,
@@ -3927,6 +3990,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminSecurityRoute: AuthenticatedAdminSecurityRoute,
   AuthenticatedAdminSellersRoute: AuthenticatedAdminSellersRoute,
+  AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminStoresRoute: AuthenticatedAdminStoresRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
@@ -3941,6 +4005,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminFrontendStoreIdRoute:
     AuthenticatedAdminFrontendStoreIdRoute,
   AuthenticatedAdminStoreStoreIdRoute: AuthenticatedAdminStoreStoreIdRoute,
+  AuthenticatedAdminFrontendIndexRoute: AuthenticatedAdminFrontendIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
