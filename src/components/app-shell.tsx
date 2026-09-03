@@ -431,7 +431,7 @@ export function AppShell({
 
       <div className="flex">
         {sidebar ? (
-          <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-64 shrink-0 border-r border-sidebar-border bg-sidebar lg:block">
+          <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-[17rem] shrink-0 border-r border-sidebar-border bg-sidebar lg:block">
             {sidebar}
           </aside>
         ) : null}
@@ -442,6 +442,7 @@ export function AppShell({
           className="min-w-0 flex-1 px-3 py-5 sm:px-5 lg:px-8 lg:py-8"
         >
           <div className="mx-auto w-full max-w-6xl space-y-5">
+            {storeId ? <QuickLinks storeId={storeId} /> : null}
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div className="min-w-0">
                 <h1 className="font-display text-xl font-semibold sm:text-2xl">{title}</h1>
@@ -455,6 +456,7 @@ export function AppShell({
           </div>
         </main>
       </div>
+
     </div>
   );
 }
