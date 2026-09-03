@@ -195,6 +195,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       group: "Analitik & Raporlar",
       icon: ChartNoAxesColumn,
       items: [
+        { label: "İstatistikler", to: p("statistics"), icon: ChartNoAxesColumn, keywords: "rapor trafik satış ürün dönüşüm müşteri arama" },
         { label: "Analitik", to: p("analytics"), icon: ChartNoAxesColumn },
         { label: "Ciro Tahmini", to: p("forecast"), icon: TrendingUp },
         { label: "Kohortlar", to: p("cohorts"), icon: Grid3x3 },
