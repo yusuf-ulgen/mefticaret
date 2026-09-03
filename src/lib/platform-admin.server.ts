@@ -288,3 +288,383 @@ export async function setUserRole(input: z.infer<typeof roleSchema>, userId: str
   });
   return { userId: input.userId, role: input.role, grant: input.grant };
 }
+
+/* ------------------------------------------------------------------ */
+/* Gelişmiş platform analitiği                                         */
+/* ------------------------------------------------------------------ */
+
+export const analyticsInputSchema = z.object({
+  days: z.number().int().min(7).max(365).default(30),
+});
+
+type OrderRow = {
+  store_id: string;
+  grand_total: number | string | null;
+  status: string;
+  payment_status: string;
+  placed_at: string | null;
+  created_at: string;
+  customer_email: string | null;
+};
+
+/** Gün bazlı seri + kırılımlar: platform genelinde ciro, sipariş, mağaza, müşteri. */
+export async function platformAnalytics(input: z.infer<typeof analyticsInputSchema>) {
+  const db = await admin();
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - (input.days - 1));
+  since.setUTCHours(0, 0, 0, 0);
+  const sinceIso = since.toISOString();
+
+  const [ordersRes, storesRes, customersRes, statsRes, subsRes, ledgerRes, itemsRes, plansRes] =
+    await Promise.all([
+      db
+        .from("orders")
+        .select("store_id, grand_total, status, payment_status, placed_at, created_at, customer_email")
+        .gte("created_at", sinceIso)
+        .limit(20000),
+      db.from("stores").select("id, name, slug, status, plan_id, created_at").limit(2000),
+      db.from("customers").select("id, store_id, created_at").gte("created_at", sinceIso).limit(20000),
+      db.from("store_daily_stats").select("stat_date, visitors, sessions, abandoned_carts").gte("stat_date", sinceIso.slice(0, 10)).limit(20000),
+      db.from("subscriptions").select("status, billing_interval, amount, plan_id").limit(5000),
+      db.from("ledger_entries").select("kind, amount, status, occurred_at").gte("occurred_at", sinceIso).limit(20000),
+      db.from("order_items").select("title, quantity, line_total, store_id").limit(20000),
+      db.from("plans").select("id, code, name, price_monthly, price_yearly").limit(200),
+    ]);
+
+  for (const res of [ordersRes, storesRes, customersRes, statsRes, subsRes, ledgerRes, itemsRes, plansRes] as {
+    error?: { message: string } | null;
+  }[]) {
+    if (res.error) throw new Error(res.error.message);
+  }
+
+  const orders = (ordersRes.data ?? []) as OrderRow[];
+  const stores = (storesRes.data ?? []) as {
+    id: string;
+    name: string;
+    slug: string;
+    status: string;
+    plan_id: string | null;
+    created_at: string;
+  }[];
+  const plans = (plansRes.data ?? []) as {
+    id: string;
+    code: string;
+    name: string;
+    price_monthly: number | string;
+    price_yearly: number | string;
+  }[];
+
+  // Gün serisi
+  const index = new Map<string, number>();
+  const series: {
+    date: string;
+    label: string;
+    revenue: number;
+    orders: number;
+    stores: number;
+    customers: number;
+    visitors: number;
+    commission: number;
+  }[] = [];
+  for (let i = 0; i < input.days; i += 1) {
+    const day = new Date(since);
+    day.setUTCDate(since.getUTCDate() + i);
+    const key = day.toISOString().slice(0, 10);
+    index.set(key, series.length);
+    series.push({
+      date: key,
+      label: day.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" }),
+      revenue: 0,
+      orders: 0,
+      stores: 0,
+      customers: 0,
+      visitors: 0,
+      commission: 0,
+    });
+  }
+  const bump = (dateLike: string | null, apply: (slot: (typeof series)[number]) => void) => {
+    if (!dateLike) return;
+    const slot = index.get(String(dateLike).slice(0, 10));
+    if (slot === undefined) return;
+    apply(series[slot]!);
+  };
+
+  const statusBreakdown = new Map<string, number>();
+  const paymentBreakdown = new Map<string, number>();
+  const storeRevenue = new Map<string, { revenue: number; orders: number }>();
+  let revenue = 0;
+  let cancelled = 0;
+  const buyers = new Set<string>();
+
+  for (const row of orders) {
+    const total = Number(row.grand_total ?? 0);
+    statusBreakdown.set(row.status, (statusBreakdown.get(row.status) ?? 0) + 1);
+    paymentBreakdown.set(row.payment_status, (paymentBreakdown.get(row.payment_status) ?? 0) + 1);
+    if (row.status === "cancelled" || row.status === "refunded") cancelled += 1;
+    if (row.customer_email) buyers.add(row.customer_email.toLowerCase());
+    revenue += total;
+    const agg = storeRevenue.get(row.store_id) ?? { revenue: 0, orders: 0 };
+    agg.revenue += total;
+    agg.orders += 1;
+    storeRevenue.set(row.store_id, agg);
+    bump(row.placed_at ?? row.created_at, (slot) => {
+      slot.revenue += total;
+      slot.orders += 1;
+    });
+  }
+
+  for (const row of stores) bump(row.created_at, (slot) => { slot.stores += 1; });
+  for (const row of (customersRes.data ?? []) as { created_at: string }[]) {
+    bump(row.created_at, (slot) => { slot.customers += 1; });
+  }
+  let visitors = 0;
+  let abandoned = 0;
+  for (const row of (statsRes.data ?? []) as {
+    stat_date: string;
+    visitors: number | null;
+    abandoned_carts: number | null;
+  }[]) {
+    visitors += Number(row.visitors ?? 0);
+    abandoned += Number(row.abandoned_carts ?? 0);
+    bump(row.stat_date, (slot) => { slot.visitors += Number(row.visitors ?? 0); });
+  }
+
+  const ledgerBreakdown = new Map<string, number>();
+  let commission = 0;
+  let refunds = 0;
+  for (const row of (ledgerRes.data ?? []) as {
+    kind: string;
+    amount: number | string;
+    status: string;
+    occurred_at: string;
+  }[]) {
+    const amount = Number(row.amount ?? 0);
+    ledgerBreakdown.set(row.kind, (ledgerBreakdown.get(row.kind) ?? 0) + amount);
+    if (row.kind === "platform_fee" || row.kind === "marketplace_commission") {
+      commission += amount;
+      bump(row.occurred_at, (slot) => { slot.commission += amount; });
+    }
+    if (row.kind === "refund") refunds += amount;
+  }
+
+  // Abonelik / MRR
+  const planById = new Map(plans.map((plan) => [plan.id, plan]));
+  const subscriptionStatus = new Map<string, number>();
+  const planDistribution = new Map<string, number>();
+  let mrr = 0;
+  for (const row of (subsRes.data ?? []) as {
+    status: string;
+    billing_interval: string;
+    amount: number | string;
+    plan_id: string | null;
+  }[]) {
+    subscriptionStatus.set(row.status, (subscriptionStatus.get(row.status) ?? 0) + 1);
+    if (row.status === "active" || row.status === "trialing") {
+      const amount = Number(row.amount ?? 0);
+      mrr += row.billing_interval === "yearly" ? amount / 12 : amount;
+    }
+  }
+  for (const store of stores) {
+    const label = store.plan_id ? (planById.get(store.plan_id)?.name ?? "Bilinmiyor") : "Paketsiz";
+    planDistribution.set(label, (planDistribution.get(label) ?? 0) + 1);
+  }
+
+  // En çok satan ürünler (platform geneli)
+  const productAgg = new Map<string, { title: string; quantity: number; revenue: number }>();
+  for (const row of (itemsRes.data ?? []) as {
+    title: string;
+    quantity: number | null;
+    line_total: number | string | null;
+  }[]) {
+    const agg = productAgg.get(row.title) ?? { title: row.title, quantity: 0, revenue: 0 };
+    agg.quantity += Number(row.quantity ?? 0);
+    agg.revenue += Number(row.line_total ?? 0);
+    productAgg.set(row.title, agg);
+  }
+
+  const storeById = new Map(stores.map((store) => [store.id, store]));
+  const topStores = [...storeRevenue.entries()]
+    .map(([storeId, agg]) => ({
+      storeId,
+      name: storeById.get(storeId)?.name ?? "—",
+      slug: storeById.get(storeId)?.slug ?? "",
+      status: storeById.get(storeId)?.status ?? "—",
+      revenue: agg.revenue,
+      orders: agg.orders,
+    }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 10);
+
+  const toPairs = (map: Map<string, number>) =>
+    [...map.entries()].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value);
+
+  return {
+    days: input.days,
+    series,
+    totals: {
+      revenue,
+      orders: orders.length,
+      commission,
+      refunds,
+      visitors,
+      abandoned,
+      buyers: buyers.size,
+      cancelled,
+      mrr,
+      arpu: stores.length ? revenue / stores.length : 0,
+      aov: orders.length ? revenue / orders.length : 0,
+      conversion: visitors ? orders.length / visitors : 0,
+      newStores: stores.filter((store) => store.created_at >= sinceIso).length,
+      newCustomers: (customersRes.data ?? []).length,
+    },
+    statusBreakdown: toPairs(statusBreakdown),
+    paymentBreakdown: toPairs(paymentBreakdown),
+    ledgerBreakdown: toPairs(ledgerBreakdown),
+    subscriptionStatus: toPairs(subscriptionStatus),
+    planDistribution: toPairs(planDistribution),
+    topStores,
+    topProducts: [...productAgg.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 10),
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Mağaza kontrol merkezi                                             */
+/* ------------------------------------------------------------------ */
+
+export const storeControlSchema = z.object({ storeId: z.string().uuid() });
+
+/** Tek bir kiracının 360° görünümü: sahibi, ekip, plan, sayaçlar, son siparişler. */
+export async function storeControlCenter(input: z.infer<typeof storeControlSchema>) {
+  const db = await admin();
+  const { data: store, error } = await db
+    .from("stores")
+    .select("*, plans(id, code, name, price_monthly, price_yearly)")
+    .eq("id", input.storeId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!store) throw new Error("Mağaza bulunamadı");
+
+  const count = async (table: string, apply?: (q: any) => any) => {
+    let query = db.from(table).select("id", { count: "exact", head: true }).eq("store_id", input.storeId);
+    if (apply) query = apply(query);
+    const { count: total } = await query;
+    return Number(total ?? 0);
+  };
+
+  const [
+    products,
+    activeProducts,
+    variants,
+    ordersCount,
+    customers,
+    discounts,
+    pages,
+    webhooks,
+    apiKeys,
+    sections,
+    domains,
+    team,
+    ordersRes,
+    ownerRes,
+    subRes,
+    ledgerRes,
+  ] = await Promise.all([
+    count("products"),
+    count("products", (q) => q.eq("status", "active")),
+    count("product_variants"),
+    count("orders"),
+    count("customers"),
+    count("discounts"),
+    count("store_pages"),
+    count("store_webhooks"),
+    count("api_keys"),
+    count("store_theme_sections"),
+    count("store_domains"),
+    db.from("store_users").select("user_id, role, created_at").eq("store_id", input.storeId).limit(50),
+    db
+      .from("orders")
+      .select("id, order_number, status, payment_status, grand_total, currency, created_at, customer_name")
+      .eq("store_id", input.storeId)
+      .order("created_at", { ascending: false })
+      .limit(10),
+    db.from("profiles").select("id, email, full_name, phone").eq("id", store.owner_id).maybeSingle(),
+    db
+      .from("subscriptions")
+      .select("status, billing_interval, amount, current_period_end, trial_ends_at")
+      .eq("store_id", input.storeId)
+      .order("created_at", { ascending: false })
+      .limit(1),
+    db.from("ledger_entries").select("kind, amount, status").eq("store_id", input.storeId).limit(5000),
+  ]);
+
+  const memberIds = ((team.data ?? []) as { user_id: string }[]).map((row) => row.user_id);
+  const { data: memberProfiles } = memberIds.length
+    ? await db.from("profiles").select("id, email, full_name").in("id", memberIds)
+    : { data: [] as { id: string; email: string; full_name: string | null }[] };
+  const profileById = new Map(
+    ((memberProfiles ?? []) as { id: string; email: string; full_name: string | null }[]).map((row) => [
+      row.id,
+      row,
+    ]),
+  );
+
+  const ledger = (ledgerRes.data ?? []) as { kind: string; amount: number | string; status: string }[];
+  const revenue = ledger
+    .filter((row) => row.kind === "sale")
+    .reduce((total, row) => total + Number(row.amount ?? 0), 0);
+  const fees = ledger
+    .filter((row) => row.kind === "platform_fee" || row.kind === "marketplace_commission")
+    .reduce((total, row) => total + Number(row.amount ?? 0), 0);
+
+  return {
+    store: store as unknown as Record<string, PlatformValue> & {
+      plans?: { id: string; code: string; name: string } | null;
+    },
+    owner: (ownerRes.data ?? null) as { id: string; email: string; full_name: string | null; phone: string | null } | null,
+    subscription: ((subRes.data ?? [])[0] ?? null) as Record<string, PlatformValue> | null,
+    counts: {
+      products,
+      activeProducts,
+      variants,
+      orders: ordersCount,
+      customers,
+      discounts,
+      pages,
+      webhooks,
+      apiKeys,
+      sections,
+      domains,
+      team: memberIds.length,
+    },
+    finance: { revenue, fees },
+    team: ((team.data ?? []) as { user_id: string; role: string; created_at: string }[]).map((row) => ({
+      userId: row.user_id,
+      role: row.role,
+      createdAt: row.created_at,
+      email: profileById.get(row.user_id)?.email ?? "—",
+      fullName: profileById.get(row.user_id)?.full_name ?? null,
+    })),
+    recentOrders: (ordersRes.data ?? []) as unknown as Record<string, PlatformValue>[],
+  };
+}
+
+export const storePlanSchema = z.object({
+  storeId: z.string().uuid(),
+  planId: z.string().uuid().nullable(),
+});
+
+/** Kiracının paketini değiştirir (yalnızca platform yöneticisi). */
+export async function setStorePlan(input: z.infer<typeof storePlanSchema>, userId: string) {
+  const db = await admin();
+  const { error } = await db.from("stores").update({ plan_id: input.planId }).eq("id", input.storeId);
+  if (error) throw new Error(error.message);
+  await insertAuditRow(db, {
+    store_id: input.storeId,
+    actor_id: userId,
+    action: "platform.store_plan_changed",
+    entity: "stores",
+    entity_id: input.storeId,
+    new_value: { plan_id: input.planId },
+  });
+  return { storeId: input.storeId, planId: input.planId };
+}

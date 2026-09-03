@@ -1,11 +1,13 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import {
+  fetchPlatformAnalytics,
   fetchPlatformList,
   fetchPlatformRoles,
   fetchPlatformSettings,
   fetchPlatformSummary,
   fetchPlatformTickets,
+  fetchStoreControl,
   fetchTicketMessages,
 } from "@/lib/platform-admin.functions";
 import type { PlatformDatasetKey } from "@/lib/platform-datasets";
@@ -52,4 +54,18 @@ export const platformRolesQuery = (enabled: boolean) =>
     queryKey: ["platform-roles"],
     enabled,
     queryFn: () => fetchPlatformRoles(),
+  });
+
+export const platformAnalyticsQuery = (days: number, enabled: boolean) =>
+  queryOptions({
+    queryKey: ["platform-analytics", days],
+    enabled,
+    queryFn: () => fetchPlatformAnalytics({ data: { days } }),
+  });
+
+export const storeControlQuery = (storeId: string, enabled: boolean) =>
+  queryOptions({
+    queryKey: ["platform-store-control", storeId],
+    enabled,
+    queryFn: () => fetchStoreControl({ data: { storeId } }),
   });
