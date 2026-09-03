@@ -1078,3 +1078,194 @@ export async function endImpersonation(input: z.infer<typeof endImpersonationSch
   });
   return { id: input.id };
 }
+
+export const liveInputSchema = z.object({
+  minutes: z.number().int().min(5).max(180).default(60),
+});
+
+/**
+ * Platform geneli canlı izleme: son N dakikadaki vitrin olayları, bugünün
+ * siparişleri, aktif sepetler ve mağaza/şehir/cihaz kırılımları.
+ */
+export async function platformLive(input: z.infer<typeof liveInputSchema>) {
+  const db = await admin();
+  const minutes = input.minutes;
+  const since = new Date(Date.now() - minutes * 60_000).toISOString();
+  const dayStart = new Date();
+  dayStart.setHours(0, 0, 0, 0);
+
+  const [eventsRes, ordersRes, cartsRes] = await Promise.all([
+    db
+      .from("analytics_events")
+      .select("id, store_id, kind, visitor_id, session_id, path, city, country, device, value, currency, created_at")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(4000),
+    db
+      .from("orders")
+      .select("id, store_id, order_number, customer_name, grand_total, currency, status, payment_status, created_at")
+      .gte("created_at", dayStart.toISOString())
+      .order("created_at", { ascending: false })
+      .limit(500),
+    db
+      .from("carts")
+      .select("id, store_id, grand_total, currency, updated_at, completed_at")
+      .is("completed_at", null)
+      .gte("updated_at", new Date(Date.now() - 4 * 3_600_000).toISOString())
+      .limit(500),
+  ]);
+
+  type Ev = {
+    id: string;
+    store_id: string;
+    kind: string;
+    visitor_id: string | null;
+    session_id: string | null;
+    path: string | null;
+    city: string | null;
+    country: string | null;
+    device: string | null;
+    value: number | string | null;
+    currency: string | null;
+    created_at: string;
+  };
+  type Ord = {
+    id: string;
+    store_id: string;
+    order_number: string;
+    customer_name: string | null;
+    grand_total: number | string;
+    currency: string;
+    status: string;
+    payment_status: string;
+    created_at: string;
+  };
+  type Crt = { id: string; store_id: string; grand_total: number | string; currency: string; updated_at: string };
+
+  const events = (eventsRes.data ?? []) as Ev[];
+  const orders = (ordersRes.data ?? []) as Ord[];
+  const carts = (cartsRes.data ?? []) as Crt[];
+
+  const names = await storeNames(db, [
+    ...events.map((row) => row.store_id),
+    ...orders.map((row) => row.store_id),
+    ...carts.map((row) => row.store_id),
+  ]);
+
+  const tally = (rows: Ev[], key: keyof Ev, limit: number) => {
+    const map = new Map<string, number>();
+    for (const row of rows) {
+      const label = (row[key] as string | null) || "Bilinmiyor";
+      map.set(label, (map.get(label) ?? 0) + 1);
+    }
+    return [...map.entries()]
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+  };
+
+  const fresh = events.filter((row) => Date.now() - new Date(row.created_at).getTime() < 5 * 60_000);
+  const visitors = new Set(fresh.map((row) => row.visitor_id ?? row.session_id ?? row.id)).size;
+  const sessions = new Set(fresh.map((row) => row.session_id ?? row.id)).size;
+
+  const buckets: { minute: string; count: number }[] = [];
+  for (let index = minutes - 1; index >= 0; index -= 1) {
+    const start = Date.now() - index * 60_000;
+    const stamp = new Date(start);
+    stamp.setSeconds(0, 0);
+    const next = stamp.getTime() + 60_000;
+    const inBucket = events.filter((row) => {
+      const time = new Date(row.created_at).getTime();
+      return time >= stamp.getTime() && time < next;
+    });
+    buckets.push({
+      minute: stamp.toISOString(),
+      count: new Set(inBucket.map((row) => row.visitor_id ?? row.id)).size,
+    });
+  }
+
+  const perStore = new Map<string, { storeId: string; name: string; visitors: Set<string>; events: number; orders: number; revenue: number; carts: number }>();
+  const bucketFor = (storeId: string) => {
+    let entry = perStore.get(storeId);
+    if (!entry) {
+      entry = { storeId, name: names[storeId] ?? "Mağaza", visitors: new Set(), events: 0, orders: 0, revenue: 0, carts: 0 };
+      perStore.set(storeId, entry);
+    }
+    return entry;
+  };
+  for (const row of events) {
+    const entry = bucketFor(row.store_id);
+    entry.events += 1;
+    entry.visitors.add(row.visitor_id ?? row.id);
+  }
+  for (const row of orders) {
+    const entry = bucketFor(row.store_id);
+    entry.orders += 1;
+    if (row.payment_status === "paid") entry.revenue += Number(row.grand_total ?? 0);
+  }
+  for (const row of carts) bucketFor(row.store_id).carts += 1;
+
+  const stores = [...perStore.values()]
+    .map((entry) => ({
+      storeId: entry.storeId,
+      name: entry.name,
+      visitors: entry.visitors.size,
+      events: entry.events,
+      orders: entry.orders,
+      revenue: entry.revenue,
+      carts: entry.carts,
+    }))
+    .sort((a, b) => b.visitors - a.visitors || b.orders - a.orders)
+    .slice(0, 12);
+
+  const paidOrders = orders.filter((row) => row.payment_status === "paid");
+  const funnelViews = events.filter((row) => row.kind === "page_view" || row.kind === "product_view").length;
+
+  return {
+    minutes,
+    visitors,
+    sessions,
+    activeStores: stores.filter((store) => store.visitors > 0).length,
+    eventCount: events.length,
+    cartCount: carts.length,
+    cartValue: carts.reduce((sum, row) => sum + Number(row.grand_total ?? 0), 0),
+    orderCount: orders.length,
+    revenue: paidOrders.reduce((sum, row) => sum + Number(row.grand_total ?? 0), 0),
+    conversionRate: funnelViews > 0 ? (events.filter((row) => row.kind === "purchase").length / funnelViews) * 100 : 0,
+    buckets,
+    stores,
+    cities: tally(events, "city", 8),
+    devices: tally(events, "device", 4),
+    countries: tally(events, "country", 6),
+    paths: tally(events, "path", 6),
+    funnel: [
+      { label: "Görüntüleme", value: funnelViews },
+      { label: "Sepete ekleme", value: events.filter((row) => row.kind === "add_to_cart").length },
+      { label: "Ödeme adımı", value: events.filter((row) => row.kind === "checkout").length },
+      { label: "Satın alma", value: events.filter((row) => row.kind === "purchase").length },
+    ],
+    activity: events.slice(0, 20).map((row) => ({
+      id: row.id,
+      kind: row.kind,
+      path: row.path,
+      city: row.city,
+      country: row.country,
+      device: row.device,
+      value: Number(row.value ?? 0),
+      currency: row.currency ?? "TRY",
+      storeName: names[row.store_id] ?? "Mağaza",
+      createdAt: row.created_at,
+    })),
+    recentOrders: orders.slice(0, 8).map((row) => ({
+      id: row.id,
+      orderNumber: row.order_number,
+      customer: row.customer_name,
+      total: Number(row.grand_total ?? 0),
+      currency: row.currency,
+      status: row.status,
+      paymentStatus: row.payment_status,
+      storeName: names[row.store_id] ?? "Mağaza",
+      createdAt: row.created_at,
+    })),
+  };
+}

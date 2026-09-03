@@ -3,6 +3,7 @@ import { queryOptions } from "@tanstack/react-query";
 import {
   fetchPlatformAnalytics,
   fetchPlatformList,
+  fetchPlatformLive,
   fetchPlatformRoles,
   fetchPlatformSettings,
   fetchPlatformSummary,
@@ -68,4 +69,12 @@ export const storeControlQuery = (storeId: string, enabled: boolean) =>
     queryKey: ["platform-store-control", storeId],
     enabled,
     queryFn: () => fetchStoreControl({ data: { storeId } }),
+  });
+
+export const platformLiveQuery = (minutes: number, enabled: boolean) =>
+  queryOptions({
+    queryKey: ["platform-live", minutes],
+    enabled,
+    refetchInterval: 15_000,
+    queryFn: () => fetchPlatformLive({ data: { minutes } }),
   });

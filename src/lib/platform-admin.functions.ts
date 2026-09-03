@@ -220,3 +220,12 @@ export const endPlatformImpersonation = createServerFn({ method: "POST" })
     await server.assertPlatformAdmin(context.supabase, context.userId);
     return server.endImpersonation(server.endImpersonationSchema.parse(data), context.userId);
   });
+
+export const fetchPlatformLive = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data ?? {})
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.platformLive(server.liveInputSchema.parse(data ?? {}));
+  });
