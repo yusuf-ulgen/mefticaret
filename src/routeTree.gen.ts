@@ -72,6 +72,7 @@ import { Route as SSlugRegisterRouteImport } from './routes/s.$slug.register'
 import { Route as SSlugReturnsRouteImport } from './routes/s.$slug.returns'
 import { Route as SSlugSearchRouteImport } from './routes/s.$slug.search'
 import { Route as SSlugTermsRouteImport } from './routes/s.$slug.terms'
+import { Route as AuthenticatedAdminFrontendIndexRouteImport } from './routes/_authenticated/admin.frontend.index'
 import { Route as AuthenticatedAdminFrontendStoreIdRouteImport } from './routes/_authenticated/admin.frontend.$storeId'
 import { Route as AuthenticatedAdminStoreStoreIdRouteImport } from './routes/_authenticated/admin.store.$storeId'
 import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_authenticated/store.$storeId.abc'
@@ -537,6 +538,12 @@ const SSlugTermsRoute = SSlugTermsRouteImport.update({
   path: '/s/$slug/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminFrontendIndexRoute =
+  AuthenticatedAdminFrontendIndexRouteImport.update({
+    id: '/frontend/',
+    path: '/frontend/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminFrontendStoreIdRoute =
   AuthenticatedAdminFrontendStoreIdRouteImport.update({
     id: '/frontend/$storeId',
@@ -1494,6 +1501,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
@@ -1686,6 +1694,7 @@ export interface FileRoutesByTo {
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/admin/frontend': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
@@ -1882,6 +1891,7 @@ export interface FileRoutesById {
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/_authenticated/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/_authenticated/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/_authenticated/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/_authenticated/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
@@ -2078,6 +2088,7 @@ export interface FileRouteTypes {
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/admin/frontend/'
     | '/store/$storeId/customers/$customerId'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/orders/new'
@@ -2270,6 +2281,7 @@ export interface FileRouteTypes {
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/admin/frontend'
     | '/store/$storeId/customers/$customerId'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/orders/new'
@@ -2465,6 +2477,7 @@ export interface FileRouteTypes {
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/_authenticated/admin/frontend/'
     | '/_authenticated/store/$storeId/customers/$customerId'
     | '/_authenticated/store/$storeId/orders/$orderId'
     | '/_authenticated/store/$storeId/orders/new'
@@ -2964,6 +2977,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/s/$slug/terms'
       preLoaderRoute: typeof SSlugTermsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/frontend/': {
+      id: '/_authenticated/admin/frontend/'
+      path: '/frontend'
+      fullPath: '/admin/frontend/'
+      preLoaderRoute: typeof AuthenticatedAdminFrontendIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/frontend/$storeId': {
       id: '/_authenticated/admin/frontend/$storeId'
@@ -3908,6 +3928,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminFrontendStoreIdRoute: typeof AuthenticatedAdminFrontendStoreIdRoute
   AuthenticatedAdminStoreStoreIdRoute: typeof AuthenticatedAdminStoreStoreIdRoute
+  AuthenticatedAdminFrontendIndexRoute: typeof AuthenticatedAdminFrontendIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -3941,6 +3962,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminFrontendStoreIdRoute:
     AuthenticatedAdminFrontendStoreIdRoute,
   AuthenticatedAdminStoreStoreIdRoute: AuthenticatedAdminStoreStoreIdRoute,
+  AuthenticatedAdminFrontendIndexRoute: AuthenticatedAdminFrontendIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
