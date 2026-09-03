@@ -68,6 +68,7 @@ import { Route as SSlugRegisterRouteImport } from './routes/s.$slug.register'
 import { Route as SSlugReturnsRouteImport } from './routes/s.$slug.returns'
 import { Route as SSlugSearchRouteImport } from './routes/s.$slug.search'
 import { Route as SSlugTermsRouteImport } from './routes/s.$slug.terms'
+import { Route as AuthenticatedAdminStoreStoreIdRouteImport } from './routes/_authenticated/admin.store.$storeId'
 import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_authenticated/store.$storeId.abc'
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
 import { Route as AuthenticatedStoreStoreIdAgingRouteImport } from './routes/_authenticated/store.$storeId.aging'
@@ -497,6 +498,12 @@ const SSlugTermsRoute = SSlugTermsRouteImport.update({
   path: '/s/$slug/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminStoreStoreIdRoute =
+  AuthenticatedAdminStoreStoreIdRouteImport.update({
+    id: '/store/$storeId',
+    path: '/store/$storeId',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedStoreStoreIdAbcRoute =
   AuthenticatedStoreStoreIdAbcRouteImport.update({
     id: '/store/$storeId/abc',
@@ -1243,6 +1250,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/terms': typeof SSlugTermsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/s/$slug/': typeof SSlugIndexRoute
+  '/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
@@ -1418,6 +1426,7 @@ export interface FileRoutesByTo {
   '/s/$slug/terms': typeof SSlugTermsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/s/$slug': typeof SSlugIndexRoute
+  '/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
@@ -1595,6 +1604,7 @@ export interface FileRoutesById {
   '/s/$slug/terms': typeof SSlugTermsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/s/$slug/': typeof SSlugIndexRoute
+  '/_authenticated/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
   '/_authenticated/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/_authenticated/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/_authenticated/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
@@ -1773,6 +1783,7 @@ export interface FileRouteTypes {
     | '/s/$slug/terms'
     | '/admin/'
     | '/s/$slug/'
+    | '/admin/store/$storeId'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
     | '/store/$storeId/aging'
@@ -1948,6 +1959,7 @@ export interface FileRouteTypes {
     | '/s/$slug/terms'
     | '/admin'
     | '/s/$slug'
+    | '/admin/store/$storeId'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
     | '/store/$storeId/aging'
@@ -2124,6 +2136,7 @@ export interface FileRouteTypes {
     | '/s/$slug/terms'
     | '/_authenticated/admin/'
     | '/s/$slug/'
+    | '/_authenticated/admin/store/$storeId'
     | '/_authenticated/store/$storeId/abc'
     | '/_authenticated/store/$storeId/activity'
     | '/_authenticated/store/$storeId/aging'
@@ -2703,6 +2716,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/s/$slug/terms'
       preLoaderRoute: typeof SSlugTermsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/store/$storeId': {
+      id: '/_authenticated/admin/store/$storeId'
+      path: '/store/$storeId'
+      fullPath: '/admin/store/$storeId'
+      preLoaderRoute: typeof AuthenticatedAdminStoreStoreIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/store/$storeId/abc': {
       id: '/_authenticated/store/$storeId/abc'
@@ -3544,6 +3564,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminWebhooksRoute: typeof AuthenticatedAdminWebhooksRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminStoreStoreIdRoute: typeof AuthenticatedAdminStoreStoreIdRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -3571,6 +3592,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminWebhooksRoute: AuthenticatedAdminWebhooksRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminStoreStoreIdRoute: AuthenticatedAdminStoreStoreIdRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
