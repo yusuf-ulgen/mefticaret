@@ -222,7 +222,7 @@ function DashboardPage() {
 
       <section className="surface-card p-6">
         <h2 className="font-display text-lg font-semibold">Dikkat gerektirenler</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {todo.map((item) => (
             <Link
               key={item.key}
