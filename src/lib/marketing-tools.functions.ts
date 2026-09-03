@@ -111,6 +111,6 @@ export const trackStorefrontPopupEvent = createServerFn({ method: "POST" })
     const column = data.kind === "impression" ? "impressions" : "clicks";
     const { data: current } = await supabaseAdmin.from("store_popups").select(column).eq("id", data.id).maybeSingle();
     const value = Number((current as Record<string, number> | null)?.[column] ?? 0) + 1;
-    await supabaseAdmin.from("store_popups").update({ [column]: value }).eq("id", data.id);
+    await supabaseAdmin.from("store_popups").update({ [column]: value } as never).eq("id", data.id);
     return { ok: true as const };
   });

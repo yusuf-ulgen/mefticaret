@@ -28,12 +28,12 @@ export const storeAdminNotesQuery = (storeId: string, enabled: boolean) =>
   queryOptions({
     queryKey: ["platform-store-notes", storeId],
     enabled,
-    queryFn: () => fetchStoreAdminNotes({ data: { storeId } }),
+    queryFn: () => fetchStoreAdminNotes({ data: { storeId } }) as Promise<Record<string, any>[]>,
   });
 
 export const impersonationSessionsQuery = (storeId: string, enabled: boolean) =>
   queryOptions({
     queryKey: ["platform-impersonation-sessions", storeId],
     enabled,
-    queryFn: () => fetchImpersonationSessions({ data: { storeId } }),
+    queryFn: () => fetchImpersonationSessions({ data: { storeId } }) as Promise<Record<string, any>[]>,
   });

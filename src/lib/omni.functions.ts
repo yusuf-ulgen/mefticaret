@@ -27,7 +27,7 @@ export const sendOmniMessage = createServerFn({ method: "POST" })
       storeId: data.storeId,
       conversationId: data.conversationId,
       body: data.body,
-      sentBy: context.user.id,
+      sentBy: context.userId,
       isAi: data.isAi,
     });
     return message;
@@ -310,7 +310,7 @@ export const suggestAiReply = createServerFn({ method: "POST" })
     const { suggestAiReplyForConversation } = await import("@/lib/omni.server");
     return suggestAiReplyForConversation(context.supabase, {
       storeId: data.storeId,
-      userId: context.user.id,
+      userId: context.userId,
       conversationId: data.conversationId,
     });
   });
@@ -392,7 +392,7 @@ export const sendProductCard = createServerFn({ method: "POST" })
       storeId: data.storeId,
       conversationId: data.conversationId,
       body,
-      sentBy: context.user.id,
+      sentBy: context.userId,
     });
   });
 
@@ -420,7 +420,7 @@ export const sendCoupon = createServerFn({ method: "POST" })
       storeId: data.storeId,
       conversationId: data.conversationId,
       body,
-      sentBy: context.user.id,
+      sentBy: context.userId,
     });
   });
 
@@ -458,6 +458,6 @@ export const sendOrderLink = createServerFn({ method: "POST" })
       storeId: data.storeId,
       conversationId: data.conversationId,
       body,
-      sentBy: context.user.id,
+      sentBy: context.userId,
     });
   });

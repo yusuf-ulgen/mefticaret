@@ -247,7 +247,7 @@ export async function stockDepletionAnalysis(
       .map((o: any) => o.id),
   );
 
-  const productMap = new Map((productsRes.data ?? []).map((p: any) => [String(p.id), p]));
+  const productMap = new Map<string, any>((productsRes.data ?? []).map((p: any) => [String(p.id), p]));
 
   const soldByVariant = new Map<string, number>();
   for (const item of itemsRes.data ?? []) {
@@ -459,8 +459,8 @@ export async function productAnalysis(
   if (productsRes.error) throw new Error(productsRes.error.message);
   if (commissionsRes.error) throw new Error(commissionsRes.error.message);
 
-  const productMap = new Map((productsRes.data ?? []).map((p: any) => [String(p.id), p]));
-  const commissionByItem = new Map(
+  const productMap = new Map<string, any>((productsRes.data ?? []).map((p: any) => [String(p.id), p]));
+  const commissionByItem = new Map<string, any>(
     (commissionsRes.data ?? []).map((c: any) => [String(c.order_item_id), c]),
   );
 

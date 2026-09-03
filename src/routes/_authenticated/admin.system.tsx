@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/admin/system")({
   component: AdminSystemPage,
 });
 
-function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: "danger" | "warn" }) {
+function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?: string | undefined; tone?: "danger" | "warn" | undefined }) {
   return (
     <div className="surface-card p-5">
       <p className="text-xs text-muted-foreground">{label}</p>

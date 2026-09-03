@@ -99,6 +99,7 @@ import { Route as AuthenticatedStoreStoreIdDiscountsRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdDomainsRouteImport } from './routes/_authenticated/store.$storeId.domains'
 import { Route as AuthenticatedStoreStoreIdDropshippingRouteImport } from './routes/_authenticated/store.$storeId.dropshipping'
 import { Route as AuthenticatedStoreStoreIdElasticityRouteImport } from './routes/_authenticated/store.$storeId.elasticity'
+import { Route as AuthenticatedStoreStoreIdFeedsRouteImport } from './routes/_authenticated/store.$storeId.feeds'
 import { Route as AuthenticatedStoreStoreIdFinanceRouteImport } from './routes/_authenticated/store.$storeId.finance'
 import { Route as AuthenticatedStoreStoreIdForecastRouteImport } from './routes/_authenticated/store.$storeId.forecast'
 import { Route as AuthenticatedStoreStoreIdFunnelRouteImport } from './routes/_authenticated/store.$storeId.funnel'
@@ -112,11 +113,14 @@ import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdJobsRouteImport } from './routes/_authenticated/store.$storeId.jobs'
 import { Route as AuthenticatedStoreStoreIdLedgerRouteImport } from './routes/_authenticated/store.$storeId.ledger'
 import { Route as AuthenticatedStoreStoreIdLifecycleRouteImport } from './routes/_authenticated/store.$storeId.lifecycle'
+import { Route as AuthenticatedStoreStoreIdListingLinksRouteImport } from './routes/_authenticated/store.$storeId.listing-links'
 import { Route as AuthenticatedStoreStoreIdLiveRouteImport } from './routes/_authenticated/store.$storeId.live'
 import { Route as AuthenticatedStoreStoreIdLocalizationRouteImport } from './routes/_authenticated/store.$storeId.localization'
 import { Route as AuthenticatedStoreStoreIdLossesRouteImport } from './routes/_authenticated/store.$storeId.losses'
 import { Route as AuthenticatedStoreStoreIdLtvRouteImport } from './routes/_authenticated/store.$storeId.ltv'
 import { Route as AuthenticatedStoreStoreIdMarketingRouteImport } from './routes/_authenticated/store.$storeId.marketing'
+import { Route as AuthenticatedStoreStoreIdMarketplaceAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.marketplace-analytics'
+import { Route as AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport } from './routes/_authenticated/store.$storeId.marketplace-returns'
 import { Route as AuthenticatedStoreStoreIdMediaRouteImport } from './routes/_authenticated/store.$storeId.media'
 import { Route as AuthenticatedStoreStoreIdNavigationRouteImport } from './routes/_authenticated/store.$storeId.navigation'
 import { Route as AuthenticatedStoreStoreIdNotificationsRouteImport } from './routes/_authenticated/store.$storeId.notifications'
@@ -124,6 +128,7 @@ import { Route as AuthenticatedStoreStoreIdOauthRouteImport } from './routes/_au
 import { Route as AuthenticatedStoreStoreIdOrdersRouteImport } from './routes/_authenticated/store.$storeId.orders'
 import { Route as AuthenticatedStoreStoreIdPagesRouteImport } from './routes/_authenticated/store.$storeId.pages'
 import { Route as AuthenticatedStoreStoreIdPaymentsRouteImport } from './routes/_authenticated/store.$storeId.payments'
+import { Route as AuthenticatedStoreStoreIdPopupsRouteImport } from './routes/_authenticated/store.$storeId.popups'
 import { Route as AuthenticatedStoreStoreIdPricingRouteImport } from './routes/_authenticated/store.$storeId.pricing'
 import { Route as AuthenticatedStoreStoreIdProductsRouteImport } from './routes/_authenticated/store.$storeId.products'
 import { Route as AuthenticatedStoreStoreIdProfitRouteImport } from './routes/_authenticated/store.$storeId.profit'
@@ -144,12 +149,14 @@ import { Route as AuthenticatedStoreStoreIdSellersRouteImport } from './routes/_
 import { Route as AuthenticatedStoreStoreIdSeoRouteImport } from './routes/_authenticated/store.$storeId.seo'
 import { Route as AuthenticatedStoreStoreIdSeoEditorRouteImport } from './routes/_authenticated/store.$storeId.seo-editor'
 import { Route as AuthenticatedStoreStoreIdSettingsRouteImport } from './routes/_authenticated/store.$storeId.settings'
+import { Route as AuthenticatedStoreStoreIdSettlementsRouteImport } from './routes/_authenticated/store.$storeId.settlements'
 import { Route as AuthenticatedStoreStoreIdShipmentsRouteImport } from './routes/_authenticated/store.$storeId.shipments'
 import { Route as AuthenticatedStoreStoreIdShippingRouteImport } from './routes/_authenticated/store.$storeId.shipping'
 import { Route as AuthenticatedStoreStoreIdShippingEconomicsRouteImport } from './routes/_authenticated/store.$storeId.shipping-economics'
 import { Route as AuthenticatedStoreStoreIdShippingPerformanceRouteImport } from './routes/_authenticated/store.$storeId.shipping-performance'
 import { Route as AuthenticatedStoreStoreIdSimulatorRouteImport } from './routes/_authenticated/store.$storeId.simulator'
 import { Route as AuthenticatedStoreStoreIdSlaRouteImport } from './routes/_authenticated/store.$storeId.sla'
+import { Route as AuthenticatedStoreStoreIdSocialShareRouteImport } from './routes/_authenticated/store.$storeId.social-share'
 import { Route as AuthenticatedStoreStoreIdStockAlertsRouteImport } from './routes/_authenticated/store.$storeId.stock-alerts'
 import { Route as AuthenticatedStoreStoreIdStockCountRouteImport } from './routes/_authenticated/store.$storeId.stock-count'
 import { Route as AuthenticatedStoreStoreIdStockoutRouteImport } from './routes/_authenticated/store.$storeId.stockout'
@@ -689,6 +696,12 @@ const AuthenticatedStoreStoreIdElasticityRoute =
     path: '/store/$storeId/elasticity',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdFeedsRoute =
+  AuthenticatedStoreStoreIdFeedsRouteImport.update({
+    id: '/store/$storeId/feeds',
+    path: '/store/$storeId/feeds',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdFinanceRoute =
   AuthenticatedStoreStoreIdFinanceRouteImport.update({
     id: '/store/$storeId/finance',
@@ -767,6 +780,12 @@ const AuthenticatedStoreStoreIdLifecycleRoute =
     path: '/store/$storeId/lifecycle',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdListingLinksRoute =
+  AuthenticatedStoreStoreIdListingLinksRouteImport.update({
+    id: '/store/$storeId/listing-links',
+    path: '/store/$storeId/listing-links',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdLiveRoute =
   AuthenticatedStoreStoreIdLiveRouteImport.update({
     id: '/store/$storeId/live',
@@ -795,6 +814,18 @@ const AuthenticatedStoreStoreIdMarketingRoute =
   AuthenticatedStoreStoreIdMarketingRouteImport.update({
     id: '/store/$storeId/marketing',
     path: '/store/$storeId/marketing',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute =
+  AuthenticatedStoreStoreIdMarketplaceAnalyticsRouteImport.update({
+    id: '/store/$storeId/marketplace-analytics',
+    path: '/store/$storeId/marketplace-analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdMarketplaceReturnsRoute =
+  AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport.update({
+    id: '/store/$storeId/marketplace-returns',
+    path: '/store/$storeId/marketplace-returns',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdMediaRoute =
@@ -837,6 +868,12 @@ const AuthenticatedStoreStoreIdPaymentsRoute =
   AuthenticatedStoreStoreIdPaymentsRouteImport.update({
     id: '/store/$storeId/payments',
     path: '/store/$storeId/payments',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdPopupsRoute =
+  AuthenticatedStoreStoreIdPopupsRouteImport.update({
+    id: '/store/$storeId/popups',
+    path: '/store/$storeId/popups',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdPricingRoute =
@@ -959,6 +996,12 @@ const AuthenticatedStoreStoreIdSettingsRoute =
     path: '/store/$storeId/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdSettlementsRoute =
+  AuthenticatedStoreStoreIdSettlementsRouteImport.update({
+    id: '/store/$storeId/settlements',
+    path: '/store/$storeId/settlements',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdShipmentsRoute =
   AuthenticatedStoreStoreIdShipmentsRouteImport.update({
     id: '/store/$storeId/shipments',
@@ -993,6 +1036,12 @@ const AuthenticatedStoreStoreIdSlaRoute =
   AuthenticatedStoreStoreIdSlaRouteImport.update({
     id: '/store/$storeId/sla',
     path: '/store/$storeId/sla',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdSocialShareRoute =
+  AuthenticatedStoreStoreIdSocialShareRouteImport.update({
+    id: '/store/$storeId/social-share',
+    path: '/store/$storeId/social-share',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdStockAlertsRoute =
@@ -1322,6 +1371,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
+  '/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -1335,11 +1385,14 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
+  '/store/$storeId/listing-links': typeof AuthenticatedStoreStoreIdListingLinksRoute
   '/store/$storeId/live': typeof AuthenticatedStoreStoreIdLiveRoute
   '/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
+  '/store/$storeId/marketplace-analytics': typeof AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute
+  '/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -1347,6 +1400,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
+  '/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
   '/store/$storeId/pricing': typeof AuthenticatedStoreStoreIdPricingRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
   '/store/$storeId/profit': typeof AuthenticatedStoreStoreIdProfitRoute
@@ -1367,12 +1421,14 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/store/$storeId/seo-editor': typeof AuthenticatedStoreStoreIdSeoEditorRoute
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
+  '/store/$storeId/settlements': typeof AuthenticatedStoreStoreIdSettlementsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
   '/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   '/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
   '/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
+  '/store/$storeId/social-share': typeof AuthenticatedStoreStoreIdSocialShareRoute
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
@@ -1504,6 +1560,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
+  '/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -1517,11 +1574,14 @@ export interface FileRoutesByTo {
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
+  '/store/$storeId/listing-links': typeof AuthenticatedStoreStoreIdListingLinksRoute
   '/store/$storeId/live': typeof AuthenticatedStoreStoreIdLiveRoute
   '/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
+  '/store/$storeId/marketplace-analytics': typeof AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute
+  '/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -1529,6 +1589,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
+  '/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
   '/store/$storeId/pricing': typeof AuthenticatedStoreStoreIdPricingRoute
   '/store/$storeId/profit': typeof AuthenticatedStoreStoreIdProfitRoute
   '/store/$storeId/purchasing': typeof AuthenticatedStoreStoreIdPurchasingRoute
@@ -1548,12 +1609,14 @@ export interface FileRoutesByTo {
   '/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/store/$storeId/seo-editor': typeof AuthenticatedStoreStoreIdSeoEditorRoute
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
+  '/store/$storeId/settlements': typeof AuthenticatedStoreStoreIdSettlementsRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
   '/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   '/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
   '/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
+  '/store/$storeId/social-share': typeof AuthenticatedStoreStoreIdSocialShareRoute
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
@@ -1688,6 +1751,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/_authenticated/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/_authenticated/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
+  '/_authenticated/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/_authenticated/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/_authenticated/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/_authenticated/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -1701,11 +1765,14 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/_authenticated/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/_authenticated/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
+  '/_authenticated/store/$storeId/listing-links': typeof AuthenticatedStoreStoreIdListingLinksRoute
   '/_authenticated/store/$storeId/live': typeof AuthenticatedStoreStoreIdLiveRoute
   '/_authenticated/store/$storeId/localization': typeof AuthenticatedStoreStoreIdLocalizationRoute
   '/_authenticated/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/_authenticated/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/_authenticated/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
+  '/_authenticated/store/$storeId/marketplace-analytics': typeof AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute
+  '/_authenticated/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/_authenticated/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/_authenticated/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/_authenticated/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -1713,6 +1780,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/_authenticated/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/_authenticated/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
+  '/_authenticated/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
   '/_authenticated/store/$storeId/pricing': typeof AuthenticatedStoreStoreIdPricingRoute
   '/_authenticated/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
   '/_authenticated/store/$storeId/profit': typeof AuthenticatedStoreStoreIdProfitRoute
@@ -1733,12 +1801,14 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/_authenticated/store/$storeId/seo-editor': typeof AuthenticatedStoreStoreIdSeoEditorRoute
   '/_authenticated/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
+  '/_authenticated/store/$storeId/settlements': typeof AuthenticatedStoreStoreIdSettlementsRoute
   '/_authenticated/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/_authenticated/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
   '/_authenticated/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   '/_authenticated/store/$storeId/shipping-performance': typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   '/_authenticated/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
   '/_authenticated/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
+  '/_authenticated/store/$storeId/social-share': typeof AuthenticatedStoreStoreIdSocialShareRoute
   '/_authenticated/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/_authenticated/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/_authenticated/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
@@ -1873,6 +1943,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/domains'
     | '/store/$storeId/dropshipping'
     | '/store/$storeId/elasticity'
+    | '/store/$storeId/feeds'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
     | '/store/$storeId/funnel'
@@ -1886,11 +1957,14 @@ export interface FileRouteTypes {
     | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
     | '/store/$storeId/lifecycle'
+    | '/store/$storeId/listing-links'
     | '/store/$storeId/live'
     | '/store/$storeId/localization'
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
     | '/store/$storeId/marketing'
+    | '/store/$storeId/marketplace-analytics'
+    | '/store/$storeId/marketplace-returns'
     | '/store/$storeId/media'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
@@ -1898,6 +1972,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders'
     | '/store/$storeId/pages'
     | '/store/$storeId/payments'
+    | '/store/$storeId/popups'
     | '/store/$storeId/pricing'
     | '/store/$storeId/products'
     | '/store/$storeId/profit'
@@ -1918,12 +1993,14 @@ export interface FileRouteTypes {
     | '/store/$storeId/seo'
     | '/store/$storeId/seo-editor'
     | '/store/$storeId/settings'
+    | '/store/$storeId/settlements'
     | '/store/$storeId/shipments'
     | '/store/$storeId/shipping'
     | '/store/$storeId/shipping-economics'
     | '/store/$storeId/shipping-performance'
     | '/store/$storeId/simulator'
     | '/store/$storeId/sla'
+    | '/store/$storeId/social-share'
     | '/store/$storeId/stock-alerts'
     | '/store/$storeId/stock-count'
     | '/store/$storeId/stockout'
@@ -2055,6 +2132,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/domains'
     | '/store/$storeId/dropshipping'
     | '/store/$storeId/elasticity'
+    | '/store/$storeId/feeds'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
     | '/store/$storeId/funnel'
@@ -2068,11 +2146,14 @@ export interface FileRouteTypes {
     | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
     | '/store/$storeId/lifecycle'
+    | '/store/$storeId/listing-links'
     | '/store/$storeId/live'
     | '/store/$storeId/localization'
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
     | '/store/$storeId/marketing'
+    | '/store/$storeId/marketplace-analytics'
+    | '/store/$storeId/marketplace-returns'
     | '/store/$storeId/media'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
@@ -2080,6 +2161,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders'
     | '/store/$storeId/pages'
     | '/store/$storeId/payments'
+    | '/store/$storeId/popups'
     | '/store/$storeId/pricing'
     | '/store/$storeId/profit'
     | '/store/$storeId/purchasing'
@@ -2099,12 +2181,14 @@ export interface FileRouteTypes {
     | '/store/$storeId/seo'
     | '/store/$storeId/seo-editor'
     | '/store/$storeId/settings'
+    | '/store/$storeId/settlements'
     | '/store/$storeId/shipments'
     | '/store/$storeId/shipping'
     | '/store/$storeId/shipping-economics'
     | '/store/$storeId/shipping-performance'
     | '/store/$storeId/simulator'
     | '/store/$storeId/sla'
+    | '/store/$storeId/social-share'
     | '/store/$storeId/stock-alerts'
     | '/store/$storeId/stock-count'
     | '/store/$storeId/stockout'
@@ -2238,6 +2322,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/domains'
     | '/_authenticated/store/$storeId/dropshipping'
     | '/_authenticated/store/$storeId/elasticity'
+    | '/_authenticated/store/$storeId/feeds'
     | '/_authenticated/store/$storeId/finance'
     | '/_authenticated/store/$storeId/forecast'
     | '/_authenticated/store/$storeId/funnel'
@@ -2251,11 +2336,14 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/jobs'
     | '/_authenticated/store/$storeId/ledger'
     | '/_authenticated/store/$storeId/lifecycle'
+    | '/_authenticated/store/$storeId/listing-links'
     | '/_authenticated/store/$storeId/live'
     | '/_authenticated/store/$storeId/localization'
     | '/_authenticated/store/$storeId/losses'
     | '/_authenticated/store/$storeId/ltv'
     | '/_authenticated/store/$storeId/marketing'
+    | '/_authenticated/store/$storeId/marketplace-analytics'
+    | '/_authenticated/store/$storeId/marketplace-returns'
     | '/_authenticated/store/$storeId/media'
     | '/_authenticated/store/$storeId/navigation'
     | '/_authenticated/store/$storeId/notifications'
@@ -2263,6 +2351,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/orders'
     | '/_authenticated/store/$storeId/pages'
     | '/_authenticated/store/$storeId/payments'
+    | '/_authenticated/store/$storeId/popups'
     | '/_authenticated/store/$storeId/pricing'
     | '/_authenticated/store/$storeId/products'
     | '/_authenticated/store/$storeId/profit'
@@ -2283,12 +2372,14 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/seo'
     | '/_authenticated/store/$storeId/seo-editor'
     | '/_authenticated/store/$storeId/settings'
+    | '/_authenticated/store/$storeId/settlements'
     | '/_authenticated/store/$storeId/shipments'
     | '/_authenticated/store/$storeId/shipping'
     | '/_authenticated/store/$storeId/shipping-economics'
     | '/_authenticated/store/$storeId/shipping-performance'
     | '/_authenticated/store/$storeId/simulator'
     | '/_authenticated/store/$storeId/sla'
+    | '/_authenticated/store/$storeId/social-share'
     | '/_authenticated/store/$storeId/stock-alerts'
     | '/_authenticated/store/$storeId/stock-count'
     | '/_authenticated/store/$storeId/stockout'
@@ -3012,6 +3103,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdElasticityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/feeds': {
+      id: '/_authenticated/store/$storeId/feeds'
+      path: '/store/$storeId/feeds'
+      fullPath: '/store/$storeId/feeds'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdFeedsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/finance': {
       id: '/_authenticated/store/$storeId/finance'
       path: '/store/$storeId/finance'
@@ -3103,6 +3201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLifecycleRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/listing-links': {
+      id: '/_authenticated/store/$storeId/listing-links'
+      path: '/store/$storeId/listing-links'
+      fullPath: '/store/$storeId/listing-links'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdListingLinksRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/live': {
       id: '/_authenticated/store/$storeId/live'
       path: '/store/$storeId/live'
@@ -3136,6 +3241,20 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/marketing'
       fullPath: '/store/$storeId/marketing'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/marketplace-analytics': {
+      id: '/_authenticated/store/$storeId/marketplace-analytics'
+      path: '/store/$storeId/marketplace-analytics'
+      fullPath: '/store/$storeId/marketplace-analytics'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketplaceAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/marketplace-returns': {
+      id: '/_authenticated/store/$storeId/marketplace-returns'
+      path: '/store/$storeId/marketplace-returns'
+      fullPath: '/store/$storeId/marketplace-returns'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/media': {
@@ -3185,6 +3304,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/payments'
       fullPath: '/store/$storeId/payments'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdPaymentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/popups': {
+      id: '/_authenticated/store/$storeId/popups'
+      path: '/store/$storeId/popups'
+      fullPath: '/store/$storeId/popups'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdPopupsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/pricing': {
@@ -3327,6 +3453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/settlements': {
+      id: '/_authenticated/store/$storeId/settlements'
+      path: '/store/$storeId/settlements'
+      fullPath: '/store/$storeId/settlements'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSettlementsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/shipments': {
       id: '/_authenticated/store/$storeId/shipments'
       path: '/store/$storeId/shipments'
@@ -3367,6 +3500,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/sla'
       fullPath: '/store/$storeId/sla'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSlaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/social-share': {
+      id: '/_authenticated/store/$storeId/social-share'
+      path: '/store/$storeId/social-share'
+      fullPath: '/store/$storeId/social-share'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSocialShareRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/stock-alerts': {
@@ -3813,6 +3953,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdDomainsRoute: typeof AuthenticatedStoreStoreIdDomainsRoute
   AuthenticatedStoreStoreIdDropshippingRoute: typeof AuthenticatedStoreStoreIdDropshippingRoute
   AuthenticatedStoreStoreIdElasticityRoute: typeof AuthenticatedStoreStoreIdElasticityRoute
+  AuthenticatedStoreStoreIdFeedsRoute: typeof AuthenticatedStoreStoreIdFeedsRoute
   AuthenticatedStoreStoreIdFinanceRoute: typeof AuthenticatedStoreStoreIdFinanceRoute
   AuthenticatedStoreStoreIdForecastRoute: typeof AuthenticatedStoreStoreIdForecastRoute
   AuthenticatedStoreStoreIdFunnelRoute: typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -3826,11 +3967,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdJobsRoute: typeof AuthenticatedStoreStoreIdJobsRoute
   AuthenticatedStoreStoreIdLedgerRoute: typeof AuthenticatedStoreStoreIdLedgerRoute
   AuthenticatedStoreStoreIdLifecycleRoute: typeof AuthenticatedStoreStoreIdLifecycleRoute
+  AuthenticatedStoreStoreIdListingLinksRoute: typeof AuthenticatedStoreStoreIdListingLinksRoute
   AuthenticatedStoreStoreIdLiveRoute: typeof AuthenticatedStoreStoreIdLiveRoute
   AuthenticatedStoreStoreIdLocalizationRoute: typeof AuthenticatedStoreStoreIdLocalizationRoute
   AuthenticatedStoreStoreIdLossesRoute: typeof AuthenticatedStoreStoreIdLossesRoute
   AuthenticatedStoreStoreIdLtvRoute: typeof AuthenticatedStoreStoreIdLtvRoute
   AuthenticatedStoreStoreIdMarketingRoute: typeof AuthenticatedStoreStoreIdMarketingRoute
+  AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute: typeof AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute
+  AuthenticatedStoreStoreIdMarketplaceReturnsRoute: typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   AuthenticatedStoreStoreIdMediaRoute: typeof AuthenticatedStoreStoreIdMediaRoute
   AuthenticatedStoreStoreIdNavigationRoute: typeof AuthenticatedStoreStoreIdNavigationRoute
   AuthenticatedStoreStoreIdNotificationsRoute: typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -3838,6 +3982,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdOrdersRoute: typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   AuthenticatedStoreStoreIdPagesRoute: typeof AuthenticatedStoreStoreIdPagesRoute
   AuthenticatedStoreStoreIdPaymentsRoute: typeof AuthenticatedStoreStoreIdPaymentsRoute
+  AuthenticatedStoreStoreIdPopupsRoute: typeof AuthenticatedStoreStoreIdPopupsRoute
   AuthenticatedStoreStoreIdPricingRoute: typeof AuthenticatedStoreStoreIdPricingRoute
   AuthenticatedStoreStoreIdProductsRoute: typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
   AuthenticatedStoreStoreIdProfitRoute: typeof AuthenticatedStoreStoreIdProfitRoute
@@ -3858,12 +4003,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdSeoRoute: typeof AuthenticatedStoreStoreIdSeoRoute
   AuthenticatedStoreStoreIdSeoEditorRoute: typeof AuthenticatedStoreStoreIdSeoEditorRoute
   AuthenticatedStoreStoreIdSettingsRoute: typeof AuthenticatedStoreStoreIdSettingsRoute
+  AuthenticatedStoreStoreIdSettlementsRoute: typeof AuthenticatedStoreStoreIdSettlementsRoute
   AuthenticatedStoreStoreIdShipmentsRoute: typeof AuthenticatedStoreStoreIdShipmentsRoute
   AuthenticatedStoreStoreIdShippingRoute: typeof AuthenticatedStoreStoreIdShippingRoute
   AuthenticatedStoreStoreIdShippingEconomicsRoute: typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
   AuthenticatedStoreStoreIdShippingPerformanceRoute: typeof AuthenticatedStoreStoreIdShippingPerformanceRoute
   AuthenticatedStoreStoreIdSimulatorRoute: typeof AuthenticatedStoreStoreIdSimulatorRoute
   AuthenticatedStoreStoreIdSlaRoute: typeof AuthenticatedStoreStoreIdSlaRoute
+  AuthenticatedStoreStoreIdSocialShareRoute: typeof AuthenticatedStoreStoreIdSocialShareRoute
   AuthenticatedStoreStoreIdStockAlertsRoute: typeof AuthenticatedStoreStoreIdStockAlertsRoute
   AuthenticatedStoreStoreIdStockCountRoute: typeof AuthenticatedStoreStoreIdStockCountRoute
   AuthenticatedStoreStoreIdStockoutRoute: typeof AuthenticatedStoreStoreIdStockoutRoute
@@ -3933,6 +4080,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdDropshippingRoute,
   AuthenticatedStoreStoreIdElasticityRoute:
     AuthenticatedStoreStoreIdElasticityRoute,
+  AuthenticatedStoreStoreIdFeedsRoute: AuthenticatedStoreStoreIdFeedsRoute,
   AuthenticatedStoreStoreIdFinanceRoute: AuthenticatedStoreStoreIdFinanceRoute,
   AuthenticatedStoreStoreIdForecastRoute:
     AuthenticatedStoreStoreIdForecastRoute,
@@ -3952,6 +4100,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdLedgerRoute: AuthenticatedStoreStoreIdLedgerRoute,
   AuthenticatedStoreStoreIdLifecycleRoute:
     AuthenticatedStoreStoreIdLifecycleRoute,
+  AuthenticatedStoreStoreIdListingLinksRoute:
+    AuthenticatedStoreStoreIdListingLinksRoute,
   AuthenticatedStoreStoreIdLiveRoute: AuthenticatedStoreStoreIdLiveRoute,
   AuthenticatedStoreStoreIdLocalizationRoute:
     AuthenticatedStoreStoreIdLocalizationRoute,
@@ -3959,6 +4109,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdLtvRoute: AuthenticatedStoreStoreIdLtvRoute,
   AuthenticatedStoreStoreIdMarketingRoute:
     AuthenticatedStoreStoreIdMarketingRoute,
+  AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute:
+    AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute,
+  AuthenticatedStoreStoreIdMarketplaceReturnsRoute:
+    AuthenticatedStoreStoreIdMarketplaceReturnsRoute,
   AuthenticatedStoreStoreIdMediaRoute: AuthenticatedStoreStoreIdMediaRoute,
   AuthenticatedStoreStoreIdNavigationRoute:
     AuthenticatedStoreStoreIdNavigationRoute,
@@ -3970,6 +4124,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdPagesRoute: AuthenticatedStoreStoreIdPagesRoute,
   AuthenticatedStoreStoreIdPaymentsRoute:
     AuthenticatedStoreStoreIdPaymentsRoute,
+  AuthenticatedStoreStoreIdPopupsRoute: AuthenticatedStoreStoreIdPopupsRoute,
   AuthenticatedStoreStoreIdPricingRoute: AuthenticatedStoreStoreIdPricingRoute,
   AuthenticatedStoreStoreIdProductsRoute:
     AuthenticatedStoreStoreIdProductsRouteWithChildren,
@@ -4002,6 +4157,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdSeoEditorRoute,
   AuthenticatedStoreStoreIdSettingsRoute:
     AuthenticatedStoreStoreIdSettingsRoute,
+  AuthenticatedStoreStoreIdSettlementsRoute:
+    AuthenticatedStoreStoreIdSettlementsRoute,
   AuthenticatedStoreStoreIdShipmentsRoute:
     AuthenticatedStoreStoreIdShipmentsRoute,
   AuthenticatedStoreStoreIdShippingRoute:
@@ -4013,6 +4170,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdSimulatorRoute:
     AuthenticatedStoreStoreIdSimulatorRoute,
   AuthenticatedStoreStoreIdSlaRoute: AuthenticatedStoreStoreIdSlaRoute,
+  AuthenticatedStoreStoreIdSocialShareRoute:
+    AuthenticatedStoreStoreIdSocialShareRoute,
   AuthenticatedStoreStoreIdStockAlertsRoute:
     AuthenticatedStoreStoreIdStockAlertsRoute,
   AuthenticatedStoreStoreIdStockCountRoute:
