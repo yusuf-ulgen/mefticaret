@@ -52,22 +52,20 @@ function ThemeStorePage() {
   });
 
   return (
-    <AppShell storeId={storeId}>
+    <AppShell
+      storeId={storeId}
+      title="Tema Mağazası"
+      description="Hazır profesyonel temaları incele, tek tıkla mağazana kur ve tema düzenleyiciden özelleştir."
+      actions={
+        <Button asChild variant="outline">
+          <Link to="/store/$storeId/theme-editor" params={{ storeId }}>
+            <Palette className="mr-2 size-4" /> Tema düzenleyici
+          </Link>
+        </Button>
+      }
+    >
       <div className="space-y-6">
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Tema Mağazası</h1>
-            <p className="text-sm text-muted-foreground">
-              Hazır profesyonel temaları incele, tek tıkla mağazana kur ve tema düzenleyiciden
-              özelleştir.
-            </p>
-          </div>
-          <Button asChild variant="outline">
-            <Link to="/store/$storeId/theme-editor" params={{ storeId }}>
-              <Palette className="mr-2 size-4" /> Tema düzenleyici
-            </Link>
-          </Button>
-        </header>
+
 
         <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {THEME_TEMPLATES.map((template) => {
