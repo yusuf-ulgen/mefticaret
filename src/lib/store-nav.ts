@@ -170,9 +170,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       group: "Vitrin & Tema",
       icon: Palette,
       items: [
-        { label: "Tema Düzenleyici", to: p("theme-editor"), icon: Wand2 },
-        { label: "Temalar", to: p("themes"), icon: Palette },
-        { label: "Tema Bileşenleri", to: p("theme-sections"), icon: Blocks },
+        { label: "Tema", to: p("theme-editor"), icon: Palette, keywords: "tema düzenleyici şablon blok bileşen vitrin" },
         { label: "Vitrin Menüleri", to: p("navigation"), icon: Menu },
         { label: "İçerik Sayfaları", to: p("pages"), icon: FileText },
         { label: "Blog & CMS", to: p("blog"), icon: PenLine },
@@ -264,7 +262,7 @@ export function storeQuickLinks(storeId: string): StoreNavItem[] {
     { label: "Siparişler", to: p("orders"), icon: ShoppingBag },
     { label: "Ürünler", to: p("products"), icon: Package },
     { label: "Müşteriler", to: p("customers"), icon: Users },
-    { label: "Tema Düzenleyici", to: p("theme-editor"), icon: Wand2 },
+    { label: "Tema", to: p("theme-editor"), icon: Palette, keywords: "tema blok vitrin" }
     { label: "Ayarlar", to: p("settings"), icon: Cog },
   ];
 }
