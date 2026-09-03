@@ -272,3 +272,96 @@ export const updateDropshipOrder = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Besleme kategorilerini mağaza kategorileriyle otomatik eşleştirir. */
+export const autoMapFeedCategories = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z.object({ storeId: z.string().uuid(), feedId: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    await storeGuard(supabase, data.storeId);
+    const { autoMapFeedCategories: run } = await import("@/lib/xml-publish.server");
+    return run(supabase as never, data.storeId, data.feedId);
+  });
+
+/** Tek tıkla yayınlama: siteye ve seçilen pazaryerlerine ürün aktarımı. */
+export const publishFeedProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.string().uuid(),
+        feedId: z.string().uuid(),
+        supplierProductIds: z.array(z.string().uuid()).max(1000).optional(),
+        channelIds: z.array(z.string().uuid()).max(30).default([]),
+        activate: z.boolean().default(true),
+        onlyInStock: z.boolean().default(true),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    await storeGuard(supabase, data.storeId);
+    const { publishSupplierProducts } = await import("@/lib/xml-publish.server");
+    const totals = await publishSupplierProducts(supabase as never, {
+      storeId: data.storeId,
+      feedId: data.feedId,
+      ...(data.supplierProductIds ? { supplierProductIds: data.supplierProductIds } : {}),
+      channelIds: data.channelIds,
+      activate: data.activate,
+      onlyInStock: data.onlyInStock,
+    });
+    return totals;
+  });
+
+/** Tedarikçiye kendi paneli için erişim verir/kaldırır (e-posta ile eşleşen hesap). */
+export const setSupplierPortalAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.string().uuid(),
+        supplierId: z.string().uuid(),
+        email: z.string().trim().email().max(200).optional(),
+        enabled: z.boolean(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    await storeGuard(supabase, data.storeId);
+
+    if (!data.enabled) {
+      const { error } = await supabase
+        .from("suppliers")
+        .update({ portal_enabled: false })
+        .eq("id", data.supplierId)
+        .eq("store_id", data.storeId);
+      if (error) throw new Error(error.message);
+      return { ok: true, portalUserId: null as string | null };
+    }
+
+    if (!data.email) throw new Error("Portal erişimi için tedarikçi e-postası gerekli");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .ilike("email", data.email)
+      .limit(1)
+      .maybeSingle();
+    if (profileError) throw new Error(profileError.message);
+    if (!profile) {
+      throw new Error("Bu e-posta ile kayıtlı kullanıcı yok. Tedarikçi önce üye olmalı.");
+    }
+
+    const { error } = await supabase
+      .from("suppliers")
+      .update({ portal_enabled: true, portal_user_id: profile.id })
+      .eq("id", data.supplierId)
+      .eq("store_id", data.storeId);
+    if (error) throw new Error(error.message);
+    return { ok: true, portalUserId: profile.id as string };
+  });

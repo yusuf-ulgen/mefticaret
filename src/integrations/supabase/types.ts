@@ -7646,6 +7646,8 @@ export type Database = {
           note: string | null
           order_endpoint: string | null
           phone: string | null
+          portal_enabled: boolean
+          portal_user_id: string | null
           store_id: string
           tax_number: string | null
           updated_at: string
@@ -7665,6 +7667,8 @@ export type Database = {
           note?: string | null
           order_endpoint?: string | null
           phone?: string | null
+          portal_enabled?: boolean
+          portal_user_id?: string | null
           store_id: string
           tax_number?: string | null
           updated_at?: string
@@ -7684,6 +7688,8 @@ export type Database = {
           note?: string | null
           order_endpoint?: string | null
           phone?: string | null
+          portal_enabled?: boolean
+          portal_user_id?: string | null
           store_id?: string
           tax_number?: string | null
           updated_at?: string

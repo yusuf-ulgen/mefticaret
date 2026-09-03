@@ -32,13 +32,17 @@ import {
   type SupplierFeedRow,
 } from "@/lib/dropshipping-queries";
 import {
+  autoMapFeedCategories,
   deleteSupplierFeed,
   previewSupplierFeed,
+  publishFeedProducts,
   runSupplierFeedNow,
   saveDropshipSupplierSettings,
   saveSupplierFeed,
+  setSupplierPortalAccess,
   updateDropshipOrder,
 } from "@/lib/dropshipping.functions";
+import { channelsQuery } from "@/lib/channels-queries";
 import { suppliersQuery } from "@/lib/purchasing-queries";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/dropshipping")({
@@ -313,6 +317,61 @@ function DropshippingPage() {
   );
 
   const dropshipSuppliers = (suppliers ?? []).filter((s) => s.is_active);
+
+  const autoMapFn = useServerFn(autoMapFeedCategories);
+  const publishFn = useServerFn(publishFeedProducts);
+  const portalFn = useServerFn(setSupplierPortalAccess);
+  const { data: channels } = useQuery(channelsQuery(storeId));
+  const [publishChannels, setPublishChannels] = useState<string[]>([]);
+  const [publishActivate, setPublishActivate] = useState(true);
+  const [publishOnlyInStock, setPublishOnlyInStock] = useState(true);
+  const [categorySuggestions, setCategorySuggestions] = useState<
+    { source: string; target: string; action: "matched" | "create"; score: number }[]
+  >([]);
+
+  const autoMapMutation = useMutation({
+    mutationFn: async (feedId: string) => autoMapFn({ data: { storeId, feedId } }),
+    onSuccess: (result) => {
+      setCategorySuggestions(result.suggestions);
+      setCategoryMapText(mappingToText(result.map));
+      toast.success(`${result.suggestions.length} kategori otomatik eşleştirildi`);
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const publishMutation = useMutation({
+    mutationFn: async (feedId: string) =>
+      publishFn({
+        data: {
+          storeId,
+          feedId,
+          channelIds: publishChannels,
+          activate: publishActivate,
+          onlyInStock: publishOnlyInStock,
+        },
+      }),
+    onSuccess: (totals) => {
+      toast.success(
+        `Yayınlandı · ${totals.productsCreated} yeni ürün, ${totals.productsActivated} aktifleştirme, ${totals.categoriesAssigned} kategori, ${totals.listingsQueued} pazaryeri kaydı`,
+      );
+      invalidate();
+      void queryClient.invalidateQueries({ queryKey: ["products", storeId] });
+      void queryClient.invalidateQueries({ queryKey: ["channel-listings", storeId] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const portalMutation = useMutation({
+    mutationFn: async (input: { supplierId: string; email?: string; enabled: boolean }) =>
+      portalFn({ data: { storeId, ...input } }),
+    onSuccess: () => {
+      toast.success("Tedarikçi portal erişimi güncellendi");
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
 
   return (
     <AppShell
@@ -807,6 +866,143 @@ function DropshippingPage() {
           )}
         </section>
 
+        <section className="rounded-xl border bg-card p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Wand2 className="size-4 text-muted-foreground" aria-hidden />
+            <h2 className="font-medium">Tek tıkla ürün yükleme ve kategori eşleştirme</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Seçili beslemenin ürünlerini mağazanıza aktif ürün olarak aktarın ve aynı anda seçtiğiniz
+            pazaryeri kanallarına yükleme kuyruğuna alın. Kategoriler tedarikçi verisinden otomatik
+            eşleştirilir, eşleşme bulunmazsa kategori oluşturulur.
+          </p>
+
+          {!selectedFeedId ? (
+            <p className="text-sm text-muted-foreground">
+              Önce yukarıdaki listeden bir besleme seçin (Düzenle) — yayınlama o beslemeye uygulanır.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center gap-2 text-sm">
+                  <Switch checked={publishActivate} onCheckedChange={setPublishActivate} />
+                  Ürünleri yayına al (aktif)
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <Switch checked={publishOnlyInStock} onCheckedChange={setPublishOnlyInStock} />
+                  Yalnızca stokta olanlar
+                </label>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs">Pazaryeri kanalları</Label>
+                {(channels ?? []).length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Henüz pazaryeri kanalı bağlı değil. Kanallar sayfasından Trendyol, Hepsiburada,
+                    n11 gibi kanalları bağlayın.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {(channels ?? []).map((channel: { id: string; name: string; provider: string }) => {
+                      const active = publishChannels.includes(channel.id);
+                      return (
+                        <Button
+                          key={channel.id}
+                          type="button"
+                          size="sm"
+                          variant={active ? "default" : "outline"}
+                          onClick={() =>
+                            setPublishChannels((current) =>
+                              active
+                                ? current.filter((id) => id !== channel.id)
+                                : [...current, channel.id],
+                            )
+                          }
+                        >
+                          {channel.name}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={autoMapMutation.isPending}
+                  onClick={() => autoMapMutation.mutate(selectedFeedId)}
+                >
+                  Kategorileri otomatik eşleştir
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={publishMutation.isPending}
+                  onClick={() => publishMutation.mutate(selectedFeedId)}
+                >
+                  <PackageCheck className="mr-1 size-4" aria-hidden />
+                  Tek tıkla yükle
+                </Button>
+              </div>
+
+              {categorySuggestions.length ? (
+                <div className="max-h-64 overflow-auto rounded-lg border">
+                  <table className="w-full text-sm">
+                    <thead className="text-left text-xs uppercase text-muted-foreground">
+                      <tr>
+                        <th className="p-2">Tedarikçi kategorisi</th>
+                        <th className="p-2">Mağaza kategorisi</th>
+                        <th className="p-2">Durum</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categorySuggestions.slice(0, 100).map((row) => (
+                        <tr key={row.source} className="border-t">
+                          <td className="p-2">{row.source}</td>
+                          <td className="p-2">{row.target}</td>
+                          <td className="p-2">
+                            {row.action === "matched" ? (
+                              <Badge variant="secondary">Eşleşti · {row.score}</Badge>
+                            ) : (
+                              <Badge variant="outline">Oluşturulacak</Badge>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-xl border bg-card p-5 space-y-3">
+          <h2 className="font-medium">Tedarikçi paneli erişimi</h2>
+          <p className="text-sm text-muted-foreground">
+            Tedarikçinize kendi panelini açın: gelen siparişleri ürün adı, açıklama, ürün kodu, stok
+            kodu ve kargo firması ile görür, kargo/takip bilgisini bildirir. Tedarikçinin
+            Mefticaret’te kayıtlı bir hesabı olmalıdır.
+          </p>
+          {dropshipSuppliers.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Önce tedarikçi ekleyin.</p>
+          ) : (
+            <div className="space-y-3">
+              {dropshipSuppliers.map((supplier) => (
+                <SupplierPortalRow
+                  key={supplier.id}
+                  supplier={supplier as { id: string; name: string; email?: string | null; portal_enabled?: boolean }}
+                  pending={portalMutation.isPending}
+                  onSave={(input) => portalMutation.mutate({ supplierId: supplier.id, ...input })}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
+
+
         <section className="rounded-xl border bg-card p-5 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-medium">Tedarikçi ürünleri</h2>
@@ -935,6 +1131,61 @@ function SupplierDropshipRow({
           }
         >
           Kaydet
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function SupplierPortalRow({
+  supplier,
+  pending,
+  onSave,
+}: {
+  supplier: { id: string; name: string; email?: string | null; portal_enabled?: boolean };
+  pending: boolean;
+  onSave: (input: { email?: string; enabled: boolean }) => void;
+}) {
+  const [email, setEmail] = useState(supplier.email ?? "");
+  const enabled = supplier.portal_enabled ?? false;
+
+  return (
+    <div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[1fr_1.2fr_auto] sm:items-end">
+      <div>
+        <p className="font-medium">{supplier.name}</p>
+        {enabled ? (
+          <Badge variant="secondary" className="mt-1">
+            Portal açık
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="mt-1">
+            Portal kapalı
+          </Badge>
+        )}
+      </div>
+      <div className="space-y-1">
+        <Label className="text-xs" htmlFor={`portal-email-${supplier.id}`}>
+          Tedarikçi hesap e-postası
+        </Label>
+        <Input
+          id={`portal-email-${supplier.id}`}
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="tedarikci@ornek.com"
+        />
+      </div>
+      <div className="flex gap-2">
+        <Button size="sm" disabled={pending || !email} onClick={() => onSave({ email, enabled: true })}>
+          Erişim ver
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={pending || !enabled}
+          onClick={() => onSave({ enabled: false })}
+        >
+          Kapat
         </Button>
       </div>
     </div>
