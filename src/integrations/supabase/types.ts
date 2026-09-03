@@ -9625,13 +9625,6 @@ export type Database = {
         }[]
       }
       seed_demo_store: { Args: { _store_id: string }; Returns: Json }
-      site_kit_public_config: {
-        Args: { store_slug: string }
-        Returns: {
-          provider: string
-          public_config: Json
-        }[]
-      }
     }
     Enums: {
       app_category:
