@@ -1,97 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  Activity,
-  BadgeCheck,
-  Bell,
-  Blocks,
-  ChartNoAxesColumn,
-  Coins,
-  CreditCard,
-  FileText,
-  Gauge,
-  Globe,
-  History,
-  LifeBuoy,
-  Menu,
-  Palette,
-  PenLine,
-  Radio,
-  Receipt,
-  ShieldAlert,
-  ShieldCheck,
-  Store,
-  Tag,
-  Terminal,
-  Ticket,
-  Users,
-  Wallet,
-  Webhook,
-} from "lucide-react";
+import { ChevronDown, LayoutTemplate, Menu, Search, ShieldAlert, ShieldCheck, Store, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { ADMIN_NAV, ADMIN_QUICK_ACTIONS, filterAdminNav } from "@/lib/admin-nav";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
-/** Süper admin panelinin bağımsız kabuğu: platform yöneticisine özel menü ve erişim kontrolü. */
+/** Süper admin panelinin bağımsız kabuğu: mega menü, yan menü ve erişim kontrolü. */
 
-type NavItem = { to: string; label: string; icon: typeof Store };
+const NAV = ADMIN_NAV;
 
-const NAV: { title: string; items: NavItem[] }[] = [
-  {
-    title: "Genel",
-    items: [
-      { to: "/admin", label: "Dashboard", icon: Gauge },
-      { to: "/admin/live", label: "Canlı İzleme", icon: Radio },
-      { to: "/admin/stores", label: "Mağazalar", icon: Store },
-      { to: "/admin/users", label: "Kullanıcılar", icon: Users },
-      { to: "/admin/sellers", label: "Satıcılar", icon: BadgeCheck },
-      { to: "/admin/marketplace", label: "Marketplace", icon: Globe },
-    ],
-  },
-  {
-    title: "Gelir",
-    items: [
-      { to: "/admin/subscriptions", label: "Abonelikler", icon: Receipt },
-      { to: "/admin/plans", label: "Paketler", icon: CreditCard },
-      { to: "/admin/payments", label: "Ödemeler", icon: Wallet },
-      { to: "/admin/transactions", label: "İşlemler", icon: Coins },
-      { to: "/admin/commissions", label: "Komisyonlar", icon: Activity },
-    ],
-  },
-  {
-    title: "Ekosistem",
-    items: [
-      { to: "/admin/themes", label: "Temalar", icon: Palette },
-      { to: "/admin/apps", label: "Uygulamalar", icon: Blocks },
-      { to: "/admin/api", label: "API", icon: Terminal },
-      { to: "/admin/webhooks", label: "Webhook", icon: Webhook },
-    ],
-  },
-  {
-    title: "Destek & içerik",
-    items: [
-      { to: "/admin/support", label: "Destek", icon: LifeBuoy },
-      { to: "/admin/tickets", label: "Ticket", icon: Ticket },
-      { to: "/admin/cms", label: "CMS", icon: FileText },
-      { to: "/admin/blog", label: "Blog", icon: PenLine },
-      { to: "/admin/notifications", label: "Bildirimler", icon: Bell },
-      { to: "/admin/coupons", label: "Kuponlar", icon: Tag },
-    ],
-  },
-  {
-    title: "Sistem",
-    items: [
-      { to: "/admin/analytics", label: "Analitik", icon: ChartNoAxesColumn },
-      { to: "/admin/finance", label: "Finans Merkezi", icon: Wallet },
-      { to: "/admin/system", label: "Sistem Durumu", icon: Activity },
-      { to: "/admin/settings", label: "Sistem ayarları", icon: ShieldCheck },
-      { to: "/admin/security", label: "Güvenlik", icon: ShieldAlert },
-      { to: "/admin/audit", label: "Audit Logs", icon: History },
-    ],
-  },
-];
+function isActivePath(pathname: string, to: string) {
+  return to === "/admin" ? pathname === "/admin" : pathname.startsWith(to);
+}
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -104,7 +28,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
           </p>
           <ul className="space-y-0.5">
             {group.items.map((item) => {
-              const active = item.to === "/admin" ? pathname === "/admin" : pathname.startsWith(item.to);
+              const active = isActivePath(pathname, item.to);
               return (
                 <li key={item.to}>
                   <Link
@@ -129,6 +53,118 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
     </nav>
   );
 }
+
+/** Tüm yönetim alanlarını tek panelde açan mega menü. */
+function MegaMenu() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const [open, setOpen] = useState(false);
+  const [term, setTerm] = useState("");
+  const groups = filterAdminNav(term);
+
+  useEffect(() => {
+    setOpen(false);
+    setTerm("");
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  return (
+    <div className="relative">
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-1.5"
+        aria-expanded={open}
+        aria-haspopup="true"
+        onClick={() => setOpen((value) => !value)}
+      >
+        {open ? <X className="size-4" /> : <Menu className="size-4" />}
+        <span className="hidden sm:inline">Tüm yönetim</span>
+        <ChevronDown className={cn("size-3.5 transition", open && "rotate-180")} />
+      </Button>
+
+      {open ? (
+        <>
+          <button
+            type="button"
+            aria-label="Menüyü kapat"
+            className="fixed inset-0 z-40 cursor-default bg-foreground/10"
+            onClick={() => setOpen(false)}
+          />
+          <div
+            role="menu"
+            aria-label="Süper admin mega menü"
+            className="surface-card absolute left-0 z-50 mt-2 max-h-[75vh] w-[min(92vw,64rem)] overflow-y-auto p-4 shadow-xl"
+          >
+            <div className="relative mb-4 max-w-sm">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                autoFocus
+                value={term}
+                onChange={(event) => setTerm(event.target.value)}
+                placeholder="Ara: ön uç, blog, tema, ödeme…"
+                className="pl-9"
+                aria-label="Yönetim menüsünde ara"
+              />
+            </div>
+
+            {groups.length === 0 ? (
+              <p className="px-1 py-6 text-sm text-muted-foreground">Sonuç bulunamadı.</p>
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {groups.map((group) => (
+                  <section key={group.title}>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
+                      {group.title}
+                    </p>
+                    <p className="mb-2 text-[11px] text-muted-foreground">{group.description}</p>
+                    <ul className="space-y-0.5">
+                      {group.items.map((item) => {
+                        const active = isActivePath(pathname, item.to);
+                        return (
+                          <li key={item.to}>
+                            <Link
+                              to={item.to}
+                              onClick={() => setOpen(false)}
+                              className={cn(
+                                "flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm transition",
+                                active
+                                  ? "bg-primary/10 font-medium text-primary"
+                                  : "hover:bg-muted/60",
+                              )}
+                            >
+                              <item.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                              <span className="min-w-0">
+                                <span className="block truncate">{item.label}</span>
+                                {item.hint ? (
+                                  <span className="block truncate text-[11px] text-muted-foreground">
+                                    {item.hint}
+                                  </span>
+                                ) : null}
+                              </span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
 
 export function AdminShell({
   title,
