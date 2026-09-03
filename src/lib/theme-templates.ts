@@ -26,8 +26,6 @@ export type ThemeTemplate = {
     priceNote?: string;
     /** Öne çıkan tema olarak işaretlenir. */
     featured?: boolean;
-    /** Referans / demo adresi. */
-    demoUrl?: string;
     /** Tema mağazasında listelenen özellikler. */
     features?: string[];
   };
@@ -281,7 +279,7 @@ const ATELIER_MODE: ThemeTemplate = {
 /**
  * WOKIEE — çok amaçlı premium mega-store teması.
  *
- * Referans demo (wokiee): koyu üst bar + para birimi/dil şeridi, sticky mega menü,
+ * Tasarım yaklaşımı: koyu üst bar + para birimi/dil şeridi, sticky mega menü,
  * tam genişlik hero slider, renkli kampanya kutuları, kategori kaydırıcısı,
  * sekmeli ürün vitrinleri (yeni / en çok satan / indirimli), sayaçlı fırsat bloğu,
  * marka şeridi, avantaj ikonları, blog, yorumlar, instagram galerisi,
@@ -298,7 +296,6 @@ const WOKIEE: ThemeTemplate = {
     price: 2490,
     priceNote: "Tek seferlik lisans · ömür boyu güncelleme",
     featured: true,
-    demoUrl: "https://wokiee-currency.myshopify.com/",
     features: [
       "Mega menü uyumlu sticky header ve arama",
       "Tam genişlik otomatik hero slider (3 kampanya)",
