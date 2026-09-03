@@ -153,12 +153,20 @@ function AdminStores() {
                 </td>
                 <td className="px-5 py-3 text-xs text-muted-foreground">{formatDateTime(store.created_at)}</td>
                 <td className="px-5 py-3 text-right">
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/store/$storeId/dashboard" params={{ storeId: store.id }}>
-                      Panel
-                    </Link>
-                  </Button>
+                  <div className="flex justify-end gap-2">
+                    <Button asChild size="sm">
+                      <Link to="/admin/store/$storeId" params={{ storeId: store.id }}>
+                        Kontrol
+                      </Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/store/$storeId/dashboard" params={{ storeId: store.id }}>
+                        Panel
+                      </Link>
+                    </Button>
+                  </div>
                 </td>
+
               </tr>
             ))}
           </tbody>
