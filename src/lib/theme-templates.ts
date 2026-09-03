@@ -19,6 +19,18 @@ export type ThemeTemplate = {
   tagline: string;
   description: string;
   tags: string[];
+  /** Tema mağazası vitrin bilgileri (ücretli / ücretsiz tema ayrımı). */
+  store?: {
+    /** Aylık veya tek seferlik satış fiyatı (TL). 0 = ücretsiz. */
+    price: number;
+    priceNote?: string;
+    /** Öne çıkan tema olarak işaretlenir. */
+    featured?: boolean;
+    /** Referans / demo adresi. */
+    demoUrl?: string;
+    /** Tema mağazasında listelenen özellikler. */
+    features?: string[];
+  };
   theme: {
     primaryColor: string;
     accentColor: string;
