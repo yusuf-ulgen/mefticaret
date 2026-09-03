@@ -141,6 +141,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Değerlendirmeler", to: p("reviews"), icon: Star, keywords: "yorum" },
         { label: "Soru & Cevap", to: p("questions"), icon: HelpCircle },
         { label: "Destek Talepleri", to: p("support"), icon: MessageSquare, keywords: "ticket" },
+        { label: "Mesaj Merkezi", to: p("inbox"), icon: MessageCircle, keywords: "inbox omni instagram telegram sohbet" },
       ],
     },
     {
@@ -156,6 +157,13 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "SEO Editörü", to: p("seo-editor"), icon: Search },
         { label: "Pazaryerleri", to: p("channels"), icon: Store },
         { label: "Pazaryeri Satıcıları", to: p("sellers"), icon: Users },
+        { label: "Pazaryeri İadeleri", to: p("marketplace-returns"), icon: RotateCcw, keywords: "iade değişim trendyol" },
+        { label: "Mutabakat & Hakediş", to: p("settlements"), icon: Receipt, keywords: "settlement komisyon" },
+        { label: "Pazaryeri Analitiği", to: p("marketplace-analytics"), icon: ChartNoAxesColumn, keywords: "stok tükenme sipariş ürün analizi" },
+        { label: "Çoklu İlan Bağlantıları", to: p("listing-links"), icon: Layers, keywords: "listing ilan eşleştirme" },
+        { label: "Popup & Duyuru", to: p("popups"), icon: Sparkles, keywords: "popup animasyon" },
+        { label: "Sosyal Paylaşım", to: p("social-share"), icon: Megaphone, keywords: "story instagram paylaş" },
+        { label: "Ürün Akışları", to: p("feeds"), icon: FileSpreadsheet, keywords: "google shopping tiktok katalog feed" },
       ],
     },
     {

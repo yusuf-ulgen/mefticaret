@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/admin/finance")({
 const RANGES = [7, 30, 90, 180, 365] as const;
 const PAGE_SIZE = 20;
 
-function Kpi({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function Kpi({ label, value, hint }: { label: string; value: string; hint?: string | undefined }) {
   return (
     <div className="surface-card p-5">
       <p className="text-xs text-muted-foreground">{label}</p>

@@ -117,6 +117,7 @@ import { Route as AuthenticatedStoreStoreIdLocalizationRouteImport } from './rou
 import { Route as AuthenticatedStoreStoreIdLossesRouteImport } from './routes/_authenticated/store.$storeId.losses'
 import { Route as AuthenticatedStoreStoreIdLtvRouteImport } from './routes/_authenticated/store.$storeId.ltv'
 import { Route as AuthenticatedStoreStoreIdMarketingRouteImport } from './routes/_authenticated/store.$storeId.marketing'
+import { Route as AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport } from './routes/_authenticated/store.$storeId.marketplace-returns'
 import { Route as AuthenticatedStoreStoreIdMediaRouteImport } from './routes/_authenticated/store.$storeId.media'
 import { Route as AuthenticatedStoreStoreIdNavigationRouteImport } from './routes/_authenticated/store.$storeId.navigation'
 import { Route as AuthenticatedStoreStoreIdNotificationsRouteImport } from './routes/_authenticated/store.$storeId.notifications'
@@ -797,6 +798,12 @@ const AuthenticatedStoreStoreIdMarketingRoute =
     path: '/store/$storeId/marketing',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdMarketplaceReturnsRoute =
+  AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport.update({
+    id: '/store/$storeId/marketplace-returns',
+    path: '/store/$storeId/marketplace-returns',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdMediaRoute =
   AuthenticatedStoreStoreIdMediaRouteImport.update({
     id: '/store/$storeId/media',
@@ -1340,6 +1347,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
+  '/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -1522,6 +1530,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
+  '/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -1706,6 +1715,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/_authenticated/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/_authenticated/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
+  '/_authenticated/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/_authenticated/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
   '/_authenticated/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/_authenticated/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -1891,6 +1901,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
     | '/store/$storeId/marketing'
+    | '/store/$storeId/marketplace-returns'
     | '/store/$storeId/media'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
@@ -2073,6 +2084,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
     | '/store/$storeId/marketing'
+    | '/store/$storeId/marketplace-returns'
     | '/store/$storeId/media'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
@@ -2256,6 +2268,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/losses'
     | '/_authenticated/store/$storeId/ltv'
     | '/_authenticated/store/$storeId/marketing'
+    | '/_authenticated/store/$storeId/marketplace-returns'
     | '/_authenticated/store/$storeId/media'
     | '/_authenticated/store/$storeId/navigation'
     | '/_authenticated/store/$storeId/notifications'
@@ -3138,6 +3151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/marketplace-returns': {
+      id: '/_authenticated/store/$storeId/marketplace-returns'
+      path: '/store/$storeId/marketplace-returns'
+      fullPath: '/store/$storeId/marketplace-returns'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/media': {
       id: '/_authenticated/store/$storeId/media'
       path: '/store/$storeId/media'
@@ -3831,6 +3851,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdLossesRoute: typeof AuthenticatedStoreStoreIdLossesRoute
   AuthenticatedStoreStoreIdLtvRoute: typeof AuthenticatedStoreStoreIdLtvRoute
   AuthenticatedStoreStoreIdMarketingRoute: typeof AuthenticatedStoreStoreIdMarketingRoute
+  AuthenticatedStoreStoreIdMarketplaceReturnsRoute: typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   AuthenticatedStoreStoreIdMediaRoute: typeof AuthenticatedStoreStoreIdMediaRoute
   AuthenticatedStoreStoreIdNavigationRoute: typeof AuthenticatedStoreStoreIdNavigationRoute
   AuthenticatedStoreStoreIdNotificationsRoute: typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -3959,6 +3980,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdLtvRoute: AuthenticatedStoreStoreIdLtvRoute,
   AuthenticatedStoreStoreIdMarketingRoute:
     AuthenticatedStoreStoreIdMarketingRoute,
+  AuthenticatedStoreStoreIdMarketplaceReturnsRoute:
+    AuthenticatedStoreStoreIdMarketplaceReturnsRoute,
   AuthenticatedStoreStoreIdMediaRoute: AuthenticatedStoreStoreIdMediaRoute,
   AuthenticatedStoreStoreIdNavigationRoute:
     AuthenticatedStoreStoreIdNavigationRoute,
