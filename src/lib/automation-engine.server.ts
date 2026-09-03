@@ -19,6 +19,52 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+type CanvasEdge = { source: string; target: string; sourceHandle?: string | null };
+
+/** Builder canvas'ındaki bağlantıları okur; node kimlikleri `step-<sıra>` biçimindedir. */
+function readEdges(canvas: unknown): CanvasEdge[] {
+  const edges = (canvas as { edges?: unknown } | null)?.edges;
+  if (!Array.isArray(edges)) return [];
+  return edges
+    .filter((edge): edge is CanvasEdge =>
+      Boolean(edge) && typeof (edge as CanvasEdge).source === "string" && typeof (edge as CanvasEdge).target === "string",
+    )
+    .map((edge) => ({
+      source: edge.source,
+      target: edge.target,
+      sourceHandle: edge.sourceHandle ?? null,
+    }));
+}
+
+function nodeToIndex(id: string) {
+  const match = /^step-(\d+)$/.exec(id);
+  return match ? Number(match[1]) : null;
+}
+
+/** Bir adımın çıktısına bağlı sonraki adımı bulur; bağlantı yoksa sıradaki adıma düşer. */
+function nextPosition(edges: CanvasEdge[], position: number, handle?: "true" | "false"): number | null {
+  const source = `step-${position}`;
+  const outgoing = edges.filter((edge) => edge.source === source);
+  if (outgoing.length === 0) return handle ? null : position + 1;
+
+  if (handle) {
+    const branch = outgoing.find((edge) => (edge.sourceHandle ?? "") === handle);
+    if (!branch) return null;
+    return nodeToIndex(branch.target);
+  }
+
+  const plain = outgoing.find((edge) => !edge.sourceHandle) ?? outgoing[0];
+  return plain ? nodeToIndex(plain.target) : null;
+}
+
+/** Tetikleyiciye bağlı ilk adımın sırasını döndürür. */
+export function resolveStartPosition(canvas: unknown): number {
+  const edges = readEdges(canvas);
+  const fromTrigger = edges.find((edge) => edge.source === "trigger");
+  if (!fromTrigger) return 0;
+  return nodeToIndex(fromTrigger.target) ?? 0;
+}
+
 function plusMinutes(minutes: number) {
   return new Date(Date.now() + minutes * 60_000).toISOString();
 }
@@ -226,21 +272,41 @@ async function completeRun(supabase: Client, run: Run, status: Run["status"], er
   }
 }
 
-/** Tek bir çalıştırmayı bir adım ilerletir. */
-export async function advanceRun(supabase: Client, run: Run) {
-  const { data: steps } = await supabase
-    .from("automation_steps")
-    .select("*")
-    .eq("workflow_id", run.workflow_id)
-    .order("position", { ascending: true });
+/** Tek bir çalıştırmayı bir adım ilerletir. Bağlantılar (canvas edge) gerçek akışı belirler. */
+export async function advanceRun(supabase: Client, run: Run, options?: { skipWaits?: boolean }) {
+  const [{ data: steps }, { data: workflow }] = await Promise.all([
+    supabase
+      .from("automation_steps")
+      .select("*")
+      .eq("workflow_id", run.workflow_id)
+      .order("position", { ascending: true }),
+    supabase
+      .from("automation_workflows")
+      .select("canvas")
+      .eq("id", run.workflow_id)
+      .maybeSingle(),
+  ]);
 
   const ordered = steps ?? [];
+  const edges = readEdges(workflow?.canvas ?? null);
   const step = ordered[run.current_position];
 
   if (!step) {
     await completeRun(supabase, run, "completed");
     return "completed";
   }
+
+  const goTo = async (next: number | null, status: Run["status"], nextRunAt: string) => {
+    if (next === null || !ordered[next]) {
+      await completeRun(supabase, run, "completed");
+      return "completed" as const;
+    }
+    await supabase
+      .from("automation_runs")
+      .update({ current_position: next, status, next_run_at: nextRunAt })
+      .eq("id", run.id);
+    return status === "waiting" ? ("waiting" as const) : ("advanced" as const);
+  };
 
   try {
     if (step.kind === "end") {
@@ -251,46 +317,36 @@ export async function advanceRun(supabase: Client, run: Run) {
 
     if (step.kind === "wait") {
       await log(supabase, run, step, step.kind, "ok", `${step.wait_minutes} dakika bekleniyor`);
-      await supabase
-        .from("automation_runs")
-        .update({
-          current_position: run.current_position + 1,
-          status: "waiting",
-          next_run_at: plusMinutes(step.wait_minutes),
-        })
-        .eq("id", run.id);
-      return "waiting";
+      return goTo(
+        nextPosition(edges, run.current_position),
+        options?.skipWaits ? "active" : "waiting",
+        options?.skipWaits ? nowIso() : plusMinutes(step.wait_minutes),
+      );
     }
 
     if (step.kind === "condition") {
       const result = await evaluateCondition(supabase, run, step);
-      const branch = result ? step.on_true : step.on_false;
-      await log(supabase, run, step, step.kind, result ? "true" : "false", branch);
-      if (branch === "end") {
-        await completeRun(supabase, run, "completed");
-        return "completed";
-      }
-      await supabase
-        .from("automation_runs")
-        .update({
-          current_position: run.current_position + 1,
-          status: "active",
-          next_run_at: nowIso(),
-        })
-        .eq("id", run.id);
-      return "advanced";
+      const branchNode = nextPosition(edges, run.current_position, result ? "true" : "false");
+      const fallbackFlag = result ? step.on_true : step.on_false;
+      const target =
+        branchNode !== null
+          ? branchNode
+          : fallbackFlag === "end"
+            ? null
+            : nextPosition(edges, run.current_position);
+      await log(
+        supabase,
+        run,
+        step,
+        step.kind,
+        result ? "true" : "false",
+        target === null ? "end" : `adım ${target + 1}`,
+      );
+      return goTo(target, "active", nowIso());
     }
 
     await dispatchMessage(supabase, run, step, step.kind);
-    await supabase
-      .from("automation_runs")
-      .update({
-        current_position: run.current_position + 1,
-        status: "active",
-        next_run_at: nowIso(),
-      })
-      .eq("id", run.id);
-    return "advanced";
+    return goTo(nextPosition(edges, run.current_position), "active", nowIso());
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : "bilinmeyen hata";
     await log(supabase, run, step, step.kind, "failed", message);
@@ -340,7 +396,7 @@ export async function enrollTrigger(
 ) {
   const { data: workflows } = await supabase
     .from("automation_workflows")
-    .select("id")
+    .select("id, canvas")
     .eq("store_id", input.storeId)
     .eq("trigger_event", input.trigger)
     .eq("is_active", true);
@@ -354,6 +410,7 @@ export async function enrollTrigger(
       order_id: input.orderId ?? null,
       cart_id: input.cartId ?? null,
       context: (input.context ?? {}) as never,
+      current_position: resolveStartPosition(workflow.canvas),
       next_run_at: plusMinutes(input.delayMinutes ?? 0),
     });
     if (error) continue;
@@ -371,4 +428,82 @@ export async function enrollTrigger(
   }
 
   return { enrolled };
+}
+
+/**
+ * Tek bir akışı uçtan uca gerçek motorla çalıştırır (bekleme adımları atlanır).
+ * Node bağlantıları takip edilir, her adım gerçek işleyicisini çalıştırır ve loglanır.
+ */
+export async function testRunWorkflow(
+  supabase: Client,
+  input: { storeId: string; workflowId: string; maxSteps?: number },
+) {
+  const { data: workflow, error: workflowError } = await supabase
+    .from("automation_workflows")
+    .select("id, canvas")
+    .eq("id", input.workflowId)
+    .eq("store_id", input.storeId)
+    .maybeSingle();
+  if (workflowError) throw new Error(workflowError.message);
+  if (!workflow) throw new Error("Akış bulunamadı");
+
+  const { data: steps } = await supabase
+    .from("automation_steps")
+    .select("id")
+    .eq("workflow_id", workflow.id)
+    .limit(1);
+  if ((steps ?? []).length === 0) throw new Error("Akışta çalıştırılacak adım yok");
+
+  const { data: customer } = await supabase
+    .from("customers")
+    .select("id")
+    .eq("store_id", input.storeId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { data: run, error } = await supabase
+    .from("automation_runs")
+    .insert({
+      workflow_id: workflow.id,
+      store_id: input.storeId,
+      customer_id: customer?.id ?? null,
+      context: { test: "1", musteri_adi: "Test müşterisi" } as never,
+      current_position: resolveStartPosition(workflow.canvas),
+      next_run_at: nowIso(),
+    })
+    .select("*")
+    .single();
+  if (error || !run) throw new Error(error?.message ?? "Test çalıştırma başlatılamadı");
+
+  const trace: Array<{ position: number; kind: Step["kind"]; outcome: string }> = [];
+  let current: Run = run;
+  const limit = Math.min(input.maxSteps ?? 25, 50);
+
+  for (let index = 0; index < limit; index += 1) {
+    const { data: stepRow } = await supabase
+      .from("automation_steps")
+      .select("kind")
+      .eq("workflow_id", workflow.id)
+      .eq("position", current.current_position)
+      .maybeSingle();
+
+    const outcome = await advanceRun(supabase, current, { skipWaits: true });
+    trace.push({
+      position: current.current_position,
+      kind: (stepRow?.kind ?? "end") as Step["kind"],
+      outcome,
+    });
+    if (outcome === "completed" || outcome === "failed") break;
+
+    const { data: next } = await supabase
+      .from("automation_runs")
+      .select("*")
+      .eq("id", run.id)
+      .maybeSingle();
+    if (!next) break;
+    current = next;
+  }
+
+  return { runId: run.id, steps: trace.length, trace };
 }

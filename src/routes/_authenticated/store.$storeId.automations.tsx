@@ -87,6 +87,7 @@ import {
   saveWorkflow,
   seedCartRecoveryFlow,
   stopAutomationRun,
+  testRunWorkflow,
   toggleWorkflow,
 } from "@/lib/automation.functions";
 import { formatDateTime } from "@/lib/mefti";
@@ -166,8 +167,15 @@ function AutomationNode({ data, selected }: NodeProps<CanvasNode>) {
       <p className="mt-2 truncate text-[11px] text-muted-foreground">
         {step.kind === "wait" ? formatWait(step.waitMinutes) : step.kind === "condition" ? CONDITION_LABELS[step.conditionKind ?? "order_placed"] : trigger ? "Olay gerçekleştiğinde" : "Adım yapılandırılmadı"}
       </p>
-      <Handle type="source" position={Position.Right} className="!size-2 !border-0 !bg-brand" />
-      {step.kind === "condition" ? <Handle id="false" type="source" position={Position.Bottom} className="!size-2 !border-0 !bg-warning" /> : null}
+      <Handle
+        {...(step.kind === "condition" && !trigger ? { id: "true" } : {})}
+        type="source"
+        position={Position.Right}
+        className="!size-2 !border-0 !bg-brand"
+      />
+      {step.kind === "condition" && !trigger ? (
+        <Handle id="false" type="source" position={Position.Bottom} className="!size-2 !border-0 !bg-warning" />
+      ) : null}
     </div>
   );
 }
@@ -188,6 +196,7 @@ function AutomationsPage() {
   const enroll = useServerFn(enrollAbandonedCarts);
   const tick = useServerFn(runAutomationTick);
   const stopRun = useServerFn(stopAutomationRun);
+  const testRun = useServerFn(testRunWorkflow);
   const saveTemplate = useServerFn(saveMessageTemplate);
   const removeTemplate = useServerFn(deleteMessageTemplate);
 
@@ -258,12 +267,31 @@ function AutomationsPage() {
     setForm({ name: workflow.name, description: workflow.description ?? "", trigger: workflow.trigger_event as AutomationTrigger, isActive: workflow.is_active });
     setSteps(nextSteps);
     makeCanvas(nextSteps, workflow.trigger_event as AutomationTrigger);
-    const saved = workflow.canvas as { nodes?: Array<{ id: string; position: { x: number; y: number } }> } | null;
+    const saved = workflow.canvas as {
+      nodes?: Array<{ id: string; position: { x: number; y: number } }>;
+      edges?: Array<{ id: string; source: string; target: string; sourceHandle?: string | null }>;
+    } | null;
     if (saved?.nodes?.length) {
       setCanvasNodes((current) => current.map((node) => {
         const match = saved.nodes?.find((item) => item.id === node.id);
         return match ? { ...node, position: match.position } : node;
       }));
+    }
+    if (saved?.edges?.length) {
+      const validIds = new Set<string>(["trigger", ...nextSteps.map((_, index) => `step-${index}`)]);
+      setCanvasEdges(
+        saved.edges
+          .filter((edge) => validIds.has(edge.source) && validIds.has(edge.target))
+          .map((edge) => ({
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            sourceHandle: edge.sourceHandle ?? null,
+            animated: true,
+            type: "smoothstep",
+            label: edge.sourceHandle === "true" ? "Evet" : edge.sourceHandle === "false" ? "Hayır" : undefined,
+          })),
+      );
     }
     setSelectedNode(null);
     setActiveView("builder");
@@ -336,7 +364,19 @@ function AutomationsPage() {
           <div className="surface-card overflow-hidden"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4"><div><h3 className="font-semibold">Son aktivite</h3><p className="text-sm text-muted-foreground">En son 10 çalıştırma</p></div><Button variant="outline" size="sm" onClick={() => setActiveView("builder")}>Builder'ı aç</Button></div><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b border-border text-xs uppercase text-muted-foreground"><tr><th className="px-5 py-3">Akış</th><th className="px-5 py-3">Durum</th><th className="px-5 py-3">Adım</th><th className="px-5 py-3">Sonraki çalışma</th></tr></thead><tbody>{runs.slice(0, 10).map((run) => <tr key={run.id} className="border-b border-border/60 last:border-0"><td className="px-5 py-3 font-medium">{workflows.find((workflow) => workflow.id === run.workflow_id)?.name ?? "Akış"}</td><td className="px-5 py-3"><Badge variant={run.status === "failed" ? "destructive" : "secondary"}>{run.status}</Badge></td><td className="px-5 py-3 text-muted-foreground">{run.current_position + 1}</td><td className="px-5 py-3 text-muted-foreground">{formatDateTime(run.next_run_at)}</td></tr>)}</tbody></table>{runs.length === 0 ? <p className="px-5 py-8 text-sm text-muted-foreground">Henüz çalıştırma yok.</p> : null}</div></div>
         </TabsContent>
 
-        <TabsContent value="builder"><ReactFlowProvider><BuilderView form={form} setForm={setForm} steps={steps} selectedStep={selectedStep} selectedNode={selectedNode} setSelectedNode={setSelectedNode} updateStep={updateStep} addStep={addStep} removeStep={removeStep} canvasNodes={canvasNodes} canvasEdges={canvasEdges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={(connection) => setCanvasEdges((current) => addEdge({ ...connection, animated: true, type: "smoothstep" }, current))} canvasRef={canvasRef} onSave={() => saveMutation.mutate()} isSaving={saveMutation.isPending} lastSaved={lastSaved} onBack={() => setActiveView("library")} onTestRun={async () => { const result = await tick({ data: { storeId } }); await invalidate(); toast.success(`Test çalıştırma tamam: ${result.processed} adım işlendi`); }} onDrop={(kind) => addStep(kind)} templates={templates ?? []} /></ReactFlowProvider></TabsContent>
+        <TabsContent value="builder"><ReactFlowProvider><BuilderView form={form} setForm={setForm} steps={steps} selectedStep={selectedStep} selectedNode={selectedNode} setSelectedNode={setSelectedNode} updateStep={updateStep} addStep={addStep} removeStep={removeStep} canvasNodes={canvasNodes} canvasEdges={canvasEdges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={(connection) => setCanvasEdges((current) => addEdge({ ...connection, animated: true, type: "smoothstep" }, current))} canvasRef={canvasRef} onSave={() => saveMutation.mutate()} isSaving={saveMutation.isPending} lastSaved={lastSaved} onBack={() => setActiveView("library")} onTestRun={async () => {
+                try {
+                  if (!editingId) { await saveMutation.mutateAsync(); }
+                  const workflowId = editingId;
+                  if (!workflowId) { toast.error("Test için akışı önce kaydedin"); return; }
+                  await saveMutation.mutateAsync();
+                  const result = await testRun({ data: { storeId, workflowId } });
+                  await invalidate();
+                  toast.success(`Test çalıştırma tamam: ${result.steps} adım işlendi (${result.trace.map((item) => STEP_LABELS[item.kind]).join(" → ")})`);
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : "Test çalıştırma başarısız");
+                }
+              }} onDrop={(kind) => addStep(kind)} templates={templates ?? []} /></ReactFlowProvider></TabsContent>
       </Tabs>
 
       <Tabs defaultValue="templates" className="mt-8"><TabsList><TabsTrigger value="templates">Mesaj şablonları</TabsTrigger><TabsTrigger value="runs">Çalıştırmalar</TabsTrigger><TabsTrigger value="logs">Gönderim kayıtları</TabsTrigger></TabsList><TabsContent value="templates" className="grid gap-5 lg:grid-cols-[360px_1fr]"><TemplateForm template={template} setTemplate={setTemplate} onSubmit={() => templateMutation.mutate()} pending={templateMutation.isPending} /><div className="grid gap-3 md:grid-cols-2">{(templates ?? []).map((item) => <article key={item.id} className="surface-card space-y-2 p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-medium">{item.name}</h3><p className="text-xs text-muted-foreground">{CHANNEL_LABELS[item.channel as MessageChannel]}{item.subject ? ` · ${item.subject}` : ""}</p></div><Button size="icon" variant="ghost" aria-label={`${item.name} şablonunu sil`} onClick={async () => { await removeTemplate({ data: { storeId, templateId: item.id } }); await invalidate(); }}><Trash2 className="size-4 text-destructive" /></Button></div><p className="line-clamp-4 whitespace-pre-wrap text-sm text-muted-foreground">{item.body}</p><Button variant="outline" size="sm" onClick={() => setTemplate({ id: item.id, channel: item.channel as MessageChannel, name: item.name, subject: item.subject ?? "", body: item.body, whatsappTemplateName: item.whatsapp_template_name ?? "" })}><Pencil className="mr-2 size-3" /> Düzenle</Button></article>)}</div></TabsContent><TabsContent value="runs" className="space-y-3">{runs.map((run) => <article key={run.id} className="surface-card flex flex-wrap items-center justify-between gap-3 p-4"><div><h3 className="font-medium">{workflows.find((workflow) => workflow.id === run.workflow_id)?.name ?? "Akış"}</h3><p className="text-xs text-muted-foreground">Adım {run.current_position + 1} · {formatDateTime(run.next_run_at)}</p>{run.last_error ? <p className="mt-1 text-xs text-destructive">{run.last_error}</p> : null}</div><div className="flex items-center gap-2"><Badge variant={run.status === "failed" ? "destructive" : "secondary"}>{run.status}</Badge>{run.status === "active" || run.status === "waiting" ? <Button size="sm" variant="outline" onClick={async () => { await stopRun({ data: { storeId, runId: run.id } }); await invalidate(); }}>Durdur</Button> : null}</div></article>)}{runs.length === 0 ? <p className="text-sm text-muted-foreground">Henüz çalıştırma yok.</p> : null}</TabsContent><TabsContent value="logs"><div className="surface-card overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b border-border text-xs uppercase text-muted-foreground"><tr><th className="px-5 py-3">Kanal</th><th className="px-5 py-3">Alıcı</th><th className="px-5 py-3">Durum</th><th className="px-5 py-3">Tarih</th></tr></thead><tbody>{(deliveries ?? []).map((delivery) => <tr key={delivery.id} className="border-b border-border/60 last:border-0"><td className="px-5 py-3">{CHANNEL_LABELS[delivery.channel as MessageChannel]}</td><td className="px-5 py-3 text-muted-foreground">{delivery.recipient}</td><td className="px-5 py-3"><Badge variant={delivery.status === "failed" ? "destructive" : "secondary"}>{delivery.status}</Badge></td><td className="px-5 py-3 text-xs text-muted-foreground">{formatDateTime(delivery.created_at)}</td></tr>)}</tbody></table></div></TabsContent></Tabs>
