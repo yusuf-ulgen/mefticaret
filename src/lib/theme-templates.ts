@@ -350,7 +350,7 @@ const WOKIEE: ThemeTemplate = {
       type: "hero_slider",
       settings: {
         items:
-          "Yeni sezon teknoloji | Kulaklık, akıllı saat ve aksesuarlarda %40'a varan indirim | | Alışverişe Başla | #urunler\nEv & yaşam | Mutfaktan dekorasyona binlerce ürün tek yerde | | Koleksiyonu Gör | #koleksiyonlar\nHaftanın fırsatları | Seçili ürünlerde sepette ekstra indirim | | Fırsatları Yakala | #urunler",
+          "Yeni sezon teknoloji | Kulaklık, akıllı saat ve aksesuarlarda %40'a varan indirim | /themes/wokiee/hero-tech.jpg | Alışverişe Başla | #urunler\nEv & yaşam | Mutfaktan dekorasyona binlerce ürün tek yerde | /themes/wokiee/hero-home.jpg | Koleksiyonu Gör | #koleksiyonlar\nHaftanın fırsatları | Seçili moda ürünlerinde sepette ekstra indirim | /themes/wokiee/hero-fashion.jpg | Fırsatları Yakala | #urunler",
         height: 620,
         autoplay: true,
         interval: 5,
@@ -373,9 +373,11 @@ const WOKIEE: ThemeTemplate = {
       settings: {
         leftTitle: "Günün fırsatı",
         leftText: "Stoklar tükenmeden yakala",
+        leftImage: "/themes/wokiee/p-headphones.jpg",
         leftUrl: "#urunler",
         rightTitle: "Çok satanlar",
         rightText: "Müşterilerin favorileri",
+        rightImage: "/themes/wokiee/p-sneaker.jpg",
         rightUrl: "#urunler",
         height: 300,
       },
@@ -401,7 +403,15 @@ const WOKIEE: ThemeTemplate = {
       },
     },
     { type: "featured_collection", settings: { title: "Editörün seçimi", collectionSlug: "", limit: 4, columns: 4, ctaLabel: "Tümünü gör" } },
-    { type: "brands", settings: { title: "Öne çıkan markalar", columns: 6 } },
+    {
+      type: "brands",
+      settings: {
+        title: "Öne çıkan markalar",
+        items:
+          "Aurora | | #urunler\nNova | | #urunler\nBreeze | | #urunler\nStudio | | #urunler\nMilano | | #urunler\nBarista | | #urunler",
+        columns: 6,
+      },
+    },
     {
       type: "counters",
       settings: {
@@ -419,7 +429,16 @@ const WOKIEE: ThemeTemplate = {
         columns: 4,
       },
     },
-    { type: "gallery", settings: { title: "Instagram'da biz", columns: 6, height: 240 } },
+    {
+      type: "gallery",
+      settings: {
+        title: "Instagram'da biz",
+        images:
+          "/themes/wokiee/p-sneaker.jpg\n/themes/wokiee/p-sweater.jpg\n/themes/wokiee/p-bag.jpg\n/themes/wokiee/p-lamp.jpg\n/themes/wokiee/p-coffee.jpg\n/themes/wokiee/p-sunglasses.jpg",
+        columns: 6,
+        height: 240,
+      },
+    },
     { type: "blog", settings: { title: "Blog & rehberler", limit: 3, columns: 3 } },
     {
       type: "trust_badges",
