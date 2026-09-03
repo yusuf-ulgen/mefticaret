@@ -52,6 +52,46 @@ export const applyThemeTemplate = createServerFn({ method: "POST" })
       .eq("store_id", data.storeId);
     if (deleteError) throw new Error(deleteError.message);
 
+    // Şablon uygulanırken mağazanın gerçek katalog / kargo / ödeme verisiyle doldurulur.
+    const [collectionsRes, productsRes, zonesRes, paymentsRes] = await Promise.all([
+      context.supabase
+        .from("collections")
+        .select("slug, title")
+        .eq("store_id", data.storeId)
+        .order("sort_order"),
+      context.supabase
+        .from("products")
+        .select("product_type")
+        .eq("store_id", data.storeId)
+        .eq("status", "active")
+        .limit(200),
+      context.supabase
+        .from("shipping_zones")
+        .select("is_active, shipping_rates(free_over, eta_days, is_active)")
+        .eq("store_id", data.storeId),
+      context.supabase
+        .from("store_payment_methods")
+        .select("display_name, installments_enabled, is_active")
+        .eq("store_id", data.storeId)
+        .order("sort_order"),
+    ]);
+
+    const collectionSlugs = (collectionsRes.data ?? []).map((collection) => collection.slug);
+    const productTypes = Array.from(
+      new Set((productsRes.data ?? []).map((product) => product.product_type ?? "").filter(Boolean)),
+    );
+    const rates = (zonesRes.data ?? [])
+      .filter((zone) => zone.is_active)
+      .flatMap((zone) => (zone.shipping_rates ?? []).filter((rate) => rate.is_active));
+    const freeOvers = rates
+      .map((rate) => Number(rate.free_over))
+      .filter((value) => Number.isFinite(value) && value > 0);
+    const freeShippingThreshold = freeOvers.length ? Math.min(...freeOvers) : null;
+    const hasPayments = (paymentsRes.data ?? []).some((method) => method.is_active);
+
+    let collectionCursor = 0;
+    let typeCursor = 0;
+
     const rows = template.sections.map((section, index) => {
       const definition = SECTION_BY_TYPE.get(section.type)!;
       const settings: SectionSettings = { ...definition.defaults };
@@ -62,6 +102,26 @@ export const applyThemeTemplate = createServerFn({ method: "POST" })
         else if (typeof fallback === "boolean") settings[key] = Boolean(value);
         else settings[key] = String(value ?? "");
       }
+
+      // Koleksiyon referansları gerçek koleksiyon slug'larıyla doldurulur.
+      if ("collectionSlug" in settings && !String(settings["collectionSlug"] ?? "").trim() && collectionSlugs.length) {
+        settings["collectionSlug"] = collectionSlugs[collectionCursor % collectionSlugs.length]!;
+        collectionCursor += 1;
+      }
+      // Ürün filtreleri gerçek ürün tiplerinden seçilir.
+      if ("filter" in settings && !String(settings["filter"] ?? "").trim() && productTypes.length) {
+        settings["filter"] = productTypes[typeCursor % productTypes.length]!;
+        typeCursor += 1;
+      }
+      // Ücretsiz kargo eşiği gerçek kargo tarifelerinden gelir.
+      if (section.type === "free_shipping_bar" && freeShippingThreshold !== null) {
+        settings["threshold"] = freeShippingThreshold;
+      }
+      // Rozetler boş bırakılır; vitrin bunları gerçek ödeme/kargo verisinden üretir.
+      if (section.type === "trust_badges" && hasPayments) {
+        settings["items"] = "";
+      }
+
       return {
         store_id: data.storeId,
         type: section.type,
