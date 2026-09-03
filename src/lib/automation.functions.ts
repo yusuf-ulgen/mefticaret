@@ -169,7 +169,6 @@ export const saveMessageTemplate = createServerFn({ method: "POST" })
       whatsapp_template_name: data.whatsappTemplateName ?? null,
       whatsapp_language: data.whatsappLanguage,
       is_active: data.isActive,
-      canvas: data.canvas,
     };
 
     const { data: template, error } = await (data.templateId
