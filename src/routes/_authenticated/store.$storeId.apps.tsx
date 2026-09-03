@@ -2,7 +2,18 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Download, PauseCircle, PlayCircle, Settings2, Store, Trash2 } from "lucide-react";
+import {
+  CheckCircle2,
+  Download,
+  ExternalLink,
+  PauseCircle,
+  PlayCircle,
+  PlugZap,
+  Settings2,
+  Store,
+  Trash2,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -36,6 +47,7 @@ import {
   installStoreApp,
   saveStoreAppSettings,
   setStoreAppStatus,
+  testStoreAppConnection,
 } from "@/lib/apps.functions";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/apps")({
@@ -67,6 +79,7 @@ type CatalogApp = {
   tagline: string | null;
   description: string | null;
   developer: string | null;
+  developer_url?: string | null;
   version: string | null;
   logo_url: string | null;
   permissions: string[] | null;
@@ -86,20 +99,39 @@ function AppsPage() {
   const [category, setCategory] = useState<AppCategory | "all">("all");
   const [search, setSearch] = useState("");
   const [configuring, setConfiguring] = useState<CatalogApp | null>(null);
+  const [installing, setInstalling] = useState<CatalogApp | null>(null);
   const [draft, setDraft] = useState<Record<string, string | number | boolean | null>>({});
 
   const installFn = useServerFn(installStoreApp);
   const statusFn = useServerFn(setStoreAppStatus);
   const settingsFn = useServerFn(saveStoreAppSettings);
+  const testFn = useServerFn(testStoreAppConnection);
 
   function refresh() {
     void queryClient.invalidateQueries({ queryKey: ["store", storeId, "app-installations"] });
   }
 
   const install = useMutation({
-    mutationFn: (appId: string) => installFn({ data: { storeId, appId } }),
-    onSuccess: () => {
-      toast.success("Uygulama kuruldu");
+    mutationFn: (appId: string) => installFn({ data: { storeId, appId, settings: draft } }),
+    onSuccess: (result) => {
+      const connection = (result as { connection?: { status: string; message: string } }).connection;
+      if (connection?.status === "error") {
+        toast.warning(`Kuruldu, bağlantı doğrulanamadı: ${connection.message}`);
+      } else {
+        toast.success(connection?.message ?? "Uygulama kuruldu");
+      }
+      setInstalling(null);
+      refresh();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const testConnection = useMutation({
+    mutationFn: (appId: string) => testFn({ data: { storeId, appId } }),
+    onSuccess: (result) => {
+      const check = result as { status: string; message: string };
+      if (check.status === "error") toast.error(check.message);
+      else toast.success(check.message);
       refresh();
     },
     onError: (error: Error) => toast.error(error.message),
@@ -167,6 +199,16 @@ function AppsPage() {
     }
     setDraft(next);
     setConfiguring(app);
+  }
+
+  function openInstall(app: CatalogApp) {
+    const fields = readSettingsSchema(app.settings_schema);
+    const next: Record<string, string | number | boolean | null> = {};
+    for (const field of fields) {
+      next[field.key] = field.default ?? (field.type === "boolean" ? false : "");
+    }
+    setDraft(next);
+    setInstalling(app);
   }
 
   return (
@@ -295,6 +337,8 @@ function AppsPage() {
                     </div>
                   ) : null}
 
+                  {installed ? <ConnectionState settings={installed.settings} /> : null}
+
                   {installed?.installed_at ? (
                     <p className="text-xs text-muted-foreground">
                       Kurulum: {formatDateTime(installed.installed_at)}
@@ -303,11 +347,7 @@ function AppsPage() {
 
                   <div className="mt-auto flex flex-wrap gap-2">
                     {!installed || installed.status === "uninstalled" ? (
-                      <Button
-                        size="sm"
-                        onClick={() => install.mutate(app.id)}
-                        disabled={install.isPending}
-                      >
+                      <Button size="sm" onClick={() => openInstall(app)}>
                         <Download className="mr-1 size-4" aria-hidden /> Kur
                       </Button>
                     ) : (
@@ -338,6 +378,14 @@ function AppsPage() {
                             <Settings2 className="mr-1 size-4" aria-hidden /> Ayarlar
                           </Button>
                         ) : null}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => testConnection.mutate(app.id)}
+                          disabled={testConnection.isPending}
+                        >
+                          <PlugZap className="mr-1 size-4" aria-hidden /> Bağlantıyı test et
+                        </Button>
                         <Button
                           size="sm"
                           variant="ghost"
