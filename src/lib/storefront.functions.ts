@@ -132,6 +132,29 @@ export const getStorefront = createServerFn({ method: "GET" })
       }
     }
 
+    // Panel varyantlarından canlı fiyat/stok özeti (vitrin kartları için).
+    const variantSummary: Record<string, { minPrice: number | null; stockTotal: number; variantCount: number }> = {};
+    if (products.length) {
+      const { data: variantRows } = await supabase
+        .from("product_variants")
+        .select("product_id, price, stock")
+        .in(
+          "product_id",
+          products.map((product) => product.id),
+        );
+      for (const row of variantRows ?? []) {
+        const entry =
+          variantSummary[row.product_id] ?? { minPrice: null, stockTotal: 0, variantCount: 0 };
+        const price = Number(row.price ?? 0);
+        if (Number.isFinite(price) && price > 0 && (entry.minPrice === null || price < entry.minPrice)) {
+          entry.minPrice = price;
+        }
+        entry.stockTotal += Number(row.stock ?? 0);
+        entry.variantCount += 1;
+        variantSummary[row.product_id] = entry;
+      }
+    }
+
     // Mağazanın gerçek kargo tarifeleri ve açık ödeme yöntemleri (vitrin blokları için).
     const commerce = buildStorefrontCommerce({
       currency: store.currency,
@@ -149,13 +172,25 @@ export const getStorefront = createServerFn({ method: "GET" })
       commerce,
       store,
       theme: themeRes.data,
-      products: products.map((product) => ({ ...product, coverUrl: coverByProduct[product.id] ?? null })),
+      products: products.map((product) => {
+        const summary = variantSummary[product.id];
+        return {
+          ...product,
+          coverUrl: coverByProduct[product.id] ?? null,
+          // Panel verisiyle birebir: satış fiyatı varyanttan, stok toplamı envanterden.
+          livePrice: summary?.minPrice ?? Number(product.base_price),
+          stockTotal: summary ? summary.stockTotal : null,
+          variantCount: summary?.variantCount ?? 0,
+        };
+      }),
       collections: collectionsRes.data ?? [],
       footerPages: pagesRes.data ?? [],
       sections: sectionsRes.data ?? [],
       blogPages: blogRes.data ?? [],
     };
+
       },
+      { ttlSeconds: 20 },
     );
   });
 
@@ -314,7 +349,9 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
       ratingAverage,
       related: relatedRows.map((row) => ({ ...row, coverUrl: relatedCovers[row.id] ?? null })),
     };
+
       },
+      { ttlSeconds: 20 },
     );
   });
 

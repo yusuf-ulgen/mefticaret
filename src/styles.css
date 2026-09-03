@@ -324,3 +324,93 @@
   }
 }
 
+
+/* ---------------------------------------------------------------
+   Vitrin (storefront) responsive yardımcıları.
+   Vitrin bileşenleri tema token'larını inline style ile uyguladığı
+   için medya sorguları burada sınıf olarak tanımlanır.
+---------------------------------------------------------------- */
+.sf-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  gap: 32px;
+}
+.sf-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+.sf-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.sf-filters > * {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .sf-detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .sf-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .sf-title {
+    font-size: 22px !important;
+    line-height: 1.25;
+  }
+  .sf-page-title {
+    font-size: 26px !important;
+    line-height: 1.2;
+  }
+  .sf-price {
+    font-size: 20px !important;
+  }
+  .sf-card-body {
+    padding: 10px !important;
+  }
+  .sf-card-title {
+    font-size: 13px !important;
+  }
+  .sf-card-price {
+    font-size: 13px !important;
+  }
+  .sf-filters {
+    gap: 8px;
+  }
+  .sf-filters input,
+  .sf-filters select,
+  .sf-filters button {
+    flex: 1 1 46%;
+    min-width: 0 !important;
+    width: auto !important;
+    font-size: 14px !important;
+  }
+  .sf-filters .sf-filters-count {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .sf-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 16px !important;
+  }
+  .sf-header-nav {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 12px !important;
+    row-gap: 10px;
+  }
+  .sf-main {
+    padding: 0 16px 48px !important;
+  }
+}

@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { SmartImage } from "@/components/smart-image";
+import { StorefrontAdminLink } from "@/components/storefront-admin-link";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
@@ -129,13 +130,18 @@ function StorefrontProductsPage() {
       </nav>
 
       <header style={{ padding: "20px 0 24px", maxWidth: 640 }}>
-        <h1 style={{ fontFamily: fonts.heading, fontSize: 34, fontWeight: 700, margin: 0 }}>Tüm ürünler</h1>
+        <h1 className="sf-page-title" style={{ fontFamily: fonts.heading, fontSize: 34, fontWeight: 700, margin: 0 }}>
+          Tüm ürünler
+        </h1>
         <p style={{ color: muted, marginTop: 10, fontSize: 15 }}>
           {store.name} kataloğundaki ürünleri arayabilir, tür ve fiyata göre filtreleyebilirsin.
         </p>
+        <div style={{ marginTop: 12 }}>
+          <StorefrontAdminLink storeId={store.id} border={border} muted={muted} />
+        </div>
       </header>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 20 }}>
+      <div className="sf-filters" style={{ marginBottom: 20 }}>
         <input
           value={term}
           onChange={(event) => { setTerm(event.target.value); setPage(1); }}
@@ -172,7 +178,9 @@ function StorefrontProductsPage() {
           inputMode="numeric"
           style={{ ...controlStyle, width: 100 }}
         />
-        <span style={{ color: muted, fontSize: 13 }}>{visible.length} ürün</span>
+        <span className="sf-filters-count" style={{ color: muted, fontSize: 13 }}>
+          {visible.length} ürün
+        </span>
         {term || type !== "all" || minPrice || maxPrice ? (
           <button
             type="button"
@@ -193,14 +201,7 @@ function StorefrontProductsPage() {
       {visible.length === 0 ? (
         <p style={{ color: muted, paddingBottom: 60 }}>Aramanla eşleşen ürün bulunamadı.</p>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-            gap: 18,
-            paddingBottom: 64,
-          }}
-        >
+        <div className="sf-product-grid" style={{ paddingBottom: 64 }}>
           {paged.map((product) => (
             <Link
               key={product.id}
@@ -239,11 +240,21 @@ function StorefrontProductsPage() {
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               </div>
-              <div style={{ padding: 14 }}>
-                <p style={{ margin: 0, fontWeight: 600, fontSize: 15 }}>{product.title}</p>
-                <p style={{ margin: "6px 0 0", color: muted, fontSize: 14 }}>
-                  {formatMoney(Number(product.base_price), product.currency ?? store.currency)}
+              <div className="sf-card-body" style={{ padding: 14 }}>
+                <p className="sf-card-title" style={{ margin: 0, fontWeight: 600, fontSize: 15 }}>
+                  {product.title}
                 </p>
+                <p className="sf-card-price" style={{ margin: "6px 0 0", color: muted, fontSize: 14 }}>
+                  {formatMoney(
+                    Number(product.livePrice ?? product.base_price),
+                    product.currency ?? store.currency,
+                  )}
+                </p>
+                {product.stockTotal !== null && product.stockTotal !== undefined ? (
+                  <p style={{ margin: "4px 0 0", fontSize: 12, color: product.stockTotal > 0 ? muted : "#dc2626" }}>
+                    {product.stockTotal > 0 ? `Stokta ${product.stockTotal} adet` : "Tükendi"}
+                  </p>
+                ) : null}
                 <QuickAddButton storeSlug={store.slug} productSlug={product.slug} accent={t.accent_color} />
               </div>
             </Link>

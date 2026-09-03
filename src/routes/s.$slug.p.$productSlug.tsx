@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { toast } from "sonner";
 
+import { StorefrontAdminLink } from "@/components/storefront-admin-link";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontQuestions } from "@/components/storefront-questions";
@@ -229,7 +230,7 @@ function ProductPage() {
         <span> / {product.title}</span>
       </nav>
 
-      <section style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,420px)", gap: 32 }}>
+      <section className="sf-detail-grid">
         <div>
           {heroImage ? (
             <img
@@ -278,9 +279,16 @@ function ProductPage() {
         </div>
 
         <div>
-          <h1 style={{ fontFamily: fonts.heading, fontSize: 30, margin: 0, fontWeight: 700 }}>{product.title}</h1>
+          <h1 className="sf-title" style={{ fontFamily: fonts.heading, fontSize: 30, margin: 0, fontWeight: 700 }}>
+            {product.title}
+          </h1>
+          <div style={{ marginTop: 10 }}>
+            <StorefrontAdminLink storeId={store.id} productId={product.id} border={border} muted={muted} />
+          </div>
           <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 24, fontWeight: 700 }}>{formatMoney(price, product.currency)}</span>
+            <span className="sf-price" style={{ fontSize: 24, fontWeight: 700 }}>
+              {formatMoney(price, product.currency)}
+            </span>
             {product.compare_at_price ? (
               <span style={{ color: muted, textDecoration: "line-through" }}>
                 {formatMoney(product.compare_at_price, product.currency)}
@@ -355,7 +363,7 @@ function ProductPage() {
           ) : null}
 
           <div style={{ marginTop: 14, fontSize: 13, color: muted }}>
-            {inStock ? "Stokta var" : "Tükendi"}
+            {inStock ? (selected ? `Stokta ${selected.stock} adet` : "Stokta var") : "Tükendi"}
             {selected?.sku ?? product.sku ? ` · SKU: ${selected?.sku ?? product.sku}` : ""}
           </div>
 
