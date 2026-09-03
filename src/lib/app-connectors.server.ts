@@ -1,6 +1,8 @@
 /** Uygulama mağazası entegrasyonları için sunucu tarafı bağlantı doğrulaması.
  *  Kimlik bilgileri yalnızca sunucuda okunur; sağlayıcıya doğrudan istek atılır. */
 
+import { getVerimorBalance } from "./sms.server";
+
 export type ConnectionResult = {
   status: "connected" | "configured" | "error";
   message: string;
@@ -276,6 +278,18 @@ const CHECKS: Record<
         },
         "Allegro erişim token'ı alındı",
       );
+    },
+  },
+  "verimor-sms": {
+    required: ["username", "password", "source_addr"],
+    run: async (s) => {
+      const result = await getVerimorBalance({
+        username: str(s, "username"),
+        password: str(s, "password"),
+      });
+      return result.ok
+        ? { status: "connected", message: result.message }
+        : { status: "error", message: result.message };
     },
   },
   "pazarama-marketplace": {
