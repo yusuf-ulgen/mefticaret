@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { renderTemplate } from "@/lib/automation";
+import { sendSms } from "@/lib/sms.server";
 import { sendWhatsAppMessage } from "@/lib/whatsapp.server";
 
 type Client = SupabaseClient<Database>;
@@ -115,6 +116,14 @@ async function dispatchMessage(
       templateLanguage: template?.whatsapp_language ?? "tr",
       contactName: customer?.full_name ?? null,
       customerId: customer?.id ?? null,
+    });
+    status = result.status;
+    error = result.error;
+  } else if (channel === "sms") {
+    const result = await sendSms(supabase, {
+      storeId: run.store_id,
+      to: recipient,
+      body,
     });
     status = result.status;
     error = result.error;
