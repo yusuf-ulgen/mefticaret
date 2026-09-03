@@ -327,7 +327,7 @@ function AutomationsPage() {
       steps: steps.map((step) => ({ kind: step.kind, title: step.title || undefined, waitMinutes: step.kind === "wait" ? step.waitMinutes : 0, templateId: step.templateId, conditionKind: step.kind === "condition" ? step.conditionKind : null, onTrue: step.onTrue, onFalse: step.onFalse, config: step.tag ? { tag: step.tag } : {} })),
       canvas: { nodes: canvasNodes.map((node) => ({ id: node.id, position: node.position })), edges: canvasEdges.map((edge) => ({ id: edge.id, source: edge.source, target: edge.target, sourceHandle: edge.sourceHandle ?? null })) },
     }}),
-    onSuccess: async () => { await invalidate(); setLastSaved(new Date()); toast.success("Akış kaydedildi"); },
+    onSuccess: async (workflow) => { if (workflow?.id) setEditingId(workflow.id); await invalidate(); setLastSaved(new Date()); toast.success("Akış kaydedildi"); },
     onError: (error: Error) => toast.error(error.message),
   });
 
@@ -366,10 +366,9 @@ function AutomationsPage() {
 
         <TabsContent value="builder"><ReactFlowProvider><BuilderView form={form} setForm={setForm} steps={steps} selectedStep={selectedStep} selectedNode={selectedNode} setSelectedNode={setSelectedNode} updateStep={updateStep} addStep={addStep} removeStep={removeStep} canvasNodes={canvasNodes} canvasEdges={canvasEdges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={(connection) => setCanvasEdges((current) => addEdge({ ...connection, animated: true, type: "smoothstep" }, current))} canvasRef={canvasRef} onSave={() => saveMutation.mutate()} isSaving={saveMutation.isPending} lastSaved={lastSaved} onBack={() => setActiveView("library")} onTestRun={async () => {
                 try {
-                  if (!editingId) { await saveMutation.mutateAsync(); }
-                  const workflowId = editingId;
+                  const saved = await saveMutation.mutateAsync();
+                  const workflowId = saved?.id ?? editingId;
                   if (!workflowId) { toast.error("Test için akışı önce kaydedin"); return; }
-                  await saveMutation.mutateAsync();
                   const result = await testRun({ data: { storeId, workflowId } });
                   await invalidate();
                   toast.success(`Test çalıştırma tamam: ${result.steps} adım işlendi (${result.trace.map((item) => STEP_LABELS[item.kind]).join(" → ")})`);
