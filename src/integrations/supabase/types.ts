@@ -8654,40 +8654,6 @@ export type Database = {
         }[]
       }
       seed_demo_store: { Args: { _store_id: string }; Returns: Json }
-      supplier_portal_orders: {
-        Args: { _limit?: number }
-        Returns: {
-          carrier: string
-          currency: string
-          dropship_order_id: string
-          dropship_status: Database["public"]["Enums"]["dropship_order_status"]
-          item_id: string
-          order_created_at: string
-          order_id: string
-          order_number: string
-          order_status: Database["public"]["Enums"]["order_status"]
-          product_code: string
-          product_description: string
-          product_title: string
-          quantity: number
-          shipping_carrier: string
-          stock_code: string
-          supplier_id: string
-          supplier_name: string
-          tracking_number: string
-          unit_price: number
-          variant_title: string
-        }[]
-      }
-      supplier_portal_update_order: {
-        Args: {
-          _carrier?: string
-          _dropship_order_id: string
-          _status?: Database["public"]["Enums"]["dropship_order_status"]
-          _tracking_number?: string
-        }
-        Returns: boolean
-      }
     }
     Enums: {
       app_category:
