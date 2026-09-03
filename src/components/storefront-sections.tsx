@@ -6,6 +6,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { buttonStyles, cardStyles, storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
+import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import {
   parsePairs,
   sanitizeHtml,
@@ -37,6 +38,8 @@ export type SectionContext = {
   products: SectionProduct[];
   collections: SectionCollection[];
   pages: SectionPage[];
+  /** Mağazanın gerçek kargo/ödeme verisi (bloklar otomatik doldurmak için kullanır). */
+  commerce?: StorefrontCommerce | undefined;
   /** Editör önizlemesinde bağlantılar pasifleştirilir. */
   preview?: boolean | undefined;
 };

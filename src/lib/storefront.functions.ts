@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import type { Database } from "@/integrations/supabase/types";
+import { buildStorefrontCommerce } from "@/lib/storefront-commerce";
 
 type StorefrontProductCard = Pick<
   Database["public"]["Tables"]["products"]["Row"],
@@ -48,7 +49,7 @@ export const getStorefront = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!store) return null;
 
-    const [themeRes, productsRes, collectionsRes, pagesRes, sectionsRes, blogRes] = await Promise.all([
+    const [themeRes, productsRes, collectionsRes, pagesRes, sectionsRes, blogRes, ratesRes, paymentsRes] = await Promise.all([
       supabase.from("store_themes").select("*").eq("store_id", store.id).maybeSingle(),
       supabase
         .from("products")
@@ -82,6 +83,18 @@ export const getStorefront = createServerFn({ method: "GET" })
         .eq("is_published", true)
         .order("updated_at", { ascending: false })
         .limit(12),
+      supabase
+        .from("shipping_rates")
+        .select("title, price, free_over, eta_days, sort_order, shipping_zones!inner(name, is_active, store_id)")
+        .eq("store_id", store.id)
+        .eq("is_active", true)
+        .order("sort_order"),
+      supabase
+        .from("store_payment_methods")
+        .select("display_name, installments_enabled, sort_order")
+        .eq("store_id", store.id)
+        .eq("is_active", true)
+        .order("sort_order"),
     ]);
     if (themeRes.error) throw new Error(themeRes.error.message);
     if (productsRes.error) throw new Error(productsRes.error.message);
@@ -119,7 +132,21 @@ export const getStorefront = createServerFn({ method: "GET" })
       }
     }
 
+    // Mağazanın gerçek kargo tarifeleri ve açık ödeme yöntemleri (vitrin blokları için).
+    const commerce = buildStorefrontCommerce({
+      currency: store.currency,
+      rates: (ratesRes.data ?? []).map((rate) => ({
+        title: rate.title,
+        price: rate.price,
+        free_over: rate.free_over,
+        eta_days: rate.eta_days,
+        zoneName: (rate as { shipping_zones?: { name: string } }).shipping_zones?.name ?? null,
+      })),
+      payments: paymentsRes.data ?? [],
+    });
+
     return {
+      commerce,
       store,
       theme: themeRes.data,
       products: products.map((product) => ({ ...product, coverUrl: coverByProduct[product.id] ?? null })),

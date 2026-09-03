@@ -6,7 +6,9 @@ import { CookieConsent } from "@/components/cookie-consent";
 import { useCart } from "@/lib/cart";
 import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
+import { formatMoney } from "@/lib/mefti";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
+import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import { fontStack } from "@/lib/theme-presets";
 import { trackEvent } from "@/lib/track";
 import type { ResolvedSection } from "@/lib/theme-sections";
@@ -156,6 +158,7 @@ export function StorefrontChrome({
   storeName,
   storeSlug,
   footerPages,
+  commerce,
   sections,
   customCss,
   customJs,
@@ -165,6 +168,8 @@ export function StorefrontChrome({
   storeName: string;
   storeSlug: string;
   footerPages?: { title: string; slug: string }[];
+  /** Mağazanın gerçek kargo/ödeme verisi; footer bilgi şeridinde gösterilir. */
+  commerce?: StorefrontCommerce | undefined;
   /** Modüler tema bileşenleri (header/footer/duyuru çubuğu ayarları buradan okunur). */
   sections?: ResolvedSection[] | undefined;
   customCss?: string | null | undefined;
@@ -495,6 +500,39 @@ export function StorefrontChrome({
             </Link>
           ))}
         </nav>
+        ) : null}
+
+        {commerce && (commerce.payments.length || commerce.shipping.length) ? (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 10,
+              justifyContent: "center",
+              marginBottom: 14,
+              fontSize: 13,
+              color: muted,
+            }}
+          >
+            {commerce.payments.map((payment) => (
+              <span
+                key={payment.displayName}
+                style={{ border: `1px solid ${border}`, borderRadius: 999, padding: "4px 12px" }}
+              >
+                {payment.displayName}
+              </span>
+            ))}
+            {commerce.freeShippingThreshold ? (
+              <span style={{ border: `1px solid ${border}`, borderRadius: 999, padding: "4px 12px" }}>
+                {formatMoney(commerce.freeShippingThreshold, commerce.currency)} üzeri ücretsiz kargo
+              </span>
+            ) : null}
+            {commerce.fastestEtaDays ? (
+              <span style={{ border: `1px solid ${border}`, borderRadius: 999, padding: "4px 12px" }}>
+                {commerce.fastestEtaDays} iş günü teslim
+              </span>
+            ) : null}
+          </div>
         ) : null}
 
         {value(footerCfg, "copyright") || `${storeName} — Mefticaret altyapısıyla çalışır.`}

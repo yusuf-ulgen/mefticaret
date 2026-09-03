@@ -95,6 +95,7 @@ function StorefrontHome() {
       storeName={store.name}
       storeSlug={store.slug}
       footerPages={footerPages}
+      commerce={data.commerce}
       sections={sections}
       customCss={theme?.custom_css ?? null}
       customJs={theme?.custom_js ?? null}
@@ -110,6 +111,7 @@ function StorefrontHome() {
             products,
             collections,
             pages: data.blogPages,
+            commerce: data.commerce,
           }}
         />
       ) : (
