@@ -11,6 +11,11 @@ import { insertAuditRow } from "./audit.server";
  * manuel kayıt açma ve motor tetikleme. Tenant izolasyonu RLS ile sağlanır.
  */
 
+const canvasSchema = z.object({
+  nodes: z.array(z.object({ id: z.string(), position: z.object({ x: z.number(), y: z.number() }) })).max(200).default([]),
+  edges: z.array(z.object({ id: z.string(), source: z.string(), target: z.string(), sourceHandle: z.string().nullable().optional() })).max(400).default([]),
+});
+
 const stepSchema = z.object({
   kind: z.enum(STEP_KINDS),
   title: z.string().trim().max(120).optional(),
@@ -33,6 +38,7 @@ export const saveWorkflow = createServerFn({ method: "POST" })
         description: z.string().trim().max(400).optional(),
         trigger: z.enum(AUTOMATION_TRIGGERS),
         isActive: z.boolean().default(false),
+        canvas: canvasSchema.default({ nodes: [], edges: [] }),
         steps: z.array(stepSchema).max(30).default([]),
       })
       .parse(data),
@@ -46,6 +52,7 @@ export const saveWorkflow = createServerFn({ method: "POST" })
       description: data.description ?? null,
       trigger_event: data.trigger,
       is_active: data.isActive,
+      canvas: data.canvas,
     };
 
     const { data: workflow, error } = await (data.workflowId
@@ -162,6 +169,7 @@ export const saveMessageTemplate = createServerFn({ method: "POST" })
       whatsapp_template_name: data.whatsappTemplateName ?? null,
       whatsapp_language: data.whatsappLanguage,
       is_active: data.isActive,
+      canvas: data.canvas,
     };
 
     const { data: template, error } = await (data.templateId
