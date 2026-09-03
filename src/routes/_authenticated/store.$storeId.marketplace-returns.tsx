@@ -81,10 +81,8 @@ const STATUS_TONE: Record<MarketplaceReturnStatus, string> = {
   cancelled: "bg-muted text-muted-foreground",
 };
 
-type ReturnRow = ReturnType<typeof marketplaceReturnsQuery> extends { queryFn: () => Promise<infer R> }
-  ? R extends Array<infer Row>
-    ? Row
-    : never
+type ReturnRow = Awaited<ReturnType<NonNullable<ReturnType<typeof marketplaceReturnsQuery>["queryFn"]>>> extends readonly (infer Row)[]
+  ? Row
   : never;
 
 function ManualReturnDialog({ storeId, onDone }: { storeId: string; onDone: () => void }) {
