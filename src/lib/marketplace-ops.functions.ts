@@ -21,7 +21,7 @@ export const resolveMarketplaceReturnFn = createServerFn({ method: "POST" })
       .object({
         storeId: z.string().uuid(),
         returnId: z.string().uuid(),
-        action: z.enum(["approve", "reject", "receive"]),
+        action: z.enum(["approve", "reject", "receive", "refund"]),
         staffNote: z.string().trim().max(1000).optional(),
       })
       .parse(data),
