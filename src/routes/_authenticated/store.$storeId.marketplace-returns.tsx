@@ -213,7 +213,7 @@ function ManualReturnDialog({ storeId, onDone }: { storeId: string; onDone: () =
 
 function ReturnDetailSheet({ row, storeId }: { row: ReturnRow; storeId: string }) {
   const status = row.status as MarketplaceReturnStatus;
-  const items: { title?: string; quantity?: number }[] = Array.isArray(row.items) ? row.items : [];
+  const items: { title?: string; quantity?: number }[] = Array.isArray(row.items) ? (row.items as { title?: string; quantity?: number }[]) : [];
 
   return (
     <Sheet>
