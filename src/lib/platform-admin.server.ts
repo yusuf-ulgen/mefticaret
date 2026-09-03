@@ -680,3 +680,401 @@ export async function setStorePlan(input: z.infer<typeof storePlanSchema>, userI
   });
   return { storeId: input.storeId, planId: input.planId };
 }
+
+/* ------------------------------------------------------------------ */
+/* Finans Merkezi                                                      */
+/* ------------------------------------------------------------------ */
+
+export const financeInputSchema = z.object({
+  days: z.number().int().min(7).max(365).default(30),
+  limit: z.number().int().min(10).max(500).default(100),
+});
+
+/** Finans merkezi: gelirler, komisyonlar, iadeler, ödeme kayıtları, faturalar, banka transferleri, KPI'lar. */
+export async function financeCenter(input: z.infer<typeof financeInputSchema>) {
+  const db = await admin();
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - (input.days - 1));
+  since.setUTCHours(0, 0, 0, 0);
+  const sinceIso = since.toISOString();
+
+  const [
+    invoicesRes,
+    paymentsRes,
+    refundsRes,
+    commissionsRes,
+    payoutsRes,
+    subsRes,
+    plansRes,
+    ordersRes,
+  ] = await Promise.all([
+    db
+      .from("invoices")
+      .select("*")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false })
+      .limit(input.limit),
+    db
+      .from("payments")
+      .select("*")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false })
+      .limit(input.limit),
+    db
+      .from("refunds")
+      .select("*")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false })
+      .limit(input.limit),
+    db
+      .from("commissions")
+      .select("*")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false })
+      .limit(input.limit),
+    db
+      .from("payouts")
+      .select("*")
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false })
+      .limit(input.limit),
+    db.from("subscriptions").select("status, billing_interval, amount, plan_id").in("status", ["trialing", "active"]).limit(5000),
+    db.from("plans").select("id, code, name").limit(200),
+    db
+      .from("orders")
+      .select("grand_total, created_at, store_id")
+      .gte("created_at", sinceIso)
+      .limit(20000),
+  ]);
+
+  for (const res of [invoicesRes, paymentsRes, refundsRes, commissionsRes, payoutsRes, subsRes, plansRes, ordersRes] as {
+    error?: { message: string } | null;
+  }[]) {
+    if (res.error) throw new Error(res.error.message);
+  }
+
+  const invoices = (invoicesRes.data ?? []) as unknown as PlatformRow[];
+  const payments = (paymentsRes.data ?? []) as unknown as PlatformRow[];
+  const refunds = (refundsRes.data ?? []) as unknown as PlatformRow[];
+  const commissions = (commissionsRes.data ?? []) as unknown as PlatformRow[];
+  const payouts = (payoutsRes.data ?? []) as unknown as PlatformRow[];
+  const subs = (subsRes.data ?? []) as { status: string; billing_interval: string; amount: number | string; plan_id: string | null }[];
+  const orders = (ordersRes.data ?? []) as { grand_total: number | string; created_at: string; store_id: string }[];
+
+  const mrr = subs.reduce((total, row) => {
+    const amount = Number(row.amount ?? 0);
+    return total + (row.billing_interval === "yearly" ? amount / 12 : amount);
+  }, 0);
+  const arr = mrr * 12;
+  const gmv = orders.reduce((total, row) => total + Number(row.grand_total ?? 0), 0);
+
+  const collected = payments
+    .filter((row) => row["status"] === "paid")
+    .reduce((total, row) => total + Number(row["amount"] ?? 0), 0);
+  const pendingPayments = payments
+    .filter((row) => row["status"] === "pending")
+    .reduce((total, row) => total + Number(row["amount"] ?? 0), 0);
+  const pendingInvoices = invoices
+    .filter((row) => row["status"] === "open")
+    .reduce((total, row) => total + Number(row["total"] ?? 0), 0);
+  const refundTotal = refunds.reduce((total, row) => total + Number(row["amount"] ?? 0), 0);
+  const commissionTotal = commissions.reduce((total, row) => total + Number(row["commission_amount"] ?? 0), 0);
+  const payoutTotal = payouts
+    .filter((row) => row["status"] === "paid")
+    .reduce((total, row) => total + Number(row["net_amount"] ?? 0), 0);
+  const taxTotal = invoices.reduce((total, row) => total + Number(row["tax_total"] ?? 0), 0);
+
+  const allIds = [
+    ...invoices.map((row) => String(row["store_id"] ?? "")),
+    ...payments.map((row) => String(row["store_id"] ?? "")),
+    ...refunds.map((row) => String(row["store_id"] ?? "")),
+    ...commissions.map((row) => String(row["store_id"] ?? "")),
+    ...payouts.map((row) => String(row["store_id"] ?? "")),
+  ];
+  const names = await storeNames(db, allIds);
+
+  return {
+    kpis: {
+      mrr,
+      arr,
+      gmv,
+      collected,
+      pendingPayments,
+      pendingInvoices,
+      refundTotal,
+      commissionTotal,
+      payoutTotal,
+      taxTotal,
+    },
+    invoices,
+    payments,
+    refunds,
+    commissions,
+    payouts,
+    storeNames: names,
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Sistem Durumu                                                       */
+/* ------------------------------------------------------------------ */
+
+/** Kuyruk sağlığı, API hacmi/hata oranı, güvenlik & audit akışı, tablo sayıları. */
+export async function systemHealth() {
+  const db = await admin();
+  const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+  const count = async (table: string, apply?: (q: any) => any) => {
+    let query = db.from(table).select("id", { count: "exact", head: true });
+    if (apply) query = apply(query);
+    const { count: total } = await query;
+    return Number(total ?? 0);
+  };
+
+  const [
+    queued,
+    running,
+    failed,
+    succeeded24h,
+    failedJobsRes,
+    apiLogsRes,
+    securityRes,
+    auditRes,
+    storesTotal,
+    usersTotal,
+    ordersTotal,
+    productsTotal,
+  ] = await Promise.all([
+    count("job_queue", (q) => q.eq("status", "queued")),
+    count("job_queue", (q) => q.eq("status", "running")),
+    count("job_queue", (q) => q.eq("status", "failed")),
+    count("job_queue", (q) => q.eq("status", "succeeded").gte("finished_at", since24h)),
+    db
+      .from("job_queue")
+      .select("id, kind, last_error, attempts, max_attempts, store_id, updated_at")
+      .eq("status", "failed")
+      .order("updated_at", { ascending: false })
+      .limit(20),
+    db
+      .from("api_request_logs")
+      .select("status_code, duration_ms, created_at, path, method, store_id")
+      .gte("created_at", since24h)
+      .limit(20000),
+    db
+      .from("security_events")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(30),
+    db
+      .from("audit_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(30),
+    count("stores"),
+    count("profiles"),
+    count("orders"),
+    count("products"),
+  ]);
+
+  if (apiLogsRes.error) throw new Error(apiLogsRes.error.message);
+  if (securityRes.error) throw new Error(securityRes.error.message);
+  if (auditRes.error) throw new Error(auditRes.error.message);
+
+  const apiLogs = (apiLogsRes.data ?? []) as { status_code: number; duration_ms: number | null }[];
+  const totalRequests = apiLogs.length;
+  const errorRequests = apiLogs.filter((row) => row.status_code >= 500 || row.status_code === 429).length;
+  const avgDuration = totalRequests
+    ? apiLogs.reduce((total, row) => total + Number(row.duration_ms ?? 0), 0) / totalRequests
+    : 0;
+
+  const securityRows = (securityRes.data ?? []) as unknown as PlatformRow[];
+  const auditRows = (auditRes.data ?? []) as unknown as PlatformRow[];
+  const failedJobs = (failedJobsRes.data ?? []) as unknown as PlatformRow[];
+
+  const storeIds = [
+    ...securityRows.map((row) => String(row["store_id"] ?? "")),
+    ...auditRows.map((row) => String(row["store_id"] ?? "")),
+    ...failedJobs.map((row) => String(row["store_id"] ?? "")),
+  ];
+  const names = await storeNames(db, storeIds);
+
+  return {
+    queue: { queued, running, failed, succeeded24h },
+    failedJobs,
+    api: { totalRequests, errorRequests, errorRate: totalRequests ? errorRequests / totalRequests : 0, avgDuration },
+    securityEvents: securityRows,
+    auditLogs: auditRows,
+    tableCounts: { stores: storesTotal, users: usersTotal, orders: ordersTotal, products: productsTotal },
+    storeNames: names,
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Mağaza yönetici notları                                             */
+/* ------------------------------------------------------------------ */
+
+export async function listStoreAdminNotes(storeId: string) {
+  const db = await admin();
+  const { data, error } = await db
+    .from("store_admin_notes")
+    .select("*")
+    .eq("store_id", storeId)
+    .order("is_pinned", { ascending: false })
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as { author_id: string }[];
+  const authorIds = [...new Set(rows.map((row) => row.author_id))];
+  const { data: authors } = authorIds.length
+    ? await db.from("profiles").select("id, email, full_name").in("id", authorIds)
+    : { data: [] as { id: string; email: string; full_name: string | null }[] };
+  const byId = new Map(
+    ((authors ?? []) as { id: string; email: string; full_name: string | null }[]).map((row) => [row.id, row]),
+  );
+  return (rows as unknown as PlatformRow[]).map((row) => ({
+    ...row,
+    author_name: byId.get(String(row["author_id"]))?.full_name ?? byId.get(String(row["author_id"]))?.email ?? "—",
+  }));
+}
+
+export const storeAdminNoteSchema = z.object({
+  storeId: z.string().uuid(),
+  note: z.string().trim().min(1).max(2000),
+  isPinned: z.boolean().default(false),
+});
+
+export async function addStoreAdminNote(input: z.infer<typeof storeAdminNoteSchema>, userId: string) {
+  const db = await admin();
+  const { error } = await db.from("store_admin_notes").insert({
+    store_id: input.storeId,
+    author_id: userId,
+    note: input.note,
+    is_pinned: input.isPinned,
+  });
+  if (error) throw new Error(error.message);
+  await insertAuditRow(db, {
+    store_id: input.storeId,
+    actor_id: userId,
+    action: "platform.store_note_added",
+    entity: "store_admin_notes",
+    new_value: { note: input.note, is_pinned: input.isPinned },
+  });
+  return { storeId: input.storeId };
+}
+
+export const storeAdminNoteTogglePinSchema = z.object({
+  id: z.string().uuid(),
+  isPinned: z.boolean(),
+});
+
+export async function toggleStoreAdminNotePin(input: z.infer<typeof storeAdminNoteTogglePinSchema>, userId: string) {
+  const db = await admin();
+  const { error } = await db.from("store_admin_notes").update({ is_pinned: input.isPinned }).eq("id", input.id);
+  if (error) throw new Error(error.message);
+  await insertAuditRow(db, {
+    actor_id: userId,
+    action: "platform.store_note_pin_toggled",
+    entity: "store_admin_notes",
+    entity_id: input.id,
+    new_value: { is_pinned: input.isPinned },
+  });
+  return { id: input.id };
+}
+
+export async function deleteStoreAdminNote(id: string, userId: string) {
+  const db = await admin();
+  const { error } = await db.from("store_admin_notes").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  await insertAuditRow(db, {
+    actor_id: userId,
+    action: "platform.store_note_deleted",
+    entity: "store_admin_notes",
+    entity_id: id,
+  });
+  return { id };
+}
+
+/* ------------------------------------------------------------------ */
+/* İnceleme oturumu (impersonation) — salt okunur, kimlik değişmez      */
+/* ------------------------------------------------------------------ */
+
+export async function listImpersonationSessions(storeId: string) {
+  const db = await admin();
+  const { data, error } = await db
+    .from("admin_impersonation_sessions")
+    .select("*")
+    .eq("store_id", storeId)
+    .order("started_at", { ascending: false })
+    .limit(20);
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as { admin_id: string }[];
+  const adminIds = [...new Set(rows.map((row) => row.admin_id))];
+  const { data: admins } = adminIds.length
+    ? await db.from("profiles").select("id, email, full_name").in("id", adminIds)
+    : { data: [] as { id: string; email: string; full_name: string | null }[] };
+  const byId = new Map(
+    ((admins ?? []) as { id: string; email: string; full_name: string | null }[]).map((row) => [row.id, row]),
+  );
+  return (rows as unknown as PlatformRow[]).map((row) => ({
+    ...row,
+    admin_name: byId.get(String(row["admin_id"]))?.full_name ?? byId.get(String(row["admin_id"]))?.email ?? "—",
+  }));
+}
+
+export const startImpersonationSchema = z.object({
+  storeId: z.string().uuid(),
+  reason: z.string().trim().min(3).max(500),
+});
+
+/**
+ * Salt okunur inceleme oturumu başlatır: kimlik/oturum değişmez, token üretilmez.
+ * Yalnızca denetim amaçlı bir kayıt açar ve audit_logs'a yazar.
+ */
+export async function startImpersonation(input: z.infer<typeof startImpersonationSchema>, userId: string) {
+  const db = await admin();
+  const { data, error } = await db
+    .from("admin_impersonation_sessions")
+    .insert({ store_id: input.storeId, admin_id: userId, reason: input.reason })
+    .select("*")
+    .single();
+  if (error) throw new Error(error.message);
+
+  await insertAuditRow(db, {
+    store_id: input.storeId,
+    actor_id: userId,
+    action: "platform.impersonation_started",
+    entity: "admin_impersonation_sessions",
+    entity_id: (data as { id: string }).id,
+    new_value: { reason: input.reason },
+  });
+  return data as unknown as PlatformRow;
+}
+
+export const endImpersonationSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export async function endImpersonation(input: z.infer<typeof endImpersonationSchema>, userId: string) {
+  const db = await admin();
+  const { data: existing, error: fetchError } = await db
+    .from("admin_impersonation_sessions")
+    .select("store_id")
+    .eq("id", input.id)
+    .maybeSingle();
+  if (fetchError) throw new Error(fetchError.message);
+  if (!existing) throw new Error("Oturum bulunamadı");
+
+  const { error } = await db
+    .from("admin_impersonation_sessions")
+    .update({ ended_at: new Date().toISOString() })
+    .eq("id", input.id);
+  if (error) throw new Error(error.message);
+
+  await insertAuditRow(db, {
+    store_id: (existing as { store_id: string }).store_id,
+    actor_id: userId,
+    action: "platform.impersonation_ended",
+    entity: "admin_impersonation_sessions",
+    entity_id: input.id,
+  });
+  return { id: input.id };
+}

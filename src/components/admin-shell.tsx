@@ -82,6 +82,8 @@ const NAV: { title: string; items: NavItem[] }[] = [
     title: "Sistem",
     items: [
       { to: "/admin/analytics", label: "Analitik", icon: ChartNoAxesColumn },
+      { to: "/admin/finance", label: "Finans Merkezi", icon: Wallet },
+      { to: "/admin/system", label: "Sistem Durumu", icon: Activity },
       { to: "/admin/settings", label: "Sistem ayarları", icon: ShieldCheck },
       { to: "/admin/security", label: "Güvenlik", icon: ShieldAlert },
       { to: "/admin/audit", label: "Audit Logs", icon: History },

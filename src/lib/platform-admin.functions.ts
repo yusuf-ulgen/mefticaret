@@ -128,3 +128,95 @@ export const setStorePlanFn = createServerFn({ method: "POST" })
     await server.assertPlatformAdmin(context.supabase, context.userId);
     return server.setStorePlan(server.storePlanSchema.parse(data), context.userId);
   });
+
+/* ------------------------------------------------------------------ */
+/* Finans Merkezi & Sistem Durumu                                       */
+/* ------------------------------------------------------------------ */
+
+export const fetchPlatformFinance = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.financeCenter(server.financeInputSchema.parse(data ?? {}));
+  });
+
+export const fetchSystemHealth = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.systemHealth();
+  });
+
+/* ------------------------------------------------------------------ */
+/* Mağaza yönetici notları                                             */
+/* ------------------------------------------------------------------ */
+
+export const fetchStoreAdminNotes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.listStoreAdminNotes(data.storeId);
+  });
+
+export const addPlatformStoreNote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.addStoreAdminNote(server.storeAdminNoteSchema.parse(data), context.userId);
+  });
+
+export const togglePlatformStoreNotePin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.toggleStoreAdminNotePin(server.storeAdminNoteTogglePinSchema.parse(data), context.userId);
+  });
+
+export const deletePlatformStoreNote = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.deleteStoreAdminNote(data.id, context.userId);
+  });
+
+/* ------------------------------------------------------------------ */
+/* İnceleme oturumu (impersonation)                                     */
+/* ------------------------------------------------------------------ */
+
+export const fetchImpersonationSessions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.listImpersonationSessions(data.storeId);
+  });
+
+export const startPlatformImpersonation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.startImpersonation(server.startImpersonationSchema.parse(data), context.userId);
+  });
+
+export const endPlatformImpersonation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.endImpersonation(server.endImpersonationSchema.parse(data), context.userId);
+  });

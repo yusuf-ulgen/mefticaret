@@ -77,6 +77,41 @@ export type Database = {
           },
         ]
       }
+      admin_impersonation_sessions: {
+        Row: {
+          admin_id: string
+          ended_at: string | null
+          id: string
+          reason: string | null
+          started_at: string
+          store_id: string
+        }
+        Insert: {
+          admin_id: string
+          ended_at?: string | null
+          id?: string
+          reason?: string | null
+          started_at?: string
+          store_id: string
+        }
+        Update: {
+          admin_id?: string
+          ended_at?: string | null
+          id?: string
+          reason?: string | null
+          started_at?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_impersonation_sessions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_generations: {
         Row: {
           created_at: string
@@ -3067,6 +3102,180 @@ export type Database = {
           },
         ]
       }
+      marketplace_listing_links: {
+        Row: {
+          channel_id: string
+          created_at: string
+          error: string | null
+          external_barcode: string | null
+          external_listing_id: string | null
+          id: string
+          price: number | null
+          product_id: string
+          status: string
+          stock_multiplier: number
+          store_id: string
+          title: string | null
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          error?: string | null
+          external_barcode?: string | null
+          external_listing_id?: string | null
+          id?: string
+          price?: number | null
+          product_id: string
+          status?: string
+          stock_multiplier?: number
+          store_id: string
+          title?: string | null
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          error?: string | null
+          external_barcode?: string | null
+          external_listing_id?: string | null
+          id?: string
+          price?: number | null
+          product_id?: string
+          status?: string
+          stock_multiplier?: number
+          store_id?: string
+          title?: string | null
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_listing_links_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_listing_links_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_listing_links_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_listing_links_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_returns: {
+        Row: {
+          auto_restock: boolean
+          channel_id: string | null
+          created_at: string
+          currency: string
+          customer_name: string | null
+          external_order_number: string | null
+          external_return_id: string | null
+          id: string
+          is_exchange: boolean
+          items: Json
+          marketplace: string
+          order_id: string | null
+          reason: string | null
+          reason_detail: string | null
+          requested_at: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          store_id: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          auto_restock?: boolean
+          channel_id?: string | null
+          created_at?: string
+          currency?: string
+          customer_name?: string | null
+          external_order_number?: string | null
+          external_return_id?: string | null
+          id?: string
+          is_exchange?: boolean
+          items?: Json
+          marketplace: string
+          order_id?: string | null
+          reason?: string | null
+          reason_detail?: string | null
+          requested_at?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          store_id: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          auto_restock?: boolean
+          channel_id?: string | null
+          created_at?: string
+          currency?: string
+          customer_name?: string | null
+          external_order_number?: string | null
+          external_return_id?: string | null
+          id?: string
+          is_exchange?: boolean
+          items?: Json
+          marketplace?: string
+          order_id?: string | null
+          reason?: string | null
+          reason_detail?: string | null
+          requested_at?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          store_id?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_returns_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_returns_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_returns_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_sellers: {
         Row: {
           about: string | null
@@ -3128,6 +3337,84 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "marketplace_sellers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_settlements: {
+        Row: {
+          channel_id: string | null
+          commission_amount: number
+          created_at: string
+          currency: string
+          external_id: string | null
+          gross_amount: number
+          id: string
+          marketplace: string
+          net_amount: number
+          other_deductions: number
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          service_fee: number
+          shipping_amount: number
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          channel_id?: string | null
+          commission_amount?: number
+          created_at?: string
+          currency?: string
+          external_id?: string | null
+          gross_amount?: number
+          id?: string
+          marketplace: string
+          net_amount?: number
+          other_deductions?: number
+          paid_at?: string | null
+          period_end: string
+          period_start: string
+          service_fee?: number
+          shipping_amount?: number
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          channel_id?: string | null
+          commission_amount?: number
+          created_at?: string
+          currency?: string
+          external_id?: string | null
+          gross_amount?: number
+          id?: string
+          marketplace?: string
+          net_amount?: number
+          other_deductions?: number
+          paid_at?: string | null
+          period_end?: string
+          period_start?: string
+          service_fee?: number
+          shipping_amount?: number
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_settlements_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_settlements_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -3761,6 +4048,306 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "oauth_clients_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      omni_auto_replies: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_active: boolean
+          kind: string
+          store_id: string
+          updated_at: string
+          working_hours: Json
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind: string
+          store_id: string
+          updated_at?: string
+          working_hours?: Json
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          store_id?: string
+          updated_at?: string
+          working_hours?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "omni_auto_replies_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      omni_channel_accounts: {
+        Row: {
+          account_name: string
+          channel: string
+          created_at: string
+          credentials: Json
+          external_id: string | null
+          id: string
+          is_active: boolean
+          last_synced_at: string | null
+          status: string
+          status_message: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          account_name: string
+          channel: string
+          created_at?: string
+          credentials?: Json
+          external_id?: string | null
+          id?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          status?: string
+          status_message?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string
+          channel?: string
+          created_at?: string
+          credentials?: Json
+          external_id?: string | null
+          id?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          status?: string
+          status_message?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "omni_channel_accounts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      omni_conversations: {
+        Row: {
+          account_id: string | null
+          assigned_to: string | null
+          avatar_url: string | null
+          channel: string
+          converted_order_id: string | null
+          created_at: string
+          customer_id: string | null
+          external_id: string | null
+          first_response_seconds: number | null
+          id: string
+          internal_note: string | null
+          last_message_at: string
+          last_message_preview: string | null
+          message_count: number
+          order_id: string | null
+          participant_handle: string
+          participant_name: string | null
+          status: string
+          store_id: string
+          tags: string[]
+          unread_count: number
+          updated_at: string
+        }
+        Insert: {
+          account_id?: string | null
+          assigned_to?: string | null
+          avatar_url?: string | null
+          channel: string
+          converted_order_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          external_id?: string | null
+          first_response_seconds?: number | null
+          id?: string
+          internal_note?: string | null
+          last_message_at?: string
+          last_message_preview?: string | null
+          message_count?: number
+          order_id?: string | null
+          participant_handle: string
+          participant_name?: string | null
+          status?: string
+          store_id: string
+          tags?: string[]
+          unread_count?: number
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string | null
+          assigned_to?: string | null
+          avatar_url?: string | null
+          channel?: string
+          converted_order_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          external_id?: string | null
+          first_response_seconds?: number | null
+          id?: string
+          internal_note?: string | null
+          last_message_at?: string
+          last_message_preview?: string | null
+          message_count?: number
+          order_id?: string | null
+          participant_handle?: string
+          participant_name?: string | null
+          status?: string
+          store_id?: string
+          tags?: string[]
+          unread_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "omni_conversations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "omni_channel_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "omni_conversations_converted_order_id_fkey"
+            columns: ["converted_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "omni_conversations_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "omni_conversations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "omni_conversations_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      omni_messages: {
+        Row: {
+          attachments: Json
+          body: string
+          conversation_id: string
+          created_at: string
+          direction: string
+          error: string | null
+          external_id: string | null
+          id: string
+          is_ai: boolean
+          sent_by: string | null
+          status: string
+          store_id: string
+        }
+        Insert: {
+          attachments?: Json
+          body?: string
+          conversation_id: string
+          created_at?: string
+          direction: string
+          error?: string | null
+          external_id?: string | null
+          id?: string
+          is_ai?: boolean
+          sent_by?: string | null
+          status?: string
+          store_id: string
+        }
+        Update: {
+          attachments?: Json
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          direction?: string
+          error?: string | null
+          external_id?: string | null
+          id?: string
+          is_ai?: boolean
+          sent_by?: string | null
+          status?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "omni_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "omni_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "omni_messages_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      omni_quick_replies: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          sort_order: number
+          store_id: string
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          store_id: string
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          store_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "omni_quick_replies_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -6364,6 +6951,41 @@ export type Database = {
           },
         ]
       }
+      store_admin_notes: {
+        Row: {
+          author_id: string
+          created_at: string
+          id: string
+          is_pinned: boolean
+          note: string
+          store_id: string
+        }
+        Insert: {
+          author_id: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          note: string
+          store_id: string
+        }
+        Update: {
+          author_id?: string
+          created_at?: string
+          id?: string
+          is_pinned?: boolean
+          note?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_admin_notes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_ai_settings: {
         Row: {
           brand_tone: string
@@ -6802,6 +7424,136 @@ export type Database = {
           },
         ]
       }
+      store_popups: {
+        Row: {
+          accent_color: string | null
+          animation: string
+          body: string
+          clicks: number
+          created_at: string
+          cta_label: string | null
+          cta_url: string | null
+          display_rules: Json
+          ends_at: string | null
+          headline: string
+          id: string
+          image_url: string | null
+          impressions: number
+          is_active: boolean
+          name: string
+          position: string
+          sort_order: number
+          starts_at: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string | null
+          animation?: string
+          body?: string
+          clicks?: number
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          display_rules?: Json
+          ends_at?: string | null
+          headline?: string
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          is_active?: boolean
+          name: string
+          position?: string
+          sort_order?: number
+          starts_at?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string | null
+          animation?: string
+          body?: string
+          clicks?: number
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          display_rules?: Json
+          ends_at?: string | null
+          headline?: string
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          is_active?: boolean
+          name?: string
+          position?: string
+          sort_order?: number
+          starts_at?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_popups_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_product_feeds: {
+        Row: {
+          category_map: Json
+          created_at: string
+          currency: string
+          id: string
+          include_out_of_stock: boolean
+          is_active: boolean
+          item_count: number
+          kind: string
+          last_built_at: string | null
+          store_id: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          category_map?: Json
+          created_at?: string
+          currency?: string
+          id?: string
+          include_out_of_stock?: boolean
+          is_active?: boolean
+          item_count?: number
+          kind: string
+          last_built_at?: string | null
+          store_id: string
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          category_map?: Json
+          created_at?: string
+          currency?: string
+          id?: string
+          include_out_of_stock?: boolean
+          is_active?: boolean
+          item_count?: number
+          kind?: string
+          last_built_at?: string | null
+          store_id?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_product_feeds_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_settings: {
         Row: {
           address: Json
@@ -6871,6 +7623,66 @@ export type Database = {
             foreignKeyName: "store_settings_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_stories: {
+        Row: {
+          caption: string
+          channel: string
+          created_at: string
+          error: string | null
+          id: string
+          image_url: string | null
+          link_url: string | null
+          product_id: string | null
+          published_at: string | null
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string
+          channel: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          product_id?: string | null
+          published_at?: string | null
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string
+          channel?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          product_id?: string | null
+          published_at?: string | null
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_stories_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_stories_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
