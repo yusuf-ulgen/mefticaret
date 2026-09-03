@@ -261,6 +261,62 @@ function StoreControlPage() {
           </ul>
         </section>
       </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        {CONTROL_GROUPS.map((group) => (
+          <section key={group.title} className="surface-card p-6">
+            <h2 className="font-display text-lg font-semibold">{group.title}</h2>
+            <p className="mt-1 text-xs text-muted-foreground">{group.description}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {group.links.map((link) => (
+                <Button key={link.to} asChild size="sm" variant="outline">
+                  <Link to={link.to} params={{ storeId }}>
+                    {link.label}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
     </AdminShell>
   );
 }
+
+/** Süper yöneticinin kiracının ön yüzünü ve arka yüzünü doğrudan yönetmesi için kısayollar. */
+const CONTROL_GROUPS = [
+  {
+    title: "Ön uç yönetimi",
+    description: "Vitrin görünümü, tema blokları, sayfalar, menü, medya ve SEO.",
+    links: [
+      { to: "/store/$storeId/theme-editor", label: "Tema editörü" },
+      { to: "/store/$storeId/themes", label: "Tema mağazası" },
+      { to: "/store/$storeId/theme-sections", label: "Tema bölümleri" },
+      { to: "/store/$storeId/pages", label: "Sayfalar" },
+      { to: "/store/$storeId/navigation", label: "Menüler" },
+      { to: "/store/$storeId/media", label: "Medya" },
+      { to: "/store/$storeId/blog", label: "Blog" },
+      { to: "/store/$storeId/seo", label: "SEO" },
+      { to: "/store/$storeId/domains", label: "Domainler" },
+      { to: "/store/$storeId/live", label: "Canlı izleme" },
+    ],
+  },
+  {
+    title: "Arka uç yönetimi",
+    description: "Katalog, sipariş, müşteri, stok, kargo, ödeme, finans ve entegrasyonlar.",
+    links: [
+      { to: "/store/$storeId/products", label: "Ürünler" },
+      { to: "/store/$storeId/orders", label: "Siparişler" },
+      { to: "/store/$storeId/customers", label: "Müşteriler" },
+      { to: "/store/$storeId/inventory", label: "Stok" },
+      { to: "/store/$storeId/shipping", label: "Kargo" },
+      { to: "/store/$storeId/payments", label: "Ödeme" },
+      { to: "/store/$storeId/finance", label: "Finans" },
+      { to: "/store/$storeId/discounts", label: "Kuponlar" },
+      { to: "/store/$storeId/api", label: "API" },
+      { to: "/store/$storeId/webhooks", label: "Webhook" },
+      { to: "/store/$storeId/team", label: "Ekip" },
+      { to: "/store/$storeId/settings", label: "Ayarlar" },
+    ],
+  },
+] as const;
