@@ -16,6 +16,7 @@ import {
   Menu,
   Palette,
   PenLine,
+  Radio,
   Receipt,
   ShieldAlert,
   ShieldCheck,
@@ -42,6 +43,7 @@ const NAV: { title: string; items: NavItem[] }[] = [
     title: "Genel",
     items: [
       { to: "/admin", label: "Dashboard", icon: Gauge },
+      { to: "/admin/live", label: "Canlı İzleme", icon: Radio },
       { to: "/admin/stores", label: "Mağazalar", icon: Store },
       { to: "/admin/users", label: "Kullanıcılar", icon: Users },
       { to: "/admin/sellers", label: "Satıcılar", icon: BadgeCheck },
