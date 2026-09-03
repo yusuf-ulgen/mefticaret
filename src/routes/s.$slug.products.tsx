@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { SmartImage } from "@/components/smart-image";
+import { StorefrontAdminLink } from "@/components/storefront-admin-link";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
@@ -135,6 +136,9 @@ function StorefrontProductsPage() {
         <p style={{ color: muted, marginTop: 10, fontSize: 15 }}>
           {store.name} kataloğundaki ürünleri arayabilir, tür ve fiyata göre filtreleyebilirsin.
         </p>
+        <div style={{ marginTop: 12 }}>
+          <StorefrontAdminLink storeId={store.id} border={border} muted={muted} />
+        </div>
       </header>
 
       <div className="sf-filters" style={{ marginBottom: 20 }}>
