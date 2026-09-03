@@ -163,6 +163,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Çoklu İlan Bağlantıları", to: p("listing-links"), icon: Layers, keywords: "listing ilan eşleştirme" },
         { label: "Popup & Duyuru", to: p("popups"), icon: Sparkles, keywords: "popup animasyon" },
         { label: "Sosyal Paylaşım", to: p("social-share"), icon: Megaphone, keywords: "story instagram paylaş" },
+        { label: "Site Kit", to: p("site-kit"), icon: Blocks, keywords: "google analytics ga4 tag manager meta pixel tiktok pinterest capi entegrasyon takip kod" },
         { label: "Ürün Akışları", to: p("feeds"), icon: FileSpreadsheet, keywords: "google shopping tiktok katalog feed" },
       ],
     },
