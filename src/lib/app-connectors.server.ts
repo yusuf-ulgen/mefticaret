@@ -195,7 +195,111 @@ const CHECKS: Record<
       message: "Kimlik bilgileri kaydedildi. İlk ödeme denemesinde doğrulanacak.",
     }),
   },
+  "hepsiburada-marketplace": {
+    required: ["merchant_id", "username", "password"],
+    run: (s) =>
+      request(
+        `https://listing-external.hepsiburada.com/listings/merchantid/${encodeURIComponent(
+          str(s, "merchant_id"),
+        )}?offset=0&limit=1`,
+        {
+          headers: {
+            Authorization: basic(str(s, "username"), str(s, "password")),
+            "User-Agent": `${str(s, "merchant_id")} - MefTicaret`,
+            Accept: "application/json",
+          },
+        },
+        "Hepsiburada satıcı hesabı doğrulandı",
+      ),
+  },
+  "n11-marketplace": {
+    required: ["app_key", "app_secret"],
+    run: (s) =>
+      request(
+        "https://api.n11.com/cdn/cities",
+        {
+          headers: {
+            appkey: str(s, "app_key"),
+            appsecret: str(s, "app_secret"),
+            Accept: "application/json",
+          },
+        },
+        "n11 API anahtarları doğrulandı",
+      ),
+  },
+  "aliexpress-marketplace": {
+    required: ["client_id", "client_secret", "refresh_token"],
+    run: async () => ({
+      status: "configured",
+      message: "Kimlik bilgileri kaydedildi. İmzalı istekler senkronizasyonda doğrulanacak.",
+    }),
+  },
+  "walmart-marketplace": {
+    required: ["client_id", "client_secret"],
+    run: (s) => {
+      const host =
+        str(s, "environment") === "sandbox"
+          ? "sandbox.walmartapis.com"
+          : "marketplace.walmartapis.com";
+      return request(
+        `https://${host}/v3/token`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: basic(str(s, "client_id"), str(s, "client_secret")),
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+            "WM_SVC.NAME": "Walmart Marketplace",
+            "WM_QOS.CORRELATION_ID": crypto.randomUUID(),
+          },
+          body: new URLSearchParams({ grant_type: "client_credentials" }).toString(),
+        },
+        "Walmart erişim token'ı alındı",
+      );
+    },
+  },
+  "allegro-marketplace": {
+    required: ["client_id", "client_secret"],
+    run: (s) => {
+      const host =
+        str(s, "environment") === "sandbox" ? "allegro.pl.allegrosandbox.pl" : "allegro.pl";
+      return request(
+        `https://${host}/auth/oauth/token`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: basic(str(s, "client_id"), str(s, "client_secret")),
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+          },
+          body: new URLSearchParams({ grant_type: "client_credentials" }).toString(),
+        },
+        "Allegro erişim token'ı alındı",
+      );
+    },
+  },
+  "pazarama-marketplace": {
+    required: ["client_id", "client_secret"],
+    run: (s) =>
+      request(
+        "https://isortagimgiris.pazarama.com/connect/token",
+        {
+          method: "POST",
+          headers: {
+            Authorization: basic(str(s, "client_id"), str(s, "client_secret")),
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+          },
+          body: new URLSearchParams({
+            grant_type: "client_credentials",
+            scope: "merchantgatewayapi.fullaccess",
+          }).toString(),
+        },
+        "Pazarama erişim token'ı alındı",
+      ),
+  },
 };
+
 
 /** Kodu bilinen entegrasyonlar için bağlantı testi yapar. */
 export async function runConnectionCheck(
