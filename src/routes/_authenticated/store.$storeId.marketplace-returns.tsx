@@ -298,7 +298,7 @@ function MarketplaceReturnsPage() {
 
   const resolve = useServerFn(resolveMarketplaceReturnFn);
   const mutation = useMutation({
-    mutationFn: (input: { returnId: string; action: "approve" | "reject" | "receive" }) =>
+    mutationFn: (input: { returnId: string; action: "approve" | "reject" | "receive" | "refund" }) =>
       resolve({ data: { storeId, ...input } }),
     onSuccess: () => {
       toast.success("İade güncellendi");
