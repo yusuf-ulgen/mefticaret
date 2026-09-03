@@ -134,5 +134,9 @@ export const applyThemeTemplate = createServerFn({ method: "POST" })
     const { error: insertError } = await context.supabase.from("store_theme_sections").insert(rows);
     if (insertError) throw new Error(insertError.message);
 
+    // Vitrin önbelleğini temizle: yeni tema anında mağazada görünsün.
+    const { invalidateStoreCache } = await import("@/lib/cache.server");
+    await invalidateStoreCache(data.storeId);
+
     return { ok: true, sections: rows.length };
   });
