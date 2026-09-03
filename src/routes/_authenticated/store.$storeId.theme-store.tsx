@@ -250,6 +250,18 @@ function ThemeStorePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col gap-4">
+                  {template.store?.previewImage ? (
+                    <div className="overflow-hidden rounded-lg border border-border bg-muted">
+                      <img
+                        src={template.store.previewImage}
+                        alt={`${template.name} teması önizleme görseli`}
+                        loading="lazy"
+                        width={1600}
+                        height={800}
+                        className="aspect-[16/9] w-full object-cover"
+                      />
+                    </div>
+                  ) : null}
                   <p className="text-sm text-muted-foreground">{template.description}</p>
 
                   <div className="flex flex-wrap gap-1.5">

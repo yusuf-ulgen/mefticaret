@@ -28,6 +28,8 @@ export type ThemeTemplate = {
     featured?: boolean;
     /** Tema mağazasında listelenen özellikler. */
     features?: string[];
+    /** Kart üzerinde gösterilen kapak görseli. */
+    previewImage?: string;
   };
   theme: {
     primaryColor: string;
@@ -307,6 +309,7 @@ const WOKIEE: ThemeTemplate = {
       "Ürün yorumları, müşteri görüşleri, sosyal galeri",
       "Blog bloğu, bülten kaydı ve güven rozetleri",
     ],
+    previewImage: "/themes/wokiee/hero-tech.jpg",
   },
   theme: {
     primaryColor: "#111318",
