@@ -1,88 +1,112 @@
-import { useMemo } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ExternalLink, Search, TriangleAlert } from "lucide-react";
+import { useMemo, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { ExternalLink, FileWarning, Link2, Settings2, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SeoErrorsTab } from "@/components/seo/seo-errors";
+import { SeoMetaTab } from "@/components/seo/seo-meta";
+import { SeoOverviewTab, type SeoCheck } from "@/components/seo/seo-overview";
+import { SeoRedirectsTab } from "@/components/seo/seo-redirects";
+import { seoTemplateDefaults, type SeoTemplateKey } from "@/components/seo/seo-shared";
+import { SeoUrlsTab } from "@/components/seo/seo-urls";
 import { storePagesQuery } from "@/lib/pages-queries";
-import { storeSeoAuditQuery } from "@/lib/seo-queries";
+import { readStoreSeo, type StoreSeoSettings } from "@/lib/seo";
+import { seo404Query, seoRedirectsQuery } from "@/lib/seo-management-queries";
 import {
-  storeDomainsQuery,
-  storeQuery,
-  storeSettingsQuery,
-} from "@/lib/store-queries";
+  createRedirectFrom404,
+  deleteSeoRedirect,
+  upsertSeoRedirect,
+} from "@/lib/seo-management.functions";
+import { saveStoreSeo } from "@/lib/seo.functions";
+import { storeSeoAuditQuery } from "@/lib/seo-queries";
+import { storeDomainsQuery, storeQuery, storeSettingsQuery } from "@/lib/store-queries";
 import { storeThemeQuery } from "@/lib/theme-queries";
-import { formatNumber } from "@/lib/mefti";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/seo")({
   head: () => ({
     meta: [
-      { title: "SEO Denetimi — Mefticaret" },
+      { title: "SEO Merkezi — Mefticaret" },
       {
         name: "description",
         content:
-          "Mağaza ve ürün sayfalarınızın SEO sağlığını puanlayın: eksik meta açıklamalar, görseller, alan adı ve içerik kontrolleri.",
+          "Meta şablonları, URL yapısı, 301 yönlendirmeleri, 404 takibi ve mağaza SEO sağlığını tek merkezden yönetin.",
       },
-      { property: "og:title", content: "SEO Denetimi — Mefticaret" },
+      { property: "og:title", content: "SEO Merkezi — Mefticaret" },
       {
         property: "og:description",
-        content: "Arama motoru görünürlüğünüzü artıracak eksikleri tek ekranda görün.",
+        content: "Mağazanızın arama motoru görünürlüğünü gerçek verilerle yönetin.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: SeoAuditPage,
+  component: SeoCenterPage,
 });
 
-type Check = {
-  id: string;
-  label: string;
-  hint: string;
-  ok: boolean;
-  to?: string;
-};
-
-function SeoAuditPage() {
+function SeoCenterPage() {
   const { storeId } = Route.useParams();
-
+  const client = useQueryClient();
   const { data: store } = useQuery(storeQuery(storeId));
   const { data: settings } = useQuery(storeSettingsQuery(storeId));
   const { data: theme } = useQuery(storeThemeQuery(storeId));
   const { data: pages } = useQuery(storePagesQuery(storeId));
   const { data: domains } = useQuery(storeDomainsQuery(storeId));
   const { data: products, isLoading } = useQuery(storeSeoAuditQuery(storeId));
+  const { data: redirects } = useQuery(seoRedirectsQuery(storeId));
+  const { data: errors404 } = useQuery(seo404Query(storeId));
 
-  const storeSeo = (settings?.seo ?? null) as { title?: string; description?: string } | null;
+  const saveSeo = useServerFn(saveStoreSeo);
+  const saveRedirect = useServerFn(upsertSeoRedirect);
+  const removeRedirect = useServerFn(deleteSeoRedirect);
+  const makeRedirect = useServerFn(createRedirectFrom404);
 
-  const checks = useMemo<Check[]>(() => {
-    const activeProducts = (products ?? []).filter((p) => p.status === "active");
-    const publishedPages = (pages ?? []).filter((p) => p.is_published);
-    const verifiedDomain = (domains ?? []).some((d) => d.status === "verified");
+  const [tab, setTab] = useState("overview");
+  const [draft, setDraft] = useState<StoreSeoSettings>({});
+  const [templateKey, setTemplateKey] = useState<SeoTemplateKey>("product");
+  const [source, setSource] = useState("");
+  const [target, setTarget] = useState("");
+  const [code, setCode] = useState<"301" | "302">("301");
+  const [errorTargets, setErrorTargets] = useState<Record<string, string>>({});
 
+  const stored = useMemo(() => readStoreSeo(settings?.seo), [settings?.seo]);
+  const current = Object.keys(draft).length ? draft : stored;
+
+  const updateSeo = (patch: Partial<StoreSeoSettings>) =>
+    setDraft(() => ({ ...current, ...patch }));
+
+  const updateTemplate = (field: "title" | "description", value: string) => {
+    const templates = { ...(current.templates ?? {}) };
+    templates[templateKey] = {
+      ...(templates[templateKey] ?? seoTemplateDefaults[templateKey]),
+      [field]: value,
+    };
+    updateSeo({ templates });
+  };
+
+  const checks = useMemo<SeoCheck[]>(() => {
+    const active = (products ?? []).filter((product) => product.status === "active");
     return [
       {
-        id: "store-title",
+        id: "title",
         label: "Mağaza SEO başlığı tanımlı",
-        hint: "Ayarlar > SEO alanından 60 karakteri aşmayan bir başlık girin.",
-        ok: Boolean(storeSeo?.title && storeSeo.title.trim().length > 3),
-        to: `/store/${storeId}/settings`,
+        hint: "60 karakteri aşmayan bir ana sayfa başlığı girin.",
+        ok: Boolean(stored.homeTitle && stored.homeTitle.trim().length > 3),
       },
       {
-        id: "store-description",
+        id: "description",
         label: "Mağaza meta açıklaması tanımlı",
-        hint: "160 karaktere kadar, mağazanızı özetleyen bir açıklama ekleyin.",
-        ok: Boolean(storeSeo?.description && storeSeo.description.trim().length > 20),
-        to: `/store/${storeId}/settings`,
+        hint: "160 karaktere kadar açıklayıcı bir metin ekleyin.",
+        ok: Boolean(stored.homeDescription && stored.homeDescription.trim().length > 20),
       },
       {
         id: "contact",
         label: "İletişim bilgileri dolu",
-        hint: "E-posta ve telefon, güven sinyali olarak arama sonuçlarını destekler.",
+        hint: "İletişim bilgileri güven sinyalini destekler.",
         ok: Boolean(settings?.contact_email),
         to: `/store/${storeId}/settings`,
       },
@@ -96,67 +120,144 @@ function SeoAuditPage() {
       {
         id: "hero",
         label: "Vitrin başlığı özelleştirilmiş",
-        hint: "Ana sayfadaki H1 metni markanızı ve ana anahtar kelimenizi içermeli.",
+        hint: "Ana sayfa H1 metnini markanıza göre düzenleyin.",
         ok: Boolean(theme?.hero_title && theme.hero_title.trim().length > 8),
         to: `/store/${storeId}/themes`,
       },
       {
         id: "products",
         label: "En az 3 aktif ürün var",
-        hint: "Aktif ürünler sitemap ve ürün yapılandırılmış verisini besler.",
-        ok: activeProducts.length >= 3,
+        hint: "Aktif ürünler sitemap ve yapılandırılmış veriyi besler.",
+        ok: active.length >= 3,
         to: `/store/${storeId}/products`,
       },
       {
         id: "pages",
-        label: "Yasal / kurumsal sayfa yayında",
-        hint: "İade, gizlilik ve hakkımızda sayfaları güven ve SEO için gereklidir.",
-        ok: publishedPages.length >= 1,
+        label: "Kurumsal sayfa yayında",
+        hint: "İade, gizlilik veya hakkımızda sayfası ekleyin.",
+        ok: (pages ?? []).some((page) => page.is_published),
         to: `/store/${storeId}/pages`,
       },
       {
         id: "domain",
         label: "Doğrulanmış alan adı",
-        hint: "Kendi alan adınız marka aramalarında görünürlüğü artırır.",
-        ok: verifiedDomain,
+        hint: "Kendi alan adınız marka görünürlüğünü artırır.",
+        ok: (domains ?? []).some((domain) => domain.status === "verified"),
         to: `/store/${storeId}/domains`,
       },
     ];
-  }, [domains, pages, products, settings, storeId, storeSeo, theme]);
+  }, [domains, pages, products, settings?.contact_email, stored, storeId, theme]);
 
-  const productIssues = useMemo(() => {
-    return (products ?? [])
-      .filter((p) => p.status === "active")
-      .map((product) => {
-        const issues: string[] = [];
-        const metaDescription = product.seo?.description ?? "";
-        if (!metaDescription || metaDescription.trim().length < 40) issues.push("Meta açıklama eksik");
-        if (!product.seo?.title || product.seo.title.trim().length < 5) issues.push("SEO başlığı eksik");
-        if (!product.description || product.description.replace(/<[^>]*>/g, "").trim().length < 80)
-          issues.push("Ürün açıklaması kısa");
-        if (product.imageCount === 0) issues.push("Görsel yok");
-        if (product.slug.length > 70) issues.push("URL çok uzun");
-        return { ...product, issues };
-      })
-      .filter((product) => product.issues.length > 0)
-      .sort((a, b) => b.issues.length - a.issues.length);
-  }, [products]);
-
-  const passed = checks.filter((c) => c.ok).length;
-  const activeCount = (products ?? []).filter((p) => p.status === "active").length;
-  const healthyProducts = Math.max(activeCount - productIssues.length, 0);
-  const score = Math.round(
-    ((passed / checks.length) * 0.6 + (activeCount ? healthyProducts / activeCount : 0) * 0.4) * 100,
+  const issues = useMemo(
+    () =>
+      (products ?? [])
+        .filter((product) => product.status === "active")
+        .map((product) => {
+          const list: string[] = [];
+          if (!product.seo?.description || product.seo.description.trim().length < 40)
+            list.push("Meta açıklama eksik");
+          if (!product.seo?.title || product.seo.title.trim().length < 5)
+            list.push("SEO başlığı eksik");
+          if (
+            !product.description ||
+            product.description.replace(/<[^>]*>/g, "").trim().length < 80
+          )
+            list.push("Ürün açıklaması kısa");
+          if (product.imageCount === 0) list.push("Görsel yok");
+          if (product.slug.length > 70) list.push("URL çok uzun");
+          return { id: product.id, title: product.title, slug: product.slug, issues: list };
+        })
+        .filter((product) => product.issues.length > 0)
+        .sort((a, b) => b.issues.length - a.issues.length),
+    [products],
   );
 
+  const activeCount = (products ?? []).filter((product) => product.status === "active").length;
+  const passed = checks.filter((check) => check.ok).length;
+  const score = Math.round(
+    ((passed / checks.length) * 0.6 +
+      (activeCount ? Math.max(activeCount - issues.length, 0) / activeCount : 0) * 0.4) *
+      100,
+  );
+
+  const saveMutation = useMutation({
+    mutationFn: () =>
+      saveSeo({
+        data: {
+          storeId,
+          homeTitle: current.homeTitle,
+          homeDescription: current.homeDescription,
+          keywords: current.keywords,
+          defaultOgImage: current.defaultOgImage,
+          noindexStore: current.noindexStore,
+          robotsExtra: current.robotsExtra,
+          urlStructure: current.urlStructure,
+          templates: current.templates,
+        },
+      }),
+    onSuccess: async () => {
+      setDraft({});
+      await client.invalidateQueries({ queryKey: ["store-settings", storeId] });
+      toast.success("SEO ayarları kaydedildi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const redirectMutation = useMutation({
+    mutationFn: () =>
+      saveRedirect({
+        data: {
+          storeId,
+          sourcePath: source,
+          targetPath: target,
+          statusCode: Number(code) as 301 | 302,
+          isActive: true,
+        },
+      }),
+    onSuccess: async () => {
+      setSource("");
+      setTarget("");
+      await client.invalidateQueries({ queryKey: ["seo-redirects", storeId] });
+      toast.success("Yönlendirme kaydedildi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => removeRedirect({ data: { storeId, id } }),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ["seo-redirects", storeId] });
+      toast.success("Yönlendirme silindi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const errorMutation = useMutation({
+    mutationFn: ({ id, path }: { id: string; path: string }) =>
+      makeRedirect({ data: { storeId, id, targetPath: path } }),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ["seo-redirects", storeId] });
+      await client.invalidateQueries({ queryKey: ["seo-404s", storeId] });
+      toast.success("404 kaydından 301 oluşturuldu");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const slug = store?.slug ?? "magazaniz";
+
   return (
-    <AppShell storeId={storeId} title="SEO Denetimi">
+    <AppShell
+      storeId={storeId}
+      title="SEO Merkezi"
+      description="Arama görünürlüğü, meta şablonları ve teknik SEO operasyonları."
+    >
       <div className="space-y-6">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">SEO Denetimi</h1>
-            <p className="text-sm text-muted-foreground">
-              Vitrininizin arama motoru sağlığını puanlayın ve eksikleri tek tek kapatın.
+            <p className="eyebrow">Görünürlük operasyonu</p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">SEO Merkezi</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              İçerik, teknik yapı ve hata takibini tek merkezden yönetin.
             </p>
           </div>
           {store?.slug ? (
@@ -168,101 +269,88 @@ function SeoAuditPage() {
           ) : null}
         </header>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl border bg-card p-5">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">SEO Skoru</p>
-            <p className="mt-1 text-3xl font-semibold">{score}/100</p>
-            <Progress value={score} className="mt-3" />
-          </div>
-          <div className="rounded-xl border bg-card p-5">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Mağaza kontrolleri</p>
-            <p className="mt-1 text-3xl font-semibold">
-              {passed}/{checks.length}
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">tamamlandı</p>
-          </div>
-          <div className="rounded-xl border bg-card p-5">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Eksiği olan ürün</p>
-            <p className="mt-1 text-3xl font-semibold">{formatNumber(productIssues.length)}</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {formatNumber(activeCount)} aktif ürün içinde
-            </p>
-          </div>
-        </section>
+        <Tabs value={tab} onValueChange={setTab} className="space-y-5">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+            <TabsTrigger value="overview" className="gap-2">
+              <ShieldCheck className="h-4 w-4" /> Genel bakış
+            </TabsTrigger>
+            <TabsTrigger value="meta" className="gap-2">
+              <Settings2 className="h-4 w-4" /> Meta şablonları
+            </TabsTrigger>
+            <TabsTrigger value="urls" className="gap-2">
+              <Link2 className="h-4 w-4" /> URL yapısı
+            </TabsTrigger>
+            <TabsTrigger value="redirects" className="gap-2">
+              <Link2 className="h-4 w-4" /> 301 / 302
+            </TabsTrigger>
+            <TabsTrigger value="errors" className="gap-2">
+              <FileWarning className="h-4 w-4" /> 404 izleme
+            </TabsTrigger>
+          </TabsList>
 
-        <section className="rounded-xl border bg-card">
-          <div className="border-b px-5 py-4">
-            <h2 className="font-medium">Mağaza kontrolleri</h2>
-          </div>
-          <ul className="divide-y">
-            {checks.map((check) => (
-              <li key={check.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
-                {check.ok ? (
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
-                ) : (
-                  <TriangleAlert className="h-5 w-5 text-destructive" />
-                )}
-                <div className="min-w-[220px] flex-1">
-                  <p className="text-sm font-medium">{check.label}</p>
-                  {!check.ok ? (
-                    <p className="text-xs text-muted-foreground">{check.hint}</p>
-                  ) : null}
-                </div>
-                {!check.ok && check.to ? (
-                  <Button asChild size="sm" variant="outline">
-                    <Link to={check.to}>Düzelt</Link>
-                  </Button>
-                ) : (
-                  <Badge variant="secondary">Tamam</Badge>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
+          <TabsContent value="overview">
+            <SeoOverviewTab
+              checks={checks}
+              score={score}
+              passed={passed}
+              activeCount={activeCount}
+              issues={issues}
+              loading={isLoading}
+              storeId={storeId}
+            />
+          </TabsContent>
 
-        <section className="rounded-xl border bg-card">
-          <div className="flex items-center gap-2 border-b px-5 py-4">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <h2 className="font-medium">Ürün sayfası eksikleri</h2>
-          </div>
-          {isLoading ? (
-            <div className="space-y-2 p-5">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          ) : productIssues.length === 0 ? (
-            <p className="p-5 text-sm text-muted-foreground">
-              Harika — aktif ürünlerin tümü temel SEO kontrollerini geçiyor.
-            </p>
-          ) : (
-            <ul className="divide-y">
-              {productIssues.slice(0, 50).map((product) => (
-                <li key={product.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
-                  <div className="min-w-[220px] flex-1">
-                    <p className="text-sm font-medium">{product.title}</p>
-                    <p className="text-xs text-muted-foreground">/{product.slug}</p>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {product.issues.map((issue) => (
-                      <Badge key={issue} variant="outline" className="text-xs">
-                        {issue}
-                      </Badge>
-                    ))}
-                  </div>
-                  <Button asChild size="sm" variant="outline">
-                    <Link
-                      to="/store/$storeId/products/$productId"
-                      params={{ storeId, productId: product.id }}
-                    >
-                      Düzenle
-                    </Link>
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+          <TabsContent value="meta" className="grid gap-6 xl:grid-cols-[1fr_360px]">
+            <SeoMetaTab
+              current={current}
+              templateKey={templateKey}
+              storeName={store?.name ?? "Mağazanız"}
+              previewUrl={`/s/${slug}`}
+              pending={saveMutation.isPending}
+              setTemplateKey={setTemplateKey}
+              updateSeo={updateSeo}
+              updateTemplate={updateTemplate}
+              save={() => saveMutation.mutate()}
+            />
+          </TabsContent>
+
+          <TabsContent value="urls">
+            <SeoUrlsTab
+              current={current}
+              storeSlug={slug}
+              updateSeo={updateSeo}
+              save={() => saveMutation.mutate()}
+              pending={saveMutation.isPending}
+            />
+          </TabsContent>
+
+          <TabsContent value="redirects">
+            <SeoRedirectsTab
+              rows={redirects ?? []}
+              source={source}
+              target={target}
+              code={code}
+              setSource={setSource}
+              setTarget={setTarget}
+              setCode={setCode}
+              add={() => redirectMutation.mutate()}
+              remove={(id) => deleteMutation.mutate(id)}
+              pending={redirectMutation.isPending}
+            />
+          </TabsContent>
+
+          <TabsContent value="errors">
+            <SeoErrorsTab
+              rows={errors404 ?? []}
+              targets={errorTargets}
+              setTarget={(id, value) =>
+                setErrorTargets((old) => ({ ...old, [id]: value }))
+              }
+              create={(id, path) => errorMutation.mutate({ id, path })}
+              pending={errorMutation.isPending}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </AppShell>
   );
