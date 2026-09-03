@@ -71,7 +71,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/popups")({
   component: PopupsPage,
 });
 
-type PopupRow = Awaited<ReturnType<ReturnType<typeof storePopupsQuery>["queryFn"]>>[number];
+type PopupRow = NonNullable<Awaited<ReturnType<NonNullable<ReturnType<typeof storePopupsQuery>["queryFn"]>>>>[number];
 
 const EMPTY_FORM = {
   id: undefined as string | undefined,

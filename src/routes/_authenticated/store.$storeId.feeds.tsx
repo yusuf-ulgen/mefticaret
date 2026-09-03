@@ -58,7 +58,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/feeds")({
   component: FeedsPage,
 });
 
-type FeedRow = Awaited<ReturnType<ReturnType<typeof storeProductFeedsQuery>["queryFn"]>>[number];
+type FeedRow = NonNullable<Awaited<ReturnType<NonNullable<ReturnType<typeof storeProductFeedsQuery>["queryFn"]>>>>[number];
 
 function FeedCard({
   storeId,
