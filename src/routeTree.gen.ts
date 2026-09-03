@@ -19,6 +19,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
+import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticated/supplier'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
 import { Route as AuthenticatedAdminApiRouteImport } from './routes/_authenticated/admin.api'
@@ -234,6 +235,11 @@ const AuthenticatedSellersRoute = AuthenticatedSellersRouteImport.update({
 const AuthenticatedStoresRoute = AuthenticatedStoresRouteImport.update({
   id: '/stores',
   path: '/stores',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSupplierRoute = AuthenticatedSupplierRouteImport.update({
+  id: '/supplier',
+  path: '/supplier',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -1208,6 +1214,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
   '/admin/apps': typeof AuthenticatedAdminAppsRoute
@@ -1385,6 +1392,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
+  '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
   '/admin/apps': typeof AuthenticatedAdminAppsRoute
@@ -1564,6 +1572,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
+  '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
   '/_authenticated/admin/apps': typeof AuthenticatedAdminAppsRoute
@@ -1744,6 +1753,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/sellers'
     | '/stores'
+    | '/supplier'
     | '/admin/analytics'
     | '/admin/api'
     | '/admin/apps'
@@ -1921,6 +1931,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/sellers'
     | '/stores'
+    | '/supplier'
     | '/admin/analytics'
     | '/admin/api'
     | '/admin/apps'
@@ -2099,6 +2110,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
+    | '/_authenticated/supplier'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
     | '/_authenticated/admin/apps'
@@ -2385,6 +2397,13 @@ declare module '@tanstack/react-router' {
       path: '/stores'
       fullPath: '/stores'
       preLoaderRoute: typeof AuthenticatedStoresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/supplier': {
+      id: '/_authenticated/supplier'
+      path: '/supplier'
+      fullPath: '/supplier'
+      preLoaderRoute: typeof AuthenticatedSupplierRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/': {
@@ -3680,6 +3699,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
+  AuthenticatedSupplierRoute: typeof AuthenticatedSupplierRoute
   AuthenticatedOauthAuthorizeRoute: typeof AuthenticatedOauthAuthorizeRoute
   AuthenticatedSellerSellerIdRoute: typeof AuthenticatedSellerSellerIdRoute
   AuthenticatedStoreStoreIdAbcRoute: typeof AuthenticatedStoreStoreIdAbcRoute
@@ -3784,6 +3804,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,
+  AuthenticatedSupplierRoute: AuthenticatedSupplierRoute,
   AuthenticatedOauthAuthorizeRoute: AuthenticatedOauthAuthorizeRoute,
   AuthenticatedSellerSellerIdRoute: AuthenticatedSellerSellerIdRoute,
   AuthenticatedStoreStoreIdAbcRoute: AuthenticatedStoreStoreIdAbcRoute,
