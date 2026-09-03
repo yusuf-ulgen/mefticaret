@@ -220,9 +220,27 @@ export function ThemeSettingsDialog({
                         <h4 className="text-sm font-semibold">{template.name}</h4>
                         <p className="text-xs text-muted-foreground">{template.tagline}</p>
                       </div>
-                      {theme?.preset === template.code ? <Badge variant="secondary">Aktif</Badge> : null}
+                      <div className="flex flex-col items-end gap-1">
+                        {theme?.preset === template.code ? <Badge variant="secondary">Aktif</Badge> : null}
+                        {template.store?.featured ? <Badge>Öne çıkan</Badge> : null}
+                        <Badge variant="outline">
+                          {template.store?.price
+                            ? `${template.store.price.toLocaleString("tr-TR")} ₺`
+                            : "Ücretsiz"}
+                        </Badge>
+                      </div>
                     </div>
                     <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{template.description}</p>
+                    {template.store?.features?.length ? (
+                      <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                        {template.store.features.slice(0, 4).map((feature) => (
+                          <li key={feature}>• {feature}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {template.store?.priceNote ? (
+                      <p className="mt-2 text-[11px] text-muted-foreground">{template.store.priceNote}</p>
+                    ) : null}
                     <Button
                       size="sm"
                       className="mt-3 w-full gap-2"
