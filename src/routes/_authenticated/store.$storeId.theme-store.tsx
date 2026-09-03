@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { collectionsQuery, productsQuery } from "@/lib/catalog-queries";
+import { withDemoCollections, withDemoProducts } from "@/lib/theme-demo-content";
 import { paymentMethodsQuery, shippingZonesQuery } from "@/lib/commerce-queries";
 import { buildStorefrontCommerce } from "@/lib/storefront-commerce";
 import { storeQuery } from "@/lib/store-queries";
@@ -159,21 +160,44 @@ function ThemeStorePage() {
     [paymentMethods, shippingZones, store?.currency],
   );
 
+  // Gerçek ürünler kapak görselleriyle gösterilir; katalog azsa demo ürünlerle tamamlanır.
   const previewProducts: SectionProduct[] = useMemo(
     () =>
-      (products ?? []).slice(0, 16).map((product) => ({
-        id: product.id,
-        title: product.title,
-        slug: product.slug,
-        description: product.description,
-        base_price: product.base_price,
-        compare_at_price: product.compare_at_price,
-        currency: product.currency,
-        product_type: product.product_type,
-        tags: product.tags,
-        coverUrl: null,
-      })),
+      withDemoProducts(
+        (products ?? []).slice(0, 16).map((product) => {
+          const cover = [...(product.product_images ?? [])].sort(
+            (a, b) => (a.position ?? 0) - (b.position ?? 0),
+          )[0];
+          return {
+            id: product.id,
+            title: product.title,
+            slug: product.slug,
+            description: product.description,
+            base_price: product.base_price,
+            compare_at_price: product.compare_at_price,
+            currency: product.currency,
+            product_type: product.product_type,
+            tags: product.tags,
+            coverUrl: cover?.url ?? null,
+          };
+        }),
+        8,
+      ),
     [products],
+  );
+
+  const previewCollections = useMemo(
+    () =>
+      withDemoCollections(
+        (collections ?? []).map((collection) => ({
+          id: collection.id,
+          title: collection.title,
+          slug: collection.slug,
+          description: collection.description,
+        })),
+        4,
+      ),
+    [collections],
   );
 
   const previewWidth = DEVICES.find((item) => item.value === device)?.width ?? null;
@@ -226,6 +250,18 @@ function ThemeStorePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col gap-4">
+                  {template.store?.previewImage ? (
+                    <div className="overflow-hidden rounded-lg border border-border bg-muted">
+                      <img
+                        src={template.store.previewImage}
+                        alt={`${template.name} teması önizleme görseli`}
+                        loading="lazy"
+                        width={1600}
+                        height={800}
+                        className="aspect-[16/9] w-full object-cover"
+                      />
+                    </div>
+                  ) : null}
                   <p className="text-sm text-muted-foreground">{template.description}</p>
 
                   <div className="flex flex-wrap gap-1.5">
@@ -346,12 +382,7 @@ function ThemeStorePage() {
                     storeName: store?.name ?? "Önizleme",
                     storeCurrency: store?.currency ?? "TRY",
                     products: previewProducts,
-                    collections: (collections ?? []).map((collection) => ({
-                      id: collection.id,
-                      title: collection.title,
-                      slug: collection.slug,
-                      description: collection.description,
-                    })),
+                    collections: previewCollections,
                     pages: [],
                     commerce: previewCommerce,
                     preview: true,
