@@ -1,77 +1,26 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Banknote,
-  Barcode,
-  ClipboardList,
-
-  RotateCcw,
-  Blocks,
-  Bot,
-  BadgeCheck,
   Boxes,
-  ChartNoAxesColumn,
   ChevronsUpDown,
-  Cog,
-  FileSpreadsheet,
-  FileText,
-  MessageCircle,
-  PenLine,
-  Zap,
-  CreditCard,
-  Globe,
-  Grid3x3,
-  History,
-  LayoutDashboard,
-  Layers,
+  ChevronDown,
   LogOut,
-  Megaphone,
   Menu,
-  Package,
-  PackageSearch,
-  Palette,
-  Wand2,
+  Pin,
+  PinOff,
   Plus,
   Rocket,
   Search,
-  ShieldCheck,
-  ShoppingBag,
-  ShoppingCart,
-  HelpCircle,
-  Star,
-  Tags,
-  Timer,
-  TrendingDown,
-  MapPin,
-  Coins,
-  Gift,
-  Images,
-  BellRing,
-  Bell,
-  Sparkles,
   Store,
-  Tag,
-  TrendingUp,
-  RefreshCcw,
-  Truck,
-  Users,
-  UsersRound,
-  Wallet,
-  Receipt,
-  Warehouse,
-  Building2,
-  ArrowLeftRight,
-  Webhook,
-  KeyRound,
-  MessageSquare,
-  Radio,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { CommandPalette } from "@/components/command-palette";
 import { NotificationBell } from "@/components/notification-bell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -84,190 +33,215 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { useAuth } from "@/lib/auth-context";
 import { myStoresQuery } from "@/lib/store-queries";
 import { STORE_ROLE_LABELS } from "@/lib/mefti";
+import { storeNavGroups, storeQuickLinks, type StoreNavItem } from "@/lib/store-nav";
 import { cn } from "@/lib/utils";
 
-type NavItem = {
-  label: string;
-  to?: string;
-  icon: React.ComponentType<{ className?: string }>;
-  phase?: string;
-};
+const PIN_STORAGE_KEY = "mefti:pinned-nav";
 
-function storeNav(storeId: string): { group: string; items: NavItem[] }[] {
-  return [
-    {
-      group: "Genel",
-      items: [
-        { label: "Panel", to: `/store/${storeId}/dashboard`, icon: LayoutDashboard },
-        { label: "Canlı İzleme", to: `/store/${storeId}/live`, icon: Radio },
-        { label: "Analitik", to: `/store/${storeId}/analytics`, icon: ChartNoAxesColumn },
-        { label: "Ciro Tahmini", to: `/store/${storeId}/forecast`, icon: TrendingUp },
-        { label: "Kohortlar", to: `/store/${storeId}/cohorts`, icon: Grid3x3 },
-        { label: "Operasyon Merkezi", to: `/store/${storeId}/tasks`, icon: ClipboardList },
-        { label: "Ürün Raporu", to: `/store/${storeId}/reports`, icon: PackageSearch },
-        { label: "Bildirimler", to: `/store/${storeId}/notifications`, icon: Bell },
-        { label: "Yayına Hazırlık", to: `/store/${storeId}/health`, icon: ShieldCheck },
-        { label: "Kuyruk & Önbellek", to: `/store/${storeId}/jobs`, icon: Timer },
-      ],
-    },
-    {
-      group: "Katalog",
-      items: [
-        { label: "Ürünler", to: `/store/${storeId}/products`, icon: Package },
-        { label: "Koleksiyonlar", to: `/store/${storeId}/collections`, icon: Boxes },
-        { label: "Stok", to: `/store/${storeId}/inventory`, icon: Warehouse },
-        { label: "Depolar & Şubeler", to: `/store/${storeId}/warehouses`, icon: Building2 },
-        { label: "Depo Transferleri", to: `/store/${storeId}/transfers`, icon: ArrowLeftRight },
-        { label: "Stok Sayımı", to: `/store/${storeId}/stock-count`, icon: ClipboardList },
-        { label: "Tedarik & Satın Alma", to: `/store/${storeId}/purchasing`, icon: Truck },
-        { label: "Dropshipping & XML", to: `/store/${storeId}/dropshipping`, icon: Truck },
-        { label: "Yeniden Sipariş", to: `/store/${storeId}/reorder`, icon: RefreshCcw },
-        { label: "Stok Tükenme Radarı", to: `/store/${storeId}/stockout`, icon: Timer },
-        { label: "Barkod Etiketi", to: `/store/${storeId}/barcodes`, icon: Barcode },
+function usePinnedNav() {
+  const [pinned, setPinned] = useState<string[]>([]);
 
-        { label: "Fiyatlandırma", to: `/store/${storeId}/pricing`, icon: Tags },
-        { label: "Kârlılık", to: `/store/${storeId}/profit`, icon: Coins },
-        { label: "ABC & Devir Hızı", to: `/store/${storeId}/abc`, icon: Layers },
-        { label: "Envanter Değerleme", to: `/store/${storeId}/valuation`, icon: Coins },
-        { label: "Marka Performansı", to: `/store/${storeId}/vendors`, icon: Layers },
-        { label: "Stok Yaşlandırma", to: `/store/${storeId}/aging`, icon: Timer },
-        { label: "Medya", to: `/store/${storeId}/media`, icon: Images },
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(PIN_STORAGE_KEY);
+      if (raw) setPinned(JSON.parse(raw) as string[]);
+    } catch {
+      /* yoksay */
+    }
+  }, []);
 
-      ],
-    },
-    {
-      group: "Satış",
-      items: [
-        { label: "Siparişler", to: `/store/${storeId}/orders`, icon: ShoppingBag },
-        { label: "Sevkiyatlar", to: `/store/${storeId}/shipments`, icon: Truck },
-        { label: "Kargo Performansı", to: `/store/${storeId}/shipping-performance`, icon: Truck },
-        { label: "Kargo Ekonomisi", to: `/store/${storeId}/shipping-economics`, icon: Truck },
-        { label: "Tedarikçi Performansı", to: `/store/${storeId}/supplier-performance`, icon: Truck },
-        { label: "Karşılama SLA", to: `/store/${storeId}/sla`, icon: Timer },
-        { label: "İptal & Kayıp", to: `/store/${storeId}/losses`, icon: TrendingDown },
-        { label: "Coğrafi Dağılım", to: `/store/${storeId}/geo`, icon: MapPin },
-        { label: "Dönüşüm Hunisi", to: `/store/${storeId}/funnel`, icon: ShoppingCart },
-        { label: "Sepet Analizi", to: `/store/${storeId}/basket`, icon: ShoppingCart },
-        { label: "Müşteriler", to: `/store/${storeId}/customers`, icon: Users },
-        { label: "Segmentler", to: `/store/${storeId}/segments`, icon: UsersRound },
-        { label: "Tekrar Satın Alma", to: `/store/${storeId}/repurchase`, icon: RefreshCcw },
-        { label: "Müşteri LTV", to: `/store/${storeId}/ltv`, icon: UsersRound },
-        { label: "Değerlendirmeler", to: `/store/${storeId}/reviews`, icon: Star },
-        { label: "Soru & Cevap", to: `/store/${storeId}/questions`, icon: HelpCircle },
-        { label: "İadeler", to: `/store/${storeId}/returns`, icon: RotateCcw },
-        { label: "İade Analizi", to: `/store/${storeId}/returns-analytics`, icon: RotateCcw },
-        { label: "Stok Bildirimleri", to: `/store/${storeId}/stock-alerts`, icon: BellRing },
-        { label: "Terk Sepetler", to: `/store/${storeId}/carts`, icon: ShoppingCart },
-        { label: "İndirimler", to: `/store/${storeId}/discounts`, icon: Tag },
-        { label: "Kampanya Performansı", to: `/store/${storeId}/campaigns`, icon: Tag },
-        { label: "İndirim Derinliği", to: `/store/${storeId}/elasticity`, icon: Tag },
-        { label: "Ürün Yaşam Döngüsü", to: `/store/${storeId}/lifecycle`, icon: Tag },
-        { label: "Değerlendirme Etkisi", to: `/store/${storeId}/review-impact`, icon: Tag },
-        { label: "İletişim Performansı", to: `/store/${storeId}/support-performance`, icon: HelpCircle },
-        { label: "Senaryo Simülatörü", to: `/store/${storeId}/simulator`, icon: Tag },
-        { label: "Hediye Kartları", to: `/store/${storeId}/gift-cards`, icon: Gift },
-        { label: "Hediye Kartı Yükümlülüğü", to: `/store/${storeId}/gift-liability`, icon: Wallet },
-        { label: "Tahsilat Takibi", to: `/store/${storeId}/receivables`, icon: Banknote },
-        { label: "Finans", to: `/store/${storeId}/finance`, icon: Wallet },
-        { label: "Finansal Defter", to: `/store/${storeId}/ledger`, icon: Wallet },
-        { label: "Nakit Akışı", to: `/store/${storeId}/cashflow`, icon: Wallet },
-        { label: "KDV Raporu", to: `/store/${storeId}/tax`, icon: Receipt },
-        { label: "Aylık Rapor", to: `/store/${storeId}/report-monthly`, icon: FileText },
-        { label: "Abonelik", to: `/store/${storeId}/billing`, icon: CreditCard },
-      ],
-    },
-    {
-      group: "Mağaza",
-      items: [
-        { label: "Domainler", to: `/store/${storeId}/domains`, icon: Globe },
-        { label: "Ekip & Yetkiler", to: `/store/${storeId}/team`, icon: ShieldCheck },
-        { label: "Güvenlik & KVKK", to: `/store/${storeId}/security`, icon: ShieldCheck },
-        {
-          label: "Personel Performansı",
-          to: `/store/${storeId}/team-performance`,
-          icon: ShieldCheck,
-        },
-        { label: "Ayarlar", to: `/store/${storeId}/settings`, icon: Cog },
-        { label: "Dil & Para Birimi", to: `/store/${storeId}/localization`, icon: Globe },
-        { label: "Ödeme", to: `/store/${storeId}/payments`, icon: BadgeCheck },
-        { label: "Kargo", to: `/store/${storeId}/shipping`, icon: Truck },
-        { label: "Pazarlama", to: `/store/${storeId}/marketing`, icon: Megaphone },
-        { label: "Pazarlama Otomasyonu", to: `/store/${storeId}/automations`, icon: Zap },
-        { label: "WhatsApp", to: `/store/${storeId}/whatsapp`, icon: MessageCircle },
-        { label: "Müşteri Segmentleri", to: `/store/${storeId}/customer-segments`, icon: Users },
-        { label: "Pazaryerleri", to: `/store/${storeId}/channels`, icon: Store },
-        { label: "Pazaryeri Satıcıları", to: `/store/${storeId}/sellers`, icon: Users },
-        { label: "Temalar", to: `/store/${storeId}/themes`, icon: Palette },
-        { label: "Tema Düzenleyici", to: `/store/${storeId}/theme-editor`, icon: Wand2 },
-        { label: "Tema Bileşenleri", to: `/store/${storeId}/theme-sections`, icon: Blocks },
-        { label: "SEO Denetimi", to: `/store/${storeId}/seo`, icon: Search },
-        { label: "SEO Editörü", to: `/store/${storeId}/seo-editor`, icon: Search },
-        { label: "İçerik Sayfaları", to: `/store/${storeId}/pages`, icon: FileText },
-        { label: "Blog & CMS", to: `/store/${storeId}/blog`, icon: PenLine },
-        { label: "Vitrin Menüleri", to: `/store/${storeId}/navigation`, icon: Menu },
-        { label: "Copilot", to: `/store/${storeId}/copilot`, icon: Bot },
-        { label: "AI Asistan", to: `/store/${storeId}/ai`, icon: Sparkles },
-        { label: "Uygulama Mağazası", to: `/store/${storeId}/apps`, icon: Blocks },
-        { label: "API Anahtarları", to: `/store/${storeId}/api`, icon: KeyRound },
-        { label: "OAuth Uygulamaları", to: `/store/${storeId}/oauth`, icon: KeyRound },
-        { label: "Destek Talepleri", to: `/store/${storeId}/support`, icon: MessageSquare },
-        { label: "Webhook & Bildirim", to: `/store/${storeId}/webhooks`, icon: Webhook },
-        { label: "İçe / Dışa Aktarma", to: `/store/${storeId}/import-export`, icon: FileSpreadsheet },
-        { label: "Denetim Kaydı", to: `/store/${storeId}/activity`, icon: History },
-      ],
-    },
-  ];
+  function toggle(label: string) {
+    setPinned((prev) => {
+      const next = prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label];
+      try {
+        window.localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* yoksay */
+      }
+      return next;
+    });
+  }
+
+  return { pinned, toggle };
+}
+
+function NavLinkRow({
+  item,
+  active,
+  pinned,
+  onTogglePin,
+  onNavigate,
+}: {
+  item: StoreNavItem;
+  active: boolean;
+  pinned: boolean;
+  onTogglePin: (label: string) => void;
+  onNavigate?: () => void;
+}) {
+  return (
+    <li className="group/nav relative">
+      <Link
+        to={item.to}
+        onClick={onNavigate}
+        className={cn(
+          "flex items-center gap-2.5 rounded-lg py-1.5 pl-2 pr-8 text-[0.84rem] font-medium text-sidebar-foreground/85 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+          active && "bg-sidebar-accent font-semibold text-sidebar-accent-foreground",
+        )}
+      >
+        <item.icon className="size-4 shrink-0" />
+        <span className="truncate">{item.label}</span>
+      </Link>
+      <button
+        type="button"
+        onClick={() => onTogglePin(item.label)}
+        aria-label={pinned ? `${item.label} sabitlemesini kaldır` : `${item.label} sabitle`}
+        className={cn(
+          "absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-sidebar-foreground/45 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:opacity-100 group-hover/nav:opacity-100",
+          pinned && "opacity-100 text-sidebar-foreground/80",
+        )}
+      >
+        {pinned ? <PinOff className="size-3.5" /> : <Pin className="size-3.5" />}
+      </button>
+    </li>
+  );
 }
 
 function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const [query, setQuery] = useState("");
+  const { pinned, toggle } = usePinnedNav();
+  const groups = useMemo(() => storeNavGroups(storeId), [storeId]);
+
+  const term = query.trim().toLocaleLowerCase("tr");
+  const filtered = useMemo(() => {
+    if (!term) return groups;
+    return groups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) =>
+          `${item.label} ${item.keywords ?? ""}`.toLocaleLowerCase("tr").includes(term),
+        ),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [groups, term]);
+
+  const pinnedItems = useMemo(
+    () =>
+      groups
+        .flatMap((group) => group.items)
+        .filter((item) => pinned.includes(item.label)),
+    [groups, pinned],
+  );
+
+  const [openGroups, setOpenGroups] = useState<string[]>([]);
+  const activeGroup = groups.find((group) => group.items.some((item) => pathname.startsWith(item.to)))
+    ?.group;
+
+  const isOpen = (group: string) =>
+    Boolean(term) || openGroups.includes(group) || (openGroups.length === 0 && group === activeGroup);
+
+  function toggleGroup(group: string) {
+    setOpenGroups((prev) => {
+      const base = prev.length === 0 && activeGroup ? [activeGroup] : prev;
+      return base.includes(group) ? base.filter((g) => g !== group) : [...base, group];
+    });
+  }
 
   return (
-    <nav aria-label="Mağaza menüsü" className="space-y-5">
-      {storeNav(storeId).map((section) => (
-        <div key={section.group}>
-          <p className="px-2 pb-1.5 text-[0.68rem] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-            {section.group}
+    <div className="space-y-3">
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-sidebar-foreground/50" />
+        <Input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Menüde ara…"
+          aria-label="Menüde ara"
+          className="h-9 border-sidebar-border bg-sidebar-accent/40 pl-8 pr-8 text-sm"
+        />
+        {query ? (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            aria-label="Aramayı temizle"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-sidebar-foreground/60 hover:text-sidebar-foreground"
+          >
+            <X className="size-3.5" />
+          </button>
+        ) : null}
+      </div>
+
+      <nav aria-label="Mağaza menüsü" className="space-y-1.5">
+        {!term && pinnedItems.length ? (
+          <div className="pb-1">
+            <p className="px-2 pb-1 text-[0.66rem] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+              Sabitlenenler
+            </p>
+            <ul className="space-y-0.5">
+              {pinnedItems.map((item) => (
+                <NavLinkRow
+                  key={`pin-${item.label}`}
+                  item={item}
+                  active={pathname === item.to}
+                  pinned
+                  onTogglePin={toggle}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {filtered.length === 0 ? (
+          <p className="px-2 py-6 text-center text-xs text-sidebar-foreground/60">
+            Sonuç bulunamadı.
           </p>
-          <ul className="space-y-0.5">
-            {section.items.map((item) => {
-              const active = item.to ? pathname === item.to : false;
-              return (
-                <li key={item.label}>
-                  {item.to ? (
-                    <Link
-                      to={item.to}
-                      onClick={onNavigate}
-                      className={cn(
-                        "flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[0.84rem] font-medium text-sidebar-foreground/85 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                        active &&
-                          "bg-sidebar-accent text-sidebar-accent-foreground shadow-[0_1px_2px_rgba(0,0,0,0.08)]",
-                      )}
-                    >
-                      <item.icon className="size-4 shrink-0" />
-                      <span className="truncate">{item.label}</span>
-                    </Link>
-                  ) : (
-                    <span
-                      className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/35"
-                      title={`${item.label} — ${item.phase} kapsamında geliyor`}
-                    >
-                      <item.icon className="size-4 shrink-0" />
-                      {item.label}
-                      <span className="ml-auto rounded-full border border-sidebar-border px-1.5 py-0.5 text-[0.6rem] font-semibold">
-                        {item.phase}
-                      </span>
-                    </span>
+        ) : null}
+
+        {filtered.map((group) => {
+          const open = isOpen(group.group);
+          const hasActive = group.items.some((item) => pathname === item.to);
+          return (
+            <div key={group.group}>
+              <button
+                type="button"
+                onClick={() => toggleGroup(group.group)}
+                aria-expanded={open}
+                className={cn(
+                  "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[0.78rem] font-semibold uppercase tracking-wide text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  hasActive && "text-sidebar-foreground",
+                )}
+              >
+                <group.icon className="size-4 shrink-0" />
+                <span className="truncate">{group.group}</span>
+                <ChevronDown
+                  className={cn(
+                    "ml-auto size-3.5 shrink-0 transition-transform",
+                    open ? "rotate-0" : "-rotate-90",
                   )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
-    </nav>
+                />
+              </button>
+              {open ? (
+                <ul className="mt-0.5 space-y-0.5 border-l border-sidebar-border/70 pl-2 ml-3.5">
+                  {group.items.map((item) => (
+                    <NavLinkRow
+                      key={item.label}
+                      item={item}
+                      active={pathname === item.to}
+                      pinned={pinned.includes(item.label)}
+                      onTogglePin={toggle}
+                      onNavigate={onNavigate}
+                    />
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          );
+        })}
+      </nav>
+    </div>
   );
 }
+
 
 function StoreSwitcher({ storeId }: { storeId: string }) {
   const { user } = useAuth();
