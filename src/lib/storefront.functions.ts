@@ -188,7 +188,9 @@ export const getStorefront = createServerFn({ method: "GET" })
       sections: sectionsRes.data ?? [],
       blogPages: blogRes.data ?? [],
     };
+
       },
+      { ttlSeconds: 20 },
     );
   });
 
@@ -347,7 +349,9 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
       ratingAverage,
       related: relatedRows.map((row) => ({ ...row, coverUrl: relatedCovers[row.id] ?? null })),
     };
+
       },
+      { ttlSeconds: 20 },
     );
   });
 
