@@ -40,8 +40,9 @@ export const testStoreSiteKit = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => testSiteKit(context.supabase, data));
 
 /**
- * Vitrin için yalnızca herkese açık kimlikler. Güvenli tanımlı (security definer)
- * fonksiyon üzerinden okunur; gizli anahtarlar hiçbir zaman dönmez.
+ * Vitrin için yalnızca herkese açık kimlikler. Anonim anahtarla, kolon bazlı
+ * yetkilendirme (yalnızca public_config) ve yayınlanmış mağaza koşullu RLS
+ * üzerinden okunur; gizli anahtarlar veritabanı seviyesinde erişilemez.
  */
 export const getStorefrontSiteKit = createServerFn({ method: "GET" })
   .inputValidator((data) => z.object({ slug: z.string().trim().min(1).max(120) }).parse(data))
@@ -62,7 +63,17 @@ export const getStorefrontSiteKit = createServerFn({ method: "GET" })
       },
     });
 
-    const { data: rows, error } = await supabase.rpc("site_kit_public_config", { store_slug: data.slug });
+    const { data: store } = await supabase
+      .from("stores")
+      .select("id")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (!store?.id) return [];
+
+    const { data: rows, error } = await supabase
+      .from("store_site_kit")
+      .select("provider, public_config")
+      .eq("store_id", store.id);
     if (error) return [];
     const list = (rows ?? []) as { provider: string; public_config: Record<string, string> | null }[];
     return list.map((row) => ({
