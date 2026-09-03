@@ -245,6 +245,8 @@ export type Database = {
           quantity: number
           referrer: string | null
           referrer_host: string | null
+          search_results: number | null
+          search_term: string | null
           session_id: string
           source: string | null
           store_id: string
@@ -269,6 +271,8 @@ export type Database = {
           quantity?: number
           referrer?: string | null
           referrer_host?: string | null
+          search_results?: number | null
+          search_term?: string | null
           session_id: string
           source?: string | null
           store_id: string
@@ -293,6 +297,8 @@ export type Database = {
           quantity?: number
           referrer?: string | null
           referrer_host?: string | null
+          search_results?: number | null
+          search_term?: string | null
           session_id?: string
           source?: string | null
           store_id?: string
