@@ -192,7 +192,13 @@ export async function sendCopilotTurn(options: {
   const totalTokens = result.inputTokens + result.outputTokens;
 
   const { error: insertError } = await client.from("copilot_messages").insert([
-    { conversation_id: conversationId, store_id: storeId, role: "user", content: message },
+    {
+      conversation_id: conversationId,
+      store_id: storeId,
+      role: "user",
+      content: message,
+      total_tokens: 0,
+    },
     {
       conversation_id: conversationId,
       store_id: storeId,
