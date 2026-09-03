@@ -92,3 +92,30 @@ export const setPlatformUserRole = createServerFn({ method: "POST" })
     await server.assertPlatformAdmin(context.supabase, context.userId);
     return server.setUserRole(server.roleSchema.parse(data), context.userId);
   });
+
+export const fetchPlatformAnalytics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ days: z.number().int().min(7).max(365) }).parse(data ?? { days: 30 }))
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.platformAnalytics(server.analyticsInputSchema.parse(data));
+  });
+
+export const fetchStoreControl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.storeControlCenter(data);
+  });
+
+export const setStorePlanFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.setStorePlan(server.storePlanSchema.parse(data), context.userId);
+  });
