@@ -249,6 +249,14 @@ export async function saveSetting(input: z.infer<typeof settingSchema>, userId: 
   return { key: input.key };
 }
 
+/** Birden fazla ayarı tek istekte kaydeder (grup halinde form kaydı için). */
+export async function saveSettings(input: z.infer<typeof settingsBulkSchema>, userId: string) {
+  for (const item of input.items) {
+    await saveSetting(item, userId);
+  }
+  return { saved: input.items.length };
+}
+
 /** Kullanıcı platform rollerini listeler (rol yönetimi ekranı için). */
 export async function listUserRoles() {
   const db = await admin();
