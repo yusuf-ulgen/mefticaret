@@ -224,7 +224,7 @@ export function AdminShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex flex-wrap items-center gap-3 border-b border-border bg-card px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card px-4 py-2">
           <Button
             variant="outline"
             size="icon"
@@ -234,19 +234,31 @@ export function AdminShell({
           >
             <Menu className="size-4" />
           </Button>
+          <MegaMenu />
+          <nav aria-label="Hızlı erişim" className="flex flex-1 items-center gap-1 overflow-x-auto">
+            {ADMIN_QUICK_ACTIONS.map((item) => (
+              <Button key={item.to} asChild variant="ghost" size="sm" className="shrink-0 gap-1.5 text-xs">
+                <Link to={item.to}>
+                  <item.icon className="size-3.5" />
+                  {item.label}
+                </Link>
+              </Button>
+            ))}
+          </nav>
+          <Button asChild variant="ghost" size="sm" className="shrink-0 text-xs">
+            <Link to="/stores">Mağaza paneli</Link>
+          </Button>
+        </div>
+        <header className="flex flex-wrap items-center gap-3 border-b border-border bg-card px-4 py-3">
           <div className="min-w-0">
             <h1 className="truncate font-display text-lg font-semibold">{title}</h1>
             {description ? (
               <p className="truncate text-xs text-muted-foreground">{description}</p>
             ) : null}
           </div>
-          <div className="ml-auto flex items-center gap-2">
-            {actions}
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/stores">Mağaza paneli</Link>
-            </Button>
-          </div>
+          <div className="ml-auto flex items-center gap-2">{actions}</div>
         </header>
+
         <main id="admin-content" tabIndex={-1} className="min-w-0 flex-1 space-y-4 p-4 lg:p-6">
           {children}
         </main>
