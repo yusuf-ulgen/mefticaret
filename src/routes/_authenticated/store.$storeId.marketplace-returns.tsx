@@ -421,7 +421,15 @@ function MarketplaceReturnsPage() {
                     disabled={rowStatus !== "approved" || mutation.isPending}
                     onClick={() => mutation.mutate({ returnId: row.id, action: "receive" })}
                   >
-                    Teslim aldım
+                    Teslim aldım (stoğa ekle)
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={rowStatus !== "received" || mutation.isPending}
+                    onClick={() => mutation.mutate({ returnId: row.id, action: "refund" })}
+                  >
+                    Geri ödemeyi tamamla
                   </Button>
                 </div>
               </article>
