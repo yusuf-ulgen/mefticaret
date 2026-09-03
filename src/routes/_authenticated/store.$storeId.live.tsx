@@ -276,7 +276,21 @@ function LiveViewPage() {
   );
 }
 
+function TrendPill({ value }: { value: number }) {
+  const up = value >= 0;
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${up ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}
+    >
+      <ArrowUpRight className={`size-3 ${up ? "" : "rotate-90"}`} />
+      {up ? "+" : ""}
+      {value.toFixed(0)}%
+    </span>
+  );
+}
+
 function MetricCard({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: string; hint: string }) {
+
   return <div className="surface-card p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><span className="text-brand [&>svg]:size-4">{icon}</span>{label}</div><p className="mt-3 font-display text-3xl font-semibold">{value}</p><p className="mt-1 text-xs text-muted-foreground">{hint}</p></div>;
 }
 
