@@ -330,6 +330,17 @@ export function websiteSchema(name: string, url: string, searchPath?: string) {
 }
 
 /** Mağaza SEO ayarları (store_settings.seo JSONB) şeması. */
+export type StoreSeoUrlStructure = {
+  product?: "product" | "category-product" | "short";
+  collection?: "collection" | "short";
+  page?: "page" | "short";
+  blog?: "blog" | "page";
+  htmlExtension?: boolean;
+  localePrefix?: boolean;
+};
+
+export type SeoTemplate = { title?: string; description?: string };
+
 export type StoreSeoSettings = {
   homeTitle?: string;
   homeDescription?: string;
@@ -345,6 +356,8 @@ export type StoreSeoSettings = {
   latitude?: number | null;
   longitude?: number | null;
   faq?: FaqEntry[];
+  urlStructure?: StoreSeoUrlStructure;
+  templates?: Record<string, SeoTemplate>;
 };
 
 /** store_settings.seo alanını güvenli yapıya çevirir. */
@@ -391,6 +404,36 @@ export function readStoreSeo(value: unknown): StoreSeoSettings {
   if (typeof raw['latitude'] === "number") settings.latitude = raw['latitude'];
   if (typeof raw['longitude'] === "number") settings.longitude = raw['longitude'];
   if (faq) settings.faq = faq;
+
+  const structure = raw['urlStructure'];
+  if (structure && typeof structure === "object" && !Array.isArray(structure)) {
+    const value = structure as Record<string, unknown>;
+    const product = value['product'];
+    const collection = value['collection'];
+    const page = value['page'];
+    const blog = value['blog'];
+    settings.urlStructure = {
+      ...(product === "product" || product === "category-product" || product === "short" ? { product } : {}),
+      ...(collection === "collection" || collection === "short" ? { collection } : {}),
+      ...(page === "page" || page === "short" ? { page } : {}),
+      ...(blog === "blog" || blog === "page" ? { blog } : {}),
+      ...(typeof value['htmlExtension'] === "boolean" ? { htmlExtension: value['htmlExtension'] } : {}),
+      ...(typeof value['localePrefix'] === "boolean" ? { localePrefix: value['localePrefix'] } : {}),
+    };
+  }
+
+  const templates = raw['templates'];
+  if (templates && typeof templates === "object" && !Array.isArray(templates)) {
+    const parsed: Record<string, SeoTemplate> = {};
+    for (const [key, value] of Object.entries(templates as Record<string, unknown>)) {
+      if (!value || typeof value !== "object" || Array.isArray(value)) continue;
+      const item = value as Record<string, unknown>;
+      const title = typeof item['title'] === "string" ? item['title'].trim() : undefined;
+      const description = typeof item['description'] === "string" ? item['description'].trim() : undefined;
+      if (title || description) parsed[key] = { ...(title ? { title } : {}), ...(description ? { description } : {}) };
+    }
+    if (Object.keys(parsed).length) settings.templates = parsed;
+  }
   return settings;
 }
 

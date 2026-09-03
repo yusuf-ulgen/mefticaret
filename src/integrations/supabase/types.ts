@@ -7566,6 +7566,97 @@ export type Database = {
           },
         ]
       }
+      store_seo_404s: {
+        Row: {
+          created_at: string
+          hit_count: number
+          id: string
+          last_seen_at: string
+          path: string
+          referrer: string | null
+          store_id: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          hit_count?: number
+          id?: string
+          last_seen_at?: string
+          path: string
+          referrer?: string | null
+          store_id: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          hit_count?: number
+          id?: string
+          last_seen_at?: string
+          path?: string
+          referrer?: string | null
+          store_id?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_seo_404s_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_seo_redirects: {
+        Row: {
+          created_at: string
+          hit_count: number
+          id: string
+          is_active: boolean
+          last_hit_at: string | null
+          source_path: string
+          status_code: number
+          store_id: string
+          target_path: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hit_count?: number
+          id?: string
+          is_active?: boolean
+          last_hit_at?: string | null
+          source_path: string
+          status_code?: number
+          store_id: string
+          target_path: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hit_count?: number
+          id?: string
+          is_active?: boolean
+          last_hit_at?: string | null
+          source_path?: string
+          status_code?: number
+          store_id?: string
+          target_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_seo_redirects_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_settings: {
         Row: {
           address: Json

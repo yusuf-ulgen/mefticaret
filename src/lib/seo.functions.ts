@@ -88,6 +88,20 @@ const storeSeoInput = z.object({
     .array(z.object({ question: z.string().trim().max(300), answer: z.string().trim().max(1500) }))
     .max(30)
     .optional(),
+  urlStructure: z
+    .object({
+      product: z.enum(["product", "category-product", "short"]).optional(),
+      collection: z.enum(["collection", "short"]).optional(),
+      page: z.enum(["page", "short"]).optional(),
+      blog: z.enum(["blog", "page"]).optional(),
+      htmlExtension: z.boolean().optional(),
+      localePrefix: z.boolean().optional(),
+    })
+    .optional(),
+  templates: z.record(z.enum(["product", "collection", "page", "blog"]), z.object({
+    title: z.string().trim().max(180).optional(),
+    description: z.string().trim().max(400).optional(),
+  })).optional(),
 });
 
 export const saveStoreSeo = createServerFn({ method: "POST" })
@@ -108,6 +122,8 @@ export const saveStoreSeo = createServerFn({ method: "POST" })
     if (rest.faq) {
       seo['faq'] = rest.faq.filter((entry) => entry.question.trim() && entry.answer.trim());
     }
+    if (rest.urlStructure) seo['urlStructure'] = rest.urlStructure;
+    if (rest.templates) seo['templates'] = rest.templates;
     if (typeof rest.latitude === "number") seo['latitude'] = rest.latitude;
     if (typeof rest.longitude === "number") seo['longitude'] = rest.longitude;
 
