@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { insertAuditRow } from "./audit.server";
+import { runConnectionCheck } from "./app-connectors.server";
 
 /** Uygulama mağazası sunucu mantığı: katalog, kurulum ve uygulama ayarları. */
 
@@ -10,7 +11,15 @@ type Client = SupabaseClient<Database>;
 
 export const storeIdSchema = z.object({ storeId: z.string().uuid() });
 
+const settingsValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
+
 export const installAppSchema = z.object({
+  storeId: z.string().uuid(),
+  appId: z.string().uuid(),
+  settings: z.record(z.string(), settingsValueSchema).optional(),
+});
+
+export const connectionTestSchema = z.object({
   storeId: z.string().uuid(),
   appId: z.string().uuid(),
 });
@@ -24,7 +33,7 @@ export const installStatusSchema = z.object({
 export const appSettingsSchema = z.object({
   storeId: z.string().uuid(),
   appId: z.string().uuid(),
-  settings: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
+  settings: z.record(z.string(), settingsValueSchema),
 });
 
 export async function listApps(supabase: Client) {
@@ -54,7 +63,7 @@ export async function installApp(
 ) {
   const { data: app, error: appError } = await supabase
     .from("apps")
-    .select("id, name, permissions, is_active")
+    .select("id, code, name, permissions, is_active")
     .eq("id", input.appId)
     .maybeSingle();
   if (appError) throw new Error(appError.message);
@@ -66,6 +75,7 @@ export async function installApp(
       app_id: app.id,
       status: "installed",
       granted_permissions: app.permissions ?? [],
+      settings: (input.settings ?? {}) as never,
       installed_by: userId,
       installed_at: new Date().toISOString(),
       uninstalled_at: null,
@@ -83,7 +93,10 @@ export async function installApp(
     new_value: { name: app.name },
   });
 
-  return { ok: true as const, appName: app.name };
+  const check = await runConnectionCheck(app.code, input.settings ?? {});
+  await persistConnection(supabase, input.storeId, app.id, input.settings ?? {}, check);
+
+  return { ok: true as const, appName: app.name, connection: check };
 }
 
 export async function setInstallStatus(
@@ -124,4 +137,46 @@ export async function saveAppSettings(
     .eq("app_id", input.appId);
   if (error) throw new Error(error.message);
   return { ok: true as const };
+}
+
+async function persistConnection(
+  supabase: Client,
+  storeId: string,
+  appId: string,
+  settings: Record<string, unknown>,
+  check: { status: string; message: string },
+) {
+  const next = {
+    ...settings,
+    _connection_status: check.status,
+    _connection_message: check.message,
+    _connection_checked_at: new Date().toISOString(),
+  };
+  const { error } = await supabase
+    .from("app_installations")
+    .update({ settings: next as never })
+    .eq("store_id", storeId)
+    .eq("app_id", appId);
+  if (error) throw new Error(error.message);
+}
+
+/** Kurulu bir uygulamanın sağlayıcı bağlantısını sunucu tarafında test eder. */
+export async function testAppConnection(
+  supabase: Client,
+  input: z.infer<typeof connectionTestSchema>,
+) {
+  const { data, error } = await supabase
+    .from("app_installations")
+    .select("settings, apps(code)")
+    .eq("store_id", input.storeId)
+    .eq("app_id", input.appId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Uygulama bu mağazada kurulu değil");
+
+  const settings = (data.settings ?? {}) as Record<string, unknown>;
+  const code = (data.apps as { code?: string } | null)?.code ?? "";
+  const check = await runConnectionCheck(code, settings);
+  await persistConnection(supabase, input.storeId, input.appId, settings, check);
+  return check;
 }

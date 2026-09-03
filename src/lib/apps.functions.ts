@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   appSettingsSchema,
+  connectionTestSchema,
   installApp,
   installAppSchema,
   installStatusSchema,
@@ -10,6 +11,7 @@ import {
   listInstallations,
   saveAppSettings,
   setInstallStatus,
+  testAppConnection,
   storeIdSchema,
 } from "@/lib/apps.server";
 
@@ -38,3 +40,8 @@ export const saveStoreAppSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => appSettingsSchema.parse(data))
   .handler(async ({ data, context }) => saveAppSettings(context.supabase, data));
+
+export const testStoreAppConnection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => connectionTestSchema.parse(data))
+  .handler(async ({ data, context }) => testAppConnection(context.supabase, data));
