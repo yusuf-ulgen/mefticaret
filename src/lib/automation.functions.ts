@@ -384,3 +384,16 @@ export const stopAutomationRun = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Builder'daki "test çalıştır": seçili akışı gerçek motorla, bekleme adımlarını atlayarak yürütür. */
+export const testRunWorkflow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({ storeId: z.string().uuid(), workflowId: z.string().uuid() })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { testRunWorkflow: run } = await import("@/lib/automation-engine.server");
+    return run(context.supabase, { storeId: data.storeId, workflowId: data.workflowId });
+  });
