@@ -4,7 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { AdminShell } from "@/components/admin-shell";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -16,7 +19,18 @@ import { useAuth } from "@/lib/auth-context";
 import { formatDateTime, formatMoney, formatNumber } from "@/lib/mefti";
 import { adminPlansQuery } from "@/lib/admin-queries";
 import { storeControlQuery } from "@/lib/platform-admin-queries";
-import { setStorePlanFn } from "@/lib/platform-admin.functions";
+import {
+  impersonationSessionsQuery,
+  storeAdminNotesQuery,
+} from "@/lib/platform-finance-queries";
+import {
+  addPlatformStoreNote,
+  deletePlatformStoreNote,
+  endPlatformImpersonation,
+  setStorePlanFn,
+  startPlatformImpersonation,
+  togglePlatformStoreNotePin,
+} from "@/lib/platform-admin.functions";
 import { setStoreStatus } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/store/$storeId")({
@@ -49,6 +63,13 @@ function StoreControlPage() {
   const { data, isLoading, error } = useQuery(storeControlQuery(storeId, isPlatformAdmin));
   const { data: plans } = useQuery(adminPlansQuery(isPlatformAdmin));
   const [planId, setPlanId] = useState<string>("");
+  const [noteText, setNoteText] = useState("");
+  const [notePinned, setNotePinned] = useState(false);
+  const [impersonationReason, setImpersonationReason] = useState("");
+
+  const { data: notes } = useQuery(storeAdminNotesQuery(storeId, isPlatformAdmin));
+  const { data: sessions } = useQuery(impersonationSessionsQuery(storeId, isPlatformAdmin));
+  const activeSession = (sessions ?? []).find((session) => !session["ended_at"]);
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["platform-store-control", storeId] });
@@ -70,6 +91,56 @@ function StoreControlPage() {
     onSuccess: () => {
       toast.success("Paket güncellendi");
       invalidate();
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const invalidateNotes = () => void queryClient.invalidateQueries({ queryKey: ["platform-store-notes", storeId] });
+  const invalidateSessions = () =>
+    void queryClient.invalidateQueries({ queryKey: ["platform-impersonation-sessions", storeId] });
+
+  const addNoteMutation = useMutation({
+    mutationFn: () => addPlatformStoreNote({ data: { storeId, note: noteText, isPinned: notePinned } }),
+    onSuccess: () => {
+      toast.success("Not eklendi");
+      setNoteText("");
+      setNotePinned(false);
+      invalidateNotes();
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const togglePinMutation = useMutation({
+    mutationFn: (input: { id: string; isPinned: boolean }) =>
+      togglePlatformStoreNotePin({ data: input }),
+    onSuccess: () => invalidateNotes(),
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const deleteNoteMutation = useMutation({
+    mutationFn: (id: string) => deletePlatformStoreNote({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Not silindi");
+      invalidateNotes();
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const startSessionMutation = useMutation({
+    mutationFn: () => startPlatformImpersonation({ data: { storeId, reason: impersonationReason } }),
+    onSuccess: () => {
+      toast.success("İnceleme oturumu başlatıldı (salt okunur, kimlik değişmedi)");
+      setImpersonationReason("");
+      invalidateSessions();
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const endSessionMutation = useMutation({
+    mutationFn: (id: string) => endPlatformImpersonation({ data: { id } }),
+    onSuccess: () => {
+      toast.success("İnceleme oturumu sonlandırıldı");
+      invalidateSessions();
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -257,6 +328,126 @@ function StoreControlPage() {
             ))}
             {!isLoading && (data?.recentOrders ?? []).length === 0 ? (
               <li className="py-6 text-center text-sm text-muted-foreground">Sipariş yok.</li>
+            ) : null}
+          </ul>
+        </section>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <section className="surface-card p-6">
+          <h2 className="font-display text-lg font-semibold">İnceleme oturumu</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Salt okunur, denetimli inceleme oturumu. Kimlik veya oturum değiştirilmez, token üretilmez;
+            yalnızca bir sebep kaydı ile audit_logs'a işlenir.
+          </p>
+          {activeSession ? (
+            <div className="mt-4 space-y-2 rounded-lg border border-amber-300/60 bg-amber-500/10 p-3 text-sm">
+              <p className="font-medium">Aktif inceleme oturumu</p>
+              <p className="text-xs text-muted-foreground">
+                Sebep: {String(activeSession["reason"] ?? "—")} · Başlangıç:{" "}
+                {formatDateTime(String(activeSession["started_at"]))}
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => endSessionMutation.mutate(String(activeSession["id"]))}
+                disabled={endSessionMutation.isPending}
+              >
+                Oturumu sonlandır
+              </Button>
+            </div>
+          ) : (
+            <div className="mt-4 space-y-2">
+              <Textarea
+                value={impersonationReason}
+                onChange={(event) => setImpersonationReason(event.target.value)}
+                placeholder="İnceleme sebebi (ör. destek talebi #123 için katalog kontrolü)"
+                rows={3}
+              />
+              <Button
+                size="sm"
+                onClick={() => startSessionMutation.mutate()}
+                disabled={startSessionMutation.isPending || impersonationReason.trim().length < 3}
+              >
+                İnceleme oturumu başlat
+              </Button>
+            </div>
+          )}
+          <ul className="mt-4 divide-y divide-border text-xs">
+            {(sessions ?? []).slice(0, 5).map((session) => (
+              <li key={String(session["id"])} className="flex items-center justify-between gap-2 py-2">
+                <span className="min-w-0 truncate">{String(session["reason"] ?? "—")}</span>
+                <span className="shrink-0 text-muted-foreground">
+                  {session["ended_at"] ? "Kapandı" : "Açık"} ·{" "}
+                  {formatDateTime(String(session["started_at"]))}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="surface-card p-6">
+          <h2 className="font-display text-lg font-semibold">Yönetici notları</h2>
+          <div className="mt-4 space-y-2">
+            <Textarea
+              value={noteText}
+              onChange={(event) => setNoteText(event.target.value)}
+              placeholder="Bu mağaza hakkında not ekle"
+              rows={3}
+            />
+            <div className="flex items-center justify-between gap-2">
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={notePinned}
+                  onChange={(event) => setNotePinned(event.target.checked)}
+                />
+                Sabitle
+              </label>
+              <Button
+                size="sm"
+                onClick={() => addNoteMutation.mutate()}
+                disabled={addNoteMutation.isPending || noteText.trim().length === 0}
+              >
+                Not ekle
+              </Button>
+            </div>
+          </div>
+          <ul className="mt-4 space-y-2">
+            {(notes ?? []).map((note) => (
+              <li key={String(note["id"])} className="rounded-lg border border-border p-3 text-sm">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="min-w-0 break-words">{String(note["note"])}</p>
+                  {note["is_pinned"] ? <Badge variant="secondary">Sabit</Badge> : null}
+                </div>
+                <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span>
+                    {String((note as { author_name?: string }).author_name ?? "—")} ·{" "}
+                    {formatDateTime(String(note["created_at"]))}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className="underline"
+                      onClick={() =>
+                        togglePinMutation.mutate({ id: String(note["id"]), isPinned: !note["is_pinned"] })
+                      }
+                    >
+                      {note["is_pinned"] ? "Sabitlemeyi kaldır" : "Sabitle"}
+                    </button>
+                    <button
+                      type="button"
+                      className="text-destructive underline"
+                      onClick={() => deleteNoteMutation.mutate(String(note["id"]))}
+                    >
+                      Sil
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+            {(notes ?? []).length === 0 ? (
+              <li className="py-6 text-center text-sm text-muted-foreground">Not yok.</li>
             ) : null}
           </ul>
         </section>
