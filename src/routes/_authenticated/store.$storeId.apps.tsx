@@ -479,6 +479,132 @@ function AppsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Dialog open={Boolean(installing)} onOpenChange={(open) => !open && setInstalling(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{installing?.name} kurulumu</DialogTitle>
+            <DialogDescription>
+              {installing?.name} uygulaması aşağıdaki izinleri isteyecek. Onayladığında tek tıkla
+              kurulur ve bağlantı otomatik test edilir.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg border bg-muted/40 p-3">
+              <p className="text-xs font-medium">İstenen izinler</p>
+              <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                {(installing?.permissions ?? []).map((permission) => (
+                  <li key={permission} className="flex items-center gap-2">
+                    <CheckCircle2 className="size-4 text-emerald-600" aria-hidden />
+                    {APP_PERMISSION_LABELS[permission] ?? permission}
+                  </li>
+                ))}
+                {(installing?.permissions ?? []).length === 0 ? (
+                  <li>Ek izin gerekmiyor.</li>
+                ) : null}
+              </ul>
+            </div>
+
+            {installing?.description ? (
+              <p className="text-sm text-muted-foreground">{installing.description}</p>
+            ) : null}
+
+            {installing?.developer_url ? (
+              <a
+                href={installing.developer_url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-1 text-sm underline"
+              >
+                Geliştirici dokümantasyonu <ExternalLink className="size-3.5" aria-hidden />
+              </a>
+            ) : null}
+
+            {readSettingsSchema(installing?.settings_schema).map((field) => (
+              <div key={field.key} className="space-y-2">
+                <Label htmlFor={`app-install-${field.key}`}>{field.label}</Label>
+                {field.type === "boolean" ? (
+                  <Switch
+                    id={`app-install-${field.key}`}
+                    checked={Boolean(draft[field.key])}
+                    onCheckedChange={(checked) =>
+                      setDraft((prev) => ({ ...prev, [field.key]: checked }))
+                    }
+                  />
+                ) : field.type === "select" ? (
+                  <select
+                    id={`app-install-${field.key}`}
+                    className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                    value={String(draft[field.key] ?? "")}
+                    onChange={(event) =>
+                      setDraft((prev) => ({ ...prev, [field.key]: event.target.value }))
+                    }
+                  >
+                    <option value="">Seçin</option>
+                    {(field.options ?? []).map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <Input
+                    id={`app-install-${field.key}`}
+                    type={
+                      field.type === "password"
+                        ? "password"
+                        : field.type === "number"
+                          ? "number"
+                          : "text"
+                    }
+                    value={String(draft[field.key] ?? "")}
+                    onChange={(event) =>
+                      setDraft((prev) => ({
+                        ...prev,
+                        [field.key]:
+                          field.type === "number"
+                            ? Number(event.target.value || 0)
+                            : event.target.value,
+                      }))
+                    }
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInstalling(null)}>
+              Vazgeç
+            </Button>
+            <Button
+              onClick={() => installing && install.mutate(installing.id)}
+              disabled={install.isPending}
+            >
+              {install.isPending ? "Kuruluyor…" : "İzin ver ve kur"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppShell>
+  );
+}
+
+function ConnectionState({ settings }: { settings: unknown }) {
+  const record = (settings ?? {}) as Record<string, unknown>;
+  const status = typeof record['_connection_status'] === "string" ? record['_connection_status'] : null;
+  if (!status) return null;
+  const message =
+    typeof record['_connection_message'] === "string" ? record['_connection_message'] : "";
+  const tone =
+    status === "connected"
+      ? "text-emerald-600"
+      : status === "error"
+        ? "text-destructive"
+        : "text-muted-foreground";
+  const Icon = status === "error" ? XCircle : status === "connected" ? CheckCircle2 : PlugZap;
+  return (
+    <p className={`flex items-start gap-1.5 text-xs ${tone}`}>
+      <Icon className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+      <span>{message || status}</span>
+    </p>
   );
 }
