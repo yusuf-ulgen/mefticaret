@@ -1136,3 +1136,58 @@ function SupplierDropshipRow({
     </div>
   );
 }
+
+function SupplierPortalRow({
+  supplier,
+  pending,
+  onSave,
+}: {
+  supplier: { id: string; name: string; email?: string | null; portal_enabled?: boolean };
+  pending: boolean;
+  onSave: (input: { email?: string; enabled: boolean }) => void;
+}) {
+  const [email, setEmail] = useState(supplier.email ?? "");
+  const enabled = supplier.portal_enabled ?? false;
+
+  return (
+    <div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[1fr_1.2fr_auto] sm:items-end">
+      <div>
+        <p className="font-medium">{supplier.name}</p>
+        {enabled ? (
+          <Badge variant="secondary" className="mt-1">
+            Portal açık
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="mt-1">
+            Portal kapalı
+          </Badge>
+        )}
+      </div>
+      <div className="space-y-1">
+        <Label className="text-xs" htmlFor={`portal-email-${supplier.id}`}>
+          Tedarikçi hesap e-postası
+        </Label>
+        <Input
+          id={`portal-email-${supplier.id}`}
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="tedarikci@ornek.com"
+        />
+      </div>
+      <div className="flex gap-2">
+        <Button size="sm" disabled={pending || !email} onClick={() => onSave({ email, enabled: true })}>
+          Erişim ver
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={pending || !enabled}
+          onClick={() => onSave({ enabled: false })}
+        >
+          Kapat
+        </Button>
+      </div>
+    </div>
+  );
+}
