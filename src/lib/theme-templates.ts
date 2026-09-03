@@ -278,6 +278,179 @@ const ATELIER_MODE: ThemeTemplate = {
   ],
 };
 
-export const THEME_TEMPLATES: ThemeTemplate[] = [BE_YOURS, ATELIER_MODE];
+/**
+ * WOKIEE — çok amaçlı premium mega-store teması.
+ *
+ * Referans demo (wokiee): koyu üst bar + para birimi/dil şeridi, sticky mega menü,
+ * tam genişlik hero slider, renkli kampanya kutuları, kategori kaydırıcısı,
+ * sekmeli ürün vitrinleri (yeni / en çok satan / indirimli), sayaçlı fırsat bloğu,
+ * marka şeridi, avantaj ikonları, blog, yorumlar, instagram galerisi,
+ * güven rozetleri ve çok kolonlu footer.
+ */
+const WOKIEE: ThemeTemplate = {
+  code: "wokiee-mega",
+  name: "Wokiee",
+  tagline: "Çok amaçlı mega store · Archivo + Hind",
+  description:
+    "Büyük katalogla çalışan mağazalar için profesyonel çok amaçlı tema. Kampanya şeridi, tam genişlik slider, renkli kampanya kutuları, kategori kaydırıcısı, yeni/en çok satan/indirimli ürün vitrinleri, geri sayımlı fırsat bloğu, marka şeridi, blog, yorumlar, sosyal galeri, güven rozetleri ve zengin footer içerir.",
+  tags: ["Çok amaçlı", "Mega store", "Elektronik", "Moda", "Premium"],
+  store: {
+    price: 2490,
+    priceNote: "Tek seferlik lisans · ömür boyu güncelleme",
+    featured: true,
+    demoUrl: "https://wokiee-currency.myshopify.com/",
+    features: [
+      "Mega menü uyumlu sticky header ve arama",
+      "Tam genişlik otomatik hero slider (3 kampanya)",
+      "Renkli kampanya kutuları ve ikili split banner",
+      "Kategori kaydırıcısı + tüm kategoriler mega bloğu",
+      "Yeni gelenler, en çok satanlar, indirimdekiler vitrinleri",
+      "Geri sayımlı günün fırsatı ve ücretsiz kargo çubuğu",
+      "Marka şeridi, avantaj ikonları, sayaçlar",
+      "Ürün yorumları, müşteri görüşleri, sosyal galeri",
+      "Blog bloğu, bülten kaydı ve güven rozetleri",
+    ],
+  },
+  theme: {
+    primaryColor: "#111318",
+    accentColor: "#ff4545",
+    backgroundColor: "#ffffff",
+    fontPair: "archivo-hind",
+    radius: 0.5,
+    layout: "hero-grid",
+    buttonStyle: "solid",
+    cardStyle: "bordered",
+    contentWidth: 1680,
+    sectionSpacing: 32,
+    heroTitle: "Her kategoride binlerce ürün",
+    heroSubtitle:
+      "Elektronikten modaya, ev yaşamından aksesuara kadar tüm koleksiyonlar tek mağazada. Aynı gün kargo, güvenli ödeme.",
+    heroCtaLabel: "Alışverişe Başla",
+    announcement: "Bugüne özel: 750 TL üzeri siparişlerde ücretsiz kargo · Kupon: WOKIEE10",
+    showAnnouncement: true,
+  },
+  sections: [
+    {
+      type: "announcement_bar",
+      settings: {
+        text: "Bugüne özel: 750 TL üzeri siparişlerde ücretsiz kargo · Kupon: WOKIEE10",
+        linkLabel: "Fırsatları gör",
+        linkUrl: "#urunler",
+        tone: "primary",
+      },
+    },
+    {
+      type: "header",
+      settings: {
+        sticky: true,
+        showSearch: true,
+        showFavorites: true,
+        showCart: true,
+        tagline: "Çok kategorili alışveriş merkezi",
+      },
+    },
+    {
+      type: "hero_slider",
+      settings: {
+        items:
+          "Yeni sezon teknoloji | Kulaklık, akıllı saat ve aksesuarlarda %40'a varan indirim | | Alışverişe Başla | #urunler\nEv & yaşam | Mutfaktan dekorasyona binlerce ürün tek yerde | | Koleksiyonu Gör | #koleksiyonlar\nHaftanın fırsatları | Seçili ürünlerde sepette ekstra indirim | | Fırsatları Yakala | #urunler",
+        height: 620,
+        autoplay: true,
+        interval: 5,
+      },
+    },
+    {
+      type: "banner_color_grid",
+      settings: {
+        title: "Öne çıkan kampanyalar",
+        items:
+          "Teknoloji | %40'a varan indirim | #urunler\nModa | Yeni sezon parçalar | #urunler\nEv & Yaşam | Sepette ekstra %15 | #urunler\nAksesuar | 2 al 1 öde | #urunler",
+        columns: 4,
+      },
+    },
+    { type: "free_shipping_bar", settings: { threshold: 750, text: "{tutar} ve üzeri siparişlerde kargo ücretsiz", tone: "soft" } },
+    { type: "category_slider", settings: { title: "Kategorilerde gezin", limit: 12, cardWidth: 200 } },
+    { type: "product_new", settings: { title: "Yeni gelenler", limit: 8, columns: 4 } },
+    {
+      type: "banner_split",
+      settings: {
+        leftTitle: "Günün fırsatı",
+        leftText: "Stoklar tükenmeden yakala",
+        leftUrl: "#urunler",
+        rightTitle: "Çok satanlar",
+        rightText: "Müşterilerin favorileri",
+        rightUrl: "#urunler",
+        height: 300,
+      },
+    },
+    { type: "product_bestsellers", settings: { title: "En çok satanlar", limit: 8, columns: 4, layout: "slider" } },
+    {
+      type: "countdown",
+      settings: {
+        title: "Günün fırsatı bitiyor",
+        text: "Seçili ürünlerde geri sayım sürüyor, kaçırma.",
+        ctaLabel: "Fırsatları gör",
+        ctaUrl: "#urunler",
+      },
+    },
+    { type: "product_discounted", settings: { title: "İndirimdekiler", limit: 8, columns: 4, showBadge: true } },
+    {
+      type: "icon_boxes",
+      settings: {
+        title: "Neden bizden alışveriş?",
+        items:
+          "🚚 | Hızlı teslimat | Aynı gün kargo, 1-3 günde kapında\n🔒 | Güvenli ödeme | 3D Secure ve taksit imkânı\n↩️ | 14 gün iade | Koşulsuz cayma hakkı\n💬 | Canlı destek | Hafta içi 09:00-18:00",
+        columns: 4,
+      },
+    },
+    { type: "featured_collection", settings: { title: "Editörün seçimi", collectionSlug: "", limit: 4, columns: 4, ctaLabel: "Tümünü gör" } },
+    { type: "brands", settings: { title: "Öne çıkan markalar", columns: 6 } },
+    {
+      type: "counters",
+      settings: {
+        title: "Rakamlarla mağaza",
+      },
+    },
+    { type: "product_grid", settings: { title: "Tüm ürünler", limit: 16, columns: 4, showSearch: true, showPrice: true } },
+    { type: "reviews", settings: { title: "Ürün yorumları" } },
+    {
+      type: "testimonials",
+      settings: {
+        title: "Müşterilerimiz ne diyor?",
+        items:
+          "Siparişim ertesi gün elimdeydi, paketleme çok özenliydi. | Ahmet Y.\nFiyat/performans olarak en iyi seçenek, tekrar alacağım. | Büşra K.\nİade sürecini tek tıkla tamamladım, çok pratik. | Emre D.\nÜrün çeşitliliği inanılmaz, aradığım her şeyi buldum. | Nazlı T.",
+        columns: 4,
+      },
+    },
+    { type: "gallery", settings: { title: "Instagram'da biz", columns: 6, height: 240 } },
+    { type: "blog", settings: { title: "Blog & rehberler", limit: 3, columns: 3 } },
+    {
+      type: "trust_badges",
+      settings: {
+        items:
+          "🔐 | Güvenli ödeme | 256-bit SSL & 3D Secure\n📦 | Kargo takibi | Anlık sipariş durumu\n🎧 | 7/24 yardım | Destek merkezi ve canlı sohbet",
+        columns: 3,
+      },
+    },
+    {
+      type: "newsletter",
+      settings: {
+        title: "Kampanyaları ilk sen öğren",
+        text: "Bültene katıl, indirim kuponlarını ve yeni ürünleri kaçırma.",
+        buttonLabel: "Kaydol",
+      },
+    },
+    {
+      type: "footer",
+      settings: {
+        showLegalLinks: true,
+        showPages: true,
+        about: "Her kategoride binlerce ürün, güvenli ödeme ve hızlı teslimat.",
+      },
+    },
+  ],
+};
+
+export const THEME_TEMPLATES: ThemeTemplate[] = [WOKIEE, BE_YOURS, ATELIER_MODE];
 
 export const TEMPLATE_BY_CODE = new Map(THEME_TEMPLATES.map((template) => [template.code, template]));
