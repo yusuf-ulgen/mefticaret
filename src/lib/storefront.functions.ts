@@ -172,7 +172,17 @@ export const getStorefront = createServerFn({ method: "GET" })
       commerce,
       store,
       theme: themeRes.data,
-      products: products.map((product) => ({ ...product, coverUrl: coverByProduct[product.id] ?? null })),
+      products: products.map((product) => {
+        const summary = variantSummary[product.id];
+        return {
+          ...product,
+          coverUrl: coverByProduct[product.id] ?? null,
+          // Panel verisiyle birebir: satış fiyatı varyanttan, stok toplamı envanterden.
+          livePrice: summary?.minPrice ?? Number(product.base_price),
+          stockTotal: summary ? summary.stockTotal : null,
+          variantCount: summary?.variantCount ?? 0,
+        };
+      }),
       collections: collectionsRes.data ?? [],
       footerPages: pagesRes.data ?? [],
       sections: sectionsRes.data ?? [],
