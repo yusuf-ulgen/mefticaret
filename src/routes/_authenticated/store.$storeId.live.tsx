@@ -183,12 +183,40 @@ function LiveViewPage() {
         <p className="mt-3 text-muted-foreground">Hangi müşteri hangi sayfada, hangi şehirden bağlanıyor ve sepetinde ne var; hepsi tek ekranda.</p>
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard icon={<Activity />} label="Anlık ziyaretçi" value={formatNumber(summary.visitors)} hint={`${formatNumber(summary.sessions)} aktif oturum · son 5 dk`} />
-        <MetricCard icon={<ShoppingCart />} label="Aktif sepet" value={formatNumber(activeCarts.length)} hint={`${formatMoney(cartValue, currency)} toplam sepet değeri`} />
-        <MetricCard icon={<Package />} label="Bugün sipariş" value={formatNumber((orders ?? []).length)} hint={`${formatMoney(todayRevenue, currency)} ödenmiş ciro`} />
-        <MetricCard icon={<ArrowUpRight />} label="Dönüşüm oranı" value={`${summary.conversionRate.toFixed(1)}%`} hint={`${formatNumber(summary.pageViews + summary.productViews)} görüntüleme · son 60 dk`} />
+      <div className="grid gap-3 lg:grid-cols-[1.15fr_1fr]">
+        <section className="surface-card relative overflow-hidden p-5">
+          <div className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-brand-soft/70 blur-2xl" />
+          <div className="relative flex items-start justify-between gap-3">
+            <div>
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="grid size-7 place-items-center rounded-full bg-brand-soft text-brand"><Activity className="size-4" /></span>
+                Anlık ziyaretçi
+              </p>
+              <p className="mt-3 font-display text-4xl font-semibold tracking-tight sm:text-5xl">{formatNumber(summary.visitors)}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{formatNumber(summary.sessions)} aktif oturum · son 5 dakika</p>
+            </div>
+            <TrendPill value={visitorTrend} />
+          </div>
+          <div className="relative mt-5 flex h-16 items-end gap-[3px]" aria-hidden>
+            {buckets.slice(-30).map((bucket) => (
+              <div
+                key={`spark-${bucket.minute}`}
+                className="min-w-0 flex-1 rounded-t-sm bg-brand/25"
+                style={{ height: `${Math.max(6, (bucket.count / maxBucket) * 100)}%` }}
+              />
+            ))}
+          </div>
+          <p className="relative mt-2 text-xs text-muted-foreground">Son 30 dakikalık ziyaretçi hareketi</p>
+        </section>
+
+        <div className="grid grid-cols-2 gap-3">
+          <MetricCard icon={<ShoppingCart />} label="Aktif sepet" value={formatNumber(activeCarts.length)} hint={`${formatMoney(cartValue, currency)} sepet değeri`} />
+          <MetricCard icon={<Package />} label="Bugün sipariş" value={formatNumber((orders ?? []).length)} hint={`${formatMoney(todayRevenue, currency)} ödenmiş ciro`} />
+          <MetricCard icon={<ArrowUpRight />} label="Dönüşüm" value={`${summary.conversionRate.toFixed(1)}%`} hint="son 60 dakika" />
+          <MetricCard icon={<Eye />} label="Görüntüleme" value={formatNumber(summary.pageViews + summary.productViews)} hint="sayfa + ürün" />
+        </div>
       </div>
+
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[1.4fr_0.8fr]">
         <section className="surface-card overflow-hidden">
