@@ -79,7 +79,8 @@ const DATASETS = {
     withStore: true,
     columns: [
       { key: "status", label: "Durum", kind: "badge" },
-      { key: "interval", label: "Dönem", kind: "badge" },
+      { key: "billing_interval", label: "Dönem", kind: "badge" },
+      { key: "amount", label: "Tutar", kind: "money" },
       { key: "current_period_start", label: "Dönem başı", kind: "date" },
       { key: "current_period_end", label: "Dönem sonu", kind: "date" },
       { key: "trial_ends_at", label: "Deneme bitiş", kind: "date" },
