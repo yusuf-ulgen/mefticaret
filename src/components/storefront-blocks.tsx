@@ -289,7 +289,7 @@ export function ExtendedBlock({ section, context }: { section: ResolvedSection; 
     case "free_shipping_bar":
       return <FreeShippingBar {...props} />;
     case "trust_badges":
-      return <IconBoxes {...props} settingsKey="items" />;
+      return <TrustBadges {...props} />;
     case "social_proof":
       return <SocialProof {...props} />;
     case "reviews":
@@ -1558,9 +1558,15 @@ function CountdownBlock({ settings, context }: SectionProps) {
 
 function FreeShippingBar({ settings, context }: SectionProps) {
   const { radius } = storefrontTokens(context.theme);
-  const threshold = num(settings, "threshold", 500);
+  const configured = num(settings, "threshold", 0);
+  // Ayar boş/0 ise mağazanın gerçek kargo tarifelerindeki ücretsiz kargo eşiği kullanılır.
+  const threshold = configured > 0 ? configured : (context.commerce?.freeShippingThreshold ?? 0);
   const tone = toneBackground(context.theme, str(settings, "tone"));
-  const text = str(settings, "text").replace("{tutar}", formatMoney(threshold, context.storeCurrency));
+  const eta = context.commerce?.fastestEtaDays ?? null;
+  if (threshold <= 0) return null;
+  const text = str(settings, "text")
+    .replace("{tutar}", formatMoney(threshold, context.storeCurrency))
+    .replace("{gun}", eta ? String(eta) : "1-3");
 
   return (
     <section
@@ -1577,6 +1583,38 @@ function FreeShippingBar({ settings, context }: SectionProps) {
     </section>
   );
 }
+
+/** Rozetler boş bırakılırsa mağazanın gerçek kargo ve ödeme verisinden üretilir. */
+function TrustBadges({ settings, context }: SectionProps) {
+  const commerce = context.commerce;
+  const configured = String(settings["items"] ?? "").trim();
+  const auto = useMemo(() => {
+    if (configured) return configured;
+    if (!commerce) return "";
+    const rows: string[] = [];
+    if (commerce.payments.length) {
+      rows.push(
+        `🔐 | Güvenli ödeme | ${commerce.payments.map((payment) => payment.displayName).join(", ")}`,
+      );
+      if (commerce.payments.some((payment) => payment.installments)) {
+        rows.push("💳 | Taksit imkânı | Anlaşmalı bankalarla taksitli ödeme");
+      }
+    }
+    if (commerce.fastestEtaDays) {
+      rows.push(`📦 | Hızlı kargo | Ortalama ${commerce.fastestEtaDays} iş günü teslim`);
+    }
+    if (commerce.freeShippingThreshold) {
+      rows.push(
+        `🚚 | Ücretsiz kargo | ${formatMoney(commerce.freeShippingThreshold, commerce.currency)} üzeri siparişlerde`,
+      );
+    }
+    return rows.join("\n");
+  }, [commerce, configured]);
+
+  if (!auto) return null;
+  return <IconBoxes settings={{ ...settings, items: auto }} context={context} settingsKey="items" />;
+}
+
 
 function SocialProof({ settings, context }: SectionProps) {
   const items = useMemo(() => parseRows(settings["items"], 2), [settings]);

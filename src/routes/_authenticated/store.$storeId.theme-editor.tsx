@@ -29,6 +29,8 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { collectionsQuery, productsQuery } from "@/lib/catalog-queries";
+import { paymentMethodsQuery, shippingZonesQuery } from "@/lib/commerce-queries";
+import { buildStorefrontCommerce } from "@/lib/storefront-commerce";
 import { StorefrontSections, type SectionProduct } from "@/components/storefront-sections";
 import { storeQuery } from "@/lib/store-queries";
 import { storeThemeQuery } from "@/lib/theme-queries";
@@ -119,6 +121,36 @@ function ThemeEditorPage() {
   const { data: store } = useQuery(storeQuery(storeId));
   const { data: products } = useQuery(productsQuery(storeId));
   const { data: collections } = useQuery(collectionsQuery(storeId));
+  const { data: shippingZones } = useQuery(shippingZonesQuery(storeId));
+  const { data: paymentMethods } = useQuery(paymentMethodsQuery(storeId));
+
+  // Editör önizlemesi mağazanın gerçek kargo ve ödeme verisini kullanır.
+  const previewCommerce = useMemo(
+    () =>
+      buildStorefrontCommerce({
+        currency: store?.currency ?? "TRY",
+        rates: (shippingZones ?? [])
+          .filter((zone) => zone.is_active)
+          .flatMap((zone) =>
+            (zone.shipping_rates ?? [])
+              .filter((rate) => rate.is_active)
+              .map((rate) => ({
+                title: rate.title,
+                price: rate.price,
+                free_over: rate.free_over,
+                eta_days: rate.eta_days,
+                zoneName: zone.name,
+              })),
+          ),
+        payments: (paymentMethods ?? [])
+          .filter((method) => method.is_active)
+          .map((method) => ({
+            display_name: method.display_name,
+            installments_enabled: method.installments_enabled,
+          })),
+      }),
+    [paymentMethods, shippingZones, store?.currency],
+  );
 
   const add = useServerFn(addThemeSection);
   const update = useServerFn(updateThemeSection);
@@ -536,7 +568,7 @@ function ThemeEditorPage() {
                     theme: theme ?? null,
                     storeSlug: store?.slug ?? "preview",
                     storeName: store?.name ?? "Önizleme",
-                    storeCurrency: "TRY",
+                    storeCurrency: store?.currency ?? "TRY",
                     products: previewProducts,
                     collections: (collections ?? []).map((collection) => ({
                       id: collection.id,
@@ -545,6 +577,7 @@ function ThemeEditorPage() {
                       description: collection.description,
                     })),
                     pages: [],
+                    commerce: previewCommerce,
                     preview: true,
                   }}
                 />
