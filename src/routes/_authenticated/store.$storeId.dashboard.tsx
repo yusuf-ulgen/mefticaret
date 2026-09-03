@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
+  ArrowDownRight,
+  ArrowUpRight,
   AlertTriangle,
   BellRing,
   CreditCard,
@@ -140,7 +142,8 @@ function DashboardPage() {
     { label: "Dönüşüm", value: formatPercent(conversion), icon: Activity, delta: null },
     { label: "Sepet ortalaması", value: formatMoney(aov, currency), icon: CreditCard, delta: null },
   ];
-  const [hero, ...secondary] = cards;
+  const hero = cards[0]!;
+  const secondary = cards.slice(1);
 
   return (
     <AppShell
