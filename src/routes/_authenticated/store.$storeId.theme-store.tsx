@@ -87,14 +87,15 @@ function sectionsFromTemplate(template: ThemeTemplate): ResolvedSection[] {
         if (!(key in definition.defaults)) continue;
         settings[key] = value;
       }
-      return {
+      const resolved: ResolvedSection = {
         id: `${template.code}-${index}`,
         type: section.type,
         position: index,
         isEnabled: true,
         settings,
         definition,
-      } satisfies ResolvedSection;
+      };
+      return resolved;
     })
     .filter((section): section is ResolvedSection => section !== null);
 }
