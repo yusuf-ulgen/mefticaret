@@ -350,7 +350,34 @@ function UserMenu() {
   );
 }
 
+function QuickLinks({ storeId }: { storeId: string }) {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const links = useMemo(() => storeQuickLinks(storeId), [storeId]);
+
+  return (
+    <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+      {links.map((link) => {
+        const active = pathname === link.to;
+        return (
+          <Link
+            key={link.label}
+            to={link.to}
+            className={cn(
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground",
+              active && "border-transparent bg-foreground text-background hover:text-background",
+            )}
+          >
+            <link.icon className="size-3.5" />
+            {link.label}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 export function AppShell({
+
   storeId,
   title,
   description,
