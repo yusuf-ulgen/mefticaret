@@ -397,3 +397,20 @@
     flex: 1 1 100%;
   }
 }
+
+@media (max-width: 640px) {
+  .sf-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 16px !important;
+  }
+  .sf-header-nav {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 12px !important;
+    row-gap: 10px;
+  }
+  .sf-main {
+    padding: 0 16px 48px !important;
+  }
+}

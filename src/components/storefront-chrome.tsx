@@ -259,6 +259,7 @@ export function StorefrontChrome({
 
 
       <header
+        className="sf-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -297,7 +298,7 @@ export function StorefrontChrome({
             <div style={{ color: muted, fontSize: 12, marginTop: 2 }}>{value(headerCfg, "tagline")}</div>
           ) : null}
         </div>
-        <nav style={{ display: "flex", gap: 18, fontSize: 13, color: muted }}>
+        <nav className="sf-header-nav" style={{ display: "flex", gap: 18, fontSize: 13, color: muted }}>
           {headerItems.length ? (
             headerItems.map((item) => (
               <a
@@ -416,7 +417,9 @@ export function StorefrontChrome({
         </nav>
       </header>
 
-      <main style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>{children}</main>
+      <main className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>
+        {children}
+      </main>
 
       <footer
         style={{
