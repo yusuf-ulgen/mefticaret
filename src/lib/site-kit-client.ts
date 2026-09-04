@@ -112,6 +112,10 @@ export function pushSiteKitEvent(name: SiteKitEventName, payload: SiteKitEventPa
       currency: payload.currency,
       transaction_id: payload.orderId,
       search_term: payload.searchTerm,
+      method: payload.method,
+      percent_scrolled: payload.percent,
+      content_id: payload.itemId,
+      content_name: payload.itemName,
       ...(items ? { ecommerce: { items } } : {}),
     });
 
@@ -122,7 +126,12 @@ export function pushSiteKitEvent(name: SiteKitEventName, payload: SiteKitEventPa
         ...(payload.currency ? { currency: payload.currency } : {}),
         ...(payload.orderId ? { transaction_id: payload.orderId } : {}),
         ...(payload.searchTerm ? { search_term: payload.searchTerm } : {}),
+        ...(payload.method ? { method: payload.method } : {}),
+        ...(payload.percent !== undefined ? { percent_scrolled: payload.percent } : {}),
+        ...(payload.itemId ? { content_id: payload.itemId, content_type: "article" } : {}),
+        ...(payload.itemName ? { content_name: payload.itemName, item_name: payload.itemName } : {}),
         ...(items ? { items } : {}),
+
       });
 
       const ads = configOf("google_ads");
