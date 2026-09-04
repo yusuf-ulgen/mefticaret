@@ -70,6 +70,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         hint: "Mağaza vitrinini düzenle",
         keywords: "vitrin tasarım hero bölüm section storefront ön uç",
       },
+      {
+        to: "/admin/frontend/landing",
+        label: "Ana Sayfa (Landing)",
+        icon: LayoutTemplate,
+        hint: "Platform ana sayfası bölümleri",
+        keywords: "ana sayfa landing hero bölüm menü footer sss blog fiyat",
+      },
       { to: "/admin/themes", label: "Temalar", icon: Palette, hint: "Tema kütüphanesi", keywords: "tema şablon renk" },
       { to: "/admin/cms", label: "Sayfalar (CMS)", icon: FileText, hint: "Kurumsal sayfalar", keywords: "hakkımızda iletişim sayfa metin" },
       { to: "/admin/blog", label: "Blog Sistemi", icon: PenLine, hint: "Yazılar ve yayın takvimi", keywords: "makale içerik yazı" },
@@ -141,6 +148,7 @@ export function filterAdminNav(term: string): AdminNavGroup[] {
 
 export const ADMIN_QUICK_ACTIONS: AdminNavItem[] = [
   { to: "/admin/frontend", label: "Ön uç düzenle", icon: LayoutTemplate },
+  { to: "/admin/frontend/landing", label: "Ana sayfa", icon: LayoutTemplate },
   { to: "/admin/blog", label: "Blog", icon: PenLine },
   { to: "/admin/stores", label: "Mağazalar", icon: Store },
   { to: "/admin/live", label: "Canlı", icon: MousePointerClick },
