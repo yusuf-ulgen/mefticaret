@@ -128,7 +128,10 @@ export function pushSiteKitEvent(name: SiteKitEventName, payload: SiteKitEventPa
         ...(payload.searchTerm ? { search_term: payload.searchTerm } : {}),
         ...(payload.method ? { method: payload.method } : {}),
         ...(payload.percent !== undefined ? { percent_scrolled: payload.percent } : {}),
-        ...(payload.itemId ? { content_id: payload.itemId, content_type: "article" } : {}),
+        ...(payload.itemId && (name === "blog_view" || name === "blog_read_complete" || name === "share")
+          ? { content_id: payload.itemId, content_type: "article" }
+          : {}),
+
         ...(payload.itemName ? { content_name: payload.itemName, item_name: payload.itemName } : {}),
         ...(items ? { items } : {}),
 
