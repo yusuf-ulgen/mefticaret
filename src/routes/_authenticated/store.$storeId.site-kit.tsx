@@ -260,7 +260,7 @@ function SiteKitPage() {
             title="Entegrasyonu birkaç adımda kurun"
             description="Head mi body mi diye düşünmeyin; kimliği girin, Mefticaret etiketi doğru yere kendisi yerleştirir."
           />
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
             {SETUP_STEPS.map((step, index) => (
               <div key={step.title} className="rounded-2xl border bg-muted/30 p-5">
                 <span className="flex size-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
@@ -303,7 +303,7 @@ function SiteKitPage() {
           {isLoading ? (
             <CardSkeleton />
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {SITE_KIT_PROVIDERS.map((provider) => (
                 <ProviderCard
                   key={provider.id}
@@ -319,7 +319,7 @@ function SiteKitPage() {
         </section>
 
         {/* Geleneksel yöntem vs Site Kit */}
-        <section className="grid gap-4 lg:grid-cols-2">
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="surface-card p-6">
             <div className="flex items-center gap-2 text-sm font-semibold">
               <Code2 className="size-4 text-muted-foreground" />
@@ -414,7 +414,7 @@ function SiteKitPage() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             {SITE_KIT_ADVANTAGES.map((item) => (
               <div key={item.title} className="rounded-2xl border bg-muted/30 p-4">
                 <p className="flex items-center gap-2 text-sm font-semibold">
@@ -434,7 +434,7 @@ function SiteKitPage() {
             title="Reklam engelleyiciler sizi durduramaz"
             description="Tarayıcıda çalışan etiketler engellenebilir; sunucu taraflı gönderim engellenemez."
           />
-          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
             {SITE_KIT_PROVIDERS.filter((provider) =>
               ["meta_pixel", "tiktok_pixel", "facebook_capi"].includes(provider.id),
             ).map((provider) => (
@@ -456,7 +456,7 @@ function SiteKitPage() {
               </div>
             ))}
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {[
               { icon: ShieldCheck, text: "iOS 14.5+ kısıtlamalarıyla uyumlu" },
               { icon: ServerCog, text: "Enhanced matching ile doğruluk artışı" },

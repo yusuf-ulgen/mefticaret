@@ -192,10 +192,10 @@ function StoreControlPage() {
         <div className="surface-card p-6 text-sm text-destructive">{(error as Error).message}</div>
       ) : null}
 
-      <div className="grid gap-4 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <section className="surface-card p-6 xl:col-span-2">
           <h2 className="font-display text-lg font-semibold">Kiracı bilgileri</h2>
-          <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+          <dl className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-xs text-muted-foreground">Slug</dt>
               <dd>{(store?.["slug"] as string) ?? "—"}</dd>
@@ -281,7 +281,7 @@ function StoreControlPage() {
         </section>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
           <div key={card.label} className="surface-card p-5">
             <p className="text-xs text-muted-foreground">{card.label}</p>
@@ -291,7 +291,7 @@ function StoreControlPage() {
         ))}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <section className="surface-card p-6">
           <h2 className="font-display text-lg font-semibold">Ekip</h2>
           <ul className="mt-4 divide-y divide-border text-sm">
@@ -333,7 +333,7 @@ function StoreControlPage() {
         </section>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <section className="surface-card p-6">
           <h2 className="font-display text-lg font-semibold">İnceleme oturumu</h2>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -453,7 +453,7 @@ function StoreControlPage() {
         </section>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         {CONTROL_GROUPS.map((group) => (
           <section key={group.title} className="surface-card p-6">
             <h2 className="font-display text-lg font-semibold">{group.title}</h2>

@@ -188,7 +188,7 @@ function WhatsAppPage() {
           <TabsTrigger value="settings">Bağlantı</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="inbox" className="grid gap-4 lg:grid-cols-[320px_1fr]">
+        <TabsContent value="inbox" className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
           <div className="surface-card divide-y divide-border">
             {(conversations ?? []).length === 0 ? (
               <p className="p-4 text-sm text-muted-foreground">Henüz görüşme yok.</p>
@@ -277,7 +277,7 @@ function WhatsAppPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="auto" className="grid gap-6 lg:grid-cols-[380px_1fr]">
+        <TabsContent value="auto" className="grid grid-cols-1 gap-6 lg:grid-cols-[380px_1fr]">
           <form
             className="surface-card space-y-4 p-6"
             onSubmit={(event) => {
@@ -411,7 +411,7 @@ function WhatsAppPage() {
             }}
           >
             <h2 className="text-lg font-semibold">WhatsApp Business API bağlantısı</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="wa-phone">Görünen numara</Label>
                 <Input

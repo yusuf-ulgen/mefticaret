@@ -106,7 +106,7 @@ function LtvPage() {
           <p className="text-muted-foreground text-sm">Henüz LTV hesaplanacak sipariş yok.</p>
         ) : (
           <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {kpis.map((kpi) => (
                 <div key={kpi.label} className="rounded-xl border p-4">
                   <p className="text-muted-foreground text-xs uppercase tracking-wide">{kpi.label}</p>
@@ -115,7 +115,7 @@ function LtvPage() {
               ))}
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="rounded-xl border p-4">
                 <p className="text-muted-foreground text-xs uppercase tracking-wide">Tekrar alım oranı</p>
                 <p className="font-display mt-2 text-2xl">{summary.repeatRate.toFixed(1)}%</p>
@@ -136,7 +136,7 @@ function LtvPage() {
 
             <section className="space-y-3">
               <h3 className="font-display text-lg">Harcama dilimleri</h3>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 {buckets.map((bucket) => (
                   <div key={bucket.label} className="rounded-xl border p-4">
                     <p className="text-muted-foreground text-xs">{bucket.label}</p>

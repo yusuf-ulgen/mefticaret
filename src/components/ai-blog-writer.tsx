@@ -88,7 +88,7 @@ export function AiBlogWriter({
         <Badge variant="outline">Gerçek mağaza verisiyle temellendirilir</Badge>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2 md:col-span-2">
           <Label htmlFor="ai-topic">Konu</Label>
           <Input

@@ -150,7 +150,7 @@ function AiPage() {
           <TabsTrigger value="history">Geçmiş</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="assistant" className="grid gap-4 lg:grid-cols-[280px_1fr]">
+        <TabsContent value="assistant" className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr]">
           <nav className="surface-card space-y-4 p-4">
             {groups.map(([group, items]) => (
               <div key={group} className="space-y-1">
@@ -184,7 +184,7 @@ function AiPage() {
               <p className="text-sm text-muted-foreground">{task.description}</p>
             </header>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {task.fields.map((field) => (
                 <div
                   key={field.name}
@@ -254,7 +254,7 @@ function AiPage() {
         </TabsContent>
 
         <TabsContent value="usage" className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <article className="surface-card p-4">
               <p className="text-sm text-muted-foreground">Bu ay kullanılan token</p>
               <p className="font-display text-2xl font-semibold">{formatNumber(usage?.monthTokens ?? 0)}</p>
@@ -273,7 +273,7 @@ function AiPage() {
             </article>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <section className="surface-card p-4">
               <h3 className="mb-3 font-semibold">Göreve göre kullanım</h3>
               {(usage?.byTask ?? []).length === 0 ? (
@@ -311,7 +311,7 @@ function AiPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="settings" className="grid gap-4 lg:grid-cols-[1fr_360px]">
+        <TabsContent value="settings" className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_360px]">
           <form
             className="surface-card space-y-4 p-6"
             onSubmit={(event) => {
@@ -320,7 +320,7 @@ function AiPage() {
             }}
           >
             <h2 className="font-display text-lg font-semibold">Mağaza AI ayarları</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Sağlayıcı</Label>
                 <Select

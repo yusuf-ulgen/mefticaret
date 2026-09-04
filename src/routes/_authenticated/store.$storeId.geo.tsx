@@ -90,7 +90,7 @@ function GeoPage() {
       description="Son 180 günün siparişlerini ülke, şehir ve ilçe kırılımında incele."
     >
       <div className="space-y-8">
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {kpis.map((kpi) => (
             <div key={kpi.label} className="rounded-xl border bg-card p-4">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">{kpi.label}</p>

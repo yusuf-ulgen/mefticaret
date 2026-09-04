@@ -107,7 +107,7 @@ function AuthPage() {
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
+    <div className="grid grid-cols-1 min-h-screen lg:grid-cols-2">
       <div className="hero-surface hidden flex-col justify-between p-10 lg:flex">
         <Link to="/" className="flex items-center gap-2">
           <span className="grid size-9 place-items-center rounded-xl brand-gradient text-brand-foreground">

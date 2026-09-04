@@ -143,7 +143,7 @@ function ReorderPage() {
       description="Satış hızı, tedarik süresi ve emniyet stoğuna göre tedarik önerileri."
     >
       <div className="space-y-8">
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Acil kalem", value: formatNumber(criticalCount) },
             { label: "Sipariş gereken kalem", value: formatNumber(needed.length) },
@@ -160,7 +160,7 @@ function ReorderPage() {
           ))}
         </section>
 
-        <section className="grid gap-4 rounded-xl border bg-card p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 rounded-xl border bg-card p-5 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { id: "window", label: "Satış penceresi (gün)", value: windowDays, set: setWindowDays },
             { id: "lead", label: "Tedarik süresi (gün)", value: leadTimeDays, set: setLeadTimeDays },

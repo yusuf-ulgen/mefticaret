@@ -271,7 +271,7 @@ function AnalyticsPage() {
         Dönem: {formatDate(range.from)} – {formatDate(range.to)} ({days} gün)
       </p>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => (
           <div key={card.label} className="surface-card p-4">
             <div className="flex items-center justify-between">
@@ -285,7 +285,7 @@ function AnalyticsPage() {
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="surface-card p-6">
           <h2 className="font-display text-lg font-semibold">Dönüşüm hunisi</h2>
           <p className="text-sm text-muted-foreground">
@@ -336,7 +336,7 @@ function AnalyticsPage() {
         </section>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {breakdowns.map((block) => (
           <section key={block.title} className="surface-card p-5">
             <div className="flex items-center justify-between">
@@ -402,7 +402,7 @@ function AnalyticsPage() {
         )}
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="surface-card p-6">
           <h2 className="font-display text-lg font-semibold">En çok satan ürünler</h2>
           {topProducts.length === 0 ? (
@@ -424,7 +424,7 @@ function AnalyticsPage() {
 
         <section className="surface-card p-6">
           <h2 className="font-display text-lg font-semibold">Durum dağılımı</h2>
-          <div className="mt-4 grid gap-6 sm:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Sipariş durumu</p>
               <ul className="mt-3 space-y-2 text-sm">
@@ -459,7 +459,7 @@ function AnalyticsPage() {
         </section>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="surface-card p-6">
           <h2 className="font-display text-lg font-semibold">Saatlik sipariş yoğunluğu</h2>
           <p className="text-sm text-muted-foreground">

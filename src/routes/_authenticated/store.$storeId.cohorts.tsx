@@ -86,7 +86,7 @@ function CohortsPage() {
           </Button>
         </header>
 
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-xl border bg-card p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Toplam müşteri</p>
             <p className="mt-1 text-2xl font-semibold">{formatNumber(totals.customers)}</p>

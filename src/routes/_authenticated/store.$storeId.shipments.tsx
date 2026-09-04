@@ -147,7 +147,7 @@ function ShipmentsPage() {
       title="Sevkiyatlar"
       description="Kargo sevkiyatlarını izle, durum ve takip bilgilerini güncelle."
     >
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="surface-card p-5">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Toplam sevkiyat</p>
           <p className="mt-1 text-2xl font-semibold">{counts.total}</p>

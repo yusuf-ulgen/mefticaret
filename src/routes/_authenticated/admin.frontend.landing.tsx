@@ -246,7 +246,7 @@ function AdminLandingPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
                   <Field
                     label="Üst etiket"
                     value={row.eyebrow}
@@ -320,7 +320,7 @@ function AdminLandingPage() {
                   <div className="mt-3 space-y-3">
                     {row.items.map((item, itemIndex) => (
                       <div key={itemIndex} className="rounded-xl border border-border p-3">
-                        <div className="grid gap-2 md:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
                           {Object.keys({ ...template, ...item }).map((field) => (
                             <div key={field}>
                               <Label className="text-[11px]">{field}</Label>

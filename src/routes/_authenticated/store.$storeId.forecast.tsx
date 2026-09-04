@@ -95,13 +95,13 @@ function ForecastPage() {
         </header>
 
         {isLoading ? (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <Skeleton key={index} className="h-24 w-full rounded-xl" />
             ))}
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {kpis.map((kpi) => (
               <div key={kpi.label} className="rounded-xl border bg-card p-4">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">{kpi.label}</p>
@@ -111,7 +111,7 @@ function ForecastPage() {
           </div>
         )}
 
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="rounded-xl border bg-card p-4 lg:col-span-2">
             <h2 className="flex items-center gap-2 text-sm font-medium">
               <LineChartIcon className="size-4 text-primary" /> Bu ay: gerçekleşen ve tahmin

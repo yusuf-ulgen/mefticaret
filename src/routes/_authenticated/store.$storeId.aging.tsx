@@ -90,7 +90,7 @@ function AgingPage() {
           <p className="text-muted-foreground text-sm">Stoklu ürün bulunamadı.</p>
         ) : (
           <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Kpi label="Stok maliyet değeri" value={formatMoney(summary.stockValue)} hint={`${formatNumber(summary.units)} adet`} />
               <Kpi
                 label="Ölü stok (120+ gün)"

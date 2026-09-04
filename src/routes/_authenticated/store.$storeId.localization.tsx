@@ -190,7 +190,7 @@ function LocalizationPage() {
         <section className="rounded-xl border bg-card p-4">
           <h2 className="text-sm font-semibold">{t("localization.languages")}</h2>
           <p className="text-xs text-muted-foreground">{t("localization.languagesHelp")}</p>
-          <div className="mt-3 grid gap-4 md:grid-cols-[240px_1fr]">
+          <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-[240px_1fr]">
             <div className="space-y-1">
               <Label className="text-xs">{t("localization.defaultLocale")}</Label>
               <Select value={defaultLocale} onValueChange={(value) => setDefaultLocale(value as Locale)}>
@@ -237,7 +237,7 @@ function LocalizationPage() {
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <Coins className="size-4 text-primary" /> {t("localization.currencies")}
           </h2>
-          <div className="mt-3 grid gap-4 md:grid-cols-[240px_1fr]">
+          <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-[240px_1fr]">
             <div className="space-y-1">
               <Label className="text-xs">{t("localization.baseCurrency")}</Label>
               <Select
@@ -513,7 +513,7 @@ function TaxSection({
         <Percent className="size-4 text-primary" /> {t("tax.title")}
       </h2>
 
-      <div className="mt-3 grid gap-4 md:grid-cols-2">
+      <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-1">
           <Label className="text-xs">{t("tax.defaultRate")} (%)</Label>
           <Input value={taxRate} onChange={(event) => setTaxRate(event.target.value)} inputMode="decimal" />
@@ -586,7 +586,7 @@ function TaxSection({
       <div className="mt-6">
         <h3 className="text-sm font-medium">{t("tax.rules")}</h3>
         <p className="text-xs text-muted-foreground">{t("tax.rulesHelp")}</p>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-6">
           <Input
             value={ruleName}
             onChange={(event) => setRuleName(event.target.value)}
@@ -694,7 +694,7 @@ function TaxSection({
       {/* Simülatör */}
       <div className="mt-6 rounded-lg border bg-muted/20 p-3">
         <h3 className="text-sm font-medium">{t("tax.simulator")}</h3>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <Input value={simAmount} onChange={(event) => setSimAmount(event.target.value)} className="h-9" />
           <Input
             value={simCountry}
@@ -723,7 +723,7 @@ function TaxSection({
             </SelectContent>
           </Select>
         </div>
-        <dl className="mt-3 grid gap-3 sm:grid-cols-3">
+        <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div>
             <dt className="text-xs text-muted-foreground">{t("tax.netAmount")}</dt>
             <dd className="font-semibold">{formatCurrency(simulation.totals.net, currency)}</dd>

@@ -40,8 +40,8 @@ export function IntegrationsSection({ section }: { section: SiteSection | null }
         <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">{section.subtitle}</p>
       </div>
 
-      <div className="mt-14 grid items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
-        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+      <div className="mt-14 grid grid-cols-1 items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-1">
           {items.slice(0, half).map((item, index) => (
             <IntegrationCard key={`${item["label"]}-${index}`} item={item} />
           ))}
@@ -58,7 +58,7 @@ export function IntegrationsSection({ section }: { section: SiteSection | null }
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-1">
           {items.slice(half).map((item, index) => (
             <IntegrationCard key={`${item["label"]}-b-${index}`} item={item} />
           ))}
@@ -438,7 +438,7 @@ export function PlatformDemosSection({ section }: { section: SiteSection | null 
           <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">{section.subtitle}</p>
         </div>
 
-        <div className="mt-14 grid gap-4 lg:grid-cols-2">
+        <div className="mt-14 grid grid-cols-1 gap-4 lg:grid-cols-2">
           <ThemeBlocksDemo />
           <SiteKitDemo />
           <AiStudioDemo />
@@ -464,7 +464,7 @@ export function BlogSection({ section }: { section: SiteSection | null }) {
           <p className="mt-5 max-w-xl text-muted-foreground">{section.subtitle}</p>
         </div>
       </div>
-      <div className="mt-12 grid gap-4 md:grid-cols-3">
+      <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
         {section.items.map((post, index) => (
           <article key={`${post["title"]}-${index}`} className="showcase-card flex flex-col p-6">
             {post["tag"] ? <span className="eyebrow">{post["tag"]}</span> : null}
@@ -484,7 +484,7 @@ export function FaqSection({ section }: { section: SiteSection | null }) {
   if (!section) return null;
   return (
     <section id="sss" className="border-t border-border bg-secondary/40 py-20 lg:py-28">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[minmax(0,380px)_1fr] lg:px-8">
+      <div className="mx-auto grid grid-cols-1 max-w-7xl gap-10 px-4 lg:grid-cols-[minmax(0,380px)_1fr] lg:px-8">
         <div>
           {section.eyebrow ? <span className="eyebrow">{section.eyebrow}</span> : null}
           <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl">{section.title}</h2>

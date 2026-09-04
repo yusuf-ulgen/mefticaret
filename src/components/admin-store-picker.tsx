@@ -66,7 +66,7 @@ export function AdminStorePicker({
           {emptyHint ?? "Kayıtlı mağaza bulunamadı."}
         </div>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {rows.map((row) => {
             const id = String(row["id"]);
             const slug = String(row["slug"] ?? "");

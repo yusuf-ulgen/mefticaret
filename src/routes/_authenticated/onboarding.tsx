@@ -72,7 +72,7 @@ function OnboardingPage() {
       title="Mağaza kurulumu"
       description="Adım 2-3-9: marka adı, sektör ve temel ayarlar. Kalan adımlar panelden tamamlanır."
     >
-      <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <form
           className="surface-card space-y-6 p-6"
           onSubmit={(event) => {
@@ -98,7 +98,7 @@ function OnboardingPage() {
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Sektör</Label>
               <Select value={industry} onValueChange={setIndustry}>

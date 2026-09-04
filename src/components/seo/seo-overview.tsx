@@ -30,7 +30,7 @@ export function SeoOverviewTab({
 }) {
   return (
     <div className="space-y-6">
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Metric label="SEO skoru" value={`${score}/100`}>
           <Progress value={score} className="mt-3" />
         </Metric>

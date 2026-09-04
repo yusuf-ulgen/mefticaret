@@ -245,7 +245,7 @@ function GiftCardsPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Kart sayısı" value={String(totals.count)} />
           <StatCard label="Tanımlanan toplam" value={formatMoney(totals.issued, currency)} />
           <StatCard label="Açık bakiye (yükümlülük)" value={formatMoney(totals.outstanding, currency)} />

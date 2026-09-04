@@ -205,14 +205,14 @@ export function ThemeSettingsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-5">
             <section className="space-y-3">
               <div>
                 <h3 className="text-sm font-semibold">Hazır temalar</h3>
                 <p className="text-xs text-muted-foreground">Bir başlangıç seç, ardından blokları sağ panelden özelleştir.</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {THEME_TEMPLATES.map((template) => (
                   <article key={template.code} className="rounded-lg border border-border p-3">
                     <div className="flex items-start justify-between gap-2">
@@ -252,7 +252,7 @@ export function ThemeSettingsDialog({
                   </article>
                 ))}
               </div>
-              <div className="grid gap-2 sm:grid-cols-4">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-4">
                 {THEME_PRESETS.map((preset) => (
                   <button
                     key={preset.code}
@@ -281,7 +281,7 @@ export function ThemeSettingsDialog({
               </div>
             </section>
 
-            <section className="grid gap-4 sm:grid-cols-3">
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               {(
                 [
                   ["primaryColor", "Ana renk"],
@@ -305,7 +305,7 @@ export function ThemeSettingsDialog({
               ))}
             </section>
 
-            <section className="grid gap-4 sm:grid-cols-2">
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Yazı tipi ikilisi</Label>
                 <Select value={draft.fontPair} onValueChange={(value) => set("fontPair", value)}>
@@ -368,7 +368,7 @@ export function ThemeSettingsDialog({
                 <span className="text-sm">Duyuruyu göster</span>
                 <Switch checked={draft.showAnnouncement} onCheckedChange={(value) => set("showAnnouncement", value)} />
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Buton stili</Label>
                   <Select value={draft.buttonStyle} onValueChange={(value) => set("buttonStyle", value as ThemeSettingsDraft["buttonStyle"])}>

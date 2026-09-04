@@ -118,7 +118,7 @@ function SettingsPage() {
       title="Ayarlar"
       description="Mağaza kimliği, yerelleştirme ve fatura bilgileri."
     >
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <form
           className="surface-card space-y-5 p-6"
           onSubmit={(event) => {
@@ -134,7 +134,7 @@ function SettingsPage() {
               Alt alan adı: {store?.slug}.{SUBDOMAIN_SUFFIX} (değiştirilemez)
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <Label>Sektör</Label>
               <Select value={industry} onValueChange={setIndustry}>
@@ -182,7 +182,7 @@ function SettingsPage() {
           }}
         >
           <h2 className="font-display text-lg font-semibold">İletişim & fatura</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="settings-email">İletişim e-postası</Label>
               <Input

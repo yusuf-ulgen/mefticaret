@@ -139,14 +139,14 @@ function CustomerDetailPage() {
           </div>
         ) : (
           <>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <StatCard label="Toplam harcama" value={formatMoney(spent)} />
               <StatCard label="Sipariş sayısı" value={String(orders.length)} />
               <StatCard label="Ortalama sepet" value={formatMoney(avg)} />
               <StatCard label="İade talebi" value={String(returns.length)} />
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="surface-card space-y-3 p-6">
                 <h2 className="text-lg font-semibold">İletişim</h2>
                 <InfoRow label="Ad" value={customer.first_name ?? "—"} />
@@ -210,7 +210,7 @@ function CustomerDetailPage() {
                 {(customer.customer_addresses ?? []).length === 0 ? (
                   <p className="text-sm text-muted-foreground">Kayıtlı adres yok.</p>
                 ) : (
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {(customer.customer_addresses ?? []).map((address) => (
                       <div key={address.id} className="rounded-lg border border-border p-3 text-sm">
                         <div className="flex items-center justify-between gap-2">
@@ -241,7 +241,7 @@ function CustomerDetailPage() {
             </div>
 
             <form
-              className="surface-card grid gap-4 p-6 sm:grid-cols-2"
+              className="surface-card grid grid-cols-1 gap-4 p-6 sm:grid-cols-2"
               onSubmit={(event) => {
                 event.preventDefault();
                 profileMutation.mutate();

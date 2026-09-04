@@ -70,7 +70,7 @@ function AdminSystemPage() {
         <div className="surface-card p-6 text-sm text-destructive">{(error as Error).message}</div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi label="Kuyrukta" value={formatNumber(queue?.queued ?? 0)} />
         <Kpi label="Çalışıyor" value={formatNumber(queue?.running ?? 0)} />
         <Kpi label="Başarısız" value={formatNumber(queue?.failed ?? 0)} tone={queue && queue.failed > 0 ? "danger" : undefined} />
@@ -88,7 +88,7 @@ function AdminSystemPage() {
         <Kpi label="Toplam ürün" value={formatNumber(data?.tableCounts.products ?? 0)} />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Panel title="Son iş kuyruğu hataları">
           <ul className="divide-y divide-border text-sm">
             {(data?.failedJobs ?? []).map((job) => (

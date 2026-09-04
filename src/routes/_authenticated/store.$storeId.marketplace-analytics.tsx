@@ -76,7 +76,7 @@ function StockDepletionTab({ storeId }: { storeId: string }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="surface-card p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Stokta yok</p>
             <p className="mt-1 text-2xl font-semibold">{outOfStock.length}</p>
@@ -174,7 +174,7 @@ function OrderAnalysisTab({ storeId }: { storeId: string }) {
         </>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="surface-card p-4">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Toplam sipariş</p>
               <p className="mt-1 text-2xl font-semibold">{formatNumber(data.totalOrders)}</p>
@@ -204,7 +204,7 @@ function OrderAnalysisTab({ storeId }: { storeId: string }) {
             </div>
           </section>
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <section className="surface-card p-5">
               <h2 className="mb-3 text-sm font-semibold">Şehir kırılımı</h2>
               {data.byCity.length === 0 ? (

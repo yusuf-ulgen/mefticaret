@@ -75,7 +75,7 @@ function TasksPage() {
           </div>
         )}
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {open.map((task) => (
             <div key={task.key} className={`rounded-xl border p-4 shadow-sm ${toneClass[task.tone]}`}>
               <div className="flex items-start justify-between gap-3">

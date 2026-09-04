@@ -167,7 +167,7 @@ function SocialSharePage() {
       title="Ürün & Story Paylaşımı"
       description="Ürünlerinizi sosyal kanallarda ve vitrinde paylaşıma hazırlayın."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <form
           className="surface-card space-y-4 p-6 lg:col-span-1"
           onSubmit={(event) => {
@@ -285,7 +285,7 @@ function SocialSharePage() {
               <p className="text-sm text-muted-foreground">Soldaki formla ilk paylaşımınızı oluşturun.</p>
             </div>
           ) : (
-            <ul className="grid gap-4 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {(stories ?? []).map((story) => {
                 const Icon = CHANNEL_ICON[story.channel as StoryChannel] ?? Share2;
                 const links = story.link_url ? buildShareLinks(story.link_url, story.caption ?? "") : null;

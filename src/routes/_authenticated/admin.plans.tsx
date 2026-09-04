@@ -182,7 +182,7 @@ function AdminPlans() {
         </Button>
       }
     >
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {(plans ?? []).map((plan) => (
           <button
             key={plan.id}
@@ -232,7 +232,7 @@ function AdminPlans() {
                 planMutation.mutate(draft);
               }}
             >
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="plan-code">Kod</Label>
                   <Input
@@ -261,7 +261,7 @@ function AdminPlans() {
                   onChange={(event) => setDraft({ ...draft, description: event.target.value })}
                 />
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="plan-monthly">Aylık fiyat</Label>
                   <Input

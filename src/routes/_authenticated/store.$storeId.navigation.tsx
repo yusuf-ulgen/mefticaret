@@ -272,7 +272,7 @@ function NavigationPage() {
           </div>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
           <div className="space-y-4">
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Yükleniyor…</p>

@@ -98,14 +98,14 @@ function VendorsPage() {
           <p className="text-muted-foreground text-sm">Marka bilgisi olan ürün veya satış bulunamadı.</p>
         ) : (
           <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Kpi label="Marka sayısı" value={formatNumber(summary.vendors)} hint={`İlk 3 marka payı %${summary.topThreeShare.toFixed(0)}`} />
               <Kpi label="Dönem cirosu" value={formatMoney(summary.revenue)} />
               <Kpi label="Brüt kâr" value={formatMoney(summary.profit)} hint={`Marj %${summary.marginRate.toFixed(1)}`} />
               <Kpi label="Stok maliyet değeri" value={formatMoney(summary.stockValue)} />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Insight
                 title="En yüksek ciro"
                 vendor={summary.bestVendor?.vendor}

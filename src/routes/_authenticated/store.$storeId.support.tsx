@@ -167,7 +167,7 @@ function SupportPage() {
           ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[340px_1fr]">
           <div className="space-y-2">
             {tickets.isLoading ? (
               <>
@@ -471,7 +471,7 @@ function TicketComposer({
 
   return (
     <form
-      className="grid gap-4 rounded-lg border p-4 md:grid-cols-2"
+      className="grid grid-cols-1 gap-4 rounded-lg border p-4 md:grid-cols-2"
       onSubmit={(event) => {
         event.preventDefault();
         mutation.mutate();

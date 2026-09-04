@@ -168,7 +168,7 @@ function DomainsPage() {
       title="Domainler"
       description={`Her mağaza otomatik olarak *.${SUBDOMAIN_SUFFIX} alt alan adı alır. Kendi domainini DNS doğrulaması ve otomatik SSL ile bağla.`}
     >
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <form
           className="surface-card space-y-4 p-6"
           onSubmit={(event) => {

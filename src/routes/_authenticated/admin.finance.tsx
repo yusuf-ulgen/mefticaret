@@ -191,7 +191,7 @@ function AdminFinancePage() {
         <div className="surface-card p-6 text-sm text-destructive">{(error as Error).message}</div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {cards.map((card) => (
           <Kpi key={card.label} label={card.label} value={card.value} hint={card.hint} />
         ))}

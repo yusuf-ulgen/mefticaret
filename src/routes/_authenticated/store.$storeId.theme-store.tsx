@@ -221,7 +221,7 @@ function ThemeStorePage() {
       }
     >
       <div className="space-y-8">
-        <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {THEME_TEMPLATES.map((template) => {
             const active = theme?.preset === template.code;
             return (

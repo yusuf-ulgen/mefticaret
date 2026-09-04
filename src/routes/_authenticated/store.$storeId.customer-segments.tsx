@@ -189,7 +189,7 @@ function CustomerSegmentsPage() {
         </Button>
       }
     >
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <form
           className="surface-card space-y-4 p-6"
           onSubmit={(event) => {
@@ -250,7 +250,7 @@ function CustomerSegmentsPage() {
             </Select>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="s-orders">Min. sipariş</Label>
               <Input
@@ -321,7 +321,7 @@ function CustomerSegmentsPage() {
             </div>
           ) : (
             <>
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {list.map((segment) => {
                   const count = segmentMembers(rows, segment).length;
                   const revenue = segmentMembers(rows, segment).reduce(

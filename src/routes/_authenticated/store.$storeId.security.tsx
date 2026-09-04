@@ -123,7 +123,7 @@ const POSTURE: { label: string; detail: string }[] = [
 
 function PostureGrid() {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {POSTURE.map((item) => (
         <div key={item.label} className="surface-card p-4">
           <div className="flex items-center gap-2">
@@ -142,7 +142,7 @@ function EventsPanel({ storeId }: { storeId: string }) {
   const { data: audit } = useQuery(storeAuditQuery(storeId));
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <div className="surface-card p-5">
         <h3 className="text-sm font-semibold">Güvenlik olayları</h3>
         <div className="mt-3 space-y-2">
@@ -299,7 +299,7 @@ function RopaPanel({ storeId }: { storeId: string }) {
   });
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.2fr]">
       <form
         className="surface-card space-y-3 p-5"
         onSubmit={(event) => {

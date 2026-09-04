@@ -116,7 +116,7 @@ function CopilotPage() {
       title="Mefticaret Copilot"
       description={`${store.data?.name ?? "Mağaza"} verileriyle temellendirilmiş operasyon asistanı.`}
     >
-      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
         <aside className="space-y-3">
           <Button
             variant="outline"

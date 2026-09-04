@@ -216,7 +216,7 @@ function ProductDetailPage() {
       ) : !product ? (
         <p className="text-muted-foreground">Ürün bulunamadı veya erişim yetkiniz yok.</p>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <form
             className="surface-card space-y-4 p-6 lg:col-span-2"
             onSubmit={(event) => {
@@ -244,7 +244,7 @@ function ProductDetailPage() {
                 }
               />
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="p-vendor">Marka</Label>
                 <Input
@@ -296,7 +296,7 @@ function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="grid gap-3 rounded-lg border border-border p-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 rounded-lg border border-border p-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <h3 className="text-sm font-semibold">Kimlik & tedarik</h3>
               </div>
@@ -349,7 +349,7 @@ function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="grid gap-3 rounded-lg border border-border p-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 rounded-lg border border-border p-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <h3 className="text-sm font-semibold">Fiyatlandırma & vergi</h3>
               </div>
@@ -402,7 +402,7 @@ function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="grid gap-3 rounded-lg border border-border p-4 sm:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 rounded-lg border border-border p-4 sm:grid-cols-4">
               <div className="sm:col-span-4">
                 <h3 className="text-sm font-semibold">Kargo ölçüleri</h3>
               </div>
@@ -658,7 +658,7 @@ function ProductGallery({ storeId, productId }: { storeId: string; productId: st
           Henüz görsel yok. Vitrinde ürününüzün öne çıkması için en az bir görsel ekleyin.
         </p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {images.map((image, index) => (
             <figure key={image.id} className="space-y-2">
               <div className="relative overflow-hidden rounded-xl border border-border bg-muted">

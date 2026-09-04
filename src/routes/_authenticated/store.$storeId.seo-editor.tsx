@@ -187,7 +187,7 @@ function StoreSeoForm({ storeId, storeSlug, seoJson, tab }: StoreFormProps) {
   const setFaq = (next: FaqEntry[]) => update("faq", next);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-6">
         {tab === "general" ? (
           <section className="space-y-4 rounded-lg border bg-card p-5">
@@ -299,7 +299,7 @@ function StoreSeoForm({ storeId, storeSlug, seoJson, tab }: StoreFormProps) {
                 />
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>İşletme türü</Label>
                   <Select
@@ -487,7 +487,7 @@ function EntityEditor({ storeId, storeSlug, rows, onSaved, urlPrefix, showPageMe
   const selected = filtered.find((row) => row.id === selectedId) ?? filtered[0] ?? null;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
       <div className="space-y-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -609,7 +609,7 @@ function EntityForm({
   const path = `/s/${storeSlug}/${urlPrefix}/${row.slug}`;
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
       <div className="space-y-4 rounded-lg border bg-card p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -638,7 +638,7 @@ function EntityForm({
             onChange={(event) => setSeo((prev) => ({ ...prev, description: event.target.value }))}
           />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>Anahtar kelimeler</Label>
             <Input
@@ -667,7 +667,7 @@ function EntityForm({
         {showPageMeta ? (
           <>
             <Separator />
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label>İçerik türü</Label>
                 <Select value={pageKind} onValueChange={(value) => setPageKind(value as "page" | "blog")}>

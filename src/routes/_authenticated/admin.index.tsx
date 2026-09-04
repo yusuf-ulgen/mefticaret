@@ -75,7 +75,7 @@ function AdminDashboard() {
     <AdminShell title="Dashboard" description="Platform genelinde kiracı, gelir ve destek görünürlüğü.">
       <section className="surface-card relative overflow-hidden p-5">
         <div className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
-        <div className="relative grid gap-5 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+        <div className="relative grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.1fr] lg:items-center">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-2 border-success/30 bg-success/10 text-success">
@@ -138,7 +138,7 @@ function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <section className="surface-card p-6">
           <h2 className="font-display text-lg font-semibold">Platform cirosu (30 gün)</h2>
           <div className="mt-4 h-64">

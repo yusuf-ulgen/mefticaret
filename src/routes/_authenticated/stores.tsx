@@ -48,7 +48,7 @@ function StoresPage() {
       }
     >
       {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {[0, 1, 2].map((key) => (
             <Skeleton key={key} className="h-44 rounded-xl" />
           ))}
@@ -71,23 +71,27 @@ function StoresPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {(stores ?? []).map((store) => (
             <article key={store.id} className="surface-card flex flex-col p-5">
-              <div className="flex items-start gap-3">
-                <span className="grid size-10 place-items-center rounded-xl brand-gradient font-bold text-brand-foreground">
+              <div className="flex flex-wrap items-start gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl brand-gradient font-bold text-brand-foreground">
                   {store.name.slice(0, 1).toUpperCase()}
                 </span>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <h2 className="truncate font-display text-lg font-semibold">{store.name}</h2>
                   <p className="truncate text-xs text-muted-foreground">
                     {store.slug}.{SUBDOMAIN_SUFFIX}
                   </p>
                 </div>
-                <Badge className="ml-auto" variant={store.status === "active" ? "default" : "secondary"}>
+                <Badge
+                  className="shrink-0 whitespace-nowrap"
+                  variant={store.status === "active" ? "default" : "secondary"}
+                >
                   {STORE_STATUS_LABELS[store.status]}
                 </Badge>
               </div>
+
 
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
                 <div>

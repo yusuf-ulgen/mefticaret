@@ -237,7 +237,7 @@ export function MediaLibraryPanel({ storeId }: { storeId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
         <StatCard label="Dosya" value={String((assets ?? []).length)} />
         <StatCard label="Toplam boyut" value={formatBytes(totalBytes)} />
         <StatCard label="Optimizasyon kazancı" value={formatBytes(savedBytes)} />
@@ -296,7 +296,7 @@ export function MediaLibraryPanel({ storeId }: { storeId: string }) {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[240px_1fr]">
         <aside className="space-y-3">
           <div className="rounded-xl border border-border bg-card p-3">
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -423,7 +423,7 @@ export function MediaLibraryPanel({ storeId }: { storeId: string }) {
           </div>
 
           {isLoading ? (
-            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, index) => (
                 <Skeleton key={index} className="aspect-square w-full rounded-xl" />
               ))}
@@ -436,7 +436,7 @@ export function MediaLibraryPanel({ storeId }: { storeId: string }) {
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {rows.map((asset) => (
                 <div
                   key={asset.id}

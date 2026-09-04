@@ -110,7 +110,7 @@ export function OrderPrintDialog({
             </div>
           </header>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <PrintAddress title="Teslimat adresi" lines={addressLines(order.shipping_address)} />
             <PrintAddress title="Fatura adresi" lines={addressLines(order.billing_address)} />
           </div>

@@ -187,7 +187,7 @@ function LandingPage() {
       <main id="icerik" tabIndex={-1}>
         {hero ? (
           <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
-            <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-16 lg:grid-cols-[minmax(180px,220px)_1fr_minmax(180px,220px)] lg:px-8 lg:py-24">
+            <div className="mx-auto grid grid-cols-1 max-w-7xl items-center gap-8 px-4 py-16 lg:grid-cols-[minmax(180px,220px)_1fr_minmax(180px,220px)] lg:px-8 lg:py-24">
               <ShowcaseColumn items={showcaseItems.slice(0, half)} className="hidden lg:block" />
 
               <div className="mx-auto max-w-2xl text-center">
@@ -247,7 +247,7 @@ function LandingPage() {
               ) : null}
             </div>
 
-            <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {references.items.map((ref, index) => (
                 <article key={`${ref["brand"]}-${index}`} className="showcase-card flex flex-col">
                   <div
@@ -298,7 +298,7 @@ function LandingPage() {
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-muted-foreground">{modules.subtitle}</p>
               </div>
-              <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {modules.items.map((module, index) => {
                   const Icon = sectionIcon(module["icon"]);
                   return (
@@ -329,7 +329,7 @@ function LandingPage() {
               <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl lg:text-5xl">{pricing.title}</h2>
               <p className="mx-auto mt-5 max-w-xl text-muted-foreground">{pricing.subtitle}</p>
             </div>
-            <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
               {(plans ?? []).map((plan) => {
                 const limits = (plan.limits ?? {}) as Record<string, number>;
                 const featured = plan.code === "professional";
@@ -414,7 +414,7 @@ function LandingPage() {
       {footer ? (
         <footer className="border-t border-border py-14">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="grid gap-10 md:grid-cols-4">
+            <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
               <div>
                 <span className="font-display text-2xl font-extrabold tracking-tighter">
                   {footer.title}

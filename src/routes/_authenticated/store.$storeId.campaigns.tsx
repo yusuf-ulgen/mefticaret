@@ -101,7 +101,7 @@ function CampaignsPage() {
           </div>
         </header>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
             { label: "Kuponlu sipariş payı", value: pct(summary.couponShare), hint: `${formatNumber(summary.couponOrders)} sipariş` },
             { label: "Kupon cirosu", value: formatMoney(summary.couponRevenue), hint: `Toplam ${formatMoney(summary.totalRevenue)}` },

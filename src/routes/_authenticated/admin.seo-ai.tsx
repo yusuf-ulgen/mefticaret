@@ -131,7 +131,7 @@ function AdminSeoAiPage() {
         <p className="text-sm text-muted-foreground">Otomasyon durumu yükleniyor…</p>
       ) : (
         <div className="space-y-6">
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {[
               { label: "Son çalışma", value: settings.lastRunAt ? new Date(settings.lastRunAt).toLocaleString("tr-TR") : "Henüz yok" },
               { label: "Son turda denetlenen mağaza", value: formatNumber(lastRun?.storesAudited ?? 0) },
@@ -150,7 +150,7 @@ function AdminSeoAiPage() {
               <Bot className="size-4" />
               <h2 className="text-sm font-semibold">Çalışma kapsamı</h2>
             </header>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {TOGGLES.map((toggle) => (
                 <label key={String(toggle.key)} className="flex items-start justify-between gap-3 rounded-xl border p-3">
                   <span>
@@ -197,7 +197,7 @@ function AdminSeoAiPage() {
               </p>
             </div>
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <div className="space-y-1.5">
                 <Label htmlFor="seo-ai-hour">Günlük çalışma saati (UTC)</Label>
                 <Input

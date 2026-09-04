@@ -158,7 +158,7 @@ function DashboardPage() {
         ) : null
       }
     >
-      <div className="grid gap-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-5">
         {/* Öne çıkan ciro kartı — mobilde tam genişlik, mini trend grafiğiyle */}
         <div className="surface-card relative overflow-hidden p-5 xl:col-span-2">
           <div className="flex items-start justify-between gap-3">
@@ -278,7 +278,7 @@ function DashboardPage() {
               style={{ width: `${(setupDone / setupSteps.length) * 100}%` }}
             />
           </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {setupSteps.map((step) => (
               <Link
                 key={step.key}
@@ -302,7 +302,7 @@ function DashboardPage() {
 
       <section className="surface-card p-6">
         <h2 className="font-display text-lg font-semibold">Dikkat gerektirenler</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {todo.map((item) => (
             <Link
               key={item.key}

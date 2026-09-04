@@ -39,7 +39,7 @@ export function SeoUrlsTab({
     updateSeo({ urlStructure: { ...structure, ...patch } });
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
       <section className="surface-card space-y-5 p-6">
         <div>
           <p className="eyebrow">Bağlantı yapısı</p>

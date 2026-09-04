@@ -57,7 +57,7 @@ function CollectionsPage() {
       title="Koleksiyonlar"
       description="Vitrin, kampanya ve kategori gruplarını burada yönet."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <form
           className="surface-card space-y-4 p-6"
           onSubmit={(event) => {
@@ -104,7 +104,7 @@ function CollectionsPage() {
               </p>
             </div>
           ) : (
-            <ul className="grid gap-4 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {(collections ?? []).map((collection) => (
                 <li key={collection.id} className="surface-card p-5">
                   <h3 className="font-semibold">{collection.title}</h3>

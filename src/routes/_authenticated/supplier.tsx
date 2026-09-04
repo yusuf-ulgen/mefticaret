@@ -197,7 +197,7 @@ function SupplierOrderCard({
         </table>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <div className="space-y-1">
           <Label className="text-xs" htmlFor={`carrier-${order.dropshipOrderId}`}>
             Kargo firması

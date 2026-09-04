@@ -369,7 +369,7 @@ function AdminStores() {
                 />
                 <p className="text-xs text-muted-foreground">/s/{slugify(form.slug || form.name) || "magaza"}</p>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="store-industry">Sektör</Label>
                   <Input

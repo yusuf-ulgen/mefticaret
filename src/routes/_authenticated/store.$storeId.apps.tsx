@@ -247,7 +247,7 @@ function AppsPage() {
         </div>
 
         {isLoading ? (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {[0, 1, 2, 3, 4, 5].map((index) => (
               <Skeleton key={index} className="h-52 w-full rounded-xl" />
             ))}
@@ -257,7 +257,7 @@ function AppsPage() {
             Bu filtreyle eşleşen uygulama yok.
           </p>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {apps.map((app) => {
               const installed = installMap.get(app.id);
               const active = installed?.status === "installed";

@@ -89,7 +89,7 @@ function SupplierPerformancePage() {
           </Button>
         </header>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <Kpi label="Toplam satın alma" value={formatMoney(totalCost)} hint={`${formatNumber(totalOrders)} sipariş`} />
           <Kpi label="Açık sipariş" value={formatNumber(openOrders)} hint="Mal kabul bekleyen" />
           <Kpi

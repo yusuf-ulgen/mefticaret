@@ -100,7 +100,7 @@ function AdminSeoPage() {
           </Button>
         </section>
 
-        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
             { label: "Kritik mağaza", value: totals?.criticalStores ?? 0, tone: "text-destructive" },
             { label: "İyileştirme gereken", value: totals?.warningStores ?? 0, tone: "text-amber-600" },

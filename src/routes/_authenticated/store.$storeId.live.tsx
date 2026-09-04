@@ -190,7 +190,7 @@ function LiveViewPage() {
         <p className="mt-3 text-muted-foreground">Hangi müşteri hangi sayfada, hangi şehirden bağlanıyor ve sepetinde ne var; hepsi tek ekranda.</p>
       </section>
 
-      <div className="grid gap-3 lg:grid-cols-[1.15fr_1fr]">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.15fr_1fr]">
         <section className="surface-card relative overflow-hidden p-5">
           <div className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-brand-soft/70 blur-2xl" />
           <div className="relative flex items-start justify-between gap-3">
@@ -225,7 +225,7 @@ function LiveViewPage() {
       </div>
 
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[1.4fr_0.8fr]">
+      <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.4fr_0.8fr]">
         <section className="surface-card overflow-hidden">
           <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border p-5">
             <div>
@@ -234,7 +234,7 @@ function LiveViewPage() {
             </div>
             <Badge variant="secondary">{formatNumber(summary.visitors)} aktif ziyaretçi</Badge>
           </div>
-          <div className="grid gap-6 p-5 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="grid grid-cols-1 gap-6 p-5 lg:grid-cols-[1.2fr_0.8fr]">
             <LiveMap cities={cities} />
             <div>
               <div className="mb-3 flex items-center justify-between text-xs font-medium uppercase tracking-wide text-muted-foreground"><span>Şehir bazlı dağılım</span><span>Olay</span></div>
@@ -255,7 +255,7 @@ function LiveViewPage() {
         </section>
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="surface-card p-5">
           <div className="flex items-start justify-between gap-3"><div><h2 className="font-medium">Aktif sepetler</h2><p className="mt-1 text-sm text-muted-foreground">Ziyaretçilerin karar aşamasını kaçırmayın.</p></div><ShoppingCart className="size-4 text-brand" /></div>
           <div className="mt-5 space-y-2">
@@ -268,7 +268,7 @@ function LiveViewPage() {
         </section>
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
+      <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.15fr_0.85fr]">
         <section className="surface-card p-5"><div className="flex items-start justify-between"><div><h2 className="font-medium">Canlı aktivite</h2><p className="mt-1 text-sm text-muted-foreground">Mağazada gerçekleşen son ziyaretçi hareketleri.</p></div><Activity className="size-4 text-brand" /></div><div className="mt-4 divide-y divide-border">{isLoading ? <p className="py-10 text-center text-sm text-muted-foreground">Yükleniyor…</p> : rows.length === 0 ? <EmptyState icon={<Activity />} title="Şu anda hareket yok" description="Vitrininize trafik geldiğinde ziyaretçiler burada canlı görünür." /> : rows.slice(0, 12).map((event) => <ActivityRow key={event.id} event={event} currency={currency} />)}</div></section>
         <section className="space-y-5"><ListCard title="En çok görüntülenen sayfalar" icon={<Eye />} items={topPages} /><ListCard title="Cihazlar" icon={<Smartphone />} items={devices} /><ListCard title="Ülkeler" icon={<MapPin />} items={countries} /></section>
       </div>

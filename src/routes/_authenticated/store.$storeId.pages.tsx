@@ -110,7 +110,7 @@ function PagesPage() {
       title="İçerik Sayfaları"
       description="Hakkımızda, iade, teslimat ve KVKK gibi vitrin sayfalarını oluştur, yayınla ve alt menüde göster."
     >
-      <div className="grid gap-6 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <form
           className="surface-card space-y-4 p-6 lg:col-span-2"
           onSubmit={(event) => {
@@ -196,7 +196,7 @@ function PagesPage() {
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="flex items-center justify-between rounded-lg border p-3">
               <Label htmlFor="p-published" className="text-sm">
                 Yayında

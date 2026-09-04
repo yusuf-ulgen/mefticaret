@@ -233,7 +233,7 @@ function NewProductPage() {
       </div>
 
       <form
-        className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]"
+        className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]"
         onSubmit={(event) => {
           event.preventDefault();
           mutation.mutate();
@@ -308,7 +308,7 @@ function NewProductPage() {
 
           <section className="surface-card grid gap-4 p-6">
             <h2 className="text-sm font-semibold">Fiyatlandırma</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="p-price">Fiyat</Label>
                 <Input id="p-price" type="number" min={0} step="0.01" value={basePrice} onChange={(e) => setBasePrice(e.target.value)} />
@@ -339,7 +339,7 @@ function NewProductPage() {
                 <Switch checked={trackInventory} onCheckedChange={setTrackInventory} />
               </label>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="p-sku">SKU (stok kodu)</Label>
                 <Input id="p-sku" value={sku} onChange={(e) => setSku(e.target.value)} />
@@ -573,7 +573,7 @@ function NewProductPage() {
 
           <section className="surface-card grid gap-4 p-6">
             <h2 className="text-sm font-semibold">Kargo</h2>
-            <div className="grid gap-4 sm:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
               <div className="space-y-2">
                 <Label htmlFor="p-weight">Ağırlık (g)</Label>
                 <Input id="p-weight" type="number" min={0} value={weight} onChange={(e) => setWeight(e.target.value)} />

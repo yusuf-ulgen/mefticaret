@@ -102,7 +102,7 @@ function DiscountsPage() {
       title="İndirimler"
       description="Kupon kodları ve kampanya kurallarını yönet."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <form
           className="surface-card space-y-4 p-6"
           onSubmit={(event) => {
@@ -208,7 +208,7 @@ function DiscountsPage() {
               </p>
             </div>
           ) : (
-            <ul className="grid gap-4 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {(discounts ?? []).map((discount) => (
                 <li key={discount.id} className="surface-card space-y-3 p-5">
                   <div className="flex items-start justify-between gap-3">

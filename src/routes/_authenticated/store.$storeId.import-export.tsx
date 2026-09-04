@@ -191,7 +191,7 @@ function ImportExportPage() {
       title="İçe / Dışa Aktarma"
       description="Kataloğunu CSV ile toplu yükle, ürün ve sipariş verilerini yedekle."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <section className="surface-card space-y-4 p-6 lg:col-span-2">
           <div className="flex items-center gap-2">
             <Upload className="size-5 text-primary" />

@@ -118,7 +118,7 @@ function MegaMenu() {
             {groups.length === 0 ? (
               <p className="px-1 py-6 text-sm text-muted-foreground">Sonuç bulunamadı.</p>
             ) : (
-              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {groups.map((group) => (
                   <section key={group.title}>
                     <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">

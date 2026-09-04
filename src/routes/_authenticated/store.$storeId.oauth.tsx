@@ -342,7 +342,7 @@ function ClientForm({
       </CardHeader>
       <CardContent>
         <form
-          className="grid gap-4 md:grid-cols-2"
+          className="grid grid-cols-1 gap-4 md:grid-cols-2"
           onSubmit={(event) => {
             event.preventDefault();
             mutation.mutate();
