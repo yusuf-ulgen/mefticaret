@@ -140,7 +140,13 @@ export async function loadSeoAiSettings(db?: Db): Promise<SeoAiSettings> {
     maxStoresPerRun: Number(data.max_stores_per_run ?? DEFAULTS.maxStoresPerRun),
     maxItemsPerStore: Number(data.max_items_per_store ?? DEFAULTS.maxItemsPerStore),
     dailyHour: Number(data.daily_hour ?? DEFAULTS.dailyHour),
+    dailyMinute: Number(data.daily_minute ?? DEFAULTS.dailyMinute),
+    runDays: Array.isArray(data.run_days) && data.run_days.length > 0
+      ? (data.run_days as unknown[]).map((day) => Number(day)).filter((day) => day >= 0 && day <= 6)
+      : DEFAULTS.runDays,
+    concurrency: Number(data.concurrency ?? DEFAULTS.concurrency),
     focusKeywords: String(data.focus_keywords ?? ""),
+
     lastRunAt: data.last_run_at ? String(data.last_run_at) : null,
   };
 }
