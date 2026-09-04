@@ -102,7 +102,7 @@ function ReviewsPage() {
       title="Değerlendirmeler"
       description="Müşteri yorumlarını onayla, yanıtla ve vitrindeki itibarını yönet."
     >
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="surface-card p-5">
           <p className="text-sm text-muted-foreground">Listelenen yorum</p>
           <p className="mt-1 text-2xl font-semibold">{list.length}</p>

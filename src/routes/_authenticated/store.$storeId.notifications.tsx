@@ -394,7 +394,7 @@ function SettingRow({
         </Button>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {NOTIFICATION_CHANNELS.map((channel) => (
           <label
             key={channel.key}
@@ -414,7 +414,7 @@ function SettingRow({
       </div>
 
       {state.email || state.sms || state.whatsapp ? (
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {state.email ? (
             <div className="space-y-1.5">
               <Label className="text-xs">E-posta alıcısı</Label>
@@ -482,7 +482,7 @@ function SystemBroadcast({ storeId }: { storeId: string }) {
         Ekibine panel bildirimi olarak duyuru yayınla; açık olan e-posta, push, SMS ve WhatsApp kanalları kuyruğa
         eklenir.
       </p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label className="text-xs">Tür</Label>
           <div className="flex gap-2">

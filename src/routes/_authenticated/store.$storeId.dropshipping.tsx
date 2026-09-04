@@ -381,14 +381,14 @@ function DropshippingPage() {
     >
       <div className="space-y-8">
 
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-xl border bg-card p-5 space-y-4">
             <div className="flex items-center gap-2">
               <Boxes className="size-4 text-muted-foreground" />
               <h2 className="font-medium">{form.id ? "Beslemeyi düzenle" : "Yeni besleme"}</h2>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label>Besleme adı</Label>
                 <Input
@@ -527,7 +527,7 @@ function DropshippingPage() {
                   {preview.total} kayıt · algılanan alanlar: {preview.fields.slice(0, 12).join(", ")}
                 </p>
               ) : null}
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {FIELD_KEYS.map(({ key, label }) => (
                   <div key={key} className="space-y-1">
                     <Label className="text-xs text-muted-foreground">{label}</Label>
@@ -566,7 +566,7 @@ function DropshippingPage() {
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-2 rounded-lg border p-3">
                 <p className="text-sm font-medium">Fiyat kuralları</p>
                 <select
@@ -1090,7 +1090,7 @@ function SupplierDropshipRow({
   const [orderEndpoint, setOrderEndpoint] = useState(supplier.order_endpoint ?? "");
 
   return (
-    <div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[1.2fr_repeat(4,0.7fr)_auto] sm:items-end">
+    <div className="grid grid-cols-1 gap-3 rounded-lg border p-3 sm:grid-cols-[1.2fr_repeat(4,0.7fr)_auto] sm:items-end">
       <div>
         <p className="font-medium">{supplier.name}</p>
         <label className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
@@ -1150,7 +1150,7 @@ function SupplierPortalRow({
   const enabled = supplier.portal_enabled ?? false;
 
   return (
-    <div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[1fr_1.2fr_auto] sm:items-end">
+    <div className="grid grid-cols-1 gap-3 rounded-lg border p-3 sm:grid-cols-[1fr_1.2fr_auto] sm:items-end">
       <div>
         <p className="font-medium">{supplier.name}</p>
         {enabled ? (

@@ -95,7 +95,7 @@ function CashflowPage() {
       description="Finans defterine dayalı nakit giriş/çıkış analizi, gider kırılımı ve projeksiyon."
     >
       <div className="space-y-8">
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {kpis.map((kpi) => (
             <div key={kpi.label} className="rounded-xl border bg-card p-4">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">{kpi.label}</p>
@@ -104,7 +104,7 @@ function CashflowPage() {
           ))}
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-3">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-xl border bg-card p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Günlük ortalama net</p>
             <p className="mt-1 font-display text-xl font-semibold">
@@ -178,7 +178,7 @@ function CashflowPage() {
           </div>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-2">
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="rounded-xl border bg-card">
             <div className="border-b p-4">
               <h2 className="font-display text-lg font-semibold">Kalem kırılımı</h2>

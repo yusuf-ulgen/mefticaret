@@ -149,7 +149,7 @@ function SellerDashboardPage() {
           ) : null}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Satışlar", value: formatMoney(earnings.revenue) },
             {
@@ -289,7 +289,7 @@ function SellerDashboardPage() {
             Çekilebilir bakiye: {formatMoney(earnings.available)} · Bekleyen talep:{" "}
             {formatMoney(earnings.pending)} · Ödenen: {formatMoney(earnings.paid)}
           </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="space-y-1.5">
               <Label htmlFor="amount">Tutar</Label>
               <Input

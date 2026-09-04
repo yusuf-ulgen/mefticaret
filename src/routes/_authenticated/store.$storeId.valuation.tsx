@@ -106,7 +106,7 @@ function ValuationPage() {
       description="Depodaki stoğun maliyet ve satış değerini, potansiyel brüt kârı ve eksik maliyet kayıtlarını gör."
     >
       <div className="space-y-8">
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Maliyet değeri", value: formatMoney(summary.costValue) },
             { label: "Perakende değeri", value: formatMoney(summary.retailValue) },
@@ -126,7 +126,7 @@ function ValuationPage() {
           ))}
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-3">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {[
             { label: "Toplam SKU", value: formatNumber(summary.skuCount) },
             { label: "Toplam adet", value: formatNumber(summary.units) },
@@ -187,7 +187,7 @@ function ValuationPage() {
               ))}
             </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {groups.length === 0 && (
               <p className="text-sm text-muted-foreground">
                 {isLoading ? "Yükleniyor…" : "Henüz stok verisi yok."}

@@ -97,7 +97,7 @@ export function SeoAuditTab({
 
   return (
     <div className="space-y-6">
-      <section className="surface-card grid gap-6 p-6 lg:grid-cols-[260px_1fr]">
+      <section className="surface-card grid grid-cols-1 gap-6 p-6 lg:grid-cols-[260px_1fr]">
         <div className="rounded-xl border border-border p-5 text-center">
           <p className="eyebrow">SEO skoru</p>
           <p className={`mt-2 text-5xl font-semibold ${scoreTone(audit?.score ?? 0)}`}>
@@ -114,7 +114,7 @@ export function SeoAuditTab({
           </Button>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {categories.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Denetimi çalıştırdığınızda teknik, içerik, schema, performans, mobil ve bağlantı skorları burada

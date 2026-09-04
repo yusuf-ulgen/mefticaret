@@ -97,7 +97,7 @@ function AbcPage() {
       description="Cironun büyük kısmını üreten kalemleri, stok değerini ve ağır hareket eden ürünleri gör."
     >
       <div className="space-y-8">
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Dönem cirosu", value: formatMoney(summary.totalRevenue) },
             { label: "Elde stok değeri", value: formatMoney(summary.totalStockValue) },
@@ -115,7 +115,7 @@ function AbcPage() {
           ))}
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-3">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {summary.classes.map((group) => (
             <div key={group.abcClass} className="rounded-xl border bg-card p-5">
               <div className="flex items-center justify-between">

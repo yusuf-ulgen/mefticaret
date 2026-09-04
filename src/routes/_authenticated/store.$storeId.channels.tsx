@@ -174,7 +174,7 @@ function ChannelsPage() {
       title="Pazaryeri Kanalları"
       description="Ürünlerini pazaryerlerine tek panelden aç, marj ve senkron kurallarını yönet."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           {isLoading ? (
             <p className="text-muted-foreground">Yükleniyor…</p>
@@ -258,7 +258,7 @@ function ChannelsPage() {
                     </Badge>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor={`seller-${channel.id}`}>
                         {getMarketplaceConnector(channel.provider)?.sellerIdLabel ??

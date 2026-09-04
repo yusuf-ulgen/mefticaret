@@ -105,7 +105,7 @@ function LifecyclePage() {
       description="Son 90 günlük satış hareketine göre ürünlerin fazını, büyüme hızını ve tasfiye adaylarını gör."
     >
       <div className="space-y-8">
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {kpis.map((kpi) => (
             <div key={kpi.label} className="rounded-xl border bg-card p-4">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">{kpi.label}</p>
@@ -114,7 +114,7 @@ function LifecyclePage() {
           ))}
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-2">
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="space-y-3 rounded-xl border bg-card p-5">
             <div className="flex items-center gap-2">
               <Sprout className="size-4 text-muted-foreground" />

@@ -101,7 +101,7 @@ function ReturnsAnalyticsPage() {
           </div>
         </header>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <Kpi
             label="İade oranı"
             value={`${(summary.returnRate * 100).toFixed(1)}%`}
@@ -149,7 +149,7 @@ function ReturnsAnalyticsPage() {
           </div>
         </section>
 
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <section className="rounded-xl border bg-card p-5">
             <h2 className="mb-4 text-sm font-semibold">İade sebepleri</h2>
             {reasons.length === 0 ? (

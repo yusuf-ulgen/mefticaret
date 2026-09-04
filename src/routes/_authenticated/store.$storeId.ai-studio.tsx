@@ -246,7 +246,7 @@ function CompetitorTab(props: {
   });
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[380px_1fr]">
       <section className="surface-card space-y-3 p-4">
         <h2 className="font-display text-lg font-semibold">Rakip ürün ekle</h2>
         <p className="text-sm text-muted-foreground">
@@ -261,7 +261,7 @@ function CompetitorTab(props: {
           <Label htmlFor="c-url">Bağlantı</Label>
           <Input id="c-url" placeholder="https://…" value={form.url} onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))} />
         </div>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="c-source">Kaynak</Label>
             <Input id="c-source" value={form.source} onChange={(e) => setForm((p) => ({ ...p, source: e.target.value }))} />
@@ -294,7 +294,7 @@ function CompetitorTab(props: {
           <Label htmlFor="c-desc">Rakip açıklaması</Label>
           <Textarea id="c-desc" rows={4} value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
         </div>
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <div className="space-y-2">
             <Label htmlFor="c-cat">Kategori</Label>
             <Input id="c-cat" value={form.category} onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))} />
@@ -348,7 +348,7 @@ function CompetitorTab(props: {
               </div>
             </header>
 
-            <dl className="grid gap-2 text-sm sm:grid-cols-4">
+            <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-4">
               <div>
                 <dt className="text-muted-foreground">Rakip fiyatı</dt>
                 <dd className="font-medium">{money(row.competitorPrice, row.currency)}</dd>
@@ -419,7 +419,7 @@ function ProductCopyTab(props: { storeId: string; products: ProductOption[] }) {
   });
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
       <section className="surface-card space-y-3 p-4">
         <h2 className="font-display text-lg font-semibold">Toplu ürün açıklaması</h2>
         <p className="text-sm text-muted-foreground">
@@ -521,7 +521,7 @@ function CategoryTab(props: { storeId: string; categories: { id: string; name: s
   });
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[340px_1fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[340px_1fr]">
       <section className="surface-card space-y-3 p-4">
         <h2 className="font-display text-lg font-semibold">Kategori SEO içeriği</h2>
         <div className="space-y-2">
@@ -621,7 +621,7 @@ function BlogTab(props: { storeId: string }) {
   });
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[340px_1fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[340px_1fr]">
       <section className="surface-card space-y-3 p-4">
         <h2 className="font-display text-lg font-semibold">Blog paketi</h2>
         <div className="space-y-2">
@@ -632,7 +632,7 @@ function BlogTab(props: { storeId: string }) {
           <Label htmlFor="b-kw">Anahtar kelimeler</Label>
           <Input id="b-kw" value={keywords} onChange={(event) => setKeywords(event.target.value)} />
         </div>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="b-tone">Ton</Label>
             <Select value={tone} onValueChange={(value) => setTone(value as (typeof TONES)[number])}>
@@ -741,7 +741,7 @@ function LegalTab(props: { storeId: string }) {
   });
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[340px_1fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[340px_1fr]">
       <section className="surface-card space-y-3 p-4">
         <h2 className="font-display text-lg font-semibold">Hukuki metin taslağı</h2>
         <div className="rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">

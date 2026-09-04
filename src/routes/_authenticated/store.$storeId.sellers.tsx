@@ -169,7 +169,7 @@ function StoreSellersPage() {
       title="Pazaryeri satıcıları"
       description="Satıcı başvurularını değerlendirin, komisyon belirleyin, ürün ve ödeme yönetimini tek ekrandan yapın."
     >
-      <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-base font-semibold">Satıcılar</h2>
@@ -241,7 +241,7 @@ function StoreSellersPage() {
                   </p>
                 ) : null}
 
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <Label htmlFor="commission">Komisyon oranı (%)</Label>
                     <div className="flex gap-2">
@@ -309,7 +309,7 @@ function StoreSellersPage() {
                 </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {[
                   { label: "Satış hacmi", value: formatMoney(earnings.revenue) },
                   { label: "Komisyon", value: formatMoney(earnings.commission) },

@@ -61,7 +61,7 @@ function ShippingEconomicsPage() {
       description="Kargo giderinin karşılanma oranını ölç, en kârlı ücretsiz kargo eşiğini belirle."
     >
       <div className="space-y-8">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Dönem (gün)" value={days} onChange={setDays} min={7} max={365} />
           <Field label="Kargo birim gideri" value={unitCost} onChange={setUnitCost} min={0} max={2000} />
           <Field
@@ -80,7 +80,7 @@ function ShippingEconomicsPage() {
           <p className="text-muted-foreground text-sm">Bu dönemde sipariş bulunamadı.</p>
         ) : (
           <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Kpi label="Sipariş" value={formatNumber(summary.orders)} hint={`Ort. sepet ${formatMoney(summary.averageOrderValue)}`} />
               <Kpi label="Kargo geliri" value={formatMoney(summary.shippingRevenue)} hint={`Gider ${formatMoney(summary.shippingCost)}`} />
               <Kpi

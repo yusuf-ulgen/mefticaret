@@ -259,7 +259,7 @@ function WarehousesPage() {
       }
     >
       <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-4">
           {(warehouses ?? []).map((warehouse) => (
             <div
               key={warehouse.id}
@@ -325,7 +325,7 @@ function WarehousesPage() {
           ) : null}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
             { label: "Mevcut stok", value: totals.onHand },
             { label: "Rezerve stok", value: totals.reserved },

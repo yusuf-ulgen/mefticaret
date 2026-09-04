@@ -307,7 +307,7 @@ function BlogAdminPage() {
         </TabsList>
 
         <TabsContent value="posts" className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StatCard label="Taslak" value={counts.draft} />
             <StatCard label="Yayında" value={counts.published} />
             <StatCard label="Zamanlanmış" value={counts.scheduled} />
@@ -336,7 +336,7 @@ function BlogAdminPage() {
 
 
 
-          <div className="grid gap-6 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
             <form
               className="surface-card space-y-4 p-6 lg:col-span-2"
               onSubmit={(event) => {
@@ -378,7 +378,7 @@ function BlogAdminPage() {
                 />
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Durum</Label>
                   <Select
@@ -409,7 +409,7 @@ function BlogAdminPage() {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Kategori</Label>
                   <Select
@@ -634,7 +634,7 @@ function BlogAdminPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="categories" className="grid gap-6 lg:grid-cols-5">
+        <TabsContent value="categories" className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           <form
             className="surface-card space-y-4 p-6 lg:col-span-2"
             onSubmit={(event) => {
@@ -697,7 +697,7 @@ function BlogAdminPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="tags" className="grid gap-6 lg:grid-cols-5">
+        <TabsContent value="tags" className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           <form
             className="surface-card space-y-4 p-6 lg:col-span-2"
             onSubmit={(event) => {
@@ -750,7 +750,7 @@ function BlogAdminPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="authors" className="grid gap-6 lg:grid-cols-5">
+        <TabsContent value="authors" className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           <form
             className="surface-card space-y-4 p-6 lg:col-span-2"
             onSubmit={(event) => {

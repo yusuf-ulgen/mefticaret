@@ -196,7 +196,7 @@ function ManualOrderPage() {
           </div>
         </section>
 
-        <section className="grid gap-4 rounded-xl border bg-card p-5 md:grid-cols-2">
+        <section className="grid grid-cols-1 gap-4 rounded-xl border bg-card p-5 md:grid-cols-2">
           <div>
             <Label>Ad soyad</Label>
             <Input value={fullName} onChange={(event) => setFullName(event.target.value)} />
@@ -219,7 +219,7 @@ function ManualOrderPage() {
           </div>
         </section>
 
-        <section className="grid gap-4 rounded-xl border bg-card p-5 md:grid-cols-3">
+        <section className="grid grid-cols-1 gap-4 rounded-xl border bg-card p-5 md:grid-cols-3">
           <div>
             <Label>Kargo tutarı</Label>
             <Input type="number" min={0} value={shipping} onChange={(event) => setShipping(event.target.value)} />

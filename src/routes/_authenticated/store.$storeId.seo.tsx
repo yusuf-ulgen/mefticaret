@@ -368,7 +368,7 @@ function SeoCenterPage() {
           </TabsContent>
 
 
-          <TabsContent value="meta" className="grid gap-6 xl:grid-cols-[1fr_360px]">
+          <TabsContent value="meta" className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
             <SeoMetaTab
               current={current}
               templateKey={templateKey}

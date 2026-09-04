@@ -158,7 +158,7 @@ function SimulatorPage() {
               Sıfırla
             </Button>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {controls.map((control) => (
               <div key={control.label} className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
@@ -187,7 +187,7 @@ function SimulatorPage() {
           </p>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-3">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {kpis.map((kpi) => (
             <div key={kpi.label} className="rounded-xl border bg-card p-4">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">{kpi.label}</p>
@@ -211,7 +211,7 @@ function SimulatorPage() {
           ))}
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-2">
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="space-y-2 rounded-xl border bg-card p-5">
             <h2 className="font-display text-lg font-semibold">Marj etkisi</h2>
             <p className="text-sm text-muted-foreground">

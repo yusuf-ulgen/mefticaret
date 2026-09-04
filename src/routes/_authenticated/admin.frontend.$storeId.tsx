@@ -209,7 +209,7 @@ function AdminFrontendPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
           <div className="rounded-2xl border border-border bg-card p-4">
             <Tabs defaultValue="sections">
               <TabsList className="w-full">

@@ -257,7 +257,7 @@ function InboxPage() {
       title="Omni-Channel Mesaj Merkezi"
       description="Instagram, TikTok, Messenger, Telegram, canlı destek, e-posta, pazaryeri ve WhatsApp mesajlarını tek yerden yönet."
     >
-      <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="Günlük mesaj" value={stats?.todayMessages ?? "—"} />
         <StatCard label="Cevaplanmamış" value={stats?.unanswered ?? "—"} />
         <StatCard label="Ort. ilk cevap" value={formatSeconds(stats?.avgFirstResponseSeconds ?? null)} />
@@ -271,7 +271,7 @@ function InboxPage() {
           <TabsTrigger value="channels">Kanallar</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="inbox" className="grid gap-4 lg:grid-cols-[300px_1fr_300px]">
+        <TabsContent value="inbox" className="grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr_300px]">
           <div className="surface-card flex flex-col">
             <div className="space-y-2 border-b border-border p-3">
               <Input placeholder="Ara..." value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -547,7 +547,7 @@ function InboxPage() {
               )}
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div>
                 <Label>Kanal</Label>
                 <Select
@@ -602,7 +602,7 @@ function InboxPage() {
                 ))
               )}
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div>
                 <Label>Tür</Label>
                 <Select
@@ -644,7 +644,7 @@ function InboxPage() {
                 </Badge>
               ))}
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div>
                 <Label>Başlık</Label>
                 <Input

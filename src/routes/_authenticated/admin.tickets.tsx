@@ -115,7 +115,7 @@ function AdminTickets() {
         </Select>
       }
     >
-      <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[360px_1fr]">
         <div className="surface-card divide-y divide-border overflow-hidden">
           {rows.length === 0 ? (
             <p className="p-6 text-sm text-muted-foreground">Bu filtrede talep yok.</p>

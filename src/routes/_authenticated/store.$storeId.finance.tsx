@@ -173,7 +173,7 @@ function FinancePage() {
         </div>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
           <div key={card.label} className="surface-card p-4">
             <div className="flex items-center justify-between">
@@ -192,7 +192,7 @@ function FinancePage() {
         {summary.byKind.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">Bu dönemde finans hareketi yok.</p>
         ) : (
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {summary.byKind.map(([kind, amount]) => (
               <li key={kind} className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-sm">
                 <span>{LEDGER_KIND_LABELS[kind] ?? kind}</span>

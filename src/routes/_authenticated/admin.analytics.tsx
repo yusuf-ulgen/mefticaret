@@ -96,7 +96,7 @@ function AdminAnalyticsPage() {
         </div>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi label="Platform cirosu" value={formatMoney(totals?.revenue ?? 0)} hint={`${days} günlük`} />
         <Kpi label="Komisyon geliri" value={formatMoney(totals?.commission ?? 0)} />
         <Kpi label="Tahmini MRR" value={formatMoney(totals?.mrr ?? 0)} hint="Aktif + deneme abonelikleri" />
@@ -115,7 +115,7 @@ function AdminAnalyticsPage() {
         <Kpi label="Mağaza başı ciro" value={formatMoney(totals?.arpu ?? 0)} />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Panel title="Ciro & komisyon trendi">
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -201,7 +201,7 @@ function AdminAnalyticsPage() {
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <ul className="mt-2 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
+          <ul className="mt-2 grid grid-cols-1 gap-1 text-xs text-muted-foreground sm:grid-cols-2">
             {(data?.planDistribution ?? []).map((entry, i) => (
               <li key={entry.key} className="flex items-center gap-2">
                 <span
@@ -215,7 +215,7 @@ function AdminAnalyticsPage() {
         </Panel>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Panel title="En iyi mağazalar">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -288,7 +288,7 @@ function AdminAnalyticsPage() {
         </Panel>
 
         <Panel title="Abonelik & ödeme durumları">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <ul className="divide-y divide-border text-sm">
               {(data?.subscriptionStatus ?? []).map((entry) => (
                 <li key={entry.key} className="flex items-center justify-between gap-3 py-2">

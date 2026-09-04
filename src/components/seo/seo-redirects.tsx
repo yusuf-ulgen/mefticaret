@@ -32,7 +32,7 @@ export function SeoRedirectsTab({
   pending: boolean;
 }) {
   return (
-    <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[380px_1fr]">
       <form
         className="surface-card h-fit space-y-5 p-6"
         onSubmit={(event) => {

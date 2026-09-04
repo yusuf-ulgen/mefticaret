@@ -69,7 +69,7 @@ function HealthPage() {
           </div>
         ) : (
           <>
-            <section className="grid gap-3 sm:grid-cols-3">
+            <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="rounded-xl border bg-card p-5 sm:col-span-1">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Hazırlık puanı</p>
                 <p className="mt-1 text-3xl font-semibold tabular-nums">{score}%</p>

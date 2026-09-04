@@ -96,7 +96,7 @@ function AbandonedCartsPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-xl border bg-card p-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <ShoppingCart className="size-4" /> Açık sepet

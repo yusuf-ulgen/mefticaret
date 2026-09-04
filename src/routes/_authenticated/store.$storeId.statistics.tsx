@@ -109,7 +109,7 @@ function StatisticsPage() {
       </nav>
 
       {isLoading || !data ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
             <Skeleton key={index} className="h-28 w-full rounded-xl" />
           ))}
@@ -123,7 +123,7 @@ function StatisticsPage() {
                 text="Google Analytics kurmadan tekil ziyaretçi, oturum, sayfa görüntüleme, hemen çıkma oranı, trafik kaynakları ve en çok ziyaret edilen sayfalar."
                 chips={["Anlık ziyaretçi", "Trafik kaynakları", "Sayfa performansı"]}
               />
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 <Kpi label="Tekil ziyaretçi" value={formatNumber(data.traffic.visitors)} delta={data.traffic.visitorsDelta} />
                 <Kpi label="Toplam oturum" value={formatNumber(data.traffic.sessions)} delta={data.traffic.sessionsDelta} />
                 <Kpi label="Sayfa görüntüleme" value={formatNumber(data.traffic.pageViews)} delta={data.traffic.pageViewsDelta} />
@@ -131,7 +131,7 @@ function StatisticsPage() {
                 <Kpi label="Hemen çıkma" value={formatPercent(data.traffic.bounceRate)} delta={data.traffic.bounceDelta} invert />
                 <Kpi label="Ort. süre" value={`${Math.round(data.traffic.avgDuration)} sn`} />
               </div>
-              <div className="grid gap-4 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <BarList title="Trafik kaynakları" rows={data.traffic.sources.slice(0, 8)} />
                 <BarList title="Sayfa performansı" rows={data.traffic.topPages} />
                 <BarList title="Cihaz dağılımı" rows={data.traffic.devices.slice(0, 6)} />
@@ -147,7 +147,7 @@ function StatisticsPage() {
                 text="Toplam ciro, sipariş sayısı, ortalama sepet, iptal oranı, satılan ürün, yeni müşteri, kupon kullanımı, kargo geliri ve toplam indirim — önceki dönem karşılaştırmalı."
                 chips={["Dönem karşılaştırma", "Satış trendi", "Sipariş durumu"]}
               />
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 <Kpi label="Toplam ciro" value={formatMoney(data.sales.revenue, currency)} delta={data.sales.revenueDelta} />
                 <Kpi label="Sipariş sayısı" value={formatNumber(data.sales.orders)} delta={data.sales.ordersDelta} />
                 <Kpi label="Ort. sepet" value={formatMoney(data.sales.aov, currency)} delta={data.sales.aovDelta} />
@@ -158,7 +158,7 @@ function StatisticsPage() {
                 <Kpi label="Kargo geliri" value={formatMoney(data.sales.shippingRevenue, currency)} delta={data.sales.shippingRevenueDelta} />
                 <Kpi label="Toplam indirim" value={formatMoney(data.sales.totalDiscount, currency)} />
               </div>
-              <div className="grid gap-4 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <div className="lg:col-span-2">
                   <Trend title="Satış trendi" series={data.series} pick={(row) => row.revenue} money currency={currency} />
                 </div>
@@ -174,7 +174,7 @@ function StatisticsPage() {
                 text="Aktif ürün, satılan adet, stoksuz ürün, düşük stok uyarısı, fiyat dağılımı ve en çok satan ürünler ile katalog sağlığını tek bakışta görün."
                 chips={["6 KPI kartı", "Fiyat dağılımı", "Top satanlar"]}
               />
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 <Kpi label="Aktif ürün" value={formatNumber(data.productStats.activeProducts)} />
                 <Kpi label="Satılan adet" value={formatNumber(data.productStats.soldUnits)} delta={data.productStats.soldUnitsDelta} />
                 <Kpi label="Farklı ürün satışı" value={formatNumber(data.productStats.distinctSold)} />
@@ -194,7 +194,7 @@ function StatisticsPage() {
                   {formatNumber(data.productStats.totalStock)} adet stok
                 </p>
               </div>
-              <div className="grid gap-4 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <BarList title="Fiyat dağılımı" rows={data.productStats.priceBuckets} />
                 <BarList
                   title="En çok satan ürünler"
@@ -218,7 +218,7 @@ function StatisticsPage() {
                 text="Dönüşüm hunisi ile ziyaretçiden satın almaya kadar her adımdaki kayıpları görün; hangi adımda kaç kişi düşüyor?"
                 chips={["Dönüşüm hunisi", "Adım kayıpları", "Trend grafiği"]}
               />
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <Kpi label="Tekil ziyaretçi" value={formatNumber(data.conversion.visitors)} delta={data.conversion.visitorsDelta} />
                 <Kpi label="Dönüşüm oranı" value={formatPercent(data.conversion.conversionRate)} delta={data.conversion.conversionDelta} />
                 <Kpi label="Sepete ekleme" value={formatNumber(data.conversion.addToCart)} />
@@ -266,7 +266,7 @@ function StatisticsPage() {
                 text="Toplam müşteri, yeni kayıt trendi, tekrar satın alma oranı, müşteri tipi dağılımı, ortalama müşteri değeri (LTV) ve en değerli müşteriler."
                 chips={["Müşteri tipi dağılımı", "Kayıt trendi", "LTV"]}
               />
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 <Kpi label="Toplam müşteri" value={formatNumber(data.customerStats.total)} />
                 <Kpi label="Yeni müşteri" value={formatNumber(data.customerStats.newCustomers)} delta={data.customerStats.newCustomersDelta} />
                 <Kpi label="Sipariş veren" value={formatNumber(data.customerStats.ordering)} delta={data.customerStats.orderingDelta} />
@@ -274,7 +274,7 @@ function StatisticsPage() {
                 <Kpi label="Misafir sipariş" value={formatNumber(data.customerStats.guestOrders)} />
                 <Kpi label="Ort. müşteri değeri" value={formatMoney(data.customerStats.avgLtv, currency)} />
               </div>
-              <div className="grid gap-4 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <div className="surface-card p-6">
                   <h3 className="font-display text-sm font-semibold">Müşteri tipi dağılımı (ciro)</h3>
                   <ul className="mt-4 space-y-3 text-sm">
@@ -327,7 +327,7 @@ function StatisticsPage() {
                 text="Mağazanızda yapılan her aramayı izleyin: en çok aranan terimler, sonuçsuz aramalar (ürün ekleme fırsatı!), tıklama oranı ve saatlik dağılım."
                 chips={["Sonuçsuz aramalar", "Günlük trend", "Saatlik dağılım"]}
               />
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <Kpi label="Toplam arama" value={formatNumber(data.searchStats.total)} />
                 <Kpi label="Benzersiz terim" value={formatNumber(data.searchStats.uniqueTerms)} />
                 <Kpi
@@ -342,7 +342,7 @@ function StatisticsPage() {
                   hint={`CTR: ${formatPercent(data.searchStats.ctr)}`}
                 />
               </div>
-              <div className="grid gap-4 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <div className="surface-card p-6">
                   <h3 className="font-display text-sm font-semibold">En çok aranan terimler (Top 10)</h3>
                   <ul className="mt-4 divide-y divide-border text-sm">
@@ -382,7 +382,7 @@ function StatisticsPage() {
                   </p>
                 </div>
               </div>
-              <div className="grid gap-4 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <Trend title="Günlük arama trendi" series={data.series} pick={(row) => row.searches} />
                 <BarList title="Saatlik dağılım" rows={data.searchStats.hourly.filter((row) => row.count > 0)} />
               </div>

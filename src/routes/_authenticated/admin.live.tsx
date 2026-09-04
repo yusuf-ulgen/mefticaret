@@ -124,7 +124,7 @@ function AdminLivePage() {
         </div>
       }
     >
-      <div className="grid gap-4 lg:grid-cols-[1.15fr_1fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_1fr]">
         <section className="surface-card relative overflow-hidden p-5">
           <div className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full bg-primary/10 blur-2xl" />
           <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
@@ -188,7 +188,7 @@ function AdminLivePage() {
         </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.3fr_0.7fr]">
         <section className="surface-card overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5">
             <div className="min-w-0">
@@ -270,7 +270,7 @@ function AdminLivePage() {
         </section>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <section className="surface-card p-5">
           <div className="flex items-center gap-2">
             <Activity className="size-4 text-primary" />

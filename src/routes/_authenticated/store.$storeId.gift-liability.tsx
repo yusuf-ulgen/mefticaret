@@ -64,7 +64,7 @@ function GiftLiabilityPage() {
           <p className="text-muted-foreground text-sm">Henüz hediye kartı tanımlanmamış.</p>
         ) : (
           <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Kpi
                 label="Açık yükümlülük"
                 value={formatMoney(summary.outstanding)}
@@ -99,7 +99,7 @@ function GiftLiabilityPage() {
               </section>
             ) : null}
 
-            <section className="grid gap-4 lg:grid-cols-2">
+            <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <div className="space-y-3 rounded-xl border p-5">
                 <h3 className="font-display flex items-center gap-2 text-lg">
                   <Wallet className="size-4 text-primary" /> Bakiye yaşlandırma

@@ -36,7 +36,7 @@ export function CardSkeleton({ count = 4, className }: { count?: number; classNa
       aria-busy="true"
       aria-live="polite"
       aria-label="Veriler yükleniyor"
-      className={cn("grid gap-4 sm:grid-cols-2 xl:grid-cols-4", className)}
+      className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4", className)}
     >
       {Array.from({ length: count }).map((_, index) => (
         <div key={index} className="surface-card space-y-3 p-5">

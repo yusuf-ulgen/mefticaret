@@ -183,7 +183,7 @@ export function BulkProductActions({ storeId, productIds, currency, onClear }: P
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Alan</Label>
                 <Select
@@ -284,7 +284,7 @@ export function BulkProductActions({ storeId, productIds, currency, onClear }: P
               Seçili ürünlerin tüm varyantlarının stok adedi güncellenir.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Kural</Label>
               <Select
@@ -449,7 +449,7 @@ export function BulkProductActions({ storeId, productIds, currency, onClear }: P
               yazın.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Marka</Label>
               <Input value={vendor} onChange={(event) => setVendor(event.target.value)} />

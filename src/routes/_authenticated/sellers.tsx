@@ -91,7 +91,7 @@ function SellerAccountsPage() {
       title="Pazaryeri satıcılığı"
       description="Satıcı başvurusu yapın veya onaylı satıcı panellerinize geçin."
     >
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section className="space-y-3">
           <h2 className="font-display text-base font-semibold">Satıcı hesaplarım</h2>
           {isLoading ? <p className="text-sm text-muted-foreground">Yükleniyor…</p> : null}
@@ -131,7 +131,7 @@ function SellerAccountsPage() {
             <StoreIcon className="size-4 text-muted-foreground" />
             <h2 className="font-display text-base font-semibold">Yeni satıcı başvurusu</h2>
           </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="slug">Pazaryeri adresi (mağaza kodu)</Label>
               <Input

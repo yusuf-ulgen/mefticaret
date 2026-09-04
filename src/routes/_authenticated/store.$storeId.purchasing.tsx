@@ -210,7 +210,7 @@ function PurchasingPage() {
   return (
     <AppShell storeId={storeId} title="Tedarik & Satın Alma" description="Tedarikçiler, satın alma siparişleri ve denetim izli mal kabul.">
       <div className="space-y-8">
-        <section className="grid gap-6 lg:grid-cols-[320px_1fr]">
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
           <div className="space-y-4 rounded-xl border bg-card p-5">
             <h2 className="font-display text-lg font-semibold">Yeni tedarikçi</h2>
             <div className="space-y-2">
@@ -272,7 +272,7 @@ function PurchasingPage() {
 
           <div className="space-y-5 rounded-xl border bg-card p-5">
             <h2 className="font-display text-lg font-semibold">Satın alma siparişi oluştur</h2>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="po-code">Sipariş kodu</Label>
                 <Input

@@ -128,7 +128,7 @@ function TaxPage() {
           </div>
         </header>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Kpi label="Sipariş" value={formatNumber(totals.orders)} />
           <Kpi label="Vergi matrahı" value={formatMoney(totals.taxableBase, currency)} />
           <Kpi label="Hesaplanan KDV" value={formatMoney(totals.tax, currency)} />

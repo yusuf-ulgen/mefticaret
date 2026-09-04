@@ -114,7 +114,7 @@ function CustomersPage() {
       title="Müşteriler"
       description="Müşteri kayıtları, iletişim bilgileri ve harcama özetleri."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <form
           className="surface-card space-y-4 p-6"
           onSubmit={(event) => {
@@ -123,7 +123,7 @@ function CustomersPage() {
           }}
         >
           <h2 className="text-lg font-semibold">Yeni müşteri</h2>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="cu-first">Ad</Label>
               <Input

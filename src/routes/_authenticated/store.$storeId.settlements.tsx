@@ -322,7 +322,7 @@ function SettlementsPage() {
           Bu dönemde mutabakat verisi yok.
         </div>
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {summary.map((row) => (
             <div key={row.marketplace} className="surface-card space-y-2 p-5">
               <p className="text-sm font-semibold">{row.marketplace}</p>

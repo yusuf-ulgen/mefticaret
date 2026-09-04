@@ -96,7 +96,7 @@ function PaymentsPage() {
       title="Ödeme Yöntemleri"
       description="Modüler ödeme connector'larını aç, taksit ve test modunu yönet."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           {isLoading ? (
             <p className="text-muted-foreground">Yükleniyor…</p>
@@ -145,7 +145,7 @@ function PaymentsPage() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor={`name-${method.id}`}>Görünen ad</Label>
                     <Input

@@ -148,7 +148,7 @@ function ShippingPage() {
       title="Kargo & Teslimat"
       description="Bölge bazlı kargo tarifeleri ve kargo firması connector'ları."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <form
           className="surface-card h-fit space-y-4 p-6"
           onSubmit={(event) => {
@@ -250,7 +250,7 @@ function ShippingPage() {
                   )}
                 </ul>
 
-                <div className="grid gap-3 rounded-lg border border-dashed border-border/60 p-4 sm:grid-cols-2 xl:grid-cols-5">
+                <div className="grid grid-cols-1 gap-3 rounded-lg border border-dashed border-border/60 p-4 sm:grid-cols-2 xl:grid-cols-5">
                   <Input
                     aria-label="Tarife adı"
                     placeholder="Standart Kargo"

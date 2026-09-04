@@ -181,7 +181,7 @@ function AdminSettings() {
         </div>
       }
     >
-      <div className="grid gap-5 lg:grid-cols-[260px_1fr]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[260px_1fr]">
         <aside className="space-y-3">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -292,7 +292,7 @@ function AdminSettings() {
 
             {creating ? (
               <form
-                className="grid gap-3 py-4 sm:grid-cols-2"
+                className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-2"
                 onSubmit={(event) => {
                   event.preventDefault();
                   singleMutation.mutate(creating);
@@ -422,7 +422,7 @@ function SettingRow({
 }) {
   const id = `setting-${field.key}`;
   return (
-    <div className="grid gap-3 py-4 sm:grid-cols-[1fr_minmax(0,320px)] sm:items-start">
+    <div className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-[1fr_minmax(0,320px)] sm:items-start">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <Label htmlFor={id} className="text-sm font-medium">

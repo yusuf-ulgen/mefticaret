@@ -132,7 +132,7 @@ function ProductImagesPanel() {
           düşürür.
         </p>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard label="Görsel sayısı" value={String((items ?? []).length)} />
           <StatCard label="Alt metni eksik" value={String(missingAlt)} />
           <StatCard
@@ -158,7 +158,7 @@ function ProductImagesPanel() {
         </div>
 
         {isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {Array.from({ length: 10 }).map((_, index) => (
               <Skeleton key={index} className="aspect-square w-full rounded-xl" />
             ))}
@@ -171,7 +171,7 @@ function ProductImagesPanel() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {rows.map((item) => (
               <button
                 key={item.id}

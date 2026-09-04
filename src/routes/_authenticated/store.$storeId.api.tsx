@@ -179,7 +179,7 @@ function ApiPage() {
             <h2 className="flex items-center gap-2 font-medium">
               <KeyRound className="size-4" aria-hidden /> Yeni anahtar
             </h2>
-            <div className="mt-4 grid gap-4 md:grid-cols-3">
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="api-name">Anahtar adı</Label>
                 <Input

@@ -188,7 +188,7 @@ function BillingPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {currentFeatures.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Bu paket için limit tanımı bulunamadı.
@@ -250,13 +250,13 @@ function BillingPage() {
             </div>
 
             {plansPending ? (
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {[0, 1, 2].map((key) => (
                   <Skeleton key={key} className="h-56 w-full rounded-xl" />
                 ))}
               </div>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {(plans ?? [])
                   .filter((plan) => plan.is_active)
                   .map((plan) => {

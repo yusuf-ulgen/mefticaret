@@ -138,7 +138,7 @@ function PricingPage() {
           </p>
         </header>
 
-        <section className="grid gap-4 rounded-xl border bg-card p-5 md:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 rounded-xl border bg-card p-5 md:grid-cols-4">
           <div className="space-y-2">
             <Label>İşlem</Label>
             <Select value={mode} onValueChange={(v) => setMode(v as PriceMode)}>

@@ -91,7 +91,7 @@ function StockAlertsPage() {
       description={`${store?.name ?? "Mağaza"} · Tükenen ürünler için haber bekleyen müşteriler`}
     >
       <div className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard label="Bekleyen talep" value={String(pending.length)} icon={<BellRing className="size-4" />} />
           <StatCard label="Stoğu gelenler" value={String(ready.length)} icon={<CheckCheck className="size-4" />} />
           <StatCard label="Toplam kayıt" value={String(rows.length)} icon={<Mail className="size-4" />} />

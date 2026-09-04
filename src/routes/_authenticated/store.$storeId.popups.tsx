@@ -227,7 +227,7 @@ function PopupsPage() {
       title="Animasyonlu Popup Yöneticisi"
       description="Vitrininizde gösterilecek popup kampanyalarını oluşturun ve performansını izleyin."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-1">
           <form
             className="surface-card space-y-4 p-6"
@@ -441,7 +441,7 @@ function PopupsPage() {
               <p className="text-sm text-muted-foreground">Soldaki formla ilk popup'ını oluştur.</p>
             </div>
           ) : (
-            <ul className="grid gap-4 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {(popups ?? []).map((popup) => (
                 <li key={popup.id} className="surface-card space-y-3 p-5">
                   <div className="flex items-start justify-between gap-3">

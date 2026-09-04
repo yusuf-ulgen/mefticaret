@@ -80,7 +80,7 @@ function BasketPage() {
       description="Hangi ürünler birlikte alınıyor? Çapraz satış, paket ve öneri kurgularını verilerle planla."
     >
       <div className="space-y-8">
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Analiz edilen sipariş", value: formatNumber(analysis.summary.orders) },
             {
@@ -208,7 +208,7 @@ function BasketPage() {
                 Temizle
               </Button>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {recommendations.map((item) => (
                 <div key={item.productId} className="rounded-lg border p-4">
                   <p className="truncate text-sm font-medium">{item.title}</p>

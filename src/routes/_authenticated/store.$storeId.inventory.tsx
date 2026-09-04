@@ -146,7 +146,7 @@ function InventoryPage() {
       description="Varyant bazlı stok hareketleri, kritik stok uyarıları ve denetim izi."
     >
       <div className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
             { label: "Varyant", value: String(totals.variants) },
             { label: "Toplam adet", value: String(totals.units) },

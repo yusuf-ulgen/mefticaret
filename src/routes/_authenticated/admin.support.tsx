@@ -56,7 +56,7 @@ function AdminSupport() {
         </Button>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {Object.entries(STATUS_LABELS).map(([status, label]) => (
           <div key={status} className="surface-card p-5">
             <p className="text-xs text-muted-foreground">{label}</p>
@@ -65,7 +65,7 @@ function AdminSupport() {
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="surface-card p-6">
           <h2 className="font-display text-lg font-semibold">Kategori dağılımı</h2>
           <ul className="mt-4 space-y-2 text-sm">

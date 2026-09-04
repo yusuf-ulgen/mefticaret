@@ -125,7 +125,7 @@ function TeamPage() {
 
       <section className="surface-card p-6">
         <h2 className="font-display text-lg font-semibold">Rol yetkileri</h2>
-        <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+        <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {Object.entries(ROLE_SCOPES).map(([role, scope]) => (
             <div key={role} className="rounded-lg border border-border p-4">
               <dt className="font-medium">{STORE_ROLE_LABELS[role] ?? role}</dt>

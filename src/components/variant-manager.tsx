@@ -175,7 +175,7 @@ export function VariantManager({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {groups.map((group, index) => (
           <div key={index} className="rounded-lg border border-border p-4">
             <div className="flex items-center gap-2">

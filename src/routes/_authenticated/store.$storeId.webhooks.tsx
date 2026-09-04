@@ -163,7 +163,7 @@ function WebhooksPage() {
               Her istek <code className="rounded bg-muted px-1">x-mefti-signature</code> başlığında
               HMAC-SHA256 imzası taşır; doğrulamak için webhook gizli anahtarını kullan.
             </p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="hook-name">Ad</Label>
                 <Input
