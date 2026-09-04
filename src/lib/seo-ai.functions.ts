@@ -32,6 +32,12 @@ export const fetchSeoAiStatus = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await guard(context.supabase, context.userId);
     const server = await import("@/lib/seo-ai.server");
+    // Harici zamanlayıcı olmasa da günlük tur burada tetiklenir (hata yutulur).
+    try {
+      await server.maybeRunDailySeoAi();
+    } catch {
+      /* otomatik tur başarısız olsa da panel açılmalı */
+    }
     return server.seoAiStatus();
   });
 

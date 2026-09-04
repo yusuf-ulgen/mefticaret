@@ -654,3 +654,29 @@ export async function platformHomeSeo(db?: Db) {
   if (!data?.title) return null;
   return { title: String(data.title), description: String(data.subtitle ?? "") };
 }
+
+/**
+ * Günlük tetikleyici: son çalışma 20 saatten eskiyse ve günün belirlenen saati
+ * geldiyse yeni bir tur başlatır. Harici zamanlayıcı yoksa da otomasyon işler.
+ */
+export async function maybeRunDailySeoAi() {
+  const db = await admin();
+  const settings = await loadSeoAiSettings(db);
+  if (!settings.isEnabled) return { started: false as const, reason: "kapalı" };
+  if (new Date().getUTCHours() < settings.dailyHour) {
+    return { started: false as const, reason: "saat gelmedi" };
+  }
+  if (settings.lastRunAt && Date.now() - new Date(settings.lastRunAt).getTime() < 20 * 60 * 60 * 1000) {
+    return { started: false as const, reason: "bugün çalıştı" };
+  }
+  const { data: running } = await db
+    .from("platform_seo_ai_runs")
+    .select("id, started_at")
+    .eq("status", "running")
+    .gte("started_at", new Date(Date.now() - 30 * 60 * 1000).toISOString())
+    .limit(1);
+  if ((running ?? []).length > 0) return { started: false as const, reason: "çalışma sürüyor" };
+
+  const result = await runSeoAiCycle({ trigger: "cron" });
+  return { started: true as const, result };
+}
