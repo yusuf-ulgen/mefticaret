@@ -148,7 +148,7 @@ function ThemeDesignPage() {
           </Card>
 
           <Tabs defaultValue="colors">
-            <TabsList className="flex-wrap">
+            <TabsList className="flex h-auto flex-wrap">
               <TabsTrigger value="colors">Renkler</TabsTrigger>
               <TabsTrigger value="type">Tipografi</TabsTrigger>
               <TabsTrigger value="space">Boşluklar</TabsTrigger>
