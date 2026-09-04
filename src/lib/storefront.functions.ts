@@ -31,6 +31,17 @@ function publicClient() {
 
 const slugInput = (data: unknown) => z.object({ slug: z.string().trim().min(1).max(120) }).parse(data);
 
+/** Public vitrin okumaları için read-through önbellek yardımcısı. */
+async function readThrough<T>(
+  parts: (string | number)[],
+  namespace: "catalog" | "categories",
+  producer: () => Promise<T>,
+): Promise<T> {
+  const { cached, cacheKey, CACHE_NAMESPACES } = await import("./cache.server");
+  const ns = namespace === "catalog" ? CACHE_NAMESPACES.catalog : CACHE_NAMESPACES.categories;
+  return cached(cacheKey(ns, null, ...parts), ns, producer);
+}
+
 export const getStorefront = createServerFn({ method: "GET" })
   .inputValidator(slugInput)
   .handler(async ({ data }) => {
@@ -359,7 +370,8 @@ export const getStorefrontCollection = createServerFn({ method: "GET" })
   .inputValidator((data) =>
     z.object({ slug: z.string().trim().min(1), collectionSlug: z.string().trim().min(1) }).parse(data),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data }) =>
+    readThrough(["storefront-collection", data.slug, data.collectionSlug], "categories", async () => {
     const supabase = publicClient();
     const { data: store, error } = await supabase
       .from("stores")
@@ -399,14 +411,16 @@ export const getStorefrontCollection = createServerFn({ method: "GET" })
     }
 
     return { store, theme: themeRes.data, collection, products };
-  });
+    }),
+  );
 
 /** Yayınlanmış vitrin içerik sayfası (CMS). */
 export const getStorefrontPage = createServerFn({ method: "GET" })
   .inputValidator((data) =>
     z.object({ slug: z.string().trim().min(1), pageSlug: z.string().trim().min(1) }).parse(data),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data }) =>
+    readThrough(["storefront-page", data.slug, data.pageSlug], "catalog", async () => {
     const supabase = publicClient();
     const { data: store, error } = await supabase
       .from("stores")
@@ -439,7 +453,8 @@ export const getStorefrontPage = createServerFn({ method: "GET" })
     if (!pageRes.data) return null;
 
     return { store, theme: themeRes.data, page: pageRes.data, footerPages: footerRes.data ?? [] };
-  });
+    }),
+  );
 
 /**
  * Kartlardan hızlı sepete ekleme için varsayılan varyantı döner.
@@ -498,23 +513,25 @@ export const getQuickAddVariant = createServerFn({ method: "GET" })
 /** Vitrin blog/bilgi sayfası listesi (yayınlanmış tüm sayfalar). */
 export const getStorefrontPages = createServerFn({ method: "GET" })
   .inputValidator(slugInput)
-  .handler(async ({ data }) => {
-    const supabase = publicClient();
-    const { data: store, error } = await supabase
-      .from("stores")
-      .select("id, name, slug")
-      .eq("slug", data.slug)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!store) return null;
+  .handler(async ({ data }) =>
+    readThrough(["storefront-pages", data.slug], "catalog", async () => {
+      const supabase = publicClient();
+      const { data: store, error } = await supabase
+        .from("stores")
+        .select("id, name, slug")
+        .eq("slug", data.slug)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!store) return null;
 
-    const { data: pages, error: pagesError } = await supabase
-      .from("store_pages")
-      .select("id, title, slug, excerpt, seo_description, updated_at")
-      .eq("store_id", store.id)
-      .eq("is_published", true)
-      .order("updated_at", { ascending: false });
-    if (pagesError) throw new Error(pagesError.message);
+      const { data: pages, error: pagesError } = await supabase
+        .from("store_pages")
+        .select("id, title, slug, excerpt, seo_description, updated_at")
+        .eq("store_id", store.id)
+        .eq("is_published", true)
+        .order("updated_at", { ascending: false });
+      if (pagesError) throw new Error(pagesError.message);
 
-    return { store, pages: pages ?? [] };
-  });
+      return { store, pages: pages ?? [] };
+    }),
+  );
