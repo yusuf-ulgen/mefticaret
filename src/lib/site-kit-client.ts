@@ -42,7 +42,12 @@ export type SiteKitEventPayload = {
   itemName?: string | undefined;
   orderId?: string | undefined;
   searchTerm?: string | undefined;
+  /** Paylaşım kanalı (whatsapp, x, facebook, kopyala). */
+  method?: string | undefined;
+  /** Blog okuma yüzdesi. */
+  percent?: number | undefined;
   eventId?: string | undefined;
+
 };
 
 const META_EVENTS: Record<SiteKitEventName, string | null> = {
