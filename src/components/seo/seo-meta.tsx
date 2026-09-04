@@ -10,6 +10,7 @@ import {
   seoTemplateVariables,
   type SeoTemplateKey,
 } from "@/components/seo/seo-shared";
+import { SeoSerpPreview } from "@/components/seo/seo-serp";
 import type { SeoTemplate, StoreSeoSettings } from "@/lib/seo";
 import { interpolateSeoTemplate } from "@/lib/seo-template";
 
