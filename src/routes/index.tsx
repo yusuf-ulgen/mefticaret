@@ -34,7 +34,7 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
-function ShowcaseCard({ title, price }: { title?: string; price?: string }) {
+function ShowcaseCard({ title, price }: { title?: string | undefined; price?: string | undefined }) {
   return (
     <article className="showcase-card">
       <div
