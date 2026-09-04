@@ -370,7 +370,8 @@ export const getStorefrontCollection = createServerFn({ method: "GET" })
   .inputValidator((data) =>
     z.object({ slug: z.string().trim().min(1), collectionSlug: z.string().trim().min(1) }).parse(data),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data }) =>
+    readThrough(["storefront-collection", data.slug, data.collectionSlug], "categories", async () => {
     const supabase = publicClient();
     const { data: store, error } = await supabase
       .from("stores")
