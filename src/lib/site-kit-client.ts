@@ -132,20 +132,27 @@ export function pushSiteKitEvent(name: SiteKitEventName, payload: SiteKitEventPa
     }
 
     const metaEvent = META_EVENTS[name];
-    if (w.fbq && metaEvent && has("meta_pixel")) {
+    const metaCustom = META_CUSTOM_EVENTS[name];
+    if (w.fbq && (metaEvent || metaCustom) && has("meta_pixel")) {
+      const isBlog = name === "blog_view" || name === "blog_read_complete" || name === "share";
       w.fbq(
-        "track",
-        metaEvent,
+        metaEvent ? "track" : "trackCustom",
+        metaEvent ?? metaCustom!,
         {
           ...(payload.value !== undefined ? { value: payload.value } : {}),
           ...(payload.currency ? { currency: payload.currency } : {}),
-          ...(payload.itemId ? { content_ids: [payload.itemId], content_type: "product" } : {}),
+          ...(payload.itemId
+            ? { content_ids: [payload.itemId], content_type: isBlog ? "article" : "product" }
+            : {}),
+          ...(payload.itemName ? { content_name: payload.itemName } : {}),
+          ...(payload.method ? { method: payload.method } : {}),
           ...(payload.searchTerm ? { search_string: payload.searchTerm } : {}),
         },
         // Sunucu (CAPI) olayıyla aynı kimlik → Meta tekrarları tekilleştirir.
         payload.eventId ? { eventID: payload.eventId } : undefined,
       );
     }
+
 
     const tiktokEvent = TIKTOK_EVENTS[name];
     if (w.ttq && has("tiktok_pixel")) {
