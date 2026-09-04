@@ -2,8 +2,10 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { ReadingProgress, ShareButtons } from "@/components/blog-reading";
 import { storefrontPageQuery } from "@/lib/pages-queries";
 import { storefrontBlogPostQuery } from "@/lib/blog-queries";
+
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { absoluteUrl, articleSchema, plainText } from "@/lib/seo";
