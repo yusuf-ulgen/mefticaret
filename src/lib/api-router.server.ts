@@ -281,12 +281,14 @@ export async function handleApiRequest(request: Request, splat: string): Promise
       }
 
       if (resourceId) {
-        const query = admin
+        // Tenant izolasyonu: her kaynak kendi mağaza kimliğiyle sınırlandırılır.
+        const { data, error } = await admin
           .from(resource.table)
           .select(resource.select)
-          .eq("id", resourceId);
-        const scoped = resource.table === "product_variants" ? query : query.eq("store_id", auth.storeId);
-        const { data, error } = await scoped.maybeSingle();
+          .eq("id", resourceId)
+          .eq("store_id", auth.storeId)
+          .maybeSingle();
+
         if (error) throw new Error(error.message);
         if (!data) return finish(json({ error: "not_found" }, 404));
         return finish(json({ data }));
