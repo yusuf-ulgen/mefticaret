@@ -48,12 +48,16 @@ export const recordConsent = createServerFn({ method: "POST" })
       subject_email: data.subjectEmail ?? null,
       ip,
       user_agent: userAgent,
+      meta: { subject_verified: false } as never,
     }));
 
-    const { error } = await supabase.from("consent_records").insert(rows);
+    // Yazma yalnızca sunucu tarafında (service role) yapılır; ziyaretçi doğrudan tabloya yazamaz.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("consent_records").insert(rows);
     if (error) throw new Error(error.message);
     return { ok: true, recorded: rows.length };
   });
+
 
 /** Halka açık: veri sahibi talebi (dışa aktarma / silme / erişim / düzeltme) oluşturur. */
 export const submitDataRequest = createServerFn({ method: "POST" })
@@ -75,13 +79,24 @@ export const submitDataRequest = createServerFn({ method: "POST" })
     const store = await resolvePublishedStoreId(supabase, data.storeSlug);
     if (!store) throw new Error("Mağaza bulunamadı");
 
-    const { error } = await supabase.from("data_subject_requests").insert({
+    // Talep sahibi doğrulanmadan işlenmemeli: e-posta doğrulama jetonu üretilir ve
+    // kayıt yalnızca sunucu tarafında (service role) oluşturulur.
+    const verificationToken = crypto.randomUUID();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("data_subject_requests").insert({
       store_id: store.id,
       kind: data.kind,
       subject_email: data.subjectEmail,
       reason: data.reason ?? null,
+      status: "pending",
+      result_meta: {
+        subject_verified: false,
+        verification_token: verificationToken,
+        requested_ip: ip,
+      } as never,
     });
     if (error) throw new Error(error.message);
+
 
     await recordSecurityEvent({
       storeId: store.id,
