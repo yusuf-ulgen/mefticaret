@@ -315,10 +315,10 @@ function BlogAdminPage() {
 
           <AiBlogWriter
             storeId={storeId}
-            onDraft={(draft) => {
+            onDraft={(draft: AiBlogDraft) => {
               const matchedTags = (tags.data ?? [])
                 .filter((tag) =>
-                  draft.tags.some((name) => name.toLocaleLowerCase("tr") === tag.name.toLocaleLowerCase("tr")),
+                  draft.tags.some((name: string) => name.toLocaleLowerCase("tr") === tag.name.toLocaleLowerCase("tr")),
                 )
                 .map((tag) => tag.id);
               setForm((f) => ({
