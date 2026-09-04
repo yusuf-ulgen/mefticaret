@@ -5,7 +5,9 @@ import { CalendarClock, PenLine, Tags, Trash2, UserRound } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { AiBlogWriter, type AiBlogDraft } from "@/components/ai-blog-writer";
 import { AppShell } from "@/components/app-shell";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -310,6 +312,29 @@ function BlogAdminPage() {
             <StatCard label="Yayında" value={counts.published} />
             <StatCard label="Zamanlanmış" value={counts.scheduled} />
           </div>
+
+          <AiBlogWriter
+            storeId={storeId}
+            onDraft={(draft: AiBlogDraft) => {
+              const matchedTags = (tags.data ?? [])
+                .filter((tag) =>
+                  draft.tags.some((name: string) => name.toLocaleLowerCase("tr") === tag.name.toLocaleLowerCase("tr")),
+                )
+                .map((tag) => tag.id);
+              setForm((f) => ({
+                ...f,
+                title: draft.title,
+                slug: draft.slug,
+                excerpt: draft.excerpt,
+                seoDescription: draft.seoDescription,
+                body: draft.body,
+                tagIds: matchedTags.length > 0 ? matchedTags : f.tagIds,
+              }));
+              toast.success(`Taslak hazır (${draft.totalTokens} token)`);
+            }}
+          />
+
+
 
           <div className="grid gap-6 lg:grid-cols-5">
             <form
