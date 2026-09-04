@@ -154,6 +154,38 @@ function AdminSeoAiPage() {
               ))}
             </div>
 
+            <div className="mt-5 space-y-2">
+              <Label>Çalışma günleri (UTC)</Label>
+              <div className="flex flex-wrap gap-2">
+                {WEEKDAYS.map((day) => {
+                  const active = (settings.runDays ?? []).includes(day.value);
+                  return (
+                    <button
+                      key={day.value}
+                      type="button"
+                      onClick={() =>
+                        setDraft((prev) => {
+                          const current = new Set(settings.runDays ?? []);
+                          if (current.has(day.value)) current.delete(day.value);
+                          else current.add(day.value);
+                          const next = [...current].sort((a, b) => a - b);
+                          return { ...prev, runDays: next.length > 0 ? next : [day.value] };
+                        })
+                      }
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                        active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {day.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Otomasyon yalnızca seçilen günlerde, belirlenen saatte çalışır.
+              </p>
+            </div>
+
             <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <div className="space-y-1.5">
                 <Label htmlFor="seo-ai-hour">Günlük çalışma saati (UTC)</Label>
@@ -167,6 +199,17 @@ function AdminSeoAiPage() {
                 />
               </div>
               <div className="space-y-1.5">
+                <Label htmlFor="seo-ai-minute">Çalışma dakikası</Label>
+                <Input
+                  id="seo-ai-minute"
+                  type="number"
+                  min={0}
+                  max={59}
+                  value={settings.dailyMinute}
+                  onChange={(event) => setDraft((prev) => ({ ...prev, dailyMinute: Number(event.target.value) }))}
+                />
+              </div>
+              <div className="space-y-1.5">
                 <Label htmlFor="seo-ai-stores">Tur başına mağaza</Label>
                 <Input
                   id="seo-ai-stores"
@@ -177,6 +220,18 @@ function AdminSeoAiPage() {
                   onChange={(event) => setDraft((prev) => ({ ...prev, maxStoresPerRun: Number(event.target.value) }))}
                 />
               </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="seo-ai-concurrency">Aynı anda işlenen mağaza</Label>
+                <Input
+                  id="seo-ai-concurrency"
+                  type="number"
+                  min={1}
+                  max={12}
+                  value={settings.concurrency}
+                  onChange={(event) => setDraft((prev) => ({ ...prev, concurrency: Number(event.target.value) }))}
+                />
+              </div>
+
               <div className="space-y-1.5">
                 <Label htmlFor="seo-ai-items">Mağaza başına kayıt</Label>
                 <Input
