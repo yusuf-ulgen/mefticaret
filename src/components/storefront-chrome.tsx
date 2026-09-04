@@ -11,6 +11,7 @@ import { formatMoney } from "@/lib/mefti";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import { fontStack } from "@/lib/theme-presets";
+import { designCss, resolveDesignTokens } from "@/lib/theme-design";
 import { trackEvent } from "@/lib/track";
 import type { ResolvedSection } from "@/lib/theme-sections";
 
@@ -55,6 +56,8 @@ export type StoreTheme = {
   card_style?: string | null;
   content_width?: number | null;
   section_spacing?: number | null;
+  /** Tasarım sistemi tokenları (renk/tipografi/boşluk/hareket). */
+  design_tokens?: unknown;
 } | null;
 
 export const FALLBACK_THEME = {
@@ -74,6 +77,7 @@ export const FALLBACK_THEME = {
   card_style: "soft",
   content_width: 1140,
   section_spacing: 48,
+  design_tokens: {},
 };
 
 export function isDark(hex: string) {
@@ -89,10 +93,12 @@ export function storefrontTokens(theme: StoreTheme) {
   const t = theme ?? FALLBACK_THEME;
   const dark = isDark(t.background_color);
   const fonts = fontStack(t.font_pair);
+  const design = resolveDesignTokens((t as { design_tokens?: unknown }).design_tokens);
   return {
     t,
     fonts,
     dark,
+    design,
     text: dark ? "#f8fafc" : t.primary_color,
     muted: dark ? "rgba(248,250,252,.72)" : "rgba(31,41,51,.68)",
     cardBg: dark ? "rgba(255,255,255,.06)" : "#ffffff",
@@ -177,7 +183,7 @@ export function StorefrontChrome({
   customJs?: string | null | undefined;
   children: ReactNode;
 }) {
-  const { t, fonts, text, muted, border, radius, logoUrl, contentWidth } = storefrontTokens(theme);
+  const { t, fonts, text, muted, border, radius, logoUrl, contentWidth, design } = storefrontTokens(theme);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const cart = useCart();
   const favorites = useFavorites();
@@ -225,6 +231,7 @@ export function StorefrontChrome({
 
   return (
     <div
+      className="sf-root"
       style={{
         background: t.background_color,
         color: text,
@@ -232,6 +239,7 @@ export function StorefrontChrome({
         minHeight: "100vh",
       }}
     >
+      <style dangerouslySetInnerHTML={{ __html: designCss(design) }} />
       {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: customCss }} /> : null}
       <CookieConsent storeSlug={storeSlug} />
       <SiteKitScripts storeSlug={storeSlug} />

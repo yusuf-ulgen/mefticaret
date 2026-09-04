@@ -63,8 +63,10 @@ export function filterProducts(products: SectionProduct[], filter: string, limit
 }
 
 /** Izgara kolon şablonu üretir. */
-export function gridColumns(columns: number, min = 1100) {
-  return `repeat(auto-fit, minmax(${Math.round(min / Math.max(1, columns))}px, 1fr))`;
+export function gridColumns(columns: number, _min = 1100) {
+  // Masaüstünde bölümün kendi kolon sayısı; tablet/mobilde bölüm sarmalayıcısının
+  // ayarladığı --sf-cols değişkeni devreye girer.
+  return `repeat(var(--sf-cols, ${Math.max(1, Math.round(columns))}), minmax(0, 1fr))`;
 }
 
 /** "a | b | c" satırlarını parçalara böler. */
@@ -98,9 +100,14 @@ export function Cta({
 }) {
   if (!label.trim()) return null;
   const style = { ...buttonStyles(theme), marginTop: 20 };
-  if (preview || !url.trim()) return <span style={style}>{label}</span>;
+  if (preview || !url.trim())
+    return (
+      <span className="sf-btn" style={style}>
+        {label}
+      </span>
+    );
   return (
-    <a href={url} style={style}>
+    <a className="sf-btn" href={url} style={style}>
       {label}
     </a>
   );
@@ -124,7 +131,7 @@ export function ProductCard({
     <>
       <div
         style={{
-          height: 160,
+          aspectRatio: "var(--sf-image-ratio, 1 / 1)",
           borderRadius: radius,
           overflow: "hidden",
           background: dark
@@ -168,11 +175,15 @@ export function ProductCard({
   };
 
   if (context.preview) {
-    return <div style={shell}>{body}</div>;
+    return (
+      <div className="sf-card" style={shell}>
+        {body}
+      </div>
+    );
   }
 
   return (
-    <div style={shell}>
+    <div className="sf-card" style={shell}>
       <FavoriteButton
         item={{
           storeSlug: context.storeSlug,
@@ -231,7 +242,7 @@ export function ProductCollectionView({
   }
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: gridColumns(columns), gap: 18 }}>
+    <div className="sf-grid" style={{ display: "grid", gridTemplateColumns: gridColumns(columns), gap: 18 }}>
       {items.map((product) => (
         <ProductCard key={product.id} product={product} context={context} showPrice={showPrice} />
       ))}

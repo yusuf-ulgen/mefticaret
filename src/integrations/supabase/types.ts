@@ -8598,6 +8598,7 @@ export type Database = {
           created_at: string
           custom_css: string | null
           custom_js: string | null
+          design_tokens: Json
           font_pair: string
           hero_cta_label: string
           hero_subtitle: string
@@ -8624,6 +8625,7 @@ export type Database = {
           created_at?: string
           custom_css?: string | null
           custom_js?: string | null
+          design_tokens?: Json
           font_pair?: string
           hero_cta_label?: string
           hero_subtitle?: string
@@ -8650,6 +8652,7 @@ export type Database = {
           created_at?: string
           custom_css?: string | null
           custom_js?: string | null
+          design_tokens?: Json
           font_pair?: string
           hero_cta_label?: string
           hero_subtitle?: string

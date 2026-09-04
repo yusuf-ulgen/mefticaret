@@ -172,6 +172,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       icon: Palette,
       items: [
         { label: "Tema", to: p("theme-editor"), icon: Palette, keywords: "tema düzenleyici şablon blok bileşen vitrin" },
+        { label: "Tasarım Sistemi", to: p("theme-design"), icon: Palette, keywords: "tasarım sistemi renk tipografi boşluk token buton kart animasyon mobil tablet" },
         { label: "Tema Mağazası", to: p("theme-store"), icon: Palette, keywords: "tema mağazası şablon satın al wokiee premium hazır tema" },
         { label: "Vitrin Menüleri", to: p("navigation"), icon: Menu },
         { label: "İçerik Sayfaları", to: p("pages"), icon: FileText },
