@@ -692,16 +692,22 @@ export async function platformHomeSeo(db?: Db) {
 }
 
 /**
- * Günlük tetikleyici: son çalışma 20 saatten eskiyse ve günün belirlenen saati
- * geldiyse yeni bir tur başlatır. Harici zamanlayıcı yoksa da otomasyon işler.
+ * Günlük tetikleyici: seçilen günlerde, belirlenen saat/dakika geldiyse ve son
+ * çalışma 20 saatten eskiyse yeni bir tur başlatır.
  */
 export async function maybeRunDailySeoAi() {
   const db = await admin();
   const settings = await loadSeoAiSettings(db);
   if (!settings.isEnabled) return { started: false as const, reason: "kapalı" };
-  if (new Date().getUTCHours() < settings.dailyHour) {
+  const now = new Date();
+  if (settings.runDays.length > 0 && !settings.runDays.includes(now.getUTCDay())) {
+    return { started: false as const, reason: "bugün çalışma günü değil" };
+  }
+  const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+  if (nowMinutes < settings.dailyHour * 60 + settings.dailyMinute) {
     return { started: false as const, reason: "saat gelmedi" };
   }
+
   if (settings.lastRunAt && Date.now() - new Date(settings.lastRunAt).getTime() < 20 * 60 * 60 * 1000) {
     return { started: false as const, reason: "bugün çalıştı" };
   }
