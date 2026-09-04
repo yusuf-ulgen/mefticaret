@@ -24,7 +24,11 @@ const settingsSchema = z.object({
   maxStoresPerRun: z.number().int().min(1).max(100).optional(),
   maxItemsPerStore: z.number().int().min(1).max(40).optional(),
   dailyHour: z.number().int().min(0).max(23).optional(),
+  dailyMinute: z.number().int().min(0).max(59).optional(),
+  runDays: z.array(z.number().int().min(0).max(6)).max(7).optional(),
+  concurrency: z.number().int().min(1).max(12).optional(),
   focusKeywords: z.string().max(500).optional(),
+
 });
 
 export const fetchSeoAiStatus = createServerFn({ method: "POST" })
