@@ -1,8 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { storefrontPageQuery } from "@/lib/pages-queries";
+import { storefrontBlogPostQuery } from "@/lib/blog-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { absoluteUrl, articleSchema, plainText } from "@/lib/seo";
@@ -78,12 +79,16 @@ export const Route = createFileRoute("/s/$slug/page/$pageSlug")({
 });
 
 function StorePage() {
-  const { slug } = Route.useParams();
-  const { data } = useSuspenseQuery(storefrontPageQuery(slug, Route.useParams().pageSlug));
+  const { slug, pageSlug } = Route.useParams();
+  const { data } = useSuspenseQuery(storefrontPageQuery(slug, pageSlug));
+  const meta = useQuery(storefrontBlogPostQuery(slug, pageSlug));
   if (!data) return null;
 
   const { store, theme, page, footerPages } = data;
-  const { fonts, muted } = storefrontTokens(theme);
+  const { fonts, muted, cardBg, border, radius, t } = storefrontTokens(theme);
+  const post = meta.data?.post ?? null;
+  const author = meta.data?.author ?? null;
+  const related = meta.data?.related ?? [];
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} footerPages={footerPages}>
@@ -92,19 +97,134 @@ function StorePage() {
           {store.name}
         </Link>
         {" / "}
+        {post ? (
+          <>
+            <Link to="/s/$slug/blog" params={{ slug }} style={{ color: "inherit" }}>
+              Blog
+            </Link>
+            {" / "}
+          </>
+        ) : null}
         <span>{page.title}</span>
       </nav>
 
-      <article style={{ maxWidth: 760, padding: "20px 0 56px" }}>
-        <h1 style={{ fontFamily: fonts.heading, fontSize: 34, fontWeight: 700, margin: 0 }}>{page.title}</h1>
+      <article style={{ maxWidth: 760, padding: "20px 0 40px" }}>
+        {post?.category ? (
+          <span style={{ fontSize: 12, letterSpacing: 0.6, textTransform: "uppercase", color: t.accent_color }}>
+            {post.category.name}
+          </span>
+        ) : null}
+        <h1 style={{ fontFamily: fonts.heading, fontSize: 34, fontWeight: 700, margin: post ? "8px 0 0" : 0 }}>
+          {page.title}
+        </h1>
+        {post ? (
+          <p style={{ color: muted, marginTop: 10, fontSize: 13 }}>
+            {[
+              post.author_name,
+              post.published_at
+                ? new Date(post.published_at).toLocaleDateString("tr-TR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : null,
+              `${post.readingMinutes} dk okuma`,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        ) : null}
+        {post?.cover_url ? (
+          <img
+            src={post.cover_url}
+            alt={page.title}
+            style={{ width: "100%", borderRadius: radius, marginTop: 18, objectFit: "cover" }}
+          />
+        ) : null}
         {page.excerpt ? (
-          <p style={{ color: muted, marginTop: 10, fontSize: 15 }}>{page.excerpt}</p>
+          <p style={{ color: muted, marginTop: 16, fontSize: 15 }}>{page.excerpt}</p>
         ) : null}
         <div style={{ marginTop: 24, fontSize: 15, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{page.body}</div>
+
+        {post && post.tags.length > 0 ? (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 24 }}>
+            {post.tags.map((tag) => (
+              <span
+                key={tag.slug}
+                style={{
+                  border: `1px solid ${border}`,
+                  borderRadius: 999,
+                  padding: "4px 10px",
+                  fontSize: 12,
+                  color: muted,
+                }}
+              >
+                #{tag.name}
+              </span>
+            ))}
+          </div>
+        ) : null}
+
+        {author ? (
+          <div
+            style={{
+              display: "flex",
+              gap: 14,
+              alignItems: "center",
+              marginTop: 26,
+              padding: "16px 18px",
+              background: cardBg,
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+            }}
+          >
+            {author.avatar_url ? (
+              <img
+                src={author.avatar_url}
+                alt={author.name}
+                style={{ width: 52, height: 52, borderRadius: 999, objectFit: "cover" }}
+              />
+            ) : null}
+            <div>
+              <p style={{ margin: 0, fontWeight: 600 }}>{author.name}</p>
+              {author.title ? <p style={{ margin: "2px 0 0", color: muted, fontSize: 13 }}>{author.title}</p> : null}
+              {author.bio ? <p style={{ margin: "6px 0 0", color: muted, fontSize: 13 }}>{author.bio}</p> : null}
+            </div>
+          </div>
+        ) : null}
+
         <p style={{ color: muted, fontSize: 12, marginTop: 32 }}>
           Son güncelleme: {new Date(page.updated_at).toLocaleDateString("tr-TR")}
         </p>
       </article>
+
+      {related.length > 0 ? (
+        <section style={{ paddingBottom: 64 }}>
+          <h2 style={{ fontFamily: fonts.heading, fontSize: 20, fontWeight: 700, margin: "0 0 12px" }}>
+            İlgili yazılar
+          </h2>
+          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))" }}>
+            {related.map((item) => (
+              <Link
+                key={item.id}
+                to="/s/$slug/page/$pageSlug"
+                params={{ slug, pageSlug: item.slug }}
+                style={{
+                  background: cardBg,
+                  border: `1px solid ${border}`,
+                  borderRadius: radius,
+                  padding: "14px 16px",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <p style={{ margin: 0, fontWeight: 600, fontSize: 15 }}>{item.title}</p>
+                <p style={{ margin: "6px 0 0", color: muted, fontSize: 12 }}>{item.readingMinutes} dk okuma</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </StorefrontChrome>
   );
 }

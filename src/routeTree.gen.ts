@@ -191,6 +191,7 @@ import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/pu
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
+import { Route as ApiPublicRssSlugRouteImport } from './routes/api/public/rss.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
 import { Route as ApiPublicTrackSlugRouteImport } from './routes/api/public/track.$slug'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
@@ -1249,6 +1250,11 @@ const ApiPublicRobotsSlugRoute = ApiPublicRobotsSlugRouteImport.update({
   path: '/api/public/robots/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicRssSlugRoute = ApiPublicRssSlugRouteImport.update({
+  id: '/api/public/rss/$slug',
+  path: '/api/public/rss/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSitemapSlugRoute = ApiPublicSitemapSlugRouteImport.update({
   id: '/api/public/sitemap/$slug',
   path: '/api/public/sitemap/$slug',
@@ -1509,6 +1515,7 @@ export interface FileRoutesByFullPath {
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
+  '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
@@ -1704,6 +1711,7 @@ export interface FileRoutesByTo {
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
+  '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
@@ -1903,6 +1911,7 @@ export interface FileRoutesById {
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
+  '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
@@ -2102,6 +2111,7 @@ export interface FileRouteTypes {
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
+    | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
@@ -2297,6 +2307,7 @@ export interface FileRouteTypes {
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
+    | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
@@ -2495,6 +2506,7 @@ export interface FileRouteTypes {
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
+    | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
@@ -2550,6 +2562,7 @@ export interface RootRouteChildren {
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
+  ApiPublicRssSlugRoute: typeof ApiPublicRssSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
   ApiPublicTrackSlugRoute: typeof ApiPublicTrackSlugRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
@@ -3836,6 +3849,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicRobotsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/rss/$slug': {
+      id: '/api/public/rss/$slug'
+      path: '/api/public/rss/$slug'
+      fullPath: '/api/public/rss/$slug'
+      preLoaderRoute: typeof ApiPublicRssSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/sitemap/$slug': {
       id: '/api/public/sitemap/$slug'
       path: '/api/public/sitemap/$slug'
@@ -4401,6 +4421,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
+  ApiPublicRssSlugRoute: ApiPublicRssSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
   ApiPublicTrackSlugRoute: ApiPublicTrackSlugRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
