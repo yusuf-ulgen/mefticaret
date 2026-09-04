@@ -41,7 +41,18 @@ const SCOPE_LABELS: Record<string, string> = {
   autofix: "Otomatik düzeltme",
 };
 
+const WEEKDAYS: { value: number; label: string }[] = [
+  { value: 1, label: "Pzt" },
+  { value: 2, label: "Sal" },
+  { value: 3, label: "Çar" },
+  { value: 4, label: "Per" },
+  { value: 5, label: "Cum" },
+  { value: 6, label: "Cmt" },
+  { value: 0, label: "Paz" },
+];
+
 const TOGGLES: { key: keyof Settings; label: string; hint: string }[] = [
+
   { key: "isEnabled", label: "Otomasyon açık", hint: "Kapatılırsa günlük çalışma atlanır" },
   { key: "aiEnabled", label: "Yapay zeka metni", hint: "Meta başlık ve açıklama üretimi" },
   { key: "autofixEnabled", label: "Güvenli düzeltmeler", hint: "Eksik canonical, alt metin, şablon meta" },
