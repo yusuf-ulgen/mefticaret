@@ -30,6 +30,7 @@ import {
   type BlogPostRow,
 } from "@/lib/blog-queries";
 import { formatDateTime } from "@/lib/mefti";
+import { storeQuery } from "@/lib/store-queries";
 import { deletePage, savePage } from "@/lib/pages.functions";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/blog")({
@@ -85,6 +86,8 @@ function BlogAdminPage() {
   const categories = useQuery(blogCategoriesQuery(storeId));
   const tags = useQuery(blogTagsQuery(storeId));
   const authors = useQuery(blogAuthorsQuery(storeId));
+  const store = useQuery(storeQuery(storeId));
+  const storeSlug = store.data?.slug ?? null;
 
   const save = useServerFn(savePage);
   const remove = useServerFn(deletePage);
@@ -154,7 +157,42 @@ function BlogAdminPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  /** Listeden tek tıkla yayınla / taslağa al. */
+  const togglePublish = useMutation({
+    mutationFn: (post: BlogPostRow) => {
+      const next = post.status === "published" ? "draft" : "published";
+      return save({
+        data: {
+          storeId,
+          pageId: post.id,
+          title: post.title,
+          slug: post.slug,
+          excerpt: post.excerpt ?? undefined,
+          body: post.body,
+          seoDescription: post.seo_description ?? undefined,
+          isPublished: next === "published",
+          showInFooter: post.show_in_footer,
+          sortOrder: post.sort_order,
+          pageKind: "blog",
+          status: next,
+          scheduledAt: null,
+          categoryId: post.category_id,
+          authorId: post.author_id,
+          authorName: post.author_name,
+          coverUrl: post.cover_url,
+          tagIds: post.tagIds,
+        },
+      });
+    },
+    onSuccess: async (_data, post) => {
+      await invalidateAll();
+      toast.success(post.status === "published" ? "Yazı taslağa alındı" : "Yazı yayınlandı");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const deletePost = useMutation({
+
     mutationFn: (pageId: string) => remove({ data: { storeId, pageId } }),
     onSuccess: async () => {
       await invalidateAll();
@@ -510,6 +548,25 @@ function BlogAdminPage() {
                             <Button size="sm" variant="outline" onClick={() => editPost(post)}>
                               Düzenle
                             </Button>
+                            <Button
+                              size="sm"
+                              variant={post.status === "published" ? "outline" : "default"}
+                              disabled={togglePublish.isPending}
+                              onClick={() => togglePublish.mutate(post)}
+                            >
+                              {post.status === "published" ? "Taslağa al" : "Yayınla"}
+                            </Button>
+                            {storeSlug ? (
+                              <Button size="sm" variant="ghost" asChild>
+                                <a
+                                  href={`/s/${storeSlug}/page/${post.slug}`}
+                                  target="_blank"
+                                  rel="noreferrer noopener"
+                                >
+                                  Önizle
+                                </a>
+                              </Button>
+                            ) : null}
                             <Button
                               size="icon"
                               variant="ghost"

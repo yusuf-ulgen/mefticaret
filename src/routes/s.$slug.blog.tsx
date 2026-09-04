@@ -90,13 +90,32 @@ function BlogPage() {
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} footerPages={footerPages}>
+      <style>{`
+        .mf-blog-featured{display:grid;grid-template-columns:1fr;gap:0}
+        .mf-blog-featured img{height:200px}
+        @media (min-width:760px){
+          .mf-blog-featured{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px}
+          .mf-blog-featured img{height:100%}
+        }
+        .mf-blog-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))}
+      `}</style>
       <Breadcrumb theme={theme} slug={slug} storeName={store.name} current="Blog" />
       <header style={{ padding: "20px 0 20px", maxWidth: 680 }}>
-        <h1 style={{ fontFamily: fonts.heading, fontSize: 34, fontWeight: 700, margin: 0 }}>Blog</h1>
-        <p style={{ color: muted, marginTop: 10, fontSize: 15 }}>
+        <h1 style={{ fontFamily: fonts.heading, fontSize: "clamp(26px, 6.4vw, 34px)", fontWeight: 700, margin: 0 }}>
+          Blog
+        </h1>
+        <p style={{ color: muted, marginTop: 10, fontSize: "clamp(14px, 3.9vw, 15px)" }}>
           Ürün rehberleri, kampanya duyuruları ve mağaza haberleri.
         </p>
+        <Link
+          to="/s/$slug/galeri"
+          params={{ slug }}
+          style={{ display: "inline-block", marginTop: 12, color: accent, fontSize: 14 }}
+        >
+          Görsel galeri →
+        </Link>
       </header>
+
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", paddingBottom: 18 }}>
         <input
@@ -166,10 +185,9 @@ function BlogPage() {
             <Link
               to="/s/$slug/page/$pageSlug"
               params={{ slug, pageSlug: featured.slug }}
+              className={featured.cover_url ? "mf-blog-featured" : undefined}
               style={{
                 display: "grid",
-                gridTemplateColumns: featured.cover_url ? "minmax(0,1.1fr) minmax(0,1fr)" : "1fr",
-                gap: 18,
                 background: cardBg,
                 border: `1px solid ${border}`,
                 borderRadius: radius,
@@ -184,16 +202,25 @@ function BlogPage() {
                   src={featured.cover_url}
                   alt={featured.title}
                   loading="lazy"
-                  style={{ width: "100%", height: "100%", minHeight: 200, objectFit: "cover" }}
+                  style={{ width: "100%", minHeight: 180, objectFit: "cover" }}
                 />
               ) : null}
-              <div style={{ padding: "20px 22px" }}>
+              <div style={{ padding: "18px 18px 20px" }}>
                 {featured.category ? (
                   <span style={{ fontSize: 12, letterSpacing: 0.6, textTransform: "uppercase", color: accent }}>
                     {featured.category.name}
                   </span>
                 ) : null}
-                <h2 style={{ fontFamily: fonts.heading, fontSize: 24, fontWeight: 700, margin: "8px 0 0" }}>
+                <h2
+                  style={{
+                    fontFamily: fonts.heading,
+                    fontSize: "clamp(19px, 5vw, 24px)",
+                    fontWeight: 700,
+                    margin: "8px 0 0",
+                    lineHeight: 1.3,
+                    overflowWrap: "anywhere",
+                  }}
+                >
                   {featured.title}
                 </h2>
                 <p style={{ margin: "8px 0 0", color: muted, fontSize: 14, lineHeight: 1.65 }}>
@@ -208,13 +235,8 @@ function BlogPage() {
             </Link>
           ) : null}
 
-          <div
-            style={{
-              display: "grid",
-              gap: 14,
-              gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-            }}
-          >
+          <div className="mf-blog-grid">
+
             {rest.map((post) => (
               <Link
                 key={post.id}

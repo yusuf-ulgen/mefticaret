@@ -26,7 +26,12 @@ export type SiteKitEventName =
   | "add_to_cart"
   | "begin_checkout"
   | "purchase"
-  | "search";
+  | "search"
+  /** Blog: yazı görüntüleme, okuma tamamlama ve paylaşım. */
+  | "blog_view"
+  | "blog_read_complete"
+  | "share";
+
 
 export type SiteKitEventPayload = {
   path?: string | undefined;
@@ -37,7 +42,12 @@ export type SiteKitEventPayload = {
   itemName?: string | undefined;
   orderId?: string | undefined;
   searchTerm?: string | undefined;
+  /** Paylaşım kanalı (whatsapp, x, facebook, kopyala). */
+  method?: string | undefined;
+  /** Blog okuma yüzdesi. */
+  percent?: number | undefined;
   eventId?: string | undefined;
+
 };
 
 const META_EVENTS: Record<SiteKitEventName, string | null> = {
@@ -47,6 +57,15 @@ const META_EVENTS: Record<SiteKitEventName, string | null> = {
   begin_checkout: "InitiateCheckout",
   purchase: "Purchase",
   search: "Search",
+  blog_view: "ViewContent",
+  blog_read_complete: null,
+  share: null,
+};
+
+/** Meta'da standart karşılığı olmayan olaylar özel olay olarak gönderilir. */
+const META_CUSTOM_EVENTS: Partial<Record<SiteKitEventName, string>> = {
+  blog_read_complete: "BlogReadComplete",
+  share: "Share",
 };
 
 const TIKTOK_EVENTS: Record<SiteKitEventName, string | null> = {
@@ -56,7 +75,11 @@ const TIKTOK_EVENTS: Record<SiteKitEventName, string | null> = {
   begin_checkout: "InitiateCheckout",
   purchase: "CompletePayment",
   search: "Search",
+  blog_view: "ViewContent",
+  blog_read_complete: null,
+  share: null,
 };
+
 
 /** Tek olayı bağlı tüm servislere yayınlar. */
 export function pushSiteKitEvent(name: SiteKitEventName, payload: SiteKitEventPayload = {}) {
@@ -89,6 +112,10 @@ export function pushSiteKitEvent(name: SiteKitEventName, payload: SiteKitEventPa
       currency: payload.currency,
       transaction_id: payload.orderId,
       search_term: payload.searchTerm,
+      method: payload.method,
+      percent_scrolled: payload.percent,
+      content_id: payload.itemId,
+      content_name: payload.itemName,
       ...(items ? { ecommerce: { items } } : {}),
     });
 
@@ -99,7 +126,15 @@ export function pushSiteKitEvent(name: SiteKitEventName, payload: SiteKitEventPa
         ...(payload.currency ? { currency: payload.currency } : {}),
         ...(payload.orderId ? { transaction_id: payload.orderId } : {}),
         ...(payload.searchTerm ? { search_term: payload.searchTerm } : {}),
+        ...(payload.method ? { method: payload.method } : {}),
+        ...(payload.percent !== undefined ? { percent_scrolled: payload.percent } : {}),
+        ...(payload.itemId && (name === "blog_view" || name === "blog_read_complete" || name === "share")
+          ? { content_id: payload.itemId, content_type: "article" }
+          : {}),
+
+        ...(payload.itemName ? { content_name: payload.itemName, item_name: payload.itemName } : {}),
         ...(items ? { items } : {}),
+
       });
 
       const ads = configOf("google_ads");
@@ -114,20 +149,27 @@ export function pushSiteKitEvent(name: SiteKitEventName, payload: SiteKitEventPa
     }
 
     const metaEvent = META_EVENTS[name];
-    if (w.fbq && metaEvent && has("meta_pixel")) {
+    const metaCustom = META_CUSTOM_EVENTS[name];
+    if (w.fbq && (metaEvent || metaCustom) && has("meta_pixel")) {
+      const isBlog = name === "blog_view" || name === "blog_read_complete" || name === "share";
       w.fbq(
-        "track",
-        metaEvent,
+        metaEvent ? "track" : "trackCustom",
+        metaEvent ?? metaCustom!,
         {
           ...(payload.value !== undefined ? { value: payload.value } : {}),
           ...(payload.currency ? { currency: payload.currency } : {}),
-          ...(payload.itemId ? { content_ids: [payload.itemId], content_type: "product" } : {}),
+          ...(payload.itemId
+            ? { content_ids: [payload.itemId], content_type: isBlog ? "article" : "product" }
+            : {}),
+          ...(payload.itemName ? { content_name: payload.itemName } : {}),
+          ...(payload.method ? { method: payload.method } : {}),
           ...(payload.searchTerm ? { search_string: payload.searchTerm } : {}),
         },
         // Sunucu (CAPI) olayıyla aynı kimlik → Meta tekrarları tekilleştirir.
         payload.eventId ? { eventID: payload.eventId } : undefined,
       );
     }
+
 
     const tiktokEvent = TIKTOK_EVENTS[name];
     if (w.ttq && has("tiktok_pixel")) {

@@ -64,6 +64,7 @@ import { Route as SSlugCompareRouteImport } from './routes/s.$slug.compare'
 import { Route as SSlugContactRouteImport } from './routes/s.$slug.contact'
 import { Route as SSlugFaqRouteImport } from './routes/s.$slug.faq'
 import { Route as SSlugFavoritesRouteImport } from './routes/s.$slug.favorites'
+import { Route as SSlugGaleriRouteImport } from './routes/s.$slug.galeri'
 import { Route as SSlugGiftCardRouteImport } from './routes/s.$slug.gift-card'
 import { Route as SSlugLoginRouteImport } from './routes/s.$slug.login'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
@@ -500,6 +501,11 @@ const SSlugFaqRoute = SSlugFaqRouteImport.update({
 const SSlugFavoritesRoute = SSlugFavoritesRouteImport.update({
   id: '/s/$slug/favorites',
   path: '/s/$slug/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugGaleriRoute = SSlugGaleriRouteImport.update({
+  id: '/s/$slug/galeri',
+  path: '/s/$slug/galeri',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugGiftCardRoute = SSlugGiftCardRouteImport.update({
@@ -1387,6 +1393,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/contact': typeof SSlugContactRoute
   '/s/$slug/faq': typeof SSlugFaqRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
+  '/s/$slug/galeri': typeof SSlugGaleriRoute
   '/s/$slug/gift-card': typeof SSlugGiftCardRoute
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
@@ -1584,6 +1591,7 @@ export interface FileRoutesByTo {
   '/s/$slug/contact': typeof SSlugContactRoute
   '/s/$slug/faq': typeof SSlugFaqRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
+  '/s/$slug/galeri': typeof SSlugGaleriRoute
   '/s/$slug/gift-card': typeof SSlugGiftCardRoute
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
@@ -1783,6 +1791,7 @@ export interface FileRoutesById {
   '/s/$slug/contact': typeof SSlugContactRoute
   '/s/$slug/faq': typeof SSlugFaqRoute
   '/s/$slug/favorites': typeof SSlugFavoritesRoute
+  '/s/$slug/galeri': typeof SSlugGaleriRoute
   '/s/$slug/gift-card': typeof SSlugGiftCardRoute
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
@@ -1983,6 +1992,7 @@ export interface FileRouteTypes {
     | '/s/$slug/contact'
     | '/s/$slug/faq'
     | '/s/$slug/favorites'
+    | '/s/$slug/galeri'
     | '/s/$slug/gift-card'
     | '/s/$slug/login'
     | '/s/$slug/order'
@@ -2180,6 +2190,7 @@ export interface FileRouteTypes {
     | '/s/$slug/contact'
     | '/s/$slug/faq'
     | '/s/$slug/favorites'
+    | '/s/$slug/galeri'
     | '/s/$slug/gift-card'
     | '/s/$slug/login'
     | '/s/$slug/order'
@@ -2378,6 +2389,7 @@ export interface FileRouteTypes {
     | '/s/$slug/contact'
     | '/s/$slug/faq'
     | '/s/$slug/favorites'
+    | '/s/$slug/galeri'
     | '/s/$slug/gift-card'
     | '/s/$slug/login'
     | '/s/$slug/order'
@@ -2543,6 +2555,7 @@ export interface RootRouteChildren {
   SSlugContactRoute: typeof SSlugContactRoute
   SSlugFaqRoute: typeof SSlugFaqRoute
   SSlugFavoritesRoute: typeof SSlugFavoritesRoute
+  SSlugGaleriRoute: typeof SSlugGaleriRoute
   SSlugGiftCardRoute: typeof SSlugGiftCardRoute
   SSlugLoginRoute: typeof SSlugLoginRoute
   SSlugOrderRoute: typeof SSlugOrderRoute
@@ -2958,6 +2971,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug/favorites'
       fullPath: '/s/$slug/favorites'
       preLoaderRoute: typeof SSlugFavoritesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/galeri': {
+      id: '/s/$slug/galeri'
+      path: '/s/$slug/galeri'
+      fullPath: '/s/$slug/galeri'
+      preLoaderRoute: typeof SSlugGaleriRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/gift-card': {
@@ -4402,6 +4422,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugContactRoute: SSlugContactRoute,
   SSlugFaqRoute: SSlugFaqRoute,
   SSlugFavoritesRoute: SSlugFavoritesRoute,
+  SSlugGaleriRoute: SSlugGaleriRoute,
   SSlugGiftCardRoute: SSlugGiftCardRoute,
   SSlugLoginRoute: SSlugLoginRoute,
   SSlugOrderRoute: SSlugOrderRoute,
