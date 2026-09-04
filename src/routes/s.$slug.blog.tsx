@@ -72,9 +72,8 @@ function BlogPage() {
 
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
   const { store, theme, footerPages } = data;
-  const { fonts, muted, cardBg, border, radius, accent } = storefrontTokens(theme) as ReturnType<
-    typeof storefrontTokens
-  > & { accent?: string };
+  const { fonts, muted, cardBg, border, radius, t } = storefrontTokens(theme);
+  const accent = t.accent_color ?? muted;
 
   const chipStyle = (active: boolean) => ({
     border: `1px solid ${active ? "currentColor" : border}`,
@@ -190,7 +189,7 @@ function BlogPage() {
               ) : null}
               <div style={{ padding: "20px 22px" }}>
                 {featured.category ? (
-                  <span style={{ fontSize: 12, letterSpacing: 0.6, textTransform: "uppercase", color: accent ?? muted }}>
+                  <span style={{ fontSize: 12, letterSpacing: 0.6, textTransform: "uppercase", color: accent }}>
                     {featured.category.name}
                   </span>
                 ) : null}
@@ -242,7 +241,7 @@ function BlogPage() {
                 ) : null}
                 <div style={{ padding: "16px 18px", display: "grid", gap: 6 }}>
                   {post.category ? (
-                    <span style={{ fontSize: 11, letterSpacing: 0.6, textTransform: "uppercase", color: accent ?? muted }}>
+                    <span style={{ fontSize: 11, letterSpacing: 0.6, textTransform: "uppercase", color: accent }}>
                       {post.category.name}
                     </span>
                   ) : null}
