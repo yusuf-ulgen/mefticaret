@@ -34,6 +34,11 @@ export type SeoAiSettings = {
   maxStoresPerRun: number;
   maxItemsPerStore: number;
   dailyHour: number;
+  dailyMinute: number;
+  /** 0 = Pazar … 6 = Cumartesi. Boşsa her gün çalışır. */
+  runDays: number[];
+  /** Aynı anda işlenecek mağaza sayısı. */
+  concurrency: number;
   focusKeywords: string;
   lastRunAt: string | null;
 };
@@ -52,9 +57,13 @@ const DEFAULTS: SeoAiSettings = {
   maxStoresPerRun: 20,
   maxItemsPerStore: 8,
   dailyHour: 3,
+  dailyMinute: 0,
+  runDays: [0, 1, 2, 3, 4, 5, 6],
+  concurrency: 4,
   focusKeywords: "",
   lastRunAt: null,
 };
+
 
 const TITLE_MAX = 60;
 const DESC_MAX = 155;
