@@ -77,8 +77,9 @@ function IntegrationCard({ item }: { item: Record<string, string> }) {
         <Icon className="size-5" />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-xs font-semibold uppercase tracking-widest">{label}</p>
-        <p className="text-sm text-muted-foreground">{count} bağlantı</p>
+        <p className="truncate text-xs font-semibold uppercase tracking-widest">{item["label"]}</p>
+        <p className="text-sm text-muted-foreground">{item["count"]} bağlantı</p>
+
       </div>
       <ArrowUpRight className="ml-auto size-4 shrink-0 text-muted-foreground" />
     </div>
