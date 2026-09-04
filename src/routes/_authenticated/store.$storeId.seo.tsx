@@ -2,12 +2,13 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ExternalLink, FileWarning, Link2, Settings2, ShieldCheck } from "lucide-react";
+import { ExternalLink, FileWarning, Gauge, Link2, Settings2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SeoAuditTab } from "@/components/seo/seo-audit";
 import { SeoErrorsTab } from "@/components/seo/seo-errors";
 import { SeoMetaTab } from "@/components/seo/seo-meta";
 import { SeoOverviewTab, type SeoCheck } from "@/components/seo/seo-overview";
@@ -17,6 +18,12 @@ import { SeoUrlsTab } from "@/components/seo/seo-urls";
 import { storePagesQuery } from "@/lib/pages-queries";
 import { readStoreSeo, type StoreSeoSettings } from "@/lib/seo";
 import { seo404Query, seoRedirectsQuery } from "@/lib/seo-management-queries";
+import {
+  latestSeoAuditQuery,
+  seoAuditPagesQuery,
+  seoIssuesQuery,
+} from "@/lib/seo-audit-queries";
+import { fixSeoIssuesBulk, runSeoAudit, updateSeoIssueStatus } from "@/lib/seo-audit.functions";
 import {
   createRedirectFrom404,
   deleteSeoRedirect,
@@ -59,11 +66,55 @@ function SeoCenterPage() {
   const { data: products, isLoading } = useQuery(storeSeoAuditQuery(storeId));
   const { data: redirects } = useQuery(seoRedirectsQuery(storeId));
   const { data: errors404 } = useQuery(seo404Query(storeId));
+  const { data: audit } = useQuery(latestSeoAuditQuery(storeId));
+  const { data: auditPages } = useQuery(seoAuditPagesQuery(storeId, audit?.id ?? null));
+  const { data: seoIssues } = useQuery(seoIssuesQuery(storeId));
 
   const saveSeo = useServerFn(saveStoreSeo);
   const saveRedirect = useServerFn(upsertSeoRedirect);
   const removeRedirect = useServerFn(deleteSeoRedirect);
   const makeRedirect = useServerFn(createRedirectFrom404);
+  const startAudit = useServerFn(runSeoAudit);
+  const applyFixes = useServerFn(fixSeoIssuesBulk);
+  const changeStatus = useServerFn(updateSeoIssueStatus);
+
+  const refreshAudit = async () => {
+    await Promise.all([
+      client.invalidateQueries({ queryKey: ["seo-audit-latest", storeId] }),
+      client.invalidateQueries({ queryKey: ["seo-audit-pages", storeId] }),
+      client.invalidateQueries({ queryKey: ["seo-issues", storeId] }),
+      client.invalidateQueries({ queryKey: ["seo-audit", storeId] }),
+    ]);
+  };
+
+  const auditMutation = useMutation({
+    mutationFn: () => startAudit({ data: { storeId } }),
+    onSuccess: async (result) => {
+      await refreshAudit();
+      toast.success(`Denetim tamamlandı — skor ${result.score}`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const fixMutation = useMutation({
+    mutationFn: (issueIds: string[]) => applyFixes({ data: { storeId, issueIds } }),
+    onSuccess: async (result) => {
+      await refreshAudit();
+      toast.success(`${result.fixed} sorun düzeltildi`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "open" | "ignored" | "resolved" }) =>
+      changeStatus({ data: { storeId, issueId: id, status } }),
+    onSuccess: async () => {
+      await refreshAudit();
+      toast.success("Sorun durumu güncellendi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
 
   const [tab, setTab] = useState("overview");
   const [draft, setDraft] = useState<StoreSeoSettings>({});
@@ -274,6 +325,9 @@ function SeoCenterPage() {
             <TabsTrigger value="overview" className="gap-2">
               <ShieldCheck className="h-4 w-4" /> Genel bakış
             </TabsTrigger>
+            <TabsTrigger value="audit" className="gap-2">
+              <Gauge className="h-4 w-4" /> Denetim &amp; skor
+            </TabsTrigger>
             <TabsTrigger value="meta" className="gap-2">
               <Settings2 className="h-4 w-4" /> Meta şablonları
             </TabsTrigger>
@@ -291,7 +345,7 @@ function SeoCenterPage() {
           <TabsContent value="overview">
             <SeoOverviewTab
               checks={checks}
-              score={score}
+              score={audit ? audit.score : score}
               passed={passed}
               activeCount={activeCount}
               issues={issues}
@@ -299,6 +353,20 @@ function SeoCenterPage() {
               storeId={storeId}
             />
           </TabsContent>
+
+          <TabsContent value="audit">
+            <SeoAuditTab
+              audit={audit ?? null}
+              pages={auditPages ?? []}
+              issues={seoIssues ?? []}
+              running={auditMutation.isPending}
+              pending={fixMutation.isPending || statusMutation.isPending}
+              runAudit={() => auditMutation.mutate()}
+              fixIssues={(ids) => fixMutation.mutate(ids)}
+              setStatus={(id, status) => statusMutation.mutate({ id, status })}
+            />
+          </TabsContent>
+
 
           <TabsContent value="meta" className="grid gap-6 xl:grid-cols-[1fr_360px]">
             <SeoMetaTab

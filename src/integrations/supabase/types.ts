@@ -6494,6 +6494,233 @@ export type Database = {
           },
         ]
       }
+      seo_audit_pages: {
+        Row: {
+          audit_id: string
+          created_at: string
+          critical_count: number
+          entity_id: string | null
+          entity_type: string
+          id: string
+          indexable: boolean
+          info_count: number
+          score: number
+          scores: Json
+          store_id: string
+          title: string | null
+          url: string
+          warning_count: number
+        }
+        Insert: {
+          audit_id: string
+          created_at?: string
+          critical_count?: number
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          indexable?: boolean
+          info_count?: number
+          score?: number
+          scores?: Json
+          store_id: string
+          title?: string | null
+          url: string
+          warning_count?: number
+        }
+        Update: {
+          audit_id?: string
+          created_at?: string
+          critical_count?: number
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          indexable?: boolean
+          info_count?: number
+          score?: number
+          scores?: Json
+          store_id?: string
+          title?: string | null
+          url?: string
+          warning_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_audit_pages_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "seo_audits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_audit_pages_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_audits: {
+        Row: {
+          content_score: number
+          created_at: string
+          critical_count: number
+          id: string
+          info_count: number
+          linking_score: number
+          mobile_score: number
+          onpage_score: number
+          pages_count: number
+          passed_count: number
+          performance_score: number
+          schema_score: number
+          score: number
+          source: string
+          status: string
+          store_id: string
+          summary: Json
+          technical_score: number
+          triggered_by: string | null
+          updated_at: string
+          warning_count: number
+        }
+        Insert: {
+          content_score?: number
+          created_at?: string
+          critical_count?: number
+          id?: string
+          info_count?: number
+          linking_score?: number
+          mobile_score?: number
+          onpage_score?: number
+          pages_count?: number
+          passed_count?: number
+          performance_score?: number
+          schema_score?: number
+          score?: number
+          source?: string
+          status?: string
+          store_id: string
+          summary?: Json
+          technical_score?: number
+          triggered_by?: string | null
+          updated_at?: string
+          warning_count?: number
+        }
+        Update: {
+          content_score?: number
+          created_at?: string
+          critical_count?: number
+          id?: string
+          info_count?: number
+          linking_score?: number
+          mobile_score?: number
+          onpage_score?: number
+          pages_count?: number
+          passed_count?: number
+          performance_score?: number
+          schema_score?: number
+          score?: number
+          source?: string
+          status?: string
+          store_id?: string
+          summary?: Json
+          technical_score?: number
+          triggered_by?: string | null
+          updated_at?: string
+          warning_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_audits_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_issues: {
+        Row: {
+          audit_id: string | null
+          autofixable: boolean
+          category: string
+          code: string
+          created_at: string
+          detected_at: string
+          entity_id: string | null
+          entity_type: string
+          fix_hint: string | null
+          id: string
+          message: string
+          meta: Json
+          resolved_at: string | null
+          severity: string
+          status: string
+          store_id: string
+          title: string | null
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          audit_id?: string | null
+          autofixable?: boolean
+          category: string
+          code: string
+          created_at?: string
+          detected_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          fix_hint?: string | null
+          id?: string
+          message: string
+          meta?: Json
+          resolved_at?: string | null
+          severity: string
+          status?: string
+          store_id: string
+          title?: string | null
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          audit_id?: string | null
+          autofixable?: boolean
+          category?: string
+          code?: string
+          created_at?: string
+          detected_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          fix_hint?: string | null
+          id?: string
+          message?: string
+          meta?: Json
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          store_id?: string
+          title?: string | null
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_issues_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "seo_audits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_issues_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shipment_items: {
         Row: {
           created_at: string
