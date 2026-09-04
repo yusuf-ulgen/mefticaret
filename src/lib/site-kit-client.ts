@@ -26,7 +26,12 @@ export type SiteKitEventName =
   | "add_to_cart"
   | "begin_checkout"
   | "purchase"
-  | "search";
+  | "search"
+  /** Blog: yazı görüntüleme, okuma tamamlama ve paylaşım. */
+  | "blog_view"
+  | "blog_read_complete"
+  | "share";
+
 
 export type SiteKitEventPayload = {
   path?: string | undefined;
