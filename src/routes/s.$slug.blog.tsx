@@ -90,13 +90,32 @@ function BlogPage() {
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} footerPages={footerPages}>
+      <style>{`
+        .mf-blog-featured{display:grid;grid-template-columns:1fr;gap:0}
+        .mf-blog-featured img{height:200px}
+        @media (min-width:760px){
+          .mf-blog-featured{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px}
+          .mf-blog-featured img{height:100%}
+        }
+        .mf-blog-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))}
+      `}</style>
       <Breadcrumb theme={theme} slug={slug} storeName={store.name} current="Blog" />
       <header style={{ padding: "20px 0 20px", maxWidth: 680 }}>
-        <h1 style={{ fontFamily: fonts.heading, fontSize: 34, fontWeight: 700, margin: 0 }}>Blog</h1>
-        <p style={{ color: muted, marginTop: 10, fontSize: 15 }}>
+        <h1 style={{ fontFamily: fonts.heading, fontSize: "clamp(26px, 6.4vw, 34px)", fontWeight: 700, margin: 0 }}>
+          Blog
+        </h1>
+        <p style={{ color: muted, marginTop: 10, fontSize: "clamp(14px, 3.9vw, 15px)" }}>
           Ürün rehberleri, kampanya duyuruları ve mağaza haberleri.
         </p>
+        <Link
+          to="/s/$slug/galeri"
+          params={{ slug }}
+          style={{ display: "inline-block", marginTop: 12, color: accent, fontSize: 14 }}
+        >
+          Görsel galeri →
+        </Link>
       </header>
+
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", paddingBottom: 18 }}>
         <input
