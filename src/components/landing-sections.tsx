@@ -451,48 +451,26 @@ export function PlatformDemosSection({ section }: { section: SiteSection | null 
 
 /* ------------------------------------- Blog ---------------------------------------- */
 
-const POSTS = [
-  {
-    tag: "Rehber",
-    title: "Sıfırdan e-ticaret mağazası açma rehberi",
-    text: "Domain, tema, ürün girişi, ödeme ve kargo kurulumunu adım adım tamamlayın.",
-    read: "8 dk okuma",
-  },
-  {
-    tag: "Pazaryeri",
-    title: "Pazaryeri entegrasyonlarında stok senkronizasyonu",
-    text: "Tek stoktan çok kanala satış yaparken aşırı satışı nasıl engellersiniz?",
-    read: "6 dk okuma",
-  },
-  {
-    tag: "SEO",
-    title: "Ürün sayfası SEO'su için 10 teknik kontrol",
-    text: "Yapılandırılmış veri, hız, meta düzeni ve iç link stratejisi.",
-    read: "7 dk okuma",
-  },
-];
-
-export function BlogSection() {
+export function BlogSection({ section }: { section: SiteSection | null }) {
+  if (!section) return null;
   return (
     <section id="blog" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <span className="eyebrow">Blog</span>
+          {section.eyebrow ? <span className="eyebrow">{section.eyebrow}</span> : null}
           <h2 className="mt-6 max-w-2xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-            E-Ticaret Dünyasından İlham Alın
+            {section.title}
           </h2>
-          <p className="mt-5 max-w-xl text-muted-foreground">
-            E-ticaret rehberleri, sektör trendleri ve uzman ipuçlarıyla her zaman bir adım önde olun.
-          </p>
+          <p className="mt-5 max-w-xl text-muted-foreground">{section.subtitle}</p>
         </div>
       </div>
       <div className="mt-12 grid gap-4 md:grid-cols-3">
-        {POSTS.map((post) => (
-          <article key={post.title} className="showcase-card flex flex-col p-6">
-            <span className="eyebrow">{post.tag}</span>
-            <h3 className="mt-4 text-lg font-semibold leading-snug">{post.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{post.text}</p>
-            <p className="mt-6 text-xs text-muted-foreground">{post.read}</p>
+        {section.items.map((post, index) => (
+          <article key={`${post["title"]}-${index}`} className="showcase-card flex flex-col p-6">
+            {post["tag"] ? <span className="eyebrow">{post["tag"]}</span> : null}
+            <h3 className="mt-4 text-lg font-semibold leading-snug">{post["title"]}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{post["text"]}</p>
+            <p className="mt-6 text-xs text-muted-foreground">{post["read"]}</p>
           </article>
         ))}
       </div>
@@ -502,57 +480,31 @@ export function BlogSection() {
 
 /* -------------------------------------- SSS ---------------------------------------- */
 
-const FAQ = [
-  {
-    q: "Mağazamı kurmak ne kadar sürer?",
-    a: "Kayıt olduktan sonra mağazanız otomatik alt alan adıyla anında oluşur. Tema seçimi, ürün girişi ve ödeme kurulumu ile aynı gün satışa başlayabilirsiniz.",
-  },
-  {
-    q: "Kendi domainimi bağlayabilir miyim?",
-    a: "Evet. magazam.com veya www.magazam.com gibi özel domainlerinizi bağlayabilir, DNS doğrulamasını panelden takip edebilir ve SSL sertifikanızın otomatik kurulmasını bekleyebilirsiniz.",
-  },
-  {
-    q: "Tek hesapla birden fazla mağaza yönetebilir miyim?",
-    a: "Evet. Mefticaret çok kiracılı bir altyapıdır; tek hesapla birden fazla mağaza açabilir, her mağaza için ayrı ekip, tema ve ayar yönetebilirsiniz. Mağaza verileri veritabanı seviyesinde birbirinden izole edilir.",
-  },
-  {
-    q: "Mevcut mağazamdaki verileri taşıyabilir miyim?",
-    a: "Ürün, varyant, kategori ve müşteri verilerinizi CSV içe aktarma ile taşıyabilirsiniz. Toplu fiyat, stok, kategori ve etiket düzenleme araçları da hazır.",
-  },
-  {
-    q: "Paket limitleri nasıl belirleniyor?",
-    a: "Ürün, sipariş, personel, depolama, domain, API ve AI kullanım limitleri veritabanında tutulur ve yönetici panelinden güncellenir. Paketiniz büyüdükçe limitleriniz anında yükselir.",
-  },
-  {
-    q: "Ödeme ve kargo entegrasyonları var mı?",
-    a: "Ödeme, kargo, pazaryeri, muhasebe ve pazarlama araçları için connector altyapısı hazırdır; bağlantılarınızı panelden yönetir, webhook kayıtlarını ve yeniden gönderimleri izlersiniz.",
-  },
-];
-
-export function FaqSection() {
+export function FaqSection({ section }: { section: SiteSection | null }) {
+  if (!section) return null;
   return (
     <section id="sss" className="border-t border-border bg-secondary/40 py-20 lg:py-28">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[minmax(0,380px)_1fr] lg:px-8">
         <div>
-          <span className="eyebrow">Sorular &amp; Cevaplar</span>
-          <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl">Sıkça Sorulan Sorular</h2>
-          <p className="mt-5 text-muted-foreground">
-            Mefticaret ile mağaza kurmak ve büyütmek hakkında merak ettiğiniz her şey burada.
-          </p>
-          <Button asChild variant="outline" className="mt-6 rounded-full">
-            <Link to="/auth" search={{ mode: "register" }}>
-              Ücretsiz Başlayın <ArrowRight className="ml-2 size-4" />
-            </Link>
-          </Button>
+          {section.eyebrow ? <span className="eyebrow">{section.eyebrow}</span> : null}
+          <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl">{section.title}</h2>
+          <p className="mt-5 text-muted-foreground">{section.subtitle}</p>
+          {section.primary_label ? (
+            <Button asChild variant="outline" className="mt-6 rounded-full">
+              <Link to="/auth" search={{ mode: "register" }}>
+                {section.primary_label} <ArrowRight className="ml-2 size-4" />
+              </Link>
+            </Button>
+          ) : null}
         </div>
         <Accordion type="single" collapsible className="showcase-card px-5 py-2">
-          {FAQ.map((item, index) => (
-            <AccordionItem key={item.q} value={`faq-${index}`}>
+          {section.items.map((item, index) => (
+            <AccordionItem key={`faq-${index}`} value={`faq-${index}`}>
               <AccordionTrigger className="text-left text-base font-semibold">
-                {item.q}
+                {item["q"]}
               </AccordionTrigger>
               <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
-                {item.a}
+                {item["a"]}
               </AccordionContent>
             </AccordionItem>
           ))}
