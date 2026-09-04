@@ -182,20 +182,23 @@ export function SeoMetaTab({
         </section>
       </div>
 
-      <aside className="surface-card h-fit space-y-3 p-6">
+      <aside className="surface-card h-fit space-y-4 p-6">
         <p className="eyebrow">Google önizlemesi</p>
-        <div className="rounded-lg border border-border p-4">
-          <p className="text-xs text-muted-foreground">{previewUrl}</p>
-          <p className="mt-1 text-base font-medium text-primary">
-            {current.homeTitle || storeName}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {current.homeDescription || "Mağazanız için bir meta açıklaması ekleyin."}
-          </p>
+        <SeoSerpPreview
+          title={current.homeTitle || storeName}
+          description={current.homeDescription ?? ""}
+          url={previewUrl}
+          siteName={storeName}
+        />
+        <div className="space-y-3 border-t pt-4">
+          <p className="eyebrow">Şablon önizlemesi</p>
+          <SeoSerpPreview
+            title={templatePreviewTitle}
+            description={templatePreviewDescription}
+            url={`${previewUrl}/p/hafif-kosu-ayakkabisi`}
+            siteName={storeName}
+          />
         </div>
-        <p className="text-xs text-muted-foreground">
-          Başlık 60, açıklama 160 karakteri aşarsa Google metni kısaltır.
-        </p>
       </aside>
     </>
   );
