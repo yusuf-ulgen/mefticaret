@@ -6779,6 +6779,63 @@ export type Database = {
           },
         ]
       }
+      site_sections: {
+        Row: {
+          badge: string | null
+          created_at: string
+          eyebrow: string | null
+          id: string
+          is_enabled: boolean
+          items: Json
+          kind: string
+          primary_href: string | null
+          primary_label: string | null
+          secondary_href: string | null
+          secondary_label: string | null
+          section_key: string
+          sort_order: number
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          badge?: string | null
+          created_at?: string
+          eyebrow?: string | null
+          id?: string
+          is_enabled?: boolean
+          items?: Json
+          kind: string
+          primary_href?: string | null
+          primary_label?: string | null
+          secondary_href?: string | null
+          secondary_label?: string | null
+          section_key: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          badge?: string | null
+          created_at?: string
+          eyebrow?: string | null
+          id?: string
+          is_enabled?: boolean
+          items?: Json
+          kind?: string
+          primary_href?: string | null
+          primary_label?: string | null
+          secondary_href?: string | null
+          secondary_label?: string | null
+          section_key?: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       stock_alerts: {
         Row: {
           created_at: string
