@@ -112,6 +112,65 @@ export type Database = {
           },
         ]
       }
+      ai_content_drafts: {
+        Row: {
+          applied_at: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          entity_id: string | null
+          entity_type: string
+          fields: Json
+          id: string
+          kind: string
+          status: string
+          store_id: string
+          title: string | null
+          tone: string | null
+          updated_at: string
+        }
+        Insert: {
+          applied_at?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          entity_id?: string | null
+          entity_type: string
+          fields?: Json
+          id?: string
+          kind: string
+          status?: string
+          store_id: string
+          title?: string | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          applied_at?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          fields?: Json
+          id?: string
+          kind?: string
+          status?: string
+          store_id?: string
+          title?: string | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_content_drafts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_generations: {
         Row: {
           created_at: string
@@ -1612,6 +1671,141 @@ export type Database = {
           },
           {
             foreignKeyName: "commissions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_price_history: {
+        Row: {
+          checked_at: string
+          competitor_id: string
+          currency: string
+          id: string
+          price: number
+          store_id: string
+        }
+        Insert: {
+          checked_at?: string
+          competitor_id: string
+          currency?: string
+          id?: string
+          price: number
+          store_id: string
+        }
+        Update: {
+          checked_at?: string
+          competitor_id?: string
+          currency?: string
+          id?: string
+          price?: number
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_price_history_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitor_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitor_price_history_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_products: {
+        Row: {
+          ai_analysis: string | null
+          ai_summary: Json
+          alert_threshold_pct: number
+          competitor_category: string | null
+          competitor_description: string | null
+          competitor_price: number | null
+          competitor_title: string | null
+          content_score: number | null
+          created_at: string
+          currency: string
+          id: string
+          is_active: boolean
+          last_checked_at: string | null
+          last_price_change_at: string | null
+          name: string
+          previous_price: number | null
+          product_id: string | null
+          serp_position: number | null
+          source: string
+          store_id: string
+          updated_at: string
+          url: string | null
+          visibility_score: number | null
+        }
+        Insert: {
+          ai_analysis?: string | null
+          ai_summary?: Json
+          alert_threshold_pct?: number
+          competitor_category?: string | null
+          competitor_description?: string | null
+          competitor_price?: number | null
+          competitor_title?: string | null
+          content_score?: number | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          last_checked_at?: string | null
+          last_price_change_at?: string | null
+          name: string
+          previous_price?: number | null
+          product_id?: string | null
+          serp_position?: number | null
+          source?: string
+          store_id: string
+          updated_at?: string
+          url?: string | null
+          visibility_score?: number | null
+        }
+        Update: {
+          ai_analysis?: string | null
+          ai_summary?: Json
+          alert_threshold_pct?: number
+          competitor_category?: string | null
+          competitor_description?: string | null
+          competitor_price?: number | null
+          competitor_title?: string | null
+          content_score?: number | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          last_checked_at?: string | null
+          last_price_change_at?: string | null
+          name?: string
+          previous_price?: number | null
+          product_id?: string | null
+          serp_position?: number | null
+          source?: string
+          store_id?: string
+          updated_at?: string
+          url?: string | null
+          visibility_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competitor_products_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
