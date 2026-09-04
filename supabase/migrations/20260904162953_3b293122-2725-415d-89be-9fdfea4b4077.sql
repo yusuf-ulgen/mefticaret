@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.marketplace_seller_payout_details(uuid);

@@ -10228,15 +10228,6 @@ export type Database = {
           seller_id: string
         }[]
       }
-      marketplace_seller_payout_details: {
-        Args: { _seller_id: string }
-        Returns: {
-          iban_full: string
-          iban_masked: string
-          seller_id: string
-          tax_id_masked: string
-        }[]
-      }
       order_fts_text: {
         Args: {
           _customer_email: string
