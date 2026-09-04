@@ -32,6 +32,17 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
+  errorComponent: () => (
+    <main className="mx-auto max-w-2xl px-6 py-24 text-center">
+      <h1 className="text-2xl font-semibold">Sayfa şu anda yüklenemedi</h1>
+      <p className="mt-2 text-muted-foreground">Lütfen birkaç saniye sonra tekrar deneyin.</p>
+    </main>
+  ),
+  notFoundComponent: () => (
+    <main className="mx-auto max-w-2xl px-6 py-24 text-center">
+      <h1 className="text-2xl font-semibold">Sayfa bulunamadı</h1>
+    </main>
+  ),
   component: LandingPage,
 });
 
