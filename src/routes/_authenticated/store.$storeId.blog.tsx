@@ -311,6 +311,29 @@ function BlogAdminPage() {
             <StatCard label="Zamanlanmış" value={counts.scheduled} />
           </div>
 
+          <AiBlogWriter
+            storeId={storeId}
+            onDraft={(draft) => {
+              const matchedTags = (tags.data ?? [])
+                .filter((tag) =>
+                  draft.tags.some((name) => name.toLocaleLowerCase("tr") === tag.name.toLocaleLowerCase("tr")),
+                )
+                .map((tag) => tag.id);
+              setForm((f) => ({
+                ...f,
+                title: draft.title,
+                slug: draft.slug,
+                excerpt: draft.excerpt,
+                seoDescription: draft.seoDescription,
+                body: draft.body,
+                tagIds: matchedTags.length > 0 ? matchedTags : f.tagIds,
+              }));
+              toast.success(`Taslak hazır (${draft.totalTokens} token)`);
+            }}
+          />
+
+
+
           <div className="grid gap-6 lg:grid-cols-5">
             <form
               className="surface-card space-y-4 p-6 lg:col-span-2"
