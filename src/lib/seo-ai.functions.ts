@@ -65,3 +65,13 @@ export const runSeoAiNow = createServerFn({ method: "POST" })
       force: true,
     });
   });
+
+/** Ana sayfa meta verisi — herkese açık, AI tarafından güncellenen değerleri döner. */
+export const fetchHomeSeo = createServerFn({ method: "GET" }).handler(async () => {
+  const server = await import("@/lib/seo-ai.server");
+  try {
+    return await server.platformHomeSeo();
+  } catch {
+    return null;
+  }
+});
