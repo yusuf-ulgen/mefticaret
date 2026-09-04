@@ -29,12 +29,30 @@ export const Route = createFileRoute("/api/public/whatsapp/$storeId")({
 
       POST: async ({ request, params }) => {
         const raw = await request.text();
+
+        // Meta imza doğrulaması (X-Hub-Signature-256). İmza doğrulanmadan hiçbir
+        // yük işlenmez; böylece sahte mesaj/durum enjeksiyonu engellenir.
+        const appSecret = process.env["WHATSAPP_APP_SECRET"];
+        if (!appSecret) {
+          return new Response("Webhook not configured", { status: 503 });
+        }
+
+        const header = request.headers.get("x-hub-signature-256") ?? "";
+        const { createHmac, timingSafeEqual } = await import("crypto");
+        const expected = `sha256=${createHmac("sha256", appSecret).update(raw, "utf8").digest("hex")}`;
+        const got = Buffer.from(header);
+        const want = Buffer.from(expected);
+        if (got.length !== want.length || !timingSafeEqual(got, want)) {
+          return new Response("Invalid signature", { status: 401 });
+        }
+
         let payload: any;
         try {
           payload = JSON.parse(raw);
         } catch {
           return new Response("Bad request", { status: 400 });
         }
+
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: account } = await supabaseAdmin
