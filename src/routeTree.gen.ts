@@ -84,6 +84,7 @@ import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_auth
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
 import { Route as AuthenticatedStoreStoreIdAgingRouteImport } from './routes/_authenticated/store.$storeId.aging'
 import { Route as AuthenticatedStoreStoreIdAiRouteImport } from './routes/_authenticated/store.$storeId.ai'
+import { Route as AuthenticatedStoreStoreIdAiStudioRouteImport } from './routes/_authenticated/store.$storeId.ai-studio'
 import { Route as AuthenticatedStoreStoreIdAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.analytics'
 import { Route as AuthenticatedStoreStoreIdApiRouteImport } from './routes/_authenticated/store.$storeId.api'
 import { Route as AuthenticatedStoreStoreIdAppsRouteImport } from './routes/_authenticated/store.$storeId.apps'
@@ -612,6 +613,12 @@ const AuthenticatedStoreStoreIdAiRoute =
   AuthenticatedStoreStoreIdAiRouteImport.update({
     id: '/store/$storeId/ai',
     path: '/store/$storeId/ai',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdAiStudioRoute =
+  AuthenticatedStoreStoreIdAiStudioRouteImport.update({
+    id: '/store/$storeId/ai-studio',
+    path: '/store/$storeId/ai-studio',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdAnalyticsRoute =
@@ -1433,6 +1440,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
   '/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
+  '/store/$storeId/ai-studio': typeof AuthenticatedStoreStoreIdAiStudioRoute
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
   '/store/$storeId/api': typeof AuthenticatedStoreStoreIdApiRoute
   '/store/$storeId/apps': typeof AuthenticatedStoreStoreIdAppsRoute
@@ -1634,6 +1642,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
   '/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
+  '/store/$storeId/ai-studio': typeof AuthenticatedStoreStoreIdAiStudioRoute
   '/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
   '/store/$storeId/api': typeof AuthenticatedStoreStoreIdApiRoute
   '/store/$storeId/apps': typeof AuthenticatedStoreStoreIdAppsRoute
@@ -1837,6 +1846,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/_authenticated/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
   '/_authenticated/store/$storeId/ai': typeof AuthenticatedStoreStoreIdAiRoute
+  '/_authenticated/store/$storeId/ai-studio': typeof AuthenticatedStoreStoreIdAiStudioRoute
   '/_authenticated/store/$storeId/analytics': typeof AuthenticatedStoreStoreIdAnalyticsRoute
   '/_authenticated/store/$storeId/api': typeof AuthenticatedStoreStoreIdApiRoute
   '/_authenticated/store/$storeId/apps': typeof AuthenticatedStoreStoreIdAppsRoute
@@ -2041,6 +2051,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/activity'
     | '/store/$storeId/aging'
     | '/store/$storeId/ai'
+    | '/store/$storeId/ai-studio'
     | '/store/$storeId/analytics'
     | '/store/$storeId/api'
     | '/store/$storeId/apps'
@@ -2242,6 +2253,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/activity'
     | '/store/$storeId/aging'
     | '/store/$storeId/ai'
+    | '/store/$storeId/ai-studio'
     | '/store/$storeId/analytics'
     | '/store/$storeId/api'
     | '/store/$storeId/apps'
@@ -2444,6 +2456,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/activity'
     | '/_authenticated/store/$storeId/aging'
     | '/_authenticated/store/$storeId/ai'
+    | '/_authenticated/store/$storeId/ai-studio'
     | '/_authenticated/store/$storeId/analytics'
     | '/_authenticated/store/$storeId/api'
     | '/_authenticated/store/$storeId/apps'
@@ -3149,6 +3162,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/ai'
       fullPath: '/store/$storeId/ai'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAiRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/ai-studio': {
+      id: '/_authenticated/store/$storeId/ai-studio'
+      path: '/store/$storeId/ai-studio'
+      fullPath: '/store/$storeId/ai-studio'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdAiStudioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/analytics': {
@@ -4181,6 +4201,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdActivityRoute: typeof AuthenticatedStoreStoreIdActivityRoute
   AuthenticatedStoreStoreIdAgingRoute: typeof AuthenticatedStoreStoreIdAgingRoute
   AuthenticatedStoreStoreIdAiRoute: typeof AuthenticatedStoreStoreIdAiRoute
+  AuthenticatedStoreStoreIdAiStudioRoute: typeof AuthenticatedStoreStoreIdAiStudioRoute
   AuthenticatedStoreStoreIdAnalyticsRoute: typeof AuthenticatedStoreStoreIdAnalyticsRoute
   AuthenticatedStoreStoreIdApiRoute: typeof AuthenticatedStoreStoreIdApiRoute
   AuthenticatedStoreStoreIdAppsRoute: typeof AuthenticatedStoreStoreIdAppsRoute
@@ -4298,6 +4319,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdActivityRoute,
   AuthenticatedStoreStoreIdAgingRoute: AuthenticatedStoreStoreIdAgingRoute,
   AuthenticatedStoreStoreIdAiRoute: AuthenticatedStoreStoreIdAiRoute,
+  AuthenticatedStoreStoreIdAiStudioRoute:
+    AuthenticatedStoreStoreIdAiStudioRoute,
   AuthenticatedStoreStoreIdAnalyticsRoute:
     AuthenticatedStoreStoreIdAnalyticsRoute,
   AuthenticatedStoreStoreIdApiRoute: AuthenticatedStoreStoreIdApiRoute,
