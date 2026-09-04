@@ -143,7 +143,7 @@ async function saveDraft(
     tone?: string | null;
     title?: string | null;
     content: string;
-    fields?: Record<string, unknown>;
+    fields?: Record<string, any>;
   },
 ) {
   const { data, error } = await (client as unknown as Any)
@@ -696,20 +696,20 @@ export async function applyLegalDraft(options: { client: Client; storeId: string
 /* ------------------------------------------------------------ rakip analizi */
 
 export type CompetitorInput = {
-  id?: string | null;
-  productId?: string | null;
+  id?: string | null | undefined;
+  productId?: string | null | undefined;
   name: string;
-  url?: string | null;
-  source?: string | null;
-  competitorTitle?: string | null;
-  competitorDescription?: string | null;
-  competitorCategory?: string | null;
-  competitorPrice?: number | null;
-  currency?: string | null;
-  visibilityScore?: number | null;
-  serpPosition?: number | null;
-  alertThresholdPct?: number | null;
-  isActive?: boolean;
+  url?: string | null | undefined;
+  source?: string | null | undefined;
+  competitorTitle?: string | null | undefined;
+  competitorDescription?: string | null | undefined;
+  competitorCategory?: string | null | undefined;
+  competitorPrice?: number | null | undefined;
+  currency?: string | null | undefined;
+  visibilityScore?: number | null | undefined;
+  serpPosition?: number | null | undefined;
+  alertThresholdPct?: number | null | undefined;
+  isActive?: boolean | undefined;
 };
 
 /** Rakip ürün kaydı ekler/güncelleyip fiyat değişimini geçmişe yazar. */
@@ -915,7 +915,7 @@ export async function analyzeCompetitor(options: {
     maxTokens: 2400,
   });
 
-  const parsed = (extractJson(response.text) ?? {}) as Record<string, unknown>;
+  const parsed = (extractJson(response.text) ?? {}) as Record<string, any>;
   const analysis = typeof parsed["analysis"] === "string" ? String(parsed["analysis"]) : response.text.trim();
   const contentScore = Number(parsed["contentScore"]);
 
@@ -989,7 +989,7 @@ export async function listCompetitors(client: Client, storeId: string) {
       contentScore: row.content_score == null ? null : Number(row.content_score),
       alertThresholdPct: Number(row.alert_threshold_pct ?? 0),
       aiAnalysis: row.ai_analysis ? String(row.ai_analysis) : null,
-      aiSummary: (row.ai_summary ?? {}) as Record<string, unknown>,
+      aiSummary: (row.ai_summary ?? {}) as Record<string, any>,
       isActive: Boolean(row.is_active),
       lastCheckedAt: row.last_checked_at ? String(row.last_checked_at) : null,
       lastPriceChangeAt: row.last_price_change_at ? String(row.last_price_change_at) : null,
@@ -1019,7 +1019,7 @@ export async function listAiDrafts(client: Client, storeId: string, entityType?:
     tone: row.tone ? String(row.tone) : null,
     title: row.title ? String(row.title) : null,
     content: String(row.content ?? ""),
-    fields: (row.fields ?? {}) as Record<string, unknown>,
+    fields: (row.fields ?? {}) as Record<string, any>,
     status: String(row.status),
     appliedAt: row.applied_at ? String(row.applied_at) : null,
     createdAt: String(row.created_at),
