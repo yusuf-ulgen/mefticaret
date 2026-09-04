@@ -25,39 +25,33 @@ import { sectionIcon, type SiteSection } from "@/lib/site-content";
 
 /* ---------------------------------- Entegrasyonlar ---------------------------------- */
 
-const INTEGRATION_CATEGORIES = [
-  { label: "PAZARYERLERİ", icon: ShoppingBag, count: "12+" },
-  { label: "KARGO", icon: Truck, count: "9+" },
-  { label: "ÖDEMELER", icon: CreditCard, count: "8+" },
-  { label: "DİJİTAL DÜNYA", icon: BarChart3, count: "10+" },
-  { label: "SMS PAZARLAMA", icon: MessageSquare, count: "6+" },
-  { label: "MUHASEBE", icon: Calculator, count: "5+" },
-];
+export function IntegrationsSection({ section }: { section: SiteSection | null }) {
+  if (!section) return null;
+  const items = section.items;
+  const half = Math.ceil(items.length / 2);
 
-export function IntegrationsSection() {
   return (
     <section id="entegrasyonlar" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
       <div className="text-center">
-        <span className="eyebrow">Entegrasyonlar</span>
+        {section.eyebrow ? <span className="eyebrow">{section.eyebrow}</span> : null}
         <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-          Tüm Entegrasyonlar, Tek Merkez
+          {section.title}
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-          Pazaryerlerinden kargoya, e-faturadan reklam platformlarına kadar tüm araçlarınız tek
-          panelde buluşsun. Sekmeler arasında kaybolmadan işinizi yönetin.
-        </p>
+        <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">{section.subtitle}</p>
       </div>
 
       <div className="mt-14 grid items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-          {INTEGRATION_CATEGORIES.slice(0, 3).map((item) => (
-            <IntegrationCard key={item.label} {...item} />
+          {items.slice(0, half).map((item, index) => (
+            <IntegrationCard key={`${item["label"]}-${index}`} item={item} />
           ))}
         </div>
 
         <div className="mx-auto grid size-44 place-items-center rounded-full border border-border bg-secondary/60 text-center lg:size-52">
           <div>
-            <p className="font-display text-4xl font-extrabold tracking-tighter text-brand">50+</p>
+            <p className="font-display text-4xl font-extrabold tracking-tighter text-brand">
+              {section.badge}
+            </p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               Entegrasyon
             </p>
@@ -65,8 +59,8 @@ export function IntegrationsSection() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-          {INTEGRATION_CATEGORIES.slice(3).map((item) => (
-            <IntegrationCard key={item.label} {...item} />
+          {items.slice(half).map((item, index) => (
+            <IntegrationCard key={`${item["label"]}-b-${index}`} item={item} />
           ))}
         </div>
       </div>
@@ -74,15 +68,9 @@ export function IntegrationsSection() {
   );
 }
 
-function IntegrationCard({
-  label,
-  count,
-  icon: Icon,
-}: {
-  label: string;
-  count: string;
-  icon: typeof ShoppingBag;
-}) {
+function IntegrationCard({ item }: { item: Record<string, string> }) {
+  const Icon = sectionIcon(item["icon"]);
+
   return (
     <div className="showcase-card flex items-center gap-3 p-4">
       <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
