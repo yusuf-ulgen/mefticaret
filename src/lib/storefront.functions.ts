@@ -411,7 +411,8 @@ export const getStorefrontCollection = createServerFn({ method: "GET" })
     }
 
     return { store, theme: themeRes.data, collection, products };
-  });
+    }),
+  );
 
 /** Yayınlanmış vitrin içerik sayfası (CMS). */
 export const getStorefrontPage = createServerFn({ method: "GET" })
