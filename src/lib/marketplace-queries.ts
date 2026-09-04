@@ -19,6 +19,13 @@ export const PAYOUT_REQUEST_LABELS: Record<PayoutRequestStatus, string> = {
   failed: "Başarısız",
 };
 
+/**
+ * Satıcı finansal alanları (IBAN, vergi no) tarayıcıya hiç gönderilmez:
+ * bu kolonların okuma yetkisi `authenticated` rolünden kaldırıldı.
+ */
+export const SELLER_SAFE_COLUMNS =
+  "id, store_id, user_id, display_name, legal_name, email, phone, about, commission_rate, status, rejection_reason, approved_at, suspended_at, created_at";
+
 export type SellerRow = {
   id: string;
   store_id: string;
@@ -27,8 +34,6 @@ export type SellerRow = {
   legal_name: string | null;
   email: string | null;
   phone: string | null;
-  tax_id: string | null;
-  iban: string | null;
   about: string | null;
   commission_rate: number;
   status: SellerStatus;
