@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { getStorefrontBlog, getStorefrontBlogPostMeta } from "@/lib/blog-public.functions";
 
 export type BlogCategory = {
   id: string;
@@ -112,4 +113,20 @@ export const blogPostsQuery = (storeId: string) =>
         return { ...rest, tagIds: (tags ?? []).map((tag) => tag.tag_id) } as BlogPostRow;
       });
     },
+  });
+
+/** Vitrin: yayınlanmış blog yazıları + filtre seçenekleri. */
+export const storefrontBlogQuery = (slug: string) =>
+  queryOptions({
+    queryKey: ["storefront", slug, "blog"],
+    queryFn: () => getStorefrontBlog({ data: { slug } }),
+    staleTime: 60_000,
+  });
+
+/** Vitrin: blog yazısı meta verisi (yazar, taksonomi, ilgili yazılar). */
+export const storefrontBlogPostQuery = (slug: string, pageSlug: string) =>
+  queryOptions({
+    queryKey: ["storefront", slug, "blog-post", pageSlug],
+    queryFn: () => getStorefrontBlogPostMeta({ data: { slug, pageSlug } }),
+    staleTime: 60_000,
   });
