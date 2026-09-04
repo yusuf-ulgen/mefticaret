@@ -1,20 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Boxes,
-  Check,
-  Globe,
-  Headphones,
-  LayoutDashboard,
-  ShieldCheck,
-  Sparkles,
-  Store,
-  Truck,
-  Users,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 
 import {
   BlogSection,
@@ -25,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { formatMoney, planLimitLabel } from "@/lib/mefti";
+import { pickSection, sectionIcon, siteSectionsQuery, type SiteSection } from "@/lib/site-content";
 import { plansQuery } from "@/lib/store-queries";
 
 export const Route = createFileRoute("/")({
@@ -47,72 +34,7 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
-const SHOWCASE_LEFT = [
-  { title: "Profesyonel Aynasız Kamera", price: "64.999 TL" },
-  { title: "Minimal Takı Seti", price: "6.799 TL" },
-  { title: "Espresso Kahve Makinesi", price: "24.999 TL" },
-];
-
-const SHOWCASE_RIGHT = [
-  { title: "Modern Masa Lambası", price: "3.499 TL" },
-  { title: "Deri Cüzdan", price: "2.999 TL" },
-  { title: "Lilyum Buketi", price: "1.899 TL" },
-];
-
-const TRUST = [
-  { icon: Zap, label: "Hızlı Kurulum" },
-  { icon: Headphones, label: "7/24 Destek" },
-  { icon: ShieldCheck, label: "Güvenli Altyapı" },
-];
-
-const MODULES = [
-  { icon: Store, title: "Çoklu mağaza", text: "Tek hesap, sınırsız mağaza. Saniyeler içinde geçiş yap." },
-  { icon: ShieldCheck, title: "Tenant izolasyonu", text: "Veri erişimi veritabanı seviyesinde politika ile ayrılır." },
-  { icon: Users, title: "Rol bazlı ekip", text: "Sahip, yönetici, personel, pazarlama, destek rolleri." },
-  { icon: Globe, title: "Domain yönetimi", text: "Alt alan adı + özel domain, DNS doğrulama ve SSL durumu." },
-  { icon: LayoutDashboard, title: "Tema blok yönetimi", text: "Sürükle-bırak bölümler, canlı önizleme, sürüm geçmişi." },
-  { icon: Boxes, title: "Modüler mimari", text: "Ürün, sipariş, ödeme, pazaryeri bağımsız modüller." },
-  { icon: Truck, title: "Connector sistemi", text: "Ödeme, kargo, ERP ve pazaryeri bağlantıları eklenebilir." },
-  { icon: Sparkles, title: "Yapay zeka hazır", text: "Ürün metni, SEO ve içerik üretimi mağaza bazlı takip ile." },
-];
-
-const REFERENCES = [
-  {
-    brand: "Enfez Yöresel",
-    quote:
-      "Daha önce farklı altyapılar kullandık ancak Mefticaret'e geçtikten sonra hem site hızı hem de yönetim paneli bizi ciddi anlamda rahatlattı.",
-    person: "Mahmut Taşkın",
-    stats: [
-      ["+148%", "Yıllık ciro"],
-      ["596", "Sipariş sayısı"],
-      ["+140%", "Organik trafik"],
-    ],
-  },
-  {
-    brand: "Kartvizit Marketim",
-    quote:
-      "SEO tarafındaki teknik altyapı beklentimizin çok üzerinde çıktı. Organik görünürlüğümüzde kısa sürede gözle görülür artış elde ettik.",
-    person: "Bahadır Dermanlı",
-    stats: [
-      ["+96%", "Yıllık ciro"],
-      ["8.750", "Sipariş sayısı"],
-      ["+210%", "Organik trafik"],
-    ],
-  },
-  {
-    brand: "Teknik Depo",
-    quote:
-      "Mevcut sistemimizden geçiş süreci düşündüğümüzden çok daha kolay ilerledi. Ürünler, kategoriler ve müşteri verileri eksiksiz taşındı.",
-    person: "Ümit Özalp",
-    stats: [
-      ["+79%", "Yıllık ciro"],
-      ["980", "Sipariş sayısı"],
-      ["+168%", "Organik trafik"],
-    ],
-  },
-];
-
-function ShowcaseCard({ title, price }: { title: string; price: string }) {
+function ShowcaseCard({ title, price }: { title?: string; price?: string }) {
   return (
     <article className="showcase-card">
       <div
@@ -135,25 +57,74 @@ function ShowcaseColumn({
   slow,
   className,
 }: {
-  items: { title: string; price: string }[];
+  items: Record<string, string>[];
   slow?: boolean;
   className?: string;
 }) {
+  if (items.length === 0) return null;
   const loop = [...items, ...items, ...items];
   return (
     <div className={`fade-mask-y h-[560px] overflow-hidden ${className ?? ""}`} aria-hidden="true">
       <div className={`space-y-4 ${slow ? "marquee-col-slow" : "marquee-col"}`}>
         {loop.map((item, index) => (
-          <ShowcaseCard key={`${item.title}-${index}`} {...item} />
+          <ShowcaseCard key={`${item["title"]}-${index}`} title={item["title"]} price={item["price"]} />
         ))}
       </div>
     </div>
   );
 }
 
+/** Panelden yönetilen bağlantılar serbest metin olduğu için standart <a> kullanılır. */
+function LinkButton({
+  href,
+  label,
+  variant,
+  size,
+  children,
+}: {
+  href?: string | null;
+  label?: string | null;
+  variant?: "default" | "outline" | "ghost";
+  size?: "lg";
+  children?: React.ReactNode;
+}) {
+  if (!label) return null;
+  return (
+    <Button asChild variant={variant ?? "default"} size={size} className="rounded-full">
+      <a href={href || "/auth"}>
+        {label}
+        {children}
+      </a>
+    </Button>
+  );
+}
+
 function LandingPage() {
   const { session, loading } = useAuth();
   const { data: plans } = useQuery(plansQuery());
+  const { data: sections } = useQuery(siteSectionsQuery());
+
+  const get = (key: string): SiteSection | null => pickSection(sections, key);
+  const header = get("header");
+  const hero = get("hero");
+  const showcase = get("showcase");
+  const references = get("references");
+  const modules = get("modules");
+  const pricing = get("pricing");
+  const cta = get("cta");
+  const footer = get("footer");
+
+  const showcaseItems = showcase?.items ?? [];
+  const half = Math.ceil(showcaseItems.length / 2);
+
+  const footerGroups = (footer?.items ?? []).reduce<Record<string, Record<string, string>[]>>(
+    (acc, item) => {
+      const group = item["group"] || "Bağlantılar";
+      acc[group] = [...(acc[group] ?? []), item];
+      return acc;
+    },
+    {},
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -161,331 +132,323 @@ function LandingPage() {
         İçeriğe geç
       </a>
 
-      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-18 max-w-7xl items-center px-4 py-3 lg:px-8">
-          <Link to="/" className="font-display text-2xl font-extrabold tracking-tighter">
-            mefticaret
-          </Link>
-          <nav
-            aria-label="Ana gezinme"
-            className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 text-sm font-medium text-muted-foreground md:flex"
-          >
-            <a href="#moduller" className="transition-colors hover:text-foreground">
-              E-Ticaret
-            </a>
-            <a href="#entegrasyonlar" className="transition-colors hover:text-foreground">
-              Entegrasyonlar
-            </a>
-            <a href="#paketler" className="transition-colors hover:text-foreground">
-              Fiyatlandırma
-            </a>
-            <a href="#blog" className="transition-colors hover:text-foreground">
-              Blog
-            </a>
-            <a href="#sss" className="transition-colors hover:text-foreground">
-              SSS
-            </a>
-          </nav>
-          <div className="ml-auto flex items-center gap-2">
-            {loading ? null : session ? (
-              <Button asChild className="rounded-full px-5">
-                <Link to="/stores">Panele git</Link>
-              </Button>
-            ) : (
-              <>
-                <Button asChild variant="ghost" className="rounded-full">
-                  <Link to="/auth">Giriş Yap</Link>
-                </Button>
+      {header ? (
+        <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
+          <div className="mx-auto flex h-18 max-w-7xl items-center px-4 py-3 lg:px-8">
+            <Link to="/" className="font-display text-2xl font-extrabold tracking-tighter">
+              {header.title}
+            </Link>
+            <nav
+              aria-label="Ana gezinme"
+              className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 text-sm font-medium text-muted-foreground md:flex"
+            >
+              {header.items.map((item, index) => (
+                <a
+                  key={`${item["label"]}-${index}`}
+                  href={item["href"] || "#"}
+                  className="transition-colors hover:text-foreground"
+                >
+                  {item["label"]}
+                </a>
+              ))}
+            </nav>
+            <div className="ml-auto flex items-center gap-2">
+              {loading ? null : session ? (
                 <Button asChild className="rounded-full px-5">
-                  <Link to="/auth" search={{ mode: "register" }}>
-                    Kayıt Ol
-                  </Link>
+                  <Link to="/stores">Panele git</Link>
                 </Button>
-              </>
-            )}
+              ) : (
+                <>
+                  <LinkButton
+                    href={header.secondary_href}
+                    label={header.secondary_label}
+                    variant="ghost"
+                  />
+                  <LinkButton href={header.primary_href} label={header.primary_label} />
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      ) : null}
 
       <main id="icerik" tabIndex={-1}>
-        <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
-          <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-16 lg:grid-cols-[minmax(180px,220px)_1fr_minmax(180px,220px)] lg:px-8 lg:py-24">
-            <ShowcaseColumn items={SHOWCASE_LEFT} className="hidden lg:block" />
+        {hero ? (
+          <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
+            <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-16 lg:grid-cols-[minmax(180px,220px)_1fr_minmax(180px,220px)] lg:px-8 lg:py-24">
+              <ShowcaseColumn items={showcaseItems.slice(0, half)} className="hidden lg:block" />
 
-            <div className="mx-auto max-w-2xl text-center">
-              <span className="eyebrow">E-Ticaret Altyapınız Hazır</span>
-              <h1 className="mt-6 text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
-                Mağazanızı Kurun,
-                <br />
-                Hemen Satışa Başlayın.
-              </h1>
-              <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
-                Ürünlerinizi listeleyin, siparişlerinizi yönetin, müşterilerinize kesintisiz alışveriş
-                sunun. Stoktan kargoya, ödemeden pazaryerine kadar dijital ticaretinizi büyütecek her şey
-                tek çatı altında.
-              </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <Button asChild variant="outline" size="lg" className="rounded-full">
-                  <a href="#referanslar">
-                    <Headphones className="mr-2 size-4" /> Bizi Arayın
-                  </a>
-                </Button>
-                <Button asChild size="lg" className="rounded-full">
-                  <Link to="/auth" search={{ mode: "register" }}>
-                    Ücretsiz Başlayın <ArrowRight className="ml-2 size-4" />
-                  </Link>
-                </Button>
-              </div>
-              <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-sm text-muted-foreground">
-                {TRUST.map((item) => (
-                  <li key={item.label} className="flex items-center gap-2">
-                    <item.icon className="size-4 text-brand" />
-                    {item.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <ShowcaseColumn items={SHOWCASE_RIGHT} slow className="hidden lg:block" />
-          </div>
-        </section>
-
-        <section id="referanslar" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
-          <div className="text-center">
-            <span className="eyebrow">Referanslar</span>
-            <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-              Sıradaki başarı hikayesi sizinki olabilir
-            </h2>
-            <div className="mt-7">
-              <Button asChild variant="outline" className="rounded-full">
-                <Link to="/auth" search={{ mode: "register" }}>
-                  Referansları gör <ArrowUpRight className="ml-2 size-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {REFERENCES.map((ref) => (
-              <article key={ref.brand} className="showcase-card flex flex-col">
-                <div
-                  className="h-48 w-full"
-                  style={{
-                    background:
-                      "linear-gradient(140deg, color-mix(in oklab, var(--color-brand) 18%, var(--color-card)), var(--color-muted))",
-                  }}
-                />
-                <div className="flex flex-1 flex-col p-5">
-                  <h3 className="text-base font-semibold">{ref.brand}</h3>
-                  <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">“{ref.quote}”</p>
-                  <p className="mt-4 text-sm font-semibold">
-                    {ref.person} <span className="font-normal text-muted-foreground">— Kurucu</span>
-                  </p>
-                  <dl className="mt-5 grid grid-cols-3 gap-2">
-                    {ref.stats.map(([value, label]) => (
-                      <div key={label} className="rounded-xl bg-muted px-3 py-2 text-center">
-                        <dt className="sr-only">{label}</dt>
-                        <dd className="text-sm font-bold text-success">{value}</dd>
-                        <p className="mt-0.5 text-[11px] text-muted-foreground">{label}</p>
-                      </div>
-                    ))}
-                  </dl>
+              <div className="mx-auto max-w-2xl text-center">
+                {hero.eyebrow ? <span className="eyebrow">{hero.eyebrow}</span> : null}
+                <h1 className="mt-6 text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
+                  {hero.title}
+                </h1>
+                <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
+                  {hero.subtitle}
+                </p>
+                <div className="mt-8 flex flex-wrap justify-center gap-3">
+                  <LinkButton
+                    href={hero.secondary_href}
+                    label={hero.secondary_label}
+                    variant="outline"
+                    size="lg"
+                  />
+                  <LinkButton href={hero.primary_href} label={hero.primary_label} size="lg">
+                    <ArrowRight className="ml-2 size-4" />
+                  </LinkButton>
                 </div>
-              </article>
-            ))}
-          </div>
-        </section>
+                <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-sm text-muted-foreground">
+                  {hero.items.map((item, index) => {
+                    const Icon = sectionIcon(item["icon"]);
+                    return (
+                      <li key={`${item["label"]}-${index}`} className="flex items-center gap-2">
+                        <Icon className="size-4 text-brand" />
+                        {item["label"]}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
 
-        <section id="moduller" className="border-y border-border bg-secondary/40 py-20 lg:py-28">
-          <div className="mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="text-center">
-              <span className="eyebrow">Güçlü Araçlar, Kolay Yönetim</span>
-              <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-                İşinizi Büyütecek Her Şey Tek Platformda
-              </h2>
-              <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
-                Tasarımdan analitiğe, yapay zekadan SEO'ya. E-ticaret operasyonunuzun her adımını
-                kolaylaştıran araçlar sizin için hazır.
-              </p>
+              <ShowcaseColumn items={showcaseItems.slice(half)} slow className="hidden lg:block" />
             </div>
-            <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {MODULES.map((module) => (
-                <article key={module.title} className="showcase-card p-6">
-                  <span className="grid size-11 place-items-center rounded-xl bg-brand-soft text-brand">
-                    <module.icon className="size-5" />
-                  </span>
-                  <h3 className="mt-5 text-base font-semibold">{module.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{module.text}</p>
+          </section>
+        ) : null}
+
+        {references ? (
+          <section id="referanslar" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
+            <div className="text-center">
+              {references.eyebrow ? <span className="eyebrow">{references.eyebrow}</span> : null}
+              <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
+                {references.title}
+              </h2>
+              {references.primary_label ? (
+                <div className="mt-7">
+                  <LinkButton
+                    href={references.primary_href}
+                    label={references.primary_label}
+                    variant="outline"
+                  >
+                    <ArrowUpRight className="ml-2 size-4" />
+                  </LinkButton>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {references.items.map((ref, index) => (
+                <article key={`${ref["brand"]}-${index}`} className="showcase-card flex flex-col">
+                  <div
+                    className="h-48 w-full"
+                    style={{
+                      background:
+                        "linear-gradient(140deg, color-mix(in oklab, var(--color-brand) 18%, var(--color-card)), var(--color-muted))",
+                    }}
+                  />
+                  <div className="flex flex-1 flex-col p-5">
+                    <h3 className="text-base font-semibold">{ref["brand"]}</h3>
+                    <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
+                      “{ref["quote"]}”
+                    </p>
+                    <p className="mt-4 text-sm font-semibold">
+                      {ref["person"]}{" "}
+                      <span className="font-normal text-muted-foreground">— {ref["role"]}</span>
+                    </p>
+                    <dl className="mt-5 grid grid-cols-3 gap-2">
+                      {[
+                        [ref["stat1"], ref["stat1Label"]],
+                        [ref["stat2"], ref["stat2Label"]],
+                        [ref["stat3"], ref["stat3Label"]],
+                      ]
+                        .filter(([value]) => Boolean(value))
+                        .map(([value, label]) => (
+                          <div key={label} className="rounded-xl bg-muted px-3 py-2 text-center">
+                            <dt className="sr-only">{label}</dt>
+                            <dd className="text-sm font-bold text-success">{value}</dd>
+                            <p className="mt-0.5 text-[11px] text-muted-foreground">{label}</p>
+                          </div>
+                        ))}
+                    </dl>
+                  </div>
                 </article>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
 
-        <IntegrationsSection />
+        {modules ? (
+          <section id="moduller" className="border-y border-border bg-secondary/40 py-20 lg:py-28">
+            <div className="mx-auto max-w-7xl px-4 lg:px-8">
+              <div className="text-center">
+                {modules.eyebrow ? <span className="eyebrow">{modules.eyebrow}</span> : null}
+                <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
+                  {modules.title}
+                </h2>
+                <p className="mx-auto mt-5 max-w-xl text-muted-foreground">{modules.subtitle}</p>
+              </div>
+              <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {modules.items.map((module, index) => {
+                  const Icon = sectionIcon(module["icon"]);
+                  return (
+                    <article key={`${module["title"]}-${index}`} className="showcase-card p-6">
+                      <span className="grid size-11 place-items-center rounded-xl bg-brand-soft text-brand">
+                        <Icon className="size-5" />
+                      </span>
+                      <h3 className="mt-5 text-base font-semibold">{module["title"]}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {module["text"]}
+                      </p>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
-        <PlatformDemosSection />
+        <IntegrationsSection section={get("integrations")} />
 
+        <PlatformDemosSection section={get("demos")} />
 
-
-        <section id="paketler" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
-          <div className="text-center">
-            <span className="eyebrow">Fiyatlandırma</span>
-            <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-              Büyüdükçe ölçeklenen paketler
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
-              Limitler kodda sabit değil; yönetici panelinden anlık güncellenir.
-            </p>
-          </div>
-          <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-            {(plans ?? []).map((plan) => {
-              const limits = (plan.limits ?? {}) as Record<string, number>;
-              const featured = plan.code === "professional";
-              return (
-                <article
-                  key={plan.id}
-                  data-featured={featured}
-                  className="showcase-card flex flex-col p-6 data-[featured=true]:border-brand data-[featured=true]:ring-1 data-[featured=true]:ring-brand/30"
-                >
-                  <h3 className="text-base font-semibold">{plan.name}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">{plan.description}</p>
-                  <p className="mt-5 font-display text-2xl font-extrabold">
-                    {Number(plan.price_monthly) === 0
-                      ? "Ücretsiz"
-                      : formatMoney(Number(plan.price_monthly), plan.currency)}
-                    {Number(plan.price_monthly) > 0 ? (
-                      <span className="text-sm font-medium text-muted-foreground">/ay</span>
+        {pricing ? (
+          <section id="paketler" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
+            <div className="text-center">
+              {pricing.eyebrow ? <span className="eyebrow">{pricing.eyebrow}</span> : null}
+              <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl lg:text-5xl">{pricing.title}</h2>
+              <p className="mx-auto mt-5 max-w-xl text-muted-foreground">{pricing.subtitle}</p>
+            </div>
+            <div className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+              {(plans ?? []).map((plan) => {
+                const limits = (plan.limits ?? {}) as Record<string, number>;
+                const featured = plan.code === "professional";
+                return (
+                  <article
+                    key={plan.id}
+                    data-featured={featured}
+                    className="showcase-card flex flex-col p-6 data-[featured=true]:border-brand data-[featured=true]:ring-1 data-[featured=true]:ring-brand/30"
+                  >
+                    <h3 className="text-base font-semibold">{plan.name}</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">{plan.description}</p>
+                    <p className="mt-5 font-display text-2xl font-extrabold">
+                      {Number(plan.price_monthly) === 0
+                        ? "Ücretsiz"
+                        : formatMoney(Number(plan.price_monthly), plan.currency)}
+                      {Number(plan.price_monthly) > 0 ? (
+                        <span className="text-sm font-medium text-muted-foreground">/ay</span>
+                      ) : null}
+                    </p>
+                    <ul className="mt-5 space-y-2 text-sm">
+                      {[
+                        [planLimitLabel(limits["products"]), "ürün"],
+                        [planLimitLabel(limits["orders"]), "sipariş"],
+                        [planLimitLabel(limits["staff"]), "personel"],
+                        [planLimitLabel(limits["domains"]), "özel domain"],
+                      ].map(([value, label]) => (
+                        <li key={label} className="flex gap-2">
+                          <Check className="mt-0.5 size-4 text-success" />
+                          <span>
+                            {value} {label}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    {plan.trial_days > 0 ? (
+                      <p className="mt-3 text-xs text-muted-foreground">{plan.trial_days} gün deneme</p>
                     ) : null}
+                    <Button
+                      asChild
+                      className="mt-6 w-full rounded-full"
+                      variant={featured ? "default" : "outline"}
+                    >
+                      <Link to="/auth" search={{ mode: "register" }}>
+                        {pricing.primary_label ?? "Başla"}
+                      </Link>
+                    </Button>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
+
+        <BlogSection section={get("blog")} />
+
+        <FaqSection section={get("faq")} />
+
+        {cta ? (
+          <section className="mx-auto max-w-7xl px-4 pb-24 lg:px-8">
+            <div
+              className="showcase-card px-6 py-14 text-center"
+              style={{ background: "var(--gradient-hero)" }}
+            >
+              <h2 className="mx-auto max-w-2xl text-3xl font-extrabold sm:text-4xl">{cta.title}</h2>
+              <p className="mx-auto mt-4 max-w-lg text-muted-foreground">{cta.subtitle}</p>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <LinkButton href={cta.primary_href} label={cta.primary_label} size="lg">
+                  <ArrowRight className="ml-2 size-4" />
+                </LinkButton>
+                <LinkButton
+                  href={cta.secondary_href}
+                  label={cta.secondary_label}
+                  variant="outline"
+                  size="lg"
+                />
+              </div>
+            </div>
+          </section>
+        ) : null}
+      </main>
+
+      {footer ? (
+        <footer className="border-t border-border py-14">
+          <div className="mx-auto max-w-7xl px-4 lg:px-8">
+            <div className="grid gap-10 md:grid-cols-4">
+              <div>
+                <span className="font-display text-2xl font-extrabold tracking-tighter">
+                  {footer.title}
+                </span>
+                <p className="mt-3 max-w-xs text-sm text-muted-foreground">{footer.subtitle}</p>
+              </div>
+              {Object.entries(footerGroups).map(([group, links]) => (
+                <nav key={group} aria-label={group}>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                    {group}
                   </p>
-                  <ul className="mt-5 space-y-2 text-sm">
-                    {[
-                      [planLimitLabel(limits["products"]), "ürün"],
-                      [planLimitLabel(limits["orders"]), "sipariş"],
-                      [planLimitLabel(limits["staff"]), "personel"],
-                      [planLimitLabel(limits["domains"]), "özel domain"],
-                    ].map(([value, label]) => (
-                      <li key={label} className="flex gap-2">
-                        <Check className="mt-0.5 size-4 text-success" />
-                        <span>
-                          {value} {label}
-                        </span>
+                  <ul className="mt-4 space-y-2 text-sm">
+                    {links.map((link, index) => (
+                      <li key={`${link["label"]}-${index}`}>
+                        <a
+                          href={link["href"] || "#"}
+                          className="text-muted-foreground hover:text-foreground"
+                        >
+                          {link["label"]}
+                        </a>
                       </li>
                     ))}
                   </ul>
-                  {plan.trial_days > 0 ? (
-                    <p className="mt-3 text-xs text-muted-foreground">{plan.trial_days} gün deneme</p>
-                  ) : null}
-                  <Button
-                    asChild
-                    className="mt-6 w-full rounded-full"
-                    variant={featured ? "default" : "outline"}
-                  >
-                    <Link to="/auth" search={{ mode: "register" }}>
-                      Başla
-                    </Link>
-                  </Button>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        <BlogSection />
-
-        <FaqSection />
-
-
-
-        <section className="mx-auto max-w-7xl px-4 pb-24 lg:px-8">
-          <div className="showcase-card px-6 py-14 text-center" style={{ background: "var(--gradient-hero)" }}>
-            <h2 className="mx-auto max-w-2xl text-3xl font-extrabold sm:text-4xl">
-              Bugün kurun, bugün satmaya başlayın.
-            </h2>
-            <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
-              Kredi kartı gerekmez. Mağazanızı dakikalar içinde yayına alın.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button asChild size="lg" className="rounded-full">
-                <Link to="/auth" search={{ mode: "register" }}>
-                  Ücretsiz Başlayın <ArrowRight className="ml-2 size-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full">
-                <a href="#paketler">Paketleri gör</a>
-              </Button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer className="border-t border-border py-14">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="grid gap-10 md:grid-cols-4">
-            <div>
-              <span className="font-display text-2xl font-extrabold tracking-tighter">
-                mefticaret
-              </span>
-              <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-                Türkiye'nin çok kiracılı e-ticaret işletim sistemi. Mağaza kurun, yönetin, büyütün.
-              </p>
-            </div>
-            {[
-              {
-                title: "Platform",
-                links: [
-                  ["E-Ticaret", "#moduller"],
-                  ["Özellikler", "#ozellikler"],
-                  ["Entegrasyonlar", "#entegrasyonlar"],
-                  ["Fiyatlandırma", "#paketler"],
-                ] as const,
-              },
-              {
-                title: "Kaynaklar",
-                links: [
-                  ["Blog", "#blog"],
-                  ["Referanslar", "#referanslar"],
-                  ["Sıkça Sorulan Sorular", "#sss"],
-                ] as const,
-              },
-            ].map((group) => (
-              <nav key={group.title} aria-label={group.title}>
+                </nav>
+              ))}
+              <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  {group.title}
+                  Başlayın
                 </p>
-                <ul className="mt-4 space-y-2 text-sm">
-                  {group.links.map(([label, href]) => (
-                    <li key={label}>
-                      <a href={href} className="text-muted-foreground hover:text-foreground">
-                        {label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            ))}
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Başlayın
-              </p>
-              <div className="mt-4 flex flex-col gap-2">
-                <Button asChild className="rounded-full">
-                  <Link to="/auth" search={{ mode: "register" }}>
-                    Ücretsiz Başlayın
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="rounded-full">
-                  <Link to="/auth">Giriş Yap</Link>
-                </Button>
+                <div className="mt-4 flex flex-col gap-2">
+                  <LinkButton href={footer.primary_href} label={footer.primary_label} />
+                  <LinkButton
+                    href={footer.secondary_href}
+                    label={footer.secondary_label}
+                    variant="outline"
+                  />
+                </div>
               </div>
             </div>
+            <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
+              <span>© {new Date().getFullYear()} Mefticaret</span>
+              <span className="ml-auto">{footer.badge}</span>
+            </div>
           </div>
-          <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
-            <span>© {new Date().getFullYear()} Mefticaret</span>
-            <span className="ml-auto">KVKK &amp; GDPR uyumlu mimari</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      ) : null}
     </div>
   );
 }
