@@ -452,7 +452,8 @@ export const getStorefrontPage = createServerFn({ method: "GET" })
     if (!pageRes.data) return null;
 
     return { store, theme: themeRes.data, page: pageRes.data, footerPages: footerRes.data ?? [] };
-  });
+    }),
+  );
 
 /**
  * Kartlardan hızlı sepete ekleme için varsayılan varyantı döner.
