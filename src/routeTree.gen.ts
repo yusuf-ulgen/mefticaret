@@ -177,6 +177,7 @@ import { Route as AuthenticatedStoreStoreIdTasksRouteImport } from './routes/_au
 import { Route as AuthenticatedStoreStoreIdTaxRouteImport } from './routes/_authenticated/store.$storeId.tax'
 import { Route as AuthenticatedStoreStoreIdTeamRouteImport } from './routes/_authenticated/store.$storeId.team'
 import { Route as AuthenticatedStoreStoreIdTeamPerformanceRouteImport } from './routes/_authenticated/store.$storeId.team-performance'
+import { Route as AuthenticatedStoreStoreIdThemeDesignRouteImport } from './routes/_authenticated/store.$storeId.theme-design'
 import { Route as AuthenticatedStoreStoreIdThemeEditorRouteImport } from './routes/_authenticated/store.$storeId.theme-editor'
 import { Route as AuthenticatedStoreStoreIdThemeSectionsRouteImport } from './routes/_authenticated/store.$storeId.theme-sections'
 import { Route as AuthenticatedStoreStoreIdThemeStoreRouteImport } from './routes/_authenticated/store.$storeId.theme-store'
@@ -1173,6 +1174,12 @@ const AuthenticatedStoreStoreIdTeamPerformanceRoute =
     path: '/store/$storeId/team-performance',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdThemeDesignRoute =
+  AuthenticatedStoreStoreIdThemeDesignRouteImport.update({
+    id: '/store/$storeId/theme-design',
+    path: '/store/$storeId/theme-design',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdThemeEditorRoute =
   AuthenticatedStoreStoreIdThemeEditorRouteImport.update({
     id: '/store/$storeId/theme-editor',
@@ -1533,6 +1540,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/team-performance': typeof AuthenticatedStoreStoreIdTeamPerformanceRoute
+  '/store/$storeId/theme-design': typeof AuthenticatedStoreStoreIdThemeDesignRoute
   '/store/$storeId/theme-editor': typeof AuthenticatedStoreStoreIdThemeEditorRoute
   '/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
@@ -1734,6 +1742,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/team-performance': typeof AuthenticatedStoreStoreIdTeamPerformanceRoute
+  '/store/$storeId/theme-design': typeof AuthenticatedStoreStoreIdThemeDesignRoute
   '/store/$storeId/theme-editor': typeof AuthenticatedStoreStoreIdThemeEditorRoute
   '/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
@@ -1939,6 +1948,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/_authenticated/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/_authenticated/store/$storeId/team-performance': typeof AuthenticatedStoreStoreIdTeamPerformanceRoute
+  '/_authenticated/store/$storeId/theme-design': typeof AuthenticatedStoreStoreIdThemeDesignRoute
   '/_authenticated/store/$storeId/theme-editor': typeof AuthenticatedStoreStoreIdThemeEditorRoute
   '/_authenticated/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/_authenticated/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
@@ -2144,6 +2154,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/tax'
     | '/store/$storeId/team'
     | '/store/$storeId/team-performance'
+    | '/store/$storeId/theme-design'
     | '/store/$storeId/theme-editor'
     | '/store/$storeId/theme-sections'
     | '/store/$storeId/theme-store'
@@ -2345,6 +2356,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/tax'
     | '/store/$storeId/team'
     | '/store/$storeId/team-performance'
+    | '/store/$storeId/theme-design'
     | '/store/$storeId/theme-editor'
     | '/store/$storeId/theme-sections'
     | '/store/$storeId/theme-store'
@@ -2549,6 +2561,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/tax'
     | '/_authenticated/store/$storeId/team'
     | '/_authenticated/store/$storeId/team-performance'
+    | '/_authenticated/store/$storeId/theme-design'
     | '/_authenticated/store/$storeId/theme-editor'
     | '/_authenticated/store/$storeId/theme-sections'
     | '/_authenticated/store/$storeId/theme-store'
@@ -3815,6 +3828,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdTeamPerformanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/theme-design': {
+      id: '/_authenticated/store/$storeId/theme-design'
+      path: '/store/$storeId/theme-design'
+      fullPath: '/store/$storeId/theme-design'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeDesignRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/theme-editor': {
       id: '/_authenticated/store/$storeId/theme-editor'
       path: '/store/$storeId/theme-editor'
@@ -4294,6 +4314,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdTaxRoute: typeof AuthenticatedStoreStoreIdTaxRoute
   AuthenticatedStoreStoreIdTeamRoute: typeof AuthenticatedStoreStoreIdTeamRoute
   AuthenticatedStoreStoreIdTeamPerformanceRoute: typeof AuthenticatedStoreStoreIdTeamPerformanceRoute
+  AuthenticatedStoreStoreIdThemeDesignRoute: typeof AuthenticatedStoreStoreIdThemeDesignRoute
   AuthenticatedStoreStoreIdThemeEditorRoute: typeof AuthenticatedStoreStoreIdThemeEditorRoute
   AuthenticatedStoreStoreIdThemeSectionsRoute: typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   AuthenticatedStoreStoreIdThemeStoreRoute: typeof AuthenticatedStoreStoreIdThemeStoreRoute
@@ -4467,6 +4488,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdTeamRoute: AuthenticatedStoreStoreIdTeamRoute,
   AuthenticatedStoreStoreIdTeamPerformanceRoute:
     AuthenticatedStoreStoreIdTeamPerformanceRoute,
+  AuthenticatedStoreStoreIdThemeDesignRoute:
+    AuthenticatedStoreStoreIdThemeDesignRoute,
   AuthenticatedStoreStoreIdThemeEditorRoute:
     AuthenticatedStoreStoreIdThemeEditorRoute,
   AuthenticatedStoreStoreIdThemeSectionsRoute:
