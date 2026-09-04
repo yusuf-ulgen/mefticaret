@@ -5451,8 +5451,10 @@ export type Database = {
         Row: {
           ai_enabled: boolean
           autofix_enabled: boolean
+          concurrency: number
           created_at: string
           daily_hour: number
+          daily_minute: number
           focus_keywords: string
           id: string
           is_enabled: boolean
@@ -5464,6 +5466,7 @@ export type Database = {
           run_blog: boolean
           run_campaigns: boolean
           run_collections: boolean
+          run_days: number[]
           run_landing: boolean
           run_products: boolean
           singleton_key: string
@@ -5472,8 +5475,10 @@ export type Database = {
         Insert: {
           ai_enabled?: boolean
           autofix_enabled?: boolean
+          concurrency?: number
           created_at?: string
           daily_hour?: number
+          daily_minute?: number
           focus_keywords?: string
           id?: string
           is_enabled?: boolean
@@ -5485,6 +5490,7 @@ export type Database = {
           run_blog?: boolean
           run_campaigns?: boolean
           run_collections?: boolean
+          run_days?: number[]
           run_landing?: boolean
           run_products?: boolean
           singleton_key?: string
@@ -5493,8 +5499,10 @@ export type Database = {
         Update: {
           ai_enabled?: boolean
           autofix_enabled?: boolean
+          concurrency?: number
           created_at?: string
           daily_hour?: number
+          daily_minute?: number
           focus_keywords?: string
           id?: string
           is_enabled?: boolean
@@ -5506,6 +5514,7 @@ export type Database = {
           run_blog?: boolean
           run_campaigns?: boolean
           run_collections?: boolean
+          run_days?: number[]
           run_landing?: boolean
           run_products?: boolean
           singleton_key?: string
