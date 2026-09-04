@@ -561,12 +561,13 @@ function BlogAdminPage() {
                     const postTags = (tags.data ?? []).filter((tag) => post.tagIds.includes(tag.id));
                     return (
                       <div key={post.id} className="surface-card space-y-2 p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="font-medium">{post.title}</p>
-                            <p className="text-xs text-muted-foreground">/{post.slug}</p>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0">
+                            <p className="break-words font-medium">{post.title}</p>
+                            <p className="truncate text-xs text-muted-foreground">/{post.slug}</p>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
+
                             <Badge variant={post.status === "published" ? "default" : "secondary"}>
                               {BLOG_STATUS_LABELS[post.status] ?? post.status}
                             </Badge>
