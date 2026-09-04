@@ -52,6 +52,15 @@ const META_EVENTS: Record<SiteKitEventName, string | null> = {
   begin_checkout: "InitiateCheckout",
   purchase: "Purchase",
   search: "Search",
+  blog_view: "ViewContent",
+  blog_read_complete: null,
+  share: null,
+};
+
+/** Meta'da standart karşılığı olmayan olaylar özel olay olarak gönderilir. */
+const META_CUSTOM_EVENTS: Partial<Record<SiteKitEventName, string>> = {
+  blog_read_complete: "BlogReadComplete",
+  share: "Share",
 };
 
 const TIKTOK_EVENTS: Record<SiteKitEventName, string | null> = {
@@ -61,7 +70,11 @@ const TIKTOK_EVENTS: Record<SiteKitEventName, string | null> = {
   begin_checkout: "InitiateCheckout",
   purchase: "CompletePayment",
   search: "Search",
+  blog_view: "ViewContent",
+  blog_read_complete: null,
+  share: null,
 };
+
 
 /** Tek olayı bağlı tüm servislere yayınlar. */
 export function pushSiteKitEvent(name: SiteKitEventName, payload: SiteKitEventPayload = {}) {
