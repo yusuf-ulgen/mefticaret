@@ -303,7 +303,8 @@ function SellerDashboardPage() {
               <Label htmlFor="payout-iban">IBAN</Label>
               <Input
                 id="payout-iban"
-                value={iban || (seller.iban ?? "")}
+                value={iban}
+                placeholder="TR.. (kayıtlı IBAN güvenlik nedeniyle gösterilmez)"
                 onChange={(event) => setIban(event.target.value)}
               />
             </div>

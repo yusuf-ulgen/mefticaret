@@ -64,7 +64,7 @@ export const sellersQuery = (storeId: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("marketplace_sellers")
-        .select("*")
+        .select(SELLER_SAFE_COLUMNS)
         .eq("store_id", storeId)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -80,7 +80,7 @@ export const mySellerAccountsQuery = (userId: string | null) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("marketplace_sellers")
-        .select("*, stores(id, name, slug)")
+        .select(`${SELLER_SAFE_COLUMNS}, stores(id, name, slug)`)
         .eq("user_id", userId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -96,7 +96,7 @@ export const sellerQuery = (sellerId: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("marketplace_sellers")
-        .select("*, stores(id, name, slug)")
+        .select(`${SELLER_SAFE_COLUMNS}, stores(id, name, slug)`)
         .eq("id", sellerId)
         .single();
       if (error) throw error;
