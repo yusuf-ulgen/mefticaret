@@ -19,6 +19,12 @@ import { storePagesQuery } from "@/lib/pages-queries";
 import { readStoreSeo, type StoreSeoSettings } from "@/lib/seo";
 import { seo404Query, seoRedirectsQuery } from "@/lib/seo-management-queries";
 import {
+  latestSeoAuditQuery,
+  seoAuditPagesQuery,
+  seoIssuesQuery,
+} from "@/lib/seo-audit-queries";
+import { fixSeoIssuesBulk, runSeoAudit, updateSeoIssueStatus } from "@/lib/seo-audit.functions";
+import {
   createRedirectFrom404,
   deleteSeoRedirect,
   upsertSeoRedirect,
