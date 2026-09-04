@@ -381,7 +381,50 @@ const CORE_SECTIONS: ThemeSectionDefinition[] = [
   },
 ];
 
-export const THEME_SECTIONS: ThemeSectionDefinition[] = [...CORE_SECTIONS, ...EXTENDED_SECTIONS];
+/** Her gövde bileşenine eklenen cihaz (masaüstü/tablet/mobil) ayarları. */
+const RESPONSIVE_DEFAULTS: SectionSettings = {
+  showOnDesktop: true,
+  showOnTablet: true,
+  showOnMobile: true,
+  columnsTablet: 0,
+  columnsMobile: 0,
+};
+
+const RESPONSIVE_FIELDS: SectionField[] = [
+  { key: "showOnDesktop", label: "Masaüstünde göster", kind: "boolean" },
+  { key: "showOnTablet", label: "Tablette göster", kind: "boolean" },
+  { key: "showOnMobile", label: "Mobilde göster", kind: "boolean" },
+  {
+    key: "columnsTablet",
+    label: "Tablet kolon sayısı",
+    kind: "number",
+    min: 0,
+    max: 6,
+    help: "0 = tema varsayılanını kullan.",
+  },
+  {
+    key: "columnsMobile",
+    label: "Mobil kolon sayısı",
+    kind: "number",
+    min: 0,
+    max: 4,
+    help: "0 = tema varsayılanını kullan.",
+  },
+];
+
+export const RESPONSIVE_SETTING_KEYS = Object.keys(RESPONSIVE_DEFAULTS);
+
+function withResponsive(definition: ThemeSectionDefinition): ThemeSectionDefinition {
+  if (definition.slot === "chrome") return definition;
+  return {
+    ...definition,
+    defaults: { ...definition.defaults, ...RESPONSIVE_DEFAULTS },
+    fields: [...definition.fields, ...RESPONSIVE_FIELDS],
+  };
+}
+
+export const THEME_SECTIONS: ThemeSectionDefinition[] = [...CORE_SECTIONS, ...EXTENDED_SECTIONS].map(withResponsive);
+
 
 /** Kategoriye göre gruplanmış blok listesi (editör seçicisi için). */
 export function sectionsByCategory(): { category: SectionCategory; label: string; items: ThemeSectionDefinition[] }[] {
