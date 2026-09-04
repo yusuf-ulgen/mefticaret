@@ -39,6 +39,7 @@ import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminSecurityRouteImport } from './routes/_authenticated/admin.security'
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin.sellers'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin.seo'
+import { Route as AuthenticatedAdminSeoAiRouteImport } from './routes/_authenticated/admin.seo-ai'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminStoresRouteImport } from './routes/_authenticated/admin.stores'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
@@ -189,6 +190,7 @@ import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/pu
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
+import { Route as ApiPublicCronSeoAiRouteImport } from './routes/api/public/cron.seo-ai'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
@@ -366,6 +368,11 @@ const AuthenticatedAdminSellersRoute =
 const AuthenticatedAdminSeoRoute = AuthenticatedAdminSeoRouteImport.update({
   id: '/seo',
   path: '/seo',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminSeoAiRoute = AuthenticatedAdminSeoAiRouteImport.update({
+  id: '/seo-ai',
+  path: '/seo-ai',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const AuthenticatedAdminSettingsRoute =
@@ -1242,6 +1249,11 @@ const ApiPublicCronQueueWorkerRoute =
     path: '/api/public/cron/queue-worker',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronSeoAiRoute = ApiPublicCronSeoAiRouteImport.update({
+  id: '/api/public/cron/seo-ai',
+  path: '/api/public/cron/seo-ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronWebhookRetriesRoute =
   ApiPublicCronWebhookRetriesRouteImport.update({
     id: '/api/public/cron/webhook-retries',
@@ -1376,6 +1388,7 @@ export interface FileRoutesByFullPath {
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/admin/seo-ai': typeof AuthenticatedAdminSeoAiRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -1526,6 +1539,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
+  '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -1575,6 +1589,7 @@ export interface FileRoutesByTo {
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/admin/seo-ai': typeof AuthenticatedAdminSeoAiRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -1724,6 +1739,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
+  '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -1776,6 +1792,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
+  '/_authenticated/admin/seo-ai': typeof AuthenticatedAdminSeoAiRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -1926,6 +1943,7 @@ export interface FileRoutesById {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
+  '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -1978,6 +1996,7 @@ export interface FileRouteTypes {
     | '/admin/security'
     | '/admin/sellers'
     | '/admin/seo'
+    | '/admin/seo-ai'
     | '/admin/settings'
     | '/admin/stores'
     | '/admin/subscriptions'
@@ -2128,6 +2147,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/queue-worker'
+    | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -2177,6 +2197,7 @@ export interface FileRouteTypes {
     | '/admin/security'
     | '/admin/sellers'
     | '/admin/seo'
+    | '/admin/seo-ai'
     | '/admin/settings'
     | '/admin/stores'
     | '/admin/subscriptions'
@@ -2326,6 +2347,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/queue-worker'
+    | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -2377,6 +2399,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/security'
     | '/_authenticated/admin/sellers'
     | '/_authenticated/admin/seo'
+    | '/_authenticated/admin/seo-ai'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/stores'
     | '/_authenticated/admin/subscriptions'
@@ -2527,6 +2550,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/queue-worker'
+    | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -2584,6 +2608,7 @@ export interface RootRouteChildren {
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
+  ApiPublicCronSeoAiRoute: typeof ApiPublicCronSeoAiRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
@@ -2809,6 +2834,13 @@ declare module '@tanstack/react-router' {
       path: '/seo'
       fullPath: '/admin/seo'
       preLoaderRoute: typeof AuthenticatedAdminSeoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo-ai': {
+      id: '/_authenticated/admin/seo-ai'
+      path: '/seo-ai'
+      fullPath: '/admin/seo-ai'
+      preLoaderRoute: typeof AuthenticatedAdminSeoAiRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/settings': {
@@ -3861,6 +3893,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronQueueWorkerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/seo-ai': {
+      id: '/api/public/cron/seo-ai'
+      path: '/api/public/cron/seo-ai'
+      fullPath: '/api/public/cron/seo-ai'
+      preLoaderRoute: typeof ApiPublicCronSeoAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/webhook-retries': {
       id: '/api/public/cron/webhook-retries'
       path: '/api/public/cron/webhook-retries'
@@ -4016,6 +4055,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSecurityRoute: typeof AuthenticatedAdminSecurityRoute
   AuthenticatedAdminSellersRoute: typeof AuthenticatedAdminSellersRoute
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
+  AuthenticatedAdminSeoAiRoute: typeof AuthenticatedAdminSeoAiRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminStoresRoute: typeof AuthenticatedAdminStoresRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
@@ -4052,6 +4092,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSecurityRoute: AuthenticatedAdminSecurityRoute,
   AuthenticatedAdminSellersRoute: AuthenticatedAdminSellersRoute,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
+  AuthenticatedAdminSeoAiRoute: AuthenticatedAdminSeoAiRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminStoresRoute: AuthenticatedAdminStoresRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
@@ -4461,6 +4502,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
+  ApiPublicCronSeoAiRoute: ApiPublicCronSeoAiRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,

@@ -5148,6 +5148,177 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_seo_ai_actions: {
+        Row: {
+          action: string
+          after_value: string | null
+          before_value: string | null
+          created_at: string
+          id: string
+          run_id: string
+          scope: string
+          store_id: string | null
+          target: string | null
+        }
+        Insert: {
+          action: string
+          after_value?: string | null
+          before_value?: string | null
+          created_at?: string
+          id?: string
+          run_id: string
+          scope: string
+          store_id?: string | null
+          target?: string | null
+        }
+        Update: {
+          action?: string
+          after_value?: string | null
+          before_value?: string | null
+          created_at?: string
+          id?: string
+          run_id?: string
+          scope?: string
+          store_id?: string | null
+          target?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_seo_ai_actions_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "platform_seo_ai_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_seo_ai_actions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_seo_ai_runs: {
+        Row: {
+          actor_id: string | null
+          ai_updates: number
+          autofixed: number
+          average_score: number
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          issues_found: number
+          started_at: string
+          status: string
+          stores_audited: number
+          summary: Json
+          total_tokens: number
+          trigger: string
+        }
+        Insert: {
+          actor_id?: string | null
+          ai_updates?: number
+          autofixed?: number
+          average_score?: number
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          issues_found?: number
+          started_at?: string
+          status?: string
+          stores_audited?: number
+          summary?: Json
+          total_tokens?: number
+          trigger?: string
+        }
+        Update: {
+          actor_id?: string | null
+          ai_updates?: number
+          autofixed?: number
+          average_score?: number
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          issues_found?: number
+          started_at?: string
+          status?: string
+          stores_audited?: number
+          summary?: Json
+          total_tokens?: number
+          trigger?: string
+        }
+        Relationships: []
+      }
+      platform_seo_ai_settings: {
+        Row: {
+          ai_enabled: boolean
+          autofix_enabled: boolean
+          created_at: string
+          daily_hour: number
+          focus_keywords: string
+          id: string
+          is_enabled: boolean
+          last_run_at: string | null
+          max_items_per_store: number
+          max_stores_per_run: number
+          model: string
+          provider_code: string
+          run_blog: boolean
+          run_campaigns: boolean
+          run_collections: boolean
+          run_landing: boolean
+          run_products: boolean
+          singleton_key: string
+          updated_at: string
+        }
+        Insert: {
+          ai_enabled?: boolean
+          autofix_enabled?: boolean
+          created_at?: string
+          daily_hour?: number
+          focus_keywords?: string
+          id?: string
+          is_enabled?: boolean
+          last_run_at?: string | null
+          max_items_per_store?: number
+          max_stores_per_run?: number
+          model?: string
+          provider_code?: string
+          run_blog?: boolean
+          run_campaigns?: boolean
+          run_collections?: boolean
+          run_landing?: boolean
+          run_products?: boolean
+          singleton_key?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_enabled?: boolean
+          autofix_enabled?: boolean
+          created_at?: string
+          daily_hour?: number
+          focus_keywords?: string
+          id?: string
+          is_enabled?: boolean
+          last_run_at?: string | null
+          max_items_per_store?: number
+          max_stores_per_run?: number
+          model?: string
+          provider_code?: string
+          run_blog?: boolean
+          run_campaigns?: boolean
+          run_collections?: boolean
+          run_landing?: boolean
+          run_products?: boolean
+          singleton_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           created_at: string
