@@ -94,7 +94,10 @@ function StorePage() {
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} footerPages={footerPages}>
-      <nav style={{ marginTop: 28, fontSize: 13, color: muted }}>
+      {post ? (
+        <ReadingProgress postId={post.id} title={post.title} accent={t.accent_color ?? muted} />
+      ) : null}
+      <nav style={{ marginTop: 24, fontSize: 13, color: muted }}>
         <Link to="/s/$slug" params={{ slug }} style={{ color: "inherit" }}>
           {store.name}
         </Link>
@@ -110,13 +113,22 @@ function StorePage() {
         <span>{page.title}</span>
       </nav>
 
-      <article style={{ maxWidth: 760, padding: "20px 0 40px" }}>
+      <article style={{ maxWidth: 760, padding: "16px 0 40px" }}>
         {post?.category ? (
           <span style={{ fontSize: 12, letterSpacing: 0.6, textTransform: "uppercase", color: t.accent_color }}>
             {post.category.name}
           </span>
         ) : null}
-        <h1 style={{ fontFamily: fonts.heading, fontSize: 34, fontWeight: 700, margin: post ? "8px 0 0" : 0 }}>
+        <h1
+          style={{
+            fontFamily: fonts.heading,
+            fontSize: "clamp(25px, 6.4vw, 34px)",
+            lineHeight: 1.25,
+            fontWeight: 700,
+            margin: post ? "8px 0 0" : 0,
+            overflowWrap: "anywhere",
+          }}
+        >
           {page.title}
         </h1>
         {post ? (
@@ -140,13 +152,34 @@ function StorePage() {
           <img
             src={post.cover_url}
             alt={page.title}
-            style={{ width: "100%", borderRadius: radius, marginTop: 18, objectFit: "cover" }}
+            style={{
+              width: "100%",
+              maxHeight: 420,
+              borderRadius: radius,
+              marginTop: 18,
+              objectFit: "cover",
+            }}
           />
         ) : null}
         {page.excerpt ? (
-          <p style={{ color: muted, marginTop: 16, fontSize: 15 }}>{page.excerpt}</p>
+          <p style={{ color: muted, marginTop: 16, fontSize: "clamp(15px, 4vw, 16.5px)", lineHeight: 1.7 }}>
+            {page.excerpt}
+          </p>
         ) : null}
-        <div style={{ marginTop: 24, fontSize: 15, lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{page.body}</div>
+        <div
+          style={{
+            marginTop: 24,
+            fontSize: "clamp(16px, 4.2vw, 17px)",
+            lineHeight: 1.85,
+            whiteSpace: "pre-wrap",
+            overflowWrap: "anywhere",
+          }}
+        >
+          {page.body}
+        </div>
+
+        {post ? <ShareButtons postId={post.id} title={post.title} border={border} muted={muted} /> : null}
+
 
         {post && post.tags.length > 0 ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 24 }}>
