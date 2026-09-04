@@ -852,15 +852,16 @@ export async function analyzeCompetitor(options: {
   if (error) throw new Error(error.message);
   if (!competitor) throw new Error("Rakip kaydı bulunamadı");
 
-  let ours: { title: string; description: string | null; base_price: number; currency: string; seo: unknown } | null = null;
+  type OurProduct = { title: string; description: string | null; base_price: number; currency: string };
+  let ours: OurProduct | null = null;
   if (competitor.product_id) {
-    const { data } = await options.client
+    const { data } = await (options.client as unknown as Any)
       .from("products")
-      .select("title, description, base_price, currency, seo")
+      .select("title, description, base_price, currency")
       .eq("id", competitor.product_id)
       .eq("store_id", options.storeId)
       .maybeSingle();
-    ours = (data ?? null) as typeof ours;
+    ours = data ? (data as OurProduct) : null;
   }
 
   const { data: history } = await db
