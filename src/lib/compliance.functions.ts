@@ -48,12 +48,16 @@ export const recordConsent = createServerFn({ method: "POST" })
       subject_email: data.subjectEmail ?? null,
       ip,
       user_agent: userAgent,
+      meta: { subject_verified: false } as never,
     }));
 
-    const { error } = await supabase.from("consent_records").insert(rows);
+    // Yazma yalnızca sunucu tarafında (service role) yapılır; ziyaretçi doğrudan tabloya yazamaz.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("consent_records").insert(rows);
     if (error) throw new Error(error.message);
     return { ok: true, recorded: rows.length };
   });
+
 
 /** Halka açık: veri sahibi talebi (dışa aktarma / silme / erişim / düzeltme) oluşturur. */
 export const submitDataRequest = createServerFn({ method: "POST" })
