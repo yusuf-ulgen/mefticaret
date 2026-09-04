@@ -34,6 +34,11 @@ export type SeoAiSettings = {
   maxStoresPerRun: number;
   maxItemsPerStore: number;
   dailyHour: number;
+  dailyMinute: number;
+  /** 0 = Pazar … 6 = Cumartesi. Boşsa her gün çalışır. */
+  runDays: number[];
+  /** Aynı anda işlenecek mağaza sayısı. */
+  concurrency: number;
   focusKeywords: string;
   lastRunAt: string | null;
 };
@@ -52,9 +57,13 @@ const DEFAULTS: SeoAiSettings = {
   maxStoresPerRun: 20,
   maxItemsPerStore: 8,
   dailyHour: 3,
+  dailyMinute: 0,
+  runDays: [0, 1, 2, 3, 4, 5, 6],
+  concurrency: 4,
   focusKeywords: "",
   lastRunAt: null,
 };
+
 
 const TITLE_MAX = 60;
 const DESC_MAX = 155;
@@ -131,7 +140,13 @@ export async function loadSeoAiSettings(db?: Db): Promise<SeoAiSettings> {
     maxStoresPerRun: Number(data.max_stores_per_run ?? DEFAULTS.maxStoresPerRun),
     maxItemsPerStore: Number(data.max_items_per_store ?? DEFAULTS.maxItemsPerStore),
     dailyHour: Number(data.daily_hour ?? DEFAULTS.dailyHour),
+    dailyMinute: Number(data.daily_minute ?? DEFAULTS.dailyMinute),
+    runDays: Array.isArray(data.run_days) && data.run_days.length > 0
+      ? (data.run_days as unknown[]).map((day) => Number(day)).filter((day) => day >= 0 && day <= 6)
+      : DEFAULTS.runDays,
+    concurrency: Number(data.concurrency ?? DEFAULTS.concurrency),
     focusKeywords: String(data.focus_keywords ?? ""),
+
     lastRunAt: data.last_run_at ? String(data.last_run_at) : null,
   };
 }
@@ -152,7 +167,14 @@ export async function saveSeoAiSettings(input: { [K in keyof SeoAiSettings]?: Se
   if (input.maxStoresPerRun !== undefined) row["max_stores_per_run"] = Math.min(Math.max(input.maxStoresPerRun, 1), 100);
   if (input.maxItemsPerStore !== undefined) row["max_items_per_store"] = Math.min(Math.max(input.maxItemsPerStore, 1), 40);
   if (input.dailyHour !== undefined) row["daily_hour"] = Math.min(Math.max(input.dailyHour, 0), 23);
+  if (input.dailyMinute !== undefined) row["daily_minute"] = Math.min(Math.max(input.dailyMinute, 0), 59);
+  if (input.concurrency !== undefined) row["concurrency"] = Math.min(Math.max(input.concurrency, 1), 12);
+  if (input.runDays !== undefined) {
+    const days = [...new Set(input.runDays.map((day) => Number(day)).filter((day) => day >= 0 && day <= 6))].sort();
+    row["run_days"] = days.length > 0 ? days : DEFAULTS.runDays;
+  }
   if (input.focusKeywords !== undefined) row["focus_keywords"] = input.focusKeywords.slice(0, 500);
+
 
   const { error } = await db
     .from("platform_seo_ai_settings")
@@ -466,7 +488,7 @@ export async function runSeoAiCycle(options: {
     const { runStoreSeoAudit } = await import("@/lib/seo-audit.server");
     const { applySeoAutofix, AUTOFIXABLE_CODES } = await import("@/lib/seo-autofix.server");
 
-    for (const store of stores) {
+    const processStore = async (store: { id: string; name: string; currency: string | null }) => {
       const storeId = String(store.id);
       const currency = String(store.currency ?? "TRY");
       try {
@@ -583,7 +605,21 @@ export async function runSeoAiCycle(options: {
           error: error instanceof Error ? error.message : "denetim hatası",
         });
       }
-    }
+    };
+
+    /* Mağazalar tek tek beklenmez: eşzamanlılık sınırı kadar mağaza aynı anda işlenir. */
+    const pool = Math.min(Math.max(settings.concurrency || 1, 1), 12);
+    const queue = [...stores];
+    await Promise.all(
+      Array.from({ length: Math.min(pool, queue.length) }, async () => {
+        for (;;) {
+          const next = queue.shift();
+          if (!next) return;
+          await processStore(next);
+        }
+      }),
+    );
+
 
     if (actions.length > 0) {
       await db.from("platform_seo_ai_actions").insert(
@@ -656,16 +692,22 @@ export async function platformHomeSeo(db?: Db) {
 }
 
 /**
- * Günlük tetikleyici: son çalışma 20 saatten eskiyse ve günün belirlenen saati
- * geldiyse yeni bir tur başlatır. Harici zamanlayıcı yoksa da otomasyon işler.
+ * Günlük tetikleyici: seçilen günlerde, belirlenen saat/dakika geldiyse ve son
+ * çalışma 20 saatten eskiyse yeni bir tur başlatır.
  */
 export async function maybeRunDailySeoAi() {
   const db = await admin();
   const settings = await loadSeoAiSettings(db);
   if (!settings.isEnabled) return { started: false as const, reason: "kapalı" };
-  if (new Date().getUTCHours() < settings.dailyHour) {
+  const now = new Date();
+  if (settings.runDays.length > 0 && !settings.runDays.includes(now.getUTCDay())) {
+    return { started: false as const, reason: "bugün çalışma günü değil" };
+  }
+  const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+  if (nowMinutes < settings.dailyHour * 60 + settings.dailyMinute) {
     return { started: false as const, reason: "saat gelmedi" };
   }
+
   if (settings.lastRunAt && Date.now() - new Date(settings.lastRunAt).getTime() < 20 * 60 * 60 * 1000) {
     return { started: false as const, reason: "bugün çalıştı" };
   }
