@@ -82,6 +82,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { to: "/admin/blog", label: "Blog Sistemi", icon: PenLine, hint: "Yazılar ve yayın takvimi", keywords: "makale içerik yazı" },
       { to: "/admin/content", label: "İçerik Merkezi", icon: Images, hint: "Popup, story, medya", keywords: "popup hikaye medya banner duyuru" },
       { to: "/admin/seo", label: "SEO Merkezi", icon: Search, hint: "Meta, yönlendirme, 404", keywords: "seo meta redirect sitemap" },
+      {
+        to: "/admin/seo-ai",
+        label: "Otomatik SEO AI",
+        icon: Search,
+        hint: "Her gün otomatik SEO çalışması",
+        keywords: "seo yapay zeka otomatik günlük meta optimizasyon",
+      },
       { to: "/admin/coupons", label: "Kuponlar", icon: Tag, hint: "Kampanya kodları", keywords: "indirim kupon" },
     ],
   },

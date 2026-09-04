@@ -12,25 +12,37 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { formatMoney, planLimitLabel } from "@/lib/mefti";
 import { pickSection, sectionIcon, siteSectionsQuery, type SiteSection } from "@/lib/site-content";
+import { fetchHomeSeo } from "@/lib/seo-ai.functions";
 import { plansQuery } from "@/lib/store-queries";
 
+const FALLBACK_TITLE = "Mefticaret — Mağazanı Kur, Hemen Satışa Başla";
+const FALLBACK_DESCRIPTION =
+  "Mefticaret ile dakikalar içinde mağazanı kur; ürün, stok, sipariş, kargo, ödeme ve pazaryeri yönetimi tek panelde. Çok kiracılı, ölçeklenebilir e-ticaret altyapısı.";
+
 export const Route = createFileRoute("/")({
-  head: () => ({
+  loader: async () => ({ homeSeo: await fetchHomeSeo() }),
+  head: ({ loaderData }) => ({
     meta: [
-      { title: "Mefticaret — Mağazanı Kur, Hemen Satışa Başla" },
-      {
-        name: "description",
-        content:
-          "Mefticaret ile dakikalar içinde mağazanı kur; ürün, stok, sipariş, kargo, ödeme ve pazaryeri yönetimi tek panelde. Çok kiracılı, ölçeklenebilir e-ticaret altyapısı.",
-      },
-      { property: "og:title", content: "Mefticaret — Mağazanı Kur, Hemen Satışa Başla" },
-      {
-        property: "og:description",
-        content:
-          "E-ticaret altyapın hazır: mağaza kur, temanı tasarla, domain bağla, siparişlerini yönet ve büyü.",
-      },
+      { title: loaderData?.homeSeo?.title || FALLBACK_TITLE },
+      { name: "description", content: loaderData?.homeSeo?.description || FALLBACK_DESCRIPTION },
+      { property: "og:title", content: loaderData?.homeSeo?.title || FALLBACK_TITLE },
+      { property: "og:description", content: loaderData?.homeSeo?.description || FALLBACK_DESCRIPTION },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "/" }],
   }),
+  errorComponent: () => (
+    <main className="mx-auto max-w-2xl px-6 py-24 text-center">
+      <h1 className="text-2xl font-semibold">Sayfa şu anda yüklenemedi</h1>
+      <p className="mt-2 text-muted-foreground">Lütfen birkaç saniye sonra tekrar deneyin.</p>
+    </main>
+  ),
+  notFoundComponent: () => (
+    <main className="mx-auto max-w-2xl px-6 py-24 text-center">
+      <h1 className="text-2xl font-semibold">Sayfa bulunamadı</h1>
+    </main>
+  ),
   component: LandingPage,
 });
 
