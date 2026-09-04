@@ -488,7 +488,7 @@ export async function runSeoAiCycle(options: {
     const { runStoreSeoAudit } = await import("@/lib/seo-audit.server");
     const { applySeoAutofix, AUTOFIXABLE_CODES } = await import("@/lib/seo-autofix.server");
 
-    for (const store of stores) {
+    const processStore = async (store: { id: string; name: string; currency: string | null }) => {
       const storeId = String(store.id);
       const currency = String(store.currency ?? "TRY");
       try {
