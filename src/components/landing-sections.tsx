@@ -19,42 +19,39 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { sectionIcon, type SiteSection } from "@/lib/site-content";
+
+
 
 /* ---------------------------------- Entegrasyonlar ---------------------------------- */
 
-const INTEGRATION_CATEGORIES = [
-  { label: "PAZARYERLERİ", icon: ShoppingBag, count: "12+" },
-  { label: "KARGO", icon: Truck, count: "9+" },
-  { label: "ÖDEMELER", icon: CreditCard, count: "8+" },
-  { label: "DİJİTAL DÜNYA", icon: BarChart3, count: "10+" },
-  { label: "SMS PAZARLAMA", icon: MessageSquare, count: "6+" },
-  { label: "MUHASEBE", icon: Calculator, count: "5+" },
-];
+export function IntegrationsSection({ section }: { section: SiteSection | null }) {
+  if (!section) return null;
+  const items = section.items;
+  const half = Math.ceil(items.length / 2);
 
-export function IntegrationsSection() {
   return (
     <section id="entegrasyonlar" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
       <div className="text-center">
-        <span className="eyebrow">Entegrasyonlar</span>
+        {section.eyebrow ? <span className="eyebrow">{section.eyebrow}</span> : null}
         <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-          Tüm Entegrasyonlar, Tek Merkez
+          {section.title}
         </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-          Pazaryerlerinden kargoya, e-faturadan reklam platformlarına kadar tüm araçlarınız tek
-          panelde buluşsun. Sekmeler arasında kaybolmadan işinizi yönetin.
-        </p>
+        <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">{section.subtitle}</p>
       </div>
 
       <div className="mt-14 grid items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-          {INTEGRATION_CATEGORIES.slice(0, 3).map((item) => (
-            <IntegrationCard key={item.label} {...item} />
+          {items.slice(0, half).map((item, index) => (
+            <IntegrationCard key={`${item["label"]}-${index}`} item={item} />
           ))}
         </div>
 
         <div className="mx-auto grid size-44 place-items-center rounded-full border border-border bg-secondary/60 text-center lg:size-52">
           <div>
-            <p className="font-display text-4xl font-extrabold tracking-tighter text-brand">50+</p>
+            <p className="font-display text-4xl font-extrabold tracking-tighter text-brand">
+              {section.badge}
+            </p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               Entegrasyon
             </p>
@@ -62,8 +59,8 @@ export function IntegrationsSection() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-          {INTEGRATION_CATEGORIES.slice(3).map((item) => (
-            <IntegrationCard key={item.label} {...item} />
+          {items.slice(half).map((item, index) => (
+            <IntegrationCard key={`${item["label"]}-b-${index}`} item={item} />
           ))}
         </div>
       </div>
@@ -71,23 +68,18 @@ export function IntegrationsSection() {
   );
 }
 
-function IntegrationCard({
-  label,
-  count,
-  icon: Icon,
-}: {
-  label: string;
-  count: string;
-  icon: typeof ShoppingBag;
-}) {
+function IntegrationCard({ item }: { item: Record<string, string> }) {
+  const Icon = sectionIcon(item["icon"]);
+
   return (
     <div className="showcase-card flex items-center gap-3 p-4">
       <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
         <Icon className="size-5" />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-xs font-semibold uppercase tracking-widest">{label}</p>
-        <p className="text-sm text-muted-foreground">{count} bağlantı</p>
+        <p className="truncate text-xs font-semibold uppercase tracking-widest">{item["label"]}</p>
+        <p className="text-sm text-muted-foreground">{item["count"]} bağlantı</p>
+
       </div>
       <ArrowUpRight className="ml-auto size-4 shrink-0 text-muted-foreground" />
     </div>
@@ -433,20 +425,19 @@ function SeoToolsDemo() {
   );
 }
 
-export function PlatformDemosSection() {
+export function PlatformDemosSection({ section }: { section: SiteSection | null }) {
+  if (!section) return null;
   return (
     <section id="ozellikler" className="border-y border-border bg-secondary/40 py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div className="text-center">
-          <span className="eyebrow">Panelde Neler Var?</span>
+          {section.eyebrow ? <span className="eyebrow">{section.eyebrow}</span> : null}
           <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-            Deneyin: Panel Böyle Çalışıyor
+            {section.title}
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-            Tema bloklarını sıralayın, pazarlama araçlarını tek tıkla bağlayın, yapay zeka ile içerik
-            üretin ve SEO skorunuzu izleyin.
-          </p>
+          <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">{section.subtitle}</p>
         </div>
+
         <div className="mt-14 grid gap-4 lg:grid-cols-2">
           <ThemeBlocksDemo />
           <SiteKitDemo />
@@ -460,48 +451,26 @@ export function PlatformDemosSection() {
 
 /* ------------------------------------- Blog ---------------------------------------- */
 
-const POSTS = [
-  {
-    tag: "Rehber",
-    title: "Sıfırdan e-ticaret mağazası açma rehberi",
-    text: "Domain, tema, ürün girişi, ödeme ve kargo kurulumunu adım adım tamamlayın.",
-    read: "8 dk okuma",
-  },
-  {
-    tag: "Pazaryeri",
-    title: "Pazaryeri entegrasyonlarında stok senkronizasyonu",
-    text: "Tek stoktan çok kanala satış yaparken aşırı satışı nasıl engellersiniz?",
-    read: "6 dk okuma",
-  },
-  {
-    tag: "SEO",
-    title: "Ürün sayfası SEO'su için 10 teknik kontrol",
-    text: "Yapılandırılmış veri, hız, meta düzeni ve iç link stratejisi.",
-    read: "7 dk okuma",
-  },
-];
-
-export function BlogSection() {
+export function BlogSection({ section }: { section: SiteSection | null }) {
+  if (!section) return null;
   return (
     <section id="blog" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <span className="eyebrow">Blog</span>
+          {section.eyebrow ? <span className="eyebrow">{section.eyebrow}</span> : null}
           <h2 className="mt-6 max-w-2xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-            E-Ticaret Dünyasından İlham Alın
+            {section.title}
           </h2>
-          <p className="mt-5 max-w-xl text-muted-foreground">
-            E-ticaret rehberleri, sektör trendleri ve uzman ipuçlarıyla her zaman bir adım önde olun.
-          </p>
+          <p className="mt-5 max-w-xl text-muted-foreground">{section.subtitle}</p>
         </div>
       </div>
       <div className="mt-12 grid gap-4 md:grid-cols-3">
-        {POSTS.map((post) => (
-          <article key={post.title} className="showcase-card flex flex-col p-6">
-            <span className="eyebrow">{post.tag}</span>
-            <h3 className="mt-4 text-lg font-semibold leading-snug">{post.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{post.text}</p>
-            <p className="mt-6 text-xs text-muted-foreground">{post.read}</p>
+        {section.items.map((post, index) => (
+          <article key={`${post["title"]}-${index}`} className="showcase-card flex flex-col p-6">
+            {post["tag"] ? <span className="eyebrow">{post["tag"]}</span> : null}
+            <h3 className="mt-4 text-lg font-semibold leading-snug">{post["title"]}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{post["text"]}</p>
+            <p className="mt-6 text-xs text-muted-foreground">{post["read"]}</p>
           </article>
         ))}
       </div>
@@ -511,57 +480,31 @@ export function BlogSection() {
 
 /* -------------------------------------- SSS ---------------------------------------- */
 
-const FAQ = [
-  {
-    q: "Mağazamı kurmak ne kadar sürer?",
-    a: "Kayıt olduktan sonra mağazanız otomatik alt alan adıyla anında oluşur. Tema seçimi, ürün girişi ve ödeme kurulumu ile aynı gün satışa başlayabilirsiniz.",
-  },
-  {
-    q: "Kendi domainimi bağlayabilir miyim?",
-    a: "Evet. magazam.com veya www.magazam.com gibi özel domainlerinizi bağlayabilir, DNS doğrulamasını panelden takip edebilir ve SSL sertifikanızın otomatik kurulmasını bekleyebilirsiniz.",
-  },
-  {
-    q: "Tek hesapla birden fazla mağaza yönetebilir miyim?",
-    a: "Evet. Mefticaret çok kiracılı bir altyapıdır; tek hesapla birden fazla mağaza açabilir, her mağaza için ayrı ekip, tema ve ayar yönetebilirsiniz. Mağaza verileri veritabanı seviyesinde birbirinden izole edilir.",
-  },
-  {
-    q: "Mevcut mağazamdaki verileri taşıyabilir miyim?",
-    a: "Ürün, varyant, kategori ve müşteri verilerinizi CSV içe aktarma ile taşıyabilirsiniz. Toplu fiyat, stok, kategori ve etiket düzenleme araçları da hazır.",
-  },
-  {
-    q: "Paket limitleri nasıl belirleniyor?",
-    a: "Ürün, sipariş, personel, depolama, domain, API ve AI kullanım limitleri veritabanında tutulur ve yönetici panelinden güncellenir. Paketiniz büyüdükçe limitleriniz anında yükselir.",
-  },
-  {
-    q: "Ödeme ve kargo entegrasyonları var mı?",
-    a: "Ödeme, kargo, pazaryeri, muhasebe ve pazarlama araçları için connector altyapısı hazırdır; bağlantılarınızı panelden yönetir, webhook kayıtlarını ve yeniden gönderimleri izlersiniz.",
-  },
-];
-
-export function FaqSection() {
+export function FaqSection({ section }: { section: SiteSection | null }) {
+  if (!section) return null;
   return (
     <section id="sss" className="border-t border-border bg-secondary/40 py-20 lg:py-28">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[minmax(0,380px)_1fr] lg:px-8">
         <div>
-          <span className="eyebrow">Sorular &amp; Cevaplar</span>
-          <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl">Sıkça Sorulan Sorular</h2>
-          <p className="mt-5 text-muted-foreground">
-            Mefticaret ile mağaza kurmak ve büyütmek hakkında merak ettiğiniz her şey burada.
-          </p>
-          <Button asChild variant="outline" className="mt-6 rounded-full">
-            <Link to="/auth" search={{ mode: "register" }}>
-              Ücretsiz Başlayın <ArrowRight className="ml-2 size-4" />
-            </Link>
-          </Button>
+          {section.eyebrow ? <span className="eyebrow">{section.eyebrow}</span> : null}
+          <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl">{section.title}</h2>
+          <p className="mt-5 text-muted-foreground">{section.subtitle}</p>
+          {section.primary_label ? (
+            <Button asChild variant="outline" className="mt-6 rounded-full">
+              <Link to="/auth" search={{ mode: "register" }}>
+                {section.primary_label} <ArrowRight className="ml-2 size-4" />
+              </Link>
+            </Button>
+          ) : null}
         </div>
         <Accordion type="single" collapsible className="showcase-card px-5 py-2">
-          {FAQ.map((item, index) => (
-            <AccordionItem key={item.q} value={`faq-${index}`}>
+          {section.items.map((item, index) => (
+            <AccordionItem key={`faq-${index}`} value={`faq-${index}`}>
               <AccordionTrigger className="text-left text-base font-semibold">
-                {item.q}
+                {item["q"]}
               </AccordionTrigger>
               <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
-                {item.a}
+                {item["a"]}
               </AccordionContent>
             </AccordionItem>
           ))}
