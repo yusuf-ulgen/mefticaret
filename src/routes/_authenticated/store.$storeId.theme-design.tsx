@@ -18,7 +18,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { storeThemeQuery } from "@/lib/theme-queries";
 import { saveThemeDesign } from "@/lib/theme-design.functions";
 import {
-  DEFAULT_DESIGN_TOKENS,
   DESIGN_PRESETS,
   DEVICE_KEYS,
   DEVICE_LABELS,
@@ -579,7 +578,6 @@ function DesignPreview({ tokens }: { tokens: DesignTokens }) {
           ))}
         </div>
       </div>
-      {JSON.stringify(tokens) === JSON.stringify(DEFAULT_DESIGN_TOKENS) ? null : null}
     </div>
   );
 }
