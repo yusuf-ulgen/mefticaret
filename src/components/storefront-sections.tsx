@@ -78,11 +78,41 @@ export function StorefrontSections({
       {sections
         .filter((section) => section.isEnabled && section.definition.slot === "body")
         .map((section) => (
-          <div key={section.id} style={{ marginBottom: storefrontTokens(context.theme).sectionSpacing }}>
-            <StorefrontSection section={section} context={context} />
-          </div>
+          <ResponsiveSection key={section.id} section={section} context={context} />
         ))}
     </>
+  );
+}
+
+/**
+ * Bölüm sarmalayıcısı: cihaz bazlı görünürlük ve kolon sayısı ayarlarını
+ * medya sorgularına çevirir (masaüstü / tablet / mobil).
+ */
+function ResponsiveSection({ section, context }: { section: ResolvedSection; context: SectionContext }) {
+  const s = section.settings;
+  const has = (key: string) => key in section.definition.defaults;
+  const flag = (key: string) => (has(key) ? Boolean(s[key]) : true);
+  const columns = Math.max(1, num(s, "columns", 3));
+  const tabletCols = Math.max(0, num(s, "columnsTablet", 0)) || Math.min(columns, 2);
+  const mobileCols = Math.max(0, num(s, "columnsMobile", 0)) || 1;
+  const cls = `sf-s-${section.id.replace(/[^a-zA-Z0-9]/g, "")}`;
+  const spacing = storefrontTokens(context.theme).sectionSpacing;
+
+  const css = [
+    `@media (max-width: 1024px){.${cls}{--sf-cols:${tabletCols};}}`,
+    `@media (max-width: 640px){.${cls}{--sf-cols:${mobileCols};}}`,
+    flag("showOnDesktop") ? "" : `@media (min-width: 1025px){.${cls}{display:none;}}`,
+    flag("showOnTablet") ? "" : `@media (min-width: 641px) and (max-width: 1024px){.${cls}{display:none;}}`,
+    flag("showOnMobile") ? "" : `@media (max-width: 640px){.${cls}{display:none;}}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return (
+    <div className={`sf-section ${cls}`} style={{ marginBottom: `var(--sf-section-space, ${spacing}px)` }}>
+      <style dangerouslySetInnerHTML={{ __html: css }} />
+      <StorefrontSection section={section} context={context} />
+    </div>
   );
 }
 
