@@ -30,6 +30,7 @@ import {
   type BlogPostRow,
 } from "@/lib/blog-queries";
 import { formatDateTime } from "@/lib/mefti";
+import { storeQuery } from "@/lib/store-queries";
 import { deletePage, savePage } from "@/lib/pages.functions";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/blog")({
@@ -85,6 +86,8 @@ function BlogAdminPage() {
   const categories = useQuery(blogCategoriesQuery(storeId));
   const tags = useQuery(blogTagsQuery(storeId));
   const authors = useQuery(blogAuthorsQuery(storeId));
+  const store = useQuery(storeQuery(storeId));
+  const storeSlug = store.data?.slug ?? null;
 
   const save = useServerFn(savePage);
   const remove = useServerFn(deletePage);
@@ -545,6 +548,25 @@ function BlogAdminPage() {
                             <Button size="sm" variant="outline" onClick={() => editPost(post)}>
                               Düzenle
                             </Button>
+                            <Button
+                              size="sm"
+                              variant={post.status === "published" ? "outline" : "default"}
+                              disabled={togglePublish.isPending}
+                              onClick={() => togglePublish.mutate(post)}
+                            >
+                              {post.status === "published" ? "Taslağa al" : "Yayınla"}
+                            </Button>
+                            {storeSlug ? (
+                              <Button size="sm" variant="ghost" asChild>
+                                <a
+                                  href={`/s/${storeSlug}/page/${post.slug}`}
+                                  target="_blank"
+                                  rel="noreferrer noopener"
+                                >
+                                  Önizle
+                                </a>
+                              </Button>
+                            ) : null}
                             <Button
                               size="icon"
                               variant="ghost"
