@@ -605,7 +605,21 @@ export async function runSeoAiCycle(options: {
           error: error instanceof Error ? error.message : "denetim hatası",
         });
       }
-    }
+    };
+
+    /* Mağazalar tek tek beklenmez: eşzamanlılık sınırı kadar mağaza aynı anda işlenir. */
+    const pool = Math.min(Math.max(settings.concurrency || 1, 1), 12);
+    const queue = [...stores];
+    await Promise.all(
+      Array.from({ length: Math.min(pool, queue.length) }, async () => {
+        for (;;) {
+          const next = queue.shift();
+          if (!next) return;
+          await processStore(next);
+        }
+      }),
+    );
+
 
     if (actions.length > 0) {
       await db.from("platform_seo_ai_actions").insert(
