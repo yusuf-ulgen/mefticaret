@@ -425,20 +425,19 @@ function SeoToolsDemo() {
   );
 }
 
-export function PlatformDemosSection() {
+export function PlatformDemosSection({ section }: { section: SiteSection | null }) {
+  if (!section) return null;
   return (
     <section id="ozellikler" className="border-y border-border bg-secondary/40 py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div className="text-center">
-          <span className="eyebrow">Panelde Neler Var?</span>
+          {section.eyebrow ? <span className="eyebrow">{section.eyebrow}</span> : null}
           <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-            Deneyin: Panel Böyle Çalışıyor
+            {section.title}
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-            Tema bloklarını sıralayın, pazarlama araçlarını tek tıkla bağlayın, yapay zeka ile içerik
-            üretin ve SEO skorunuzu izleyin.
-          </p>
+          <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">{section.subtitle}</p>
         </div>
+
         <div className="mt-14 grid gap-4 lg:grid-cols-2">
           <ThemeBlocksDemo />
           <SiteKitDemo />
