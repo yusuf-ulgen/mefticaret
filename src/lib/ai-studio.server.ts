@@ -860,7 +860,7 @@ export async function analyzeCompetitor(options: {
       .eq("id", competitor.product_id)
       .eq("store_id", options.storeId)
       .maybeSingle();
-    ours = (data as never) ?? null;
+    ours = (data ?? null) as typeof ours;
   }
 
   const { data: history } = await db
