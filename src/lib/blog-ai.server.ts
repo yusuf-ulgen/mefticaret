@@ -69,7 +69,7 @@ function money(value: number, currency: string) {
 export async function collectBlogContext(client: Client, storeId: string) {
   const { data: store, error: storeError } = await client
     .from("stores")
-    .select("id, name, slug, industry, currency, description")
+    .select("id, name, slug, industry, currency")
     .eq("id", storeId)
     .maybeSingle();
   if (storeError) throw new Error(storeError.message);
@@ -78,7 +78,7 @@ export async function collectBlogContext(client: Client, storeId: string) {
   const [products, collections, categories] = await Promise.all([
     client
       .from("products")
-      .select("title, slug, base_price, short_description, vendor, status")
+      .select("title, slug, base_price, description, vendor, status")
       .eq("store_id", storeId)
       .eq("status", "active")
       .order("created_at", { ascending: false })
@@ -90,14 +90,13 @@ export async function collectBlogContext(client: Client, storeId: string) {
   const currency = store.currency ?? "TRY";
   const productLines = (products.data ?? []).map((row) => {
     const price = row.base_price != null ? ` — ${money(Number(row.base_price), currency)}` : "";
-    const summary = row.short_description ? ` — ${String(row.short_description).slice(0, 140)}` : "";
+    const summary = row.description ? ` — ${String(row.description).slice(0, 140)}` : "";
     return `- ${row.title}${price}${summary}${row.slug ? ` (/p/${row.slug})` : ""}`;
   });
 
   const promptBlock = [
     "MAĞAZA BAĞLAMI",
     `Mağaza: ${store.name}${store.industry ? ` (${store.industry})` : ""}`,
-    store.description ? `Tanım: ${String(store.description).slice(0, 300)}` : null,
     `Para birimi: ${currency}`,
     `Vitrin yolu: /s/${store.slug}`,
     productLines.length > 0 ? `Aktif ürünler:\n${productLines.join("\n")}` : "Aktif ürün yok.",
