@@ -31,6 +31,17 @@ function publicClient() {
 
 const slugInput = (data: unknown) => z.object({ slug: z.string().trim().min(1).max(120) }).parse(data);
 
+/** Public vitrin okumaları için read-through önbellek yardımcısı. */
+async function readThrough<T>(
+  parts: (string | number)[],
+  namespace: "catalog" | "categories",
+  producer: () => Promise<T>,
+): Promise<T> {
+  const { cached, cacheKey, CACHE_NAMESPACES } = await import("./cache.server");
+  const ns = namespace === "catalog" ? CACHE_NAMESPACES.catalog : CACHE_NAMESPACES.categories;
+  return cached(cacheKey(ns, null, ...parts), ns, producer);
+}
+
 export const getStorefront = createServerFn({ method: "GET" })
   .inputValidator(slugInput)
   .handler(async ({ data }) => {
