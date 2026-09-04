@@ -221,11 +221,11 @@ function StoreSellersPage() {
                   <div>
                     <h3 className="font-display text-lg font-semibold">{selected.display_name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {selected.legal_name ?? "Yasal ad girilmedi"} · {selected.tax_id ?? "VKN yok"}
+                      {selected.legal_name ?? "Yasal ad girilmedi"}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {selected.email ?? "—"} · {selected.phone ?? "—"} · IBAN{" "}
-                      {selected.iban ?? "—"}
+                      {selected.email ?? "—"} · {selected.phone ?? "—"} · IBAN ve vergi
+                      numarası güvenlik nedeniyle gizlidir
                     </p>
                   </div>
                   <Badge variant={statusTone[selected.status]}>
