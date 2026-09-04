@@ -338,9 +338,14 @@ export async function handleApiRequest(request: Request, splat: string): Promise
 
     if (!resourceId) return finish(json({ error: "missing_resource_id" }, 400));
 
-    const base = admin.from(resource.table).update(patch).eq("id", resourceId);
-    const scoped = resource.table === "product_variants" ? base : base.eq("store_id", auth.storeId);
-    const { data, error } = await scoped.select(resource.select).maybeSingle();
+    const { data, error } = await admin
+      .from(resource.table)
+      .update(patch)
+      .eq("id", resourceId)
+      .eq("store_id", auth.storeId)
+      .select(resource.select)
+      .maybeSingle();
+
     if (error) throw new Error(error.message);
     if (!data) return finish(json({ error: "not_found" }, 404));
     return finish(json({ data }));
