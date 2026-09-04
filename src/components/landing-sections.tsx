@@ -19,6 +19,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { sectionIcon, type SiteSection } from "@/lib/site-content";
+
+
 
 /* ---------------------------------- Entegrasyonlar ---------------------------------- */
 
