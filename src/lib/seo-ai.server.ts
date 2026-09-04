@@ -167,7 +167,14 @@ export async function saveSeoAiSettings(input: { [K in keyof SeoAiSettings]?: Se
   if (input.maxStoresPerRun !== undefined) row["max_stores_per_run"] = Math.min(Math.max(input.maxStoresPerRun, 1), 100);
   if (input.maxItemsPerStore !== undefined) row["max_items_per_store"] = Math.min(Math.max(input.maxItemsPerStore, 1), 40);
   if (input.dailyHour !== undefined) row["daily_hour"] = Math.min(Math.max(input.dailyHour, 0), 23);
+  if (input.dailyMinute !== undefined) row["daily_minute"] = Math.min(Math.max(input.dailyMinute, 0), 59);
+  if (input.concurrency !== undefined) row["concurrency"] = Math.min(Math.max(input.concurrency, 1), 12);
+  if (input.runDays !== undefined) {
+    const days = [...new Set(input.runDays.map((day) => Number(day)).filter((day) => day >= 0 && day <= 6))].sort();
+    row["run_days"] = days.length > 0 ? days : DEFAULTS.runDays;
+  }
   if (input.focusKeywords !== undefined) row["focus_keywords"] = input.focusKeywords.slice(0, 500);
+
 
   const { error } = await db
     .from("platform_seo_ai_settings")
