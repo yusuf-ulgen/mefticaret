@@ -20,6 +20,7 @@ import { toast } from "sonner";
 const APP_MODULE_ROUTES: Record<string, string | undefined> = {
   "instagram-dm": "/store/$storeId/instagram",
   "tiktok-dm": "/store/$storeId/tiktok",
+  "facebook-marketplace": "/store/$storeId/facebook-marketplace",
 
   "whatsapp-crm": "/store/$storeId/inbox",
 };
