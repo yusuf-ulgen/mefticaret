@@ -2729,6 +2729,323 @@ export type Database = {
           },
         ]
       }
+      instagram_accounts: {
+        Row: {
+          ai_confidence_threshold: number
+          auto_comment_dm_enabled: boolean
+          autonomous_ai_enabled: boolean
+          created_at: string
+          id: string
+          ig_user_id: string
+          ig_username: string | null
+          page_id: string | null
+          page_name: string | null
+          scopes: string[]
+          status: string
+          status_message: string | null
+          store_id: string
+          token_expires_at: string | null
+          updated_at: string
+          verify_token: string
+        }
+        Insert: {
+          ai_confidence_threshold?: number
+          auto_comment_dm_enabled?: boolean
+          autonomous_ai_enabled?: boolean
+          created_at?: string
+          id?: string
+          ig_user_id: string
+          ig_username?: string | null
+          page_id?: string | null
+          page_name?: string | null
+          scopes?: string[]
+          status?: string
+          status_message?: string | null
+          store_id: string
+          token_expires_at?: string | null
+          updated_at?: string
+          verify_token?: string
+        }
+        Update: {
+          ai_confidence_threshold?: number
+          auto_comment_dm_enabled?: boolean
+          autonomous_ai_enabled?: boolean
+          created_at?: string
+          id?: string
+          ig_user_id?: string
+          ig_username?: string | null
+          page_id?: string | null
+          page_name?: string | null
+          scopes?: string[]
+          status?: string
+          status_message?: string | null
+          store_id?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          verify_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instagram_accounts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      instagram_comment_rules: {
+        Row: {
+          conversion_count: number
+          created_at: string
+          dm_sent_count: number
+          dm_template: string
+          id: string
+          is_active: boolean
+          keywords: string[]
+          match_type: string
+          name: string
+          priority: number
+          product_id: string | null
+          public_reply: string
+          reply_to_comment: boolean
+          send_product_card: boolean
+          store_id: string
+          target_post_id: string | null
+          triggered_count: number
+          updated_at: string
+        }
+        Insert: {
+          conversion_count?: number
+          created_at?: string
+          dm_sent_count?: number
+          dm_template?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          match_type?: string
+          name: string
+          priority?: number
+          product_id?: string | null
+          public_reply?: string
+          reply_to_comment?: boolean
+          send_product_card?: boolean
+          store_id: string
+          target_post_id?: string | null
+          triggered_count?: number
+          updated_at?: string
+        }
+        Update: {
+          conversion_count?: number
+          created_at?: string
+          dm_sent_count?: number
+          dm_template?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          match_type?: string
+          name?: string
+          priority?: number
+          product_id?: string | null
+          public_reply?: string
+          reply_to_comment?: boolean
+          send_product_card?: boolean
+          store_id?: string
+          target_post_id?: string | null
+          triggered_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instagram_comment_rules_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instagram_comment_rules_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      instagram_credentials: {
+        Row: {
+          access_token: string
+          account_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          refresh_token: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          account_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          refresh_token?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          account_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          refresh_token?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instagram_credentials_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "instagram_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instagram_credentials_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      instagram_events: {
+        Row: {
+          attempts: number
+          created_at: string
+          error: string | null
+          event_type: string
+          external_id: string | null
+          id: string
+          payload: Json
+          processed_at: string | null
+          status: string
+          store_id: string | null
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          event_type: string
+          external_id?: string | null
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          status?: string
+          store_id?: string | null
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          external_id?: string | null
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          status?: string
+          store_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instagram_events_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      instagram_interactions: {
+        Row: {
+          comment_id: string | null
+          conversation_id: string | null
+          created_at: string
+          dm_status: string
+          error: string | null
+          id: string
+          ig_user_id: string | null
+          kind: string
+          matched_keyword: string | null
+          post_id: string | null
+          reply_status: string
+          rule_id: string | null
+          store_id: string
+          text: string | null
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          comment_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          dm_status?: string
+          error?: string | null
+          id?: string
+          ig_user_id?: string | null
+          kind?: string
+          matched_keyword?: string | null
+          post_id?: string | null
+          reply_status?: string
+          rule_id?: string | null
+          store_id: string
+          text?: string | null
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          comment_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          dm_status?: string
+          error?: string | null
+          id?: string
+          ig_user_id?: string | null
+          kind?: string
+          matched_keyword?: string | null
+          post_id?: string | null
+          reply_status?: string
+          rule_id?: string | null
+          store_id?: string
+          text?: string | null
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instagram_interactions_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "omni_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instagram_interactions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "instagram_comment_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instagram_interactions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_levels: {
         Row: {
           available: number | null
