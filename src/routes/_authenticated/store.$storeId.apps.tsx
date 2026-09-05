@@ -79,6 +79,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/apps")({
 
 type CatalogApp = {
   id: string;
+  code: string;
   name: string;
   slug?: string;
   category: string;
