@@ -2612,6 +2612,283 @@ export type Database = {
           },
         ]
       }
+      fb_marketplace_accounts: {
+        Row: {
+          auto_sync: boolean
+          catalog_id: string | null
+          created_at: string
+          currency: string
+          default_category: string | null
+          default_condition: string
+          id: string
+          last_error: string | null
+          last_sync_at: string | null
+          offer_local_pickup: boolean
+          offer_shipping: boolean
+          page_id: string
+          page_name: string | null
+          partner_id: string | null
+          settings: Json
+          status: Database["public"]["Enums"]["channel_status"]
+          store_id: string
+          sync_interval_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          auto_sync?: boolean
+          catalog_id?: string | null
+          created_at?: string
+          currency?: string
+          default_category?: string | null
+          default_condition?: string
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          offer_local_pickup?: boolean
+          offer_shipping?: boolean
+          page_id: string
+          page_name?: string | null
+          partner_id?: string | null
+          settings?: Json
+          status?: Database["public"]["Enums"]["channel_status"]
+          store_id: string
+          sync_interval_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          auto_sync?: boolean
+          catalog_id?: string | null
+          created_at?: string
+          currency?: string
+          default_category?: string | null
+          default_condition?: string
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          offer_local_pickup?: boolean
+          offer_shipping?: boolean
+          page_id?: string
+          page_name?: string | null
+          partner_id?: string | null
+          settings?: Json
+          status?: Database["public"]["Enums"]["channel_status"]
+          store_id?: string
+          sync_interval_minutes?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fb_marketplace_accounts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fb_marketplace_credentials: {
+        Row: {
+          access_token: string
+          account_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          store_id: string
+          token_type: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          account_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          store_id: string
+          token_type?: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          account_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          store_id?: string
+          token_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fb_marketplace_credentials_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "fb_marketplace_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fb_marketplace_credentials_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fb_marketplace_listings: {
+        Row: {
+          account_id: string
+          created_at: string
+          fb_item_id: string | null
+          id: string
+          last_error: string | null
+          last_synced_at: string | null
+          payload: Json
+          payload_hash: string | null
+          price: number | null
+          product_id: string
+          quantity: number
+          retailer_id: string
+          status: Database["public"]["Enums"]["listing_status"]
+          store_id: string
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          fb_item_id?: string | null
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          payload?: Json
+          payload_hash?: string | null
+          price?: number | null
+          product_id: string
+          quantity?: number
+          retailer_id: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          store_id: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          fb_item_id?: string | null
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          payload?: Json
+          payload_hash?: string | null
+          price?: number | null
+          product_id?: string
+          quantity?: number
+          retailer_id?: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          store_id?: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fb_marketplace_listings_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "fb_marketplace_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fb_marketplace_listings_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fb_marketplace_listings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fb_marketplace_listings_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fb_marketplace_sync_runs: {
+        Row: {
+          account_id: string
+          created_at: string
+          created_items: number
+          deleted_items: number
+          error: string | null
+          failed_items: number
+          finished_at: string | null
+          id: string
+          started_at: string
+          status: string
+          store_id: string
+          total_items: number
+          trigger_source: string
+          updated_at: string
+          updated_items: number
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          created_items?: number
+          deleted_items?: number
+          error?: string | null
+          failed_items?: number
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          store_id: string
+          total_items?: number
+          trigger_source?: string
+          updated_at?: string
+          updated_items?: number
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          created_items?: number
+          deleted_items?: number
+          error?: string | null
+          failed_items?: number
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          store_id?: string
+          total_items?: number
+          trigger_source?: string
+          updated_at?: string
+          updated_items?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fb_marketplace_sync_runs_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "fb_marketplace_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fb_marketplace_sync_runs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gift_card_transactions: {
         Row: {
           amount: number

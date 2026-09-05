@@ -107,6 +107,7 @@ import { Route as AuthenticatedStoreStoreIdDiscountsRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdDomainsRouteImport } from './routes/_authenticated/store.$storeId.domains'
 import { Route as AuthenticatedStoreStoreIdDropshippingRouteImport } from './routes/_authenticated/store.$storeId.dropshipping'
 import { Route as AuthenticatedStoreStoreIdElasticityRouteImport } from './routes/_authenticated/store.$storeId.elasticity'
+import { Route as AuthenticatedStoreStoreIdFacebookMarketplaceRouteImport } from './routes/_authenticated/store.$storeId.facebook-marketplace'
 import { Route as AuthenticatedStoreStoreIdFeedsRouteImport } from './routes/_authenticated/store.$storeId.feeds'
 import { Route as AuthenticatedStoreStoreIdFinanceRouteImport } from './routes/_authenticated/store.$storeId.finance'
 import { Route as AuthenticatedStoreStoreIdForecastRouteImport } from './routes/_authenticated/store.$storeId.forecast'
@@ -192,6 +193,7 @@ import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/_authenticated/store.$storeId.whatsapp'
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
+import { Route as ApiPublicCronFbMarketplaceSyncRouteImport } from './routes/api/public/cron.fb-marketplace-sync'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
 import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
@@ -760,6 +762,12 @@ const AuthenticatedStoreStoreIdElasticityRoute =
     path: '/store/$storeId/elasticity',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdFacebookMarketplaceRoute =
+  AuthenticatedStoreStoreIdFacebookMarketplaceRouteImport.update({
+    id: '/store/$storeId/facebook-marketplace',
+    path: '/store/$storeId/facebook-marketplace',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdFeedsRoute =
   AuthenticatedStoreStoreIdFeedsRouteImport.update({
     id: '/store/$storeId/feeds',
@@ -1270,6 +1278,12 @@ const ApiPublicCronDailyRollupRoute =
     path: '/api/public/cron/daily-rollup',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronFbMarketplaceSyncRoute =
+  ApiPublicCronFbMarketplaceSyncRouteImport.update({
+    id: '/api/public/cron/fb-marketplace-sync',
+    path: '/api/public/cron/fb-marketplace-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronFeedSyncRoute = ApiPublicCronFeedSyncRouteImport.update({
   id: '/api/public/cron/feed-sync',
   path: '/api/public/cron/feed-sync',
@@ -1511,6 +1525,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
+  '/store/$storeId/facebook-marketplace': typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
   '/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
@@ -1596,6 +1611,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -1720,6 +1736,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
+  '/store/$storeId/facebook-marketplace': typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
   '/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
@@ -1804,6 +1821,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -1931,6 +1949,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/_authenticated/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/_authenticated/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
+  '/_authenticated/store/$storeId/facebook-marketplace': typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
   '/_authenticated/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/_authenticated/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/_authenticated/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
@@ -2016,6 +2035,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -2143,6 +2163,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/domains'
     | '/store/$storeId/dropshipping'
     | '/store/$storeId/elasticity'
+    | '/store/$storeId/facebook-marketplace'
     | '/store/$storeId/feeds'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
@@ -2228,6 +2249,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
@@ -2352,6 +2374,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/domains'
     | '/store/$storeId/dropshipping'
     | '/store/$storeId/elasticity'
+    | '/store/$storeId/facebook-marketplace'
     | '/store/$storeId/feeds'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
@@ -2436,6 +2459,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
@@ -2562,6 +2586,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/domains'
     | '/_authenticated/store/$storeId/dropshipping'
     | '/_authenticated/store/$storeId/elasticity'
+    | '/_authenticated/store/$storeId/facebook-marketplace'
     | '/_authenticated/store/$storeId/feeds'
     | '/_authenticated/store/$storeId/finance'
     | '/_authenticated/store/$storeId/forecast'
@@ -2647,6 +2672,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
@@ -2709,6 +2735,7 @@ export interface RootRouteChildren {
   SSlugIndexRoute: typeof SSlugIndexRoute
   ApiPublicCronAutomationTickRoute: typeof ApiPublicCronAutomationTickRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
+  ApiPublicCronFbMarketplaceSyncRoute: typeof ApiPublicCronFbMarketplaceSyncRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
   ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
@@ -3419,6 +3446,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdElasticityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/facebook-marketplace': {
+      id: '/_authenticated/store/$storeId/facebook-marketplace'
+      path: '/store/$storeId/facebook-marketplace'
+      fullPath: '/store/$storeId/facebook-marketplace'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdFacebookMarketplaceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/feeds': {
       id: '/_authenticated/store/$storeId/feeds'
       path: '/store/$storeId/feeds'
@@ -4014,6 +4048,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronDailyRollupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/fb-marketplace-sync': {
+      id: '/api/public/cron/fb-marketplace-sync'
+      path: '/api/public/cron/fb-marketplace-sync'
+      fullPath: '/api/public/cron/fb-marketplace-sync'
+      preLoaderRoute: typeof ApiPublicCronFbMarketplaceSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/feed-sync': {
       id: '/api/public/cron/feed-sync'
       path: '/api/public/cron/feed-sync'
@@ -4367,6 +4408,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdDomainsRoute: typeof AuthenticatedStoreStoreIdDomainsRoute
   AuthenticatedStoreStoreIdDropshippingRoute: typeof AuthenticatedStoreStoreIdDropshippingRoute
   AuthenticatedStoreStoreIdElasticityRoute: typeof AuthenticatedStoreStoreIdElasticityRoute
+  AuthenticatedStoreStoreIdFacebookMarketplaceRoute: typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
   AuthenticatedStoreStoreIdFeedsRoute: typeof AuthenticatedStoreStoreIdFeedsRoute
   AuthenticatedStoreStoreIdFinanceRoute: typeof AuthenticatedStoreStoreIdFinanceRoute
   AuthenticatedStoreStoreIdForecastRoute: typeof AuthenticatedStoreStoreIdForecastRoute
@@ -4502,6 +4544,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdDropshippingRoute,
   AuthenticatedStoreStoreIdElasticityRoute:
     AuthenticatedStoreStoreIdElasticityRoute,
+  AuthenticatedStoreStoreIdFacebookMarketplaceRoute:
+    AuthenticatedStoreStoreIdFacebookMarketplaceRoute,
   AuthenticatedStoreStoreIdFeedsRoute: AuthenticatedStoreStoreIdFeedsRoute,
   AuthenticatedStoreStoreIdFinanceRoute: AuthenticatedStoreStoreIdFinanceRoute,
   AuthenticatedStoreStoreIdForecastRoute:
@@ -4674,6 +4718,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugIndexRoute: SSlugIndexRoute,
   ApiPublicCronAutomationTickRoute: ApiPublicCronAutomationTickRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
+  ApiPublicCronFbMarketplaceSyncRoute: ApiPublicCronFbMarketplaceSyncRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
   ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
