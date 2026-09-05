@@ -158,6 +158,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "SEO Denetimi", to: p("seo"), icon: Search },
         { label: "SEO Editörü", to: p("seo-editor"), icon: Search },
         { label: "Pazaryerleri", to: p("channels"), icon: Store },
+        { label: "Facebook Marketplace", to: p("facebook-marketplace"), icon: Store, keywords: "facebook marketplace item api ilan katalog meta" },
         { label: "Pazaryeri Satıcıları", to: p("sellers"), icon: Users },
         { label: "Pazaryeri İadeleri", to: p("marketplace-returns"), icon: RotateCcw, keywords: "iade değişim trendyol" },
         { label: "Mutabakat & Hakediş", to: p("settlements"), icon: Receipt, keywords: "settlement komisyon" },
