@@ -191,6 +191,7 @@ import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
+import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
 import { Route as ApiPublicCronSeoAiRouteImport } from './routes/api/public/cron.seo-ai'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
@@ -1258,6 +1259,12 @@ const ApiPublicCronFeedSyncRoute = ApiPublicCronFeedSyncRouteImport.update({
   path: '/api/public/cron/feed-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronInstagramEventsRoute =
+  ApiPublicCronInstagramEventsRouteImport.update({
+    id: '/api/public/cron/instagram-events',
+    path: '/api/public/cron/instagram-events',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronQueueWorkerRoute =
   ApiPublicCronQueueWorkerRouteImport.update({
     id: '/api/public/cron/queue-worker',
@@ -1561,6 +1568,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
@@ -1764,6 +1772,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
@@ -1971,6 +1980,7 @@ export interface FileRoutesById {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
@@ -2178,6 +2188,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
@@ -2381,6 +2392,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
@@ -2587,6 +2599,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
@@ -2646,6 +2659,7 @@ export interface RootRouteChildren {
   ApiPublicCronAutomationTickRoute: typeof ApiPublicCronAutomationTickRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
+  ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
   ApiPublicCronSeoAiRoute: typeof ApiPublicCronSeoAiRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
@@ -3940,6 +3954,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronFeedSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/instagram-events': {
+      id: '/api/public/cron/instagram-events'
+      path: '/api/public/cron/instagram-events'
+      fullPath: '/api/public/cron/instagram-events'
+      preLoaderRoute: typeof ApiPublicCronInstagramEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/queue-worker': {
       id: '/api/public/cron/queue-worker'
       path: '/api/public/cron/queue-worker'
@@ -4568,6 +4589,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronAutomationTickRoute: ApiPublicCronAutomationTickRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
+  ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
   ApiPublicCronSeoAiRoute: ApiPublicCronSeoAiRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
