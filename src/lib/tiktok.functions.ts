@@ -34,7 +34,7 @@ export const getTiktokOAuthUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => storeScope.extend({ redirectUri: z.string().url() }).parse(data))
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase as never, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId);
 
     const { buildTiktokOAuthUrl, tiktokAppConfig } = await import("@/lib/tiktok.server");
     if (!tiktokAppConfig().clientKey) {
@@ -52,7 +52,7 @@ export const completeTiktokOAuth = createServerFn({ method: "POST" })
     storeScope.extend({ code: z.string().min(4), redirectUri: z.string().url() }).parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase as never, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId);
 
     const [{ supabaseAdmin }, { exchangeTiktokCode, upsertTiktokAccount }] = await Promise.all([
       import("@/integrations/supabase/client.server"),
@@ -78,7 +78,7 @@ export const connectTiktokManually = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase as never, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId);
 
     const [{ supabaseAdmin }, { upsertTiktokAccount }] = await Promise.all([
       import("@/integrations/supabase/client.server"),
