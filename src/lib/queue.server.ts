@@ -164,8 +164,16 @@ const HANDLERS: Record<JobKind, JobHandler> = {
 
   ai: async (supabase, job) => {
     const storeId = job.store_id ?? requireString(job, "storeId");
+    // Toplu çeviri işleri aynı kuyruk üzerinden parça parça ilerletilir.
+    const translationJobId = payloadOf(job)["translationJobId"];
+    if (typeof translationJobId === "string" && translationJobId.length > 0) {
+      const { runTranslationJob } = await import("@/lib/translation.server");
+      const outcome = await runTranslationJob(supabase, translationJobId, 100);
+      return { translationJobId, ...outcome };
+    }
     const task = requireString(job, "task");
     const prompt = requireString(job, "prompt");
+
     const { runAiTask } = await import("@/lib/ai.server");
     const result = await runAiTask({
       client: supabase as never,

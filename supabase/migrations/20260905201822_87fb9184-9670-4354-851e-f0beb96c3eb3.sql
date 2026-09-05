@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.record_translation_version() FROM PUBLIC, anon, authenticated;
