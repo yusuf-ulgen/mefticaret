@@ -8427,6 +8427,65 @@ export type Database = {
           },
         ]
       }
+      store_locales: {
+        Row: {
+          code: string
+          created_at: string
+          currency: string | null
+          dir: string
+          fallback_code: string | null
+          id: string
+          is_active: boolean
+          is_default: boolean
+          label: string
+          locale: string
+          native_label: string | null
+          sort_order: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          currency?: string | null
+          dir?: string
+          fallback_code?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          label: string
+          locale: string
+          native_label?: string | null
+          sort_order?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          currency?: string | null
+          dir?: string
+          fallback_code?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          label?: string
+          locale?: string
+          native_label?: string | null
+          sort_order?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_locales_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_menu_items: {
         Row: {
           created_at: string
@@ -10549,6 +10608,465 @@ export type Database = {
           },
         ]
       }
+      translation_entries: {
+        Row: {
+          content_type: string
+          created_at: string
+          created_by: string | null
+          entity_id: string | null
+          field: string | null
+          id: string
+          locale: string
+          namespace: string
+          provider: string | null
+          source_value: string | null
+          status: Database["public"]["Enums"]["translation_status"]
+          store_id: string
+          translated_value: string | null
+          translation_key: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          entity_id?: string | null
+          field?: string | null
+          id?: string
+          locale: string
+          namespace?: string
+          provider?: string | null
+          source_value?: string | null
+          status?: Database["public"]["Enums"]["translation_status"]
+          store_id: string
+          translated_value?: string | null
+          translation_key: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          entity_id?: string | null
+          field?: string | null
+          id?: string
+          locale?: string
+          namespace?: string
+          provider?: string | null
+          source_value?: string | null
+          status?: Database["public"]["Enums"]["translation_status"]
+          store_id?: string
+          translated_value?: string | null
+          translation_key?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_entries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      translation_glossary: {
+        Row: {
+          created_at: string
+          do_not_translate: boolean
+          id: string
+          locale: string | null
+          notes: string | null
+          store_id: string
+          term: string
+          translation: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          do_not_translate?: boolean
+          id?: string
+          locale?: string | null
+          notes?: string | null
+          store_id: string
+          term: string
+          translation?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          do_not_translate?: boolean
+          id?: string
+          locale?: string | null
+          notes?: string | null
+          store_id?: string
+          term?: string
+          translation?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_glossary_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      translation_job_items: {
+        Row: {
+          attempts: number
+          content_type: string
+          created_at: string
+          entity_id: string | null
+          error: string | null
+          field: string | null
+          id: string
+          job_id: string
+          locale: string
+          source_value: string | null
+          status: Database["public"]["Enums"]["translation_job_status"]
+          store_id: string
+          translated_value: string | null
+          translation_key: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          content_type?: string
+          created_at?: string
+          entity_id?: string | null
+          error?: string | null
+          field?: string | null
+          id?: string
+          job_id: string
+          locale: string
+          source_value?: string | null
+          status?: Database["public"]["Enums"]["translation_job_status"]
+          store_id: string
+          translated_value?: string | null
+          translation_key: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          content_type?: string
+          created_at?: string
+          entity_id?: string | null
+          error?: string | null
+          field?: string | null
+          id?: string
+          job_id?: string
+          locale?: string
+          source_value?: string | null
+          status?: Database["public"]["Enums"]["translation_job_status"]
+          store_id?: string
+          translated_value?: string | null
+          translation_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_job_items_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "translation_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "translation_job_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      translation_jobs: {
+        Row: {
+          content_types: string[]
+          created_at: string
+          created_by: string | null
+          done_items: number
+          error: string | null
+          failed_items: number
+          finished_at: string | null
+          id: string
+          source_locale: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["translation_job_status"]
+          store_id: string
+          target_locales: string[]
+          total_items: number
+          updated_at: string
+        }
+        Insert: {
+          content_types?: string[]
+          created_at?: string
+          created_by?: string | null
+          done_items?: number
+          error?: string | null
+          failed_items?: number
+          finished_at?: string | null
+          id?: string
+          source_locale: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["translation_job_status"]
+          store_id: string
+          target_locales?: string[]
+          total_items?: number
+          updated_at?: string
+        }
+        Update: {
+          content_types?: string[]
+          created_at?: string
+          created_by?: string | null
+          done_items?: number
+          error?: string | null
+          failed_items?: number
+          finished_at?: string | null
+          id?: string
+          source_locale?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["translation_job_status"]
+          store_id?: string
+          target_locales?: string[]
+          total_items?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_jobs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      translation_memory: {
+        Row: {
+          approved: boolean
+          created_at: string
+          hits: number
+          id: string
+          source_hash: string
+          source_locale: string
+          source_text: string
+          store_id: string
+          target_locale: string
+          target_text: string
+          updated_at: string
+        }
+        Insert: {
+          approved?: boolean
+          created_at?: string
+          hits?: number
+          id?: string
+          source_hash: string
+          source_locale: string
+          source_text: string
+          store_id: string
+          target_locale: string
+          target_text: string
+          updated_at?: string
+        }
+        Update: {
+          approved?: boolean
+          created_at?: string
+          hits?: number
+          id?: string
+          source_hash?: string
+          source_locale?: string
+          source_text?: string
+          store_id?: string
+          target_locale?: string
+          target_text?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_memory_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      translation_settings: {
+        Row: {
+          brand_voice: string
+          created_at: string
+          detect_browser_language: boolean
+          do_not_translate: string[]
+          enabled: boolean
+          fallback_chain: string[]
+          model: string
+          provider: string
+          show_missing: boolean
+          store_id: string
+          switcher_enabled: boolean
+          switcher_style: string
+          translate_slugs: boolean
+          updated_at: string
+          url_strategy: Database["public"]["Enums"]["translation_url_strategy"]
+        }
+        Insert: {
+          brand_voice?: string
+          created_at?: string
+          detect_browser_language?: boolean
+          do_not_translate?: string[]
+          enabled?: boolean
+          fallback_chain?: string[]
+          model?: string
+          provider?: string
+          show_missing?: boolean
+          store_id: string
+          switcher_enabled?: boolean
+          switcher_style?: string
+          translate_slugs?: boolean
+          updated_at?: string
+          url_strategy?: Database["public"]["Enums"]["translation_url_strategy"]
+        }
+        Update: {
+          brand_voice?: string
+          created_at?: string
+          detect_browser_language?: boolean
+          do_not_translate?: string[]
+          enabled?: boolean
+          fallback_chain?: string[]
+          model?: string
+          provider?: string
+          show_missing?: boolean
+          store_id?: string
+          switcher_enabled?: boolean
+          switcher_style?: string
+          translate_slugs?: boolean
+          updated_at?: string
+          url_strategy?: Database["public"]["Enums"]["translation_url_strategy"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      translation_usage: {
+        Row: {
+          characters: number
+          cost: number
+          created_at: string
+          day: string
+          id: string
+          locale: string
+          provider: string
+          requests: number
+          store_id: string
+          updated_at: string
+          words: number
+        }
+        Insert: {
+          characters?: number
+          cost?: number
+          created_at?: string
+          day?: string
+          id?: string
+          locale: string
+          provider?: string
+          requests?: number
+          store_id: string
+          updated_at?: string
+          words?: number
+        }
+        Update: {
+          characters?: number
+          cost?: number
+          created_at?: string
+          day?: string
+          id?: string
+          locale?: string
+          provider?: string
+          requests?: number
+          store_id?: string
+          updated_at?: string
+          words?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_usage_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      translation_versions: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          entry_id: string | null
+          id: string
+          locale: string
+          new_value: string | null
+          old_value: string | null
+          store_id: string
+          translation_key: string
+          version: number
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          entry_id?: string | null
+          id?: string
+          locale: string
+          new_value?: string | null
+          old_value?: string | null
+          store_id: string
+          translation_key: string
+          version?: number
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          entry_id?: string | null
+          id?: string
+          locale?: string
+          new_value?: string | null
+          old_value?: string | null
+          store_id?: string
+          translation_key?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_versions_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "translation_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "translation_versions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usage_records: {
         Row: {
           created_at: string
@@ -11428,6 +11946,19 @@ export type Database = {
         | "answered"
         | "resolved"
         | "closed"
+      translation_job_status:
+        | "queued"
+        | "running"
+        | "completed"
+        | "failed"
+        | "cancelled"
+      translation_status:
+        | "missing"
+        | "machine"
+        | "needs_review"
+        | "translated"
+        | "approved"
+      translation_url_strategy: "subdirectory" | "subdomain" | "domain"
       warehouse_kind:
         | "warehouse"
         | "branch"
@@ -11795,6 +12326,21 @@ export const Constants = {
         "resolved",
         "closed",
       ],
+      translation_job_status: [
+        "queued",
+        "running",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+      translation_status: [
+        "missing",
+        "machine",
+        "needs_review",
+        "translated",
+        "approved",
+      ],
+      translation_url_strategy: ["subdirectory", "subdomain", "domain"],
       warehouse_kind: [
         "warehouse",
         "branch",
