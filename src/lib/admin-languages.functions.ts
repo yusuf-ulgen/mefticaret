@@ -33,7 +33,7 @@ export type PlatformLanguageOverview = {
     translated: number;
     provider: string | null;
   }[];
-  usage: { storeId: string; storeName: string; tokens: number; characters: number; cost: number }[];
+  usage: { storeId: string; storeName: string; requests: number; words: number; characters: number; cost: number }[];
 };
 
 export const platformLanguageOverview = createServerFn({ method: "GET" })
@@ -48,7 +48,7 @@ export const platformLanguageOverview = createServerFn({ method: "GET" })
       supabaseAdmin.from("translation_entries").select("store_id, locale, status"),
       supabaseAdmin.from("translation_jobs").select("id"),
       supabaseAdmin.from("translation_settings").select("store_id, provider"),
-      supabaseAdmin.from("translation_usage").select("store_id, tokens_used, characters, cost"),
+      supabaseAdmin.from("translation_usage").select("store_id, requests, words, characters, cost"),
     ]);
 
     const storeName = new Map((storesRes.data ?? []).map((row) => [row.id, row.name]));
@@ -91,10 +91,11 @@ export const platformLanguageOverview = createServerFn({ method: "GET" })
       localeUsage.set(row.locale, usage);
     }
 
-    const usageTotals = new Map<string, { tokens: number; characters: number; cost: number }>();
+    const usageTotals = new Map<string, { requests: number; words: number; characters: number; cost: number }>();
     for (const row of usageRes.data ?? []) {
-      const current = usageTotals.get(row.store_id) ?? { tokens: 0, characters: 0, cost: 0 };
-      current.tokens += Number(row.tokens_used ?? 0);
+      const current = usageTotals.get(row.store_id) ?? { requests: 0, words: 0, characters: 0, cost: 0 };
+      current.requests += Number(row.requests ?? 0);
+      current.words += Number(row.words ?? 0);
       current.characters += Number(row.characters ?? 0);
       current.cost += Number(row.cost ?? 0);
       usageTotals.set(row.store_id, current);
@@ -131,7 +132,7 @@ export const platformLanguageOverview = createServerFn({ method: "GET" })
       stores,
       usage: [...usageTotals.entries()]
         .map(([storeId, row]) => ({ storeId, storeName: storeName.get(storeId) ?? "—", ...row }))
-        .sort((a, b) => b.tokens - a.tokens)
+        .sort((a, b) => b.words - a.words)
         .slice(0, 20),
     };
   });
