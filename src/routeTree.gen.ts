@@ -121,6 +121,7 @@ import { Route as AuthenticatedStoreStoreIdInboxRouteImport } from './routes/_au
 import { Route as AuthenticatedStoreStoreIdInstagramRouteImport } from './routes/_authenticated/store.$storeId.instagram'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
 import { Route as AuthenticatedStoreStoreIdJobsRouteImport } from './routes/_authenticated/store.$storeId.jobs'
+import { Route as AuthenticatedStoreStoreIdLanguagesRouteImport } from './routes/_authenticated/store.$storeId.languages'
 import { Route as AuthenticatedStoreStoreIdLedgerRouteImport } from './routes/_authenticated/store.$storeId.ledger'
 import { Route as AuthenticatedStoreStoreIdLifecycleRouteImport } from './routes/_authenticated/store.$storeId.lifecycle'
 import { Route as AuthenticatedStoreStoreIdListingLinksRouteImport } from './routes/_authenticated/store.$storeId.listing-links'
@@ -846,6 +847,12 @@ const AuthenticatedStoreStoreIdJobsRoute =
     path: '/store/$storeId/jobs',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdLanguagesRoute =
+  AuthenticatedStoreStoreIdLanguagesRouteImport.update({
+    id: '/store/$storeId/languages',
+    path: '/store/$storeId/languages',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdLedgerRoute =
   AuthenticatedStoreStoreIdLedgerRouteImport.update({
     id: '/store/$storeId/ledger',
@@ -1539,6 +1546,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
+  '/store/$storeId/languages': typeof AuthenticatedStoreStoreIdLanguagesRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
   '/store/$storeId/listing-links': typeof AuthenticatedStoreStoreIdListingLinksRoute
@@ -1750,6 +1758,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
+  '/store/$storeId/languages': typeof AuthenticatedStoreStoreIdLanguagesRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
   '/store/$storeId/listing-links': typeof AuthenticatedStoreStoreIdListingLinksRoute
@@ -1963,6 +1972,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/_authenticated/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
+  '/_authenticated/store/$storeId/languages': typeof AuthenticatedStoreStoreIdLanguagesRoute
   '/_authenticated/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
   '/_authenticated/store/$storeId/lifecycle': typeof AuthenticatedStoreStoreIdLifecycleRoute
   '/_authenticated/store/$storeId/listing-links': typeof AuthenticatedStoreStoreIdListingLinksRoute
@@ -2177,6 +2187,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/instagram'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
+    | '/store/$storeId/languages'
     | '/store/$storeId/ledger'
     | '/store/$storeId/lifecycle'
     | '/store/$storeId/listing-links'
@@ -2388,6 +2399,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/instagram'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
+    | '/store/$storeId/languages'
     | '/store/$storeId/ledger'
     | '/store/$storeId/lifecycle'
     | '/store/$storeId/listing-links'
@@ -2600,6 +2612,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/instagram'
     | '/_authenticated/store/$storeId/inventory'
     | '/_authenticated/store/$storeId/jobs'
+    | '/_authenticated/store/$storeId/languages'
     | '/_authenticated/store/$storeId/ledger'
     | '/_authenticated/store/$storeId/lifecycle'
     | '/_authenticated/store/$storeId/listing-links'
@@ -3544,6 +3557,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdJobsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/languages': {
+      id: '/_authenticated/store/$storeId/languages'
+      path: '/store/$storeId/languages'
+      fullPath: '/store/$storeId/languages'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdLanguagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/ledger': {
       id: '/_authenticated/store/$storeId/ledger'
       path: '/store/$storeId/ledger'
@@ -4422,6 +4442,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdInstagramRoute: typeof AuthenticatedStoreStoreIdInstagramRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
   AuthenticatedStoreStoreIdJobsRoute: typeof AuthenticatedStoreStoreIdJobsRoute
+  AuthenticatedStoreStoreIdLanguagesRoute: typeof AuthenticatedStoreStoreIdLanguagesRoute
   AuthenticatedStoreStoreIdLedgerRoute: typeof AuthenticatedStoreStoreIdLedgerRoute
   AuthenticatedStoreStoreIdLifecycleRoute: typeof AuthenticatedStoreStoreIdLifecycleRoute
   AuthenticatedStoreStoreIdListingLinksRoute: typeof AuthenticatedStoreStoreIdListingLinksRoute
@@ -4565,6 +4586,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdInventoryRoute:
     AuthenticatedStoreStoreIdInventoryRoute,
   AuthenticatedStoreStoreIdJobsRoute: AuthenticatedStoreStoreIdJobsRoute,
+  AuthenticatedStoreStoreIdLanguagesRoute:
+    AuthenticatedStoreStoreIdLanguagesRoute,
   AuthenticatedStoreStoreIdLedgerRoute: AuthenticatedStoreStoreIdLedgerRoute,
   AuthenticatedStoreStoreIdLifecycleRoute:
     AuthenticatedStoreStoreIdLifecycleRoute,
