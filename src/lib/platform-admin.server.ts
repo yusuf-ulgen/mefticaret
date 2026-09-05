@@ -1269,3 +1269,148 @@ export async function platformLive(input: z.infer<typeof liveInputSchema>) {
     })),
   };
 }
+
+/* ---------- Uygulama mağazası yönetimi (platform admin) ---------- */
+
+const APP_CATEGORY_VALUES = [
+  "seo","marketing","payment","shipping","accounting","crm","analytics","social",
+  "email","sms","whatsapp","ai","reviews","loyalty","dropshipping","marketplace",
+] as const;
+
+export const appSaveSchema = z.object({
+  id: z.string().uuid().optional(),
+  code: z.string().trim().min(2).max(60).regex(/^[a-z0-9-]+$/, "Kod yalnızca küçük harf, rakam ve tire içerebilir"),
+  name: z.string().trim().min(2).max(120),
+  tagline: z.string().trim().max(160).nullable().default(null),
+  description: z.string().trim().max(4000).nullable().default(null),
+  category: z.enum(APP_CATEGORY_VALUES),
+  developer: z.string().trim().min(1).max(120).default("Mefticaret"),
+  developer_url: z.string().trim().url().max(300).nullable().default(null),
+  version: z.string().trim().min(1).max(20).default("1.0.0"),
+  logo_emoji: z.string().trim().max(8).nullable().default(null),
+  pricing_model: z.enum(["free", "monthly", "one_time", "usage"]),
+  price: z.number().min(0).max(999_999),
+  currency: z.string().trim().length(3).default("TRY"),
+  is_active: z.boolean().default(true),
+  is_featured: z.boolean().default(false),
+  sort_order: z.number().int().min(0).max(9999).default(100),
+});
+
+export const appPriceBulkSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        pricing_model: z.enum(["free", "monthly", "one_time", "usage"]),
+        price: z.number().min(0).max(999_999),
+        currency: z.string().trim().length(3),
+      }),
+    )
+    .min(1)
+    .max(200),
+});
+
+export const appToggleSchema = z.object({
+  id: z.string().uuid(),
+  isActive: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+});
+
+export async function listAppsForAdmin() {
+  const db = await admin();
+  const { data, error } = await db
+    .from("apps")
+    .select(
+      "id, code, name, tagline, description, category, developer, developer_url, version, logo_emoji, pricing_model, price, currency, is_active, is_featured, sort_order, install_count, rating, updated_at",
+    )
+    .order("sort_order", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as Record<string, PlatformValue>[];
+}
+
+export async function saveApp(input: z.infer<typeof appSaveSchema>, actorId: string) {
+  const db = await admin();
+  const payload = {
+    code: input.code,
+    name: input.name,
+    tagline: input.tagline,
+    description: input.description,
+    category: input.category,
+    developer: input.developer,
+    developer_url: input.developer_url,
+    version: input.version,
+    logo_emoji: input.logo_emoji,
+    pricing_model: input.pricing_model,
+    price: input.pricing_model === "free" ? 0 : input.price,
+    currency: input.currency.toUpperCase(),
+    is_active: input.is_active,
+    is_featured: input.is_featured,
+    sort_order: input.sort_order,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (input.id) {
+    const { error } = await db.from("apps").update(payload).eq("id", input.id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await db.from("apps").insert(payload);
+    if (error) throw new Error(error.message);
+  }
+
+  await insertAuditRow(db as never, {
+    store_id: null,
+    actor_id: actorId,
+    action: input.id ? "platform.app_updated" : "platform.app_created",
+    entity: "apps",
+    entity_id: input.id ?? null,
+    new_value: payload as never,
+  });
+
+  return { ok: true as const };
+}
+
+export async function saveAppPrices(input: z.infer<typeof appPriceBulkSchema>, actorId: string) {
+  const db = await admin();
+  for (const item of input.items) {
+    const { error } = await db
+      .from("apps")
+      .update({
+        pricing_model: item.pricing_model,
+        price: item.pricing_model === "free" ? 0 : item.price,
+        currency: item.currency.toUpperCase(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", item.id);
+    if (error) throw new Error(error.message);
+  }
+
+  await insertAuditRow(db as never, {
+    store_id: null,
+    actor_id: actorId,
+    action: "platform.app_prices_updated",
+    entity: "apps",
+    entity_id: null,
+    new_value: { count: input.items.length } as never,
+  });
+
+  return { ok: true as const, count: input.items.length };
+}
+
+export async function toggleApp(input: z.infer<typeof appToggleSchema>, actorId: string) {
+  const db = await admin();
+  const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (input.isActive !== undefined) patch["is_active"] = input.isActive;
+  if (input.isFeatured !== undefined) patch["is_featured"] = input.isFeatured;
+  const { error } = await db.from("apps").update(patch).eq("id", input.id);
+  if (error) throw new Error(error.message);
+
+  await insertAuditRow(db as never, {
+    store_id: null,
+    actor_id: actorId,
+    action: "platform.app_toggled",
+    entity: "apps",
+    entity_id: input.id,
+    new_value: patch as never,
+  });
+  return { ok: true as const };
+}

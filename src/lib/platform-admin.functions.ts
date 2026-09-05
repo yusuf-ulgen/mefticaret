@@ -229,3 +229,38 @@ export const fetchPlatformLive = createServerFn({ method: "POST" })
     await server.assertPlatformAdmin(context.supabase, context.userId);
     return server.platformLive(server.liveInputSchema.parse(data ?? {}));
   });
+
+export const fetchAdminApps = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.listAppsForAdmin();
+  });
+
+export const saveAdminApp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.saveApp(server.appSaveSchema.parse(data), context.userId);
+  });
+
+export const saveAdminAppPrices = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.saveAppPrices(server.appPriceBulkSchema.parse(data), context.userId);
+  });
+
+export const toggleAdminApp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.toggleApp(server.appToggleSchema.parse(data), context.userId);
+  });
