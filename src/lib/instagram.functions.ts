@@ -12,16 +12,6 @@ import { IG_MATCH_TYPES } from "@/lib/instagram";
 
 const storeScope = z.object({ storeId: z.string().uuid() });
 
-async function assertStoreManager(
-  supabase: { rpc: unknown },
-  storeId: string,
-  client: Awaited<ReturnType<typeof Promise.resolve>>,
-): Promise<void> {
-  void supabase;
-  void storeId;
-  void client;
-}
-
 /** OAuth onay adresini üretir (Meta uygulama bilgileri gerekli). */
 export const getInstagramOAuthUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -317,5 +307,3 @@ export const sendInstagramMessage = createServerFn({ method: "POST" })
     });
     return { status: sent.status, error: sent.error };
   });
-
-void assertStoreManager;
