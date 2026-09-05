@@ -9,6 +9,8 @@ import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
+import { LanguageSwitcher } from "@/components/storefront-language";
+
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import { fontStack } from "@/lib/theme-presets";
 import { designCss, resolveDesignTokens } from "@/lib/theme-design";
