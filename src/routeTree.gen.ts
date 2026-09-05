@@ -202,6 +202,7 @@ import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oau
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicRssSlugRouteImport } from './routes/api/public/rss.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
+import { Route as ApiPublicTiktokStoreIdRouteImport } from './routes/api/public/tiktok.$storeId'
 import { Route as ApiPublicTrackSlugRouteImport } from './routes/api/public/track.$slug'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicWhatsappStoreIdRouteImport } from './routes/api/public/whatsapp.$storeId'
@@ -1320,6 +1321,11 @@ const ApiPublicSitemapSlugRoute = ApiPublicSitemapSlugRouteImport.update({
   path: '/api/public/sitemap/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTiktokStoreIdRoute = ApiPublicTiktokStoreIdRouteImport.update({
+  id: '/api/public/tiktok/$storeId',
+  path: '/api/public/tiktok/$storeId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTrackSlugRoute = ApiPublicTrackSlugRouteImport.update({
   id: '/api/public/track/$slug',
   path: '/api/public/track/$slug',
@@ -1586,6 +1592,7 @@ export interface FileRoutesByFullPath {
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/tiktok/$storeId': typeof ApiPublicTiktokStoreIdRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
@@ -1791,6 +1798,7 @@ export interface FileRoutesByTo {
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/tiktok/$storeId': typeof ApiPublicTiktokStoreIdRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
@@ -2000,6 +2008,7 @@ export interface FileRoutesById {
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/tiktok/$storeId': typeof ApiPublicTiktokStoreIdRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
@@ -2209,6 +2218,7 @@ export interface FileRouteTypes {
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/tiktok/$storeId'
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
@@ -2414,6 +2424,7 @@ export interface FileRouteTypes {
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/tiktok/$storeId'
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
@@ -2622,6 +2633,7 @@ export interface FileRouteTypes {
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/tiktok/$storeId'
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
@@ -2682,6 +2694,7 @@ export interface RootRouteChildren {
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicRssSlugRoute: typeof ApiPublicRssSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
+  ApiPublicTiktokStoreIdRoute: typeof ApiPublicTiktokStoreIdRoute
   ApiPublicTrackSlugRoute: typeof ApiPublicTrackSlugRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   ApiPublicWhatsappStoreIdRoute: typeof ApiPublicWhatsappStoreIdRoute
@@ -4044,6 +4057,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSitemapSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/tiktok/$storeId': {
+      id: '/api/public/tiktok/$storeId'
+      path: '/api/public/tiktok/$storeId'
+      fullPath: '/api/public/tiktok/$storeId'
+      preLoaderRoute: typeof ApiPublicTiktokStoreIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/track/$slug': {
       id: '/api/public/track/$slug'
       path: '/api/public/track/$slug'
@@ -4622,6 +4642,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicRssSlugRoute: ApiPublicRssSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
+  ApiPublicTiktokStoreIdRoute: ApiPublicTiktokStoreIdRoute,
   ApiPublicTrackSlugRoute: ApiPublicTrackSlugRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   ApiPublicWhatsappStoreIdRoute: ApiPublicWhatsappStoreIdRoute,
