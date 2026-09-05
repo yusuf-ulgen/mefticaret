@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 import { TT_MATCH_TYPES, TT_RULE_SOURCES } from "@/lib/tiktok";
 
 /**
@@ -12,24 +14,20 @@ import { TT_MATCH_TYPES, TT_RULE_SOURCES } from "@/lib/tiktok";
 
 const storeScope = z.object({ storeId: z.string().uuid() });
 
+/** RLS üzerinden mağaza erişimini doğrular. */
 async function assertStoreAccess(
-  supabase: { from: (table: "stores") => never } | never,
+  supabase: SupabaseClient<Database>,
   storeId: string,
 ): Promise<void> {
-  const client = supabase as unknown as {
-    from: (table: string) => {
-      select: (columns: string) => {
-        eq: (
-          column: string,
-          value: string,
-        ) => { maybeSingle: () => Promise<{ data: unknown; error: { message: string } | null }> };
-      };
-    };
-  };
-  const { data, error } = await client.from("stores").select("id").eq("id", storeId).maybeSingle();
+  const { data, error } = await supabase
+    .from("stores")
+    .select("id")
+    .eq("id", storeId)
+    .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
 }
+
 
 /** OAuth onay adresini üretir (TikTok uygulama bilgileri gerekli). */
 export const getTiktokOAuthUrl = createServerFn({ method: "POST" })
