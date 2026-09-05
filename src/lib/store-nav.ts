@@ -143,6 +143,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Destek Talepleri", to: p("support"), icon: MessageSquare, keywords: "ticket" },
         { label: "Mesaj Merkezi", to: p("inbox"), icon: MessageCircle, keywords: "inbox omni instagram telegram sohbet" },
         { label: "Instagram DM Otomasyonu", to: p("instagram"), icon: MessageCircle, keywords: "instagram dm yorum otomasyon social inbox" },
+        { label: "TikTok DM Otomasyonu", to: p("tiktok"), icon: MessageCircle, keywords: "tiktok dm yorum canli yayin otomasyon social inbox" },
       ],
     },
     {
