@@ -183,6 +183,7 @@ import { Route as AuthenticatedStoreStoreIdThemeEditorRouteImport } from './rout
 import { Route as AuthenticatedStoreStoreIdThemeSectionsRouteImport } from './routes/_authenticated/store.$storeId.theme-sections'
 import { Route as AuthenticatedStoreStoreIdThemeStoreRouteImport } from './routes/_authenticated/store.$storeId.theme-store'
 import { Route as AuthenticatedStoreStoreIdThemesRouteImport } from './routes/_authenticated/store.$storeId.themes'
+import { Route as AuthenticatedStoreStoreIdTiktokRouteImport } from './routes/_authenticated/store.$storeId.tiktok'
 import { Route as AuthenticatedStoreStoreIdTransfersRouteImport } from './routes/_authenticated/store.$storeId.transfers'
 import { Route as AuthenticatedStoreStoreIdValuationRouteImport } from './routes/_authenticated/store.$storeId.valuation'
 import { Route as AuthenticatedStoreStoreIdVendorsRouteImport } from './routes/_authenticated/store.$storeId.vendors'
@@ -195,6 +196,7 @@ import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/c
 import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
 import { Route as ApiPublicCronSeoAiRouteImport } from './routes/api/public/cron.seo-ai'
+import { Route as ApiPublicCronTiktokEventsRouteImport } from './routes/api/public/cron.tiktok-events'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/public/instagram.$storeId'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
@@ -202,6 +204,7 @@ import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oau
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicRssSlugRouteImport } from './routes/api/public/rss.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
+import { Route as ApiPublicTiktokStoreIdRouteImport } from './routes/api/public/tiktok.$storeId'
 import { Route as ApiPublicTrackSlugRouteImport } from './routes/api/public/track.$slug'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicWhatsappStoreIdRouteImport } from './routes/api/public/whatsapp.$storeId'
@@ -1213,6 +1216,12 @@ const AuthenticatedStoreStoreIdThemesRoute =
     path: '/store/$storeId/themes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdTiktokRoute =
+  AuthenticatedStoreStoreIdTiktokRouteImport.update({
+    id: '/store/$storeId/tiktok',
+    path: '/store/$storeId/tiktok',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdTransfersRoute =
   AuthenticatedStoreStoreIdTransfersRouteImport.update({
     id: '/store/$storeId/transfers',
@@ -1283,6 +1292,12 @@ const ApiPublicCronSeoAiRoute = ApiPublicCronSeoAiRouteImport.update({
   path: '/api/public/cron/seo-ai',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronTiktokEventsRoute =
+  ApiPublicCronTiktokEventsRouteImport.update({
+    id: '/api/public/cron/tiktok-events',
+    path: '/api/public/cron/tiktok-events',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronWebhookRetriesRoute =
   ApiPublicCronWebhookRetriesRouteImport.update({
     id: '/api/public/cron/webhook-retries',
@@ -1318,6 +1333,11 @@ const ApiPublicRssSlugRoute = ApiPublicRssSlugRouteImport.update({
 const ApiPublicSitemapSlugRoute = ApiPublicSitemapSlugRouteImport.update({
   id: '/api/public/sitemap/$slug',
   path: '/api/public/sitemap/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTiktokStoreIdRoute = ApiPublicTiktokStoreIdRouteImport.update({
+  id: '/api/public/tiktok/$storeId',
+  path: '/api/public/tiktok/$storeId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicTrackSlugRoute = ApiPublicTrackSlugRouteImport.update({
@@ -1567,6 +1587,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
+  '/store/$storeId/tiktok': typeof AuthenticatedStoreStoreIdTiktokRoute
   '/store/$storeId/transfers': typeof AuthenticatedStoreStoreIdTransfersRoute
   '/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
   '/store/$storeId/vendors': typeof AuthenticatedStoreStoreIdVendorsRoute
@@ -1579,6 +1600,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
+  '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
@@ -1586,6 +1608,7 @@ export interface FileRoutesByFullPath {
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/tiktok/$storeId': typeof ApiPublicTiktokStoreIdRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
@@ -1772,6 +1795,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
+  '/store/$storeId/tiktok': typeof AuthenticatedStoreStoreIdTiktokRoute
   '/store/$storeId/transfers': typeof AuthenticatedStoreStoreIdTransfersRoute
   '/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
   '/store/$storeId/vendors': typeof AuthenticatedStoreStoreIdVendorsRoute
@@ -1784,6 +1808,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
+  '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
@@ -1791,6 +1816,7 @@ export interface FileRoutesByTo {
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/tiktok/$storeId': typeof ApiPublicTiktokStoreIdRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
@@ -1981,6 +2007,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/_authenticated/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
   '/_authenticated/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
+  '/_authenticated/store/$storeId/tiktok': typeof AuthenticatedStoreStoreIdTiktokRoute
   '/_authenticated/store/$storeId/transfers': typeof AuthenticatedStoreStoreIdTransfersRoute
   '/_authenticated/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
   '/_authenticated/store/$storeId/vendors': typeof AuthenticatedStoreStoreIdVendorsRoute
@@ -1993,6 +2020,7 @@ export interface FileRoutesById {
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
+  '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
@@ -2000,6 +2028,7 @@ export interface FileRoutesById {
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
+  '/api/public/tiktok/$storeId': typeof ApiPublicTiktokStoreIdRoute
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
@@ -2190,6 +2219,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/theme-sections'
     | '/store/$storeId/theme-store'
     | '/store/$storeId/themes'
+    | '/store/$storeId/tiktok'
     | '/store/$storeId/transfers'
     | '/store/$storeId/valuation'
     | '/store/$storeId/vendors'
@@ -2202,6 +2232,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
+    | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
@@ -2209,6 +2240,7 @@ export interface FileRouteTypes {
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/tiktok/$storeId'
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
@@ -2395,6 +2427,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/theme-sections'
     | '/store/$storeId/theme-store'
     | '/store/$storeId/themes'
+    | '/store/$storeId/tiktok'
     | '/store/$storeId/transfers'
     | '/store/$storeId/valuation'
     | '/store/$storeId/vendors'
@@ -2407,6 +2440,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
+    | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
@@ -2414,6 +2448,7 @@ export interface FileRouteTypes {
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/tiktok/$storeId'
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
@@ -2603,6 +2638,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/theme-sections'
     | '/_authenticated/store/$storeId/theme-store'
     | '/_authenticated/store/$storeId/themes'
+    | '/_authenticated/store/$storeId/tiktok'
     | '/_authenticated/store/$storeId/transfers'
     | '/_authenticated/store/$storeId/valuation'
     | '/_authenticated/store/$storeId/vendors'
@@ -2615,6 +2651,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
+    | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
@@ -2622,6 +2659,7 @@ export interface FileRouteTypes {
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
+    | '/api/public/tiktok/$storeId'
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
@@ -2675,6 +2713,7 @@ export interface RootRouteChildren {
   ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
   ApiPublicCronSeoAiRoute: typeof ApiPublicCronSeoAiRoute
+  ApiPublicCronTiktokEventsRoute: typeof ApiPublicCronTiktokEventsRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicInstagramStoreIdRoute: typeof ApiPublicInstagramStoreIdRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
@@ -2682,6 +2721,7 @@ export interface RootRouteChildren {
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicRssSlugRoute: typeof ApiPublicRssSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
+  ApiPublicTiktokStoreIdRoute: typeof ApiPublicTiktokStoreIdRoute
   ApiPublicTrackSlugRoute: typeof ApiPublicTrackSlugRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   ApiPublicWhatsappStoreIdRoute: typeof ApiPublicWhatsappStoreIdRoute
@@ -3911,6 +3951,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdThemesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/tiktok': {
+      id: '/_authenticated/store/$storeId/tiktok'
+      path: '/store/$storeId/tiktok'
+      fullPath: '/store/$storeId/tiktok'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdTiktokRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/transfers': {
       id: '/_authenticated/store/$storeId/transfers'
       path: '/store/$storeId/transfers'
@@ -3995,6 +4042,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronSeoAiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/tiktok-events': {
+      id: '/api/public/cron/tiktok-events'
+      path: '/api/public/cron/tiktok-events'
+      fullPath: '/api/public/cron/tiktok-events'
+      preLoaderRoute: typeof ApiPublicCronTiktokEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/webhook-retries': {
       id: '/api/public/cron/webhook-retries'
       path: '/api/public/cron/webhook-retries'
@@ -4042,6 +4096,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/sitemap/$slug'
       fullPath: '/api/public/sitemap/$slug'
       preLoaderRoute: typeof ApiPublicSitemapSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/tiktok/$storeId': {
+      id: '/api/public/tiktok/$storeId'
+      path: '/api/public/tiktok/$storeId'
+      fullPath: '/api/public/tiktok/$storeId'
+      preLoaderRoute: typeof ApiPublicTiktokStoreIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/track/$slug': {
@@ -4382,6 +4443,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdThemeSectionsRoute: typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   AuthenticatedStoreStoreIdThemeStoreRoute: typeof AuthenticatedStoreStoreIdThemeStoreRoute
   AuthenticatedStoreStoreIdThemesRoute: typeof AuthenticatedStoreStoreIdThemesRoute
+  AuthenticatedStoreStoreIdTiktokRoute: typeof AuthenticatedStoreStoreIdTiktokRoute
   AuthenticatedStoreStoreIdTransfersRoute: typeof AuthenticatedStoreStoreIdTransfersRoute
   AuthenticatedStoreStoreIdValuationRoute: typeof AuthenticatedStoreStoreIdValuationRoute
   AuthenticatedStoreStoreIdVendorsRoute: typeof AuthenticatedStoreStoreIdVendorsRoute
@@ -4562,6 +4624,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdThemeStoreRoute:
     AuthenticatedStoreStoreIdThemeStoreRoute,
   AuthenticatedStoreStoreIdThemesRoute: AuthenticatedStoreStoreIdThemesRoute,
+  AuthenticatedStoreStoreIdTiktokRoute: AuthenticatedStoreStoreIdTiktokRoute,
   AuthenticatedStoreStoreIdTransfersRoute:
     AuthenticatedStoreStoreIdTransfersRoute,
   AuthenticatedStoreStoreIdValuationRoute:
@@ -4615,6 +4678,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
   ApiPublicCronSeoAiRoute: ApiPublicCronSeoAiRoute,
+  ApiPublicCronTiktokEventsRoute: ApiPublicCronTiktokEventsRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicInstagramStoreIdRoute: ApiPublicInstagramStoreIdRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
@@ -4622,6 +4686,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicRssSlugRoute: ApiPublicRssSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
+  ApiPublicTiktokStoreIdRoute: ApiPublicTiktokStoreIdRoute,
   ApiPublicTrackSlugRoute: ApiPublicTrackSlugRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   ApiPublicWhatsappStoreIdRoute: ApiPublicWhatsappStoreIdRoute,
