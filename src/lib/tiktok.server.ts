@@ -757,12 +757,30 @@ export async function generateTiktokReply(
     { role: "user", content: options.text },
   ];
 
-  const result = await callProvider(admin, options.storeId, messages, {
-    feature: "tiktok_dm_reply",
+  const result = await callProvider({
+    providerCode: settings.providerCode,
+    model: settings.model,
+    messages,
+    temperature: settings.creativity,
     maxTokens: 400,
   });
 
+  await admin.from("ai_generations").insert({
+    store_id: options.storeId,
+    task: "tiktok_reply",
+    provider_code: settings.providerCode,
+    model: settings.model,
+    prompt: context.slice(0, 8000),
+    output: result.text.slice(0, 20000),
+    input_tokens: result.inputTokens,
+    output_tokens: result.outputTokens,
+    total_tokens: result.inputTokens + result.outputTokens,
+    duration_ms: 0,
+    status: "success",
+  });
+
   return { text: result.text.trim(), intent, confidence };
+
 }
 
 /* ------------------------------------------------------------------ */
