@@ -194,6 +194,7 @@ import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/c
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
 import { Route as ApiPublicCronSeoAiRouteImport } from './routes/api/public/cron.seo-ai'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
+import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/public/instagram.$storeId'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
@@ -1274,6 +1275,12 @@ const ApiPublicCronWebhookRetriesRoute =
     path: '/api/public/cron/webhook-retries',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicInstagramStoreIdRoute =
+  ApiPublicInstagramStoreIdRouteImport.update({
+    id: '/api/public/instagram/$storeId',
+    path: '/api/public/instagram/$storeId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicOauthRevokeRoute = ApiPublicOauthRevokeRouteImport.update({
   id: '/api/public/oauth/revoke',
   path: '/api/public/oauth/revoke',
@@ -1557,6 +1564,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -1759,6 +1767,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -1965,6 +1974,7 @@ export interface FileRoutesById {
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -2171,6 +2181,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
@@ -2373,6 +2384,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
@@ -2578,6 +2590,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
@@ -2636,6 +2649,7 @@ export interface RootRouteChildren {
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
   ApiPublicCronSeoAiRoute: typeof ApiPublicCronSeoAiRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
+  ApiPublicInstagramStoreIdRoute: typeof ApiPublicInstagramStoreIdRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
@@ -3947,6 +3961,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronWebhookRetriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/instagram/$storeId': {
+      id: '/api/public/instagram/$storeId'
+      path: '/api/public/instagram/$storeId'
+      fullPath: '/api/public/instagram/$storeId'
+      preLoaderRoute: typeof ApiPublicInstagramStoreIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/oauth/revoke': {
       id: '/api/public/oauth/revoke'
       path: '/api/public/oauth/revoke'
@@ -4550,6 +4571,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
   ApiPublicCronSeoAiRoute: ApiPublicCronSeoAiRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
+  ApiPublicInstagramStoreIdRoute: ApiPublicInstagramStoreIdRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
