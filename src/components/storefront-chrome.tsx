@@ -424,7 +424,10 @@ export function StorefrontChrome({
               Sepet{cartCount ? ` (${cartCount})` : ""}
             </Link>
           ) : null}
+
+          <LanguageSwitcher storeSlug={storeSlug} color={muted} />
         </nav>
+
       </header>
 
       <main className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>
