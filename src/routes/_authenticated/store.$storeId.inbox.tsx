@@ -468,6 +468,7 @@ function InboxPage() {
             ) : (
               <>
                 <CustomerCard storeId={storeId} conversation={conversation} />
+                <SocialCrmPanel storeId={storeId} conversationId={conversation.id} />
                 <div className="surface-card space-y-2 p-4">
                   <Label>Etiketler</Label>
                   <div className="flex flex-wrap gap-1">
