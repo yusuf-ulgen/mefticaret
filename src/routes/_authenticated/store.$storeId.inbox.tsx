@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Bot, Gift, Link2, MessageSquare, Package, Send, Settings } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
+import { SocialCrmPanel } from "@/components/social-crm-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -468,6 +469,7 @@ function InboxPage() {
             ) : (
               <>
                 <CustomerCard storeId={storeId} conversation={conversation} />
+                <SocialCrmPanel storeId={storeId} conversationId={conversation.id} />
                 <div className="surface-card space-y-2 p-4">
                   <Label>Etiketler</Label>
                   <div className="flex flex-wrap gap-1">

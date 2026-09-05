@@ -117,6 +117,7 @@ import { Route as AuthenticatedStoreStoreIdGiftLiabilityRouteImport } from './ro
 import { Route as AuthenticatedStoreStoreIdHealthRouteImport } from './routes/_authenticated/store.$storeId.health'
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
 import { Route as AuthenticatedStoreStoreIdInboxRouteImport } from './routes/_authenticated/store.$storeId.inbox'
+import { Route as AuthenticatedStoreStoreIdInstagramRouteImport } from './routes/_authenticated/store.$storeId.instagram'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
 import { Route as AuthenticatedStoreStoreIdJobsRouteImport } from './routes/_authenticated/store.$storeId.jobs'
 import { Route as AuthenticatedStoreStoreIdLedgerRouteImport } from './routes/_authenticated/store.$storeId.ledger'
@@ -191,9 +192,11 @@ import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
+import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
 import { Route as ApiPublicCronSeoAiRouteImport } from './routes/api/public/cron.seo-ai'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
+import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/public/instagram.$storeId'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
@@ -814,6 +817,12 @@ const AuthenticatedStoreStoreIdInboxRoute =
     path: '/store/$storeId/inbox',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdInstagramRoute =
+  AuthenticatedStoreStoreIdInstagramRouteImport.update({
+    id: '/store/$storeId/instagram',
+    path: '/store/$storeId/instagram',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdInventoryRoute =
   AuthenticatedStoreStoreIdInventoryRouteImport.update({
     id: '/store/$storeId/inventory',
@@ -1257,6 +1266,12 @@ const ApiPublicCronFeedSyncRoute = ApiPublicCronFeedSyncRouteImport.update({
   path: '/api/public/cron/feed-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronInstagramEventsRoute =
+  ApiPublicCronInstagramEventsRouteImport.update({
+    id: '/api/public/cron/instagram-events',
+    path: '/api/public/cron/instagram-events',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronQueueWorkerRoute =
   ApiPublicCronQueueWorkerRouteImport.update({
     id: '/api/public/cron/queue-worker',
@@ -1272,6 +1287,12 @@ const ApiPublicCronWebhookRetriesRoute =
   ApiPublicCronWebhookRetriesRouteImport.update({
     id: '/api/public/cron/webhook-retries',
     path: '/api/public/cron/webhook-retries',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicInstagramStoreIdRoute =
+  ApiPublicInstagramStoreIdRouteImport.update({
+    id: '/api/public/instagram/$storeId',
+    path: '/api/public/instagram/$storeId',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicOauthRevokeRoute = ApiPublicOauthRevokeRouteImport.update({
@@ -1480,6 +1501,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
+  '/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -1554,9 +1576,11 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -1683,6 +1707,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
+  '/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -1756,9 +1781,11 @@ export interface FileRoutesByTo {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -1888,6 +1915,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/_authenticated/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
+  '/_authenticated/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/_authenticated/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/_authenticated/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -1962,9 +1990,11 @@ export interface FileRoutesById {
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
+  '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
+  '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -2094,6 +2124,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inbox'
+    | '/store/$storeId/instagram'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
@@ -2168,9 +2199,11 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
@@ -2297,6 +2330,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inbox'
+    | '/store/$storeId/instagram'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
@@ -2370,9 +2404,11 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
@@ -2501,6 +2537,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/health'
     | '/_authenticated/store/$storeId/import-export'
     | '/_authenticated/store/$storeId/inbox'
+    | '/_authenticated/store/$storeId/instagram'
     | '/_authenticated/store/$storeId/inventory'
     | '/_authenticated/store/$storeId/jobs'
     | '/_authenticated/store/$storeId/ledger'
@@ -2575,9 +2612,11 @@ export interface FileRouteTypes {
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/feed-sync'
+    | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/webhook-retries'
+    | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
@@ -2633,9 +2672,11 @@ export interface RootRouteChildren {
   ApiPublicCronAutomationTickRoute: typeof ApiPublicCronAutomationTickRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
+  ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
   ApiPublicCronSeoAiRoute: typeof ApiPublicCronSeoAiRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
+  ApiPublicInstagramStoreIdRoute: typeof ApiPublicInstagramStoreIdRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
@@ -3408,6 +3449,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdInboxRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/instagram': {
+      id: '/_authenticated/store/$storeId/instagram'
+      path: '/store/$storeId/instagram'
+      fullPath: '/store/$storeId/instagram'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdInstagramRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/inventory': {
       id: '/_authenticated/store/$storeId/inventory'
       path: '/store/$storeId/inventory'
@@ -3926,6 +3974,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronFeedSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/instagram-events': {
+      id: '/api/public/cron/instagram-events'
+      path: '/api/public/cron/instagram-events'
+      fullPath: '/api/public/cron/instagram-events'
+      preLoaderRoute: typeof ApiPublicCronInstagramEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/queue-worker': {
       id: '/api/public/cron/queue-worker'
       path: '/api/public/cron/queue-worker'
@@ -3945,6 +4000,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/cron/webhook-retries'
       fullPath: '/api/public/cron/webhook-retries'
       preLoaderRoute: typeof ApiPublicCronWebhookRetriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/instagram/$storeId': {
+      id: '/api/public/instagram/$storeId'
+      path: '/api/public/instagram/$storeId'
+      fullPath: '/api/public/instagram/$storeId'
+      preLoaderRoute: typeof ApiPublicInstagramStoreIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/oauth/revoke': {
@@ -4254,6 +4316,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdHealthRoute: typeof AuthenticatedStoreStoreIdHealthRoute
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
   AuthenticatedStoreStoreIdInboxRoute: typeof AuthenticatedStoreStoreIdInboxRoute
+  AuthenticatedStoreStoreIdInstagramRoute: typeof AuthenticatedStoreStoreIdInstagramRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
   AuthenticatedStoreStoreIdJobsRoute: typeof AuthenticatedStoreStoreIdJobsRoute
   AuthenticatedStoreStoreIdLedgerRoute: typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -4391,6 +4454,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdImportExportRoute:
     AuthenticatedStoreStoreIdImportExportRoute,
   AuthenticatedStoreStoreIdInboxRoute: AuthenticatedStoreStoreIdInboxRoute,
+  AuthenticatedStoreStoreIdInstagramRoute:
+    AuthenticatedStoreStoreIdInstagramRoute,
   AuthenticatedStoreStoreIdInventoryRoute:
     AuthenticatedStoreStoreIdInventoryRoute,
   AuthenticatedStoreStoreIdJobsRoute: AuthenticatedStoreStoreIdJobsRoute,
@@ -4547,9 +4612,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronAutomationTickRoute: ApiPublicCronAutomationTickRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
+  ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
   ApiPublicCronSeoAiRoute: ApiPublicCronSeoAiRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
+  ApiPublicInstagramStoreIdRoute: ApiPublicInstagramStoreIdRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,

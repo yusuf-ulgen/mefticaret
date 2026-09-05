@@ -142,6 +142,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Soru & Cevap", to: p("questions"), icon: HelpCircle },
         { label: "Destek Talepleri", to: p("support"), icon: MessageSquare, keywords: "ticket" },
         { label: "Mesaj Merkezi", to: p("inbox"), icon: MessageCircle, keywords: "inbox omni instagram telegram sohbet" },
+        { label: "Instagram DM Otomasyonu", to: p("instagram"), icon: MessageCircle, keywords: "instagram dm yorum otomasyon social inbox" },
       ],
     },
     {
