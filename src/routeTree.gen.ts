@@ -117,6 +117,7 @@ import { Route as AuthenticatedStoreStoreIdGiftLiabilityRouteImport } from './ro
 import { Route as AuthenticatedStoreStoreIdHealthRouteImport } from './routes/_authenticated/store.$storeId.health'
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
 import { Route as AuthenticatedStoreStoreIdInboxRouteImport } from './routes/_authenticated/store.$storeId.inbox'
+import { Route as AuthenticatedStoreStoreIdInstagramRouteImport } from './routes/_authenticated/store.$storeId.instagram'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
 import { Route as AuthenticatedStoreStoreIdJobsRouteImport } from './routes/_authenticated/store.$storeId.jobs'
 import { Route as AuthenticatedStoreStoreIdLedgerRouteImport } from './routes/_authenticated/store.$storeId.ledger'
@@ -816,6 +817,12 @@ const AuthenticatedStoreStoreIdInboxRoute =
     path: '/store/$storeId/inbox',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdInstagramRoute =
+  AuthenticatedStoreStoreIdInstagramRouteImport.update({
+    id: '/store/$storeId/instagram',
+    path: '/store/$storeId/instagram',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdInventoryRoute =
   AuthenticatedStoreStoreIdInventoryRouteImport.update({
     id: '/store/$storeId/inventory',
@@ -1494,6 +1501,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
+  '/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -1699,6 +1707,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
+  '/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -1906,6 +1915,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/_authenticated/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
+  '/_authenticated/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/_authenticated/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
   '/_authenticated/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -2114,6 +2124,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inbox'
+    | '/store/$storeId/instagram'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
@@ -2319,6 +2330,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inbox'
+    | '/store/$storeId/instagram'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
     | '/store/$storeId/ledger'
@@ -2525,6 +2537,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/health'
     | '/_authenticated/store/$storeId/import-export'
     | '/_authenticated/store/$storeId/inbox'
+    | '/_authenticated/store/$storeId/instagram'
     | '/_authenticated/store/$storeId/inventory'
     | '/_authenticated/store/$storeId/jobs'
     | '/_authenticated/store/$storeId/ledger'
@@ -3436,6 +3449,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdInboxRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/instagram': {
+      id: '/_authenticated/store/$storeId/instagram'
+      path: '/store/$storeId/instagram'
+      fullPath: '/store/$storeId/instagram'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdInstagramRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/inventory': {
       id: '/_authenticated/store/$storeId/inventory'
       path: '/store/$storeId/inventory'
@@ -4296,6 +4316,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdHealthRoute: typeof AuthenticatedStoreStoreIdHealthRoute
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
   AuthenticatedStoreStoreIdInboxRoute: typeof AuthenticatedStoreStoreIdInboxRoute
+  AuthenticatedStoreStoreIdInstagramRoute: typeof AuthenticatedStoreStoreIdInstagramRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
   AuthenticatedStoreStoreIdJobsRoute: typeof AuthenticatedStoreStoreIdJobsRoute
   AuthenticatedStoreStoreIdLedgerRoute: typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -4433,6 +4454,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdImportExportRoute:
     AuthenticatedStoreStoreIdImportExportRoute,
   AuthenticatedStoreStoreIdInboxRoute: AuthenticatedStoreStoreIdInboxRoute,
+  AuthenticatedStoreStoreIdInstagramRoute:
+    AuthenticatedStoreStoreIdInstagramRoute,
   AuthenticatedStoreStoreIdInventoryRoute:
     AuthenticatedStoreStoreIdInventoryRoute,
   AuthenticatedStoreStoreIdJobsRoute: AuthenticatedStoreStoreIdJobsRoute,
