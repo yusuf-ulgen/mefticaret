@@ -81,6 +81,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { to: "/admin/cms", label: "Sayfalar (CMS)", icon: FileText, hint: "Kurumsal sayfalar", keywords: "hakkımızda iletişim sayfa metin" },
       { to: "/admin/blog", label: "Blog Sistemi", icon: PenLine, hint: "Yazılar ve yayın takvimi", keywords: "makale içerik yazı" },
       { to: "/admin/content", label: "İçerik Merkezi", icon: Images, hint: "Popup, story, medya", keywords: "popup hikaye medya banner duyuru" },
+      { to: "/admin/languages", label: "Dil ve Çeviri", icon: Globe, hint: "Çok dilli mağazalar", keywords: "dil çeviri translation locale hreflang" },
       { to: "/admin/seo", label: "SEO Merkezi", icon: Search, hint: "Meta, yönlendirme, 404", keywords: "seo meta redirect sitemap" },
       {
         to: "/admin/seo-ai",

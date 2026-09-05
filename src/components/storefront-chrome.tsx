@@ -9,6 +9,8 @@ import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
+import { LanguageSwitcher } from "@/components/storefront-language";
+
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import { fontStack } from "@/lib/theme-presets";
 import { designCss, resolveDesignTokens } from "@/lib/theme-design";
@@ -424,7 +426,10 @@ export function StorefrontChrome({
               Sepet{cartCount ? ` (${cartCount})` : ""}
             </Link>
           ) : null}
+
+          <LanguageSwitcher storeSlug={storeSlug} color={muted} />
         </nav>
+
       </header>
 
       <main className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>

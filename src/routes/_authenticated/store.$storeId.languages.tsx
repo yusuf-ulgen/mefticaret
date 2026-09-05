@@ -129,7 +129,11 @@ function LanguageCenterPage() {
   );
 
   return (
-    <AppShell storeId={storeId}>
+    <AppShell
+      storeId={storeId}
+      title="Dil ve Çeviri Merkezi"
+      description="Mağazanın tüm içeriğini istediğin dile çevir."
+    >
       <div className="w-full max-w-full space-y-6 overflow-x-hidden">
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">Language Center</p>
