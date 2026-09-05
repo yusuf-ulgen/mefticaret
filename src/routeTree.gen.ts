@@ -183,6 +183,7 @@ import { Route as AuthenticatedStoreStoreIdThemeEditorRouteImport } from './rout
 import { Route as AuthenticatedStoreStoreIdThemeSectionsRouteImport } from './routes/_authenticated/store.$storeId.theme-sections'
 import { Route as AuthenticatedStoreStoreIdThemeStoreRouteImport } from './routes/_authenticated/store.$storeId.theme-store'
 import { Route as AuthenticatedStoreStoreIdThemesRouteImport } from './routes/_authenticated/store.$storeId.themes'
+import { Route as AuthenticatedStoreStoreIdTiktokRouteImport } from './routes/_authenticated/store.$storeId.tiktok'
 import { Route as AuthenticatedStoreStoreIdTransfersRouteImport } from './routes/_authenticated/store.$storeId.transfers'
 import { Route as AuthenticatedStoreStoreIdValuationRouteImport } from './routes/_authenticated/store.$storeId.valuation'
 import { Route as AuthenticatedStoreStoreIdVendorsRouteImport } from './routes/_authenticated/store.$storeId.vendors'
@@ -1215,6 +1216,12 @@ const AuthenticatedStoreStoreIdThemesRoute =
     path: '/store/$storeId/themes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdTiktokRoute =
+  AuthenticatedStoreStoreIdTiktokRouteImport.update({
+    id: '/store/$storeId/tiktok',
+    path: '/store/$storeId/tiktok',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdTransfersRoute =
   AuthenticatedStoreStoreIdTransfersRouteImport.update({
     id: '/store/$storeId/transfers',
@@ -1580,6 +1587,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
+  '/store/$storeId/tiktok': typeof AuthenticatedStoreStoreIdTiktokRoute
   '/store/$storeId/transfers': typeof AuthenticatedStoreStoreIdTransfersRoute
   '/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
   '/store/$storeId/vendors': typeof AuthenticatedStoreStoreIdVendorsRoute
@@ -1787,6 +1795,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
+  '/store/$storeId/tiktok': typeof AuthenticatedStoreStoreIdTiktokRoute
   '/store/$storeId/transfers': typeof AuthenticatedStoreStoreIdTransfersRoute
   '/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
   '/store/$storeId/vendors': typeof AuthenticatedStoreStoreIdVendorsRoute
@@ -1998,6 +2007,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/_authenticated/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
   '/_authenticated/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
+  '/_authenticated/store/$storeId/tiktok': typeof AuthenticatedStoreStoreIdTiktokRoute
   '/_authenticated/store/$storeId/transfers': typeof AuthenticatedStoreStoreIdTransfersRoute
   '/_authenticated/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
   '/_authenticated/store/$storeId/vendors': typeof AuthenticatedStoreStoreIdVendorsRoute
@@ -2209,6 +2219,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/theme-sections'
     | '/store/$storeId/theme-store'
     | '/store/$storeId/themes'
+    | '/store/$storeId/tiktok'
     | '/store/$storeId/transfers'
     | '/store/$storeId/valuation'
     | '/store/$storeId/vendors'
@@ -2416,6 +2427,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/theme-sections'
     | '/store/$storeId/theme-store'
     | '/store/$storeId/themes'
+    | '/store/$storeId/tiktok'
     | '/store/$storeId/transfers'
     | '/store/$storeId/valuation'
     | '/store/$storeId/vendors'
@@ -2626,6 +2638,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/theme-sections'
     | '/_authenticated/store/$storeId/theme-store'
     | '/_authenticated/store/$storeId/themes'
+    | '/_authenticated/store/$storeId/tiktok'
     | '/_authenticated/store/$storeId/transfers'
     | '/_authenticated/store/$storeId/valuation'
     | '/_authenticated/store/$storeId/vendors'
@@ -3938,6 +3951,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdThemesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/tiktok': {
+      id: '/_authenticated/store/$storeId/tiktok'
+      path: '/store/$storeId/tiktok'
+      fullPath: '/store/$storeId/tiktok'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdTiktokRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/transfers': {
       id: '/_authenticated/store/$storeId/transfers'
       path: '/store/$storeId/transfers'
@@ -4423,6 +4443,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdThemeSectionsRoute: typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   AuthenticatedStoreStoreIdThemeStoreRoute: typeof AuthenticatedStoreStoreIdThemeStoreRoute
   AuthenticatedStoreStoreIdThemesRoute: typeof AuthenticatedStoreStoreIdThemesRoute
+  AuthenticatedStoreStoreIdTiktokRoute: typeof AuthenticatedStoreStoreIdTiktokRoute
   AuthenticatedStoreStoreIdTransfersRoute: typeof AuthenticatedStoreStoreIdTransfersRoute
   AuthenticatedStoreStoreIdValuationRoute: typeof AuthenticatedStoreStoreIdValuationRoute
   AuthenticatedStoreStoreIdVendorsRoute: typeof AuthenticatedStoreStoreIdVendorsRoute
@@ -4603,6 +4624,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdThemeStoreRoute:
     AuthenticatedStoreStoreIdThemeStoreRoute,
   AuthenticatedStoreStoreIdThemesRoute: AuthenticatedStoreStoreIdThemesRoute,
+  AuthenticatedStoreStoreIdTiktokRoute: AuthenticatedStoreStoreIdTiktokRoute,
   AuthenticatedStoreStoreIdTransfersRoute:
     AuthenticatedStoreStoreIdTransfersRoute,
   AuthenticatedStoreStoreIdValuationRoute:
