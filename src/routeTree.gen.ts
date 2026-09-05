@@ -192,6 +192,7 @@ import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/_authenticated/store.$storeId.whatsapp'
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
+import { Route as ApiPublicCronFbMarketplaceSyncRouteImport } from './routes/api/public/cron.fb-marketplace-sync'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
 import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
@@ -1270,6 +1271,12 @@ const ApiPublicCronDailyRollupRoute =
     path: '/api/public/cron/daily-rollup',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronFbMarketplaceSyncRoute =
+  ApiPublicCronFbMarketplaceSyncRouteImport.update({
+    id: '/api/public/cron/fb-marketplace-sync',
+    path: '/api/public/cron/fb-marketplace-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronFeedSyncRoute = ApiPublicCronFeedSyncRouteImport.update({
   id: '/api/public/cron/feed-sync',
   path: '/api/public/cron/feed-sync',
@@ -1596,6 +1603,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -1804,6 +1812,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -2016,6 +2025,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
+  '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -2228,6 +2238,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
@@ -2436,6 +2447,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
@@ -2647,6 +2659,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/whatsapp'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
+    | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
@@ -2709,6 +2722,7 @@ export interface RootRouteChildren {
   SSlugIndexRoute: typeof SSlugIndexRoute
   ApiPublicCronAutomationTickRoute: typeof ApiPublicCronAutomationTickRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
+  ApiPublicCronFbMarketplaceSyncRoute: typeof ApiPublicCronFbMarketplaceSyncRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
   ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
@@ -4014,6 +4028,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronDailyRollupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/fb-marketplace-sync': {
+      id: '/api/public/cron/fb-marketplace-sync'
+      path: '/api/public/cron/fb-marketplace-sync'
+      fullPath: '/api/public/cron/fb-marketplace-sync'
+      preLoaderRoute: typeof ApiPublicCronFbMarketplaceSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/feed-sync': {
       id: '/api/public/cron/feed-sync'
       path: '/api/public/cron/feed-sync'
@@ -4674,6 +4695,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugIndexRoute: SSlugIndexRoute,
   ApiPublicCronAutomationTickRoute: ApiPublicCronAutomationTickRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
+  ApiPublicCronFbMarketplaceSyncRoute: ApiPublicCronFbMarketplaceSyncRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
   ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
