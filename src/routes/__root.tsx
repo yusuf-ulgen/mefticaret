@@ -91,6 +91,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { name: "author", content: "Mefticaret" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Mefticaret" },
+      { property: "og:title", content: "Mefticaret — E-ticaret İşletim Sistemi" },
+      {
+        property: "og:description",
+        content:
+          "Mefticaret, dakikalar içinde kendi e-ticaret mağazanı kurup çok kiracılı SaaS altyapısıyla ölçekleyeceğin platform.",
+      },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
