@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Bot, Gift, Link2, MessageSquare, Package, Send, Settings } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
+import { SocialCrmPanel } from "@/components/social-crm-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
