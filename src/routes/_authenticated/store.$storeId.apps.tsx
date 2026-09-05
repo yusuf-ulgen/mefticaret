@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
@@ -15,6 +15,12 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+
+/** Uygulama mağazasındaki kayıt ile panel içindeki modül ekranını eşler. */
+const APP_MODULE_ROUTES: Record<string, string | undefined> = {
+  "instagram-dm": "/store/$storeId/instagram",
+  "whatsapp-crm": "/store/$storeId/inbox",
+};
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
@@ -73,6 +79,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/apps")({
 
 type CatalogApp = {
   id: string;
+  code: string;
   name: string;
   slug?: string;
   category: string;
@@ -352,6 +359,13 @@ function AppsPage() {
                       </Button>
                     ) : (
                       <>
+                        {APP_MODULE_ROUTES[app.code] ? (
+                          <Button size="sm" asChild>
+                            <Link to={APP_MODULE_ROUTES[app.code]!} params={{ storeId }}>
+                              <Settings2 className="mr-1 size-4" aria-hidden /> Uygulamayı aç
+                            </Link>
+                          </Button>
+                        ) : null}
                         <Button
                           size="sm"
                           variant="outline"
