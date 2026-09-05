@@ -107,6 +107,7 @@ import { Route as AuthenticatedStoreStoreIdDiscountsRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdDomainsRouteImport } from './routes/_authenticated/store.$storeId.domains'
 import { Route as AuthenticatedStoreStoreIdDropshippingRouteImport } from './routes/_authenticated/store.$storeId.dropshipping'
 import { Route as AuthenticatedStoreStoreIdElasticityRouteImport } from './routes/_authenticated/store.$storeId.elasticity'
+import { Route as AuthenticatedStoreStoreIdFacebookMarketplaceRouteImport } from './routes/_authenticated/store.$storeId.facebook-marketplace'
 import { Route as AuthenticatedStoreStoreIdFeedsRouteImport } from './routes/_authenticated/store.$storeId.feeds'
 import { Route as AuthenticatedStoreStoreIdFinanceRouteImport } from './routes/_authenticated/store.$storeId.finance'
 import { Route as AuthenticatedStoreStoreIdForecastRouteImport } from './routes/_authenticated/store.$storeId.forecast'
@@ -759,6 +760,12 @@ const AuthenticatedStoreStoreIdElasticityRoute =
   AuthenticatedStoreStoreIdElasticityRouteImport.update({
     id: '/store/$storeId/elasticity',
     path: '/store/$storeId/elasticity',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedStoreStoreIdFacebookMarketplaceRoute =
+  AuthenticatedStoreStoreIdFacebookMarketplaceRouteImport.update({
+    id: '/store/$storeId/facebook-marketplace',
+    path: '/store/$storeId/facebook-marketplace',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStoreStoreIdFeedsRoute =
@@ -1518,6 +1525,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
+  '/store/$storeId/facebook-marketplace': typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
   '/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
@@ -1728,6 +1736,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
+  '/store/$storeId/facebook-marketplace': typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
   '/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
@@ -1940,6 +1949,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
   '/_authenticated/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/_authenticated/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
+  '/_authenticated/store/$storeId/facebook-marketplace': typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
   '/_authenticated/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/_authenticated/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/_authenticated/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
@@ -2153,6 +2163,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/domains'
     | '/store/$storeId/dropshipping'
     | '/store/$storeId/elasticity'
+    | '/store/$storeId/facebook-marketplace'
     | '/store/$storeId/feeds'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
@@ -2363,6 +2374,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/domains'
     | '/store/$storeId/dropshipping'
     | '/store/$storeId/elasticity'
+    | '/store/$storeId/facebook-marketplace'
     | '/store/$storeId/feeds'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
@@ -2574,6 +2586,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/domains'
     | '/_authenticated/store/$storeId/dropshipping'
     | '/_authenticated/store/$storeId/elasticity'
+    | '/_authenticated/store/$storeId/facebook-marketplace'
     | '/_authenticated/store/$storeId/feeds'
     | '/_authenticated/store/$storeId/finance'
     | '/_authenticated/store/$storeId/forecast'
@@ -3431,6 +3444,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId/elasticity'
       fullPath: '/store/$storeId/elasticity'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdElasticityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/store/$storeId/facebook-marketplace': {
+      id: '/_authenticated/store/$storeId/facebook-marketplace'
+      path: '/store/$storeId/facebook-marketplace'
+      fullPath: '/store/$storeId/facebook-marketplace'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdFacebookMarketplaceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/store/$storeId/feeds': {
@@ -4388,6 +4408,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdDomainsRoute: typeof AuthenticatedStoreStoreIdDomainsRoute
   AuthenticatedStoreStoreIdDropshippingRoute: typeof AuthenticatedStoreStoreIdDropshippingRoute
   AuthenticatedStoreStoreIdElasticityRoute: typeof AuthenticatedStoreStoreIdElasticityRoute
+  AuthenticatedStoreStoreIdFacebookMarketplaceRoute: typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
   AuthenticatedStoreStoreIdFeedsRoute: typeof AuthenticatedStoreStoreIdFeedsRoute
   AuthenticatedStoreStoreIdFinanceRoute: typeof AuthenticatedStoreStoreIdFinanceRoute
   AuthenticatedStoreStoreIdForecastRoute: typeof AuthenticatedStoreStoreIdForecastRoute
@@ -4523,6 +4544,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdDropshippingRoute,
   AuthenticatedStoreStoreIdElasticityRoute:
     AuthenticatedStoreStoreIdElasticityRoute,
+  AuthenticatedStoreStoreIdFacebookMarketplaceRoute:
+    AuthenticatedStoreStoreIdFacebookMarketplaceRoute,
   AuthenticatedStoreStoreIdFeedsRoute: AuthenticatedStoreStoreIdFeedsRoute,
   AuthenticatedStoreStoreIdFinanceRoute: AuthenticatedStoreStoreIdFinanceRoute,
   AuthenticatedStoreStoreIdForecastRoute:

@@ -192,7 +192,7 @@ function MarketplacePage() {
   const failed = listings.filter((row) => row.status === "error").length;
 
   return (
-    <AppShell>
+    <AppShell storeId={storeId} title="Facebook Marketplace" description="Ürünlerini Marketplace Item API ile yayınla ve stokları eşitle.">
       <div className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6">
         <header className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
