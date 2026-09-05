@@ -195,6 +195,7 @@ import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/c
 import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
 import { Route as ApiPublicCronSeoAiRouteImport } from './routes/api/public/cron.seo-ai'
+import { Route as ApiPublicCronTiktokEventsRouteImport } from './routes/api/public/cron.tiktok-events'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/public/instagram.$storeId'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
@@ -1284,6 +1285,12 @@ const ApiPublicCronSeoAiRoute = ApiPublicCronSeoAiRouteImport.update({
   path: '/api/public/cron/seo-ai',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronTiktokEventsRoute =
+  ApiPublicCronTiktokEventsRouteImport.update({
+    id: '/api/public/cron/tiktok-events',
+    path: '/api/public/cron/tiktok-events',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronWebhookRetriesRoute =
   ApiPublicCronWebhookRetriesRouteImport.update({
     id: '/api/public/cron/webhook-retries',
@@ -1585,6 +1592,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
+  '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
@@ -1791,6 +1799,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
+  '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
@@ -2001,6 +2010,7 @@ export interface FileRoutesById {
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
+  '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
@@ -2211,6 +2221,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
+    | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
@@ -2417,6 +2428,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
+    | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
@@ -2626,6 +2638,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
+    | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
     | '/api/public/oauth/revoke'
@@ -2687,6 +2700,7 @@ export interface RootRouteChildren {
   ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
   ApiPublicCronSeoAiRoute: typeof ApiPublicCronSeoAiRoute
+  ApiPublicCronTiktokEventsRoute: typeof ApiPublicCronTiktokEventsRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicInstagramStoreIdRoute: typeof ApiPublicInstagramStoreIdRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
@@ -4008,6 +4022,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronSeoAiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/tiktok-events': {
+      id: '/api/public/cron/tiktok-events'
+      path: '/api/public/cron/tiktok-events'
+      fullPath: '/api/public/cron/tiktok-events'
+      preLoaderRoute: typeof ApiPublicCronTiktokEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/webhook-retries': {
       id: '/api/public/cron/webhook-retries'
       path: '/api/public/cron/webhook-retries'
@@ -4635,6 +4656,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
   ApiPublicCronSeoAiRoute: ApiPublicCronSeoAiRoute,
+  ApiPublicCronTiktokEventsRoute: ApiPublicCronTiktokEventsRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicInstagramStoreIdRoute: ApiPublicInstagramStoreIdRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
