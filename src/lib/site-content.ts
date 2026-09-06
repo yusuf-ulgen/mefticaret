@@ -71,6 +71,15 @@ export function sectionIcon(name?: string) {
 /** Panelde bölüm türlerine göre yeni kart şablonları. */
 export const ITEM_TEMPLATES: Record<string, SiteSectionItem> = {
   nav: { label: "Yeni bağlantı", href: "#" },
+  megamenu: {
+    menu: "E-Ticaret",
+    group: "Özellikler",
+    label: "Yeni bağlantı",
+    desc: "Kısa açıklama",
+    href: "#moduller",
+    icon: "Sparkles",
+    badge: "",
+  },
   hero: { label: "Yeni avantaj", icon: "Zap" },
   showcase: { title: "Yeni ürün", price: "0 TL" },
   references: {
