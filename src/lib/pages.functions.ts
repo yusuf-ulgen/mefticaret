@@ -11,8 +11,8 @@ import { insertAuditRow } from "./audit.server";
  */
 
 const pageInput = z.object({
-  storeId: z.string().uuid(),
-  pageId: z.string().uuid().optional(),
+  storeId: z.guid(),
+  pageId: z.guid().optional(),
   title: z.string().trim().min(2).max(140),
   slug: z.string().trim().max(140).optional(),
   excerpt: z.string().trim().max(400).optional(),
@@ -25,11 +25,11 @@ const pageInput = z.object({
   pageKind: z.enum(["page", "blog"]).optional(),
   status: z.enum(["draft", "published", "scheduled"]).optional(),
   scheduledAt: z.string().datetime().nullable().optional(),
-  categoryId: z.string().uuid().nullable().optional(),
-  authorId: z.string().uuid().nullable().optional(),
+  categoryId: z.guid().nullable().optional(),
+  authorId: z.guid().nullable().optional(),
   authorName: z.string().trim().max(120).nullable().optional(),
   coverUrl: z.string().trim().max(600).nullable().optional(),
-  tagIds: z.array(z.string().uuid()).max(30).optional(),
+  tagIds: z.array(z.guid()).max(30).optional(),
 });
 
 export const savePage = createServerFn({ method: "POST" })
@@ -106,7 +106,7 @@ export const savePage = createServerFn({ method: "POST" })
 
 export const deletePage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid(), pageId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid(), pageId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

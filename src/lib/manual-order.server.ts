@@ -12,7 +12,7 @@ import type { Database } from "@/integrations/supabase/types";
 type Client = SupabaseClient<Database>;
 
 export const manualOrderSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   customer: z.object({
     fullName: z.string().trim().min(2).max(120),
     email: z.string().trim().email().max(160),
@@ -29,7 +29,7 @@ export const manualOrderSchema = z.object({
   items: z
     .array(
       z.object({
-        variantId: z.string().uuid(),
+        variantId: z.guid(),
         quantity: z.number().int().min(1).max(999),
       }),
     )

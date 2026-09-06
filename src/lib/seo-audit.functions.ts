@@ -7,7 +7,7 @@ import { insertAuditRow } from "./audit.server";
 
 /** SEO Audit Engine ve otomatik düzeltmeler için server fonksiyonları. */
 
-const storeId = z.string().uuid();
+const storeId = z.guid();
 
 export const runSeoAudit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -31,7 +31,7 @@ export const runSeoAudit = createServerFn({ method: "POST" })
 
 export const fixSeoIssue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId, issueId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId, issueId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { applySeoAutofix } = await import("@/lib/seo-autofix.server");
     const result = await applySeoAutofix(context.supabase, data.issueId, data.storeId);
@@ -54,7 +54,7 @@ export const fixSeoIssue = createServerFn({ method: "POST" })
 export const fixSeoIssuesBulk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId, issueIds: z.array(z.string().uuid()).min(1).max(200) }).parse(data),
+    z.object({ storeId, issueIds: z.array(z.guid()).min(1).max(200) }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { applySeoAutofix } = await import("@/lib/seo-autofix.server");
@@ -89,7 +89,7 @@ export const updateSeoIssueStatus = createServerFn({ method: "POST" })
     z
       .object({
         storeId,
-        issueId: z.string().uuid(),
+        issueId: z.guid(),
         status: z.enum(["open", "resolved", "ignored"]),
       })
       .parse(data),

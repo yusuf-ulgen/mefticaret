@@ -15,8 +15,8 @@ export const adjustStock = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        variantId: z.string().uuid(),
+        storeId: z.guid(),
+        variantId: z.guid(),
         kind: kindEnum,
         /** count → mutlak stok; diğerleri → miktar (pozitif) */
         amount: z.number().int().min(0).max(1_000_000),
@@ -70,8 +70,8 @@ export const setLowStockThreshold = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        variantId: z.string().uuid(),
+        storeId: z.guid(),
+        variantId: z.guid(),
         threshold: z.number().int().min(0).max(100_000),
       })
       .parse(data),

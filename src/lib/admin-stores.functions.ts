@@ -54,7 +54,7 @@ export const createPlatformStore = createServerFn({ method: "POST" })
         currency: z.enum(CURRENCIES).default("TRY"),
         locale: z.enum(LOCALES).default("tr"),
         status: z.enum(STATUSES).default("draft"),
-        planId: z.string().uuid().nullable().optional(),
+        planId: z.guid().nullable().optional(),
         ownerEmail: z.string().trim().email().optional(),
       })
       .parse(data),
@@ -139,14 +139,14 @@ export const updatePlatformStore = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         name: z.string().trim().min(2).max(60),
         slug: z.string().trim().min(2).max(60),
         industry: z.string().trim().max(40).optional(),
         currency: z.enum(CURRENCIES),
         locale: z.enum(LOCALES),
         status: z.enum(STATUSES),
-        planId: z.string().uuid().nullable().optional(),
+        planId: z.guid().nullable().optional(),
       })
       .parse(data),
   )
@@ -210,7 +210,7 @@ export const deletePlatformStore = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         confirmSlug: z.string().trim().min(1),
       })
       .parse(data),

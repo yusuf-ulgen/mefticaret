@@ -15,7 +15,7 @@ export const saveTheme = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         preset: z.string().trim().min(2).max(40),
         primaryColor: hex,
         accentColor: hex,

@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /** İstemci tarafında da kullanılabilen taslak şeması. */
 export const blogDraftInputSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   topic: z.string().trim().min(3).max(200),
   keywords: z.string().trim().max(300).default(""),
   tone: z.enum(["premium", "samimi", "teknik", "minimal"]).default("premium"),

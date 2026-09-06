@@ -44,7 +44,7 @@ export const supplierPortalUpdateOrder = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        dropshipOrderId: z.string().uuid(),
+        dropshipOrderId: z.guid(),
         status: z.enum(["accepted", "shipped", "cancelled"]).optional(),
         carrier: z.string().trim().max(80).optional(),
         trackingNumber: z.string().trim().max(80).optional(),

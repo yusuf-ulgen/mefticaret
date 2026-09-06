@@ -33,7 +33,7 @@ export const fetchPlatformTickets = createServerFn({ method: "POST" })
 
 export const fetchTicketMessages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ ticketId: z.string().uuid() }).parse(data))
+  .inputValidator((data: unknown) => z.object({ ticketId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const server = await import("@/lib/platform-admin.server");
     await server.assertPlatformAdmin(context.supabase, context.userId);
@@ -113,7 +113,7 @@ export const fetchPlatformAnalytics = createServerFn({ method: "POST" })
 
 export const fetchStoreControl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data: unknown) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const server = await import("@/lib/platform-admin.server");
     await server.assertPlatformAdmin(context.supabase, context.userId);
@@ -156,7 +156,7 @@ export const fetchSystemHealth = createServerFn({ method: "POST" })
 
 export const fetchStoreAdminNotes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data: unknown) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const server = await import("@/lib/platform-admin.server");
     await server.assertPlatformAdmin(context.supabase, context.userId);
@@ -183,7 +183,7 @@ export const togglePlatformStoreNotePin = createServerFn({ method: "POST" })
 
 export const deletePlatformStoreNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .inputValidator((data: unknown) => z.object({ id: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const server = await import("@/lib/platform-admin.server");
     await server.assertPlatformAdmin(context.supabase, context.userId);
@@ -196,7 +196,7 @@ export const deletePlatformStoreNote = createServerFn({ method: "POST" })
 
 export const fetchImpersonationSessions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data: unknown) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const server = await import("@/lib/platform-admin.server");
     await server.assertPlatformAdmin(context.supabase, context.userId);

@@ -4,10 +4,10 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { JOB_KINDS, JOB_STATUSES, type QueueJob } from "@/lib/queue";
 
-const storeIdSchema = z.object({ storeId: z.string().uuid() });
+const storeIdSchema = z.object({ storeId: z.guid() });
 
 const listSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   status: z.enum(JOB_STATUSES).optional(),
   kind: z.enum(JOB_KINDS).optional(),
 });
@@ -52,7 +52,7 @@ export const getQueueStats = createServerFn({ method: "GET" })
   });
 
 const enqueueSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   kind: z.enum(JOB_KINDS),
   payload: z.record(z.string(), z.unknown()).optional(),
   priority: z.number().int().min(0).max(100).optional(),
@@ -73,7 +73,7 @@ export const queueJob = createServerFn({ method: "POST" })
     return { id };
   });
 
-const jobIdSchema = z.object({ storeId: z.string().uuid(), id: z.string().uuid() });
+const jobIdSchema = z.object({ storeId: z.guid(), id: z.guid() });
 
 /** Başarısız işi yeniden kuyruğa alır. */
 export const retryJob = createServerFn({ method: "POST" })

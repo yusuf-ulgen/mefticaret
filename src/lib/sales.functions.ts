@@ -42,7 +42,7 @@ export const updateOrder = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        orderId: z.string().uuid(),
+        orderId: z.guid(),
         patch: z
           .object({
             status: orderStatusEnum.optional(),
@@ -100,7 +100,7 @@ export const addOrderNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ orderId: z.string().uuid(), message: z.string().trim().min(1).max(1000) })
+      .object({ orderId: z.guid(), message: z.string().trim().min(1).max(1000) })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -129,8 +129,8 @@ export const upsertCustomer = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        customerId: z.string().uuid().optional(),
-        storeId: z.string().uuid(),
+        customerId: z.guid().optional(),
+        storeId: z.guid(),
         fullName: z.string().trim().min(2).max(120).optional(),
         firstName: z.string().trim().max(60).optional(),
         lastName: z.string().trim().max(60).optional(),
@@ -184,7 +184,7 @@ export const upsertCustomer = createServerFn({ method: "POST" })
 
 export const deleteCustomer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ customerId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ customerId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: customer, error } = await supabase
@@ -212,8 +212,8 @@ export const upsertDiscount = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        discountId: z.string().uuid().optional(),
-        storeId: z.string().uuid(),
+        discountId: z.guid().optional(),
+        storeId: z.guid(),
         code: z
           .string()
           .trim()
@@ -278,7 +278,7 @@ export const upsertDiscount = createServerFn({ method: "POST" })
 export const toggleDiscount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ discountId: z.string().uuid(), isActive: z.boolean() }).parse(data),
+    z.object({ discountId: z.guid(), isActive: z.boolean() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;

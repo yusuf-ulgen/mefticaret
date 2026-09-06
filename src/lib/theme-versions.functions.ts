@@ -13,7 +13,7 @@ export const publishThemeVersion = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         label: z.string().trim().max(120).optional(),
       })
       .parse(data),
@@ -30,7 +30,7 @@ export const publishThemeVersion = createServerFn({ method: "POST" })
 export const restoreThemeVersion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), versionId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), versionId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.rpc("restore_theme_version", {
@@ -43,7 +43,7 @@ export const restoreThemeVersion = createServerFn({ method: "POST" })
 export const deleteThemeVersion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), versionId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), versionId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase

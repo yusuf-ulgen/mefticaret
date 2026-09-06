@@ -21,8 +21,8 @@ export const registerMediaAsset = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        folderId: z.string().uuid().nullable().optional(),
+        storeId: z.guid(),
+        folderId: z.guid().nullable().optional(),
         fileName: z.string().trim().min(1).max(200),
         mimeType: z.string().trim().min(3).max(100),
         kind: z.enum(["image", "video", "document"]),
@@ -97,12 +97,12 @@ export const updateMediaAsset = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        assetId: z.string().uuid(),
+        assetId: z.guid(),
         fileName: z.string().trim().min(1).max(200).optional(),
         title: z.string().trim().max(200).optional(),
         alt: z.string().trim().max(300).optional(),
         caption: z.string().trim().max(500).optional(),
-        folderId: z.string().uuid().nullable().optional(),
+        folderId: z.guid().nullable().optional(),
         tags: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
       })
       .parse(data),
@@ -134,7 +134,7 @@ export const updateMediaAsset = createServerFn({ method: "POST" })
 export const deleteMediaAssets = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ assetIds: z.array(z.string().uuid()).min(1).max(100) }).parse(data),
+    z.object({ assetIds: z.array(z.guid()).min(1).max(100) }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -174,9 +174,9 @@ export const createMediaFolder = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         name: z.string().trim().min(1).max(120),
-        parentId: z.string().uuid().nullable().optional(),
+        parentId: z.guid().nullable().optional(),
       })
       .parse(data),
   )
@@ -204,7 +204,7 @@ export const renameMediaFolder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ folderId: z.string().uuid(), name: z.string().trim().min(1).max(120) })
+      .object({ folderId: z.guid(), name: z.string().trim().min(1).max(120) })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -224,7 +224,7 @@ export const renameMediaFolder = createServerFn({ method: "POST" })
 
 export const deleteMediaFolder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ folderId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ folderId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { count } = await supabase

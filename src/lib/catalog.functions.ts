@@ -37,7 +37,7 @@ export const createProduct = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         title: z.string().trim().min(2).max(120),
         description: z.string().trim().max(4000).optional(),
         vendor: z.string().trim().max(80).optional(),
@@ -118,7 +118,7 @@ export const updateProduct = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        productId: z.string().uuid(),
+        productId: z.guid(),
         patch: z
           .object({
             title: z.string().trim().min(2).max(120).optional(),
@@ -205,7 +205,7 @@ export const updateProduct = createServerFn({ method: "POST" })
 
 export const deleteProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ productId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ productId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: product, error } = await supabase
@@ -241,7 +241,7 @@ const variantOptionsSchema = z
 export const setVariantOptions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ productId: z.string().uuid(), options: variantOptionsSchema }).parse(data),
+    z.object({ productId: z.guid(), options: variantOptionsSchema }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -265,7 +265,7 @@ export const generateVariants = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        productId: z.string().uuid(),
+        productId: z.guid(),
         options: variantOptionsSchema.optional(),
       })
       .parse(data),
@@ -340,8 +340,8 @@ export const upsertVariant = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        variantId: z.string().uuid().optional(),
-        productId: z.string().uuid(),
+        variantId: z.guid().optional(),
+        productId: z.guid(),
         title: z.string().trim().min(1).max(80),
         sku: z.string().trim().max(60).optional(),
         barcode: z.string().trim().max(60).optional(),
@@ -350,7 +350,7 @@ export const upsertVariant = createServerFn({ method: "POST" })
         costPrice: z.number().min(0).max(9_999_999).nullable().optional(),
         stock: z.number().int().min(0).max(1_000_000),
         weightGrams: z.number().int().min(0).max(500_000).nullable().optional(),
-        imageId: z.string().uuid().nullable().optional(),
+        imageId: z.guid().nullable().optional(),
         options: z.record(z.string(), z.string()).default({}),
       })
       .parse(data),
@@ -408,7 +408,7 @@ export const upsertVariant = createServerFn({ method: "POST" })
 
 export const deleteVariant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ variantId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ variantId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.from("product_variants").delete().eq("id", data.variantId);
@@ -422,7 +422,7 @@ export const createCollection = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         title: z.string().trim().min(2).max(80),
         description: z.string().trim().max(500).optional(),
       })
@@ -451,8 +451,8 @@ export const setProductCollections = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        productId: z.string().uuid(),
-        collectionIds: z.array(z.string().uuid()).max(50),
+        productId: z.guid(),
+        collectionIds: z.array(z.guid()).max(50),
       })
       .parse(data),
   )
@@ -486,7 +486,7 @@ export const createProductAdvanced = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         title: z.string().trim().min(2).max(120),
         description: z.string().trim().max(4000).optional(),
         vendor: z.string().trim().max(80).optional(),
@@ -532,7 +532,7 @@ export const createProductAdvanced = createServerFn({ method: "POST" })
           .max(300)
           .default([]),
         stock: z.number().int().min(0).max(1_000_000).default(0),
-        warehouseId: z.string().uuid().optional(),
+        warehouseId: z.guid().optional(),
       })
       .parse(data),
   )

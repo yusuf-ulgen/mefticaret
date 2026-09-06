@@ -44,11 +44,11 @@ export type MyAddress = Pick<
   "id" | "label" | "recipient" | "phone" | "country" | "city" | "district" | "line1" | "line2" | "postal_code" | "is_default"
 >;
 
-export const storeIdSchema = z.object({ storeId: z.string().uuid() });
+export const storeIdSchema = z.object({ storeId: z.guid() });
 
 export const saveAddressSchema = z.object({
-  storeId: z.string().uuid(),
-  id: z.string().uuid().optional(),
+  storeId: z.guid(),
+  id: z.guid().optional(),
   label: z.string().trim().max(60).optional(),
   recipient: z.string().trim().min(2).max(120),
   phone: z.string().trim().max(40).optional(),
@@ -62,12 +62,12 @@ export const saveAddressSchema = z.object({
 });
 
 export const deleteAddressSchema = z.object({
-  storeId: z.string().uuid(),
-  id: z.string().uuid(),
+  storeId: z.guid(),
+  id: z.guid(),
 });
 
 export const updateProfileSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   fullName: z.string().trim().min(2).max(120),
   phone: z.string().trim().max(40).optional(),
   acceptsMarketing: z.boolean(),

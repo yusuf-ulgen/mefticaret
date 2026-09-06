@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /** AI İçerik Stüdyosu sunucu fonksiyonları (mantık ai-studio.server.ts içinde). */
 
-const storeId = z.string().uuid();
+const storeId = z.guid();
 const tone = z.enum(["profesyonel", "samimi", "premium", "teknik", "minimalist"]);
 
 export const fetchCompetitors = createServerFn({ method: "GET" })
@@ -22,8 +22,8 @@ export const upsertCompetitor = createServerFn({ method: "POST" })
     z
       .object({
         storeId,
-        id: z.string().uuid().nullish(),
-        productId: z.string().uuid().nullish(),
+        id: z.guid().nullish(),
+        productId: z.guid().nullish(),
         name: z.string().trim().min(2).max(200),
         url: z.string().trim().url().max(500).nullish(),
         source: z.string().trim().max(60).nullish(),
@@ -47,7 +47,7 @@ export const upsertCompetitor = createServerFn({ method: "POST" })
 
 export const removeCompetitor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId, id: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId, id: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { deleteCompetitor } = await import("@/lib/ai-studio.server");
     return deleteCompetitor({ client: context.supabase, storeId: data.storeId, id: data.id });
@@ -55,7 +55,7 @@ export const removeCompetitor = createServerFn({ method: "POST" })
 
 export const analyzeCompetitorProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId, competitorId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId, competitorId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { analyzeCompetitor } = await import("@/lib/ai-studio.server");
     return analyzeCompetitor({
@@ -72,7 +72,7 @@ export const generateProductCopy = createServerFn({ method: "POST" })
     z
       .object({
         storeId,
-        productIds: z.array(z.string().uuid()).min(1).max(20),
+        productIds: z.array(z.guid()).min(1).max(20),
         tone,
         keywords: z.string().trim().max(300).optional(),
       })
@@ -96,7 +96,7 @@ export const applyProductCopyDraft = createServerFn({ method: "POST" })
     z
       .object({
         storeId,
-        draftId: z.string().uuid(),
+        draftId: z.guid(),
         target: z.enum(["description", "seo_description", "both"]).default("both"),
       })
       .parse(data),
@@ -115,7 +115,7 @@ export const generateCategoryPack = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ storeId, categoryId: z.string().uuid(), keywords: z.string().trim().max(300).optional() })
+      .object({ storeId, categoryId: z.guid(), keywords: z.string().trim().max(300).optional() })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -131,7 +131,7 @@ export const generateCategoryPack = createServerFn({ method: "POST" })
 
 export const applyCategoryPack = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId, draftId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId, draftId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { applyCategoryContent } = await import("@/lib/ai-studio.server");
     return applyCategoryContent({ client: context.supabase, storeId: data.storeId, draftId: data.draftId });
@@ -165,7 +165,7 @@ export const generateBlogPack = createServerFn({ method: "POST" })
 
 export const applyBlogPack = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId, draftId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId, draftId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { applyBlogPackage } = await import("@/lib/ai-studio.server");
     return applyBlogPackage({ client: context.supabase, storeId: data.storeId, draftId: data.draftId });
@@ -199,7 +199,7 @@ export const generateLegalDocument = createServerFn({ method: "POST" })
 
 export const applyLegalDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId, draftId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId, draftId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { applyLegalDraft } = await import("@/lib/ai-studio.server");
     return applyLegalDraft({ client: context.supabase, storeId: data.storeId, draftId: data.draftId });

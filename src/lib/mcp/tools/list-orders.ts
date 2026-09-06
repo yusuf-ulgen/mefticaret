@@ -7,7 +7,7 @@ export default defineTool({
   title: "Siparişleri listele",
   description: "Belirtilen mağazanın son siparişlerini listeler; duruma göre filtrelenebilir.",
   inputSchema: {
-    store_id: z.string().uuid().describe("Mağaza kimliği."),
+    store_id: z.guid().describe("Mağaza kimliği."),
     status: z
       .string()
       .trim()

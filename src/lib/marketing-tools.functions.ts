@@ -104,7 +104,7 @@ export const getActiveStorefrontPopups = createServerFn({ method: "GET" })
 /** Vitrinde bir popup gösterimini / tıklamasını sayaçlara işler. */
 export const trackStorefrontPopupEvent = createServerFn({ method: "POST" })
   .inputValidator((data) =>
-    z.object({ id: z.string().uuid(), kind: z.enum(["impression", "click"]) }).parse(data),
+    z.object({ id: z.guid(), kind: z.enum(["impression", "click"]) }).parse(data),
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

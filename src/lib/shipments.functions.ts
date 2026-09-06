@@ -15,7 +15,7 @@ export const createShipment = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        orderId: z.string().uuid(),
+        orderId: z.guid(),
         carrier: z.string().trim().min(2).max(80),
         trackingNumber: z.string().trim().max(120).optional(),
         trackingUrl: z.string().trim().url().max(500).optional().or(z.literal("")),
@@ -24,7 +24,7 @@ export const createShipment = createServerFn({ method: "POST" })
         items: z
           .array(
             z.object({
-              orderItemId: z.string().uuid(),
+              orderItemId: z.guid(),
               quantity: z.number().int().min(1).max(999),
             }),
           )
@@ -92,7 +92,7 @@ export const updateShipment = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        shipmentId: z.string().uuid(),
+        shipmentId: z.guid(),
         status: statusSchema.optional(),
         carrier: z.string().trim().min(2).max(80).optional(),
         trackingNumber: z.string().trim().max(120).nullable().optional(),
@@ -152,7 +152,7 @@ export const updateShipment = createServerFn({ method: "POST" })
 
 export const deleteShipment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ shipmentId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ shipmentId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("shipments")

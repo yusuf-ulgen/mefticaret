@@ -9,30 +9,30 @@ import { runConnectionCheck } from "./app-connectors.server";
 
 type Client = SupabaseClient<Database>;
 
-export const storeIdSchema = z.object({ storeId: z.string().uuid() });
+export const storeIdSchema = z.object({ storeId: z.guid() });
 
 const settingsValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
 
 export const installAppSchema = z.object({
-  storeId: z.string().uuid(),
-  appId: z.string().uuid(),
+  storeId: z.guid(),
+  appId: z.guid(),
   settings: z.record(z.string(), settingsValueSchema).optional(),
 });
 
 export const connectionTestSchema = z.object({
-  storeId: z.string().uuid(),
-  appId: z.string().uuid(),
+  storeId: z.guid(),
+  appId: z.guid(),
 });
 
 export const installStatusSchema = z.object({
-  storeId: z.string().uuid(),
-  appId: z.string().uuid(),
+  storeId: z.guid(),
+  appId: z.guid(),
   status: z.enum(["installed", "paused", "uninstalled"]),
 });
 
 export const appSettingsSchema = z.object({
-  storeId: z.string().uuid(),
-  appId: z.string().uuid(),
+  storeId: z.guid(),
+  appId: z.guid(),
   settings: z.record(z.string(), settingsValueSchema),
 });
 

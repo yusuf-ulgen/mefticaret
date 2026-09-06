@@ -10,7 +10,7 @@ import { insertAuditRow } from "./audit.server";
  */
 
 const itemSchema = z.object({
-  orderItemId: z.string().uuid(),
+  orderItemId: z.guid(),
   quantity: z.number().int().min(1).max(999),
 });
 
@@ -19,7 +19,7 @@ export const createReturn = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        orderId: z.string().uuid(),
+        orderId: z.guid(),
         reason: z.enum([
           "damaged",
           "wrong_item",
@@ -114,7 +114,7 @@ export const updateReturn = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        returnId: z.string().uuid(),
+        returnId: z.guid(),
         status: z
           .enum(["requested", "approved", "rejected", "received", "refunded", "cancelled"])
           .optional(),

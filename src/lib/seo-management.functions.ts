@@ -5,12 +5,12 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 import { insertAuditRow } from "./audit.server";
 
-const storeId = z.string().uuid();
+const storeId = z.guid();
 const path = z.string().trim().min(1).max(500).refine((value) => value.startsWith("/"), "Yol / ile başlamalı");
 
 const redirectInput = z.object({
   storeId,
-  id: z.string().uuid().optional(),
+  id: z.guid().optional(),
   sourcePath: path,
   targetPath: z.string().trim().min(1).max(1000).refine((value) => value.startsWith("/") || /^https?:\/\//i.test(value), "Hedef yol geçersiz"),
   statusCode: z.union([z.literal(301), z.literal(302)]),
@@ -46,7 +46,7 @@ export const upsertSeoRedirect = createServerFn({ method: "POST" })
 
 export const deleteSeoRedirect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId, id: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId, id: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("store_seo_redirects").delete().eq("id", data.id).eq("store_id", data.storeId);
     if (error) throw new Error(error.message);
@@ -62,7 +62,7 @@ export const deleteSeoRedirect = createServerFn({ method: "POST" })
 
 export const createRedirectFrom404 = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId, id: z.string().uuid(), targetPath: z.string().trim().min(1).max(1000) }).parse(data))
+  .inputValidator((data) => z.object({ storeId, id: z.guid(), targetPath: z.string().trim().min(1).max(1000) }).parse(data))
   .handler(async ({ data, context }) => {
     const { data: missing, error: missingError } = await context.supabase
       .from("store_seo_404s")

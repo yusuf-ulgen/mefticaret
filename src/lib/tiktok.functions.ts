@@ -12,7 +12,7 @@ import { TT_MATCH_TYPES, TT_RULE_SOURCES } from "@/lib/tiktok";
  * hiçbir yanıtla istemciye dönmez.
  */
 
-const storeScope = z.object({ storeId: z.string().uuid() });
+const storeScope = z.object({ storeId: z.guid() });
 
 /** RLS üzerinden mağaza erişimini doğrular. */
 async function assertStoreAccess(
@@ -139,13 +139,13 @@ export const disconnectTiktok = createServerFn({ method: "POST" })
   });
 
 const ruleInput = storeScope.extend({
-  ruleId: z.string().uuid().optional(),
+  ruleId: z.guid().optional(),
   name: z.string().trim().min(2).max(120),
   keywords: z.array(z.string().trim().min(1)).max(40).default([]),
   matchType: z.enum(TT_MATCH_TYPES).default("contains"),
   source: z.enum(TT_RULE_SOURCES).default("all"),
   targetVideoId: z.string().trim().max(64).nullable().default(null),
-  productId: z.string().uuid().nullable().default(null),
+  productId: z.guid().nullable().default(null),
   dmTemplate: z.string().trim().min(4).max(1000),
   publicReply: z.string().trim().max(300).default(""),
   sendProductCard: z.boolean().default(true),
@@ -191,7 +191,7 @@ export const saveTiktokRule = createServerFn({ method: "POST" })
 
 export const deleteTiktokRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => storeScope.extend({ ruleId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => storeScope.extend({ ruleId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("tiktok_comment_rules")
@@ -242,7 +242,7 @@ export const testTiktokRule = createServerFn({ method: "POST" })
 /** TikTok DM panelinin sağ sütunu için 360° müşteri profili. */
 export const getTiktokCrmProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => storeScope.extend({ conversationId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => storeScope.extend({ conversationId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { loadTiktokCrmProfile } = await import("@/lib/tiktok.server");
     return loadTiktokCrmProfile(context.supabase, data.storeId, data.conversationId);
@@ -253,7 +253,7 @@ export const suggestTiktokReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     storeScope
-      .extend({ conversationId: z.string().uuid(), text: z.string().trim().min(1).max(2000) })
+      .extend({ conversationId: z.guid(), text: z.string().trim().min(1).max(2000) })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -283,7 +283,7 @@ export const sendTiktokMessage = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     storeScope
       .extend({
-        conversationId: z.string().uuid(),
+        conversationId: z.guid(),
         body: z.string().trim().min(1).max(2000),
         isAi: z.boolean().default(false),
       })

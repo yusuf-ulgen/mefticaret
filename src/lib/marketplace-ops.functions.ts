@@ -19,8 +19,8 @@ export const resolveMarketplaceReturnFn = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        returnId: z.string().uuid(),
+        storeId: z.guid(),
+        returnId: z.guid(),
         action: z.enum(["approve", "reject", "receive", "refund"]),
         staffNote: z.string().trim().max(1000).optional(),
       })
@@ -41,11 +41,11 @@ export const upsertMarketplaceReturn = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        returnId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        returnId: z.guid().optional(),
         marketplace: z.string().trim().min(1).max(60),
-        channelId: z.string().uuid().nullish(),
-        orderId: z.string().uuid().nullish(),
+        channelId: z.guid().nullish(),
+        orderId: z.guid().nullish(),
         externalOrderNumber: z.string().trim().max(120).nullish(),
         externalReturnId: z.string().trim().max(120).nullish(),
         customerName: z.string().trim().max(160).nullish(),
@@ -58,8 +58,8 @@ export const upsertMarketplaceReturn = createServerFn({ method: "POST" })
         items: z
           .array(
             z.object({
-              product_id: z.string().uuid().nullish(),
-              variant_id: z.string().uuid().nullish(),
+              product_id: z.guid().nullish(),
+              variant_id: z.guid().nullish(),
               title: z.string().max(200).optional(),
               quantity: z.number().int().min(1).max(999),
             }),
@@ -125,7 +125,7 @@ export const upsertMarketplaceReturn = createServerFn({ method: "POST" })
 export const bulkMarkOrdersProcessingFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), orderIds: z.array(z.string().uuid()).min(1).max(500) }).parse(data),
+    z.object({ storeId: z.guid(), orderIds: z.array(z.guid()).min(1).max(500) }).parse(data),
   )
   .handler(async ({ data, context }) =>
     bulkMarkOrdersProcessing(context.supabase, {
@@ -140,9 +140,9 @@ export const upsertSettlement = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        settlementId: z.string().uuid().optional(),
-        channelId: z.string().uuid().nullish(),
+        storeId: z.guid(),
+        settlementId: z.guid().optional(),
+        channelId: z.guid().nullish(),
         marketplace: z.string().trim().min(1).max(60),
         periodStart: z.string().min(10),
         periodEnd: z.string().min(10),
@@ -212,7 +212,7 @@ export const upsertSettlement = createServerFn({ method: "POST" })
 export const deleteSettlement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), settlementId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), settlementId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -229,11 +229,11 @@ export const upsertListingLink = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        linkId: z.string().uuid().optional(),
-        productId: z.string().uuid(),
-        variantId: z.string().uuid().nullish(),
-        channelId: z.string().uuid(),
+        storeId: z.guid(),
+        linkId: z.guid().optional(),
+        productId: z.guid(),
+        variantId: z.guid().nullish(),
+        channelId: z.guid(),
         externalListingId: z.string().trim().max(160).nullish(),
         externalBarcode: z.string().trim().max(160).nullish(),
         title: z.string().trim().max(200).nullish(),
@@ -281,7 +281,7 @@ export const upsertListingLink = createServerFn({ method: "POST" })
 
 export const deleteListingLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid(), linkId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid(), linkId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("marketplace_listing_links")
@@ -294,20 +294,20 @@ export const deleteListingLink = createServerFn({ method: "POST" })
 
 export const stockDepletionAnalysisFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid(), days: z.number().int().min(1).max(365) }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid(), days: z.number().int().min(1).max(365) }).parse(data))
   .handler(async ({ data, context }) => stockDepletionAnalysis(context.supabase, data.storeId, data.days));
 
 export const orderAnalysisFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid(), from: z.string(), to: z.string() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid(), from: z.string(), to: z.string() }).parse(data))
   .handler(async ({ data, context }) => orderAnalysis(context.supabase, data.storeId, data.from, data.to));
 
 export const productAnalysisFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid(), from: z.string(), to: z.string() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid(), from: z.string(), to: z.string() }).parse(data))
   .handler(async ({ data, context }) => productAnalysis(context.supabase, data.storeId, data.from, data.to));
 
 export const settlementSummaryFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid(), from: z.string(), to: z.string() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid(), from: z.string(), to: z.string() }).parse(data))
   .handler(async ({ data, context }) => settlementSummary(context.supabase, data.storeId, data.from, data.to));

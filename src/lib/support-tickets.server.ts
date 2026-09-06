@@ -27,20 +27,20 @@ const attachmentSchema = z.object({
   }),
 });
 
-export const storeScopeSchema = z.object({ storeId: z.string().uuid() });
+export const storeScopeSchema = z.object({ storeId: z.guid() });
 
 export const listTicketsSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   status: z.string().trim().max(20).optional(),
 });
 
 export const ticketScopeSchema = z.object({
-  storeId: z.string().uuid(),
-  ticketId: z.string().uuid(),
+  storeId: z.guid(),
+  ticketId: z.guid(),
 });
 
 export const createTicketSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   subject: z.string().trim().min(4).max(200),
   department: z.string().trim().min(2).max(60),
   category: z.enum(SUPPORT_CATEGORIES).default("other"),
@@ -51,15 +51,15 @@ export const createTicketSchema = z.object({
 });
 
 export const replySchema = z.object({
-  storeId: z.string().uuid(),
-  ticketId: z.string().uuid(),
+  storeId: z.guid(),
+  ticketId: z.guid(),
   body: z.string().trim().min(1).max(10_000),
   attachments: z.array(attachmentSchema).max(10).default([]),
 });
 
 export const updateTicketSchema = z.object({
-  storeId: z.string().uuid(),
-  ticketId: z.string().uuid(),
+  storeId: z.guid(),
+  ticketId: z.guid(),
   status: z.enum(STORE_ASSIGNABLE_STATUSES).optional(),
   priority: z.enum(SUPPORT_PRIORITIES).optional(),
   department: z.string().trim().min(2).max(60).optional(),

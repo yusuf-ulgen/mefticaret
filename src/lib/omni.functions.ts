@@ -14,8 +14,8 @@ export const sendOmniMessage = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        conversationId: z.string().uuid(),
+        storeId: z.guid(),
+        conversationId: z.guid(),
         body: z.string().trim().min(1).max(4000),
         isAi: z.boolean().default(false),
       })
@@ -36,7 +36,7 @@ export const sendOmniMessage = createServerFn({ method: "POST" })
 export const markConversationRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), conversationId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), conversationId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -53,9 +53,9 @@ export const assignConversation = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        conversationId: z.string().uuid(),
-        assignedTo: z.string().uuid().nullable(),
+        storeId: z.guid(),
+        conversationId: z.guid(),
+        assignedTo: z.guid().nullable(),
       })
       .parse(data),
   )
@@ -74,8 +74,8 @@ export const setConversationStatus = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        conversationId: z.string().uuid(),
+        storeId: z.guid(),
+        conversationId: z.guid(),
         status: z.enum(OMNI_CONVERSATION_STATUSES),
       })
       .parse(data),
@@ -95,8 +95,8 @@ export const setConversationTags = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        conversationId: z.string().uuid(),
+        storeId: z.guid(),
+        conversationId: z.guid(),
         tags: z.array(z.string().trim().min(1).max(40)).max(20),
       })
       .parse(data),
@@ -116,8 +116,8 @@ export const saveInternalNote = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        conversationId: z.string().uuid(),
+        storeId: z.guid(),
+        conversationId: z.guid(),
         note: z.string().trim().max(2000),
       })
       .parse(data),
@@ -137,8 +137,8 @@ export const upsertQuickReply = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        replyId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        replyId: z.guid().optional(),
         title: z.string().trim().min(1).max(80),
         body: z.string().trim().min(1).max(1000),
         sortOrder: z.number().int().min(0).max(999).default(0),
@@ -169,7 +169,7 @@ export const upsertQuickReply = createServerFn({ method: "POST" })
 export const deleteQuickReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), replyId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), replyId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -186,8 +186,8 @@ export const saveAutoReply = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        replyId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        replyId: z.guid().optional(),
         kind: z.enum(OMNI_AUTO_REPLY_KINDS),
         body: z.string().trim().min(1).max(1500),
         isActive: z.boolean().default(true),
@@ -227,8 +227,8 @@ export const saveChannelAccount = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        accountId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        accountId: z.guid().optional(),
         channel: z.enum(OMNI_CHANNELS),
         accountName: z.string().trim().min(1).max(120),
         externalId: z.string().trim().max(120).optional(),
@@ -269,7 +269,7 @@ export const saveChannelAccount = createServerFn({ method: "POST" })
 
 export const testChannelAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid(), accountId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid(), accountId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { data: account, error } = await context.supabase
       .from("omni_channel_accounts")
@@ -304,7 +304,7 @@ export const testChannelAccount = createServerFn({ method: "POST" })
 export const suggestAiReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), conversationId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), conversationId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { suggestAiReplyForConversation } = await import("@/lib/omni.server");
@@ -320,7 +320,7 @@ export const createConversation = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         channel: z.enum(OMNI_CHANNELS),
         participantName: z.string().trim().min(1).max(120),
         participantHandle: z.string().trim().min(1).max(160),
@@ -362,7 +362,7 @@ export const sendProductCard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ storeId: z.string().uuid(), conversationId: z.string().uuid(), productId: z.string().uuid() })
+      .object({ storeId: z.guid(), conversationId: z.guid(), productId: z.guid() })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -400,7 +400,7 @@ export const sendCoupon = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ storeId: z.string().uuid(), conversationId: z.string().uuid(), discountId: z.string().uuid() })
+      .object({ storeId: z.guid(), conversationId: z.guid(), discountId: z.guid() })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -428,7 +428,7 @@ export const sendOrderLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ storeId: z.string().uuid(), conversationId: z.string().uuid(), orderId: z.string().uuid() })
+      .object({ storeId: z.guid(), conversationId: z.guid(), orderId: z.guid() })
       .parse(data),
   )
   .handler(async ({ data, context }) => {

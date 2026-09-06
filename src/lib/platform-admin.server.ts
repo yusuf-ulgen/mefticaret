@@ -16,14 +16,14 @@ export const listInputSchema = z.object({
 });
 
 export const ticketUpdateSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   status: z.enum(["open", "pending", "answered", "resolved", "closed"]).optional(),
   priority: z.enum(["low", "normal", "high", "urgent"]).optional(),
   assignToMe: z.boolean().optional(),
 });
 
 export const ticketReplySchema = z.object({
-  ticketId: z.string().uuid(),
+  ticketId: z.guid(),
   body: z.string().trim().min(1).max(4000),
   isInternal: z.boolean().default(false),
 });
@@ -266,7 +266,7 @@ export async function listUserRoles() {
 }
 
 export const roleSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.guid(),
   role: z.enum(["platform_admin", "agency", "seller", "customer"]),
   grant: z.boolean(),
 });
@@ -543,7 +543,7 @@ export async function platformAnalytics(input: z.infer<typeof analyticsInputSche
 /* Mağaza kontrol merkezi                                             */
 /* ------------------------------------------------------------------ */
 
-export const storeControlSchema = z.object({ storeId: z.string().uuid() });
+export const storeControlSchema = z.object({ storeId: z.guid() });
 
 /** Tek bir kiracının 360° görünümü: sahibi, ekip, plan, sayaçlar, son siparişler. */
 export async function storeControlCenter(input: z.infer<typeof storeControlSchema>) {
@@ -661,8 +661,8 @@ export async function storeControlCenter(input: z.infer<typeof storeControlSchem
 }
 
 export const storePlanSchema = z.object({
-  storeId: z.string().uuid(),
-  planId: z.string().uuid().nullable(),
+  storeId: z.guid(),
+  planId: z.guid().nullable(),
 });
 
 /** Kiracının paketini değiştirir (yalnızca platform yöneticisi). */
@@ -937,7 +937,7 @@ export async function listStoreAdminNotes(storeId: string) {
 }
 
 export const storeAdminNoteSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   note: z.string().trim().min(1).max(2000),
   isPinned: z.boolean().default(false),
 });
@@ -962,7 +962,7 @@ export async function addStoreAdminNote(input: z.infer<typeof storeAdminNoteSche
 }
 
 export const storeAdminNoteTogglePinSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   isPinned: z.boolean(),
 });
 
@@ -1021,7 +1021,7 @@ export async function listImpersonationSessions(storeId: string) {
 }
 
 export const startImpersonationSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   reason: z.string().trim().min(3).max(500),
 });
 
@@ -1050,7 +1050,7 @@ export async function startImpersonation(input: z.infer<typeof startImpersonatio
 }
 
 export const endImpersonationSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
 });
 
 export async function endImpersonation(input: z.infer<typeof endImpersonationSchema>, userId: string) {
@@ -1278,7 +1278,7 @@ const APP_CATEGORY_VALUES = [
 ] as const;
 
 export const appSaveSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: z.guid().optional(),
   code: z.string().trim().min(2).max(60).regex(/^[a-z0-9-]+$/, "Kod yalnızca küçük harf, rakam ve tire içerebilir"),
   name: z.string().trim().min(2).max(120),
   tagline: z.string().trim().max(160).nullable().default(null),
@@ -1300,7 +1300,7 @@ export const appPriceBulkSchema = z.object({
   items: z
     .array(
       z.object({
-        id: z.string().uuid(),
+        id: z.guid(),
         pricing_model: z.enum(["free", "monthly", "one_time", "usage"]),
         price: z.number().min(0).max(999_999),
         currency: z.string().trim().length(3),
@@ -1311,7 +1311,7 @@ export const appPriceBulkSchema = z.object({
 });
 
 export const appToggleSchema = z.object({
-  id: z.string().uuid(),
+  id: z.guid(),
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
 });

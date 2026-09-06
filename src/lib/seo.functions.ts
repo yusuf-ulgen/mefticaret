@@ -34,9 +34,9 @@ export const saveEntitySeo = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         entity: z.enum(["product", "collection", "page"]),
-        id: z.string().uuid(),
+        id: z.guid(),
         seo: seoFields,
       })
       .parse(data),
@@ -70,7 +70,7 @@ export const saveEntitySeo = createServerFn({ method: "POST" })
   });
 
 const storeSeoInput = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   homeTitle: z.string().trim().max(120).optional(),
   homeDescription: z.string().trim().max(400).optional(),
   keywords: z.string().trim().max(300).optional(),
@@ -149,8 +149,8 @@ export const savePageSeoMeta = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        pageId: z.string().uuid(),
+        storeId: z.guid(),
+        pageId: z.guid(),
         pageKind: z.enum(["page", "blog"]),
         authorName: z.string().trim().max(120).optional(),
         publishedAt: z.string().trim().max(40).optional(),

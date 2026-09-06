@@ -15,7 +15,7 @@ export const submitQuestion = createServerFn({ method: "POST" })
     z
       .object({
         storeSlug: z.string().trim().min(1).max(120),
-        productId: z.string().uuid(),
+        productId: z.guid(),
         question: z.string().trim().min(5).max(1000),
         authorName: z.string().trim().min(2).max(80),
       })
@@ -64,7 +64,7 @@ export const moderateQuestion = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        questionId: z.string().uuid(),
+        questionId: z.guid(),
         status: z.enum(["pending", "published", "rejected"]).optional(),
         answer: z.string().trim().max(2000).optional(),
       })
@@ -105,7 +105,7 @@ export const moderateQuestion = createServerFn({ method: "POST" })
 
 export const deleteQuestion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ questionId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ questionId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: question, error } = await supabase

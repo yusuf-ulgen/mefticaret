@@ -13,7 +13,7 @@ export const addProductImage = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        productId: z.string().uuid(),
+        productId: z.guid(),
         storagePath: z.string().trim().min(3).max(400),
         alt: z.string().trim().max(200).optional(),
       })
@@ -61,7 +61,7 @@ export const updateProductImage = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        imageId: z.string().uuid(),
+        imageId: z.guid(),
         alt: z.string().trim().max(200).optional(),
         position: z.number().int().min(0).max(99).optional(),
       })
@@ -86,7 +86,7 @@ export const updateProductImage = createServerFn({ method: "POST" })
 
 export const deleteProductImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ imageId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ imageId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: image, error: imageError } = await supabase

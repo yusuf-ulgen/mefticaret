@@ -13,8 +13,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const kindEnum = z.enum(["warehouse", "branch", "supplier", "dropship", "virtual"]);
 
 const warehouseInput = z.object({
-  storeId: z.string().uuid(),
-  id: z.string().uuid().optional(),
+  storeId: z.guid(),
+  id: z.guid().optional(),
   code: z.string().trim().min(1).max(40),
   name: z.string().trim().min(1).max(120),
   kind: kindEnum,
@@ -88,7 +88,7 @@ export const saveWarehouse = createServerFn({ method: "POST" })
 export const deleteWarehouse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), id: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), id: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { data: warehouse, error: readError } = await context.supabase
@@ -116,9 +116,9 @@ export const ensureInventoryLevel = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        warehouseId: z.string().uuid(),
-        variantId: z.string().uuid(),
+        storeId: z.guid(),
+        warehouseId: z.guid(),
+        variantId: z.guid(),
       })
       .parse(data),
   )
@@ -154,8 +154,8 @@ export const adjustWarehouseStock = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        levelId: z.string().uuid(),
+        storeId: z.guid(),
+        levelId: z.guid(),
         kind: levelKind,
         amount: z.number().int().min(0).max(1_000_000),
         reason: z.string().trim().max(300).optional(),
@@ -209,8 +209,8 @@ export const updateLevelSettings = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        levelId: z.string().uuid(),
+        storeId: z.guid(),
+        levelId: z.guid(),
         reserved: z.number().int().min(0).max(1_000_000).optional(),
         minStock: z.number().int().min(0).max(1_000_000).optional(),
         binLocation: z.string().trim().max(60).optional(),
@@ -244,14 +244,14 @@ export const createStockTransfer = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        fromWarehouseId: z.string().uuid(),
-        toWarehouseId: z.string().uuid(),
+        storeId: z.guid(),
+        fromWarehouseId: z.guid(),
+        toWarehouseId: z.guid(),
         note: z.string().trim().max(500).optional(),
         items: z
           .array(
             z.object({
-              variantId: z.string().uuid(),
+              variantId: z.guid(),
               quantity: z.number().int().min(1).max(1_000_000),
             }),
           )
@@ -349,7 +349,7 @@ async function loadTransfer(
 export const shipStockTransfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), transferId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), transferId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -433,7 +433,7 @@ export const shipStockTransfer = createServerFn({ method: "POST" })
 export const receiveStockTransfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), transferId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), transferId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -497,7 +497,7 @@ export const receiveStockTransfer = createServerFn({ method: "POST" })
 export const cancelStockTransfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), transferId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), transferId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const transfer = await loadTransfer(context.supabase as never, data.storeId, data.transferId);

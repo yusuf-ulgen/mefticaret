@@ -12,7 +12,7 @@ export const issueGiftCard = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         code: z.string().trim().min(4).max(40),
         amount: z.number().positive().max(1_000_000),
         currency: z.string().trim().min(3).max(3).default("TRY"),
@@ -76,7 +76,7 @@ export const adjustGiftCardBalance = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        giftCardId: z.string().uuid(),
+        giftCardId: z.guid(),
         delta: z.number().refine((value) => value !== 0, "Tutar sıfır olamaz"),
         note: z.string().trim().max(300).optional(),
       })
@@ -133,7 +133,7 @@ export const setGiftCardStatus = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        giftCardId: z.string().uuid(),
+        giftCardId: z.guid(),
         status: z.enum(["active", "disabled"]),
       })
       .parse(data),

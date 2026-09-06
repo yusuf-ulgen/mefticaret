@@ -12,8 +12,8 @@ import type { Database } from "@/integrations/supabase/types";
 type Client = SupabaseClient<Database>;
 
 export const reorderSchema = z.object({
-  storeId: z.string().uuid(),
-  orderId: z.string().uuid(),
+  storeId: z.guid(),
+  orderId: z.guid(),
 });
 
 export type ReorderLine = {

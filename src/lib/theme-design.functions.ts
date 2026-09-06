@@ -13,7 +13,7 @@ export const saveThemeDesign = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         tokens: z.unknown(),
       })
       .parse(data),

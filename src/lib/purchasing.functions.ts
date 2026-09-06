@@ -18,8 +18,8 @@ export const saveSupplier = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        id: z.string().uuid().optional(),
+        storeId: z.guid(),
+        id: z.guid().optional(),
         name: z.string().trim().min(2).max(120),
         contactName: z.string().trim().max(120).optional(),
         email: z.string().trim().email().max(160).optional().or(z.literal("")),
@@ -71,16 +71,16 @@ export const createPurchaseOrder = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         code: z.string().trim().min(3).max(40),
-        supplierId: z.string().uuid().optional(),
+        supplierId: z.guid().optional(),
         expectedAt: z.string().trim().max(20).optional(),
         note: z.string().trim().max(400).optional(),
         items: z
           .array(
             z.object({
-              variantId: z.string().uuid(),
-              productId: z.string().uuid().optional(),
+              variantId: z.guid(),
+              productId: z.guid().optional(),
               title: z.string().trim().min(1).max(200),
               sku: z.string().trim().max(80).optional(),
               quantity: z.number().int().min(1).max(100_000),
@@ -137,12 +137,12 @@ export const receivePurchaseOrderLines = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        purchaseOrderId: z.string().uuid(),
+        storeId: z.guid(),
+        purchaseOrderId: z.guid(),
         lines: z
           .array(
             z.object({
-              itemId: z.string().uuid(),
+              itemId: z.guid(),
               quantity: z.number().int().min(1).max(100_000),
             }),
           )
@@ -169,8 +169,8 @@ export const setPurchaseOrderStatus = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        purchaseOrderId: z.string().uuid(),
+        storeId: z.guid(),
+        purchaseOrderId: z.guid(),
         status: z.enum(["draft", "ordered", "cancelled"]),
       })
       .parse(data),

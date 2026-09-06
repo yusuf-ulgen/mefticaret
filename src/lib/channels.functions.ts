@@ -14,7 +14,7 @@ export const connectChannel = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         provider: z.string().trim().min(2).max(40),
         name: z.string().trim().min(2).max(80),
         sellerId: z.string().trim().max(80).nullish(),
@@ -42,8 +42,8 @@ export const updateChannel = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        channelId: z.string().uuid(),
+        storeId: z.guid(),
+        channelId: z.guid(),
         name: z.string().trim().min(2).max(80).optional(),
         sellerId: z.string().trim().max(80).nullish(),
         isActive: z.boolean().optional(),
@@ -74,7 +74,7 @@ export const updateChannel = createServerFn({ method: "POST" })
 export const removeChannel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), channelId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), channelId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -91,9 +91,9 @@ export const setChannelListings = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        channelId: z.string().uuid(),
-        productIds: z.array(z.string().uuid()).max(500),
+        storeId: z.guid(),
+        channelId: z.guid(),
+        productIds: z.array(z.guid()).max(500),
       })
       .parse(data),
   )
@@ -116,7 +116,7 @@ export const setChannelListings = createServerFn({ method: "POST" })
 export const removeChannelListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), listingId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), listingId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -138,8 +138,8 @@ export const syncChannel = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        channelId: z.string().uuid(),
+        storeId: z.guid(),
+        channelId: z.guid(),
         scope: z.enum(["full", "listing", "price", "stock", "orders"]).default("full"),
       })
       .parse(data),

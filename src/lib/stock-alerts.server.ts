@@ -9,7 +9,7 @@ import { z } from "zod";
 export const stockAlertSchema = z.object({
   slug: z.string().trim().min(1).max(120),
   productSlug: z.string().trim().min(1).max(160),
-  variantId: z.string().uuid().optional(),
+  variantId: z.guid().optional(),
   email: z.string().trim().email().max(180),
 });
 

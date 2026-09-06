@@ -9,7 +9,7 @@ import { insertAuditRow } from "./audit.server";
 export const changeStorePlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), planId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), planId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;

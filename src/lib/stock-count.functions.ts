@@ -8,7 +8,7 @@ export const applyStockCountRows = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         reason: z.string().trim().max(200).optional(),
         rows: z
           .array(

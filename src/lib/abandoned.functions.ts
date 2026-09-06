@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const cartItemSchema = z.object({
-  variantId: z.string().uuid().optional(),
+  variantId: z.guid().optional(),
   productSlug: z.string().max(160).optional(),
   title: z.string().max(200),
   variantTitle: z.string().max(200).optional(),
@@ -109,7 +109,7 @@ export const markCartRecovered = createServerFn({ method: "POST" })
 
 export const listAbandonedCarts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("abandoned_carts")
@@ -123,7 +123,7 @@ export const listAbandonedCarts = createServerFn({ method: "GET" })
 
 export const deleteAbandonedCart = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ id: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("abandoned_carts").delete().eq("id", data.id);
     if (error) throw new Error(error.message);

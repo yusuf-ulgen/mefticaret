@@ -14,7 +14,7 @@ import { isValidLocale, isRtlLanguage } from "@/lib/languages";
 
 type Client = SupabaseClient<Database>;
 
-const storeScope = z.object({ storeId: z.string().uuid() });
+const storeScope = z.object({ storeId: z.guid() });
 const localeSchema = z.string().trim().min(2).max(20).refine(isValidLocale, "Geçersiz dil kodu");
 const contentTypeSchema = z.enum(CONTENT_TYPES);
 
@@ -65,7 +65,7 @@ export const upsertStoreLocale = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     storeScope
       .extend({
-        id: z.string().uuid().optional(),
+        id: z.guid().optional(),
         locale: localeSchema,
         label: z.string().trim().min(1).max(60),
         nativeLabel: z.string().trim().max(60).optional(),
@@ -122,7 +122,7 @@ export const upsertStoreLocale = createServerFn({ method: "POST" })
 
 export const deleteStoreLocale = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => storeScope.extend({ id: z.string().uuid() }).parse(data))
+  .inputValidator((data) => storeScope.extend({ id: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertStoreAccess(supabase, data.storeId);
@@ -245,7 +245,7 @@ export const saveTranslationEntry = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     storeScope
       .extend({
-        entryId: z.string().uuid(),
+        entryId: z.guid(),
         value: z.string().max(20000),
         approve: z.boolean().default(false),
       })
@@ -309,7 +309,7 @@ export const saveTranslationEntry = createServerFn({ method: "POST" })
 export const translateSelection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    storeScope.extend({ entryIds: z.array(z.string().uuid()).min(1).max(50) }).parse(data),
+    storeScope.extend({ entryIds: z.array(z.guid()).min(1).max(50) }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -391,7 +391,7 @@ export const startBulkTranslation = createServerFn({ method: "POST" })
 
 export const retryTranslationJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => storeScope.extend({ jobId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => storeScope.extend({ jobId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     await assertStoreAccess(supabase, data.storeId);
@@ -421,7 +421,7 @@ export const retryTranslationJob = createServerFn({ method: "POST" })
 /** Kuyruk worker'ını beklemeden işi bir tur ilerletir (panelden "şimdi çalıştır"). */
 export const advanceTranslationJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => storeScope.extend({ jobId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => storeScope.extend({ jobId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     await assertStoreAccess(context.supabase, data.storeId);
     const { runTranslationJob } = await import("@/lib/translation.server");
@@ -435,7 +435,7 @@ export const saveGlossaryTerm = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     storeScope
       .extend({
-        id: z.string().uuid().optional(),
+        id: z.guid().optional(),
         term: z.string().trim().min(1).max(80),
         locale: localeSchema.nullable().default(null),
         translation: z.string().trim().max(200).nullable().default(null),
@@ -465,7 +465,7 @@ export const saveGlossaryTerm = createServerFn({ method: "POST" })
 
 export const deleteGlossaryTerm = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => storeScope.extend({ id: z.string().uuid() }).parse(data))
+  .inputValidator((data) => storeScope.extend({ id: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     await assertStoreAccess(context.supabase, data.storeId);
     const { error } = await context.supabase

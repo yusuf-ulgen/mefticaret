@@ -15,8 +15,8 @@ export const enablePaymentMethod = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        connectorId: z.string().uuid(),
+        storeId: z.guid(),
+        connectorId: z.guid(),
         displayName: z.string().trim().min(2).max(80),
       })
       .parse(data),
@@ -36,8 +36,8 @@ export const updatePaymentMethod = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        methodId: z.string().uuid(),
+        storeId: z.guid(),
+        methodId: z.guid(),
         displayName: z.string().trim().min(2).max(80).optional(),
         instructions: z.string().trim().max(600).nullish(),
         isActive: z.boolean().optional(),
@@ -74,7 +74,7 @@ export const updatePaymentMethod = createServerFn({ method: "POST" })
 export const removePaymentMethod = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), methodId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), methodId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -91,8 +91,8 @@ export const upsertShippingZone = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        zoneId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        zoneId: z.guid().optional(),
         name: z.string().trim().min(2).max(80),
         countries: z.array(z.string().trim().min(2).max(2)).max(50).default([]),
         cities: z.array(z.string().trim().min(2).max(60)).max(80).default([]),
@@ -129,7 +129,7 @@ export const upsertShippingZone = createServerFn({ method: "POST" })
 export const deleteShippingZone = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), zoneId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), zoneId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -146,10 +146,10 @@ export const upsertShippingRate = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        zoneId: z.string().uuid(),
-        rateId: z.string().uuid().optional(),
-        connectorId: z.string().uuid().nullish(),
+        storeId: z.guid(),
+        zoneId: z.guid(),
+        rateId: z.guid().optional(),
+        connectorId: z.guid().nullish(),
         title: z.string().trim().min(2).max(80),
         price: z.number().min(0).max(999_999),
         freeOver: z.number().min(0).max(9_999_999).nullish(),
@@ -190,7 +190,7 @@ export const upsertShippingRate = createServerFn({ method: "POST" })
 export const deleteShippingRate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), rateId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), rateId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase

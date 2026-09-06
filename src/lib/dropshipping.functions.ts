@@ -55,9 +55,9 @@ export const saveSupplierFeed = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        id: z.string().uuid().optional(),
-        supplierId: z.string().uuid().nullish(),
+        storeId: z.guid(),
+        id: z.guid().optional(),
+        supplierId: z.guid().nullish(),
         name: z.string().trim().min(2).max(120),
         kind: z.enum(["xml", "csv", "api"]),
         sourceUrl: z.string().trim().url().max(600),
@@ -124,7 +124,7 @@ export const saveSupplierFeed = createServerFn({ method: "POST" })
 export const deleteSupplierFeed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), feedId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -139,7 +139,7 @@ export const deleteSupplierFeed = createServerFn({ method: "POST" })
 export const runSupplierFeedNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), feedId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -164,7 +164,7 @@ export const previewSupplierFeed = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         kind: z.enum(["xml", "csv", "api"]),
         sourceUrl: z.string().trim().url().max(600),
         authHeader: z.string().trim().max(300).nullish(),
@@ -202,8 +202,8 @@ export const saveDropshipSupplierSettings = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        supplierId: z.string().uuid(),
+        storeId: z.guid(),
+        supplierId: z.guid(),
         isDropship: z.boolean(),
         leadTimeDays: z.number().int().min(0).max(180).default(3),
         currency: z.string().trim().min(3).max(3).default("TRY"),
@@ -233,9 +233,9 @@ export const dispatchDropshipOrder = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        orderId: z.string().uuid(),
-        supplierId: z.string().uuid().nullish(),
+        storeId: z.guid(),
+        orderId: z.guid(),
+        supplierId: z.guid().nullish(),
       })
       .parse(data),
   )
@@ -251,8 +251,8 @@ export const updateDropshipOrder = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        dropshipOrderId: z.string().uuid(),
+        storeId: z.guid(),
+        dropshipOrderId: z.guid(),
         status: z.enum(["pending", "sent", "accepted", "shipped", "cancelled", "failed"]),
         carrier: z.string().trim().max(80).nullish(),
         trackingNumber: z.string().trim().max(80).nullish(),
@@ -277,7 +277,7 @@ export const updateDropshipOrder = createServerFn({ method: "POST" })
 export const autoMapFeedCategories = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), feedId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -292,10 +292,10 @@ export const publishFeedProducts = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        feedId: z.string().uuid(),
-        supplierProductIds: z.array(z.string().uuid()).max(1000).optional(),
-        channelIds: z.array(z.string().uuid()).max(30).default([]),
+        storeId: z.guid(),
+        feedId: z.guid(),
+        supplierProductIds: z.array(z.guid()).max(1000).optional(),
+        channelIds: z.array(z.guid()).max(30).default([]),
         activate: z.boolean().default(true),
         onlyInStock: z.boolean().default(true),
       })
@@ -322,8 +322,8 @@ export const setSupplierPortalAccess = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        supplierId: z.string().uuid(),
+        storeId: z.guid(),
+        supplierId: z.guid(),
         email: z.string().trim().email().max(200).optional(),
         enabled: z.boolean(),
       })

@@ -7,7 +7,7 @@ export default defineTool({
   title: "Ürünü güncelle",
   description: "Bir ürünün fiyatını ve/veya yayın durumunu günceller. RLS mağaza yetkisini doğrular.",
   inputSchema: {
-    product_id: z.string().uuid().describe("Güncellenecek ürünün kimliği."),
+    product_id: z.guid().describe("Güncellenecek ürünün kimliği."),
     base_price: z.number().min(0).optional().describe("Yeni satış fiyatı."),
     status: z
       .enum(["draft", "active", "archived"])

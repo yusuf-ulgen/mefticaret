@@ -20,7 +20,7 @@ const stepSchema = z.object({
   kind: z.enum(STEP_KINDS),
   title: z.string().trim().max(120).optional(),
   waitMinutes: z.number().int().min(0).max(60 * 24 * 30).default(0),
-  templateId: z.string().uuid().nullable().optional(),
+  templateId: z.guid().nullable().optional(),
   conditionKind: z.enum(CONDITIONS).nullable().optional(),
   onTrue: z.enum(["continue", "end"]).default("end"),
   onFalse: z.enum(["continue", "end"]).default("continue"),
@@ -32,8 +32,8 @@ export const saveWorkflow = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        workflowId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        workflowId: z.guid().optional(),
         name: z.string().trim().min(2).max(120),
         description: z.string().trim().max(400).optional(),
         trigger: z.enum(AUTOMATION_TRIGGERS),
@@ -107,8 +107,8 @@ export const toggleWorkflow = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        workflowId: z.string().uuid(),
+        storeId: z.guid(),
+        workflowId: z.guid(),
         isActive: z.boolean(),
       })
       .parse(data),
@@ -126,7 +126,7 @@ export const toggleWorkflow = createServerFn({ method: "POST" })
 export const deleteWorkflow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), workflowId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), workflowId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -143,8 +143,8 @@ export const saveMessageTemplate = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        templateId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        templateId: z.guid().optional(),
         channel: z.enum(MESSAGE_CHANNELS),
         name: z.string().trim().min(2).max(120),
         subject: z.string().trim().max(200).optional(),
@@ -189,7 +189,7 @@ export const saveMessageTemplate = createServerFn({ method: "POST" })
 export const deleteMessageTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), templateId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), templateId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -204,7 +204,7 @@ export const deleteMessageTemplate = createServerFn({ method: "POST" })
 /** Hazır "sepet kurtarma" akışı: 30 dk bekle → e-posta → 6 saat bekle → WhatsApp → koşul → indirim. */
 export const seedCartRecoveryFlow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
 
@@ -321,7 +321,7 @@ export const seedCartRecoveryFlow = createServerFn({ method: "POST" })
 /** Terk edilmiş sepetleri ilgili akışlara kaydeder. */
 export const enrollAbandonedCarts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { enrollTrigger } = await import("@/lib/automation-engine.server");
@@ -364,7 +364,7 @@ export const enrollAbandonedCarts = createServerFn({ method: "POST" })
 /** Bekleyen adımları hemen işler (cron dışı manuel çalıştırma). */
 export const runAutomationTick = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { processDueRuns } = await import("@/lib/automation-engine.server");
     return processDueRuns(context.supabase, 50, data.storeId);
@@ -373,7 +373,7 @@ export const runAutomationTick = createServerFn({ method: "POST" })
 export const stopAutomationRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), runId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), runId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -390,7 +390,7 @@ export const testRunWorkflow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ storeId: z.string().uuid(), workflowId: z.string().uuid() })
+      .object({ storeId: z.guid(), workflowId: z.guid() })
       .parse(data),
   )
   .handler(async ({ data, context }) => {

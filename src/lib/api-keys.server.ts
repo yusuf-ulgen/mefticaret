@@ -10,17 +10,17 @@ import { insertAuditRow } from "./audit.server";
 
 type Client = SupabaseClient<Database>;
 
-export const storeIdSchema = z.object({ storeId: z.string().uuid() });
+export const storeIdSchema = z.object({ storeId: z.guid() });
 
 export const createKeySchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   name: z.string().trim().min(2).max(120),
   apiVersion: z.enum(API_VERSIONS).default("v1"),
   scopes: z.array(z.enum(API_SCOPES)).min(1),
   expiresInDays: z.number().int().min(1).max(3650).optional(),
 });
 
-export const keyIdSchema = z.object({ storeId: z.string().uuid(), id: z.string().uuid() });
+export const keyIdSchema = z.object({ storeId: z.guid(), id: z.guid() });
 
 export function hashApiKey(raw: string) {
   return createHash("sha256").update(raw).digest("hex");

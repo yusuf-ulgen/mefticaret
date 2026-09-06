@@ -35,8 +35,8 @@ export type MyReturn = {
 };
 
 export const createReturnSchema = z.object({
-  storeId: z.string().uuid(),
-  orderId: z.string().uuid(),
+  storeId: z.guid(),
+  orderId: z.guid(),
   reason: z.enum([
     "damaged",
     "wrong_item",
@@ -47,14 +47,14 @@ export const createReturnSchema = z.object({
   ]),
   customerNote: z.string().trim().max(1000).optional(),
   items: z
-    .array(z.object({ orderItemId: z.string().uuid(), quantity: z.number().int().min(1).max(999) }))
+    .array(z.object({ orderItemId: z.guid(), quantity: z.number().int().min(1).max(999) }))
     .min(1)
     .max(50),
 });
 
 export const cancelReturnSchema = z.object({
-  storeId: z.string().uuid(),
-  returnId: z.string().uuid(),
+  storeId: z.guid(),
+  returnId: z.guid(),
 });
 
 export async function listMyReturns(
