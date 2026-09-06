@@ -248,7 +248,24 @@ export function StorefrontChrome({
       }}
     >
       <style dangerouslySetInnerHTML={{ __html: designCss(design) }} />
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+.sf-quickview { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+@media (max-width: 720px) {
+  .sf-quickview { grid-template-columns: minmax(0,1fr); }
+  .sf-mega { display: none; }
+  .sf-bottom-nav { display: grid !important; }
+  .sf-main { padding-bottom: 108px !important; }
+}
+@media (max-width: 640px) {
+  .sf-search { min-width: 0; width: 100%; }
+}
+`,
+        }}
+      />
       {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: customCss }} /> : null}
+
       <CookieConsent storeSlug={storeSlug} />
       <SiteKitScripts storeSlug={storeSlug} />
 
