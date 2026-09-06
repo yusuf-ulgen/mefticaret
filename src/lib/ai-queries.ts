@@ -11,7 +11,6 @@ export type AiProviderRow = {
   default_model: string | null;
   requires_api_key: boolean;
   is_enabled: boolean;
-  is_enabled: boolean;
   sort_order: number;
 };
 
