@@ -122,6 +122,8 @@ function LandingPage() {
 
   const get = (key: string): SiteSection | null => pickSection(sections, key);
   const header = get("header");
+  const mega = get("header_mega");
+  const [mobileOpen, setMobileOpen] = useState(false);
   const hero = get("hero");
   const showcase = get("showcase");
   const modules = get("modules");
