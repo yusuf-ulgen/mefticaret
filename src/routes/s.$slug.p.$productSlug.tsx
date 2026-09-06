@@ -403,24 +403,17 @@ function ProductPage() {
               ))}
           </dl>
 
+          <ConversionBoosters
+            theme={t}
+            productId={product.id}
+            stock={selected?.stock ?? 0}
+            commerce={commerce}
+          />
+
           <button
             type="button"
             disabled={!inStock}
-            onClick={() => {
-              if (!selected) return;
-              cart.add({
-                storeSlug: store.slug,
-                variantId: selected.id,
-                productSlug: product.slug,
-                title: product.title,
-                variantTitle: selected.title,
-                price: Number(selected.price ?? product.base_price),
-                currency: product.currency,
-                maxStock: selected.stock ?? 0,
-              });
-              toast.success("Ürün sepete eklendi");
-              void navigate({ to: "/s/$slug/cart", params: { slug: store.slug } });
-            }}
+            onClick={addToCart}
             style={{
               marginTop: 24,
               width: "100%",
@@ -437,6 +430,16 @@ function ProductPage() {
           >
             {inStock ? "Sepete ekle" : "Stokta yok"}
           </button>
+
+          <StickyAddToCartBar
+            theme={t}
+            title={product.title}
+            price={Number(price)}
+            currency={product.currency}
+            disabled={!inStock}
+            onAdd={addToCart}
+          />
+
 
           {inStock ? null : (
             <StockAlertForm
