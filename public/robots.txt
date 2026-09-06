@@ -12,3 +12,7 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://mefticaret.lovable.app/sitemap-index.xml
+Sitemap: https://mefticaret.lovable.app/sitemap.xml
+
