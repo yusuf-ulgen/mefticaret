@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Menu, X } from "lucide-react";
+
+import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
+
 
 import {
   BlogSection,
