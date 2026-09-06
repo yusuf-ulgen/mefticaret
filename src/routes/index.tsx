@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Menu, X } from "lucide-react";
+
+import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
+
 
 import {
   BlogSection,
@@ -118,6 +122,8 @@ function LandingPage() {
 
   const get = (key: string): SiteSection | null => pickSection(sections, key);
   const header = get("header");
+  const mega = get("header_mega");
+  const [mobileOpen, setMobileOpen] = useState(false);
   const hero = get("hero");
   const showcase = get("showcase");
   const modules = get("modules");
@@ -145,24 +151,32 @@ function LandingPage() {
 
       {header ? (
         <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
-          <div className="mx-auto flex h-18 max-w-7xl items-center px-4 py-3 lg:px-8">
+          <div className="mx-auto flex h-18 max-w-7xl items-center gap-4 px-4 py-3 lg:px-8">
             <Link to="/" className="font-display text-2xl font-extrabold tracking-tighter">
               {header.title}
             </Link>
-            <nav
-              aria-label="Ana gezinme"
-              className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 text-sm font-medium text-muted-foreground md:flex"
-            >
-              {header.items.map((item, index) => (
-                <a
-                  key={`${item["label"]}-${index}`}
-                  href={item["href"] || "#"}
-                  className="transition-colors hover:text-foreground"
+
+            <div className="mx-auto hidden md:block">
+              {mega && mega.items.length ? (
+                <LandingMegaMenu section={mega} extraLinks={header.items} />
+              ) : (
+                <nav
+                  aria-label="Ana gezinme"
+                  className="flex items-center gap-8 text-sm font-medium text-muted-foreground"
                 >
-                  {item["label"]}
-                </a>
-              ))}
-            </nav>
+                  {header.items.map((item, index) => (
+                    <a
+                      key={`${item["label"]}-${index}`}
+                      href={item["href"] || "#"}
+                      className="transition-colors hover:text-foreground"
+                    >
+                      {item["label"]}
+                    </a>
+                  ))}
+                </nav>
+              )}
+            </div>
+
             <div className="ml-auto flex items-center gap-2">
               {loading ? null : session ? (
                 <Button asChild className="rounded-full px-5">
@@ -178,10 +192,28 @@ function LandingPage() {
                   <LinkButton href={header.primary_href} label={header.primary_label} />
                 </>
               )}
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full md:hidden"
+                aria-label="Menüyü aç"
+                aria-expanded={mobileOpen}
+                onClick={() => setMobileOpen((value) => !value)}
+              >
+                {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+              </Button>
             </div>
           </div>
+
+          <LandingMobileMenu
+            section={mega}
+            extraLinks={header.items}
+            open={mobileOpen}
+            onClose={() => setMobileOpen(false)}
+          />
         </header>
       ) : null}
+
 
       <main id="icerik" tabIndex={-1}>
         {hero ? (
