@@ -55,6 +55,9 @@ export function NotificationBell({ storeId }: { storeId: string }) {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  if (!validStore) return null;
+
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
