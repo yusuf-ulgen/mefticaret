@@ -21,12 +21,28 @@ const cacheHeadersMiddleware = createMiddleware().server(async ({ next, request 
   return result;
 });
 
+// Tarayıcı sayfayı terk ettiğinde bağlantı kopar ("aborted"); bu bir uygulama
+// hatası değildir, hata olarak raporlanmamalı.
+export function isClientAbortError(error: unknown): boolean {
+  if (error == null) return false;
+  const err = error as { name?: unknown; message?: unknown; code?: unknown };
+  return (
+    err.name === "AbortError" ||
+    err.code === "ECONNRESET" ||
+    err.code === "ABORT_ERR" ||
+    (typeof err.message === "string" && /^(aborted|The user aborted a request\.)$/.test(err.message))
+  );
+}
+
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
     return await next();
   } catch (error) {
     if (error != null && typeof error === "object" && "statusCode" in error) {
       throw error;
+    }
+    if (isClientAbortError(error)) {
+      return new Response(null, { status: 499 });
     }
     console.error(error);
     return new Response(renderErrorPage(), {

@@ -51,6 +51,10 @@ export default {
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
+      // İstemci bağlantıyı kapattıysa (sayfadan ayrılma/yenileme) hata raporlamayız.
+      if (isClientAbortError(error) || request.signal?.aborted) {
+        return new Response(null, { status: 499 });
+      }
       console.error(error);
       return new Response(renderErrorPage(), {
         status: 500,
