@@ -439,6 +439,12 @@ export function StorefrontChrome({
         {children}
       </main>
 
+      <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
+      <QuickViewModal theme={t} storeSlug={storeSlug} />
+      <MobileBottomNav theme={t} storeSlug={storeSlug} />
+
+
+
       <footer
         style={{
           borderTop: `1px solid ${border}`,
