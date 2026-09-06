@@ -15,7 +15,9 @@ import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { recordRecentProduct } from "@/lib/recently-viewed";
-import { storefrontProductQuery } from "@/lib/storefront-queries";
+import { storefrontProductQuery, storefrontQuery } from "@/lib/storefront-queries";
+import { storefrontUI } from "@/lib/storefront-ui";
+import { ConversionBoosters, StickyAddToCartBar } from "@/components/wokiee/pdp-boosters";
 import { trackEvent } from "@/lib/track";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import {
