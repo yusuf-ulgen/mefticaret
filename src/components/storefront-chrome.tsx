@@ -369,15 +369,7 @@ export function StorefrontChrome({
             </>
           )}
 
-          {flag(headerCfg, "showSearch") ? (
-            <Link
-              to="/s/$slug/search"
-              params={{ slug: storeSlug }}
-              style={{ color: muted, textDecoration: "none" }}
-            >
-              Arama
-            </Link>
-          ) : null}
+          {flag(headerCfg, "showSearch") ? <PredictiveSearch theme={t} storeSlug={storeSlug} /> : null}
 
           {flag(headerCfg, "showFavorites") ? (
             <Link
@@ -411,21 +403,25 @@ export function StorefrontChrome({
           ) : null}
 
           {flag(headerCfg, "showCart") ? (
-            <Link
-              to="/s/$slug/cart"
-              params={{ slug: storeSlug }}
+            <button
+              type="button"
+              onClick={() => storefrontUI.openCart()}
               style={{
                 color: text,
-                textDecoration: "none",
+                background: "transparent",
                 border: `1px solid ${border}`,
                 borderRadius: radius,
                 padding: "5px 12px",
                 fontWeight: 600,
+                fontSize: 13,
+                fontFamily: "inherit",
+                cursor: "pointer",
               }}
             >
               Sepet{cartCount ? ` (${cartCount})` : ""}
-            </Link>
+            </button>
           ) : null}
+
 
           <LanguageSwitcher storeSlug={storeSlug} color={muted} />
         </nav>
