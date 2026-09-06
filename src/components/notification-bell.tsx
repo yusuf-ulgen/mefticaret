@@ -29,13 +29,19 @@ function relativeTime(value: string) {
   return new Date(value).toLocaleDateString("tr-TR");
 }
 
+/** Geçerli bir mağaza kimliği (UUID) değilse sunucuya istek atmayız. */
+const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+
 export function NotificationBell({ storeId }: { storeId: string }) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const validStore = UUID_RE.test(storeId);
   const { data: notifications } = useQuery({
     ...storeNotificationsQuery(storeId),
+    enabled: validStore,
     refetchInterval: 60_000,
   });
+
 
   const items = notifications ?? [];
   const unread = items.filter((item) => !item.is_read).length;
