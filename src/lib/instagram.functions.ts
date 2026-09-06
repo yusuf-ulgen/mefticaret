@@ -17,13 +17,8 @@ export const getInstagramOAuthUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => storeScope.extend({ redirectUri: z.string().url() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { data: store, error } = await context.supabase
-      .from("stores")
-      .select("id")
-      .eq("id", data.storeId)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
 
     const { buildInstagramOAuthUrl, metaAppConfig } = await import("@/lib/instagram.server");
     if (!metaAppConfig().appId) {
@@ -41,13 +36,8 @@ export const completeInstagramOAuth = createServerFn({ method: "POST" })
     storeScope.extend({ code: z.string().min(4), redirectUri: z.string().url() }).parse(data),
   )
   .handler(async ({ data, context }) => {
-    const { data: store, error } = await context.supabase
-      .from("stores")
-      .select("id")
-      .eq("id", data.storeId)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
 
     const [{ supabaseAdmin }, { exchangeInstagramCode, upsertInstagramAccount }] = await Promise.all([
       import("@/integrations/supabase/client.server"),
@@ -72,13 +62,8 @@ export const connectInstagramManually = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    const { data: store, error } = await context.supabase
-      .from("stores")
-      .select("id")
-      .eq("id", data.storeId)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
 
     const [{ supabaseAdmin }, { upsertInstagramAccount }] = await Promise.all([
       import("@/integrations/supabase/client.server"),
