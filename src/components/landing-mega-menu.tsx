@@ -83,6 +83,10 @@ export function LandingMegaMenu({
   extraLinks: SiteSectionItem[];
 }) {
   const tree = buildTree(section.items);
+  const menuNames = new Set(tree.map((entry) => entry.menu.toLocaleLowerCase("tr")));
+  const links = extraLinks.filter(
+    (item) => !menuNames.has((item["label"] ?? "").toLocaleLowerCase("tr")),
+  );
   const [open, setOpen] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -128,7 +132,7 @@ export function LandingMegaMenu({
         );
       })}
 
-      {extraLinks.map((item, index) => (
+      {links.map((item, index) => (
         <a
           key={`${item["label"]}-${index}`}
           href={item["href"] || "#"}
@@ -154,6 +158,10 @@ export function LandingMobileMenu({
   onClose: () => void;
 }) {
   const tree = buildTree(section?.items ?? []);
+  const menuNames = new Set(tree.map((entry) => entry.menu.toLocaleLowerCase("tr")));
+  const links = extraLinks.filter(
+    (item) => !menuNames.has((item["label"] ?? "").toLocaleLowerCase("tr")),
+  );
   if (!open) return null;
 
   return (
@@ -169,7 +177,7 @@ export function LandingMobileMenu({
         ))}
         {extraLinks.length ? (
           <ul className="space-y-2 border-t border-border pt-4">
-            {extraLinks.map((item, index) => (
+            {links.map((item, index) => (
               <li key={`${item["label"]}-${index}`}>
                 <a href={item["href"] || "#"} onClick={onClose} className="text-sm font-semibold">
                   {item["label"]}
