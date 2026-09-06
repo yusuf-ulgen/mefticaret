@@ -245,10 +245,12 @@ async function upsertRate(
   } as never);
 }
 
+export type RateFrequency = "manual" | "hourly" | "six_hourly" | "daily";
+
 /** Zamanlanmış görev: sıklığı uygun tüm mağazaların kurlarını günceller. */
 export async function syncDueStores(
   supabase: Admin,
-  frequencies: string[],
+  frequencies: RateFrequency[],
 ): Promise<{ stores: number; results: SyncResult[] }> {
   const { data, error } = await supabase
     .from("store_pricing_settings")
