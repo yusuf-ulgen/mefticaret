@@ -2612,6 +2612,104 @@ export type Database = {
           },
         ]
       }
+      exchange_rate_history: {
+        Row: {
+          base_currency: string
+          created_at: string
+          id: string
+          new_rate: number
+          old_rate: number | null
+          provider_code: string | null
+          quote_currency: string
+          source: string
+          store_id: string | null
+        }
+        Insert: {
+          base_currency: string
+          created_at?: string
+          id?: string
+          new_rate: number
+          old_rate?: number | null
+          provider_code?: string | null
+          quote_currency: string
+          source?: string
+          store_id?: string | null
+        }
+        Update: {
+          base_currency?: string
+          created_at?: string
+          id?: string
+          new_rate?: number
+          old_rate?: number | null
+          provider_code?: string | null
+          quote_currency?: string
+          source?: string
+          store_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exchange_rate_history_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exchange_rate_providers: {
+        Row: {
+          adapter: string
+          base_url: string | null
+          code: string
+          created_at: string
+          failure_count: number
+          id: string
+          is_active: boolean
+          last_error: string | null
+          last_status: string | null
+          last_success_at: string | null
+          name: string
+          priority: number
+          requires_key: boolean
+          secret_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          adapter: string
+          base_url?: string | null
+          code: string
+          created_at?: string
+          failure_count?: number
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_status?: string | null
+          last_success_at?: string | null
+          name: string
+          priority?: number
+          requires_key?: boolean
+          secret_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          adapter?: string
+          base_url?: string | null
+          code?: string
+          created_at?: string
+          failure_count?: number
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_status?: string | null
+          last_success_at?: string | null
+          name?: string
+          priority?: number
+          requires_key?: boolean
+          secret_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       fb_marketplace_accounts: {
         Row: {
           auto_sync: boolean
@@ -3843,6 +3941,45 @@ export type Database = {
           },
         ]
       }
+      market_countries: {
+        Row: {
+          country_code: string
+          created_at: string
+          id: string
+          market_id: string
+          store_id: string
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          id?: string
+          market_id: string
+          store_id: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          id?: string
+          market_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_countries_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_countries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_channels: {
         Row: {
           auto_sync: boolean
@@ -4224,6 +4361,103 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      markets: {
+        Row: {
+          code: string
+          country_code: string
+          created_at: string
+          currency: string
+          domain: string | null
+          id: string
+          is_active: boolean
+          is_default: boolean
+          locale: string | null
+          markup_type: Database["public"]["Enums"]["markup_type"]
+          markup_value: number
+          name: string
+          payment_method_ids: string[]
+          price_list_id: string | null
+          rounding: Database["public"]["Enums"]["rounding_mode"]
+          shipping_zone_ids: string[]
+          sort_order: number
+          store_id: string
+          tax_class_id: string | null
+          tax_included: boolean
+          updated_at: string
+          url_prefix: string | null
+        }
+        Insert: {
+          code: string
+          country_code: string
+          created_at?: string
+          currency: string
+          domain?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          locale?: string | null
+          markup_type?: Database["public"]["Enums"]["markup_type"]
+          markup_value?: number
+          name: string
+          payment_method_ids?: string[]
+          price_list_id?: string | null
+          rounding?: Database["public"]["Enums"]["rounding_mode"]
+          shipping_zone_ids?: string[]
+          sort_order?: number
+          store_id: string
+          tax_class_id?: string | null
+          tax_included?: boolean
+          updated_at?: string
+          url_prefix?: string | null
+        }
+        Update: {
+          code?: string
+          country_code?: string
+          created_at?: string
+          currency?: string
+          domain?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          locale?: string | null
+          markup_type?: Database["public"]["Enums"]["markup_type"]
+          markup_value?: number
+          name?: string
+          payment_method_ids?: string[]
+          price_list_id?: string | null
+          rounding?: Database["public"]["Enums"]["rounding_mode"]
+          shipping_zone_ids?: string[]
+          sort_order?: number
+          store_id?: string
+          tax_class_id?: string | null
+          tax_included?: boolean
+          updated_at?: string
+          url_prefix?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "markets_price_list_id_fkey"
+            columns: ["price_list_id"]
+            isOneToOne: false
+            referencedRelation: "price_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "markets_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "markets_tax_class_id_fkey"
+            columns: ["tax_class_id"]
+            isOneToOne: false
+            referencedRelation: "tax_classes"
             referencedColumns: ["id"]
           },
         ]
@@ -5471,15 +5705,20 @@ export type Database = {
           customer_phone: string | null
           discount_code: string | null
           discount_total: number
+          display_currency: string | null
+          exchange_rate: number | null
           fulfillment_status: Database["public"]["Enums"]["fulfillment_status"]
           grand_total: number
           id: string
           invoice_number: string | null
           invoiced_at: string | null
+          market_id: string | null
           note: string | null
           order_number: string
           payment_status: Database["public"]["Enums"]["payment_status"]
           placed_at: string
+          pricing_snapshot: Json | null
+          rate_source: string | null
           shipping_address: Json
           shipping_carrier: string | null
           shipping_total: number
@@ -5500,15 +5739,20 @@ export type Database = {
           customer_phone?: string | null
           discount_code?: string | null
           discount_total?: number
+          display_currency?: string | null
+          exchange_rate?: number | null
           fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
           grand_total?: number
           id?: string
           invoice_number?: string | null
           invoiced_at?: string | null
+          market_id?: string | null
           note?: string | null
           order_number: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
           placed_at?: string
+          pricing_snapshot?: Json | null
+          rate_source?: string | null
           shipping_address?: Json
           shipping_carrier?: string | null
           shipping_total?: number
@@ -5529,15 +5773,20 @@ export type Database = {
           customer_phone?: string | null
           discount_code?: string | null
           discount_total?: number
+          display_currency?: string | null
+          exchange_rate?: number | null
           fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
           grand_total?: number
           id?: string
           invoice_number?: string | null
           invoiced_at?: string | null
+          market_id?: string | null
           note?: string | null
           order_number?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
           placed_at?: string
+          pricing_snapshot?: Json | null
+          rate_source?: string | null
           shipping_address?: Json
           shipping_carrier?: string | null
           shipping_total?: number
@@ -5554,6 +5803,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
             referencedColumns: ["id"]
           },
           {
@@ -5936,6 +6192,39 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_currencies: {
+        Row: {
+          code: string
+          created_at: string
+          decimals: number
+          is_active: boolean
+          name: string
+          symbol: string
+          symbol_position: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          decimals?: number
+          is_active?: boolean
+          name: string
+          symbol: string
+          symbol_position?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          decimals?: number
+          is_active?: boolean
+          name?: string
+          symbol?: string
+          symbol_position?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_seo_ai_actions: {
         Row: {
           action: string
@@ -6149,6 +6438,394 @@ export type Database = {
         }
         Relationships: []
       }
+      price_list_items: {
+        Row: {
+          compare_at_price: number | null
+          country_code: string | null
+          created_at: string
+          currency: string
+          id: string
+          price: number
+          price_list_id: string
+          product_id: string
+          store_id: string
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          compare_at_price?: number | null
+          country_code?: string | null
+          created_at?: string
+          currency: string
+          id?: string
+          price: number
+          price_list_id: string
+          product_id: string
+          store_id: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          compare_at_price?: number | null
+          country_code?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          price?: number
+          price_list_id?: string
+          product_id?: string
+          store_id?: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_list_items_price_list_id_fkey"
+            columns: ["price_list_id"]
+            isOneToOne: false
+            referencedRelation: "price_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_list_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_list_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_list_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_lists: {
+        Row: {
+          code: string | null
+          created_at: string
+          currency: string
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          kind: string
+          name: string
+          starts_at: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          currency: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          name: string
+          starts_at?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          currency?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          name?: string
+          starts_at?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_lists_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_snapshots: {
+        Row: {
+          cart_token: string | null
+          created_at: string
+          currency: string
+          exchange_rate: number | null
+          expires_at: string | null
+          id: string
+          market_id: string | null
+          order_id: string | null
+          payload: Json
+          rate_source: string | null
+          store_id: string
+        }
+        Insert: {
+          cart_token?: string | null
+          created_at?: string
+          currency: string
+          exchange_rate?: number | null
+          expires_at?: string | null
+          id?: string
+          market_id?: string | null
+          order_id?: string | null
+          payload?: Json
+          rate_source?: string | null
+          store_id: string
+        }
+        Update: {
+          cart_token?: string | null
+          created_at?: string
+          currency?: string
+          exchange_rate?: number | null
+          expires_at?: string | null
+          id?: string
+          market_id?: string | null
+          order_id?: string | null
+          payload?: Json
+          rate_source?: string | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_snapshots_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_snapshots_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_snapshots_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_audit_logs: {
+        Row: {
+          created_at: string
+          currency: string | null
+          id: string
+          market_id: string | null
+          new_price: number | null
+          old_price: number | null
+          product_id: string | null
+          reason: string | null
+          source: string | null
+          store_id: string
+          user_id: string | null
+          variant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          id?: string
+          market_id?: string | null
+          new_price?: number | null
+          old_price?: number | null
+          product_id?: string | null
+          reason?: string | null
+          source?: string | null
+          store_id: string
+          user_id?: string | null
+          variant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          id?: string
+          market_id?: string | null
+          new_price?: number | null
+          old_price?: number | null
+          product_id?: string | null
+          reason?: string | null
+          source?: string | null
+          store_id?: string
+          user_id?: string | null
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_audit_logs_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_audit_logs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_audit_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_audit_logs_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_campaigns: {
+        Row: {
+          created_at: string
+          currency: string
+          ends_at: string
+          id: string
+          is_active: boolean
+          market_id: string | null
+          markup_type: Database["public"]["Enums"]["markup_type"]
+          markup_value: number
+          name: string
+          price_list_id: string | null
+          rate: number | null
+          rounding: Database["public"]["Enums"]["rounding_mode"]
+          starts_at: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          ends_at: string
+          id?: string
+          is_active?: boolean
+          market_id?: string | null
+          markup_type?: Database["public"]["Enums"]["markup_type"]
+          markup_value?: number
+          name: string
+          price_list_id?: string | null
+          rate?: number | null
+          rounding?: Database["public"]["Enums"]["rounding_mode"]
+          starts_at: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          ends_at?: string
+          id?: string
+          is_active?: boolean
+          market_id?: string | null
+          markup_type?: Database["public"]["Enums"]["markup_type"]
+          markup_value?: number
+          name?: string
+          price_list_id?: string | null
+          rate?: number | null
+          rounding?: Database["public"]["Enums"]["rounding_mode"]
+          starts_at?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_campaigns_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_campaigns_price_list_id_fkey"
+            columns: ["price_list_id"]
+            isOneToOne: false
+            referencedRelation: "price_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pricing_campaigns_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_rules: {
+        Row: {
+          actions: Json
+          conditions: Json
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          name: string
+          priority: number
+          starts_at: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number
+          starts_at?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number
+          starts_at?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_rules_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_collections: {
         Row: {
           collection_id: string
@@ -6223,6 +6900,77 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_market_prices: {
+        Row: {
+          compare_at_price: number | null
+          created_at: string
+          currency: string
+          id: string
+          market_id: string
+          price: number | null
+          product_id: string
+          source: Database["public"]["Enums"]["price_source"]
+          store_id: string
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          compare_at_price?: number | null
+          created_at?: string
+          currency: string
+          id?: string
+          market_id: string
+          price?: number | null
+          product_id: string
+          source?: Database["public"]["Enums"]["price_source"]
+          store_id: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          compare_at_price?: number | null
+          created_at?: string
+          currency?: string
+          id?: string
+          market_id?: string
+          price?: number | null
+          product_id?: string
+          source?: Database["public"]["Enums"]["price_source"]
+          store_id?: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_market_prices_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_market_prices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_market_prices_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_market_prices_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
         ]
@@ -8306,6 +9054,68 @@ export type Database = {
           },
         ]
       }
+      store_currencies: {
+        Row: {
+          created_at: string
+          currency: string
+          decimal_separator: string
+          id: string
+          is_active: boolean
+          is_base: boolean
+          manual_rate: number | null
+          markup_type: Database["public"]["Enums"]["markup_type"]
+          markup_value: number
+          rounding: Database["public"]["Enums"]["rounding_mode"]
+          store_id: string
+          symbol_position: string
+          thousands_separator: string
+          updated_at: string
+          use_manual_rate: boolean
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          decimal_separator?: string
+          id?: string
+          is_active?: boolean
+          is_base?: boolean
+          manual_rate?: number | null
+          markup_type?: Database["public"]["Enums"]["markup_type"]
+          markup_value?: number
+          rounding?: Database["public"]["Enums"]["rounding_mode"]
+          store_id: string
+          symbol_position?: string
+          thousands_separator?: string
+          updated_at?: string
+          use_manual_rate?: boolean
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          decimal_separator?: string
+          id?: string
+          is_active?: boolean
+          is_base?: boolean
+          manual_rate?: number | null
+          markup_type?: Database["public"]["Enums"]["markup_type"]
+          markup_value?: number
+          rounding?: Database["public"]["Enums"]["rounding_mode"]
+          store_id?: string
+          symbol_position?: string
+          thousands_separator?: string
+          updated_at?: string
+          use_manual_rate?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_currencies_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_daily_stats: {
         Row: {
           abandoned_carts: number
@@ -8825,6 +9635,68 @@ export type Database = {
             foreignKeyName: "store_popups_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_pricing_settings: {
+        Row: {
+          base_currency: string
+          created_at: string
+          default_markup_type: Database["public"]["Enums"]["markup_type"]
+          default_markup_value: number
+          default_rounding: Database["public"]["Enums"]["rounding_mode"]
+          geolocation_enabled: boolean
+          last_rate_sync_at: string | null
+          max_change_percent: number
+          min_margin_percent: number | null
+          provider_code: string | null
+          require_approval: boolean
+          stale_after_hours: number
+          store_id: string
+          update_frequency: Database["public"]["Enums"]["rate_update_frequency"]
+          updated_at: string
+        }
+        Insert: {
+          base_currency?: string
+          created_at?: string
+          default_markup_type?: Database["public"]["Enums"]["markup_type"]
+          default_markup_value?: number
+          default_rounding?: Database["public"]["Enums"]["rounding_mode"]
+          geolocation_enabled?: boolean
+          last_rate_sync_at?: string | null
+          max_change_percent?: number
+          min_margin_percent?: number | null
+          provider_code?: string | null
+          require_approval?: boolean
+          stale_after_hours?: number
+          store_id: string
+          update_frequency?: Database["public"]["Enums"]["rate_update_frequency"]
+          updated_at?: string
+        }
+        Update: {
+          base_currency?: string
+          created_at?: string
+          default_markup_type?: Database["public"]["Enums"]["markup_type"]
+          default_markup_value?: number
+          default_rounding?: Database["public"]["Enums"]["rounding_mode"]
+          geolocation_enabled?: boolean
+          last_rate_sync_at?: string | null
+          max_change_percent?: number
+          min_margin_percent?: number | null
+          provider_code?: string | null
+          require_approval?: boolean
+          stale_after_hours?: number
+          store_id?: string
+          update_frequency?: Database["public"]["Enums"]["rate_update_frequency"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_pricing_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
@@ -11854,6 +12726,7 @@ export type Database = {
         | "wallet_out"
       ledger_entry_status: "pending" | "posted" | "cancelled" | "failed"
       listing_status: "draft" | "queued" | "listed" | "error" | "removed"
+      markup_type: "none" | "fixed" | "percent"
       message_channel: "email" | "sms" | "whatsapp" | "push"
       message_delivery_status:
         | "queued"
@@ -11892,7 +12765,15 @@ export type Database = {
         | "refunded"
         | "failed"
       payout_status: "pending" | "processing" | "paid" | "failed"
+      price_source:
+        | "base"
+        | "auto"
+        | "manual"
+        | "price_list"
+        | "campaign"
+        | "rule"
       product_status: "draft" | "active" | "archived"
+      rate_update_frequency: "manual" | "hourly" | "six_hourly" | "daily"
       return_reason:
         | "damaged"
         | "wrong_item"
@@ -11908,6 +12789,17 @@ export type Database = {
         | "refunded"
         | "cancelled"
       review_status: "pending" | "published" | "rejected"
+      rounding_mode:
+        | "none"
+        | "nearest_0_01"
+        | "nearest_0_05"
+        | "nearest_0_10"
+        | "nearest_1"
+        | "nearest_5"
+        | "nearest_10"
+        | "psych_99"
+        | "psych_90"
+        | "psych_95"
       seller_status: "pending" | "approved" | "rejected" | "suspended"
       shipment_status:
         | "pending"
@@ -12224,6 +13116,7 @@ export const Constants = {
       ],
       ledger_entry_status: ["pending", "posted", "cancelled", "failed"],
       listing_status: ["draft", "queued", "listed", "error", "removed"],
+      markup_type: ["none", "fixed", "percent"],
       message_channel: ["email", "sms", "whatsapp", "push"],
       message_delivery_status: [
         "queued",
@@ -12266,7 +13159,16 @@ export const Constants = {
         "failed",
       ],
       payout_status: ["pending", "processing", "paid", "failed"],
+      price_source: [
+        "base",
+        "auto",
+        "manual",
+        "price_list",
+        "campaign",
+        "rule",
+      ],
       product_status: ["draft", "active", "archived"],
+      rate_update_frequency: ["manual", "hourly", "six_hourly", "daily"],
       return_reason: [
         "damaged",
         "wrong_item",
@@ -12284,6 +13186,18 @@ export const Constants = {
         "cancelled",
       ],
       review_status: ["pending", "published", "rejected"],
+      rounding_mode: [
+        "none",
+        "nearest_0_01",
+        "nearest_0_05",
+        "nearest_0_10",
+        "nearest_1",
+        "nearest_5",
+        "nearest_10",
+        "psych_99",
+        "psych_90",
+        "psych_95",
+      ],
       seller_status: ["pending", "approved", "rejected", "suspended"],
       shipment_status: [
         "pending",
