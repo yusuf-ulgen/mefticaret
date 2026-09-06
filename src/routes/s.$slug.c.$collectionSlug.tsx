@@ -169,9 +169,18 @@ function CollectionPage() {
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
           />
+          <button
+            type="button"
+            onClick={() => setView((current) => (current === "grid" ? "list" : "grid"))}
+            style={{ ...controlStyle, cursor: "pointer" }}
+            aria-label="Görünümü değiştir"
+          >
+            {view === "grid" ? "☰ Liste görünümü" : "▦ Izgara görünümü"}
+          </button>
           <span style={{ fontSize: 12, color: muted, marginLeft: "auto" }}>
             {visible.length} / {products.length} ürün
           </span>
+
           {(type !== "all" || minPrice || maxPrice || sort !== "newest") && (
             <button
               type="button"
