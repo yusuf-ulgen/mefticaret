@@ -67,6 +67,7 @@ function CollectionPage() {
   const { t, fonts, muted, cardBg, border, radius, dark } = storefrontTokens(theme);
 
   const [sort, setSort] = useState<SortKey>("newest");
+  const [view, setView] = useState<"grid" | "list">("grid");
   const [type, setType] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
