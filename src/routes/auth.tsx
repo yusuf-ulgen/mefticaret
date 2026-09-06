@@ -74,7 +74,7 @@ function AuthPage() {
       password,
       options: {
         data: { full_name: fullName },
-        emailRedirectTo: `${window.location.origin}/stores`,
+        emailRedirectTo: `${window.location.origin}${safeNext}`,
       },
     });
     setBusy(false);
