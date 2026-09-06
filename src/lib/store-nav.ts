@@ -247,6 +247,12 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Ödeme", to: p("payments"), icon: BadgeCheck },
         { label: "Kargo", to: p("shipping"), icon: Truck },
         { label: "Dil & Para Birimi", to: p("localization"), icon: Globe },
+        {
+          label: "Marketler & Fiyatlandırma",
+          to: p("markets-pricing"),
+          icon: Coins,
+          keywords: "kur döviz market ülke fiyat listesi kampanya marj",
+        },
         { label: "Ekip & Yetkiler", to: p("team"), icon: ShieldCheck },
         { label: "Güvenlik & KVKK", to: p("security"), icon: ShieldCheck },
         { label: "Denetim Kaydı", to: p("activity"), icon: History },
