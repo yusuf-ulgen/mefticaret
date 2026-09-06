@@ -6,7 +6,7 @@ import {
   BlogSection,
   FaqSection,
   IntegrationsSection,
-  PlatformDemosSection,
+  PlatformCapabilitiesSection,
 } from "@/components/landing-sections";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
@@ -120,7 +120,6 @@ function LandingPage() {
   const header = get("header");
   const hero = get("hero");
   const showcase = get("showcase");
-  const references = get("references");
   const modules = get("modules");
   const pricing = get("pricing");
   const cta = get("cta");
@@ -227,67 +226,6 @@ function LandingPage() {
           </section>
         ) : null}
 
-        {references ? (
-          <section id="referanslar" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
-            <div className="text-center">
-              {references.eyebrow ? <span className="eyebrow">{references.eyebrow}</span> : null}
-              <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-                {references.title}
-              </h2>
-              {references.primary_label ? (
-                <div className="mt-7">
-                  <LinkButton
-                    href={references.primary_href}
-                    label={references.primary_label}
-                    variant="outline"
-                  >
-                    <ArrowUpRight className="ml-2 size-4" />
-                  </LinkButton>
-                </div>
-              ) : null}
-            </div>
-
-            <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {references.items.map((ref, index) => (
-                <article key={`${ref["brand"]}-${index}`} className="showcase-card flex flex-col">
-                  <div
-                    className="h-48 w-full"
-                    style={{
-                      background:
-                        "linear-gradient(140deg, color-mix(in oklab, var(--color-brand) 18%, var(--color-card)), var(--color-muted))",
-                    }}
-                  />
-                  <div className="flex flex-1 flex-col p-5">
-                    <h3 className="text-base font-semibold">{ref["brand"]}</h3>
-                    <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
-                      “{ref["quote"]}”
-                    </p>
-                    <p className="mt-4 text-sm font-semibold">
-                      {ref["person"]}{" "}
-                      <span className="font-normal text-muted-foreground">— {ref["role"]}</span>
-                    </p>
-                    <dl className="mt-5 grid grid-cols-3 gap-2">
-                      {[
-                        [ref["stat1"], ref["stat1Label"]],
-                        [ref["stat2"], ref["stat2Label"]],
-                        [ref["stat3"], ref["stat3Label"]],
-                      ]
-                        .filter(([value]) => Boolean(value))
-                        .map(([value, label]) => (
-                          <div key={label} className="rounded-xl bg-muted px-3 py-2 text-center">
-                            <dt className="sr-only">{label}</dt>
-                            <dd className="text-sm font-bold text-success">{value}</dd>
-                            <p className="mt-0.5 text-[11px] text-muted-foreground">{label}</p>
-                          </div>
-                        ))}
-                    </dl>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
         {modules ? (
           <section id="moduller" className="border-y border-border bg-secondary/40 py-20 lg:py-28">
             <div className="mx-auto max-w-7xl px-4 lg:px-8">
@@ -320,7 +258,7 @@ function LandingPage() {
 
         <IntegrationsSection section={get("integrations")} />
 
-        <PlatformDemosSection section={get("demos")} />
+        <PlatformCapabilitiesSection />
 
         {pricing ? (
           <section id="paketler" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
