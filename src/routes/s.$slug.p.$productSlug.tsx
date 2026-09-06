@@ -150,6 +150,7 @@ function Fallback({ text }: { text: string }) {
 function ProductPage() {
   const { slug, productSlug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontProductQuery(slug, productSlug));
+  const { data: storefrontData } = useQuery(storefrontQuery(slug));
   const [variantId, setVariantId] = useState<string | null>(null);
   const cart = useCart();
   const favorites = useFavorites();
