@@ -206,6 +206,24 @@ function ProductPage() {
     : Array.from(derived.entries()).map(([name, values]) => ({ name, values }))
   ).filter((group) => group.values.length > 0);
 
+  const commerce = storefrontData?.commerce;
+
+  function addToCart() {
+    if (!selected || !inStock) return;
+    cart.add({
+      storeSlug: store.slug,
+      variantId: selected.id,
+      productSlug: product.slug,
+      title: product.title,
+      variantTitle: selected.title,
+      price: Number(selected.price ?? product.base_price),
+      currency: product.currency,
+      maxStock: selected.stock ?? 0,
+    });
+    toast.success("Ürün sepete eklendi");
+    storefrontUI.openCart();
+  }
+
   const selectedOptions = (selected?.options ?? {}) as Record<string, string>;
   const pickOption = (name: string, value: string) => {
     const target = { ...selectedOptions, [name]: value };
