@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as EnIyiETicaretAltyapisiRouteImport } from './routes/en-iyi-e-ticaret-altyapisi'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -239,6 +240,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnIyiETicaretAltyapisiRoute = EnIyiETicaretAltyapisiRouteImport.update({
+  id: '/en-iyi-e-ticaret-altyapisi',
+  path: '/en-iyi-e-ticaret-altyapisi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -1470,6 +1476,7 @@ const ApiPublicFeedStoreSlugKindRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -1688,6 +1695,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -1906,6 +1914,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -2126,6 +2135,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
     | '/login'
     | '/mcp'
@@ -2344,6 +2354,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
     | '/login'
     | '/mcp'
@@ -2561,6 +2572,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
     | '/login'
     | '/mcp'
@@ -2781,6 +2793,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  EnIyiETicaretAltyapisiRoute: typeof EnIyiETicaretAltyapisiRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
@@ -2858,6 +2871,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en-iyi-e-ticaret-altyapisi': {
+      id: '/en-iyi-e-ticaret-altyapisi'
+      path: '/en-iyi-e-ticaret-altyapisi'
+      fullPath: '/en-iyi-e-ticaret-altyapisi'
+      preLoaderRoute: typeof EnIyiETicaretAltyapisiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -4815,6 +4835,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  EnIyiETicaretAltyapisiRoute: EnIyiETicaretAltyapisiRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,

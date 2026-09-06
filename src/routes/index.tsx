@@ -424,8 +424,11 @@ function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
+            <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
               <span>© {new Date().getFullYear()} Mefticaret</span>
+              <Link to="/en-iyi-e-ticaret-altyapisi" className="hover:text-foreground">
+                En iyi e-ticaret altyapısı rehberi
+              </Link>
               <span className="ml-auto">{footer.badge}</span>
             </div>
           </div>
