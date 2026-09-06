@@ -316,7 +316,8 @@ export function StorefrontChrome({
             <div style={{ color: muted, fontSize: 12, marginTop: 2 }}>{value(headerCfg, "tagline")}</div>
           ) : null}
         </div>
-        <nav className="sf-header-nav" style={{ display: "flex", gap: 18, fontSize: 13, color: muted }}>
+        <nav className="sf-header-nav" style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 13, color: muted }}>
+          <MegaMenu theme={t} storeSlug={storeSlug} />
           {headerItems.length ? (
             headerItems.map((item) => (
               <a
