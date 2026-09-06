@@ -2,9 +2,8 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { FavoriteButton } from "@/components/favorite-button";
-import { QuickAddButton } from "@/components/quick-add-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { WokieeProductCard } from "@/components/wokiee/product-card";
 import { formatMoney } from "@/lib/mefti";
 import { StorefrontSections } from "@/components/storefront-sections";
 import { resolveSections, type ThemeSectionRow } from "@/lib/theme-sections";
