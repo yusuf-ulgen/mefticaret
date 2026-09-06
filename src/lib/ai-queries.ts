@@ -10,7 +10,6 @@ export type AiProviderRow = {
   models: string[];
   default_model: string | null;
   requires_api_key: boolean;
-  api_key_secret_name: string | null;
   is_enabled: boolean;
   sort_order: number;
 };
@@ -45,7 +44,7 @@ export const aiProvidersQuery = () =>
       const { data, error } = await supabase
         .from("ai_providers")
         .select(
-          "id, code, name, description, models, default_model, requires_api_key, api_key_secret_name, is_enabled, sort_order",
+          "id, code, name, description, models, default_model, requires_api_key, is_enabled, sort_order",
         )
         .order("sort_order", { ascending: true });
       if (error) throw new Error(error.message);

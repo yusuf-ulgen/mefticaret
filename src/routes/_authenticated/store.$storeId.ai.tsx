@@ -453,7 +453,7 @@ function AiPage() {
                 <p className="pt-1 text-xs text-muted-foreground">{provider.description}</p>
                 {provider.requires_api_key ? (
                   <p className="pt-1 text-xs text-muted-foreground">
-                    Gerekli anahtar: <code>{provider.api_key_secret_name}</code>
+                    Bu sağlayıcı için platform yöneticisi tarafından anahtar tanımlanmalıdır.
                   </p>
                 ) : null}
               </article>
