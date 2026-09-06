@@ -38,7 +38,13 @@ const TX_ACCOUNT: Record<(typeof TX_KINDS)[number], "store" | "seller" | "platfo
   platform_fee: "platform",
 };
 
-async function assertStoreAccess(supabase: { from: typeof import("@/integrations/supabase/client").supabase.from }, storeId: string) {
+async function assertStoreAccess(
+  supabase: { from: typeof import("@/integrations/supabase/client").supabase.from },
+  storeId: string,
+  userId: string,
+) {
+  const { assertStoreManager } = await import("@/lib/store-access.server");
+  await assertStoreManager(supabase as never, storeId, userId);
   const { data, error } = await supabase.from("stores").select("id, currency").eq("id", storeId).maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
@@ -65,7 +71,7 @@ export const postLedgerEntry = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    const store = await assertStoreAccess(context.supabase as never, data.storeId);
+    const store = await assertStoreAccess(context.supabase as never, data.storeId, context.userId);
     const currency = (data.currency ?? store.currency ?? "TRY").toUpperCase();
 
     if (data.kind === "seller_earning" && !data.sellerId) {
@@ -129,7 +135,7 @@ export const reverseLedgerEntry = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase as never, data.storeId);
+    await assertStoreAccess(context.supabase as never, data.storeId, context.userId);
 
     const { data: original, error: readError } = await context.supabase
       .from("ledger_entries")
@@ -191,7 +197,7 @@ export const settleLedgerEntry = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase as never, data.storeId);
+    await assertStoreAccess(context.supabase as never, data.storeId, context.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
