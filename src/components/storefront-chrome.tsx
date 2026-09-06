@@ -10,6 +10,12 @@ import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import { LanguageSwitcher } from "@/components/storefront-language";
+import { storefrontUI } from "@/lib/storefront-ui";
+import { PredictiveSearch } from "@/components/wokiee/predictive-search";
+import { MegaMenu } from "@/components/wokiee/mega-menu";
+import { CartDrawer } from "@/components/wokiee/cart-drawer";
+import { QuickViewModal } from "@/components/wokiee/quick-view";
+import { MobileBottomNav } from "@/components/wokiee/mobile-bottom-nav";
 
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import { fontStack } from "@/lib/theme-presets";
@@ -242,7 +248,24 @@ export function StorefrontChrome({
       }}
     >
       <style dangerouslySetInnerHTML={{ __html: designCss(design) }} />
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+.sf-quickview { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+@media (max-width: 720px) {
+  .sf-quickview { grid-template-columns: minmax(0,1fr); }
+  .sf-mega { display: none; }
+  .sf-bottom-nav { display: grid !important; }
+  .sf-main { padding-bottom: 108px !important; }
+}
+@media (max-width: 640px) {
+  .sf-search { min-width: 0; width: 100%; }
+}
+`,
+        }}
+      />
       {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: customCss }} /> : null}
+
       <CookieConsent storeSlug={storeSlug} />
       <SiteKitScripts storeSlug={storeSlug} />
 
@@ -310,7 +333,8 @@ export function StorefrontChrome({
             <div style={{ color: muted, fontSize: 12, marginTop: 2 }}>{value(headerCfg, "tagline")}</div>
           ) : null}
         </div>
-        <nav className="sf-header-nav" style={{ display: "flex", gap: 18, fontSize: 13, color: muted }}>
+        <nav className="sf-header-nav" style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 13, color: muted }}>
+          <MegaMenu theme={t} storeSlug={storeSlug} />
           {headerItems.length ? (
             headerItems.map((item) => (
               <a
@@ -369,15 +393,7 @@ export function StorefrontChrome({
             </>
           )}
 
-          {flag(headerCfg, "showSearch") ? (
-            <Link
-              to="/s/$slug/search"
-              params={{ slug: storeSlug }}
-              style={{ color: muted, textDecoration: "none" }}
-            >
-              Arama
-            </Link>
-          ) : null}
+          {flag(headerCfg, "showSearch") ? <PredictiveSearch theme={t} storeSlug={storeSlug} /> : null}
 
           {flag(headerCfg, "showFavorites") ? (
             <Link
@@ -411,21 +427,25 @@ export function StorefrontChrome({
           ) : null}
 
           {flag(headerCfg, "showCart") ? (
-            <Link
-              to="/s/$slug/cart"
-              params={{ slug: storeSlug }}
+            <button
+              type="button"
+              onClick={() => storefrontUI.openCart()}
               style={{
                 color: text,
-                textDecoration: "none",
+                background: "transparent",
                 border: `1px solid ${border}`,
                 borderRadius: radius,
                 padding: "5px 12px",
                 fontWeight: 600,
+                fontSize: 13,
+                fontFamily: "inherit",
+                cursor: "pointer",
               }}
             >
               Sepet{cartCount ? ` (${cartCount})` : ""}
-            </Link>
+            </button>
           ) : null}
+
 
           <LanguageSwitcher storeSlug={storeSlug} color={muted} />
         </nav>
@@ -435,6 +455,12 @@ export function StorefrontChrome({
       <main className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>
         {children}
       </main>
+
+      <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
+      <QuickViewModal theme={t} storeSlug={storeSlug} />
+      <MobileBottomNav theme={t} storeSlug={storeSlug} />
+
+
 
       <footer
         style={{

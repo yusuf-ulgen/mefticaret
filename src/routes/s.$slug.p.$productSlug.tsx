@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 import { toast } from "sonner";
 
@@ -15,7 +15,9 @@ import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { recordRecentProduct } from "@/lib/recently-viewed";
-import { storefrontProductQuery } from "@/lib/storefront-queries";
+import { storefrontProductQuery, storefrontQuery } from "@/lib/storefront-queries";
+import { storefrontUI } from "@/lib/storefront-ui";
+import { ConversionBoosters, StickyAddToCartBar } from "@/components/wokiee/pdp-boosters";
 import { trackEvent } from "@/lib/track";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import {
@@ -150,6 +152,7 @@ function Fallback({ text }: { text: string }) {
 function ProductPage() {
   const { slug, productSlug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontProductQuery(slug, productSlug));
+  const { data: storefrontData } = useQuery(storefrontQuery(slug));
   const [variantId, setVariantId] = useState<string | null>(null);
   const cart = useCart();
   const favorites = useFavorites();
@@ -205,6 +208,24 @@ function ProductPage() {
       }))
     : Array.from(derived.entries()).map(([name, values]) => ({ name, values }))
   ).filter((group) => group.values.length > 0);
+
+  const commerce = storefrontData?.commerce;
+
+  function addToCart() {
+    if (!selected || !inStock) return;
+    cart.add({
+      storeSlug: store.slug,
+      variantId: selected.id,
+      productSlug: product.slug,
+      title: product.title,
+      variantTitle: selected.title,
+      price: Number(selected.price ?? product.base_price),
+      currency: product.currency,
+      maxStock: selected.stock ?? 0,
+    });
+    toast.success("Ürün sepete eklendi");
+    storefrontUI.openCart();
+  }
 
   const selectedOptions = (selected?.options ?? {}) as Record<string, string>;
   const pickOption = (name: string, value: string) => {
@@ -403,24 +424,17 @@ function ProductPage() {
               ))}
           </dl>
 
+          <ConversionBoosters
+            theme={t}
+            productId={product.id}
+            stock={selected?.stock ?? 0}
+            commerce={commerce}
+          />
+
           <button
             type="button"
             disabled={!inStock}
-            onClick={() => {
-              if (!selected) return;
-              cart.add({
-                storeSlug: store.slug,
-                variantId: selected.id,
-                productSlug: product.slug,
-                title: product.title,
-                variantTitle: selected.title,
-                price: Number(selected.price ?? product.base_price),
-                currency: product.currency,
-                maxStock: selected.stock ?? 0,
-              });
-              toast.success("Ürün sepete eklendi");
-              void navigate({ to: "/s/$slug/cart", params: { slug: store.slug } });
-            }}
+            onClick={addToCart}
             style={{
               marginTop: 24,
               width: "100%",
@@ -437,6 +451,16 @@ function ProductPage() {
           >
             {inStock ? "Sepete ekle" : "Stokta yok"}
           </button>
+
+          <StickyAddToCartBar
+            theme={t}
+            title={product.title}
+            price={Number(price)}
+            currency={product.currency}
+            disabled={!inStock}
+            onAdd={addToCart}
+          />
+
 
           {inStock ? null : (
             <StockAlertForm

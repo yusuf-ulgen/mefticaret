@@ -2,9 +2,8 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { FavoriteButton } from "@/components/favorite-button";
-import { QuickAddButton } from "@/components/quick-add-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { WokieeProductCard } from "@/components/wokiee/product-card";
 import { formatMoney } from "@/lib/mefti";
 import { StorefrontSections } from "@/components/storefront-sections";
 import { resolveSections, type ThemeSectionRow } from "@/lib/theme-sections";
@@ -220,70 +219,12 @@ function StorefrontHome() {
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: columns, gap: 18 }}>
             {filtered.map((product) => (
-              <Link
-                key={product.id}
-                to="/s/$slug/p/$productSlug"
-                params={{ slug: store.slug, productSlug: product.slug }}
-                style={{
-                  background: cardBg,
-                  border: `1px solid ${border}`,
-                  borderRadius: radius,
-                  padding: 16,
-                  textDecoration: "none",
-                  color: "inherit",
-                  display: "block",
-                  position: "relative",
-                }}
-              >
-                <FavoriteButton
-                  item={{
-                    storeSlug: store.slug,
-                    productSlug: product.slug,
-                    title: product.title,
-                    price: Number(product.base_price),
-                    currency: product.currency,
-                    image: product.coverUrl ?? null,
-                  }}
-                  border={border}
-                  cardBg={cardBg}
-                  accent={t.accent_color}
-                  muted={muted}
-                />
-                <div
-                  style={{
-                    height: 160,
-                    borderRadius: radius,
-                    overflow: "hidden",
-                    background: dark
-                      ? "linear-gradient(140deg, rgba(255,255,255,.12), rgba(255,255,255,.03))"
-                      : `linear-gradient(140deg, ${t.accent_color}22, ${t.primary_color}12)`,
-                    marginBottom: 14,
-                  }}
-                >
-                  {product.coverUrl ? (
-                    <img
-                      src={product.coverUrl}
-                      alt={product.title}
-                      loading="lazy"
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    />
-                  ) : null}
-                </div>
-                <div style={{ fontFamily: fonts.heading, fontWeight: 600, fontSize: 15 }}>{product.title}</div>
-                <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontWeight: 600 }}>{formatMoney(product.base_price, product.currency)}</span>
-                  {product.compare_at_price ? (
-                    <span style={{ color: muted, textDecoration: "line-through", fontSize: 13 }}>
-                      {formatMoney(product.compare_at_price, product.currency)}
-                    </span>
-                  ) : null}
-                </div>
-                <QuickAddButton storeSlug={store.slug} productSlug={product.slug} accent={t.accent_color} />
-              </Link>
+              <WokieeProductCard key={product.id} theme={t} storeSlug={store.slug} product={product} />
             ))}
           </div>
         )}
       </section>
+
         </>
       )}
     </StorefrontChrome>

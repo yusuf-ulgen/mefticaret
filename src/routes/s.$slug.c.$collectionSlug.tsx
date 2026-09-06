@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { WokieeProductCard } from "@/components/wokiee/product-card";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontCollectionQuery } from "@/lib/storefront-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
@@ -67,6 +68,7 @@ function CollectionPage() {
   const { t, fonts, muted, cardBg, border, radius, dark } = storefrontTokens(theme);
 
   const [sort, setSort] = useState<SortKey>("newest");
+  const [view, setView] = useState<"grid" | "list">("grid");
   const [type, setType] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -167,9 +169,18 @@ function CollectionPage() {
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
           />
+          <button
+            type="button"
+            onClick={() => setView((current) => (current === "grid" ? "list" : "grid"))}
+            style={{ ...controlStyle, cursor: "pointer" }}
+            aria-label="Görünümü değiştir"
+          >
+            {view === "grid" ? "☰ Liste görünümü" : "▦ Izgara görünümü"}
+          </button>
           <span style={{ fontSize: 12, color: muted, marginLeft: "auto" }}>
             {visible.length} / {products.length} ürün
           </span>
+
           {(type !== "all" || minPrice || maxPrice || sort !== "newest") && (
             <button
               type="button"
@@ -191,65 +202,23 @@ function CollectionPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+            gridTemplateColumns: view === "list" ? "minmax(0,1fr)" : "repeat(auto-fill, minmax(220px, 1fr))",
             gap: 18,
             paddingBottom: 40,
           }}
         >
           {visible.map((product) => (
-            <Link
+            <WokieeProductCard
               key={product.id}
-              to="/s/$slug/p/$productSlug"
-              params={{ slug: store.slug, productSlug: product.slug }}
-              style={{
-                background: cardBg,
-                border: `1px solid ${border}`,
-                borderRadius: radius,
-                padding: 16,
-                textDecoration: "none",
-                color: "inherit",
-                display: "block",
-                position: "relative",
-              }}
-            >
-              <FavoriteButton
-                item={{
-                  storeSlug: store.slug,
-                  productSlug: product.slug,
-                  title: product.title,
-                  price: Number(product.base_price),
-                  currency: product.currency,
-                  image: null,
-                }}
-                border={border}
-                cardBg={cardBg}
-                accent={t.accent_color}
-                muted={muted}
-              />
-              <div
-                style={{
-                  height: 160,
-                  borderRadius: radius,
-                  background: dark
-                    ? "linear-gradient(140deg, rgba(255,255,255,.12), rgba(255,255,255,.03))"
-                    : `linear-gradient(140deg, ${t.accent_color}22, ${t.primary_color}12)`,
-                  marginBottom: 14,
-                }}
-              />
-              <div style={{ fontFamily: fonts.heading, fontWeight: 600, fontSize: 15 }}>{product.title}</div>
-              <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontWeight: 600 }}>{formatMoney(product.base_price, product.currency)}</span>
-                {product.compare_at_price ? (
-                  <span style={{ color: muted, textDecoration: "line-through", fontSize: 13 }}>
-                    {formatMoney(product.compare_at_price, product.currency)}
-                  </span>
-                ) : null}
-              </div>
-              <QuickAddButton storeSlug={store.slug} productSlug={product.slug} accent={t.accent_color} />
-            </Link>
+              theme={t}
+              storeSlug={store.slug}
+              product={product}
+              view={view}
+            />
           ))}
         </div>
         )}
+
         </>
       )}
     </StorefrontChrome>
