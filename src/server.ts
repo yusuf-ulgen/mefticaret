@@ -9,6 +9,18 @@ type ServerEntry = {
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
+// Tarayıcı isteği iptal ettiğinde ("aborted") bu bir uygulama hatası değildir.
+function isClientAbortError(error: unknown): boolean {
+  if (error == null) return false;
+  const err = error as { name?: unknown; message?: unknown; code?: unknown };
+  return (
+    err.name === "AbortError" ||
+    err.code === "ECONNRESET" ||
+    err.code === "ABORT_ERR" ||
+    (typeof err.message === "string" && /^(aborted|The user aborted a request\.)$/.test(err.message))
+  );
+}
+
 async function getServerEntry(): Promise<ServerEntry> {
   if (!serverEntryPromise) {
     serverEntryPromise = import("@tanstack/react-start/server-entry").then(
@@ -51,6 +63,10 @@ export default {
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
+      // İstemci bağlantıyı kapattıysa (sayfadan ayrılma/yenileme) hata raporlamayız.
+      if (isClientAbortError(error) || request.signal?.aborted) {
+        return new Response(null, { status: 499 });
+      }
       console.error(error);
       return new Response(renderErrorPage(), {
         status: 500,
