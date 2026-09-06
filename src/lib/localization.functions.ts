@@ -17,7 +17,7 @@ export const saveLocalizationSettings = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         defaultLocale: z.enum(LOCALES),
         supportedLocales: z.array(z.enum(LOCALES)).min(1),
         baseCurrency: z.enum(CURRENCIES),
@@ -72,7 +72,7 @@ export const saveCurrencyRate = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         baseCurrency: z.enum(CURRENCIES),
         quoteCurrency: z.enum(CURRENCIES),
         rate: z.number().positive().max(1_000_000),
@@ -108,7 +108,7 @@ export const refreshCurrencyRates = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         baseCurrency: z.enum(CURRENCIES),
         quoteCurrencies: z.array(z.enum(CURRENCIES)).min(1),
       })
@@ -153,8 +153,8 @@ export const saveTaxClass = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        classId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        classId: z.guid().optional(),
         name: z.string().trim().min(1).max(60),
         code: z
           .string()
@@ -200,7 +200,7 @@ export const saveTaxClass = createServerFn({ method: "POST" })
 export const deleteTaxClass = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), classId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), classId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -217,10 +217,10 @@ export const saveTaxRule = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        ruleId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        ruleId: z.guid().optional(),
         name: z.string().trim().min(1).max(80),
-        taxClassId: z.string().uuid().nullable().default(null),
+        taxClassId: z.guid().nullable().default(null),
         countryCode: z.string().trim().max(2).nullable().default(null),
         region: z.string().trim().max(80).nullable().default(null),
         rate: z.number().min(0).max(100),
@@ -254,7 +254,7 @@ export const saveTaxRule = createServerFn({ method: "POST" })
 export const deleteTaxRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), ruleId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), ruleId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase

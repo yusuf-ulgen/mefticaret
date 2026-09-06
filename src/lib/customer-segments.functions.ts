@@ -11,8 +11,8 @@ import { insertAuditRow } from "./audit.server";
  */
 
 const segmentInput = z.object({
-  storeId: z.string().uuid(),
-  segmentId: z.string().uuid().optional(),
+  storeId: z.guid(),
+  segmentId: z.guid().optional(),
   name: z.string().trim().min(2).max(60),
   description: z.string().trim().max(400).optional(),
   color: z.enum(["slate", "primary", "emerald", "amber", "sky", "rose"]).default("slate"),
@@ -83,7 +83,7 @@ export const saveCustomerSegment = createServerFn({ method: "POST" })
 export const deleteCustomerSegment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), segmentId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), segmentId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -108,7 +108,7 @@ export const deleteCustomerSegment = createServerFn({ method: "POST" })
 /** Hazır segment şablonlarını (yeni, sadık, VIP, yüksek değerli, pasif) oluşturur. */
 export const seedDefaultSegments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
 

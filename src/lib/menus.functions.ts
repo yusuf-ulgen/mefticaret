@@ -16,8 +16,8 @@ export const saveMenuItem = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        itemId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        itemId: z.guid().optional(),
         location: z.enum(["header", "footer"]),
         label: z.string().trim().min(1).max(60),
         kind: kindSchema,
@@ -73,7 +73,7 @@ export const saveMenuItem = createServerFn({ method: "POST" })
 export const deleteMenuItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), itemId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), itemId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -100,9 +100,9 @@ export const reorderMenuItems = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         items: z
-          .array(z.object({ id: z.string().uuid(), position: z.number().int().min(0).max(999) }))
+          .array(z.object({ id: z.guid(), position: z.number().int().min(0).max(999) }))
           .min(1)
           .max(60),
       })
@@ -123,7 +123,7 @@ export const reorderMenuItems = createServerFn({ method: "POST" })
 
 export const seedDefaultMenu = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const rows = [

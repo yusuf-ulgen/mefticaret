@@ -16,7 +16,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const nullable = (value?: string | null) => (value && value.trim().length > 0 ? value.trim() : null);
 
 const applyInput = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   displayName: z.string().trim().min(2).max(120),
   legalName: z.string().trim().max(160).optional(),
   email: z.string().trim().email().max(160).optional(),
@@ -52,7 +52,7 @@ export const applyAsSeller = createServerFn({ method: "POST" })
   });
 
 const profileInput = z.object({
-  sellerId: z.string().uuid(),
+  sellerId: z.guid(),
   displayName: z.string().trim().min(2).max(120),
   legalName: z.string().trim().max(160).optional(),
   email: z.string().trim().email().max(160).optional(),
@@ -84,7 +84,7 @@ export const updateSellerProfile = createServerFn({ method: "POST" })
   });
 
 const reviewInput = z.object({
-  sellerId: z.string().uuid(),
+  sellerId: z.guid(),
   status: z.enum(["pending", "approved", "rejected", "suspended"]),
   reason: z.string().trim().max(500).optional(),
   commissionRate: z.number().min(0).max(0.9).optional(),
@@ -130,9 +130,9 @@ export const assignProductSeller = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        productId: z.string().uuid(),
-        sellerId: z.string().uuid().nullable(),
+        storeId: z.guid(),
+        productId: z.guid(),
+        sellerId: z.guid().nullable(),
       })
       .parse(data),
   )
@@ -152,7 +152,7 @@ export const updateSellerVariant = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        variantId: z.string().uuid(),
+        variantId: z.guid(),
         stock: z.number().int().min(0).max(1_000_000).optional(),
         price: z.number().min(0).max(10_000_000).optional(),
       })
@@ -178,7 +178,7 @@ export const requestSellerPayout = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        sellerId: z.string().uuid(),
+        sellerId: z.guid(),
         amount: z.number().positive().max(10_000_000),
         iban: z.string().trim().max(40).optional(),
         note: z.string().trim().max(400).optional(),
@@ -251,7 +251,7 @@ export const reviewPayoutRequest = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        requestId: z.string().uuid(),
+        requestId: z.guid(),
         status: z.enum(["pending", "processing", "paid", "failed"]),
         adminNote: z.string().trim().max(400).optional(),
       })

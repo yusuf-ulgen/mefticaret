@@ -17,23 +17,23 @@ import {
 
 type Client = SupabaseClient<Database>;
 
-export const storeIdSchema = z.object({ storeId: z.string().uuid() });
+export const storeIdSchema = z.object({ storeId: z.guid() });
 
 export const saveSiteKitSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   provider: z.enum(SITE_KIT_PROVIDER_IDS as [string, ...string[]]),
   isEnabled: z.boolean(),
   values: z.record(z.string(), z.string().trim().max(4000)),
 });
 
 export const toggleSiteKitSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   provider: z.enum(SITE_KIT_PROVIDER_IDS as [string, ...string[]]),
   isEnabled: z.boolean(),
 });
 
 export const testSiteKitSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   provider: z.enum(SITE_KIT_PROVIDER_IDS as [string, ...string[]]),
 });
 

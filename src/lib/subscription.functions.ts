@@ -24,7 +24,7 @@ export const savePlanFeatures = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ planId: z.string().uuid(), features: z.array(featureSchema).max(60) })
+      .object({ planId: z.guid(), features: z.array(featureSchema).max(60) })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -82,8 +82,8 @@ export const upsertSubscription = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        planId: z.string().uuid(),
+        storeId: z.guid(),
+        planId: z.guid(),
         billingInterval: z.enum(["monthly", "yearly"]),
         startTrial: z.boolean().default(false),
       })
@@ -188,7 +188,7 @@ export const upsertSubscription = createServerFn({ method: "POST" })
 export const setSubscriptionCancellation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), cancel: z.boolean() }).parse(data),
+    z.object({ storeId: z.guid(), cancel: z.boolean() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -223,7 +223,7 @@ export const recordUsage = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         metricKey: z.string().min(2).max(40),
         quantity: z.number().min(-1_000_000).max(1_000_000),
       })
@@ -257,7 +257,7 @@ export const recordUsage = createServerFn({ method: "POST" })
 export const issueInvoiceForCycle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), cycleId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), cycleId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -331,7 +331,7 @@ export const issueInvoiceForCycle = createServerFn({ method: "POST" })
 export const markInvoicePaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), invoiceId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), invoiceId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;

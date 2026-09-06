@@ -13,7 +13,7 @@ import { callProvider, loadStoreAiSettings, monthlyTokenUsage } from "@/lib/ai.s
 type Client = SupabaseClient<Database>;
 
 export const blogDraftSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   topic: z.string().trim().min(3).max(200),
   keywords: z.string().trim().max(300).optional().default(""),
   tone: z.enum(["premium", "samimi", "teknik", "minimal"]).default("premium"),

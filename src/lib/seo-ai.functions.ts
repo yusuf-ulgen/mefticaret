@@ -57,7 +57,7 @@ export const saveSeoAiConfig = createServerFn({ method: "POST" })
 export const runSeoAiNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) =>
-    z.object({ storeId: z.string().uuid().nullish() }).parse(data ?? {}),
+    z.object({ storeId: z.guid().nullish() }).parse(data ?? {}),
   )
   .handler(async ({ data, context }) => {
     await guard(context.supabase, context.userId);

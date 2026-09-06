@@ -50,7 +50,7 @@ export const postLedgerEntry = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         kind: z.enum(TX_KINDS),
         amount: z.number().positive().max(100_000_000),
         currency: z.string().trim().length(3).optional(),
@@ -58,9 +58,9 @@ export const postLedgerEntry = createServerFn({ method: "POST" })
         description: z.string().trim().max(500).optional(),
         status: z.enum(["pending", "posted"]).default("posted"),
         occurredAt: z.string().optional(),
-        orderId: z.string().uuid().optional(),
-        sellerId: z.string().uuid().optional(),
-        customerId: z.string().uuid().optional(),
+        orderId: z.guid().optional(),
+        sellerId: z.guid().optional(),
+        customerId: z.guid().optional(),
       })
       .parse(data),
   )
@@ -122,8 +122,8 @@ export const reverseLedgerEntry = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        entryId: z.string().uuid(),
+        storeId: z.guid(),
+        entryId: z.guid(),
         reason: z.string().trim().max(300).optional(),
       })
       .parse(data),
@@ -183,8 +183,8 @@ export const settleLedgerEntry = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        entryId: z.string().uuid(),
+        storeId: z.guid(),
+        entryId: z.guid(),
         status: z.enum(["posted", "cancelled", "failed"]),
         reference: z.string().trim().max(120).optional(),
       })

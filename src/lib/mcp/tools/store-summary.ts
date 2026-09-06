@@ -8,7 +8,7 @@ export default defineTool({
   description:
     "Bir mağaza için son X gündeki sipariş sayısı, ciro, aktif ürün sayısı ve bekleyen sipariş sayısını döndürür.",
   inputSchema: {
-    store_id: z.string().uuid().describe("Mağaza kimliği."),
+    store_id: z.guid().describe("Mağaza kimliği."),
     days: z.number().int().min(1).max(365).default(30).optional().describe("Kaç günlük dönem."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },

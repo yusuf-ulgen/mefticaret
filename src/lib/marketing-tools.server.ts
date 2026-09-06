@@ -7,13 +7,13 @@ import { FEED_KINDS, POPUP_ANIMATIONS, POPUP_POSITIONS, STORY_CHANNELS } from "@
 
 type Client = SupabaseClient<Database>;
 
-export const storeIdSchema = z.object({ storeId: z.string().uuid() });
+export const storeIdSchema = z.object({ storeId: z.guid() });
 
 /* ------------------------------- Popups -------------------------------- */
 
 export const popupInputSchema = z.object({
-  id: z.string().uuid().optional(),
-  storeId: z.string().uuid(),
+  id: z.guid().optional(),
+  storeId: z.guid(),
   name: z.string().trim().min(2).max(120),
   isActive: z.boolean().default(false),
   animation: z.enum(POPUP_ANIMATIONS).default("fade"),
@@ -58,7 +58,7 @@ export async function upsertPopup(supabase: Client, input: z.infer<typeof popupI
   return data;
 }
 
-export const popupIdSchema = z.object({ storeId: z.string().uuid(), id: z.string().uuid() });
+export const popupIdSchema = z.object({ storeId: z.guid(), id: z.guid() });
 
 export async function deletePopup(supabase: Client, input: z.infer<typeof popupIdSchema>) {
   const { error } = await supabase.from("store_popups").delete().eq("id", input.id).eq("store_id", input.storeId);
@@ -66,7 +66,7 @@ export async function deletePopup(supabase: Client, input: z.infer<typeof popupI
   return { ok: true as const };
 }
 
-export const togglePopupSchema = z.object({ storeId: z.string().uuid(), id: z.string().uuid(), isActive: z.boolean() });
+export const togglePopupSchema = z.object({ storeId: z.guid(), id: z.guid(), isActive: z.boolean() });
 
 export async function togglePopup(supabase: Client, input: z.infer<typeof togglePopupSchema>) {
   const { error } = await supabase
@@ -81,9 +81,9 @@ export async function togglePopup(supabase: Client, input: z.infer<typeof toggle
 /* ------------------------------- Stories -------------------------------- */
 
 export const storyInputSchema = z.object({
-  id: z.string().uuid().optional(),
-  storeId: z.string().uuid(),
-  productId: z.string().uuid().optional().nullable(),
+  id: z.guid().optional(),
+  storeId: z.guid(),
+  productId: z.guid().optional().nullable(),
   channel: z.enum(STORY_CHANNELS),
   caption: z.string().trim().max(2200).default(""),
   imageUrl: z.string().trim().max(500).optional().nullable(),
@@ -107,7 +107,7 @@ export async function upsertStory(supabase: Client, input: z.infer<typeof storyI
   return data;
 }
 
-export const storyIdSchema = z.object({ storeId: z.string().uuid(), id: z.string().uuid() });
+export const storyIdSchema = z.object({ storeId: z.guid(), id: z.guid() });
 
 export async function deleteStory(supabase: Client, input: z.infer<typeof storyIdSchema>) {
   const { error } = await supabase.from("store_stories").delete().eq("id", input.id).eq("store_id", input.storeId);
@@ -153,7 +153,7 @@ export async function publishStory(supabase: Client, input: z.infer<typeof story
 /* ---------------------------- Product feeds ------------------------------ */
 
 export const feedInputSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   kind: z.enum(FEED_KINDS),
   isActive: z.boolean().default(true),
   currency: z.string().trim().length(3).default("TRY"),
@@ -181,7 +181,7 @@ export async function saveProductFeed(supabase: Client, input: z.infer<typeof fe
   return data;
 }
 
-export const feedIdSchema = z.object({ storeId: z.string().uuid(), id: z.string().uuid() });
+export const feedIdSchema = z.object({ storeId: z.guid(), id: z.guid() });
 
 export async function rebuildProductFeed(supabase: Client, input: z.infer<typeof feedIdSchema>) {
   const { data: feed, error: feedError } = await supabase

@@ -7,12 +7,12 @@ import { insertAuditRow } from "./audit.server";
 /** Platform yönetim fonksiyonları: mağaza durumu ve paket tanımları (RLS + rol kontrolü). */
 
 const storeStatusSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   status: z.enum(["draft", "active", "suspended", "archived"]),
 });
 
 const planSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: z.guid().optional(),
   code: z
     .string()
     .min(2)

@@ -10,8 +10,8 @@ export const sendCopilotMessage = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        conversationId: z.string().uuid().nullish(),
+        storeId: z.guid(),
+        conversationId: z.guid().nullish(),
         message: z.string().trim().min(2).max(4000),
       })
       .parse(data),
@@ -29,7 +29,7 @@ export const sendCopilotMessage = createServerFn({ method: "POST" })
 
 export const getCopilotContext = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { collectCopilotContext } = await import("@/lib/copilot.server");
     const result = await collectCopilotContext(context.supabase, data.storeId);
@@ -41,7 +41,7 @@ export const renameCopilotConversation = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        conversationId: z.string().uuid(),
+        conversationId: z.guid(),
         title: z.string().trim().min(1).max(120),
       })
       .parse(data),
@@ -57,7 +57,7 @@ export const renameCopilotConversation = createServerFn({ method: "POST" })
 
 export const deleteCopilotConversation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ conversationId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ conversationId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("copilot_conversations")

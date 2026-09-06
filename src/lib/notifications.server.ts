@@ -6,7 +6,7 @@ import { NOTIFICATION_KINDS, defaultNotificationSetting } from "@/lib/notificati
 
 type Client = SupabaseClient<Database>;
 
-export const storeIdSchema = z.object({ storeId: z.string().uuid() });
+export const storeIdSchema = z.object({ storeId: z.guid() });
 
 const optionalText = z
   .string()
@@ -16,7 +16,7 @@ const optionalText = z
   .transform((value) => (value && value.length > 0 ? value : null));
 
 export const saveSettingSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   kind: z.enum(NOTIFICATION_KINDS),
   inApp: z.boolean(),
   email: z.boolean(),
@@ -29,7 +29,7 @@ export const saveSettingSchema = z.object({
 });
 
 export const systemNotificationSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   kind: z.enum(["system", "app_update"]),
   title: z.string().trim().min(3).max(160),
   message: z.string().trim().max(500).optional(),

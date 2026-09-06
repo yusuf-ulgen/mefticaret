@@ -11,7 +11,7 @@ import { SEARCH_KINDS, type SearchHit } from "@/lib/search";
  */
 
 const searchInput = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   term: z.string().trim().max(120),
   kinds: z.array(z.enum(SEARCH_KINDS)).optional(),
   limit: z.number().int().min(1).max(50).optional(),

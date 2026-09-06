@@ -10,7 +10,7 @@ export const runAiAssistant = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         task: z.string().trim().min(2).max(60),
         values: z.record(z.string(), z.string().max(6000)).default({}),
       })
@@ -38,7 +38,7 @@ export const saveStoreAiSettings = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         providerCode: z.string().trim().min(2).max(40),
         model: z.string().trim().min(2).max(120),
         creativity: z.number().min(0).max(1),
@@ -71,7 +71,7 @@ export const saveStoreAiSettings = createServerFn({ method: "POST" })
 
 export const setAiProviderEnabled = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ providerId: z.string().uuid(), isEnabled: z.boolean() }).parse(data))
+  .inputValidator((data) => z.object({ providerId: z.guid(), isEnabled: z.boolean() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("ai_providers")
@@ -86,7 +86,7 @@ export const generateProductCopy = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         title: z.string().trim().min(2).max(160),
         audience: z.string().trim().max(200).optional(),
         keywords: z.string().trim().max(300).optional(),
@@ -114,7 +114,7 @@ export const generateProductCopy = createServerFn({ method: "POST" })
 export const generateStoreInsight = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), days: z.number().int().min(7).max(180).default(30) }).parse(data),
+    z.object({ storeId: z.guid(), days: z.number().int().min(7).max(180).default(30) }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { runAiTask } = await import("@/lib/ai.server");

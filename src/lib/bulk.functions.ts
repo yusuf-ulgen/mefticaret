@@ -22,7 +22,7 @@ export const importProducts = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         rows: z.array(rowSchema).min(1).max(500),
       })
       .parse(data),
@@ -107,7 +107,7 @@ const operationSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("collections"),
     mode: z.enum(["add", "remove", "replace"]),
-    collectionIds: z.array(z.string().uuid()).max(30),
+    collectionIds: z.array(z.guid()).max(30),
   }),
   z.object({
     kind: z.literal("fields"),
@@ -124,8 +124,8 @@ export const bulkUpdateProducts = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        productIds: z.array(z.string().uuid()).min(1).max(500),
+        storeId: z.guid(),
+        productIds: z.array(z.guid()).min(1).max(500),
         operation: operationSchema,
       })
       .parse(data),

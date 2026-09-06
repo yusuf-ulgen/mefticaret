@@ -7,27 +7,27 @@ import { WEBHOOK_EVENTS, WEBHOOK_RETRY_BACKOFF_MINUTES } from "@/lib/webhook-eve
 
 type Client = SupabaseClient<Database>;
 
-export const storeIdSchema = z.object({ storeId: z.string().uuid() });
+export const storeIdSchema = z.object({ storeId: z.guid() });
 
 export const saveWebhookSchema = z.object({
-  id: z.string().uuid().optional(),
-  storeId: z.string().uuid(),
+  id: z.guid().optional(),
+  storeId: z.guid(),
   name: z.string().trim().min(2).max(120),
   targetUrl: z.string().trim().url().max(500),
   events: z.array(z.enum(WEBHOOK_EVENTS)).min(1),
   isActive: z.boolean().default(true),
 });
 
-export const idSchema = z.object({ id: z.string().uuid() });
+export const idSchema = z.object({ id: z.guid() });
 
 export const retryDeliverySchema = z.object({
-  storeId: z.string().uuid(),
-  deliveryId: z.string().uuid(),
+  storeId: z.guid(),
+  deliveryId: z.guid(),
 });
 
 export const markReadSchema = z.object({
-  storeId: z.string().uuid(),
-  id: z.string().uuid().optional(),
+  storeId: z.guid(),
+  id: z.guid().optional(),
 });
 
 export function signPayload(secret: string, body: string) {

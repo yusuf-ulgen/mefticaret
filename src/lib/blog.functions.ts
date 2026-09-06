@@ -39,8 +39,8 @@ export const saveBlogCategory = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        categoryId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        categoryId: z.guid().optional(),
         name: z.string().trim().min(2).max(80),
         slug: z.string().trim().max(80).optional(),
         description: z.string().trim().max(400).optional(),
@@ -85,8 +85,8 @@ export const saveBlogTag = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        tagId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        tagId: z.guid().optional(),
         name: z.string().trim().min(2).max(60),
         slug: z.string().trim().max(60).optional(),
       })
@@ -118,8 +118,8 @@ export const saveBlogAuthor = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        authorId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        authorId: z.guid().optional(),
         name: z.string().trim().min(2).max(120),
         slug: z.string().trim().max(120).optional(),
         title: z.string().trim().max(120).optional(),
@@ -164,9 +164,9 @@ export const deleteBlogTaxonomy = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         kind: z.enum(["category", "tag", "author"]),
-        id: z.string().uuid(),
+        id: z.guid(),
       })
       .parse(data),
   )
@@ -186,7 +186,7 @@ export const deleteBlogTaxonomy = createServerFn({ method: "POST" })
 /** Zamanı gelen yazıları hemen yayına al (manuel tetikleme). */
 export const publishDuePosts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const nowIso = new Date().toISOString();

@@ -106,7 +106,7 @@ export const updateStore = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         patch: z
           .object({
             name: z.string().trim().min(2).max(60).optional(),
@@ -154,7 +154,7 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         patch: z
           .object({
             contact_email: z.string().trim().email().or(z.literal("")).optional(),
@@ -222,7 +222,7 @@ export const addStoreSubdomain = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         label: z
           .string()
           .trim()
@@ -278,7 +278,7 @@ export const addStoreDomain = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         hostname: z
           .string()
           .trim()
@@ -339,7 +339,7 @@ export const addStoreDomain = createServerFn({ method: "POST" })
  */
 export const verifyStoreDomain = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ domainId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ domainId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: domain } = await supabase
@@ -406,7 +406,7 @@ export const verifyStoreDomain = createServerFn({ method: "POST" })
 /** SSL sertifikasını yeniler / yeniden dener (ACME provizyon tetikleyicisi). */
 export const provisionDomainSsl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ domainId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ domainId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: domain } = await supabase
@@ -451,7 +451,7 @@ export const setDomainRedirect = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        domainId: z.string().uuid(),
+        domainId: z.guid(),
         redirectTo: z.string().trim().toLowerCase().max(253).nullable(),
       })
       .parse(data),
@@ -472,7 +472,7 @@ export const setDomainRedirect = createServerFn({ method: "POST" })
 export const setPrimaryDomain = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), domainId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), domainId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -509,7 +509,7 @@ export const setPrimaryDomain = createServerFn({ method: "POST" })
 
 export const removeStoreDomain = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ domainId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ domainId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: domain } = await supabase
@@ -541,7 +541,7 @@ export const updateStoreMember = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        memberId: z.string().uuid(),
+        memberId: z.guid(),
         role: z.enum(["admin", "staff", "marketing", "support"]),
       })
       .parse(data),

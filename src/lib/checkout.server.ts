@@ -14,7 +14,7 @@ export const checkoutOptionsSchema = z.object({ slug: z.string().trim().min(1).m
 export const placeOrderSchema = z.object({
   slug: z.string().trim().min(1).max(120),
   items: z
-    .array(z.object({ variantId: z.string().uuid(), quantity: z.number().int().min(1).max(50) }))
+    .array(z.object({ variantId: z.guid(), quantity: z.number().int().min(1).max(50) }))
     .min(1)
     .max(30),
   customer: z.object({
@@ -42,8 +42,8 @@ export const placeOrderSchema = z.object({
       postalCode: z.string().trim().max(20).optional(),
     })
     .optional(),
-  shippingRateId: z.string().uuid().optional(),
-  paymentMethodId: z.string().uuid().optional(),
+  shippingRateId: z.guid().optional(),
+  paymentMethodId: z.guid().optional(),
   discountCode: z.string().trim().max(60).optional(),
   giftCardCode: z.string().trim().max(60).optional(),
   note: z.string().trim().max(500).optional(),
@@ -296,11 +296,11 @@ async function priceCart(
 export const quoteCheckoutSchema = z.object({
   slug: z.string().trim().min(1).max(120),
   items: z
-    .array(z.object({ variantId: z.string().uuid(), quantity: z.number().int().min(1).max(50) }))
+    .array(z.object({ variantId: z.guid(), quantity: z.number().int().min(1).max(50) }))
     .min(1)
     .max(30),
-  shippingRateId: z.string().uuid().optional(),
-  paymentMethodId: z.string().uuid().optional(),
+  shippingRateId: z.guid().optional(),
+  paymentMethodId: z.guid().optional(),
   discountCode: z.string().trim().max(60).optional(),
   giftCardCode: z.string().trim().max(60).optional(),
 });

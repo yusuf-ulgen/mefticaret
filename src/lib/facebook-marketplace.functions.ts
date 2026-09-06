@@ -11,7 +11,7 @@ import { FB_CONDITIONS } from "@/lib/facebook-marketplace";
  * Erişim anahtarları yalnızca sunucuda işlenir ve hiçbir yanıtla dönmez.
  */
 
-const storeScope = z.object({ storeId: z.string().uuid() });
+const storeScope = z.object({ storeId: z.guid() });
 
 async function assertStoreAccess(
   supabase: SupabaseClient<Database>,
@@ -178,7 +178,7 @@ export const previewMarketplaceItems = createServerFn({ method: "POST" })
 /** Tek ilanı Marketplace'ten kaldırır. */
 export const removeMarketplaceItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => storeScope.extend({ listingId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => storeScope.extend({ listingId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     await assertStoreAccess(context.supabase, data.storeId);
     const [{ supabaseAdmin }, { removeMarketplaceListing }] = await Promise.all([

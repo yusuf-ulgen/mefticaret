@@ -5,7 +5,7 @@ import { z } from "zod";
 const itemSchema = z.record(z.string().max(60), z.string().max(2000));
 
 export const sectionSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: z.guid().optional(),
   sectionKey: z
     .string()
     .trim()
@@ -27,10 +27,10 @@ export const sectionSchema = z.object({
 });
 
 export const reorderSchema = z.object({
-  order: z.array(z.object({ id: z.string().uuid(), sortOrder: z.number().int().min(0).max(10000) })).max(100),
+  order: z.array(z.object({ id: z.guid(), sortOrder: z.number().int().min(0).max(10000) })).max(100),
 });
 
-export const deleteSchema = z.object({ id: z.string().uuid() });
+export const deleteSchema = z.object({ id: z.guid() });
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

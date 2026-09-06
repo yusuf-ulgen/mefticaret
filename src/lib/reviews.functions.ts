@@ -15,7 +15,7 @@ export const submitReview = createServerFn({ method: "POST" })
     z
       .object({
         storeSlug: z.string().trim().min(1).max(120),
-        productId: z.string().uuid(),
+        productId: z.guid(),
         rating: z.number().int().min(1).max(5),
         title: z.string().trim().max(120).optional(),
         body: z.string().trim().max(2000).optional(),
@@ -85,7 +85,7 @@ export const moderateReview = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        reviewId: z.string().uuid(),
+        reviewId: z.guid(),
         status: z.enum(["pending", "published", "rejected"]).optional(),
         reply: z.string().trim().max(1000).optional(),
       })
@@ -124,7 +124,7 @@ export const moderateReview = createServerFn({ method: "POST" })
 
 export const deleteReview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ reviewId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ reviewId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: review, error } = await supabase

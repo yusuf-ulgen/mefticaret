@@ -28,10 +28,10 @@ function safeEqual(a: string, b: string) {
   return timingSafeEqual(left, right);
 }
 
-export const storeScopeSchema = z.object({ storeId: z.string().uuid() });
+export const storeScopeSchema = z.object({ storeId: z.guid() });
 
 export const createClientSchema = z.object({
-  storeId: z.string().uuid(),
+  storeId: z.guid(),
   name: z.string().trim().min(2).max(120),
   description: z.string().trim().max(500).optional(),
   redirectUris: z.array(z.string().trim().url().max(400)).max(10).default([]),
@@ -41,13 +41,13 @@ export const createClientSchema = z.object({
 });
 
 export const clientIdSchema = z.object({
-  storeId: z.string().uuid(),
-  id: z.string().uuid(),
+  storeId: z.guid(),
+  id: z.guid(),
 });
 
 export const tokenIdSchema = z.object({
-  storeId: z.string().uuid(),
-  id: z.string().uuid(),
+  storeId: z.guid(),
+  id: z.guid(),
 });
 
 export const authorizeSchema = z.object({

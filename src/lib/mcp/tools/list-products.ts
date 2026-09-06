@@ -7,7 +7,7 @@ export default defineTool({
   title: "Ürünleri listele",
   description: "Belirtilen mağazanın ürünlerini listeler; başlığa göre arama yapılabilir.",
   inputSchema: {
-    store_id: z.string().uuid().describe("Mağaza kimliği (list_stores ile alınır)."),
+    store_id: z.guid().describe("Mağaza kimliği (list_stores ile alınır)."),
     search: z.string().trim().min(1).optional().describe("Ürün başlığında geçen metin."),
     limit: z.number().int().min(1).max(100).default(20).optional(),
   },

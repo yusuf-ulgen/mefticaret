@@ -15,7 +15,7 @@ const codes = THEME_TEMPLATES.map((template) => template.code) as [string, ...st
 export const applyThemeTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), code: z.enum(codes) }).parse(data),
+    z.object({ storeId: z.guid(), code: z.enum(codes) }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const template = TEMPLATE_BY_CODE.get(data.code);

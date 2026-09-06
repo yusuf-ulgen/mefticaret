@@ -13,7 +13,7 @@ export const saveWhatsAppAccount = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         displayPhone: z.string().trim().min(6).max(30),
         phoneNumberId: z.string().trim().min(3).max(64),
         wabaId: z.string().trim().max(64).optional(),
@@ -48,7 +48,7 @@ export const sendWhatsApp = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         waId: z.string().trim().min(6).max(30),
         body: z.string().trim().min(1).max(3000),
         templateName: z.string().trim().max(120).optional(),
@@ -71,7 +71,7 @@ export const sendWhatsApp = createServerFn({ method: "POST" })
 export const markConversationRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), conversationId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), conversationId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -88,8 +88,8 @@ export const saveAutoReply = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        replyId: z.string().uuid().optional(),
+        storeId: z.guid(),
+        replyId: z.guid().optional(),
         keyword: z.string().trim().min(2).max(80),
         matchType: z.enum(["contains", "exact", "starts_with"]).default("contains"),
         replyBody: z.string().trim().min(2).max(1000),
@@ -125,7 +125,7 @@ export const saveAutoReply = createServerFn({ method: "POST" })
 export const deleteAutoReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), replyId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), replyId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -143,8 +143,8 @@ export const sendOrderNotification = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        orderId: z.string().uuid(),
+        storeId: z.guid(),
+        orderId: z.guid(),
         kind: z.enum(["order", "shipment"]),
       })
       .parse(data),
@@ -182,7 +182,7 @@ export const sendWhatsAppCampaign = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         body: z.string().trim().min(2).max(3000),
         templateName: z.string().trim().max(120).optional(),
         waIds: z.array(z.string().trim().min(6).max(30)).min(1).max(200),

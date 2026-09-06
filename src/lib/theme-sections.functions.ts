@@ -36,7 +36,7 @@ function normalizeSettings(type: ThemeSectionType, input: Record<string, string 
 export const addThemeSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), type: z.enum(sectionTypes) }).parse(data),
+    z.object({ storeId: z.guid(), type: z.enum(sectionTypes) }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const definition = SECTION_BY_TYPE.get(data.type)!;
@@ -73,8 +73,8 @@ export const updateThemeSection = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        sectionId: z.string().uuid(),
+        storeId: z.guid(),
+        sectionId: z.guid(),
         type: z.enum(sectionTypes),
         isEnabled: z.boolean(),
         settings: settingsSchema,
@@ -97,7 +97,7 @@ export const updateThemeSection = createServerFn({ method: "POST" })
 export const removeThemeSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ storeId: z.string().uuid(), sectionId: z.string().uuid() }).parse(data),
+    z.object({ storeId: z.guid(), sectionId: z.guid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -113,7 +113,7 @@ export const reorderThemeSections = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ storeId: z.string().uuid(), sectionIds: z.array(z.string().uuid()).min(1).max(60) })
+      .object({ storeId: z.guid(), sectionIds: z.array(z.guid()).min(1).max(60) })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -131,7 +131,7 @@ export const reorderThemeSections = createServerFn({ method: "POST" })
 /** Bileşen listesini varsayılan modüler düzenle sıfırlar. */
 export const resetThemeSections = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error: deleteError } = await context.supabase
       .from("store_theme_sections")
@@ -158,7 +158,7 @@ export const saveThemeCode = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         customCss: z.string().max(40000).nullish(),
         customJs: z.string().max(40000).nullish(),
       })

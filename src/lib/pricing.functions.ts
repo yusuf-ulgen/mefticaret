@@ -12,8 +12,8 @@ export const applyBulkPricing = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        productIds: z.array(z.string().uuid()).min(1).max(500),
+        storeId: z.guid(),
+        productIds: z.array(z.guid()).min(1).max(500),
         mode: z.enum(["increase_percent", "decrease_percent", "increase_amount", "decrease_amount", "set"]),
         value: z.number().min(0).max(9_999_999),
         round: z.enum(["none", "integer", "x90", "x99"]),

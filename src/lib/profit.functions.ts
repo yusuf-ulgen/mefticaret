@@ -11,11 +11,11 @@ export const setVariantCosts = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         updates: z
           .array(
             z.object({
-              variantId: z.string().uuid(),
+              variantId: z.guid(),
               costPrice: z.number().min(0).max(9_999_999).nullable(),
             }),
           )

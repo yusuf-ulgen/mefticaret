@@ -9,7 +9,7 @@ import { insertAuditRow } from "./audit.server";
 
 type Client = SupabaseClient<Database>;
 
-export const storeIdSchema = z.object({ storeId: z.string().uuid() });
+export const storeIdSchema = z.object({ storeId: z.guid() });
 
 const textList = z.array(z.string().trim().min(1).max(160)).max(40).default([]);
 
@@ -37,8 +37,8 @@ export const dataRequestInputSchema = z.object({
 });
 
 export const ropaSchema = z.object({
-  storeId: z.string().uuid(),
-  id: z.string().uuid().optional(),
+  storeId: z.guid(),
+  id: z.guid().optional(),
   activity: z.string().trim().min(2).max(200),
   purpose: z.string().trim().min(2).max(1000),
   legalBasis: z.enum(LEGAL_BASES),
@@ -52,18 +52,18 @@ export const ropaSchema = z.object({
   responsiblePerson: z.string().trim().max(200).optional(),
 });
 
-export const ropaDeleteSchema = z.object({ storeId: z.string().uuid(), id: z.string().uuid() });
+export const ropaDeleteSchema = z.object({ storeId: z.guid(), id: z.guid() });
 
 export const dsrUpdateSchema = z.object({
-  storeId: z.string().uuid(),
-  id: z.string().uuid(),
+  storeId: z.guid(),
+  id: z.guid(),
   status: z.enum(DSR_STATUSES),
   note: z.string().trim().max(1000).optional(),
 });
 
 export const customerDataSchema = z.object({
-  storeId: z.string().uuid(),
-  customerId: z.string().uuid(),
+  storeId: z.guid(),
+  customerId: z.guid(),
 });
 
 /** Mağaza slug'ından yayınlanmış mağaza kimliğini çözer (halka açık formlar için). */

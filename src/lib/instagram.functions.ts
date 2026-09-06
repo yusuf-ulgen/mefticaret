@@ -10,7 +10,7 @@ import { IG_MATCH_TYPES } from "@/lib/instagram";
  * hiçbir yanıtla istemciye dönmez.
  */
 
-const storeScope = z.object({ storeId: z.string().uuid() });
+const storeScope = z.object({ storeId: z.guid() });
 
 /** OAuth onay adresini üretir (Meta uygulama bilgileri gerekli). */
 export const getInstagramOAuthUrl = createServerFn({ method: "POST" })
@@ -135,12 +135,12 @@ export const disconnectInstagram = createServerFn({ method: "POST" })
   });
 
 const ruleInput = storeScope.extend({
-  ruleId: z.string().uuid().optional(),
+  ruleId: z.guid().optional(),
   name: z.string().trim().min(2).max(120),
   keywords: z.array(z.string().trim().min(1)).max(40).default([]),
   matchType: z.enum(IG_MATCH_TYPES).default("contains"),
   targetPostId: z.string().trim().max(64).nullable().default(null),
-  productId: z.string().uuid().nullable().default(null),
+  productId: z.guid().nullable().default(null),
   dmTemplate: z.string().trim().min(4).max(1000),
   publicReply: z.string().trim().max(300).default(""),
   sendProductCard: z.boolean().default(true),
@@ -187,7 +187,7 @@ export const saveInstagramRule = createServerFn({ method: "POST" })
 
 export const deleteInstagramRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => storeScope.extend({ ruleId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => storeScope.extend({ ruleId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("instagram_comment_rules")
@@ -230,7 +230,7 @@ export const testInstagramRule = createServerFn({ method: "POST" })
 /** DM panelinin sağ sütunu için 360° müşteri profili. */
 export const getSocialCrmProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => storeScope.extend({ conversationId: z.string().uuid() }).parse(data))
+  .inputValidator((data) => storeScope.extend({ conversationId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { loadSocialCrmProfile } = await import("@/lib/instagram.server");
     return loadSocialCrmProfile(context.supabase, data.storeId, data.conversationId);
@@ -241,7 +241,7 @@ export const suggestInstagramReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     storeScope
-      .extend({ conversationId: z.string().uuid(), text: z.string().trim().min(1).max(2000) })
+      .extend({ conversationId: z.guid(), text: z.string().trim().min(1).max(2000) })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -271,7 +271,7 @@ export const sendInstagramMessage = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     storeScope
       .extend({
-        conversationId: z.string().uuid(),
+        conversationId: z.guid(),
         body: z.string().trim().min(1).max(2000),
         isAi: z.boolean().default(false),
       })

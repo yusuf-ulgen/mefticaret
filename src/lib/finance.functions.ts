@@ -10,7 +10,7 @@ export const createPayout = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
+        storeId: z.guid(),
         periodStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
         periodEnd: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
         reference: z.string().trim().max(120).optional(),
@@ -82,8 +82,8 @@ export const updatePayoutStatus = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        storeId: z.string().uuid(),
-        payoutId: z.string().uuid(),
+        storeId: z.guid(),
+        payoutId: z.guid(),
         status: z.enum(["pending", "processing", "paid", "failed"]),
         reference: z.string().trim().max(120).optional(),
       })
