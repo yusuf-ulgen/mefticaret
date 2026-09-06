@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { WokieeProductCard } from "@/components/wokiee/product-card";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontCollectionQuery } from "@/lib/storefront-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
