@@ -26,7 +26,10 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const entries: SitemapEntry[] = [{ path: "/", changefreq: "weekly", priority: "1.0" }];
+        const entries: SitemapEntry[] = [
+          { path: "/", changefreq: "weekly", priority: "1.0" },
+          { path: "/en-iyi-e-ticaret-altyapisi", changefreq: "monthly", priority: "0.9" },
+        ];
 
         const { createClient } = await import("@supabase/supabase-js");
         const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
