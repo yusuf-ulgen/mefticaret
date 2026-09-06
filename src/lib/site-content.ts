@@ -94,6 +94,7 @@ export const ITEM_TEMPLATES: Record<string, SiteSectionItem> = {
 
 export const SECTION_KINDS = [
   { value: "nav", label: "Üst menü" },
+  { value: "megamenu", label: "Mega menü" },
   { value: "hero", label: "Kahraman alanı" },
   { value: "showcase", label: "Vitrin kartları" },
   { value: "references", label: "Referanslar" },
