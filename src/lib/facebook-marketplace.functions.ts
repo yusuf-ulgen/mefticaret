@@ -16,14 +16,10 @@ const storeScope = z.object({ storeId: z.guid() });
 async function assertStoreAccess(
   supabase: SupabaseClient<Database>,
   storeId: string,
+  userId: string,
 ): Promise<void> {
-  const { data, error } = await supabase
-    .from("stores")
-    .select("id")
-    .eq("id", storeId)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
+  const { assertStoreManager } = await import("@/lib/store-access.server");
+  await assertStoreManager(supabase, storeId, userId);
 }
 
 /** Meta OAuth onay adresini üretir. */
@@ -31,7 +27,7 @@ export const getMarketplaceOAuthUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => storeScope.extend({ redirectUri: z.string().url() }).parse(data))
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
     const { buildMarketplaceOAuthUrl, metaMarketplaceConfig } = await import(
       "@/lib/facebook-marketplace.server"
     );
@@ -50,7 +46,7 @@ export const completeMarketplaceOAuth = createServerFn({ method: "POST" })
     storeScope.extend({ code: z.string().min(4), redirectUri: z.string().url() }).parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
     const [{ supabaseAdmin }, { exchangeMarketplaceCode, upsertMarketplaceAccount }] =
       await Promise.all([
         import("@/integrations/supabase/client.server"),
@@ -77,7 +73,7 @@ export const connectMarketplaceManually = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
     const [{ supabaseAdmin }, { upsertMarketplaceAccount }] = await Promise.all([
       import("@/integrations/supabase/client.server"),
       import("@/lib/facebook-marketplace.server"),
@@ -110,7 +106,7 @@ export const updateMarketplaceSettings = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
     const { error } = await context.supabase
       .from("fb_marketplace_accounts")
       .update({
@@ -132,7 +128,7 @@ export const syncMarketplaceNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => storeScope.extend({ force: z.boolean().default(false) }).parse(data))
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
     const [{ supabaseAdmin }, { syncStoreMarketplace }] = await Promise.all([
       import("@/integrations/supabase/client.server"),
       import("@/lib/facebook-marketplace.server"),
@@ -148,7 +144,7 @@ export const previewMarketplaceItems = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => storeScope.parse(data))
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
     const [{ supabaseAdmin }, { buildMarketplaceItems }] = await Promise.all([
       import("@/integrations/supabase/client.server"),
       import("@/lib/facebook-marketplace.server"),
@@ -180,7 +176,7 @@ export const removeMarketplaceItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => storeScope.extend({ listingId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
     const [{ supabaseAdmin }, { removeMarketplaceListing }] = await Promise.all([
       import("@/integrations/supabase/client.server"),
       import("@/lib/facebook-marketplace.server"),
@@ -193,7 +189,7 @@ export const disconnectMarketplace = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => storeScope.parse(data))
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
     const { error } = await context.supabase
       .from("fb_marketplace_accounts")
       .delete()

@@ -18,14 +18,10 @@ const storeScope = z.object({ storeId: z.guid() });
 async function assertStoreAccess(
   supabase: SupabaseClient<Database>,
   storeId: string,
+  userId: string,
 ): Promise<void> {
-  const { data, error } = await supabase
-    .from("stores")
-    .select("id")
-    .eq("id", storeId)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
+  const { assertStoreManager } = await import("@/lib/store-access.server");
+  await assertStoreManager(supabase, storeId, userId);
 }
 
 
@@ -34,7 +30,7 @@ export const getTiktokOAuthUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => storeScope.extend({ redirectUri: z.string().url() }).parse(data))
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
 
     const { buildTiktokOAuthUrl, tiktokAppConfig } = await import("@/lib/tiktok.server");
     if (!tiktokAppConfig().clientKey) {
@@ -52,7 +48,7 @@ export const completeTiktokOAuth = createServerFn({ method: "POST" })
     storeScope.extend({ code: z.string().min(4), redirectUri: z.string().url() }).parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
 
     const [{ supabaseAdmin }, { exchangeTiktokCode, upsertTiktokAccount }] = await Promise.all([
       import("@/integrations/supabase/client.server"),
@@ -78,7 +74,7 @@ export const connectTiktokManually = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    await assertStoreAccess(context.supabase, data.storeId);
+    await assertStoreAccess(context.supabase, data.storeId, context.userId);
 
     const [{ supabaseAdmin }, { upsertTiktokAccount }] = await Promise.all([
       import("@/integrations/supabase/client.server"),
