@@ -55,7 +55,7 @@ async function loadSecrets(storeId: string, provider: string): Promise<Record<st
     .eq("provider", provider)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  return ((data?.secret_config ?? {}) as Record<string, string>) ?? {};
+  return (data?.secret_config ?? {}) as Record<string, string>;
 }
 
 async function saveSecrets(storeId: string, provider: string, secrets: Record<string, string>) {
@@ -213,7 +213,7 @@ export async function testSiteKit(supabase: Client, data: z.infer<typeof testSit
   if (!existing) throw new Error("Önce servisi yapılandırın");
 
   const publicConfig = (existing.public_config ?? {}) as Record<string, string>;
-  const secretConfig = (existing.secret_config ?? {}) as Record<string, string>;
+  const secretConfig = await loadSecrets(data.storeId, data.provider);
 
   let result: { ok: boolean; detail: string };
   switch (data.provider) {
@@ -290,14 +290,14 @@ export async function dispatchServerConversion(
 ) {
   const { data: row } = await admin
     .from("store_site_kit")
-    .select("is_enabled, public_config, secret_config")
+    .select("is_enabled, public_config")
     .eq("store_id", input.storeId)
     .eq("provider", "facebook_capi")
     .maybeSingle();
   if (!row?.is_enabled) return { sent: false };
 
   const publicConfig = (row.public_config ?? {}) as Record<string, string>;
-  const secretConfig = (row.secret_config ?? {}) as Record<string, string>;
+  const secretConfig = await loadSecrets(input.storeId, "facebook_capi");
   const pixelId = publicConfig["pixelId"];
   const token = secretConfig["accessToken"];
   if (!pixelId || !token) return { sent: false };
