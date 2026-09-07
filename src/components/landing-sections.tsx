@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -16,6 +17,7 @@ import {
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { getPublicAppShowcase } from "@/lib/app-showcase.functions";
 import { sectionIcon, type SiteSection } from "@/lib/site-content";
 
 
@@ -198,6 +200,87 @@ export function BlogSection({ section }: { section: SiteSection | null }) {
             <p className="mt-6 text-xs text-muted-foreground">{post["read"]}</p>
           </article>
         ))}
+      </div>
+    </section>
+  );
+}
+
+/* --------------------------- Uygulama vitrini (animasyonlu) ------------------------- */
+
+type ShowcaseApp = {
+  code: string;
+  name: string;
+  category: string;
+  logoUrl: string | null;
+  logoEmoji: string | null;
+};
+
+function AppLogoChip({ app }: { app: ShowcaseApp }) {
+  return (
+    <div className="showcase-card flex shrink-0 items-center gap-3 px-4 py-3">
+      {app.logoUrl ? (
+        <img
+          src={app.logoUrl}
+          alt={`${app.name} logosu`}
+          loading="lazy"
+          className="size-8 shrink-0 rounded-lg object-contain"
+        />
+      ) : (
+        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-soft text-base">
+          {app.logoEmoji ?? "🧩"}
+        </span>
+      )}
+      <span className="whitespace-nowrap text-sm font-semibold">{app.name}</span>
+    </div>
+  );
+}
+
+export function AppShowcaseSection() {
+  const { data: apps } = useQuery({
+    queryKey: ["public-app-showcase"],
+    queryFn: () => getPublicAppShowcase(),
+    staleTime: 300_000,
+  });
+
+  if (!apps?.length) return null;
+  const half = Math.ceil(apps.length / 2);
+  const rows = [apps.slice(0, half), apps.slice(half)];
+
+  return (
+    <section id="uygulamalar" className="overflow-hidden py-20 lg:py-28">
+      <div className="mx-auto max-w-7xl px-4 text-center lg:px-8">
+        <span className="eyebrow">Uygulama Mağazası</span>
+        <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
+          {apps.length}+ Uygulama ve Entegrasyon Tek Panelde
+        </h2>
+        <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
+          Pazaryerlerinden kargoya, pazarlamadan otomasyona — mağazanı büyüten tüm araçlar tek tıkla
+          kurulur.
+        </p>
+      </div>
+
+      <div className="fade-mask-x mt-14 space-y-4" aria-hidden="true">
+        {rows.map((row, rowIndex) => (
+          <div key={rowIndex} className="flex overflow-hidden">
+            <div
+              className={`flex w-max gap-4 pr-4 hover:[animation-play-state:paused] ${
+                rowIndex % 2 === 0 ? "marquee-row" : "marquee-row-reverse"
+              }`}
+            >
+              {[...row, ...row].map((app, index) => (
+                <AppLogoChip key={`${app.code}-${index}`} app={app} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-12 text-center">
+        <Button asChild variant="outline" className="rounded-full">
+          <Link to="/auth" search={{ mode: "register" }}>
+            Uygulama Mağazasını Keşfet <ArrowRight className="ml-2 size-4" />
+          </Link>
+        </Button>
       </div>
     </section>
   );

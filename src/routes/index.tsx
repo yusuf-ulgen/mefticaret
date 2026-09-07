@@ -7,6 +7,7 @@ import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-me
 
 
 import {
+  AppShowcaseSection,
   BlogSection,
   FaqSection,
   IntegrationsSection,
@@ -293,6 +294,8 @@ function LandingPage() {
         <IntegrationsSection section={get("integrations")} />
 
         <PlatformCapabilitiesSection />
+
+        <AppShowcaseSection />
 
         {pricing ? (
           <section id="paketler" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
