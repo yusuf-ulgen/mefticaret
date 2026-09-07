@@ -1,0 +1,1 @@
+ALTER TYPE public.app_category ADD VALUE IF NOT EXISTS 'automation';

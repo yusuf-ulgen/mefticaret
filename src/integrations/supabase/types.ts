@@ -12709,6 +12709,7 @@ export type Database = {
         | "loyalty"
         | "dropshipping"
         | "marketplace"
+        | "automation"
       app_install_status: "installed" | "paused" | "uninstalled"
       app_pricing_model: "free" | "monthly" | "one_time" | "usage"
       app_role: "platform_admin" | "agency" | "seller" | "customer"
@@ -13088,6 +13089,7 @@ export const Constants = {
         "loyalty",
         "dropshipping",
         "marketplace",
+        "automation",
       ],
       app_install_status: ["installed", "paused", "uninstalled"],
       app_pricing_model: ["free", "monthly", "one_time", "usage"],
