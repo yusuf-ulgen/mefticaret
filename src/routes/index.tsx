@@ -7,6 +7,7 @@ import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-me
 
 
 import {
+  AppShowcaseSection,
   BlogSection,
   FaqSection,
   IntegrationsSection,
