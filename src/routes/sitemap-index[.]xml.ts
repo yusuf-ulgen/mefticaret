@@ -12,7 +12,13 @@ export const Route = createFileRoute("/sitemap-index.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const locs = [`${BASE_URL}/sitemap.xml`];
+        const locs = [
+          `${BASE_URL}/sitemap.xml`,
+          `${BASE_URL}/sitemap-products.xml`,
+          `${BASE_URL}/sitemap-categories.xml`,
+          `${BASE_URL}/sitemap-pages.xml`,
+          `${BASE_URL}/sitemap-blog.xml`,
+        ];
 
         try {
           const { publicSupabase } = await import("@/lib/public-supabase.server");
