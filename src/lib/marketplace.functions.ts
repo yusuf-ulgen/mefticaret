@@ -243,7 +243,7 @@ export const requestSellerPayout = createServerFn({ method: "POST" })
         store_id: seller.store_id,
         seller_id: data.sellerId,
         amount: data.amount,
-        iban: nullable(data.iban) ?? seller.iban,
+        iban: nullable(data.iban) ?? sellerBank?.iban ?? null,
         note: nullable(data.note),
         status: "pending",
       })
