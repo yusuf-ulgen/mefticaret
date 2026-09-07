@@ -445,7 +445,26 @@ function BillingPage() {
                 </ul>
               </div>
             ) : null}
+            <div className="mt-4 rounded-xl border bg-card p-4 text-sm">
+              <p className="font-medium">Yenileme & tahsilat otomasyonu</p>
+              {(reminders ?? []).length === 0 ? (
+                <p className="mt-2 text-muted-foreground">
+                  Henüz hatırlatma gönderilmedi. Dönem bitimine 7, 3 ve 1 gün kala fatura ve ödeme
+                  linki otomatik olarak gönderilir.
+                </p>
+              ) : (
+                <ul className="mt-2 space-y-1 text-muted-foreground">
+                  {(reminders ?? []).map((reminder) => (
+                    <li key={reminder.id}>
+                      {formatDateTime(reminder.sent_at)} ·{" "}
+                      {BILLING_REMINDER_LABELS[reminder.kind] ?? reminder.kind} · {reminder.channel}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </TabsContent>
+
 
           <TabsContent value="cycles">
             <div className="divide-y rounded-xl border bg-card">
