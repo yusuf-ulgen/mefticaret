@@ -312,6 +312,91 @@ const CHECKS: Record<
         "Pazarama erişim token'ı alındı",
       ),
   },
+  "megabutik-marketplace": {
+    required: ["seller_id", "api_key", "api_secret"],
+    run: async () => ({
+      status: "configured",
+      message: "Kimlik bilgileri kaydedildi. İlk senkronizasyonda doğrulanacak.",
+    }),
+  },
+  "printful-dropshipping": {
+    required: ["api_key"],
+    run: (s) =>
+      request(
+        "https://api.printful.com/v2/stores",
+        {
+          headers: {
+            Authorization: `Bearer ${str(s, "api_key")}`,
+            Accept: "application/json",
+          },
+        },
+        "Printful hesabı doğrulandı",
+      ),
+  },
+  "perads-marketing": {
+    required: ["api_key"],
+    run: async () => ({
+      status: "configured",
+      message: "Kimlik bilgileri kaydedildi. İlk kampanya senkronizasyonunda doğrulanacak.",
+    }),
+  },
+  "make-automation": {
+    required: ["api_key"],
+    run: async () => ({
+      status: "configured",
+      message: "Kimlik bilgileri kaydedildi. Senaryo tetikleyicisi ilk çalıştığında doğrulanacak.",
+    }),
+  },
+  "kargo-entegrator-shipping": {
+    required: ["api_key"],
+    run: async () => ({
+      status: "configured",
+      message: "Kimlik bilgileri kaydedildi. İlk kargo oluşturulduğunda doğrulanacak.",
+    }),
+  },
+  "shipink-shipping": {
+    required: ["access_token"],
+    run: (s) =>
+      request(
+        "https://api.shipink.io/shipments?page=1&limit=1",
+        {
+          headers: {
+            Authorization: `Bearer ${str(s, "access_token")}`,
+            Accept: "application/json",
+          },
+        },
+        "Shipink hesabı doğrulandı",
+      ),
+  },
+  "google-tag-manager": {
+    required: ["account_id", "container_id"],
+    run: async () => ({
+      status: "configured",
+      message: "Container bilgileri kaydedildi. Site Kit entegrasyonunda doğrulanacak.",
+    }),
+  },
+  "pts-shipping": {
+    required: ["username", "password"],
+    run: async () => ({
+      status: "configured",
+      message: "Kimlik bilgileri kaydedildi. İlk gönderide doğrulanacak.",
+    }),
+  },
+  "ozon-marketplace": {
+    required: ["client_id", "api_key"],
+    run: (s) =>
+      request(
+        "https://api-seller.ozon.ru/v1/seller/info",
+        {
+          headers: {
+            "Client-Id": str(s, "client_id"),
+            "Api-Key": str(s, "api_key"),
+            Accept: "application/json",
+          },
+        },
+        "Ozon satıcı hesabı doğrulandı",
+      ),
+  },
 };
 
 
