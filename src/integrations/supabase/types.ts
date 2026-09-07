@@ -9929,7 +9929,6 @@ export type Database = {
           last_tested_at: string | null
           provider: string
           public_config: Json
-          secret_config: Json
           status: string
           store_id: string
           updated_at: string
@@ -9942,7 +9941,6 @@ export type Database = {
           last_tested_at?: string | null
           provider: string
           public_config?: Json
-          secret_config?: Json
           status?: string
           store_id: string
           updated_at?: string
@@ -9955,7 +9953,6 @@ export type Database = {
           last_tested_at?: string | null
           provider?: string
           public_config?: Json
-          secret_config?: Json
           status?: string
           store_id?: string
           updated_at?: string
@@ -9969,6 +9966,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      store_site_kit_secrets: {
+        Row: {
+          created_at: string
+          provider: string
+          secret_config: Json
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          provider: string
+          secret_config?: Json
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          provider?: string
+          secret_config?: Json
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       store_stories: {
         Row: {
