@@ -49,11 +49,29 @@ function isErrorLike(value: unknown): value is Error {
   return value instanceof Error;
 }
 
+// Tarayıcı bağlantıyı kapattığında ("aborted") oluşan hatalar uygulama hatası
+// değildir; hata raporlarına düşmemeleri için loglanmaz.
+function isClientAbort(error: unknown, depth = 0): boolean {
+  if (error == null || depth > CAUSE_DEPTH_LIMIT) return false;
+  const err = error as { name?: unknown; message?: unknown; code?: unknown; cause?: unknown };
+  if (
+    err.name === "AbortError" ||
+    err.code === "ECONNRESET" ||
+    err.code === "ABORT_ERR" ||
+    (typeof err.message === "string" &&
+      /(^|\n)\s*(Error:\s*)?(aborted|The user aborted a request\.)\s*($|\n)/.test(err.message))
+  ) {
+    return true;
+  }
+  return isClientAbort(err.cause, depth + 1);
+}
+
 // Wrap console.error so errors logged by any layer — including h3's internal
 // unhandled-error logging, which this file cannot hook directly — are both
 // recorded for consumeLastCapturedError and expanded before serialization.
 const originalConsoleError = console.error.bind(console);
 console.error = (...args: unknown[]) => {
+  if (args.some((arg) => isErrorLike(arg) && isClientAbort(arg))) return;
   const expanded = args.map((arg) => {
     if (!isErrorLike(arg)) return arg;
     record(arg);
