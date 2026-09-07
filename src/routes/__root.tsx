@@ -83,20 +83,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Mefticaret — E-ticaret İşletim Sistemi" },
+      { title: "Mefticaret — Kendi E-Ticaret Mağazanı Kur ve Büyüt" },
       {
         name: "description",
         content:
-          "Mefticaret, dakikalar içinde kendi e-ticaret mağazanı kurup çok kiracılı SaaS altyapısıyla ölçekleyeceğin platform.",
+          "Mefticaret ile dakikalar içinde mağazanı aç; ürün, stok, kargo ve pazaryeri süreçlerini tek panelden yönet, satışlarını büyüt.",
       },
       { name: "author", content: "Mefticaret" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Mefticaret" },
-      { property: "og:title", content: "Mefticaret — E-ticaret İşletim Sistemi" },
+      { property: "og:title", content: "Mefticaret — Kendi E-Ticaret Mağazanı Kur ve Büyüt" },
       {
         property: "og:description",
         content:
-          "Mefticaret, dakikalar içinde kendi e-ticaret mağazanı kurup çok kiracılı SaaS altyapısıyla ölçekleyeceğin platform.",
+          "Mefticaret ile dakikalar içinde mağazanı aç; ürün, stok, kargo ve pazaryeri süreçlerini tek panelden yönet, satışlarını büyüt.",
       },
       { name: "twitter:card", content: "summary_large_image" },
       {
