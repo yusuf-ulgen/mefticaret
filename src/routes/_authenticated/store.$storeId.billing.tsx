@@ -88,6 +88,8 @@ function BillingPage() {
       ["billing-cycles", storeId],
       ["invoices", storeId],
       ["store-audit", storeId],
+      ["billing-reminders", storeId],
+
       ["my-stores"],
     ]) {
       void queryClient.invalidateQueries({ queryKey: key });
