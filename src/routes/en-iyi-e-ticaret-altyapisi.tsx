@@ -6,7 +6,8 @@ import { fetchShowcaseStores } from "@/lib/showcase.functions";
 const TITLE = "En İyi E-Ticaret Altyapısı 2026 — Karşılaştırma ve Rehber";
 const DESCRIPTION =
   "En iyi e-ticaret altyapısı nasıl seçilir? Mefticaret'in çok mağazalı SaaS altyapısını fiyat, pazaryeri entegrasyonu, tema editörü ve SEO özellikleriyle karşılaştırın.";
-const URL = "https://mefticaret.lovable.app/en-iyi-e-ticaret-altyapisi";
+const URL = "https://mefticaret.com/en-iyi-e-ticaret-altyapisi";
+
 
 export const Route = createFileRoute("/en-iyi-e-ticaret-altyapisi")({
   loader: async () => ({ stores: await fetchShowcaseStores() }),
