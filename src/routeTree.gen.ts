@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DropshippingNasilYapilirRouteImport } from './routes/dropshipping-nasil-yapilir'
 import { Route as ETicaretSitesiKurmaRouteImport } from './routes/e-ticaret-sitesi-kurma'
 import { Route as EnIyiETicaretAltyapisiRouteImport } from './routes/en-iyi-e-ticaret-altyapisi'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -247,6 +248,12 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DropshippingNasilYapilirRoute =
+  DropshippingNasilYapilirRouteImport.update({
+    id: '/dropshipping-nasil-yapilir',
+    path: '/dropshipping-nasil-yapilir',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ETicaretSitesiKurmaRoute = ETicaretSitesiKurmaRouteImport.update({
   id: '/e-ticaret-sitesi-kurma',
   path: '/e-ticaret-sitesi-kurma',
@@ -1508,6 +1515,7 @@ const ApiPublicFeedStoreSlugKindRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
   '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -1732,6 +1740,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
   '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -1956,6 +1965,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
   '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -2182,6 +2192,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/dropshipping-nasil-yapilir'
     | '/e-ticaret-sitesi-kurma'
     | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
@@ -2406,6 +2417,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/dropshipping-nasil-yapilir'
     | '/e-ticaret-sitesi-kurma'
     | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
@@ -2629,6 +2641,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/dropshipping-nasil-yapilir'
     | '/e-ticaret-sitesi-kurma'
     | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
@@ -2855,6 +2868,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DropshippingNasilYapilirRoute: typeof DropshippingNasilYapilirRoute
   ETicaretSitesiKurmaRoute: typeof ETicaretSitesiKurmaRoute
   EnIyiETicaretAltyapisiRoute: typeof EnIyiETicaretAltyapisiRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -2937,6 +2951,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dropshipping-nasil-yapilir': {
+      id: '/dropshipping-nasil-yapilir'
+      path: '/dropshipping-nasil-yapilir'
+      fullPath: '/dropshipping-nasil-yapilir'
+      preLoaderRoute: typeof DropshippingNasilYapilirRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/e-ticaret-sitesi-kurma': {
@@ -4939,6 +4960,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  DropshippingNasilYapilirRoute: DropshippingNasilYapilirRoute,
   ETicaretSitesiKurmaRoute: ETicaretSitesiKurmaRoute,
   EnIyiETicaretAltyapisiRoute: EnIyiETicaretAltyapisiRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
