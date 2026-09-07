@@ -83,6 +83,17 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/markets-pri
 const MARKUP_OPTIONS = Object.entries(MARKUP_TYPE_LABELS) as [MarkupType, string][];
 const ROUNDING_OPTIONS = Object.entries(ROUNDING_LABELS) as [RoundingMode, string][];
 
+type CurrencyInput = {
+  storeId: string;
+  currency: string;
+  isActive: boolean;
+  markupType: MarkupType;
+  markupValue: number;
+  rounding: RoundingMode;
+  useManualRate: boolean;
+  manualRate: number | null;
+};
+
 function MarketsPricingPage() {
   const { storeId } = Route.useParams();
   const queryClient = useQueryClient();
@@ -168,7 +179,7 @@ function MarketsPricingPage() {
   const [newCurrency, setNewCurrency] = useState("");
 
   const currencyMutation = useMutation({
-    mutationFn: (input: Parameters<typeof currencyFn>[0]["data"]) => currencyFn({ data: input }),
+    mutationFn: (input: CurrencyInput) => currencyFn({ data: input }),
     onSuccess: () => {
       toast.success("Para birimi kaydedildi");
       invalidate(["store-currencies", "live-rates"]);
@@ -641,9 +652,9 @@ function MarketsPricingPage() {
                   return (
                     <div key={row.id} className="grid grid-cols-1 gap-3 p-4 md:grid-cols-6 md:items-end">
                       <div>
-                        <p className="text-sm font-medium">
-                          {row.currency} {row.is_base ? <Badge className="ml-2">Ana</Badge> : null}
-                        </p>
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          {row.currency} {row.is_base ? <Badge>Ana</Badge> : null}
+                        </div>
                         <p className="text-xs text-muted-foreground">
                           {row.is_base
                             ? "Temel fiyatlar bu para biriminde"
@@ -815,11 +826,11 @@ function MarketsPricingPage() {
                   <div key={market.id} className="flex flex-wrap items-center gap-3 p-4">
                     <Globe2 className="size-4 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium">
-                        {market.name}{" "}
+                      <div className="flex flex-wrap items-center gap-2 text-sm font-medium">
+                        {market.name}
                         {market.is_default ? <Badge variant="secondary">Varsayılan</Badge> : null}
                         {market.is_active ? null : <Badge variant="outline">Kapalı</Badge>}
-                      </p>
+                      </div>
                       <p className="text-xs text-muted-foreground">
                         {market.currency} · {market.country_code ?? "Genel"} ·{" "}
                         {market.tax_included ? "vergi dahil" : "vergi hariç"} ·{" "}
