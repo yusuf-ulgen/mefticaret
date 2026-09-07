@@ -42,6 +42,8 @@ export const placeOrderSchema = z.object({
       postalCode: z.string().trim().max(20).optional(),
     })
     .optional(),
+  /** Müşterinin kasada gördüğü görüntüleme para birimi (kur anlık olarak kilitlenir). */
+  displayCurrency: z.string().trim().length(3).toUpperCase().optional(),
   shippingRateId: z.guid().optional(),
   paymentMethodId: z.guid().optional(),
   discountCode: z.string().trim().max(60).optional(),
@@ -455,6 +457,29 @@ export async function createStorefrontOrder(
     : addressJson;
 
 
+  // Kur kilidi: sipariş anındaki kur snapshot olarak yazılır; sonradan kur değişse bile
+  // bu sipariş asla yeniden hesaplanmaz (geçmiş siparişler eski kurda kalır).
+  const baseCurrency = String(store.currency).toUpperCase();
+  const displayCurrency = (input.displayCurrency ?? baseCurrency).toUpperCase();
+  let exchangeRate = 1;
+  let rateSource: "base" | "auto" | "manual" | "missing" = "base";
+  if (displayCurrency !== baseCurrency) {
+    const { data: rateRow } = await supabase
+      .from("currency_rates")
+      .select("rate, source")
+      .eq("store_id", store.id)
+      .eq("base_currency", baseCurrency)
+      .eq("quote_currency", displayCurrency)
+      .maybeSingle();
+    const rate = Number(rateRow?.rate ?? 0);
+    if (Number.isFinite(rate) && rate > 0) {
+      exchangeRate = rate;
+      rateSource = rateRow?.source === "manual" ? "manual" : "auto";
+    } else {
+      rateSource = "missing";
+    }
+  }
+
   const number = orderNumber();
   const { data: order, error: orderError } = await supabase
     .from("orders")
@@ -466,6 +491,9 @@ export async function createStorefrontOrder(
       payment_status: "pending",
       fulfillment_status: "unfulfilled",
       currency: store.currency,
+      display_currency: rateSource === "missing" ? baseCurrency : displayCurrency,
+      exchange_rate: rateSource === "missing" ? 1 : exchangeRate,
+      rate_source: rateSource === "missing" ? "base" : rateSource,
       subtotal,
       discount_total: discountTotal,
       shipping_total: shippingTotal,
