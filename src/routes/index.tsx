@@ -300,7 +300,29 @@ function LandingPage() {
               {pricing.eyebrow ? <span className="eyebrow">{pricing.eyebrow}</span> : null}
               <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl lg:text-5xl">{pricing.title}</h2>
               <p className="mx-auto mt-5 max-w-xl text-muted-foreground">{pricing.subtitle}</p>
+              <div
+                role="group"
+                aria-label="Ödeme dönemi"
+                className="mx-auto mt-8 inline-flex rounded-full border bg-card p-1"
+              >
+                {(["monthly", "yearly"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={planInterval === option}
+                    onClick={() => setPlanInterval(option)}
+                    className={`rounded-full px-5 py-2 text-sm font-medium transition ${
+                      planInterval === option
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {option === "monthly" ? "Aylık" : "Yıllık"}
+                  </button>
+                ))}
+              </div>
             </div>
+
             <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
               {(plans ?? []).map((plan) => {
                 const limits = (plan.limits ?? {}) as Record<string, number>;
