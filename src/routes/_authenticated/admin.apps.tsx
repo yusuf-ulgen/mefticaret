@@ -74,6 +74,8 @@ type AppRow = {
   developer_url: string | null;
   version: string;
   logo_emoji: string | null;
+  logo_url?: string | null;
+
   pricing_model: PricingModel;
   price: number;
   currency: string;
@@ -260,9 +262,19 @@ function AdminAppsPage() {
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span aria-hidden className="text-lg">
-                          {row.logo_emoji ?? "🧩"}
-                        </span>
+                        {row.logo_url ? (
+                          <img
+                            src={row.logo_url}
+                            alt={`${row.name} logosu`}
+                            loading="lazy"
+                            className="size-6 rounded object-contain"
+                          />
+                        ) : (
+                          <span aria-hidden className="text-lg">
+                            {row.logo_emoji ?? "🧩"}
+                          </span>
+                        )}
+
                         <span className="truncate font-medium">{row.name}</span>
                         <Badge variant="secondary">
                           {APP_CATEGORY_LABELS[row.category] ?? row.category}

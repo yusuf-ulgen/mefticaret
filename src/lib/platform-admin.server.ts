@@ -1321,7 +1321,7 @@ export async function listAppsForAdmin() {
   const { data, error } = await db
     .from("apps")
     .select(
-      "id, code, name, tagline, description, category, developer, developer_url, version, logo_emoji, pricing_model, price, currency, is_active, is_featured, sort_order, install_count, rating, updated_at",
+      "id, code, name, tagline, description, category, developer, developer_url, version, logo_emoji, logo_url, pricing_model, price, currency, is_active, is_featured, sort_order, install_count, rating, updated_at",
     )
     .order("sort_order", { ascending: true });
   if (error) throw new Error(error.message);

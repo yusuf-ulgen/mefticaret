@@ -282,18 +282,19 @@ function AppsPage() {
                   className="flex flex-col gap-4 rounded-xl border bg-card p-5 shadow-sm"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
+                    <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-card p-1.5">
                       {app.logo_url ? (
                         <img
                           src={app.logo_url}
                           alt={`${app.name} logosu`}
                           loading="lazy"
-                          className="size-full object-cover"
+                          className="size-full object-contain"
                         />
                       ) : (
                         <Store className="size-5 text-muted-foreground" aria-hidden />
                       )}
                     </div>
+
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <h2 className="truncate font-medium">{app.name}</h2>
