@@ -12,9 +12,9 @@ export const storefrontQuery = (slug: string) =>
   queryOptions({
     queryKey: ["storefront", slug],
     queryFn: () => getStorefront({ data: { slug } }),
-    // Panel fiyat/stok değişimleri vitrine hızlı yansısın.
-    staleTime: 15_000,
-    refetchOnMount: "always" as const,
+    // Panel fiyat/stok değişimleri vitrine hızlı yansısın; ilk açılışta
+    // SSR verisi tekrar çekilmeden gösterilir.
+    staleTime: 30_000,
   });
 
 export const storefrontCollectionQuery = (slug: string, collectionSlug: string) =>
@@ -28,8 +28,7 @@ export const storefrontProductQuery = (slug: string, productSlug: string) =>
   queryOptions({
     queryKey: ["storefront", slug, "product", productSlug],
     queryFn: () => getStorefrontProduct({ data: { slug, productSlug } }),
-    staleTime: 15_000,
-    refetchOnMount: "always" as const,
+    staleTime: 30_000,
   });
 
 export const checkoutOptionsQuery = (slug: string) =>
