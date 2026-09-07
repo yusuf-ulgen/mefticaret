@@ -188,12 +188,20 @@ export const requestSellerPayout = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase } = context;
 
+    // IBAN istemci rollerine hiç açılmaz; erişim doğrulandıktan sonra
+    // yalnızca sunucu tarafında okunur.
     const { data: seller, error: sellerError } = await supabase
       .from("marketplace_sellers")
-      .select("id, store_id, status, commission_rate, iban")
+      .select("id, store_id, status, commission_rate")
       .eq("id", data.sellerId)
       .single();
     if (sellerError) throw new Error(sellerError.message);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: sellerBank } = await supabaseAdmin
+      .from("marketplace_sellers")
+      .select("iban")
+      .eq("id", data.sellerId)
+      .single();
     if (seller.status !== "approved") throw new Error("Yalnızca onaylı satıcılar para çekebilir.");
 
     const [itemsRes, requestsRes] = await Promise.all([
