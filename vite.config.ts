@@ -12,6 +12,14 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+    // Tamamen statik pazarlama/rehber sayfaları build sırasında HTML'e
+    // dönüştürülür; her istekte sunucuda render edilmez.
+    pages: [
+      { path: "/en-iyi-e-ticaret-altyapisi" },
+      { path: "/e-ticaret-sitesi-kurma" },
+      { path: "/dropshipping-nasil-yapilir" },
+    ],
+    prerender: { enabled: true, autoStaticPathsDiscovery: false },
   },
   vite: {
     plugins: [mcpPlugin()],
