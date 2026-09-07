@@ -314,13 +314,30 @@ function LandingPage() {
                     <h3 className="text-base font-semibold">{plan.name}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">{plan.description}</p>
                     <p className="mt-5 font-display text-2xl font-extrabold">
-                      {Number(plan.price_monthly) === 0
-                        ? "Ücretsiz"
-                        : formatMoney(Number(plan.price_monthly), plan.currency)}
-                      {Number(plan.price_monthly) > 0 ? (
-                        <span className="text-sm font-medium text-muted-foreground">/ay</span>
+                      {(() => {
+                        const price =
+                          planInterval === "yearly"
+                            ? Number(plan.price_yearly ?? 0)
+                            : Number(plan.price_monthly ?? 0);
+                        return price === 0
+                          ? "Ücretsiz"
+                          : formatMoney(price, plan.currency);
+                      })()}
+                      {(planInterval === "yearly"
+                        ? Number(plan.price_yearly ?? 0)
+                        : Number(plan.price_monthly ?? 0)) > 0 ? (
+                        <span className="text-sm font-medium text-muted-foreground">
+                          {planInterval === "yearly" ? "/yıl" : "/ay"}
+                        </span>
                       ) : null}
                     </p>
+                    {planInterval === "yearly" && Number(plan.price_yearly ?? 0) > 0 ? (
+                      <p className="mt-1 text-xs text-success">
+                        Aylık {formatMoney(Number(plan.price_yearly) / 12, plan.currency)} — yıllık
+                        ödemede 2 ay avantaj
+                      </p>
+                    ) : null}
+
                     <ul className="mt-5 space-y-2 text-sm">
                       {[
                         [planLimitLabel(limits["products"]), "ürün"],
