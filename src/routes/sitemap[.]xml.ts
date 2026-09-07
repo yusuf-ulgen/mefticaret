@@ -5,7 +5,7 @@ import type {} from "@tanstack/react-start";
  * Kök site haritası: pazarlama sayfaları + yayınlanmış mağaza vitrinleri.
  * Mağaza içi detaylı haritalar /api/public/sitemap/<slug> altında.
  */
-const BASE_URL = "https://mefticaret.lovable.app";
+const BASE_URL = "https://mefticaret.com";
 
 const STORE_PATHS = [
   "",

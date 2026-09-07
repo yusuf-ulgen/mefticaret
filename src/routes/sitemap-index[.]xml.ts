@@ -6,7 +6,7 @@ import type {} from "@tanstack/react-start";
  * (ürün, koleksiyon, sayfa, blog) haritası. Arama motorları tek dosyadan
  * tüm platformu keşfeder.
  */
-const BASE_URL = "https://mefticaret.lovable.app";
+const BASE_URL = "https://mefticaret.com";
 
 export const Route = createFileRoute("/sitemap-index.xml")({
   server: {
