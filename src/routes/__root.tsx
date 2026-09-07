@@ -103,6 +103,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "google-site-verification",
         content: "8XkHbmDYTXWX4NVVyJppjPPk8WDnBCL9qEvrxOmAeXI",
       },
+      {
+        name: "google-site-verification",
+        content: "jClDOjn42c5a7nqHlx8LDKO5vK9QAfq8TSdrOGcqzuc",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
