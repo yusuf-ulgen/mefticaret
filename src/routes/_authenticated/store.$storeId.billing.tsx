@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Check, FileText, Gauge, History, Sparkles } from "lucide-react";
+import { AlertTriangle, Check, FileText, Gauge, History, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -16,6 +16,7 @@ import { formatDateTime, formatMoney, formatNumber } from "@/lib/mefti";
 import { plansQuery, storeAuditQuery, storeQuery } from "@/lib/store-queries";
 import {
   BILLING_INTERVAL_LABELS,
+  BILLING_REMINDER_LABELS,
   INVOICE_STATUS_LABELS,
   SUBSCRIPTION_STATUS_LABELS,
   limitLabel,
@@ -24,12 +25,14 @@ import {
 } from "@/lib/subscription";
 import {
   billingCyclesQuery,
+  billingRemindersQuery,
   invoicesQuery,
   metricUsageQuery,
   planFeaturesQuery,
   storeSubscriptionQuery,
   subscriptionItemsQuery,
 } from "@/lib/subscription-queries";
+
 import {
   issueInvoiceForCycle,
   markInvoicePaid,
@@ -69,6 +72,8 @@ function BillingPage() {
   const { data: cycles } = useQuery(billingCyclesQuery(storeId));
   const { data: invoices } = useQuery(invoicesQuery(storeId));
   const { data: audit } = useQuery(storeAuditQuery(storeId));
+  const { data: reminders } = useQuery(billingRemindersQuery(storeId));
+
 
   const subscribeFn = useServerFn(upsertSubscription);
   const cancelFn = useServerFn(setSubscriptionCancellation);
@@ -137,6 +142,24 @@ function BillingPage() {
     .sort((a, b) => a.sort_order - b.sort_order);
   const trialLeft = trialDaysLeft(subscription?.trial_ends_at);
 
+  const openInvoice = (invoices ?? []).find((invoice) => invoice.status !== "paid") ?? null;
+  const openPayUrl = openInvoice?.pay_token
+    ? `${typeof window === "undefined" ? "https://mefticaret.com" : window.location.origin}/fatura/${openInvoice.pay_token}`
+    : null;
+  const frozen = store?.status === "suspended";
+  const dunningState =
+    frozen || subscription?.status === "past_due"
+      ? {
+          frozen,
+          title: frozen ? "Mağazanız donduruldu" : "Ödeme gecikti — mağazanız risk altında",
+          message: frozen
+            ? "Ödenmeyen abonelik faturası nedeniyle mağaza satışa kapatıldı. Ödeme tamamlandığında mağaza otomatik olarak yeniden açılır."
+            : "Vadesi geçen faturanız var. 3 gün içinde ödeme yapılmazsa mağazanız geçici olarak dondurulur.",
+          payUrl: openPayUrl,
+        }
+      : null;
+
+
   return (
     <AppShell
       storeId={storeId}
@@ -144,6 +167,38 @@ function BillingPage() {
       description="Paket, aylık/yıllık abonelik, limit kullanımı ve faturalar."
     >
       <div className="space-y-8">
+        {dunningState ? (
+          <section
+            className={`flex flex-wrap items-start justify-between gap-4 rounded-xl border p-5 ${
+              dunningState.frozen
+                ? "border-destructive/50 bg-destructive/5"
+                : "border-amber-500/50 bg-amber-500/5"
+            }`}
+          >
+            <div className="flex gap-3">
+              <AlertTriangle
+                className={`mt-0.5 size-5 ${dunningState.frozen ? "text-destructive" : "text-amber-600"}`}
+              />
+              <div className="space-y-1">
+                <p className="font-medium">{dunningState.title}</p>
+                <p className="text-sm text-muted-foreground">{dunningState.message}</p>
+              </div>
+            </div>
+            {dunningState.payUrl ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  void navigator.clipboard.writeText(dunningState.payUrl!);
+                  toast.success("Ödeme linki kopyalandı");
+                }}
+              >
+                Ödeme linkini kopyala
+              </Button>
+            ) : null}
+          </section>
+        ) : null}
+
         <section className="rounded-xl border bg-card p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-1">
