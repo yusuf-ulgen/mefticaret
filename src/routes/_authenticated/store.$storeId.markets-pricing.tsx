@@ -77,7 +77,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/markets-pri
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: MarketsPricingPage;
+  component: MarketsPricingPage,
 });
 
 const MARKUP_OPTIONS = Object.entries(MARKUP_TYPE_LABELS) as [MarkupType, string][];
