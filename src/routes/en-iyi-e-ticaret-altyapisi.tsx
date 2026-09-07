@@ -134,6 +134,12 @@ function BestInfrastructurePage() {
           Başlangıç rehberi
         </Link>
         <Link
+          to="/dropshipping-nasil-yapilir"
+          className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold"
+        >
+          Dropshipping rehberi
+        </Link>
+        <Link
           to="/"
           className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold"
         >
