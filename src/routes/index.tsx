@@ -128,6 +128,8 @@ function LandingPage() {
   const showcase = get("showcase");
   const modules = get("modules");
   const pricing = get("pricing");
+  const [planInterval, setPlanInterval] = useState<"monthly" | "yearly">("monthly");
+
   const cta = get("cta");
   const footer = get("footer");
 
