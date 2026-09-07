@@ -19,6 +19,7 @@ import idefix from "./providers/idefix";
 import ikas from "./providers/ikas";
 import kmk from "./providers/kmk";
 import koctas from "./providers/koctas";
+import megabutik from "./providers/megabutik";
 import n11 from "./providers/n11";
 import opencart from "./providers/opencart";
 import ozon from "./providers/ozon";

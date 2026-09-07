@@ -17,6 +17,7 @@ export const APP_CATEGORIES = [
   "loyalty",
   "dropshipping",
   "marketplace",
+  "automation",
 ] as const;
 
 export type AppCategory = (typeof APP_CATEGORIES)[number];
@@ -38,6 +39,7 @@ export const APP_CATEGORY_LABELS: Record<AppCategory, string> = {
   loyalty: "Sadakat",
   dropshipping: "Dropshipping",
   marketplace: "Pazaryeri",
+  automation: "Otomasyon",
 };
 
 export const APP_PRICING_LABELS: Record<string, string> = {
