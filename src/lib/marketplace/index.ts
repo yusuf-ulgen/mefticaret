@@ -45,6 +45,7 @@ export const MARKETPLACE_CONNECTORS: MarketplaceConnectorModule[] = [
   teknosa,
   koctas,
   kmk,
+  megabutik,
   azall,
   vodafoneYanimda,
   ozon,
