@@ -305,13 +305,11 @@ export async function processBillingLifecycle(
 
     if (!overdue) {
       if (subscription.past_due_since || subscription.frozen_at) {
-        await admin
-          .from("subscriptions")
-          .update({ past_due_since: null, frozen_at: null })
-          .eq("id", subscription.id);
+        await restoreAfterPayment(admin, subscription.store_id);
       }
       continue;
     }
+
 
     const invoice = overdue as InvoiceRow;
     const link = payUrl(invoice.pay_token, baseUrl);
