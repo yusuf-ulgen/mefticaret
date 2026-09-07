@@ -42,8 +42,9 @@ export const Route = createFileRoute("/en-iyi-e-ticaret-altyapisi")({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Ana sayfa", item: "https://mefticaret.lovable.app/" },
+            { "@type": "ListItem", position: 1, name: "Ana sayfa", item: "https://mefticaret.com/" },
             { "@type": "ListItem", position: 2, name: "En iyi e-ticaret altyapısı", item: URL },
+
           ],
         }),
       },
