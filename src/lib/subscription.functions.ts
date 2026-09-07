@@ -351,6 +351,14 @@ export const markInvoicePaid = createServerFn({ method: "POST" })
       .update({ status: "active" })
       .eq("store_id", data.storeId);
 
+    // Kademeli kısıtlamayı kaldır: dondurulmuş mağazayı yeniden aç.
+    const [{ supabaseAdmin }, { restoreAfterPayment }] = await Promise.all([
+      import("@/integrations/supabase/client.server"),
+      import("@/lib/billing-lifecycle.server"),
+    ]);
+    await restoreAfterPayment(supabaseAdmin, data.storeId);
+
+
     await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,

@@ -1067,6 +1067,61 @@ export type Database = {
           },
         ]
       }
+      billing_reminders: {
+        Row: {
+          channel: string
+          id: string
+          invoice_id: string | null
+          kind: string
+          payload: Json
+          sent_at: string
+          store_id: string
+          subscription_id: string | null
+        }
+        Insert: {
+          channel?: string
+          id?: string
+          invoice_id?: string | null
+          kind: string
+          payload?: Json
+          sent_at?: string
+          store_id: string
+          subscription_id?: string | null
+        }
+        Update: {
+          channel?: string
+          id?: string
+          invoice_id?: string | null
+          kind?: string
+          payload?: Json
+          sent_at?: string
+          store_id?: string
+          subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_reminders_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_reminders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_reminders_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_authors: {
         Row: {
           avatar_url: string | null
@@ -3612,6 +3667,7 @@ export type Database = {
           issued_at: string
           line_items: Json
           paid_at: string | null
+          pay_token: string
           status: Database["public"]["Enums"]["invoice_status"]
           store_id: string
           subscription_id: string | null
@@ -3630,6 +3686,7 @@ export type Database = {
           issued_at?: string
           line_items?: Json
           paid_at?: string | null
+          pay_token?: string
           status?: Database["public"]["Enums"]["invoice_status"]
           store_id: string
           subscription_id?: string | null
@@ -3648,6 +3705,7 @@ export type Database = {
           issued_at?: string
           line_items?: Json
           paid_at?: string | null
+          pay_token?: string
           status?: Database["public"]["Enums"]["invoice_status"]
           store_id?: string
           subscription_id?: string | null
@@ -10473,8 +10531,10 @@ export type Database = {
           currency: string
           current_period_end: string
           current_period_start: string
+          frozen_at: string | null
           id: string
           meta: Json
+          past_due_since: string | null
           plan_id: string | null
           started_at: string
           status: Database["public"]["Enums"]["subscription_status"]
@@ -10491,8 +10551,10 @@ export type Database = {
           currency?: string
           current_period_end?: string
           current_period_start?: string
+          frozen_at?: string | null
           id?: string
           meta?: Json
+          past_due_since?: string | null
           plan_id?: string | null
           started_at?: string
           status?: Database["public"]["Enums"]["subscription_status"]
@@ -10509,8 +10571,10 @@ export type Database = {
           currency?: string
           current_period_end?: string
           current_period_start?: string
+          frozen_at?: string | null
           id?: string
           meta?: Json
+          past_due_since?: string | null
           plan_id?: string | null
           started_at?: string
           status?: Database["public"]["Enums"]["subscription_status"]

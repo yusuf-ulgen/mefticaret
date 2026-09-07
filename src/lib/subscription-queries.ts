@@ -173,3 +173,28 @@ export const metricUsageQuery = (storeId: string) =>
       return usage;
     },
   });
+
+export type BillingReminderRow = {
+  id: string;
+  kind: string;
+  channel: string;
+  sent_at: string;
+  payload: { title?: string; message?: string; pay_url?: string } | null;
+};
+
+/** Gönderilen yenileme hatırlatmaları ve kademeli kısıtlama adımları. */
+export const billingRemindersQuery = (storeId: string) =>
+  queryOptions({
+    queryKey: ["billing-reminders", storeId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("billing_reminders")
+        .select("id, kind, channel, sent_at, payload")
+        .eq("store_id", storeId)
+        .order("sent_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return (data ?? []) as unknown as BillingReminderRow[];
+    },
+    staleTime: 30_000,
+  });

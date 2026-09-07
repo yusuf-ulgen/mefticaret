@@ -65,3 +65,12 @@ export function trialDaysLeft(trialEndsAt: string | null | undefined): number | 
   if (diff <= 0) return 0;
   return Math.ceil(diff / 86_400_000);
 }
+
+/** Yenileme & tahsilat otomasyonu adımlarının etiketleri. */
+export const BILLING_REMINDER_LABELS: Record<string, string> = {
+  reminder_7: "7 gün kala hatırlatma",
+  reminder_3: "3 gün kala hatırlatma",
+  reminder_1: "1 gün kala hatırlatma",
+  past_due_warning: "Ödeme gecikti uyarısı",
+  store_frozen: "Mağaza donduruldu",
+};
