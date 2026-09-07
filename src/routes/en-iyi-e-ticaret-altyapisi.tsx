@@ -128,12 +128,19 @@ function BestInfrastructurePage() {
           Ücretsiz mağaza aç <ArrowRight className="h-4 w-4" />
         </Link>
         <Link
+          to="/e-ticaret-sitesi-kurma"
+          className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold"
+        >
+          Başlangıç rehberi
+        </Link>
+        <Link
           to="/"
           className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold"
         >
           Platform özellikleri
         </Link>
       </div>
+
 
       <section className="mt-16">
         <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
