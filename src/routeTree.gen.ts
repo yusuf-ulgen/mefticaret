@@ -27,6 +27,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticated/supplier'
+import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
@@ -211,6 +212,7 @@ import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/c
 import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
 import { Route as ApiPublicCronSeoAiRouteImport } from './routes/api/public/cron.seo-ai'
+import { Route as ApiPublicCronSubscriptionRenewalRouteImport } from './routes/api/public/cron.subscription-renewal'
 import { Route as ApiPublicCronTiktokEventsRouteImport } from './routes/api/public/cron.tiktok-events'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/public/instagram.$storeId'
@@ -324,6 +326,11 @@ const AuthenticatedSupplierRoute = AuthenticatedSupplierRouteImport.update({
   id: '/supplier',
   path: '/supplier',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const FaturaTokenRoute = FaturaTokenRouteImport.update({
+  id: '/fatura/$token',
+  path: '/fatura/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
@@ -1390,6 +1397,12 @@ const ApiPublicCronSeoAiRoute = ApiPublicCronSeoAiRouteImport.update({
   path: '/api/public/cron/seo-ai',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronSubscriptionRenewalRoute =
+  ApiPublicCronSubscriptionRenewalRouteImport.update({
+    id: '/api/public/cron/subscription-renewal',
+    path: '/api/public/cron/subscription-renewal',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronTiktokEventsRoute =
   ApiPublicCronTiktokEventsRouteImport.update({
     id: '/api/public/cron/tiktok-events',
@@ -1530,6 +1543,7 @@ export interface FileRoutesByFullPath {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
+  '/fatura/$token': typeof FaturaTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -1713,6 +1727,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
+  '/api/public/cron/subscription-renewal': typeof ApiPublicCronSubscriptionRenewalRoute
   '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
@@ -1754,6 +1769,7 @@ export interface FileRoutesByTo {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
+  '/fatura/$token': typeof FaturaTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -1936,6 +1952,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
+  '/api/public/cron/subscription-renewal': typeof ApiPublicCronSubscriptionRenewalRoute
   '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
@@ -1980,6 +1997,7 @@ export interface FileRoutesById {
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
+  '/fatura/$token': typeof FaturaTokenRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2163,6 +2181,7 @@ export interface FileRoutesById {
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
+  '/api/public/cron/subscription-renewal': typeof ApiPublicCronSubscriptionRenewalRoute
   '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
@@ -2207,6 +2226,7 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/supplier'
+    | '/fatura/$token'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2390,6 +2410,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
+    | '/api/public/cron/subscription-renewal'
     | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
@@ -2431,6 +2452,7 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/supplier'
+    | '/fatura/$token'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2613,6 +2635,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
+    | '/api/public/cron/subscription-renewal'
     | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
@@ -2656,6 +2679,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
     | '/_authenticated/supplier'
+    | '/fatura/$token'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
@@ -2839,6 +2863,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
+    | '/api/public/cron/subscription-renewal'
     | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
@@ -2878,6 +2903,7 @@ export interface RootRouteChildren {
   SitemapIndexDotxmlRoute: typeof SitemapIndexDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  FaturaTokenRoute: typeof FaturaTokenRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
   ApiV1SplatRoute: typeof ApiV1SplatRoute
@@ -2912,6 +2938,7 @@ export interface RootRouteChildren {
   ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
   ApiPublicCronSeoAiRoute: typeof ApiPublicCronSeoAiRoute
+  ApiPublicCronSubscriptionRenewalRoute: typeof ApiPublicCronSubscriptionRenewalRoute
   ApiPublicCronTiktokEventsRoute: typeof ApiPublicCronTiktokEventsRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicInstagramStoreIdRoute: typeof ApiPublicInstagramStoreIdRoute
@@ -3057,6 +3084,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/supplier'
       preLoaderRoute: typeof AuthenticatedSupplierRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/fatura/$token': {
+      id: '/fatura/$token'
+      path: '/fatura/$token'
+      fullPath: '/fatura/$token'
+      preLoaderRoute: typeof FaturaTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
@@ -4346,6 +4380,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronSeoAiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/subscription-renewal': {
+      id: '/api/public/cron/subscription-renewal'
+      path: '/api/public/cron/subscription-renewal'
+      fullPath: '/api/public/cron/subscription-renewal'
+      preLoaderRoute: typeof ApiPublicCronSubscriptionRenewalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/tiktok-events': {
       id: '/api/public/cron/tiktok-events'
       path: '/api/public/cron/tiktok-events'
@@ -4971,6 +5012,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  FaturaTokenRoute: FaturaTokenRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
   ApiV1SplatRoute: ApiV1SplatRoute,
@@ -5005,6 +5047,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
   ApiPublicCronSeoAiRoute: ApiPublicCronSeoAiRoute,
+  ApiPublicCronSubscriptionRenewalRoute: ApiPublicCronSubscriptionRenewalRoute,
   ApiPublicCronTiktokEventsRoute: ApiPublicCronTiktokEventsRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicInstagramStoreIdRoute: ApiPublicInstagramStoreIdRoute,
