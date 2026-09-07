@@ -23,26 +23,30 @@ const cacheHeadersMiddleware = createMiddleware().server(async ({ next, request 
 
 // Tarayıcı sayfayı terk ettiğinde bağlantı kopar ("aborted"); bu bir uygulama
 // hatası değildir, hata olarak raporlanmamalı.
-export function isClientAbortError(error: unknown): boolean {
-  if (error == null) return false;
-  const err = error as { name?: unknown; message?: unknown; code?: unknown };
-  return (
+export function isClientAbortError(error: unknown, depth = 0): boolean {
+  if (error == null || depth > 5) return false;
+  const err = error as { name?: unknown; message?: unknown; code?: unknown; cause?: unknown };
+  if (
     err.name === "AbortError" ||
     err.code === "ECONNRESET" ||
     err.code === "ABORT_ERR" ||
-    (typeof err.message === "string" && /^(aborted|The user aborted a request\.)$/.test(err.message))
-  );
+    (typeof err.message === "string" &&
+      /(^|\n)\s*(Error:\s*)?(aborted|The user aborted a request\.)\s*($|\n)/.test(err.message))
+  ) {
+    return true;
+  }
+  return isClientAbortError(err.cause, depth + 1);
 }
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
     return await next();
   } catch (error) {
-    if (error != null && typeof error === "object" && "statusCode" in error) {
-      throw error;
-    }
     if (isClientAbortError(error)) {
       return new Response(null, { status: 499 });
+    }
+    if (error != null && typeof error === "object" && "statusCode" in error) {
+      throw error;
     }
     console.error(error);
     return new Response(renderErrorPage(), {

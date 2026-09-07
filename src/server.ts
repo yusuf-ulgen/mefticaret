@@ -10,15 +10,19 @@ type ServerEntry = {
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
 // Tarayıcı isteği iptal ettiğinde ("aborted") bu bir uygulama hatası değildir.
-function isClientAbortError(error: unknown): boolean {
-  if (error == null) return false;
-  const err = error as { name?: unknown; message?: unknown; code?: unknown };
-  return (
+function isClientAbortError(error: unknown, depth = 0): boolean {
+  if (error == null || depth > 5) return false;
+  const err = error as { name?: unknown; message?: unknown; code?: unknown; cause?: unknown };
+  if (
     err.name === "AbortError" ||
     err.code === "ECONNRESET" ||
     err.code === "ABORT_ERR" ||
-    (typeof err.message === "string" && /^(aborted|The user aborted a request\.)$/.test(err.message))
-  );
+    (typeof err.message === "string" &&
+      /(^|\n)\s*(Error:\s*)?(aborted|The user aborted a request\.)\s*($|\n)/.test(err.message))
+  ) {
+    return true;
+  }
+  return isClientAbortError(err.cause, depth + 1);
 }
 
 async function getServerEntry(): Promise<ServerEntry> {
