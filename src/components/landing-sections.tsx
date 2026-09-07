@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -16,6 +17,7 @@ import {
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { getPublicAppShowcase } from "@/lib/app-showcase.functions";
 import { sectionIcon, type SiteSection } from "@/lib/site-content";
 
 
