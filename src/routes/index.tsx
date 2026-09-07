@@ -128,6 +128,8 @@ function LandingPage() {
   const showcase = get("showcase");
   const modules = get("modules");
   const pricing = get("pricing");
+  const [planInterval, setPlanInterval] = useState<"monthly" | "yearly">("monthly");
+
   const cta = get("cta");
   const footer = get("footer");
 
@@ -298,7 +300,29 @@ function LandingPage() {
               {pricing.eyebrow ? <span className="eyebrow">{pricing.eyebrow}</span> : null}
               <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl lg:text-5xl">{pricing.title}</h2>
               <p className="mx-auto mt-5 max-w-xl text-muted-foreground">{pricing.subtitle}</p>
+              <div
+                role="group"
+                aria-label="Ödeme dönemi"
+                className="mx-auto mt-8 inline-flex rounded-full border bg-card p-1"
+              >
+                {(["monthly", "yearly"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={planInterval === option}
+                    onClick={() => setPlanInterval(option)}
+                    className={`rounded-full px-5 py-2 text-sm font-medium transition ${
+                      planInterval === option
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {option === "monthly" ? "Aylık" : "Yıllık"}
+                  </button>
+                ))}
+              </div>
             </div>
+
             <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
               {(plans ?? []).map((plan) => {
                 const limits = (plan.limits ?? {}) as Record<string, number>;
@@ -312,13 +336,30 @@ function LandingPage() {
                     <h3 className="text-base font-semibold">{plan.name}</h3>
                     <p className="mt-1 text-xs text-muted-foreground">{plan.description}</p>
                     <p className="mt-5 font-display text-2xl font-extrabold">
-                      {Number(plan.price_monthly) === 0
-                        ? "Ücretsiz"
-                        : formatMoney(Number(plan.price_monthly), plan.currency)}
-                      {Number(plan.price_monthly) > 0 ? (
-                        <span className="text-sm font-medium text-muted-foreground">/ay</span>
+                      {(() => {
+                        const price =
+                          planInterval === "yearly"
+                            ? Number(plan.price_yearly ?? 0)
+                            : Number(plan.price_monthly ?? 0);
+                        return price === 0
+                          ? "Ücretsiz"
+                          : formatMoney(price, plan.currency);
+                      })()}
+                      {(planInterval === "yearly"
+                        ? Number(plan.price_yearly ?? 0)
+                        : Number(plan.price_monthly ?? 0)) > 0 ? (
+                        <span className="text-sm font-medium text-muted-foreground">
+                          {planInterval === "yearly" ? "/yıl" : "/ay"}
+                        </span>
                       ) : null}
                     </p>
+                    {planInterval === "yearly" && Number(plan.price_yearly ?? 0) > 0 ? (
+                      <p className="mt-1 text-xs text-success">
+                        Aylık {formatMoney(Number(plan.price_yearly) / 12, plan.currency)} — yıllık
+                        ödemede 2 ay avantaj
+                      </p>
+                    ) : null}
+
                     <ul className="mt-5 space-y-2 text-sm">
                       {[
                         [planLimitLabel(limits["products"]), "ürün"],
