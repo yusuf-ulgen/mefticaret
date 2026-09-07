@@ -89,7 +89,8 @@ export async function buildGlobalSitemap(kind: GlobalSitemapKind): Promise<strin
         .from("store_pages")
         .select("slug, seo, page_kind, updated_at, stores!inner(slug, status)")
         .eq("is_published", true)
-        .eq("page_kind", isBlog ? "blog" : "page")
+        // pages: blog dışındaki tüm yayınlanmış sayfalar (page, custom vb.)
+        [isBlog ? "eq" : "neq"]("page_kind", "blog")
         .eq("stores.status", "active")
         .order("updated_at", { ascending: false })
         .range(offset, offset + PAGE_SIZE - 1);

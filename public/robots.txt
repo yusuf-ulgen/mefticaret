@@ -15,4 +15,8 @@ Allow: /
 
 Sitemap: https://mefticaret.com/sitemap-index.xml
 Sitemap: https://mefticaret.com/sitemap.xml
+Sitemap: https://mefticaret.com/sitemap-products.xml
+Sitemap: https://mefticaret.com/sitemap-categories.xml
+Sitemap: https://mefticaret.com/sitemap-pages.xml
+Sitemap: https://mefticaret.com/sitemap-blog.xml
 
