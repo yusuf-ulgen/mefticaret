@@ -19,9 +19,9 @@ import { pickSection, sectionIcon, siteSectionsQuery, type SiteSection } from "@
 import { fetchHomeSeo } from "@/lib/seo-ai.functions";
 import { plansQuery } from "@/lib/store-queries";
 
-const FALLBACK_TITLE = "Mefticaret — Mağazanı Kur, Hemen Satışa Başla";
+const FALLBACK_TITLE = "Mefticaret — Kendi E-Ticaret Mağazanı Kur ve Büyüt";
 const FALLBACK_DESCRIPTION =
-  "Mefticaret ile dakikalar içinde mağazanı kur; ürün, stok, sipariş, kargo, ödeme ve pazaryeri yönetimi tek panelde. Çok kiracılı, ölçeklenebilir e-ticaret altyapısı.";
+  "Mefticaret ile dakikalar içinde mağazanı aç; ürün, stok, kargo ve pazaryeri süreçlerini tek panelden yönet, satışlarını büyüt.";
 
 export const Route = createFileRoute("/")({
   loader: async () => ({ homeSeo: await fetchHomeSeo() }),
