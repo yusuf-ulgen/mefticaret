@@ -6,7 +6,8 @@ import { fetchShowcaseStores } from "@/lib/showcase.functions";
 const TITLE = "En İyi E-Ticaret Altyapısı 2026 — Karşılaştırma ve Rehber";
 const DESCRIPTION =
   "En iyi e-ticaret altyapısı nasıl seçilir? Mefticaret'in çok mağazalı SaaS altyapısını fiyat, pazaryeri entegrasyonu, tema editörü ve SEO özellikleriyle karşılaştırın.";
-const URL = "https://mefticaret.lovable.app/en-iyi-e-ticaret-altyapisi";
+const URL = "https://mefticaret.com/en-iyi-e-ticaret-altyapisi";
+
 
 export const Route = createFileRoute("/en-iyi-e-ticaret-altyapisi")({
   loader: async () => ({ stores: await fetchShowcaseStores() }),
@@ -41,8 +42,9 @@ export const Route = createFileRoute("/en-iyi-e-ticaret-altyapisi")({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Ana sayfa", item: "https://mefticaret.lovable.app/" },
+            { "@type": "ListItem", position: 1, name: "Ana sayfa", item: "https://mefticaret.com/" },
             { "@type": "ListItem", position: 2, name: "En iyi e-ticaret altyapısı", item: URL },
+
           ],
         }),
       },
@@ -126,12 +128,19 @@ function BestInfrastructurePage() {
           Ücretsiz mağaza aç <ArrowRight className="h-4 w-4" />
         </Link>
         <Link
+          to="/e-ticaret-sitesi-kurma"
+          className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold"
+        >
+          Başlangıç rehberi
+        </Link>
+        <Link
           to="/"
           className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold"
         >
           Platform özellikleri
         </Link>
       </div>
+
 
       <section className="mt-16">
         <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
