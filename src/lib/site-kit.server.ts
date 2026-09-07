@@ -37,10 +37,47 @@ export const testSiteKitSchema = z.object({
   provider: z.enum(SITE_KIT_PROVIDER_IDS as [string, ...string[]]),
 });
 
-function toRow(row: Database["public"]["Tables"]["store_site_kit"]["Row"]): SiteKitConfigRow {
+/**
+ * Gizli anahtarlar ayrı bir tabloda tutulur ve Data API'ye hiç açılmaz;
+ * yalnızca servis rolü (sunucu) erişebilir.
+ */
+async function adminClient() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin as unknown as Client;
+}
+
+async function loadSecrets(storeId: string, provider: string): Promise<Record<string, string>> {
+  const admin = await adminClient();
+  const { data, error } = await admin
+    .from("store_site_kit_secrets")
+    .select("secret_config")
+    .eq("store_id", storeId)
+    .eq("provider", provider)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return ((data?.secret_config ?? {}) as Record<string, string>) ?? {};
+}
+
+async function saveSecrets(storeId: string, provider: string, secrets: Record<string, string>) {
+  const admin = await adminClient();
+  const { error } = await admin.from("store_site_kit_secrets").upsert(
+    {
+      store_id: storeId,
+      provider,
+      secret_config: secrets,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "store_id,provider" },
+  );
+  if (error) throw new Error(error.message);
+}
+
+function toRow(
+  row: Database["public"]["Tables"]["store_site_kit"]["Row"],
+  secretConfig: Record<string, string>,
+): SiteKitConfigRow {
   const provider = siteKitProvider(row.provider);
   const publicConfig = (row.public_config ?? {}) as Record<string, string>;
-  const secretConfig = (row.secret_config ?? {}) as Record<string, string>;
   const secretsFilled: Record<string, boolean> = {};
   for (const field of provider?.fields ?? []) {
     if (field.secret) secretsFilled[field.key] = Boolean(secretConfig[field.key]);
@@ -57,12 +94,24 @@ function toRow(row: Database["public"]["Tables"]["store_site_kit"]["Row"]): Site
 }
 
 export async function listSiteKit(supabase: Client, data: z.infer<typeof storeIdSchema>) {
+  // RLS: kullanıcı yalnızca yönetebildiği mağazanın satırlarını görür.
   const { data: rows, error } = await supabase
     .from("store_site_kit")
     .select("*")
     .eq("store_id", data.storeId);
   if (error) throw new Error(error.message);
-  return (rows ?? []).map(toRow);
+  if (!rows?.length) return [];
+
+  const admin = await adminClient();
+  const { data: secretRows } = await admin
+    .from("store_site_kit_secrets")
+    .select("provider, secret_config")
+    .eq("store_id", data.storeId);
+  const secretsByProvider = new Map<string, Record<string, string>>(
+    (secretRows ?? []).map((row) => [row.provider, (row.secret_config ?? {}) as Record<string, string>]),
+  );
+
+  return rows.map((row) => toRow(row, secretsByProvider.get(row.provider) ?? {}));
 }
 
 async function loadRow(supabase: Client, storeId: string, provider: string) {
@@ -82,7 +131,7 @@ export async function saveSiteKit(supabase: Client, data: z.infer<typeof saveSit
   if (provider.availability === "soon") throw new Error("Bu servis yakında kullanıma açılacak");
 
   const existing = await loadRow(supabase, data.storeId, data.provider);
-  const existingSecrets = (existing?.secret_config ?? {}) as Record<string, string>;
+  const existingSecrets = existing ? await loadSecrets(data.storeId, data.provider) : {};
   const secretsFilled: Record<string, boolean> = {};
   for (const field of provider.fields) {
     if (field.secret) secretsFilled[field.key] = Boolean(existingSecrets[field.key]);
@@ -105,6 +154,8 @@ export async function saveSiteKit(supabase: Client, data: z.infer<typeof saveSit
 
   const status: SiteKitStatus = data.isEnabled ? "connected" : "paused";
 
+  // Yetki kontrolü RLS üzerinden burada zorlanır; gizli alanlar ancak bu
+  // yazma başarılı olduktan sonra servis rolüyle kaydedilir.
   const { error } = await supabase.from("store_site_kit").upsert(
     {
       store_id: data.storeId,
@@ -112,12 +163,13 @@ export async function saveSiteKit(supabase: Client, data: z.infer<typeof saveSit
       is_enabled: data.isEnabled,
       status,
       public_config: publicConfig,
-      secret_config: secretConfig,
     },
     { onConflict: "store_id,provider" },
   );
   if (error) throw new Error(error.message);
+  if (Object.keys(secretConfig).length) await saveSecrets(data.storeId, data.provider, secretConfig);
   return { ok: true, status };
+
 }
 
 export async function toggleSiteKit(supabase: Client, data: z.infer<typeof toggleSiteKitSchema>) {
