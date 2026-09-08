@@ -184,6 +184,12 @@ function XmlFeedPage() {
   const [buffer, setBuffer] = useState(0);
   const [minThreshold, setMinThreshold] = useState(0);
   const [cap, setCap] = useState("");
+  const [fxRate, setFxRate] = useState("");
+  const [vatRate, setVatRate] = useState("");
+  const [supplierVatIncluded, setSupplierVatIncluded] = useState(true);
+  const [tiersText, setTiersText] = useState("");
+  const [missingAction, setMissingAction] = useState<"ignore" | "zero_stock" | "deactivate">("zero_stock");
+
   const [filterMinPrice, setFilterMinPrice] = useState("");
   const [filterMaxPrice, setFilterMaxPrice] = useState("");
   const [filterMinStock, setFilterMinStock] = useState("");
