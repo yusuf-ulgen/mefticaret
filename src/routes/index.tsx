@@ -174,8 +174,8 @@ function LandingPage() {
 
       {header ? (
         <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
-          <div className="mx-auto flex h-18 max-w-7xl items-center gap-4 px-4 py-3 lg:px-8">
-            <Link to="/" className="font-display text-2xl font-extrabold tracking-tighter">
+          <div className="mx-auto grid min-h-18 max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-3 md:flex md:gap-4 lg:px-8">
+            <Link to="/" className="min-w-0 truncate font-display text-xl font-extrabold tracking-tighter sm:text-2xl">
               {header.title}
             </Link>
 
@@ -207,20 +207,25 @@ function LandingPage() {
                 </Button>
               ) : (
                 <>
-                  <LinkButton
-                    href={header.secondary_href}
-                    label={header.secondary_label}
-                    variant="ghost"
-                  />
-                  <LinkButton href={header.primary_href} label={header.primary_label} />
+                   <span className="hidden sm:inline-flex">
+                     <LinkButton
+                       href={header.secondary_href}
+                       label={header.secondary_label}
+                       variant="ghost"
+                     />
+                   </span>
+                   <span className="hidden min-[360px]:inline-flex">
+                     <LinkButton href={header.primary_href} label={header.primary_label} />
+                   </span>
                 </>
               )}
               <Button
                 variant="outline"
                 size="icon"
                 className="rounded-full md:hidden"
-                aria-label="Menüyü aç"
+                aria-label={mobileOpen ? "Menüyü kapat" : "Menüyü aç"}
                 aria-expanded={mobileOpen}
+                aria-controls="mobil-ana-menu"
                 onClick={() => setMobileOpen((value) => !value)}
               >
                 {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}

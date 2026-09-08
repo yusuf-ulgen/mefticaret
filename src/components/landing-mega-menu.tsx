@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { sectionIcon, type SiteSection, type SiteSectionItem } from "@/lib/site-content";
 
 /**
@@ -162,31 +163,68 @@ export function LandingMobileMenu({
   const links = extraLinks.filter(
     (item) => !menuNames.has((item["label"] ?? "").toLocaleLowerCase("tr")),
   );
+  const [expanded, setExpanded] = useState<string | null>(tree[0]?.menu ?? null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   return (
-    <div className="border-t border-border bg-background px-4 py-5 md:hidden">
-      <div className="space-y-6">
-        {tree.map((menu) => (
-          <div key={menu.menu}>
-            <p className="font-display text-base font-bold">{menu.menu}</p>
-            <div className="mt-3">
-              <PanelLinks groups={menu.groups} onNavigate={onClose} />
-            </div>
-          </div>
-        ))}
-        {extraLinks.length ? (
-          <ul className="space-y-2 border-t border-border pt-4">
+    <div
+      id="mobil-ana-menu"
+      className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain border-t border-border bg-background px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 shadow-lg md:hidden"
+    >
+      <nav aria-label="Mobil ana gezinme" className="mx-auto max-w-lg">
+        <div className="divide-y divide-border">
+          {tree.map((menu) => {
+            const isExpanded = expanded === menu.menu;
+            const panelId = `mobil-menu-${menu.menu.toLocaleLowerCase("tr").replace(/[^a-z0-9ğüşöçı]+/g, "-")}`;
+            return (
+              <section key={menu.menu} className="py-1.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-12 w-full justify-between px-2 text-base font-semibold"
+                  aria-expanded={isExpanded}
+                  aria-controls={panelId}
+                  onClick={() => setExpanded(isExpanded ? null : menu.menu)}
+                >
+                  <span className="truncate">{menu.menu}</span>
+                  <ChevronDown className={`size-5 shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                </Button>
+                {isExpanded ? (
+                  <div id={panelId} className="pb-3 pt-1">
+                    <PanelLinks groups={menu.groups} onNavigate={onClose} />
+                  </div>
+                ) : null}
+              </section>
+            );
+          })}
+        </div>
+
+        {links.length ? (
+          <ul className="grid gap-1 border-t border-border pt-3">
             {links.map((item, index) => (
               <li key={`${item["label"]}-${index}`}>
-                <a href={item["href"] || "#"} onClick={onClose} className="text-sm font-semibold">
+                <a
+                  href={item["href"] || "#"}
+                  onClick={onClose}
+                  className="flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold transition-colors hover:bg-secondary"
+                >
                   {item["label"]}
                 </a>
               </li>
             ))}
           </ul>
         ) : null}
-      </div>
+      </nav>
     </div>
   );
 }
