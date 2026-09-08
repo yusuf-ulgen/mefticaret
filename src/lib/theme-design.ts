@@ -63,6 +63,22 @@ export type DesignTokens = {
     duration: number;
     respectReducedMotion: boolean;
   };
+  /** Sepet ve ödeme deneyimi ayarları. */
+  commerce: {
+    cartMode: "drawer" | "page";
+    freeShippingBar: boolean;
+    /** 0 ise kargo tarifelerinden gelen eşik kullanılır. */
+    freeShippingThreshold: number;
+    upsell: boolean;
+  };
+  /** Ürün kartı etiketleri (indirim / yeni / tükendi). */
+  badges: {
+    saleLabel: string;
+    saleColor: string;
+    newLabel: string;
+    newColor: string;
+    soldOutLabel: string;
+  };
 };
 
 export const DEFAULT_DESIGN_TOKENS: DesignTokens = {
@@ -93,6 +109,14 @@ export const DEFAULT_DESIGN_TOKENS: DesignTokens = {
   buttons: { paddingY: 12, paddingX: 22, weight: 600, uppercase: false, hover: "lift" },
   cards: { shadow: 1, hover: "lift", imageRatio: "1x1" },
   motion: { effect: "fade", duration: 420, respectReducedMotion: true },
+  commerce: { cartMode: "drawer", freeShippingBar: true, freeShippingThreshold: 0, upsell: true },
+  badges: {
+    saleLabel: "-%{indirim}",
+    saleColor: "#d92d20",
+    newLabel: "Yeni",
+    newColor: "#0f172a",
+    soldOutLabel: "Tükendi",
+  },
 };
 
 /** Hazır tasarım sistemi setleri. */
@@ -178,6 +202,12 @@ const hex = (value: unknown, fallback: string) =>
 const pick = <T extends string>(value: unknown, options: readonly T[], fallback: T): T =>
   options.includes(value as T) ? (value as T) : fallback;
 
+/** Kısa metin etiketleri için güvenli kırpma. */
+const label = (value: unknown, fallback: string) => {
+  const text = typeof value === "string" ? value.trim().slice(0, 24) : "";
+  return text.length ? text : fallback;
+};
+
 function responsive(raw: unknown, fallback: Responsive, min: number, max: number): Responsive {
   const source = (raw ?? {}) as Record<string, unknown>;
   return {
@@ -197,6 +227,8 @@ export function resolveDesignTokens(raw: unknown): DesignTokens {
   const buttons = (source['buttons'] ?? {}) as Record<string, unknown>;
   const cards = (source['cards'] ?? {}) as Record<string, unknown>;
   const motion = (source['motion'] ?? {}) as Record<string, unknown>;
+  const commerce = (source['commerce'] ?? {}) as Record<string, unknown>;
+  const badges = (source['badges'] ?? {}) as Record<string, unknown>;
 
   return {
     colors: {
@@ -239,6 +271,24 @@ export function resolveDesignTokens(raw: unknown): DesignTokens {
       effect: pick(motion['effect'], ["none", "fade", "slide", "zoom"] as const, d.motion['effect']),
       duration: clamp(motion['duration'], 0, 1200, d.motion['duration']),
       respectReducedMotion: Boolean(motion['respectReducedMotion'] ?? d.motion['respectReducedMotion']),
+    },
+    commerce: {
+      cartMode: pick(commerce['cartMode'], ["drawer", "page"] as const, d.commerce['cartMode']),
+      freeShippingBar: Boolean(commerce['freeShippingBar'] ?? d.commerce['freeShippingBar']),
+      freeShippingThreshold: clamp(
+        commerce['freeShippingThreshold'],
+        0,
+        1_000_000,
+        d.commerce['freeShippingThreshold'],
+      ),
+      upsell: Boolean(commerce['upsell'] ?? d.commerce['upsell']),
+    },
+    badges: {
+      saleLabel: label(badges['saleLabel'], d.badges['saleLabel']),
+      saleColor: hex(badges['saleColor'], d.badges['saleColor']),
+      newLabel: label(badges['newLabel'], d.badges['newLabel']),
+      newColor: hex(badges['newColor'], d.badges['newColor']),
+      soldOutLabel: label(badges['soldOutLabel'], d.badges['soldOutLabel']),
     },
   };
 }
@@ -284,6 +334,8 @@ ${scope} {
   --sf-color-success: ${t.colors['success']};
   --sf-color-danger: ${t.colors['danger']};
   --sf-color-sale: ${t.colors['sale']};
+  --sf-badge-sale: ${t.badges['saleColor']};
+  --sf-badge-new: ${t.badges['newColor']};
   --sf-card-shadow: ${shadowValue(t.cards['shadow'])};
   --sf-image-ratio: ${RATIO_VALUES[t.cards['imageRatio']]};
   --sf-motion-duration: ${t.motion['duration']}ms;

@@ -9,6 +9,7 @@ import {
   Layers,
   Loader2,
   Monitor,
+  MousePointerClick,
   Plus,
   Redo2,
   RotateCcw,
@@ -24,16 +25,19 @@ import { toast } from "sonner";
 import { AddSectionDialog } from "@/components/theme-editor/add-section-dialog";
 import { SectionTree, type DraftSection } from "@/components/theme-editor/section-tree";
 import { ThemeSettingsDialog } from "@/components/theme-editor/theme-settings-dialog";
+import { ThemeSettingsPanel } from "@/components/theme-editor/theme-settings-panel";
 import { SettingField, isWideWidget, widgetFor, type FieldValue } from "@/components/theme-editor/fields";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/lib/auth-context";
 import { collectionsQuery, productsQuery } from "@/lib/catalog-queries";
 import { paymentMethodsQuery, shippingZonesQuery } from "@/lib/commerce-queries";
 import { buildStorefrontCommerce } from "@/lib/storefront-commerce";
 import { StorefrontSections, type SectionProduct } from "@/components/storefront-sections";
-import { storeQuery } from "@/lib/store-queries";
+import { myStoresQuery, storeQuery } from "@/lib/store-queries";
+import { designCss, type DesignTokens } from "@/lib/theme-design";
 import { storeThemeQuery } from "@/lib/theme-queries";
 import { themeSectionsQuery } from "@/lib/theme-sections-queries";
 import type { ResolvedSection, SectionField, SectionSettings, ThemeSectionType } from "@/lib/theme-sections";
@@ -72,7 +76,17 @@ type PreviewDevice = "desktop" | "tablet" | "mobile";
 const DEVICES: { value: PreviewDevice; label: string; icon: typeof Monitor; width: number | null }[] = [
   { value: "desktop", label: "Masaüstü", icon: Monitor, width: null },
   { value: "tablet", label: "Tablet", icon: Tablet, width: 768 },
-  { value: "mobile", label: "Mobil", icon: Smartphone, width: 390 },
+  { value: "mobile", label: "Mobil", icon: Smartphone, width: 375 },
+];
+
+type PreviewPage = "home" | "product" | "collection" | "cart" | "search";
+
+const PAGES: { value: PreviewPage; label: string }[] = [
+  { value: "home", label: "Ana sayfa" },
+  { value: "product", label: "Ürün sayfası" },
+  { value: "collection", label: "Kategori sayfası" },
+  { value: "cart", label: "Sepet" },
+  { value: "search", label: "Arama" },
 ];
 
 /** Kaydedilmemiş yerel taslak: sıralama + bölüm ayarları. */
@@ -116,10 +130,13 @@ function tabOf(field: SectionField): "content" | "design" | "layout" {
 function ThemeEditorPage() {
   const { storeId } = Route.useParams();
   const queryClient = useQueryClient();
+  const navigate = Route.useNavigate();
+  const { user } = useAuth();
 
   const { data: sections, isLoading } = useQuery(themeSectionsQuery(storeId));
   const { data: theme } = useQuery(storeThemeQuery(storeId));
   const { data: store } = useQuery(storeQuery(storeId));
+  const { data: stores } = useQuery(myStoresQuery(user?.id));
   const { data: products } = useQuery(productsQuery(storeId));
   const { data: collections } = useQuery(collectionsQuery(storeId));
   const { data: shippingZones } = useQuery(shippingZonesQuery(storeId));
@@ -160,6 +177,11 @@ function ThemeEditorPage() {
   const publish = useServerFn(publishThemeVersion);
 
   const [device, setDevice] = useState<PreviewDevice>("desktop");
+  const [page, setPage] = useState<PreviewPage>("home");
+  const [inspector, setInspector] = useState(false);
+  const [sidebarTab, setSidebarTab] = useState<"sections" | "settings">("sections");
+  /** Tema ayarları sekmesindeki kaydedilmemiş taslak, önizlemeye anında yansır. */
+  const [designDraft, setDesignDraft] = useState<DesignTokens | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState<"content" | "design" | "layout">("content");
   const [addOpen, setAddOpen] = useState(false);
@@ -392,6 +414,84 @@ function ThemeEditorPage() {
   const deviceWidth = DEVICES.find((entry) => entry.value === device)?.width ?? null;
   const storefrontPath = store?.slug ? `/s/${store.slug}` : null;
 
+  // Ana sayfa canlı bölüm ağacıyla, diğer sayfalar gerçek vitrin rotasıyla önizlenir.
+  const pagePath = useMemo(() => {
+    const slug = store?.slug;
+    if (!slug || page === "home") return null;
+    if (page === "product") {
+      const first = products?.[0]?.slug;
+      return first ? `/s/${slug}/p/${first}` : null;
+    }
+    if (page === "collection") {
+      const first = collections?.[0]?.slug;
+      return first ? `/s/${slug}/c/${first}` : `/s/${slug}/products`;
+    }
+    if (page === "cart") return `/s/${slug}/cart`;
+    if (page === "search") return `/s/${slug}/search`;
+    return null;
+  }, [collections, page, products, store?.slug]);
+
+  // Bölümler Shopify'daki gibi Header / Gövde / Footer olarak gruplanır.
+  const groups = useMemo(() => {
+    const header: DraftSection[] = [];
+    const body: DraftSection[] = [];
+    const footer: DraftSection[] = [];
+    for (const item of items) {
+      if (item.section.definition.slot === "chrome") {
+        (item.section.type === "footer" ? footer : header).push(item);
+      } else {
+        body.push(item);
+      }
+    }
+    return { header, body, footer };
+  }, [items]);
+
+  /** Bir grup içindeki yeni sıra, tam sıralamaya geri yazılır. */
+  const reorderGroup = (group: "header" | "body" | "footer", ids: string[]) => {
+    const next = {
+      header: groups.header.map((item) => item.id),
+      body: groups.body.map((item) => item.id),
+      footer: groups.footer.map((item) => item.id),
+    };
+    next[group] = ids;
+    pushDraft({ order: [...next.header, ...next.body, ...next.footer], items: draft.items });
+  };
+
+  const selectSection = (id: string) => {
+    setSelectedId(id);
+    setSidebarTab("sections");
+    if (window.innerWidth < 1024) setPane("settings");
+  };
+
+  const groupTree = (label: string, group: "header" | "body" | "footer", list: DraftSection[]) => (
+    <div className="mb-3">
+      <p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+      {list.length === 0 ? (
+        <p className="px-2 pb-1 text-xs text-muted-foreground">Bu grupta bölüm yok.</p>
+      ) : (
+        <SectionTree
+          items={list}
+          selectedId={selectedId}
+          onSelect={selectSection}
+          onReorder={(ids) => reorderGroup(group, ids)}
+          onToggle={(id) => {
+            const current = draft.items[id];
+            if (!current) return;
+            pushDraft({
+              order: draft.order,
+              items: { ...draft.items, [id]: { ...current, isEnabled: !current.isEnabled } },
+            });
+          }}
+          onDuplicate={(id) => duplicateMutation.mutate(id)}
+          onDelete={(id) => deleteMutation.mutate(id)}
+        />
+      )}
+    </div>
+  );
+
+  const selectClass =
+    "h-8 max-w-[160px] rounded-md border border-border bg-background px-2 text-xs font-medium text-foreground";
+
   return (
     <div className="flex h-screen flex-col bg-background">
       <div className="flex h-full min-h-0 flex-col">
@@ -403,10 +503,48 @@ function ThemeEditorPage() {
                 <ArrowLeft className="size-4" />
               </Link>
             </Button>
-            <span className="truncate text-sm font-semibold">{store?.name ?? "Mağaza"}</span>
+            {(stores ?? []).length > 1 ? (
+              <select
+                aria-label="Mağaza seç"
+                className={selectClass}
+                value={storeId}
+                onChange={(event) => {
+                  void navigate({
+                    to: "/store/$storeId/theme-editor",
+                    params: { storeId: event.target.value },
+                  });
+                }}
+              >
+                {(stores ?? []).map((row) => (
+                  <option key={row.id} value={row.id}>
+                    {row.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="truncate text-sm font-semibold">{store?.name ?? "Mağaza"}</span>
+            )}
+            <span className="hidden truncate text-xs text-muted-foreground xl:inline">
+              {theme?.preset ? `${theme.preset} teması` : "Tema"}
+            </span>
             <Badge variant={theme?.is_published ? "secondary" : "outline"}>
               {theme?.is_published ? "Yayında" : "Taslak"}
             </Badge>
+            <select
+              aria-label="Önizlenecek sayfa"
+              className={selectClass}
+              value={page}
+              onChange={(event) => {
+                setPage(event.target.value as PreviewPage);
+                setPane("preview");
+              }}
+            >
+              {PAGES.map((entry) => (
+                <option key={entry.value} value={entry.value}>
+                  {entry.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="order-3 inline-flex w-full justify-center rounded-lg border border-border p-1 sm:order-none sm:w-auto">
@@ -432,8 +570,17 @@ function ThemeEditorPage() {
             ))}
           </div>
 
-
           <div className="flex items-center gap-1">
+            <Button
+              variant={inspector ? "secondary" : "ghost"}
+              size="icon"
+              aria-label="Denetleyici modu"
+              aria-pressed={inspector}
+              title="Denetleyici: önizlemede bölüme tıklayarak ayarlarını aç"
+              onClick={() => setInspector((current) => !current)}
+            >
+              <MousePointerClick className="size-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -473,7 +620,7 @@ function ThemeEditorPage() {
               ) : (
                 <Check className="size-3.5 sm:mr-1.5" />
               )}
-              <span className="hidden sm:inline">Kaydet</span>
+              <span className="hidden sm:inline">Taslağı kaydet</span>
             </Button>
             {storefrontPath ? (
               <Button asChild size="sm" variant="outline">
@@ -494,7 +641,7 @@ function ThemeEditorPage() {
               ) : (
                 <Rocket className="size-3.5 sm:mr-1.5" />
               )}
-              <span className="hidden sm:inline">Yayınla</span>
+              <span className="hidden sm:inline">Temayı yayınla</span>
             </Button>
           </div>
         </header>
@@ -503,56 +650,57 @@ function ThemeEditorPage() {
           {/* Sol panel */}
           <aside
             className={cn(
-              "min-h-0 w-full shrink-0 flex-col border-border bg-card lg:flex lg:w-[280px] lg:border-r",
+              "min-h-0 w-full shrink-0 flex-col border-border bg-card lg:flex lg:w-[300px] lg:border-r",
               pane === "sections" ? "flex flex-1" : "hidden",
             )}
           >
-            <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
-              <span className="text-sm font-semibold">Bölümler</span>
-              <Button size="sm" variant="outline" onClick={() => setAddOpen(true)}>
-                <Plus className="mr-1 size-3.5" /> Ekle
-              </Button>
+            <div className="border-b border-border px-3 py-2">
+              <Tabs value={sidebarTab} onValueChange={(value) => setSidebarTab(value as "sections" | "settings")}>
+                <TabsList className="w-full">
+                  <TabsTrigger value="sections" className="flex-1">
+                    Bölümler
+                  </TabsTrigger>
+                  <TabsTrigger value="settings" className="flex-1">
+                    Tema ayarları
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
-            <ScrollArea className="flex-1 px-2 py-2">
-              {isLoading ? (
-                <p className="p-3 text-sm text-muted-foreground">Yükleniyor…</p>
-              ) : items.length === 0 ? (
-                <p className="p-3 text-sm text-muted-foreground">
-                  Henüz bölüm yok. “Ekle” ile ilk bölümünü oluştur.
-                </p>
-              ) : (
-                <SectionTree
-                  items={items}
-                  selectedId={selectedId}
-                  onSelect={(id) => {
-                    setSelectedId(id);
-                    // Mobilde seçimden sonra doğrudan ayarlar paneline geç.
-                    if (window.innerWidth < 1024) setPane("settings");
-                  }}
-                  onReorder={(ids) => pushDraft({ order: ids, items: draft.items })}
-                  onToggle={(id) => {
-                    const current = draft.items[id];
-                    if (!current) return;
-                    pushDraft({
-                      order: draft.order,
-                      items: { ...draft.items, [id]: { ...current, isEnabled: !current.isEnabled } },
-                    });
-                  }}
-                  onDuplicate={(id) => duplicateMutation.mutate(id)}
-                  onDelete={(id) => deleteMutation.mutate(id)}
+
+            {sidebarTab === "sections" ? (
+              <>
+                <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
+                  <span className="text-xs text-muted-foreground">Sürükleyerek sırala</span>
+                  <Button size="sm" variant="outline" onClick={() => setAddOpen(true)}>
+                    <Plus className="mr-1 size-3.5" /> Bölüm ekle
+                  </Button>
+                </div>
+                <ScrollArea className="flex-1 px-2 py-2">
+                  {isLoading ? (
+                    <p className="p-3 text-sm text-muted-foreground">Yükleniyor…</p>
+                  ) : items.length === 0 ? (
+                    <p className="p-3 text-sm text-muted-foreground">
+                      Henüz bölüm yok. “Bölüm ekle” ile ilk bölümünü oluştur.
+                    </p>
+                  ) : (
+                    <>
+                      {groupTree("Header", "header", groups.header)}
+                      {groupTree("Şablon gövdesi", "body", groups.body)}
+                      {groupTree("Footer", "footer", groups.footer)}
+                    </>
+                  )}
+                </ScrollArea>
+              </>
+            ) : (
+              <ScrollArea className="flex-1 px-3 py-3">
+                <ThemeSettingsPanel
+                  storeId={storeId}
+                  theme={theme}
+                  onOpenBrandDialog={() => setThemeSettingsOpen(true)}
+                  onDraftChange={setDesignDraft}
                 />
-              )}
-            </ScrollArea>
-            <div className="border-t border-border p-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start"
-                onClick={() => setThemeSettingsOpen(true)}
-              >
-                <Settings2 className="mr-2 size-4" /> Tema ayarları
-              </Button>
-            </div>
+              </ScrollArea>
+            )}
           </aside>
 
           {/* Orta panel: canlı önizleme */}
@@ -566,28 +714,69 @@ function ThemeEditorPage() {
               className="mx-auto overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-all duration-300"
               style={{ maxWidth: deviceWidth ? `${deviceWidth}px` : "100%" }}
             >
-              <div style={{ background: theme?.background_color ?? undefined }}>
-                <StorefrontSections
-                  sections={previewSections.filter((section) => section.isEnabled)}
-                  context={{
-                    theme: theme ?? null,
-                    storeSlug: store?.slug ?? "preview",
-                    storeName: store?.name ?? "Önizleme",
-                    storeCurrency: store?.currency ?? "TRY",
-                    products: previewProducts,
-                    collections: (collections ?? []).map((collection) => ({
-                      id: collection.id,
-                      title: collection.title,
-                      slug: collection.slug,
-                      description: collection.description,
-                    })),
-                    pages: [],
-                    commerce: previewCommerce,
-                    preview: true,
-                  }}
+              {pagePath ? (
+                <iframe
+                  key={pagePath}
+                  title="Sayfa önizlemesi"
+                  src={pagePath}
+                  className="h-[calc(100vh-9rem)] w-full border-0"
                 />
-              </div>
+              ) : (
+                <div
+                  style={{ background: theme?.background_color ?? undefined }}
+                  className={cn(inspector && "sf-inspector")}
+                  onClick={
+                    inspector
+                      ? (event) => {
+                          const target = (event.target as HTMLElement).closest("[data-section-id]");
+                          const id = target?.getAttribute("data-section-id");
+                          if (id) {
+                            event.preventDefault();
+                            selectSection(id);
+                          }
+                        }
+                      : undefined
+                  }
+                >
+                  {designDraft ? (
+                    <style dangerouslySetInnerHTML={{ __html: designCss(designDraft) }} />
+                  ) : null}
+                  {inspector ? (
+                    <style
+                      dangerouslySetInnerHTML={{
+                        __html:
+                          ".sf-inspector [data-section-id]{position:relative;cursor:pointer;outline:1px dashed rgba(37,99,235,.35);outline-offset:-2px}" +
+                          ".sf-inspector [data-section-id]:hover{outline:2px solid rgb(37,99,235);outline-offset:-2px}",
+                      }}
+                    />
+                  ) : null}
+                  <StorefrontSections
+                    sections={previewSections.filter((section) => section.isEnabled)}
+                    context={{
+                      theme: theme ?? null,
+                      storeSlug: store?.slug ?? "preview",
+                      storeName: store?.name ?? "Önizleme",
+                      storeCurrency: store?.currency ?? "TRY",
+                      products: previewProducts,
+                      collections: (collections ?? []).map((collection) => ({
+                        id: collection.id,
+                        title: collection.title,
+                        slug: collection.slug,
+                        description: collection.description,
+                      })),
+                      pages: [],
+                      commerce: previewCommerce,
+                      preview: true,
+                    }}
+                  />
+                </div>
+              )}
             </div>
+            {pagePath ? (
+              <p className="mx-auto mt-2 max-w-3xl text-center text-[11px] text-muted-foreground">
+                Bu sayfa gerçek vitrinden gelir; bölüm değişiklikleri kaydedildikten sonra yansır.
+              </p>
+            ) : null}
           </main>
 
           {/* Sağ panel: ayarlar */}
@@ -694,7 +883,6 @@ function ThemeEditorPage() {
         </nav>
       </div>
 
-
       <AddSectionDialog
         open={addOpen}
         onOpenChange={setAddOpen}
@@ -710,3 +898,4 @@ function ThemeEditorPage() {
     </div>
   );
 }
+

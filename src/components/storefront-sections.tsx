@@ -109,7 +109,12 @@ function ResponsiveSection({ section, context }: { section: ResolvedSection; con
     .join("\n");
 
   return (
-    <div className={`sf-section ${cls}`} style={{ marginBottom: `var(--sf-section-space, ${spacing}px)` }}>
+    <div
+      className={`sf-section ${cls}`}
+      data-section-id={section.id}
+      data-section-label={section.definition.label}
+      style={{ marginBottom: `var(--sf-section-space, ${spacing}px)` }}
+    >
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <StorefrontSection section={section} context={context} />
     </div>
