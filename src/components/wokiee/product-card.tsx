@@ -8,6 +8,7 @@ import { formatMoney } from "@/lib/mefti";
 import { storefrontUI } from "@/lib/storefront-ui";
 import { useCart } from "@/lib/cart";
 import { getQuickAddVariant } from "@/lib/storefront.functions";
+import { resolveDesignTokens } from "@/lib/theme-design";
 import { toast } from "sonner";
 
 /** Wokiee vitrin kartının beklediği ürün alanları (getStorefront çıktısıyla uyumlu). */
@@ -83,6 +84,7 @@ export function WokieeProductCard({
   const [hover, setHover] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  const badges = resolveDesignTokens((theme as { design_tokens?: unknown }).design_tokens).badges;
   const price = Number(product.livePrice ?? product.base_price);
   const compareAt = product.compare_at_price ? Number(product.compare_at_price) : null;
   const off = discountPercent(price, compareAt);
@@ -155,8 +157,8 @@ export function WokieeProductCard({
       }}
     >
       <div style={{ position: "absolute", top: 18, left: 18, zIndex: 2, display: "flex", gap: 6 }}>
-        {off ? chip(`-%${off}`, "#d92d20", "#fff") : null}
-        {soldOut ? chip("Tükendi", "rgba(17,17,17,.82)", "#fff") : null}
+        {off ? chip(badges['saleLabel'].replace("{indirim}", String(off)), badges['saleColor'], "#fff") : null}
+        {soldOut ? chip(badges['soldOutLabel'], "rgba(17,17,17,.82)", "#fff") : null}
       </div>
 
       <FavoriteButton

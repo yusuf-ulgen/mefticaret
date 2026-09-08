@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontUI, useStorefrontUI } from "@/lib/storefront-ui";
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
+import { resolveDesignTokens } from "@/lib/theme-design";
 
 const NOTE_KEY = "mefti-cart-note-v1";
 
@@ -29,7 +30,9 @@ export function CartDrawer({
 
   const lines = cart.linesFor(storeSlug);
   const subtotal = cart.subtotalFor(storeSlug);
-  const threshold = commerce?.freeShippingThreshold ?? null;
+  const design = resolveDesignTokens((theme as { design_tokens?: unknown }).design_tokens).commerce;
+  const override = design['freeShippingThreshold'] > 0 ? design['freeShippingThreshold'] : null;
+  const threshold = design['freeShippingBar'] ? (override ?? commerce?.freeShippingThreshold ?? null) : null;
   const remaining = threshold ? Math.max(0, threshold - subtotal) : 0;
   const progress = threshold ? Math.min(100, Math.round((subtotal / threshold) * 100)) : 0;
   const accentContrast = isDark(t.accent_color) ? "#ffffff" : "#101418";
