@@ -102,6 +102,25 @@ export type StockRules = {
   cap?: number;
 };
 
+export type FilterRules = {
+  /** Tedarikçi maliyeti bu değerin altındaysa ürün atlanır */
+  minSupplierPrice?: number;
+  /** Tedarikçi maliyeti bu değerin üstündeyse ürün atlanır */
+  maxSupplierPrice?: number;
+  /** Bu stok değerinin altındaki ürünler atlanır */
+  minStock?: number;
+  /** Yalnızca bu markalar aktarılır (boşsa tümü) */
+  includeBrands?: string[];
+  /** Bu markalar aktarılmaz */
+  excludeBrands?: string[];
+  /** Yalnızca bu kategoriler aktarılır (boşsa tümü) */
+  includeCategories?: string[];
+  /** Bu kategoriler aktarılmaz */
+  excludeCategories?: string[];
+  /** Ürün adı bu kelimelerden birini içeriyorsa atlanır */
+  excludeKeywords?: string[];
+};
+
 export type SupplierFeedItem = {
   external_id: string | null;
   sku: string | null;
@@ -386,4 +405,42 @@ export function matchValueOf(item: SupplierFeedItem, key: SupplierMatchKey): str
   if (key === "barcode") return item.barcode;
   if (key === "external_id") return item.external_id;
   return item.sku;
+}
+
+const lower = (values?: string[]): string[] =>
+  (values ?? []).map((value) => value.trim().toLowerCase()).filter(Boolean);
+
+/** Filtre kurallarına göre ürünün aktarılıp aktarılmayacağını belirler. */
+export function passesFilters(item: SupplierFeedItem, rules: FilterRules = {}): boolean {
+  if (rules.minSupplierPrice !== undefined && item.supplier_price < rules.minSupplierPrice) return false;
+  if (rules.maxSupplierPrice !== undefined && rules.maxSupplierPrice > 0 && item.supplier_price > rules.maxSupplierPrice)
+    return false;
+  if (rules.minStock !== undefined && item.stock < rules.minStock) return false;
+
+  const brand = (item.brand ?? "").toLowerCase();
+  const category = (item.category ?? "").toLowerCase();
+  const title = (item.title ?? "").toLowerCase();
+
+  const includeBrands = lower(rules.includeBrands);
+  if (includeBrands.length && !includeBrands.includes(brand)) return false;
+  if (lower(rules.excludeBrands).includes(brand) && brand) return false;
+
+  const includeCategories = lower(rules.includeCategories);
+  if (includeCategories.length && !includeCategories.some((value) => category.includes(value))) return false;
+  if (lower(rules.excludeCategories).some((value) => value && category.includes(value))) return false;
+
+  if (lower(rules.excludeKeywords).some((word) => word && title.includes(word))) return false;
+  return true;
+}
+
+/** Satır bazlı metni listeye çevirir (virgül veya satır sonu ayırıcı). */
+export function parseList(raw: string): string[] {
+  return Array.from(
+    new Set(
+      raw
+        .split(/[\n,]/)
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ),
+  ).slice(0, 200);
 }

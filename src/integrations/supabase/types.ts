@@ -10736,6 +10736,7 @@ export type Database = {
           create_missing: boolean
           created_at: string
           field_map: Json
+          filter_rules: Json
           id: string
           import_images: boolean
           is_active: boolean
@@ -10765,6 +10766,7 @@ export type Database = {
           create_missing?: boolean
           created_at?: string
           field_map?: Json
+          filter_rules?: Json
           id?: string
           import_images?: boolean
           is_active?: boolean
@@ -10794,6 +10796,7 @@ export type Database = {
           create_missing?: boolean
           created_at?: string
           field_map?: Json
+          filter_rules?: Json
           id?: string
           import_images?: boolean
           is_active?: boolean
