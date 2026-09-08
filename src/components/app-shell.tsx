@@ -412,13 +412,13 @@ export function AppShell({
   ) : null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/40">
       <a href="#panel-content" className="skip-link">
         İçeriğe geç
       </a>
 
-      {/* Shopify tarzı koyu üst çubuk — tüm genişlik */}
-      <header className="sticky top-0 z-30 flex h-14 items-center gap-2 bg-sidebar-primary px-3 text-sidebar-primary-foreground lg:px-4">
+      {/* Koyu üst çubuk — referans panel düzeniyle aynı hizada */}
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-2 bg-sidebar-primary px-3 text-sidebar-primary-foreground lg:px-4">
         {sidebar ? (
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
