@@ -14,7 +14,9 @@ export type PublicInvoice = {
   storeName: string;
   storeId: string;
   storeStatus: string;
+  cardPaymentEnabled: boolean;
 };
+
 
 export const getInvoiceByToken = createServerFn({ method: "GET" })
   .inputValidator((data) =>
