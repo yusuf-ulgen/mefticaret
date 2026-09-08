@@ -208,28 +208,30 @@ export function AdminShell({
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-muted/20">
+    <div className="flex min-h-screen w-full bg-muted/40">
       <a href="#admin-content" className="skip-link">
         İçeriğe geç
       </a>
-      <aside aria-label="Süper admin menüsü" className="hidden w-64 shrink-0 border-r border-border bg-card lg:block">
-
-        <div className="flex h-14 items-center gap-2 border-b border-border px-4">
-          <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary">
+      <aside
+        aria-label="Süper admin menüsü"
+        className="hidden w-64 shrink-0 border-r border-border/70 bg-card/70 backdrop-blur lg:block"
+      >
+        <div className="sticky top-0 flex h-16 items-center gap-2.5 border-b border-border/70 bg-card/80 px-4 backdrop-blur">
+          <span className="grid size-9 place-items-center rounded-xl bg-foreground text-background">
             <ShieldCheck className="size-4" />
           </span>
           <div className="leading-tight">
-            <p className="font-display text-sm font-semibold">Süper Admin</p>
+            <p className="font-display text-sm font-semibold tracking-tight">Süper Admin</p>
             <p className="text-[11px] text-muted-foreground">Mefticaret platformu</p>
           </div>
         </div>
-        <div className="max-h-[calc(100vh-3.5rem)] overflow-y-auto">
+        <div className="max-h-[calc(100vh-4rem)] overflow-y-auto pb-6">
           <NavLinks />
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card px-4 py-2">
+        <div className="sticky top-0 z-30 flex flex-wrap items-center gap-2 border-b border-border/70 bg-card/75 px-3 py-2.5 backdrop-blur-md lg:px-5">
           <Button
             variant="outline"
             size="icon"
@@ -240,9 +242,18 @@ export function AdminShell({
             <Menu className="size-4" />
           </Button>
           <MegaMenu />
-          <nav aria-label="Hızlı erişim" className="flex flex-1 items-center gap-1 overflow-x-auto">
+          <nav
+            aria-label="Hızlı erişim"
+            className="flex flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
             {ADMIN_QUICK_ACTIONS.map((item) => (
-              <Button key={item.to} asChild variant="ghost" size="sm" className="shrink-0 gap-1.5 text-xs">
+              <Button
+                key={item.to}
+                asChild
+                variant="ghost"
+                size="sm"
+                className="shrink-0 gap-1.5 rounded-full text-xs text-muted-foreground hover:text-foreground"
+              >
                 <Link to={item.to}>
                   <item.icon className="size-3.5" />
                   {item.label}
@@ -250,24 +261,24 @@ export function AdminShell({
               </Button>
             ))}
           </nav>
-          <Button asChild variant="ghost" size="sm" className="shrink-0 text-xs">
+          <Button asChild size="sm" className="shrink-0 rounded-full text-xs">
             <Link to="/stores">Mağaza paneli</Link>
           </Button>
         </div>
-        <header className="flex flex-wrap items-center gap-3 border-b border-border bg-card px-4 py-3">
-          <div className="min-w-0">
-            <h1 className="truncate font-display text-lg font-semibold">{title}</h1>
-            {description ? (
-              <p className="truncate text-xs text-muted-foreground">{description}</p>
-            ) : null}
-          </div>
-          <div className="ml-auto flex items-center gap-2">{actions}</div>
-        </header>
 
-        <main id="admin-content" tabIndex={-1} className="min-w-0 flex-1 space-y-4 p-4 lg:p-6">
-          {children}
+        <main id="admin-content" tabIndex={-1} className="min-w-0 flex-1 p-3 lg:p-6">
+          <header className="mb-4 flex flex-wrap items-end gap-3 rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:px-6 lg:py-5">
+            <div className="min-w-0">
+              <p className="eyebrow mb-1">Yönetim</p>
+              <h1 className="truncate font-display text-xl font-semibold tracking-tight lg:text-2xl">{title}</h1>
+              {description ? (
+                <p className="mt-1 max-w-2xl text-xs text-muted-foreground lg:text-sm">{description}</p>
+              ) : null}
+            </div>
+            <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
+          </header>
+          <div className="space-y-4">{children}</div>
         </main>
-
       </div>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
