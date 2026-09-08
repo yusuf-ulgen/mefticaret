@@ -84,6 +84,13 @@ export const DEFAULT_FIELD_MAP: FieldMap = {
   description: "description",
 };
 
+export type PriceTier = {
+  /** Bu tedarikçi maliyetine kadar (dahil) geçerli kademe; boşsa üst sınırsız */
+  upTo?: number;
+  /** Kademede uygulanacak oran (0.2 = %20) veya sabit tutar */
+  value: number;
+};
+
 export type PriceRules = {
   /** markup: maliyet * (1 + value), margin: maliyet / (1 - value), fixed: maliyet + value */
   mode?: "markup" | "margin" | "fixed";
@@ -91,6 +98,14 @@ export type PriceRules = {
   rounding?: "none" | "integer" | "psychological";
   minPrice?: number;
   maxPrice?: number;
+  /** Tedarikçi para birimi TL değilse uygulanacak çevrim kuru (1 birim = X TL) */
+  fxRate?: number;
+  /** KDV oranı (%) — satış fiyatına eklenir */
+  vatRate?: number;
+  /** Tedarikçi fiyatı KDV dahil geliyorsa KDV tekrar eklenmez */
+  supplierVatIncluded?: boolean;
+  /** Maliyet aralığına göre kademeli kâr oranları (küçükten büyüğe) */
+  tiers?: PriceTier[];
 };
 
 export type StockRules = {
@@ -100,7 +115,10 @@ export type StockRules = {
   minThreshold?: number;
   /** Vitrinde gösterilecek üst sınır */
   cap?: number;
+  /** Kaynakta artık bulunmayan ürünler için davranış */
+  missingAction?: "ignore" | "zero_stock" | "deactivate";
 };
+
 
 export type FilterRules = {
   /** Tedarikçi maliyeti bu değerin altındaysa ürün atlanır */
@@ -370,20 +388,38 @@ const round = (value: number, mode: PriceRules["rounding"]): number => {
   return Math.round(value * 100) / 100;
 };
 
-/** Tedarikçi maliyetinden satış fiyatı üretir. */
+/** Maliyete göre geçerli kademe oranını seçer; kademe yoksa temel oran döner. */
+export function tierValueFor(cost: number, rules: PriceRules = {}): number {
+  const base = Number(rules.value ?? 0);
+  const tiers = (rules.tiers ?? []).filter((tier) => Number.isFinite(Number(tier.value)));
+  if (!tiers.length) return base;
+  const sorted = [...tiers].sort((a, b) => (a.upTo ?? Infinity) - (b.upTo ?? Infinity));
+  for (const tier of sorted) {
+    if (tier.upTo === undefined || tier.upTo <= 0 || cost <= tier.upTo) return Number(tier.value);
+  }
+  return Number(sorted[sorted.length - 1]?.value ?? base);
+}
+
+/** Tedarikçi maliyetinden satış fiyatı üretir (döviz → kâr/kademe → KDV → yuvarlama → limit). */
 export function computeSalePrice(supplierPrice: number, rules: PriceRules = {}): number {
-  const value = Number(rules.value ?? 0);
+  const fx = Number(rules.fxRate ?? 0);
+  const cost = fx > 0 ? supplierPrice * fx : supplierPrice;
+  const value = tierValueFor(cost, rules);
   const mode = rules.mode ?? "markup";
-  let price = supplierPrice;
-  if (mode === "fixed") price = supplierPrice + value;
-  else if (mode === "margin") price = value >= 1 ? supplierPrice : supplierPrice / (1 - value);
-  else price = supplierPrice * (1 + value);
+  let price = cost;
+  if (mode === "fixed") price = cost + value;
+  else if (mode === "margin") price = value >= 1 ? cost : cost / (1 - value);
+  else price = cost * (1 + value);
+
+  const vat = Number(rules.vatRate ?? 0);
+  if (vat > 0 && !rules.supplierVatIncluded) price = price * (1 + vat / 100);
 
   price = round(price, rules.rounding ?? "none");
   if (rules.minPrice !== undefined) price = Math.max(price, rules.minPrice);
   if (rules.maxPrice !== undefined && rules.maxPrice > 0) price = Math.min(price, rules.maxPrice);
   return Math.max(0, Math.round(price * 100) / 100);
 }
+
 
 /** Tedarikçi stoğuna güvenlik payı, alt eşik ve üst sınır kurallarını uygular. */
 export function computeStock(supplierStock: number, rules: StockRules = {}): number {

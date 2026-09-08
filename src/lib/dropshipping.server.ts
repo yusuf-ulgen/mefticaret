@@ -289,8 +289,29 @@ export async function runSupplierFeed(
       else totals.imported += 1;
     }
 
+    // Kaynakta artık bulunmayan ürünler: stok sıfırla veya ürünü pasifleştir.
+    const missingAction = (feed.stock_rules ?? {}).missingAction ?? "ignore";
+    if (missingAction !== "ignore" && items.length) {
+      const { data: stale } = await supabase
+        .from("supplier_products")
+        .select("id, product_id, variant_id")
+        .eq("feed_id", feed.id)
+        .lt("last_seen_at", now);
+      const rows = (stale ?? []) as { id: string; product_id: string | null; variant_id: string | null }[];
+      for (const row of rows) {
+        await supabase.from("supplier_products").update({ stock: 0 }).eq("id", row.id);
+        if (row.variant_id) {
+          await supabase.from("product_variants").update({ stock: 0 }).eq("id", row.variant_id);
+        }
+        if (missingAction === "deactivate" && row.product_id) {
+          await supabase.from("products").update({ status: "draft" }).eq("id", row.product_id);
+        }
+      }
+    }
+
     await finish("success");
     return { runId, totals };
+
   } catch (error) {
     const message = error instanceof Error ? error.message : "Senkronizasyon başarısız";
     await finish("failed", message);

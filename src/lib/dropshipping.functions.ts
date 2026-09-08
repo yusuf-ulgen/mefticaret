@@ -43,6 +43,18 @@ const priceRulesSchema = z
     rounding: z.enum(["none", "integer", "psychological"]).default("none"),
     minPrice: z.number().min(0).max(10_000_000).optional(),
     maxPrice: z.number().min(0).max(10_000_000).optional(),
+    fxRate: z.number().min(0).max(10_000).optional(),
+    vatRate: z.number().min(0).max(100).optional(),
+    supplierVatIncluded: z.boolean().optional(),
+    tiers: z
+      .array(
+        z.object({
+          upTo: z.number().min(0).max(10_000_000).optional(),
+          value: z.number().min(-0.9).max(100),
+        }),
+      )
+      .max(10)
+      .optional(),
   })
   .default({ mode: "markup", value: 0, rounding: "none" });
 
@@ -51,8 +63,10 @@ const stockRulesSchema = z
     buffer: z.number().int().min(0).max(100_000).default(0),
     minThreshold: z.number().int().min(0).max(100_000).default(0),
     cap: z.number().int().min(0).max(1_000_000).optional(),
+    missingAction: z.enum(["ignore", "zero_stock", "deactivate"]).optional(),
   })
   .default({ buffer: 0, minThreshold: 0 });
+
 
 const filterRulesSchema = z
   .object({

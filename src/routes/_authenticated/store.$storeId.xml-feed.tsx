@@ -184,6 +184,12 @@ function XmlFeedPage() {
   const [buffer, setBuffer] = useState(0);
   const [minThreshold, setMinThreshold] = useState(0);
   const [cap, setCap] = useState("");
+  const [fxRate, setFxRate] = useState("");
+  const [vatRate, setVatRate] = useState("");
+  const [supplierVatIncluded, setSupplierVatIncluded] = useState(true);
+  const [tiersText, setTiersText] = useState("");
+  const [missingAction, setMissingAction] = useState<"ignore" | "zero_stock" | "deactivate">("zero_stock");
+
   const [filterMinPrice, setFilterMinPrice] = useState("");
   const [filterMaxPrice, setFilterMaxPrice] = useState("");
   const [filterMinStock, setFilterMinStock] = useState("");
@@ -250,6 +256,28 @@ function XmlFeedPage() {
     enabled: tab === "pool",
   });
 
+  /** "500=10" satırlarını kademe listesine çevirir (500 TL maliyete kadar %10 kâr). */
+  const priceTiers = useMemo(
+    () =>
+      tiersText
+        .split(/[\n;]/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const [rawUpTo, rawValue] = line.split("=");
+          const upTo = Number(rawUpTo);
+          const value = Number(rawValue);
+          if (!Number.isFinite(value)) return null;
+          return {
+            ...(Number.isFinite(upTo) && upTo > 0 ? { upTo } : {}),
+            value: priceMode === "fixed" ? value : value / 100,
+          };
+        })
+        .filter((tier): tier is { upTo?: number; value: number } => tier !== null)
+        .slice(0, 10),
+    [tiersText, priceMode],
+  );
+
   const priceRules = useMemo(
     () => ({
       mode: priceMode,
@@ -257,8 +285,12 @@ function XmlFeedPage() {
       rounding,
       ...(minPrice ? { minPrice: Number(minPrice) } : {}),
       ...(maxPrice ? { maxPrice: Number(maxPrice) } : {}),
+      ...(fxRate ? { fxRate: Number(fxRate) } : {}),
+      ...(vatRate ? { vatRate: Number(vatRate) } : {}),
+      supplierVatIncluded,
+      ...(priceTiers.length ? { tiers: priceTiers } : {}),
     }),
-    [priceMode, priceValue, rounding, minPrice, maxPrice],
+    [priceMode, priceValue, rounding, minPrice, maxPrice, fxRate, vatRate, supplierVatIncluded, priceTiers],
   );
 
   const stockRules = useMemo(
@@ -266,9 +298,11 @@ function XmlFeedPage() {
       buffer,
       minThreshold,
       ...(cap ? { cap: Number(cap) } : {}),
+      missingAction,
     }),
-    [buffer, minThreshold, cap],
+    [buffer, minThreshold, cap, missingAction],
   );
+
 
   const filterRules = useMemo<FilterRules>(
     () => ({
@@ -387,6 +421,19 @@ function XmlFeedPage() {
     setBuffer(Number(stock.buffer ?? 0));
     setMinThreshold(Number(stock.minThreshold ?? 0));
     setCap(stock.cap !== undefined ? String(stock.cap) : "");
+    setFxRate(price.fxRate !== undefined ? String(price.fxRate) : "");
+    setVatRate(price.vatRate !== undefined ? String(price.vatRate) : "");
+    setSupplierVatIncluded(price.supplierVatIncluded ?? true);
+    setTiersText(
+      (price.tiers ?? [])
+        .map(
+          (tier) =>
+            `${tier.upTo ?? 0}=${price.mode === "fixed" ? tier.value : Math.round(Number(tier.value) * 100)}`,
+        )
+        .join("\n"),
+    );
+    setMissingAction(stock.missingAction ?? "ignore");
+
     setFilterMinPrice(filters.minSupplierPrice !== undefined ? String(filters.minSupplierPrice) : "");
     setFilterMaxPrice(filters.maxSupplierPrice !== undefined ? String(filters.maxSupplierPrice) : "");
     setFilterMinStock(filters.minStock !== undefined ? String(filters.minStock) : "");
@@ -841,6 +888,58 @@ function XmlFeedPage() {
                   <Input value={cap} onChange={(event) => setCap(event.target.value)} placeholder="0" />
                 </div>
               </div>
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="space-y-1.5">
+                  <Label>Döviz kuru (1 birim = ₺)</Label>
+                  <Input
+                    value={fxRate}
+                    onChange={(event) => setFxRate(event.target.value)}
+                    placeholder="Kaynak TL ise boş bırak"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>KDV oranı (%)</Label>
+                  <Input value={vatRate} onChange={(event) => setVatRate(event.target.value)} placeholder="20" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Kaynakta olmayan ürün</Label>
+                  <select
+                    className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                    value={missingAction}
+                    onChange={(event) => setMissingAction(event.target.value as typeof missingAction)}
+                  >
+                    <option value="ignore">Dokunma</option>
+                    <option value="zero_stock">Stoğu sıfırla</option>
+                    <option value="deactivate">Ürünü taslağa al</option>
+                  </select>
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="size-4"
+                  checked={supplierVatIncluded}
+                  onChange={(event) => setSupplierVatIncluded(event.target.checked)}
+                />
+                Tedarikçi fiyatları KDV dahil geliyor (işaretliyse KDV tekrar eklenmez)
+              </label>
+
+              <div className="space-y-1.5">
+                <Label>Kademeli kâr oranları</Label>
+                <Textarea
+                  rows={3}
+                  value={tiersText}
+                  onChange={(event) => setTiersText(event.target.value)}
+                  placeholder={"250=35\n1000=25\n0=15"}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Her satır “maliyet üst sınırı=oran”. Örnek: 250 TL’ye kadar %35, 1000 TL’ye kadar %25, üzeri için
+                  0=15 yazın. Boş bırakılırsa yukarıdaki tek oran uygulanır.
+                </p>
+              </div>
+
 
               <div className="space-y-3 rounded-md border p-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
