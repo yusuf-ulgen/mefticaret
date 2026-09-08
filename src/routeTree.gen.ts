@@ -212,6 +212,7 @@ import { Route as AuthenticatedStoreStoreIdVendorsRouteImport } from './routes/_
 import { Route as AuthenticatedStoreStoreIdWarehousesRouteImport } from './routes/_authenticated/store.$storeId.warehouses'
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
 import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/_authenticated/store.$storeId.whatsapp'
+import { Route as AuthenticatedStoreStoreIdXmlFeedRouteImport } from './routes/_authenticated/store.$storeId.xml-feed'
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronExchangeRatesRouteImport } from './routes/api/public/cron.exchange-rates'
@@ -1400,6 +1401,12 @@ const AuthenticatedStoreStoreIdWhatsappRoute =
     path: '/store/$storeId/whatsapp',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdXmlFeedRoute =
+  AuthenticatedStoreStoreIdXmlFeedRouteImport.update({
+    id: '/store/$storeId/xml-feed',
+    path: '/store/$storeId/xml-feed',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicCronAutomationTickRoute =
   ApiPublicCronAutomationTickRouteImport.update({
     id: '/api/public/cron/automation-tick',
@@ -1776,6 +1783,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
+  '/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
@@ -2009,6 +2017,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
+  '/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
@@ -2246,6 +2255,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/_authenticated/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
+  '/_authenticated/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
@@ -2483,6 +2493,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
     | '/store/$storeId/whatsapp'
+    | '/store/$storeId/xml-feed'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
@@ -2716,6 +2727,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
     | '/store/$storeId/whatsapp'
+    | '/store/$storeId/xml-feed'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
@@ -2952,6 +2964,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/warehouses'
     | '/_authenticated/store/$storeId/webhooks'
     | '/_authenticated/store/$storeId/whatsapp'
+    | '/_authenticated/store/$storeId/xml-feed'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
@@ -4483,6 +4496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdWhatsappRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/xml-feed': {
+      id: '/_authenticated/store/$storeId/xml-feed'
+      path: '/store/$storeId/xml-feed'
+      fullPath: '/store/$storeId/xml-feed'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdXmlFeedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/cron/automation-tick': {
       id: '/api/public/cron/automation-tick'
       path: '/api/public/cron/automation-tick'
@@ -4963,6 +4983,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdWarehousesRoute: typeof AuthenticatedStoreStoreIdWarehousesRoute
   AuthenticatedStoreStoreIdWebhooksRoute: typeof AuthenticatedStoreStoreIdWebhooksRoute
   AuthenticatedStoreStoreIdWhatsappRoute: typeof AuthenticatedStoreStoreIdWhatsappRoute
+  AuthenticatedStoreStoreIdXmlFeedRoute: typeof AuthenticatedStoreStoreIdXmlFeedRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -5155,6 +5176,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedStoreStoreIdWebhooksRoute,
   AuthenticatedStoreStoreIdWhatsappRoute:
     AuthenticatedStoreStoreIdWhatsappRoute,
+  AuthenticatedStoreStoreIdXmlFeedRoute: AuthenticatedStoreStoreIdXmlFeedRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
