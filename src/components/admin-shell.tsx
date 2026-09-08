@@ -182,8 +182,15 @@ export function AdminShell({
   actions?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const { isPlatformAdmin, loading } = useAuth();
+  const { isPlatformAdmin, loading, profile, user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const userLabel = profile?.full_name || profile?.email || user?.email || "Süper yönetici";
+  const initials = userLabel
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0] ?? "")
+    .join("");
 
   if (!loading && !isPlatformAdmin) {
     return (
