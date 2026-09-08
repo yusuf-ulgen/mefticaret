@@ -388,20 +388,38 @@ const round = (value: number, mode: PriceRules["rounding"]): number => {
   return Math.round(value * 100) / 100;
 };
 
-/** Tedarikçi maliyetinden satış fiyatı üretir. */
+/** Maliyete göre geçerli kademe oranını seçer; kademe yoksa temel oran döner. */
+export function tierValueFor(cost: number, rules: PriceRules = {}): number {
+  const base = Number(rules.value ?? 0);
+  const tiers = (rules.tiers ?? []).filter((tier) => Number.isFinite(Number(tier.value)));
+  if (!tiers.length) return base;
+  const sorted = [...tiers].sort((a, b) => (a.upTo ?? Infinity) - (b.upTo ?? Infinity));
+  for (const tier of sorted) {
+    if (tier.upTo === undefined || tier.upTo <= 0 || cost <= tier.upTo) return Number(tier.value);
+  }
+  return Number(sorted[sorted.length - 1]?.value ?? base);
+}
+
+/** Tedarikçi maliyetinden satış fiyatı üretir (döviz → kâr/kademe → KDV → yuvarlama → limit). */
 export function computeSalePrice(supplierPrice: number, rules: PriceRules = {}): number {
-  const value = Number(rules.value ?? 0);
+  const fx = Number(rules.fxRate ?? 0);
+  const cost = fx > 0 ? supplierPrice * fx : supplierPrice;
+  const value = tierValueFor(cost, rules);
   const mode = rules.mode ?? "markup";
-  let price = supplierPrice;
-  if (mode === "fixed") price = supplierPrice + value;
-  else if (mode === "margin") price = value >= 1 ? supplierPrice : supplierPrice / (1 - value);
-  else price = supplierPrice * (1 + value);
+  let price = cost;
+  if (mode === "fixed") price = cost + value;
+  else if (mode === "margin") price = value >= 1 ? cost : cost / (1 - value);
+  else price = cost * (1 + value);
+
+  const vat = Number(rules.vatRate ?? 0);
+  if (vat > 0 && !rules.supplierVatIncluded) price = price * (1 + vat / 100);
 
   price = round(price, rules.rounding ?? "none");
   if (rules.minPrice !== undefined) price = Math.max(price, rules.minPrice);
   if (rules.maxPrice !== undefined && rules.maxPrice > 0) price = Math.min(price, rules.maxPrice);
   return Math.max(0, Math.round(price * 100) / 100);
 }
+
 
 /** Tedarikçi stoğuna güvenlik payı, alt eşik ve üst sınır kurallarını uygular. */
 export function computeStock(supplierStock: number, rules: StockRules = {}): number {
