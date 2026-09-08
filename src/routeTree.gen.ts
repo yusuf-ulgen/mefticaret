@@ -69,6 +69,7 @@ import { Route as AuthenticatedAdminWebhooksRouteImport } from './routes/_authen
 import { Route as AuthenticatedOauthAuthorizeRouteImport } from './routes/_authenticated/oauth.authorize'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
 import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
+import { Route as ApiPublicOdealCallbackRouteImport } from './routes/api/public/odeal-callback'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
 import { Route as SSlugAboutRouteImport } from './routes/s.$slug.about'
@@ -563,6 +564,11 @@ const AuthenticatedSellerSellerIdRoute =
 const ApiPublicIndexnowRoute = ApiPublicIndexnowRouteImport.update({
   id: '/api/public/indexnow',
   path: '/api/public/indexnow',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOdealCallbackRoute = ApiPublicOdealCallbackRouteImport.update({
+  id: '/api/public/odeal-callback',
+  path: '/api/public/odeal-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiV1SplatRoute = ApiV1SplatRouteImport.update({
@@ -1620,6 +1626,7 @@ export interface FileRoutesByFullPath {
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
+  '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
@@ -1852,6 +1859,7 @@ export interface FileRoutesByTo {
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
+  '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
@@ -2086,6 +2094,7 @@ export interface FileRoutesById {
   '/_authenticated/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
+  '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
@@ -2321,6 +2330,7 @@ export interface FileRouteTypes {
     | '/oauth/authorize'
     | '/seller/$sellerId'
     | '/api/public/indexnow'
+    | '/api/public/odeal-callback'
     | '/api/v1/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
@@ -2553,6 +2563,7 @@ export interface FileRouteTypes {
     | '/oauth/authorize'
     | '/seller/$sellerId'
     | '/api/public/indexnow'
+    | '/api/public/odeal-callback'
     | '/api/v1/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
@@ -2786,6 +2797,7 @@ export interface FileRouteTypes {
     | '/_authenticated/oauth/authorize'
     | '/_authenticated/seller/$sellerId'
     | '/api/public/indexnow'
+    | '/api/public/odeal-callback'
     | '/api/v1/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
@@ -2983,6 +2995,7 @@ export interface RootRouteChildren {
   FaturaTokenRoute: typeof FaturaTokenRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
+  ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
   ApiV1SplatRoute: typeof ApiV1SplatRoute
   SSlugAboutRoute: typeof SSlugAboutRoute
   SSlugAccountRoute: typeof SSlugAccountRoute
@@ -3454,6 +3467,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/indexnow'
       fullPath: '/api/public/indexnow'
       preLoaderRoute: typeof ApiPublicIndexnowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/odeal-callback': {
+      id: '/api/public/odeal-callback'
+      path: '/api/public/odeal-callback'
+      fullPath: '/api/public/odeal-callback'
+      preLoaderRoute: typeof ApiPublicOdealCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/v1/$': {
@@ -5141,6 +5161,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaturaTokenRoute: FaturaTokenRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
+  ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
   ApiV1SplatRoute: ApiV1SplatRoute,
   SSlugAboutRoute: SSlugAboutRoute,
   SSlugAccountRoute: SSlugAccountRoute,
