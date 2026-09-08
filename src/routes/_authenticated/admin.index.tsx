@@ -14,6 +14,7 @@ import {
 
 import {
   Activity,
+  ArrowRight,
   BadgeCheck,
   Coins,
   Radio,
