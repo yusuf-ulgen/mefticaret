@@ -144,3 +144,8 @@ export async function checkPaymentStatus(params: {
     raw: json,
   };
 }
+
+/** Kimlik bilgilerinin geçerliliğini token alarak doğrular. */
+export async function verifyOdealCredentials(): Promise<void> {
+  await getAccessToken();
+}
