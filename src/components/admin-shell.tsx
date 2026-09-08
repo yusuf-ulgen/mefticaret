@@ -20,18 +20,18 @@ function isActivePath(pathname: string, to: string) {
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
-    <nav className="space-y-2 px-3 py-4">
+    <nav className="space-y-1.5 px-3 py-4">
       {NAV.map((group) => (
         <details
           key={group.title}
           open={group.items.some((item) => isActivePath(pathname, item.to))}
-          className="group rounded-lg"
+          className="group rounded-xl"
         >
-          <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground hover:bg-muted/60 hover:text-foreground">
+          <summary className="flex cursor-pointer list-none items-center justify-between rounded-xl px-2.5 py-2 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground transition hover:bg-muted/70 hover:text-foreground">
             {group.title}
             <ChevronDown className="size-3.5 transition group-open:rotate-180" />
           </summary>
-          <ul className="mt-0.5 space-y-0.5">
+          <ul className="mt-1 space-y-0.5 border-l border-border/70 pl-2">
             {group.items.map((item) => {
               const active = isActivePath(pathname, item.to);
               return (
@@ -40,10 +40,10 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                     to={item.to}
                     onClick={onNavigate}
                     className={cn(
-                      "flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition",
+                      "flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] transition",
                       active
-                        ? "bg-primary/10 font-medium text-primary"
-                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                        ? "bg-foreground font-medium text-background"
+                        : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
                     )}
                   >
                     <item.icon className="size-4 shrink-0" />
