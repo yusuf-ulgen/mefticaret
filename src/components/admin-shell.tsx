@@ -53,7 +53,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
               );
             })}
           </ul>
-        </div>
+        </details>
       ))}
     </nav>
   );
