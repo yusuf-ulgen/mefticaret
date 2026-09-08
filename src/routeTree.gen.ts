@@ -18,6 +18,7 @@ import { Route as EnIyiETicaretAltyapisiRouteImport } from './routes/en-iyi-e-ti
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as PazaryeriEntegrasyonuRouteImport } from './routes/pazaryeri-entegrasyonu'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
 import { Route as SitemapCategoriesDotxmlRouteImport } from './routes/sitemap-categories[.]xml'
@@ -283,6 +284,11 @@ const LoginRoute = LoginRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PazaryeriEntegrasyonuRoute = PazaryeriEntegrasyonuRouteImport.update({
+  id: '/pazaryeri-entegrasyonu',
+  path: '/pazaryeri-entegrasyonu',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -1558,6 +1564,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
@@ -1789,6 +1796,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
@@ -2020,6 +2028,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
@@ -2253,6 +2262,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/mcp'
+    | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/sitemap-blog.xml'
     | '/sitemap-categories.xml'
@@ -2484,6 +2494,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/mcp'
+    | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/sitemap-blog.xml'
     | '/sitemap-categories.xml'
@@ -2714,6 +2725,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/mcp'
+    | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/sitemap-blog.xml'
     | '/sitemap-categories.xml'
@@ -2947,6 +2959,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
+  PazaryeriEntegrasyonuRoute: typeof PazaryeriEntegrasyonuRoute
   RegisterRoute: typeof RegisterRoute
   SitemapBlogDotxmlRoute: typeof SitemapBlogDotxmlRoute
   SitemapCategoriesDotxmlRoute: typeof SitemapCategoriesDotxmlRoute
@@ -3072,6 +3085,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pazaryeri-entegrasyonu': {
+      id: '/pazaryeri-entegrasyonu'
+      path: '/pazaryeri-entegrasyonu'
+      fullPath: '/pazaryeri-entegrasyonu'
+      preLoaderRoute: typeof PazaryeriEntegrasyonuRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -5087,6 +5107,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
+  PazaryeriEntegrasyonuRoute: PazaryeriEntegrasyonuRoute,
   RegisterRoute: RegisterRoute,
   SitemapBlogDotxmlRoute: SitemapBlogDotxmlRoute,
   SitemapCategoriesDotxmlRoute: SitemapCategoriesDotxmlRoute,

@@ -40,6 +40,7 @@ export const Route = createFileRoute("/dropshipping-nasil-yapilir")({
           "@type": "Article",
           headline: "Dropshipping Nasıl Yapılır? 2026 Rehberi",
           description: DESCRIPTION,
+          image: "https://mefticaret.com/og-mefticaret.jpg",
           inLanguage: "tr-TR",
           author: { "@type": "Organization", name: "Mefticaret" },
           publisher: { "@type": "Organization", name: "Mefticaret" },
