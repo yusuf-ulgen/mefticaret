@@ -124,14 +124,35 @@ function AdminAppsPage() {
   const rows = useMemo(() => {
     const list = (appsQuery.data ?? []) as unknown as AppRow[];
     const term = search.trim().toLocaleLowerCase("tr");
-    if (!term) return list;
-    return list.filter((row) =>
-      [row.name, row.code, APP_CATEGORY_LABELS[row.category] ?? row.category]
-        .join(" ")
-        .toLocaleLowerCase("tr")
-        .includes(term),
-    );
-  }, [appsQuery.data, search]);
+    const filtered = term
+      ? list.filter((row) =>
+          [row.name, row.code, APP_CATEGORY_LABELS[row.category] ?? row.category]
+            .join(" ")
+            .toLocaleLowerCase("tr")
+            .includes(term),
+        )
+      : list;
+    return activeCategory === "all"
+      ? filtered
+      : filtered.filter((row) => row.category === activeCategory);
+  }, [appsQuery.data, search, activeCategory]);
+
+  /** Uygulamalar kategori kategori listelenir; boş kategoriler gizlenir. */
+  const grouped = useMemo(() => {
+    const order = APP_CATEGORIES as readonly AppCategory[];
+    const known = order.map((category) => ({
+      category: category as string,
+      label: APP_CATEGORY_LABELS[category] ?? category,
+      items: rows.filter((row) => row.category === category),
+    }));
+    const others = rows.filter((row) => !order.includes(row.category));
+    const extra = Array.from(new Set(others.map((row) => row.category))).map((category) => ({
+      category: category as string,
+      label: APP_CATEGORY_LABELS[category as AppCategory] ?? String(category),
+      items: others.filter((row) => row.category === category),
+    }));
+    return [...known, ...extra].filter((group) => group.items.length > 0);
+  }, [rows]);
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["admin", "apps"] });
