@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle2, FileText } from "lucide-react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getInvoiceByToken } from "@/lib/invoice-pay.functions";
+import { getInvoiceByToken, startInvoiceCardPayment } from "@/lib/invoice-pay.functions";
 import { INVOICE_STATUS_LABELS } from "@/lib/subscription";
+
 
 export const Route = createFileRoute("/fatura/$token")({
   head: () => ({
