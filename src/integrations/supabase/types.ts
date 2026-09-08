@@ -3656,6 +3656,78 @@ export type Database = {
           },
         ]
       }
+      invoice_payments: {
+        Row: {
+          amount: number
+          checkout_url: string | null
+          created_at: string
+          currency: string
+          environment: string
+          external_id: string
+          id: string
+          invoice_id: string
+          provider: string
+          provider_payment_id: string | null
+          raw_callback: Json | null
+          reason: string | null
+          status: string
+          store_id: string
+          unique_key: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          environment?: string
+          external_id: string
+          id?: string
+          invoice_id: string
+          provider?: string
+          provider_payment_id?: string | null
+          raw_callback?: Json | null
+          reason?: string | null
+          status?: string
+          store_id: string
+          unique_key?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          environment?: string
+          external_id?: string
+          id?: string
+          invoice_id?: string
+          provider?: string
+          provider_payment_id?: string | null
+          raw_callback?: Json | null
+          reason?: string | null
+          status?: string
+          store_id?: string
+          unique_key?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_payments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           billing_cycle_id: string | null
