@@ -18,6 +18,7 @@ import {
   PenLine,
   Radio,
   Receipt,
+  ScrollText,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -48,15 +49,21 @@ export type AdminNavGroup = {
 
 export const ADMIN_NAV: AdminNavGroup[] = [
   {
-    title: "Genel",
-    description: "Platformun nabzı, mağazalar ve kullanıcılar.",
+    title: "Genel bakış",
+    description: "Platformun nabzı ve anlık trafik.",
     items: [
       { to: "/admin", label: "Dashboard", icon: Gauge, hint: "Platform özeti", keywords: "panel özet kpi" },
       { to: "/admin/live", label: "Canlı İzleme", icon: Radio, hint: "Anlık trafik", keywords: "gerçek zamanlı ziyaretçi" },
+      { to: "/admin/analytics", label: "Analitik", icon: ChartNoAxesColumn, hint: "Rapor ve trendler", keywords: "analitik rapor" },
+    ],
+  },
+  {
+    title: "Mağazalar & kullanıcılar",
+    description: "Kiracılar, hesaplar ve satıcılar.",
+    items: [
       { to: "/admin/stores", label: "Mağazalar", icon: Store, hint: "Oluştur, düzenle, sil", keywords: "tenant store crud" },
       { to: "/admin/users", label: "Kullanıcılar", icon: Users, hint: "Hesaplar ve roller", keywords: "profil rol" },
       { to: "/admin/sellers", label: "Satıcılar", icon: BadgeCheck, hint: "Marketplace satıcıları", keywords: "seller onay" },
-      { to: "/admin/marketplace", label: "Marketplace", icon: Globe, hint: "Kanallar", keywords: "trendyol hepsiburada kanal" },
     ],
   },
   {
@@ -82,6 +89,12 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { to: "/admin/blog", label: "Blog Sistemi", icon: PenLine, hint: "Yazılar ve yayın takvimi", keywords: "makale içerik yazı" },
       { to: "/admin/content", label: "İçerik Merkezi", icon: Images, hint: "Popup, story, medya", keywords: "popup hikaye medya banner duyuru" },
       { to: "/admin/languages", label: "Dil ve Çeviri", icon: Globe, hint: "Çok dilli mağazalar", keywords: "dil çeviri translation locale hreflang" },
+    ],
+  },
+  {
+    title: "SEO",
+    description: "Arama görünürlüğü ve otomatik optimizasyon.",
+    items: [
       { to: "/admin/seo", label: "SEO Merkezi", icon: Search, hint: "Meta, yönlendirme, 404", keywords: "seo meta redirect sitemap" },
       {
         to: "/admin/seo-ai",
@@ -90,48 +103,55 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         hint: "Her gün otomatik SEO çalışması",
         keywords: "seo yapay zeka otomatik günlük meta optimizasyon",
       },
+    ],
+  },
+  {
+    title: "Paketler & gelir",
+    description: "Paket limitleri, abonelik, ödeme ve komisyon akışı.",
+    items: [
+      { to: "/admin/plans", label: "Paketler", icon: CreditCard, hint: "Fiyat ve limitler", keywords: "fiyat paket limit plan aylık yıllık" },
+      { to: "/admin/subscriptions", label: "Abonelikler", icon: Receipt, hint: "Mağaza abonelikleri", keywords: "plan abonelik yenileme" },
       { to: "/admin/coupons", label: "Kuponlar", icon: Tag, hint: "Kampanya kodları", keywords: "indirim kupon" },
+      { to: "/admin/payments", label: "Ödemeler", icon: Wallet, hint: "Tahsilat ve ödeme", keywords: "tahsilat ödeme" },
+      { to: "/admin/transactions", label: "İşlemler", icon: Coins, hint: "Muhasebe hareketleri", keywords: "hareket işlem" },
+      { to: "/admin/commissions", label: "Komisyonlar", icon: Activity, hint: "Satıcı komisyonları", keywords: "komisyon satıcı" },
+      { to: "/admin/finance", label: "Finans Merkezi", icon: Wallet, hint: "Ciro ve bakiye", keywords: "finans ciro" },
     ],
   },
   {
-    title: "Gelir",
-    description: "Abonelik, ödeme ve komisyon akışı.",
+    title: "Entegrasyonlar",
+    description: "Uygulama mağazası, pazaryerleri, API ve webhook.",
     items: [
-      { to: "/admin/subscriptions", label: "Abonelikler", icon: Receipt, keywords: "plan abonelik" },
-      { to: "/admin/plans", label: "Paketler", icon: CreditCard, keywords: "fiyat paket limit" },
-      { to: "/admin/payments", label: "Ödemeler", icon: Wallet, keywords: "tahsilat ödeme" },
-      { to: "/admin/transactions", label: "İşlemler", icon: Coins, keywords: "hareket işlem" },
-      { to: "/admin/commissions", label: "Komisyonlar", icon: Activity, keywords: "komisyon satıcı" },
-      { to: "/admin/finance", label: "Finans Merkezi", icon: Wallet, keywords: "finans ciro" },
-    ],
-  },
-  {
-    title: "Ekosistem",
-    description: "Uygulamalar, API ve entegrasyonlar.",
-    items: [
-      { to: "/admin/apps", label: "Uygulamalar", icon: Blocks, keywords: "app store entegrasyon" },
-      { to: "/admin/api", label: "API", icon: Terminal, keywords: "api anahtar" },
-      { to: "/admin/webhooks", label: "Webhook", icon: Webhook, keywords: "webhook olay" },
-      { to: "/admin/notifications", label: "Bildirimler", icon: Bell, keywords: "bildirim" },
+      { to: "/admin/apps", label: "Uygulamalar", icon: Blocks, hint: "Uygulama mağazası", keywords: "app store entegrasyon kategori" },
+      { to: "/admin/marketplace", label: "Pazaryerleri", icon: Globe, hint: "Kanal bağlantıları", keywords: "trendyol hepsiburada kanal pazaryeri" },
+      { to: "/admin/api", label: "API Anahtarları", icon: Terminal, hint: "Erişim anahtarları", keywords: "api anahtar token" },
+      { to: "/admin/webhooks", label: "Webhook", icon: Webhook, hint: "Olay bildirimleri", keywords: "webhook olay" },
+      { to: "/admin/notifications", label: "Bildirimler", icon: Bell, hint: "Bildirim akışı", keywords: "bildirim" },
     ],
   },
   {
     title: "Destek",
     description: "Müşteri ve mağaza destek operasyonu.",
     items: [
-      { to: "/admin/support", label: "Destek", icon: LifeBuoy, keywords: "destek" },
+      { to: "/admin/support", label: "Destek Merkezi", icon: LifeBuoy, keywords: "destek" },
       { to: "/admin/tickets", label: "Ticket", icon: Ticket, keywords: "talep ticket" },
     ],
   },
   {
-    title: "Sistem",
-    description: "Analitik, ayarlar, güvenlik ve denetim.",
+    title: "Loglar & denetim",
+    description: "Denetim kayıtları, güvenlik olayları ve sistem durumu.",
     items: [
-      { to: "/admin/analytics", label: "Analitik", icon: ChartNoAxesColumn, keywords: "analitik rapor" },
-      { to: "/admin/system", label: "Sistem Durumu", icon: Activity, keywords: "sağlık durum kuyruk" },
+      { to: "/admin/logs", label: "Log Merkezi", icon: ScrollText, hint: "Tüm loglar tek ekranda", keywords: "log kayıt denetim güvenlik" },
+      { to: "/admin/audit", label: "Audit Logs", icon: History, hint: "İşlem geçmişi", keywords: "denetim log" },
+      { to: "/admin/security", label: "Güvenlik Olayları", icon: ShieldAlert, hint: "Şüpheli hareketler", keywords: "güvenlik olay" },
+      { to: "/admin/system", label: "Sistem Durumu", icon: Activity, hint: "Kuyruk ve sağlık", keywords: "sağlık durum kuyruk" },
+    ],
+  },
+  {
+    title: "Ayarlar",
+    description: "Platform genelinde yapılandırma.",
+    items: [
       { to: "/admin/settings", label: "Sistem Ayarları", icon: ShieldCheck, keywords: "ayar konfig" },
-      { to: "/admin/security", label: "Güvenlik", icon: ShieldAlert, keywords: "güvenlik olay" },
-      { to: "/admin/audit", label: "Audit Logs", icon: History, keywords: "denetim log" },
     ],
   },
 ];

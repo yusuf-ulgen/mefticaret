@@ -110,6 +110,7 @@ const PRICING_MODELS: PricingModel[] = ["free", "monthly", "one_time", "usage"];
 function AdminAppsPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState<AppCategory | "all">("all");
   const [form, setForm] = useState<AppForm | null>(null);
   const [prices, setPrices] = useState<
     Record<string, { pricing_model: PricingModel; price: string; currency: string }>
@@ -124,14 +125,35 @@ function AdminAppsPage() {
   const rows = useMemo(() => {
     const list = (appsQuery.data ?? []) as unknown as AppRow[];
     const term = search.trim().toLocaleLowerCase("tr");
-    if (!term) return list;
-    return list.filter((row) =>
-      [row.name, row.code, APP_CATEGORY_LABELS[row.category] ?? row.category]
-        .join(" ")
-        .toLocaleLowerCase("tr")
-        .includes(term),
-    );
-  }, [appsQuery.data, search]);
+    const filtered = term
+      ? list.filter((row) =>
+          [row.name, row.code, APP_CATEGORY_LABELS[row.category] ?? row.category]
+            .join(" ")
+            .toLocaleLowerCase("tr")
+            .includes(term),
+        )
+      : list;
+    return activeCategory === "all"
+      ? filtered
+      : filtered.filter((row) => row.category === activeCategory);
+  }, [appsQuery.data, search, activeCategory]);
+
+  /** Uygulamalar kategori kategori listelenir; boş kategoriler gizlenir. */
+  const grouped = useMemo(() => {
+    const order = APP_CATEGORIES as readonly AppCategory[];
+    const known = order.map((category) => ({
+      category: category as string,
+      label: APP_CATEGORY_LABELS[category] ?? category,
+      items: rows.filter((row) => row.category === category),
+    }));
+    const others = rows.filter((row) => !order.includes(row.category));
+    const extra = Array.from(new Set(others.map((row) => row.category))).map((category) => ({
+      category: category as string,
+      label: APP_CATEGORY_LABELS[category as AppCategory] ?? String(category),
+      items: others.filter((row) => row.category === category),
+    }));
+    return [...known, ...extra].filter((group) => group.items.length > 0);
+  }, [rows]);
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["admin", "apps"] });
@@ -246,13 +268,39 @@ function AdminAppsPage() {
           </Button>
         </div>
 
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Kategori filtresi">
+          <Button
+            size="sm"
+            variant={activeCategory === "all" ? "default" : "outline"}
+            onClick={() => setActiveCategory("all")}
+          >
+            Tümü
+          </Button>
+          {(APP_CATEGORIES as readonly AppCategory[]).map((category) => (
+            <Button
+              key={category}
+              size="sm"
+              variant={activeCategory === category ? "default" : "outline"}
+              onClick={() => setActiveCategory(category)}
+            >
+              {APP_CATEGORY_LABELS[category] ?? category}
+            </Button>
+          ))}
+        </div>
+
         {appsQuery.isLoading ? (
           <p className="text-sm text-muted-foreground">Yükleniyor…</p>
         ) : rows.length === 0 ? (
           <p className="text-sm text-muted-foreground">Kayıt bulunamadı.</p>
         ) : (
-          <div className="grid gap-3">
-            {rows.map((row) => {
+          <div className="space-y-8">
+            {grouped.map((group) => (
+              <section key={group.category} className="space-y-3">
+                <div className="flex items-center gap-2 border-b border-border pb-2">
+                  <h2 className="text-sm font-semibold">{group.label}</h2>
+                  <Badge variant="secondary">{group.items.length}</Badge>
+                </div>
+                {group.items.map((row) => {
               const draft = priceDraft(row);
               return (
                 <div
@@ -354,7 +402,9 @@ function AdminAppsPage() {
                   </div>
                 </div>
               );
-            })}
+                })}
+              </section>
+            ))}
           </div>
         )}
       </div>

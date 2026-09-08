@@ -182,8 +182,19 @@ function AdminPlans() {
         </Button>
       }
     >
+      {[
+        { key: "active", label: "Yayında olan paketler", rows: (plans ?? []).filter((plan) => plan.is_active) },
+        { key: "inactive", label: "Pasif paketler", rows: (plans ?? []).filter((plan) => !plan.is_active) },
+      ]
+        .filter((group) => group.rows.length > 0)
+        .map((group) => (
+      <section key={group.key} className="space-y-3">
+      <div className="flex items-center gap-2 border-b border-border pb-2">
+        <h2 className="text-sm font-semibold">{group.label}</h2>
+        <Badge variant="secondary">{group.rows.length}</Badge>
+      </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {(plans ?? []).map((plan) => (
+        {group.rows.map((plan) => (
           <button
             key={plan.id}
             type="button"
@@ -218,6 +229,9 @@ function AdminPlans() {
           </button>
         ))}
       </div>
+      </section>
+        ))}
+
 
       <Sheet open={Boolean(draft)} onOpenChange={(open) => !open && setDraft(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
