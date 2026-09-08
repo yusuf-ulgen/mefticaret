@@ -256,6 +256,28 @@ function XmlFeedPage() {
     enabled: tab === "pool",
   });
 
+  /** "500=10" satırlarını kademe listesine çevirir (500 TL maliyete kadar %10 kâr). */
+  const priceTiers = useMemo(
+    () =>
+      tiersText
+        .split(/[\n;]/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const [rawUpTo, rawValue] = line.split("=");
+          const upTo = Number(rawUpTo);
+          const value = Number(rawValue);
+          if (!Number.isFinite(value)) return null;
+          return {
+            ...(Number.isFinite(upTo) && upTo > 0 ? { upTo } : {}),
+            value: priceMode === "fixed" ? value : value / 100,
+          };
+        })
+        .filter((tier): tier is { upTo?: number; value: number } => tier !== null)
+        .slice(0, 10),
+    [tiersText, priceMode],
+  );
+
   const priceRules = useMemo(
     () => ({
       mode: priceMode,
@@ -263,8 +285,12 @@ function XmlFeedPage() {
       rounding,
       ...(minPrice ? { minPrice: Number(minPrice) } : {}),
       ...(maxPrice ? { maxPrice: Number(maxPrice) } : {}),
+      ...(fxRate ? { fxRate: Number(fxRate) } : {}),
+      ...(vatRate ? { vatRate: Number(vatRate) } : {}),
+      supplierVatIncluded,
+      ...(priceTiers.length ? { tiers: priceTiers } : {}),
     }),
-    [priceMode, priceValue, rounding, minPrice, maxPrice],
+    [priceMode, priceValue, rounding, minPrice, maxPrice, fxRate, vatRate, supplierVatIncluded, priceTiers],
   );
 
   const stockRules = useMemo(
@@ -272,9 +298,11 @@ function XmlFeedPage() {
       buffer,
       minThreshold,
       ...(cap ? { cap: Number(cap) } : {}),
+      missingAction,
     }),
-    [buffer, minThreshold, cap],
+    [buffer, minThreshold, cap, missingAction],
   );
+
 
   const filterRules = useMemo<FilterRules>(
     () => ({
