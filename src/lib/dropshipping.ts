@@ -84,6 +84,13 @@ export const DEFAULT_FIELD_MAP: FieldMap = {
   description: "description",
 };
 
+export type PriceTier = {
+  /** Bu tedarikçi maliyetine kadar (dahil) geçerli kademe; boşsa üst sınırsız */
+  upTo?: number;
+  /** Kademede uygulanacak oran (0.2 = %20) veya sabit tutar */
+  value: number;
+};
+
 export type PriceRules = {
   /** markup: maliyet * (1 + value), margin: maliyet / (1 - value), fixed: maliyet + value */
   mode?: "markup" | "margin" | "fixed";
@@ -91,6 +98,14 @@ export type PriceRules = {
   rounding?: "none" | "integer" | "psychological";
   minPrice?: number;
   maxPrice?: number;
+  /** Tedarikçi para birimi TL değilse uygulanacak çevrim kuru (1 birim = X TL) */
+  fxRate?: number;
+  /** KDV oranı (%) — satış fiyatına eklenir */
+  vatRate?: number;
+  /** Tedarikçi fiyatı KDV dahil geliyorsa KDV tekrar eklenmez */
+  supplierVatIncluded?: boolean;
+  /** Maliyet aralığına göre kademeli kâr oranları (küçükten büyüğe) */
+  tiers?: PriceTier[];
 };
 
 export type StockRules = {
@@ -100,7 +115,10 @@ export type StockRules = {
   minThreshold?: number;
   /** Vitrinde gösterilecek üst sınır */
   cap?: number;
+  /** Kaynakta artık bulunmayan ürünler için davranış */
+  missingAction?: "ignore" | "zero_stock" | "deactivate";
 };
+
 
 export type FilterRules = {
   /** Tedarikçi maliyeti bu değerin altındaysa ürün atlanır */
