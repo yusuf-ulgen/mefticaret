@@ -412,13 +412,13 @@ export function AppShell({
   ) : null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/40">
       <a href="#panel-content" className="skip-link">
         İçeriğe geç
       </a>
 
-      {/* Shopify tarzı koyu üst çubuk — tüm genişlik */}
-      <header className="sticky top-0 z-30 flex h-14 items-center gap-2 bg-sidebar-primary px-3 text-sidebar-primary-foreground lg:px-4">
+      {/* Koyu üst çubuk — referans panel düzeniyle aynı hizada */}
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-2 bg-sidebar-primary px-3 text-sidebar-primary-foreground lg:px-4">
         {sidebar ? (
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -458,7 +458,7 @@ export function AppShell({
 
       <div className="flex">
         {sidebar ? (
-          <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-[17rem] shrink-0 border-r border-sidebar-border bg-sidebar lg:block">
+          <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-[17rem] shrink-0 border-r border-sidebar-border/70 bg-card lg:block">
             {sidebar}
           </aside>
         ) : null}
@@ -466,13 +466,14 @@ export function AppShell({
         <main
           id="panel-content"
           tabIndex={-1}
-          className="min-w-0 flex-1 px-3 py-5 sm:px-5 lg:px-8 lg:py-8"
+          className="min-w-0 flex-1 px-3 py-4 sm:px-5 lg:px-8 lg:py-6"
         >
-          <div className="mx-auto w-full max-w-6xl space-y-5">
+          <div className="mx-auto w-full max-w-6xl space-y-4">
             {storeId ? <QuickLinks storeId={storeId} /> : null}
-            <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:px-6 lg:py-5">
               <div className="min-w-0">
-                <h1 className="font-display text-xl font-semibold sm:text-2xl">{title}</h1>
+                <p className="eyebrow mb-1">Mağaza paneli</p>
+                <h1 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">{title}</h1>
                 {description ? (
                   <p className="mt-1 text-sm text-muted-foreground">{description}</p>
                 ) : null}

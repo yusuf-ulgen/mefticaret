@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
   ArrowDownRight,
+  ArrowRight,
   ArrowUpRight,
   AlertTriangle,
   BellRing,
@@ -44,6 +45,37 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/dashboard")
   }),
   component: DashboardPage,
 });
+
+const HIGHLIGHTS = [
+  {
+    to: "/store/$storeId/themes" as const,
+    tag: "Vitrin",
+    title: "Tema ve tasarım",
+    description: "Vitrini bölüm bölüm düzenle, canlı önizle ve yayınla.",
+    cta: "Temayı düzenle",
+  },
+  {
+    to: "/store/$storeId/apps" as const,
+    tag: "Uygulamalar",
+    title: "Entegrasyonları bağla",
+    description: "Kargo, pazaryeri ve pazarlama uygulamalarını tek yerden bağla.",
+    cta: "Uygulamalara git",
+  },
+  {
+    to: "/store/$storeId/marketing" as const,
+    tag: "Pazarlama",
+    title: "Kampanya ve kupon",
+    description: "İndirim kodları, kampanyalar ve otomatik akışlar oluştur.",
+    cta: "Kampanyaları aç",
+  },
+  {
+    to: "/store/$storeId/shipping" as const,
+    tag: "Kargo",
+    title: "Kargo kurallarını ayarla",
+    description: "Kargo firmalarını, bölge ve ağırlık kurallarını tanımla.",
+    cta: "Ayarları aç",
+  },
+];
 
 function DashboardPage() {
   const { storeId } = Route.useParams();
@@ -231,6 +263,25 @@ function DashboardPage() {
         </div>
       </div>
 
+      {/* Referans paneldeki tanıtım kartları düzeni — mağaza içi kısayollar */}
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {HIGHLIGHTS.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            params={{ storeId }}
+            className="group rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)]"
+          >
+            <p className="eyebrow">{item.tag}</p>
+            <p className="mt-2 font-display text-base font-semibold tracking-tight">{item.title}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
+            <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
+              {item.cta}
+              <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
+            </span>
+          </Link>
+        ))}
+      </div>
 
       {liveEvents.length ? (
         <section className="surface-card p-6">
