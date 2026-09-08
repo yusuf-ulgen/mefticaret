@@ -50,6 +50,37 @@ export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminDashboard,
 });
 
+const HIGHLIGHTS = [
+  {
+    to: "/admin/frontend",
+    tag: "Ön uç",
+    title: "Vitrin ve ana sayfa düzeni",
+    description: "Mağaza vitrinini ve platform ana sayfasını bölüm bölüm düzenle.",
+    cta: "Düzenlemeye git",
+  },
+  {
+    to: "/admin/apps",
+    tag: "Uygulama mağazası",
+    title: "Entegrasyonları yönet",
+    description: "Kargo, pazaryeri ve pazarlama uygulamalarını kategorilere göre yönet.",
+    cta: "Uygulamaları aç",
+  },
+  {
+    to: "/admin/billing",
+    tag: "Ödeme",
+    title: "Fatura ve tahsilat akışı",
+    description: "Bekleyen faturalar, ödeme linkleri ve sanal pos yapılandırması.",
+    cta: "Tahsilatı aç",
+  },
+  {
+    to: "/admin/seo",
+    tag: "SEO",
+    title: "Arama görünürlüğü",
+    description: "Meta etiketleri, site haritaları ve otomatik SEO çalışmaları.",
+    cta: "SEO merkezine git",
+  },
+] as const;
+
 function AdminDashboard() {
   const { isPlatformAdmin } = useAuth();
   const { data: overview } = useQuery(adminOverviewQuery(isPlatformAdmin));
