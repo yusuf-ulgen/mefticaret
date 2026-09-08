@@ -47,6 +47,20 @@ function InvoicePayPage() {
     retry: false,
   });
 
+  const [payError, setPayError] = useState<string | null>(null);
+  const payment = useMutation({
+    mutationFn: () => startInvoiceCardPayment({ data: { token } }),
+    onMutate: () => setPayError(null),
+    onSuccess: (result) => {
+      window.location.href = result.checkoutUrl;
+    },
+    onError: (cause: unknown) =>
+      setPayError(cause instanceof Error ? cause.message : "Ödeme başlatılamadı."),
+  });
+  const startPayment = () => payment.mutate();
+  const isPaying = payment.isPending;
+
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-lg flex-col justify-center gap-6 px-5 py-14">
       <div className="space-y-2 text-center">

@@ -85,7 +85,7 @@ export const startInvoiceCardPayment = createServerFn({ method: "POST" })
 
     const { data: store } = await supabaseAdmin
       .from("stores")
-      .select("id, name, email")
+      .select("id, name")
       .eq("id", invoice.store_id)
       .maybeSingle();
 
@@ -95,8 +95,8 @@ export const startInvoiceCardPayment = createServerFn({ method: "POST" })
       externalId,
       currency: invoice.currency ?? "TRY",
       buyerName: store?.name ?? null,
-      buyerMail: (store as { email?: string | null } | null)?.email ?? null,
     });
+
 
     await supabaseAdmin.from("invoice_payments").insert({
       invoice_id: invoice.id,
