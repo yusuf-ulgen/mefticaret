@@ -191,11 +191,23 @@ function AdminLandingPage() {
         <p className="text-sm text-muted-foreground">Henüz bölüm yok.</p>
       ) : (
         <div className="space-y-4">
+          <nav className="surface-card flex flex-wrap gap-2 p-3" aria-label="Bölümlere git">
+            {rows.map((row) => (
+              <a
+                key={`jump-${row.id}`}
+                href={`#bolum-${row.section_key}`}
+                className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              >
+                {SECTION_KINDS.find((k) => k.value === row.kind)?.label ?? row.kind}
+                {row.is_enabled ? "" : " · kapalı"}
+              </a>
+            ))}
+          </nav>
           {rows.map((row, index) => {
             const dirty = Boolean(drafts[row.id]);
             const template = ITEM_TEMPLATES[row.kind] ?? { title: "Yeni kart", text: "" };
             return (
-              <section key={row.id} className="surface-card p-4">
+              <section key={row.id} id={`bolum-${row.section_key}`} className="surface-card scroll-mt-24 p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="min-w-0">
                     <p className="truncate font-display text-base font-semibold">
