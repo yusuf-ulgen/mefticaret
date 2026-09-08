@@ -110,6 +110,7 @@ const PRICING_MODELS: PricingModel[] = ["free", "monthly", "one_time", "usage"];
 function AdminAppsPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState<AppCategory | "all">("all");
   const [form, setForm] = useState<AppForm | null>(null);
   const [prices, setPrices] = useState<
     Record<string, { pricing_model: PricingModel; price: string; currency: string }>
