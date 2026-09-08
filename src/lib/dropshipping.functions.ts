@@ -2,6 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type {
+  FieldMap as FieldMapInput,
+  FilterRules as FilterRulesInput,
+  PriceRules as PriceRulesInput,
+  StockRules as StockRulesInput,
+} from "@/lib/dropshipping";
 
 /**
  * Dropshipping ve tedarikçi besleme sunucu katmanı. Tenant izolasyonu RLS
@@ -248,13 +254,13 @@ export const previewSupplierFeed = createServerFn({ method: "POST" })
 
     if (data.fieldMap) {
       for (const record of records.slice(0, 300)) {
-        const item = normalizeFeedItem(record, data.fieldMap);
+        const item = normalizeFeedItem(record, data.fieldMap as FieldMapInput);
         if (!item) continue;
         item.category = applyMapping(item.category, data.categoryMap ?? {});
         item.brand = applyMapping(item.brand, data.brandMap ?? {});
         if (item.brand) brands.add(item.brand);
         if (item.category) categories.add(item.category);
-        const included = passesFilters(item, data.filterRules ?? {});
+        const included = passesFilters(item, (data.filterRules ?? {}) as FilterRulesInput);
         if (!included) filtered += 1;
         if (rows.length < 20) {
           rows.push({
@@ -264,9 +270,9 @@ export const previewSupplierFeed = createServerFn({ method: "POST" })
             brand: item.brand,
             category: item.category,
             supplierPrice: item.supplier_price,
-            salePrice: computeSalePrice(item.supplier_price, data.priceRules ?? {}),
+            salePrice: computeSalePrice(item.supplier_price, (data.priceRules ?? {}) as PriceRulesInput),
             supplierStock: item.stock,
-            stock: computeStock(item.stock, data.stockRules ?? {}),
+            stock: computeStock(item.stock, (data.stockRules ?? {}) as StockRulesInput),
             images: item.images.length,
             included,
           });

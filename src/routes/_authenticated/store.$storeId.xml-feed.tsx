@@ -389,7 +389,7 @@ function XmlFeedPage() {
     onSuccess: (result) => {
       const totals = (result as { totals: Record<string, number> }).totals ?? {};
       toast.success(
-        `Senkronizasyon tamamlandı · ${totals.imported ?? 0} ürün · ${totals.created ?? 0} yeni · ${totals.skipped ?? 0} atlandı`,
+        `Senkronizasyon tamamlandı · ${totals["imported"] ?? 0} ürün · ${totals["created"] ?? 0} yeni · ${totals["skipped"] ?? 0} atlandı`,
       );
       void queryClient.invalidateQueries({ queryKey: ["supplier-feeds", storeId] });
       void queryClient.invalidateQueries({ queryKey: ["supplier-feed-runs", storeId] });
@@ -422,7 +422,7 @@ function XmlFeedPage() {
       publish({ data: { storeId, feedId, channelIds: [], activate: true, onlyInStock: true } }),
     onSuccess: (result) => {
       const totals = result as Record<string, number>;
-      toast.success(`${totals.created ?? 0} ürün oluşturuldu, ${totals.updated ?? 0} ürün güncellendi`);
+      toast.success(`${totals["created"] ?? 0} ürün oluşturuldu, ${totals["updated"] ?? 0} ürün güncellendi`);
       void queryClient.invalidateQueries({ queryKey: ["supplier-products", storeId] });
     },
     onError: (error: Error) => toast.error(error.message),
@@ -500,7 +500,7 @@ function XmlFeedPage() {
                         {feed.last_run_at
                           ? ` · Son çalıştırma: ${new Date(feed.last_run_at).toLocaleString("tr-TR")}`
                           : " · Hiç çalıştırılmadı"}
-                        {feed.stats?.imported ? ` · ${feed.stats.imported} ürün` : ""}
+                        {feed.stats?.["imported"] ? ` · ${feed.stats.imported} ürün` : ""}
                       </p>
                       {feed.last_error ? <p className="mt-1 text-xs text-destructive">{feed.last_error}</p> : null}
                     </div>
@@ -1110,8 +1110,8 @@ function XmlFeedPage() {
                       <td className="p-2 text-xs text-muted-foreground">
                         {row.error
                           ? row.error
-                          : `${row.totals?.imported ?? 0} ürün · ${row.totals?.created ?? 0} yeni · ${
-                              row.totals?.skipped ?? 0
+                          : `${row.totals?.["imported"] ?? 0} ürün · ${row.totals?.["created"] ?? 0} yeni · ${
+                              row.totals?.["skipped"] ?? 0
                             } atlandı`}
                       </td>
                     </tr>
