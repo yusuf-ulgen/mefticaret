@@ -33,9 +33,29 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: loaderData?.homeSeo?.title || FALLBACK_TITLE },
       { property: "og:description", content: loaderData?.homeSeo?.description || FALLBACK_DESCRIPTION },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://mefticaret.com/" },
+      { property: "og:image", content: "https://mefticaret.com/og-mefticaret.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://mefticaret.com/og-mefticaret.jpg" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://mefticaret.com/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "Mefticaret",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          url: "https://mefticaret.com/",
+          image: "https://mefticaret.com/og-mefticaret.jpg",
+          description: loaderData?.homeSeo?.description || FALLBACK_DESCRIPTION,
+          inLanguage: "tr-TR",
+          publisher: { "@type": "Organization", name: "Mefticaret" },
+        }),
+      },
+    ],
   }),
   errorComponent: () => (
     <main className="mx-auto max-w-2xl px-6 py-24 text-center">
@@ -475,6 +495,9 @@ function LandingPage() {
             </Link>
             <Link to="/dropshipping-nasil-yapilir" className="hover:text-foreground">
               Dropshipping nasıl yapılır
+            </Link>
+            <Link to="/pazaryeri-entegrasyonu" className="hover:text-foreground">
+              Pazaryeri entegrasyonu
             </Link>
             <span className="ml-auto">{footer.badge}</span>
             </div>
