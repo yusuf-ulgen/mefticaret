@@ -39,6 +39,7 @@ import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminApiRouteImport } from './routes/_authenticated/admin.api'
 import { Route as AuthenticatedAdminAppsRouteImport } from './routes/_authenticated/admin.apps'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
+import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin.billing'
 import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin.blog'
 import { Route as AuthenticatedAdminCmsRouteImport } from './routes/_authenticated/admin.cms'
 import { Route as AuthenticatedAdminCommissionsRouteImport } from './routes/_authenticated/admin.commissions'
@@ -395,6 +396,12 @@ const AuthenticatedAdminAuditRoute = AuthenticatedAdminAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminBillingRoute =
+  AuthenticatedAdminBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBlogRoute = AuthenticatedAdminBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -1596,6 +1603,7 @@ export interface FileRoutesByFullPath {
   '/admin/api': typeof AuthenticatedAdminApiRoute
   '/admin/apps': typeof AuthenticatedAdminAppsRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/admin/commissions': typeof AuthenticatedAdminCommissionsRoute
@@ -1829,6 +1837,7 @@ export interface FileRoutesByTo {
   '/admin/api': typeof AuthenticatedAdminApiRoute
   '/admin/apps': typeof AuthenticatedAdminAppsRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/admin/commissions': typeof AuthenticatedAdminCommissionsRoute
@@ -2064,6 +2073,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
   '/_authenticated/admin/apps': typeof AuthenticatedAdminAppsRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRoute
   '/_authenticated/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/_authenticated/admin/commissions': typeof AuthenticatedAdminCommissionsRoute
@@ -2300,6 +2310,7 @@ export interface FileRouteTypes {
     | '/admin/api'
     | '/admin/apps'
     | '/admin/audit'
+    | '/admin/billing'
     | '/admin/blog'
     | '/admin/cms'
     | '/admin/commissions'
@@ -2533,6 +2544,7 @@ export interface FileRouteTypes {
     | '/admin/api'
     | '/admin/apps'
     | '/admin/audit'
+    | '/admin/billing'
     | '/admin/blog'
     | '/admin/cms'
     | '/admin/commissions'
@@ -2767,6 +2779,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/api'
     | '/_authenticated/admin/apps'
     | '/_authenticated/admin/audit'
+    | '/_authenticated/admin/billing'
     | '/_authenticated/admin/blog'
     | '/_authenticated/admin/cms'
     | '/_authenticated/admin/commissions'
@@ -3257,6 +3270,13 @@ declare module '@tanstack/react-router' {
       path: '/audit'
       fullPath: '/admin/audit'
       preLoaderRoute: typeof AuthenticatedAdminAuditRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/billing': {
+      id: '/_authenticated/admin/billing'
+      path: '/billing'
+      fullPath: '/admin/billing'
+      preLoaderRoute: typeof AuthenticatedAdminBillingRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/blog': {
@@ -4688,6 +4708,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminApiRoute: typeof AuthenticatedAdminApiRoute
   AuthenticatedAdminAppsRoute: typeof AuthenticatedAdminAppsRoute
   AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
+  AuthenticatedAdminBillingRoute: typeof AuthenticatedAdminBillingRoute
   AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRoute
   AuthenticatedAdminCmsRoute: typeof AuthenticatedAdminCmsRoute
   AuthenticatedAdminCommissionsRoute: typeof AuthenticatedAdminCommissionsRoute
@@ -4727,6 +4748,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminApiRoute: AuthenticatedAdminApiRoute,
   AuthenticatedAdminAppsRoute: AuthenticatedAdminAppsRoute,
   AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
+  AuthenticatedAdminBillingRoute: AuthenticatedAdminBillingRoute,
   AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRoute,
   AuthenticatedAdminCmsRoute: AuthenticatedAdminCmsRoute,
   AuthenticatedAdminCommissionsRoute: AuthenticatedAdminCommissionsRoute,

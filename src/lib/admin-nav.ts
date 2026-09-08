@@ -112,6 +112,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { to: "/admin/plans", label: "Paketler", icon: CreditCard, hint: "Fiyat ve limitler", keywords: "fiyat paket limit plan aylık yıllık" },
       { to: "/admin/subscriptions", label: "Abonelikler", icon: Receipt, hint: "Mağaza abonelikleri", keywords: "plan abonelik yenileme" },
       { to: "/admin/coupons", label: "Kuponlar", icon: Tag, hint: "Kampanya kodları", keywords: "indirim kupon" },
+      {
+        to: "/admin/billing",
+        label: "Ödeme & Tahsilat",
+        icon: Receipt,
+        hint: "Ödeal bağlantısı ve faturalar",
+        keywords: "ödeal fatura tahsilat ödeme linki kart sağlayıcı",
+      },
       { to: "/admin/payments", label: "Ödemeler", icon: Wallet, hint: "Tahsilat ve ödeme", keywords: "tahsilat ödeme" },
       { to: "/admin/transactions", label: "İşlemler", icon: Coins, hint: "Muhasebe hareketleri", keywords: "hareket işlem" },
       { to: "/admin/commissions", label: "Komisyonlar", icon: Activity, hint: "Satıcı komisyonları", keywords: "komisyon satıcı" },
