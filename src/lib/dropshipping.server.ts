@@ -10,9 +10,11 @@ import {
   computeStock,
   matchValueOf,
   nextRunAt,
+  passesFilters,
   normalizeFeedItem,
   parseFeedPayload,
   type FieldMap,
+  type FilterRules,
   type PriceRules,
   type StockRules,
   type SupplierFeedItem,
@@ -39,6 +41,7 @@ export type FeedRow = {
   brand_map: Record<string, string>;
   price_rules: PriceRules;
   stock_rules: StockRules;
+  filter_rules?: FilterRules;
   import_images: boolean;
   create_missing: boolean;
 };
@@ -150,6 +153,10 @@ export async function runSupplierFeed(
       }
       item.category = applyMapping(item.category, feed.category_map ?? {});
       item.brand = applyMapping(item.brand, feed.brand_map ?? {});
+      if (!passesFilters(item, feed.filter_rules ?? {})) {
+        totals.skipped += 1;
+        continue;
+      }
       items.push(item);
     }
 

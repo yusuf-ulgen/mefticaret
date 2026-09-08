@@ -2,6 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type {
+  FieldMap as FieldMapInput,
+  FilterRules as FilterRulesInput,
+  PriceRules as PriceRulesInput,
+  StockRules as StockRulesInput,
+} from "@/lib/dropshipping";
 
 /**
  * Dropshipping ve tedarikçi besleme sunucu katmanı. Tenant izolasyonu RLS
@@ -48,6 +54,25 @@ const stockRulesSchema = z
   })
   .default({ buffer: 0, minThreshold: 0 });
 
+const filterRulesSchema = z
+  .object({
+    minSupplierPrice: z.number().min(0).max(10_000_000).optional(),
+    maxSupplierPrice: z.number().min(0).max(10_000_000).optional(),
+    minStock: z.number().int().min(0).max(1_000_000).optional(),
+    includeBrands: z.array(z.string().trim().max(160)).max(200).default([]),
+    excludeBrands: z.array(z.string().trim().max(160)).max(200).default([]),
+    includeCategories: z.array(z.string().trim().max(160)).max(200).default([]),
+    excludeCategories: z.array(z.string().trim().max(160)).max(200).default([]),
+    excludeKeywords: z.array(z.string().trim().max(80)).max(200).default([]),
+  })
+  .default({
+    includeBrands: [],
+    excludeBrands: [],
+    includeCategories: [],
+    excludeCategories: [],
+    excludeKeywords: [],
+  });
+
 const mappingSchema = z.record(z.string().max(160), z.string().max(160)).default({});
 
 export const saveSupplierFeed = createServerFn({ method: "POST" })
@@ -70,6 +95,7 @@ export const saveSupplierFeed = createServerFn({ method: "POST" })
         brandMap: mappingSchema,
         priceRules: priceRulesSchema,
         stockRules: stockRulesSchema,
+        filterRules: filterRulesSchema,
         importImages: z.boolean().default(true),
         createMissing: z.boolean().default(false),
         isActive: z.boolean().default(true),
@@ -96,6 +122,7 @@ export const saveSupplierFeed = createServerFn({ method: "POST" })
       brand_map: data.brandMap as never,
       price_rules: data.priceRules as never,
       stock_rules: data.stockRules as never,
+      filter_rules: data.filterRules as never,
       import_images: data.importImages,
       create_missing: data.createMissing,
       is_active: data.isActive,
@@ -169,12 +196,25 @@ export const previewSupplierFeed = createServerFn({ method: "POST" })
         sourceUrl: z.string().trim().url().max(600),
         authHeader: z.string().trim().max(300).nullish(),
         itemPath: z.string().trim().max(120).nullish(),
+        fieldMap: fieldMapSchema.optional(),
+        priceRules: priceRulesSchema.optional(),
+        stockRules: stockRulesSchema.optional(),
+        filterRules: filterRulesSchema.optional(),
+        categoryMap: mappingSchema.optional(),
+        brandMap: mappingSchema.optional(),
       })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
     await storeGuard(context.supabase, data.storeId);
-    const { parseFeedPayload } = await import("@/lib/dropshipping");
+    const {
+      parseFeedPayload,
+      normalizeFeedItem,
+      applyMapping,
+      computeSalePrice,
+      computeStock,
+      passesFilters,
+    } = await import("@/lib/dropshipping");
 
     const headers: Record<string, string> = { "user-agent": "Mefticaret-FeedSync/1.0" };
     if (data.authHeader) {
@@ -194,7 +234,61 @@ export const previewSupplierFeed = createServerFn({ method: "POST" })
         ]),
       ),
     );
-    return { total: records.length, fields, sample };
+    // Test içe aktarma önizlemesi: eşleme + fiyat/stok + filtre kuralları uygulanmış satırlar
+    const rows: {
+      title: string;
+      sku: string | null;
+      barcode: string | null;
+      brand: string | null;
+      category: string | null;
+      supplierPrice: number;
+      salePrice: number;
+      supplierStock: number;
+      stock: number;
+      images: number;
+      included: boolean;
+    }[] = [];
+    let filtered = 0;
+    const brands = new Set<string>();
+    const categories = new Set<string>();
+
+    if (data.fieldMap) {
+      for (const record of records.slice(0, 300)) {
+        const item = normalizeFeedItem(record, data.fieldMap as FieldMapInput);
+        if (!item) continue;
+        item.category = applyMapping(item.category, data.categoryMap ?? {});
+        item.brand = applyMapping(item.brand, data.brandMap ?? {});
+        if (item.brand) brands.add(item.brand);
+        if (item.category) categories.add(item.category);
+        const included = passesFilters(item, (data.filterRules ?? {}) as FilterRulesInput);
+        if (!included) filtered += 1;
+        if (rows.length < 20) {
+          rows.push({
+            title: item.title,
+            sku: item.sku,
+            barcode: item.barcode,
+            brand: item.brand,
+            category: item.category,
+            supplierPrice: item.supplier_price,
+            salePrice: computeSalePrice(item.supplier_price, (data.priceRules ?? {}) as PriceRulesInput),
+            supplierStock: item.stock,
+            stock: computeStock(item.stock, (data.stockRules ?? {}) as StockRulesInput),
+            images: item.images.length,
+            included,
+          });
+        }
+      }
+    }
+
+    return {
+      total: records.length,
+      fields,
+      sample,
+      rows,
+      filtered,
+      brands: Array.from(brands).slice(0, 200),
+      categories: Array.from(categories).slice(0, 200),
+    };
   });
 
 export const saveDropshipSupplierSettings = createServerFn({ method: "POST" })
