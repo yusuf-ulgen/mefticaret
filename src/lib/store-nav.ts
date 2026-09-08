@@ -112,6 +112,12 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Stok Sayımı", to: p("stock-count"), icon: ClipboardList },
         { label: "Tedarik & Satın Alma", to: p("purchasing"), icon: Truck },
         { label: "Dropshipping & XML", to: p("dropshipping"), icon: Truck },
+        {
+          label: "XML Entegratör Kurulumu",
+          to: p("xml-feed"),
+          icon: FileSpreadsheet,
+          keywords: "xml feed besleme sihirbaz entegratör tedarikçi csv api",
+        },
         { label: "Yeniden Sipariş", to: p("reorder"), icon: RefreshCcw },
         { label: "Stok Tükenme Radarı", to: p("stockout"), icon: Timer },
         { label: "Stok Bildirimleri", to: p("stock-alerts"), icon: BellRing },
