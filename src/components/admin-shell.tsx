@@ -20,13 +20,18 @@ function isActivePath(pathname: string, to: string) {
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
-    <nav className="space-y-5 px-3 py-4">
+    <nav className="space-y-2 px-3 py-4">
       {NAV.map((group) => (
-        <div key={group.title}>
-          <p className="px-2 pb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <details
+          key={group.title}
+          open={group.items.some((item) => isActivePath(pathname, item.to))}
+          className="group rounded-lg"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground hover:bg-muted/60 hover:text-foreground">
             {group.title}
-          </p>
-          <ul className="space-y-0.5">
+            <ChevronDown className="size-3.5 transition group-open:rotate-180" />
+          </summary>
+          <ul className="mt-0.5 space-y-0.5">
             {group.items.map((item) => {
               const active = isActivePath(pathname, item.to);
               return (
