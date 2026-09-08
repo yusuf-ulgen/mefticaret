@@ -889,6 +889,58 @@ function XmlFeedPage() {
                 </div>
               </div>
 
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="space-y-1.5">
+                  <Label>Döviz kuru (1 birim = ₺)</Label>
+                  <Input
+                    value={fxRate}
+                    onChange={(event) => setFxRate(event.target.value)}
+                    placeholder="Kaynak TL ise boş bırak"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>KDV oranı (%)</Label>
+                  <Input value={vatRate} onChange={(event) => setVatRate(event.target.value)} placeholder="20" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Kaynakta olmayan ürün</Label>
+                  <select
+                    className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                    value={missingAction}
+                    onChange={(event) => setMissingAction(event.target.value as typeof missingAction)}
+                  >
+                    <option value="ignore">Dokunma</option>
+                    <option value="zero_stock">Stoğu sıfırla</option>
+                    <option value="deactivate">Ürünü taslağa al</option>
+                  </select>
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="size-4"
+                  checked={supplierVatIncluded}
+                  onChange={(event) => setSupplierVatIncluded(event.target.checked)}
+                />
+                Tedarikçi fiyatları KDV dahil geliyor (işaretliyse KDV tekrar eklenmez)
+              </label>
+
+              <div className="space-y-1.5">
+                <Label>Kademeli kâr oranları</Label>
+                <Textarea
+                  rows={3}
+                  value={tiersText}
+                  onChange={(event) => setTiersText(event.target.value)}
+                  placeholder={"250=35\n1000=25\n0=15"}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Her satır “maliyet üst sınırı=oran”. Örnek: 250 TL’ye kadar %35, 1000 TL’ye kadar %25, üzeri için
+                  0=15 yazın. Boş bırakılırsa yukarıdaki tek oran uygulanır.
+                </p>
+              </div>
+
+
               <div className="space-y-3 rounded-md border p-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <Filter className="size-4" /> Filtre kuralları
