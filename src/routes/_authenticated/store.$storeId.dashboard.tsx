@@ -45,6 +45,37 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/dashboard")
   component: DashboardPage,
 });
 
+const HIGHLIGHTS = [
+  {
+    to: "/store/$storeId/themes" as const,
+    tag: "Vitrin",
+    title: "Tema ve tasarım",
+    description: "Vitrini bölüm bölüm düzenle, canlı önizle ve yayınla.",
+    cta: "Temayı düzenle",
+  },
+  {
+    to: "/store/$storeId/apps" as const,
+    tag: "Uygulamalar",
+    title: "Entegrasyonları bağla",
+    description: "Kargo, pazaryeri ve pazarlama uygulamalarını tek yerden bağla.",
+    cta: "Uygulamalara git",
+  },
+  {
+    to: "/store/$storeId/marketing" as const,
+    tag: "Pazarlama",
+    title: "Kampanya ve kupon",
+    description: "İndirim kodları, kampanyalar ve otomatik akışlar oluştur.",
+    cta: "Kampanyaları aç",
+  },
+  {
+    to: "/store/$storeId/shipping" as const,
+    tag: "Kargo",
+    title: "Kargo kurallarını ayarla",
+    description: "Kargo firmalarını, bölge ve ağırlık kurallarını tanımla.",
+    cta: "Ayarları aç",
+  },
+];
+
 function DashboardPage() {
   const { storeId } = Route.useParams();
   const { data: store } = useQuery(storeQuery(storeId));
