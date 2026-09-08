@@ -500,7 +500,7 @@ function XmlFeedPage() {
                         {feed.last_run_at
                           ? ` · Son çalıştırma: ${new Date(feed.last_run_at).toLocaleString("tr-TR")}`
                           : " · Hiç çalıştırılmadı"}
-                        {feed.stats?.["imported"] ? ` · ${feed.stats.imported} ürün` : ""}
+                        {feed.stats?.["imported"] ? ` · ${feed.stats["imported"]} ürün` : ""}
                       </p>
                       {feed.last_error ? <p className="mt-1 text-xs text-destructive">{feed.last_error}</p> : null}
                     </div>
