@@ -113,15 +113,34 @@ function InvoicePayPage() {
                   mağaza otomatik olarak yeniden açılır.
                 </p>
               ) : null}
-              <Button asChild className="w-full">
-                <Link to="/login">Ödemeyi panelden tamamla</Link>
-              </Button>
-              <p className="text-center text-xs text-muted-foreground">
-                Panele giriş yaptıktan sonra Abonelik &amp; Limitler ekranındaki Faturalar
-                sekmesinden ödeme yapabilirsiniz.
-              </p>
+              {data.cardPaymentEnabled ? (
+                <>
+                  <Button className="w-full" onClick={() => startPayment()} disabled={isPaying}>
+                    {isPaying ? "Ödeme sayfası hazırlanıyor…" : "Kredi/banka kartı ile öde"}
+                  </Button>
+                  {payError ? (
+                    <p className="text-center text-xs text-destructive">{payError}</p>
+                  ) : (
+                    <p className="text-center text-xs text-muted-foreground">
+                      Ödeme, Ödeal güvenli 3D Secure sayfasında tamamlanır; kart bilgileriniz
+                      Mefticaret sunucularına iletilmez.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Button asChild className="w-full">
+                    <Link to="/login">Ödemeyi panelden tamamla</Link>
+                  </Button>
+                  <p className="text-center text-xs text-muted-foreground">
+                    Panele giriş yaptıktan sonra Abonelik &amp; Limitler ekranındaki Faturalar
+                    sekmesinden ödeme yapabilirsiniz.
+                  </p>
+                </>
+              )}
             </>
           )}
+
         </div>
       )}
     </main>
