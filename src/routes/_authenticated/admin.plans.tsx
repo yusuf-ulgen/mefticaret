@@ -229,6 +229,9 @@ function AdminPlans() {
           </button>
         ))}
       </div>
+      </section>
+        ))}
+
 
       <Sheet open={Boolean(draft)} onOpenChange={(open) => !open && setDraft(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
