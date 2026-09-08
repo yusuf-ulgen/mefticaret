@@ -39,7 +39,10 @@ import {
   type SupplierFeedSchedule,
   type SupplierMatchKey,
 } from "@/lib/dropshipping";
+import { DROPSHIP_STATUS_LABEL } from "@/lib/dropshipping";
+import { suppliersQuery } from "@/lib/purchasing-queries";
 import {
+  dropshipOrdersQuery,
   supplierFeedRunsQuery,
   supplierFeedsQuery,
   supplierProductsQuery,
@@ -47,6 +50,9 @@ import {
 } from "@/lib/dropshipping-queries";
 import {
   autoMapFeedCategories,
+  saveDropshipSupplierSettings,
+  setSupplierPortalAccess,
+  updateDropshipOrder,
   deleteSupplierFeed,
   previewSupplierFeed,
   publishFeedProducts,
@@ -192,6 +198,52 @@ function XmlFeedPage() {
   const [isActive, setIsActive] = useState(true);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [poolFeedId, setPoolFeedId] = useState<string>("");
+  const [portalEmails, setPortalEmails] = useState<Record<string, string>>({});
+
+  const suppliers = useQuery({ ...suppliersQuery(storeId), enabled: tab === "suppliers" });
+  const dropshipOrders = useQuery({ ...dropshipOrdersQuery(storeId), enabled: tab === "suppliers" });
+  const saveSupplier = useServerFn(saveDropshipSupplierSettings);
+  const savePortal = useServerFn(setSupplierPortalAccess);
+  const saveOrder = useServerFn(updateDropshipOrder);
+
+  const supplierSettings = useMutation({
+    mutationFn: async (input: {
+      supplierId: string;
+      isDropship: boolean;
+      leadTimeDays: number;
+      currency: string;
+      autoSendOrders: boolean;
+      orderEndpoint: string | null;
+    }) => saveSupplier({ data: { storeId, ...input } }),
+    onSuccess: () => {
+      toast.success("Tedarikçi dropshipping ayarları kaydedildi");
+      void queryClient.invalidateQueries({ queryKey: ["suppliers", storeId] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const portalAccess = useMutation({
+    mutationFn: async (input: { supplierId: string; enabled: boolean; email?: string }) =>
+      savePortal({ data: { storeId, ...input } }),
+    onSuccess: () => {
+      toast.success("Tedarikçi portal erişimi güncellendi");
+      void queryClient.invalidateQueries({ queryKey: ["suppliers", storeId] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const orderStatus = useMutation({
+    mutationFn: async (input: {
+      dropshipOrderId: string;
+      status: keyof typeof DROPSHIP_STATUS_LABEL;
+      trackingNumber?: string | null;
+    }) => saveOrder({ data: { storeId, ...input } }),
+    onSuccess: () => {
+      toast.success("Dropshipping siparişi güncellendi");
+      void queryClient.invalidateQueries({ queryKey: ["dropship-orders", storeId] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const products = useQuery({
     ...supplierProductsQuery(storeId, poolFeedId || undefined),
@@ -450,6 +502,7 @@ function XmlFeedPage() {
           <TabsTrigger value="setup">{editingId ? "Kaynağı düzenle" : "Yeni kaynak"}</TabsTrigger>
           <TabsTrigger value="pool">Ürün havuzu</TabsTrigger>
           <TabsTrigger value="history">Çalıştırma geçmişi</TabsTrigger>
+          <TabsTrigger value="suppliers">Tedarikçi & siparişler</TabsTrigger>
         </TabsList>
 
         {/* Kaynak listesi */}
@@ -1120,6 +1173,189 @@ function XmlFeedPage() {
               </table>
             </div>
           )}
+        </TabsContent>
+
+        {/* Tedarikçi dropshipping ayarları ve siparişler */}
+        <TabsContent value="suppliers" className="space-y-6">
+          <section className="space-y-3">
+            <h2 className="font-display text-base font-semibold">Tedarikçi dropshipping ayarları</h2>
+            {(suppliers.data ?? []).length === 0 ? (
+              <div className="surface-card p-6 text-sm text-muted-foreground">
+                Henüz tedarikçi yok. Tedarik &amp; Satın Alma sayfasından tedarikçi ekleyebilirsin.
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {(suppliers.data ?? []).map((supplier) => {
+                  const row = supplier as unknown as {
+                    id: string;
+                    name: string;
+                    email: string | null;
+                    currency: string | null;
+                    is_dropship: boolean | null;
+                    lead_time_days: number | null;
+                    auto_send_orders: boolean | null;
+                    order_endpoint: string | null;
+                    portal_enabled: boolean | null;
+                  };
+                  return (
+                    <form
+                      key={row.id}
+                      className="surface-card space-y-3 p-4"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        const form = new FormData(event.currentTarget);
+                        supplierSettings.mutate({
+                          supplierId: row.id,
+                          isDropship: form.get("isDropship") === "on",
+                          leadTimeDays: Number(form.get("leadTimeDays") ?? 3),
+                          currency: String(form.get("currency") ?? "TRY").toUpperCase(),
+                          autoSendOrders: form.get("autoSendOrders") === "on",
+                          orderEndpoint: String(form.get("orderEndpoint") ?? "").trim() || null,
+                        });
+                      }}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h3 className="font-medium">{row.name}</h3>
+                        <div className="flex flex-wrap items-center gap-3 text-sm">
+                          <label className="flex items-center gap-2">
+                            Dropshipping
+                            <input type="checkbox" name="isDropship" defaultChecked={Boolean(row.is_dropship)} />
+                          </label>
+                          <label className="flex items-center gap-2">
+                            Siparişi otomatik gönder
+                            <input
+                              type="checkbox"
+                              name="autoSendOrders"
+                              defaultChecked={Boolean(row.auto_send_orders)}
+                            />
+                          </label>
+                        </div>
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-3">
+                        <div className="space-y-1.5">
+                          <Label>Tedarik süresi (gün)</Label>
+                          <Input type="number" name="leadTimeDays" defaultValue={row.lead_time_days ?? 3} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label>Para birimi</Label>
+                          <Input name="currency" defaultValue={row.currency ?? "TRY"} maxLength={3} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label>Sipariş uç noktası (opsiyonel)</Label>
+                          <Input
+                            name="orderEndpoint"
+                            defaultValue={row.order_endpoint ?? ""}
+                            placeholder="https://tedarikci.com/api/orders"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-end gap-2">
+                        <div className="space-y-1.5">
+                          <Label>Tedarikçi portal e-postası</Label>
+                          <Input
+                            value={portalEmails[row.id] ?? row.email ?? ""}
+                            onChange={(event) =>
+                              setPortalEmails((current) => ({ ...current, [row.id]: event.target.value }))
+                            }
+                            placeholder="tedarikci@ornek.com"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={portalAccess.isPending}
+                          onClick={() =>
+                            portalAccess.mutate({
+                              supplierId: row.id,
+                              enabled: !row.portal_enabled,
+                              ...(row.portal_enabled
+                                ? {}
+                                : { email: (portalEmails[row.id] ?? row.email ?? "").trim() }),
+                            })
+                          }
+                        >
+                          {row.portal_enabled ? "Portal erişimini kapat" : "Portal erişimi ver"}
+                        </Button>
+                        <Button type="submit" disabled={supplierSettings.isPending}>
+                          Kaydet
+                        </Button>
+                      </div>
+                    </form>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="font-display text-base font-semibold">Dropshipping siparişleri</h2>
+            {(dropshipOrders.data ?? []).length === 0 ? (
+              <div className="surface-card p-6 text-sm text-muted-foreground">
+                Tedarikçiye iletilmiş sipariş yok. Sipariş detayında dropshipping gönderimi yapabilirsin.
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-md border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-left text-xs uppercase text-muted-foreground">
+                    <tr>
+                      <th className="p-2">Sipariş</th>
+                      <th className="p-2">Tedarikçi</th>
+                      <th className="p-2">Tutar</th>
+                      <th className="p-2">Kargo takip</th>
+                      <th className="p-2">Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(dropshipOrders.data ?? []).map((order) => (
+                      <tr key={order.id} className="border-t">
+                        <td className="p-2">{order.orders?.order_number ?? "—"}</td>
+                        <td className="p-2 text-xs text-muted-foreground">{order.suppliers?.name ?? "—"}</td>
+                        <td className="p-2">
+                          {order.orders
+                            ? formatMoney(order.orders.grand_total, order.orders.currency)
+                            : "—"}
+                        </td>
+                        <td className="p-2">
+                          <Input
+                            defaultValue={order.tracking_number ?? ""}
+                            placeholder="Takip no"
+                            onBlur={(event) => {
+                              const value = event.target.value.trim();
+                              if (value !== (order.tracking_number ?? ""))
+                                orderStatus.mutate({
+                                  dropshipOrderId: order.id,
+                                  status: order.status,
+                                  trackingNumber: value || null,
+                                });
+                            }}
+                          />
+                        </td>
+                        <td className="p-2">
+                          <select
+                            className="h-9 rounded-md border bg-background px-2 text-sm"
+                            value={order.status}
+                            onChange={(event) =>
+                              orderStatus.mutate({
+                                dropshipOrderId: order.id,
+                                status: event.target.value as keyof typeof DROPSHIP_STATUS_LABEL,
+                                trackingNumber: order.tracking_number,
+                              })
+                            }
+                          >
+                            {Object.entries(DROPSHIP_STATUS_LABEL).map(([value, label]) => (
+                              <option key={value} value={value}>
+                                {label}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
         </TabsContent>
       </Tabs>
     </AppShell>
