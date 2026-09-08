@@ -138,6 +138,24 @@ function AdminDashboard() {
         ))}
       </div>
 
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {HIGHLIGHTS.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className="group rounded-2xl border border-border/70 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)]"
+          >
+            <p className="eyebrow">{item.tag}</p>
+            <p className="mt-2 font-display text-base font-semibold tracking-tight">{item.title}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
+            <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
+              {item.cta}
+              <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
+            </span>
+          </Link>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <section className="surface-card p-6">
           <h2 className="font-display text-lg font-semibold">Platform cirosu (30 gün)</h2>
