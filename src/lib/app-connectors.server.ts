@@ -190,13 +190,8 @@ const CHECKS: Record<
         "Meta işletme hesabı doğrulandı",
       ),
   },
-  "odeal-payments": {
-    required: ["merchant_id", "api_key", "secret_key"],
-    run: async () => ({
-      status: "configured",
-      message: "Kimlik bilgileri kaydedildi. İlk ödeme denemesinde doğrulanacak.",
-    }),
-  },
+  // Ödeal yalnızca süper yönetici panelinden yönetilir (platform faturalandırma).
+
   "hepsiburada-marketplace": {
     required: ["merchant_id", "username", "password"],
     run: (s) =>
