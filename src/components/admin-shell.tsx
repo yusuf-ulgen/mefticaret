@@ -231,6 +231,21 @@ export function AdminShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex h-16 items-center gap-3 bg-foreground px-3 text-background lg:px-5">
+          <span className="font-display text-base font-semibold tracking-tight lg:hidden">Mefticaret</span>
+          <div className="ml-auto flex items-center gap-2 lg:ml-0 lg:flex-1">
+            <div className="hidden min-w-0 flex-1 items-center gap-2 rounded-full bg-background/12 px-3.5 py-2 text-xs text-background/70 sm:flex lg:max-w-md">
+              <Search className="size-3.5 shrink-0" />
+              <span className="truncate">Yönetim ara — “Tüm yönetim” menüsünden</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="hidden max-w-[16rem] truncate text-background/70 sm:inline">{userLabel}</span>
+            <span className="grid size-8 place-items-center rounded-full bg-background/15 font-semibold uppercase">
+              {initials}
+            </span>
+          </div>
+        </div>
         <div className="sticky top-0 z-30 flex flex-wrap items-center gap-2 border-b border-border/70 bg-card/75 px-3 py-2.5 backdrop-blur-md lg:px-5">
           <Button
             variant="outline"
