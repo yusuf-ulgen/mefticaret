@@ -67,6 +67,7 @@ export const FONT_PAIRS = [
   { value: "cormorant-karla", label: "Cormorant + Karla" },
   { value: "outfit-figtree", label: "Outfit + Figtree" },
   { value: "archivo-hind", label: "Archivo + Hind" },
+  { value: "montserrat-nunito", label: "Montserrat + Nunito Sans" },
   { value: "tenor-sans-jost", label: "Tenor Sans + Jost" },
 ] as const;
 
@@ -89,6 +90,10 @@ export const FONT_STACKS: Record<string, { heading: string; body: string }> = {
   },
   "outfit-figtree": { heading: "Outfit, system-ui, sans-serif", body: "Figtree, system-ui, sans-serif" },
   "archivo-hind": { heading: "Archivo, system-ui, sans-serif", body: "Hind, system-ui, sans-serif" },
+  "montserrat-nunito": {
+    heading: "Montserrat, system-ui, sans-serif",
+    body: "'Nunito Sans', system-ui, sans-serif",
+  },
   "tenor-sans-jost": {
     heading: "'Tenor Sans', 'Times New Roman', serif",
     body: "Jost, system-ui, sans-serif",

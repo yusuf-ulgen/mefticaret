@@ -470,6 +470,171 @@ const WOKIEE: ThemeTemplate = {
   ],
 };
 
-export const THEME_TEMPLATES: ThemeTemplate[] = [WOKIEE, BE_YOURS, ATELIER_MODE];
+/**
+ * EMPIRE — dijital ürün ve yazılım satan mağazalar için tema.
+ *
+ * Shopify Empire (v6) yerleşimi baz alınarak hazırlandı: üst fayda şeridi,
+ * beyaz sticky header, 5 kampanyalı tam genişlik slider, ikonlu avantaj bandı,
+ * mozaik kampanya kutuları, koleksiyon kaydırıcıları, öne çıkan ürün blokları,
+ * alışveriş yapılabilir görsel, yorumlar, blog, arama ve krem footer.
+ */
+const EMPIRE: ThemeTemplate = {
+  code: "empire-digital",
+  name: "Empire",
+  tagline: "Dijital ürün & yazılım · Montserrat + Nunito Sans",
+  description:
+    "Dijital ürün, yazılım ve SaaS satan mağazalar için hazırlanmış Empire yerleşimli tema. Beyaz zemin, mercan (#f04f36) buton rengi, petrol mavisi bağlantılar ve krem footer ile gelir. 5 kampanyalı slider, avantaj bandı, mozaik kampanya kutuları, koleksiyon kaydırıcıları, öne çıkan ürünler, yorumlar, blog ve arama bloklarını içerir.",
+  tags: ["Dijital ürün", "Yazılım", "SaaS", "Çok amaçlı", "Empire"],
+  store: {
+    price: 1990,
+    priceNote: "Tek seferlik lisans · ömür boyu güncelleme",
+    featured: true,
+    features: [
+      "Empire yerleşimi: fayda şeridi + beyaz sticky header",
+      "5 kampanyalı otomatik tam genişlik slider",
+      "İkonlu avantaj bandı (kargo, telefon, sohbet, konum)",
+      "Mozaik kampanya kutuları ve ikili split banner",
+      "Koleksiyon kaydırıcıları ve kategori mega bloğu",
+      "Öne çıkan ürün, yeni gelenler ve en çok satanlar",
+      "Anında dijital teslimat vurgulu güven rozetleri",
+      "Müşteri yorumları, blog ve bülten kaydı",
+      "Krem tonlu çok kolonlu footer",
+    ],
+    previewImage: "/themes/empire/cover.jpg",
+  },
+  theme: {
+    primaryColor: "#1d1d1d",
+    accentColor: "#f04f36",
+    backgroundColor: "#ffffff",
+    fontPair: "montserrat-nunito",
+    radius: 0.3,
+    layout: "hero-grid",
+    buttonStyle: "solid",
+    cardStyle: "bordered",
+    contentWidth: 1400,
+    sectionSpacing: 40,
+    heroTitle: "Şimdi alışveriş yap",
+    heroSubtitle: "Yeni nesil e-ticaret altyapısı ile dijital ürünlerini saniyeler içinde teslim et.",
+    heroCtaLabel: "Hemen al",
+    announcement: "Anında dijital indirme · Kargo yok, bekleme yok",
+    showAnnouncement: true,
+  },
+  sections: [
+    {
+      type: "announcement_bar",
+      settings: {
+        text: "Anında dijital indirme · Satın alma sonrası ürününe hemen eriş",
+        linkLabel: "Dijital ürünleri keşfet",
+        linkUrl: "#urunler",
+        tone: "soft",
+      },
+    },
+    {
+      type: "header",
+      settings: {
+        sticky: true,
+        showSearch: true,
+        showFavorites: true,
+        showCart: true,
+        tagline: "Dijital ürünler & yazılım",
+      },
+    },
+    {
+      type: "hero_slider",
+      settings: {
+        items:
+          "Şimdi alışveriş yap | Yeni nesil e-ticaret altyapısı | | Hemen al | #urunler\nAnında Dijital İndirme | Satın alma işleminden hemen sonra premium dijital araçlara, şablonlara ve kaynaklara anında erişin. | | Dijital Ürünleri Keşfet | #urunler\nZaman Kazandıran Dijital Araçlar | Üretkenliğinizi ve verimliliğinizi artırmak için tasarlanmış güçlü dijital ürünler. | | Koleksiyonu Keşfet | #koleksiyonlar\nPremium Dijital Kaynaklar | İçerik üreticileri, girişimciler ve profesyoneller için yüksek kaliteli dijital ürünler. | | Ürünleri İncele | #urunler\nİndir. Kullan. Başar. | Basit ve güvenli indirme ile güvenilir dijital ürünlere her yerden eriş. | | İndirmeye Başla | #urunler",
+        height: 620,
+        autoplay: true,
+        interval: 9,
+      },
+    },
+    {
+      type: "icon_boxes",
+      settings: {
+        title: "",
+        items:
+          "🚚 | Ücretsiz Teslimat | Dijital ürünlerde kargo yok\n📞 | Bizi Arayın | +90 (545) 529-4390\n💬 | Canlı Sohbet | 7/24 sohbet desteği sunuyoruz\n📍 | Konumlar | Size en yakın noktayı bulun",
+        columns: 4,
+      },
+    },
+    {
+      type: "banner_color_grid",
+      settings: {
+        title: "",
+        items:
+          "Anında Dijital İndirme | Kargo yok, bekleme yok | #urunler\nDijital Araçlarla Daha Akıllı Çalışın | Üretkenliğini artıran ürünler | #urunler\nPremium Dijital Kaynaklar | Profesyoneller için seçkiler | #urunler\nİndir. Kullan. Başar. | Hızlı ve basit indirmeler | #urunler",
+        columns: 4,
+      },
+    },
+    { type: "category_slider", settings: { title: "Koleksiyonlarda gezin", limit: 12, cardWidth: 200 } },
+    { type: "featured_collection", settings: { title: "Eklentiler", collectionSlug: "", limit: 8, columns: 4, ctaLabel: "Tümünü gör" } },
+    { type: "product_new", settings: { title: "Yeni gelenler", limit: 8, columns: 4 } },
+    { type: "product_featured", settings: { title: "Öne çıkan ürün", limit: 4, columns: 4 } },
+    {
+      type: "banner_split",
+      settings: {
+        leftTitle: "Hazır e-ticaret siteleri",
+        leftText: "Kurulumu tamamlanmış paketler",
+        leftImage: "",
+        leftUrl: "#urunler",
+        rightTitle: "Yapay zekâ araçları",
+        rightText: "SEO, içerik ve destek asistanları",
+        rightImage: "",
+        rightUrl: "#urunler",
+        height: 320,
+      },
+    },
+    { type: "product_bestsellers", settings: { title: "En çok satanlar", limit: 8, columns: 4, layout: "slider" } },
+    {
+      type: "image_text",
+      settings: {
+        title: "Yaratıcılığınızı Ortaya Çıkarın",
+        text: "Şablonlar, betikler ve SaaS araçlarıyla projelerini daha hızlı tamamla; satın aldığın anda indir.",
+        imageUrl: "",
+        imagePosition: "left",
+        ctaLabel: "Ürünü gör",
+        ctaUrl: "#urunler",
+      },
+    },
+    { type: "product_discounted", settings: { title: "İndirimdekiler", limit: 8, columns: 4, showBadge: true } },
+    {
+      type: "trust_badges",
+      settings: {
+        items:
+          "⚡ | Anında teslimat | Ödeme sonrası hemen indir\n🔐 | Güvenli ödeme | 3D Secure ve SSL\n🔄 | Ömür boyu güncelleme | Yeni sürümler ücretsiz",
+        columns: 3,
+      },
+    },
+    {
+      type: "testimonials",
+      settings: {
+        title: "Müşteri yorumları",
+        items:
+          "Satın aldıktan saniyeler sonra indirdim, kurulum çok kolaydı. | Serkan A.\nDijital ürün kalitesi beklentimin üzerindeydi. | Deniz K.\nDestek ekibi kurulumda adım adım yardımcı oldu. | Hakan Ö.\nGüncellemeler ücretsiz geliyor, çok memnunum. | Elif B.",
+        columns: 4,
+      },
+    },
+    { type: "blog", settings: { title: "Blog yazıları", limit: 3, columns: 3 } },
+    {
+      type: "newsletter",
+      settings: {
+        title: "Yeni dijital ürünleri ilk sen öğren",
+        text: "Bültene katıl, lansmanları ve indirim kuponlarını kaçırma.",
+        buttonLabel: "Kaydol",
+      },
+    },
+    {
+      type: "footer",
+      settings: {
+        showLegalLinks: true,
+        showPages: true,
+        about: "Premium dijital ürünler, yazılımlar ve SaaS araçları — anında teslimat.",
+      },
+    },
+  ],
+};
+
+export const THEME_TEMPLATES: ThemeTemplate[] = [EMPIRE, WOKIEE, BE_YOURS, ATELIER_MODE];
 
 export const TEMPLATE_BY_CODE = new Map(THEME_TEMPLATES.map((template) => [template.code, template]));
