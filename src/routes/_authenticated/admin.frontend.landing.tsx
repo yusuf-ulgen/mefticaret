@@ -207,7 +207,7 @@ function AdminLandingPage() {
             const dirty = Boolean(drafts[row.id]);
             const template = ITEM_TEMPLATES[row.kind] ?? { title: "Yeni kart", text: "" };
             return (
-              <section key={row.id} className="surface-card p-4">
+              <section key={row.id} id={`bolum-${row.section_key}`} className="surface-card scroll-mt-24 p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="min-w-0">
                     <p className="truncate font-display text-base font-semibold">
