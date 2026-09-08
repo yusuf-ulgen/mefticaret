@@ -42,6 +42,7 @@ export const Route = createFileRoute("/e-ticaret-sitesi-kurma")({
           "@type": "Article",
           headline: "E-Ticaret Sitesi Kurma Rehberi 2026",
           description: DESCRIPTION,
+          image: "https://mefticaret.com/og-mefticaret.jpg",
           inLanguage: "tr-TR",
           author: { "@type": "Organization", name: "Mefticaret" },
           publisher: { "@type": "Organization", name: "Mefticaret" },

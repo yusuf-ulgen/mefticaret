@@ -30,6 +30,7 @@ export const Route = createFileRoute("/en-iyi-e-ticaret-altyapisi")({
           "@type": "Article",
           headline: TITLE,
           description: DESCRIPTION,
+          image: "https://mefticaret.com/og-mefticaret.jpg",
           inLanguage: "tr-TR",
           author: { "@type": "Organization", name: "Mefticaret" },
           publisher: { "@type": "Organization", name: "Mefticaret" },
