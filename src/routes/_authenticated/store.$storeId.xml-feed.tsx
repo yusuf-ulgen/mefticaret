@@ -421,6 +421,19 @@ function XmlFeedPage() {
     setBuffer(Number(stock.buffer ?? 0));
     setMinThreshold(Number(stock.minThreshold ?? 0));
     setCap(stock.cap !== undefined ? String(stock.cap) : "");
+    setFxRate(price.fxRate !== undefined ? String(price.fxRate) : "");
+    setVatRate(price.vatRate !== undefined ? String(price.vatRate) : "");
+    setSupplierVatIncluded(price.supplierVatIncluded ?? true);
+    setTiersText(
+      (price.tiers ?? [])
+        .map(
+          (tier) =>
+            `${tier.upTo ?? 0}=${price.mode === "fixed" ? tier.value : Math.round(Number(tier.value) * 100)}`,
+        )
+        .join("\n"),
+    );
+    setMissingAction(stock.missingAction ?? "ignore");
+
     setFilterMinPrice(filters.minSupplierPrice !== undefined ? String(filters.minSupplierPrice) : "");
     setFilterMaxPrice(filters.maxSupplierPrice !== undefined ? String(filters.maxSupplierPrice) : "");
     setFilterMinStock(filters.minStock !== undefined ? String(filters.minStock) : "");
