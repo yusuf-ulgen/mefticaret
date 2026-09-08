@@ -217,7 +217,7 @@ const DATASETS = {
     description: "Platform genelinde blog içerikleri ve yayın takvimi.",
     orderBy: "published_at",
     searchColumns: ["title", "slug", "author_name"],
-    filter: { page_kind: ["post"] },
+    filter: { page_kind: ["blog", "post"] },
     withStore: true,
     columns: [
       { key: "title", label: "Yazı" },
