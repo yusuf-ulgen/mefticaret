@@ -97,7 +97,8 @@ if (typeof globalThis.addEventListener === "function") {
   if (proc && typeof proc.on === "function") {
     proc.on("uncaughtException", (error: unknown) => {
       if (isClientAbort(error)) return;
-      throw error;
+      record(error);
+      originalConsoleError(describeError(error));
     });
     proc.on("unhandledRejection", (reason: unknown) => {
       if (isClientAbort(reason)) return;
