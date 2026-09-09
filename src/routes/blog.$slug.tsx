@@ -31,16 +31,29 @@ export const Route = createFileRoute("/blog/$slug")({
   ),
   head: ({ params, loaderData }) => {
     const post = loaderData?.post;
-    const title = post ? `${post.meta_title || post.title} — Mefticaret Blog` : "Mefticaret Blog";
-    const description =
+    const title = post
+      ? post.meta_title?.trim() || `${post.title} — Mefticaret Blog`
+      : "Mefticaret Blog";
+    const rawDescription =
       post?.seo_description ||
       post?.excerpt ||
+      (post?.body ?? "")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/[#*_>`|\-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim() ||
       "Mefticaret blogunda e-ticaret, pazaryeri ve büyüme rehberleri.";
+    const description =
+      rawDescription.length <= 160
+        ? rawDescription
+        : `${rawDescription.slice(0, 159).replace(/[\s,;.:-]+$/, "")}…`;
     const cover = post?.cover_url;
     const absoluteCover = cover && /^https:\/\//.test(cover) ? cover : null;
-    const canonical = post?.canonical_url && /^https?:\/\//.test(post.canonical_url)
-      ? post.canonical_url
-      : null;
+    const canonical =
+      post?.canonical_url && /^https?:\/\//.test(post.canonical_url)
+        ? post.canonical_url
+        : `https://mefticaret.com/blog/${params.slug}`;
+    const noindex = !post || post.noindex === true;
 
     return {
       meta: [
@@ -49,6 +62,7 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "article" },
+        { property: "og:url", content: canonical },
         { name: "twitter:card", content: "summary_large_image" },
         ...(absoluteCover
           ? [
@@ -56,8 +70,29 @@ export const Route = createFileRoute("/blog/$slug")({
               { name: "twitter:image", content: absoluteCover },
             ]
           : []),
+        ...(noindex ? [{ name: "robots", content: "noindex, nofollow" }] : []),
       ],
-      links: canonical ? [{ rel: "canonical", href: canonical }] : [],
+      links: noindex ? [] : [{ rel: "canonical", href: canonical }],
+      scripts: post
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "BlogPosting",
+                headline: post.title,
+                description,
+                url: canonical,
+                mainEntityOfPage: canonical,
+                datePublished: post.published_at,
+                dateModified: post.updated_at ?? post.published_at,
+                ...(absoluteCover ? { image: absoluteCover } : {}),
+                author: { "@type": "Person", name: post.author_name || "Mefticaret" },
+                publisher: { "@type": "Organization", name: "Mefticaret" },
+              }),
+            },
+          ]
+        : [],
     };
   },
   component: BlogPostPage,

@@ -114,5 +114,45 @@ export async function buildGlobalSitemap(kind: GlobalSitemapKind): Promise<strin
     }
   }
 
+  // Platform (mefticaret.com) kendi içeriği: kurumsal sayfalar ve platform blogu.
+  if (kind === "pages") {
+    const { data, error } = await supabase
+      .from("platform_pages")
+      .select("slug, updated_at, noindex")
+      .eq("is_published", true)
+      .order("sort_order");
+    if (error) throw new Error(error.message);
+    for (const row of (data ?? []) as { slug: string; updated_at: string | null; noindex: boolean | null }[]) {
+      if (row.noindex) continue;
+      entries.push({
+        loc: `${BASE_URL}/sayfa/${row.slug}`,
+        lastmod: row.updated_at,
+        changefreq: "monthly",
+        priority: "0.6",
+      });
+    }
+  } else if (kind === "blog") {
+    const { data, error } = await supabase
+      .from("platform_posts")
+      .select("slug, updated_at, published_at, noindex")
+      .eq("is_published", true)
+      .order("published_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    for (const row of (data ?? []) as {
+      slug: string;
+      updated_at: string | null;
+      published_at: string | null;
+      noindex: boolean | null;
+    }[]) {
+      if (row.noindex) continue;
+      entries.push({
+        loc: `${BASE_URL}/blog/${row.slug}`,
+        lastmod: row.updated_at ?? row.published_at,
+        changefreq: "weekly",
+        priority: "0.7",
+      });
+    }
+  }
+
   return render(entries);
 }

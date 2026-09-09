@@ -24,7 +24,9 @@ export const platformPageQuery = (slug: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("platform_pages")
-        .select("title, slug, excerpt, body, seo_description, show_contact_form, updated_at")
+        .select(
+          "title, slug, excerpt, body, meta_title, seo_description, canonical_url, noindex, show_contact_form, updated_at",
+        )
         .eq("slug", slug)
         .eq("is_published", true)
         .maybeSingle();

@@ -6597,10 +6597,13 @@ export type Database = {
       platform_pages: {
         Row: {
           body: string
+          canonical_url: string | null
           created_at: string
           excerpt: string | null
           id: string
           is_published: boolean
+          meta_title: string | null
+          noindex: boolean
           seo_description: string | null
           show_contact_form: boolean
           show_in_footer: boolean
@@ -6611,10 +6614,13 @@ export type Database = {
         }
         Insert: {
           body?: string
+          canonical_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
           is_published?: boolean
+          meta_title?: string | null
+          noindex?: boolean
           seo_description?: string | null
           show_contact_form?: boolean
           show_in_footer?: boolean
@@ -6625,10 +6631,13 @@ export type Database = {
         }
         Update: {
           body?: string
+          canonical_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
           is_published?: boolean
+          meta_title?: string | null
+          noindex?: boolean
           seo_description?: string | null
           show_contact_form?: boolean
           show_in_footer?: boolean
@@ -6651,6 +6660,7 @@ export type Database = {
           is_featured: boolean
           is_published: boolean
           meta_title: string | null
+          noindex: boolean
           published_at: string | null
           seo_description: string | null
           slug: string
@@ -6671,6 +6681,7 @@ export type Database = {
           is_featured?: boolean
           is_published?: boolean
           meta_title?: string | null
+          noindex?: boolean
           published_at?: string | null
           seo_description?: string | null
           slug: string
@@ -6691,6 +6702,7 @@ export type Database = {
           is_featured?: boolean
           is_published?: boolean
           meta_title?: string | null
+          noindex?: boolean
           published_at?: string | null
           seo_description?: string | null
           slug?: string
