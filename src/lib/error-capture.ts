@@ -5,6 +5,8 @@ let lastCapturedError: { error: unknown; at: number } | undefined;
 const TTL_MS = 5_000;
 
 function record(error: unknown) {
+  // Bağlantı kopması kaynaklı "aborted" hataları raporlanmaz.
+  if (isClientAbort(error)) return;
   lastCapturedError = { error, at: Date.now() };
 }
 
@@ -86,6 +88,25 @@ if (typeof globalThis.addEventListener === "function") {
     record((event as PromiseRejectionEvent).reason),
   );
 }
+
+// Node çalışma ortamında (geliştirme sunucusu) tarayıcı isteği iptal ettiğinde
+// node:_http_server "aborted" hatasını yakalanmamış olarak yayar. Bu bir uygulama
+// hatası değildir; süreci ve hata raporlarını kirletmemesi için yutulur.
+{
+  const proc = (globalThis as { process?: NodeJS.Process }).process;
+  if (proc && typeof proc.on === "function") {
+    proc.on("uncaughtException", (error: unknown) => {
+      if (isClientAbort(error)) return;
+      record(error);
+      originalConsoleError(describeError(error));
+    });
+    proc.on("unhandledRejection", (reason: unknown) => {
+      if (isClientAbort(reason)) return;
+      record(reason);
+    });
+  }
+}
+
 
 export function consumeLastCapturedError(): unknown {
   if (!lastCapturedError) return undefined;
