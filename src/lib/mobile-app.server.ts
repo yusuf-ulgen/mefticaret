@@ -286,7 +286,10 @@ export async function createCampaign(
     }
   }
 
-  const status = scheduled || !providerConfigured ? "scheduled" : "sent";
+  const status: "sent" | "scheduled" =
+    scheduled || !providerConfigured || (!topicSent && delivered === 0 && tokens.length > 0)
+      ? "scheduled"
+      : "sent";
   const { error } = await supabase.from("mobile_push_campaigns").insert({
     store_id: input.storeId,
     title: input.title,
