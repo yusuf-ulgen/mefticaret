@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.seller_order_lines(uuid, uuid) FROM anon;
