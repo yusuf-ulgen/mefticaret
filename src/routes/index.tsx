@@ -507,3 +507,63 @@ function LandingPage() {
     </div>
   );
 }
+
+const GUIDES = [
+  {
+    to: "/en-iyi-e-ticaret-altyapisi",
+    eyebrow: "Karşılaştırma",
+    title: "En iyi e-ticaret altyapısı rehberi",
+    description:
+      "Altyapı seçerken komisyon, özellik ve büyüme kriterlerini yan yana karşılaştırın.",
+  },
+  {
+    to: "/dropshipping-nasil-yapilir",
+    eyebrow: "Başlangıç",
+    title: "Dropshipping nasıl yapılır?",
+    description:
+      "Tedarikçi bulmadan XML aktarımına kadar stoksuz satışın adım adım kurulumu.",
+  },
+  {
+    to: "/pazaryeri-entegrasyonu",
+    eyebrow: "Entegrasyon",
+    title: "Pazaryeri entegrasyonu",
+    description:
+      "Trendyol, Hepsiburada, Amazon ve N11 stok, fiyat ve siparişlerini tek panelde yönetin.",
+  },
+] as const;
+
+/** Ana sayfada rehber içeriklerini öne çıkaran bölüm. */
+function GuidesSection() {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-20 lg:px-8" aria-labelledby="rehberler">
+      <p className="eyebrow">Rehberler</p>
+      <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+        <h2 id="rehberler" className="max-w-2xl text-3xl font-extrabold sm:text-4xl">
+          Satışa başlamadan önce okunması gereken rehberler
+        </h2>
+        <p className="max-w-sm text-sm text-muted-foreground">
+          Mefticaret ekibinin hazırladığı ücretsiz Türkçe rehberlerle doğru kararı ilk seferde
+          verin.
+        </p>
+      </div>
+
+      <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
+        {GUIDES.map((guide) => (
+          <Link
+            key={guide.to}
+            to={guide.to}
+            className="showcase-card group flex flex-col p-7 transition-transform hover:-translate-y-1"
+          >
+            <span className="eyebrow">{guide.eyebrow}</span>
+            <span className="mt-3 text-xl font-bold tracking-tight">{guide.title}</span>
+            <span className="mt-3 flex-1 text-sm text-muted-foreground">{guide.description}</span>
+            <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold">
+              Rehberi oku
+              <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
