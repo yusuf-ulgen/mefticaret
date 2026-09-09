@@ -6643,16 +6643,19 @@ export type Database = {
         Row: {
           author_name: string | null
           body: string
+          canonical_url: string | null
           cover_url: string | null
           created_at: string
           excerpt: string | null
           id: string
           is_featured: boolean
           is_published: boolean
+          meta_title: string | null
           published_at: string | null
           seo_description: string | null
           slug: string
           sort_order: number
+          status: string
           tags: string[]
           title: string
           updated_at: string
@@ -6660,16 +6663,19 @@ export type Database = {
         Insert: {
           author_name?: string | null
           body?: string
+          canonical_url?: string | null
           cover_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
           is_featured?: boolean
           is_published?: boolean
+          meta_title?: string | null
           published_at?: string | null
           seo_description?: string | null
           slug: string
           sort_order?: number
+          status?: string
           tags?: string[]
           title: string
           updated_at?: string
@@ -6677,16 +6683,19 @@ export type Database = {
         Update: {
           author_name?: string | null
           body?: string
+          canonical_url?: string | null
           cover_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
           is_featured?: boolean
           is_published?: boolean
+          meta_title?: string | null
           published_at?: string | null
           seo_description?: string | null
           slug?: string
           sort_order?: number
+          status?: string
           tags?: string[]
           title?: string
           updated_at?: string

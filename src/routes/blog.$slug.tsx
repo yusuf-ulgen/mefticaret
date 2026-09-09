@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { publicPlatformPostQuery } from "@/lib/platform-blog-queries";
 import { formatDateTime } from "@/lib/mefti";
@@ -9,11 +11,12 @@ import { formatDateTime } from "@/lib/mefti";
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ context, params }) => {
     try {
-      await context.queryClient.ensureQueryData(publicPlatformPostQuery(params.slug));
+      const post = await context.queryClient.ensureQueryData(publicPlatformPostQuery(params.slug));
+      return { post: post ?? null };
     } catch (error) {
       console.error(error);
+      return { post: null };
     }
-    return null;
   },
   errorComponent: ({ error }) => (
     <main className="mx-auto w-full max-w-3xl px-5 py-14" role="alert">
@@ -26,9 +29,19 @@ export const Route = createFileRoute("/blog/$slug")({
       <h1 className="text-2xl font-semibold">Yazı bulunamadı</h1>
     </main>
   ),
-  head: ({ params }) => {
-    const title = `${params.slug} — Mefticaret Blog`;
-    const description = "Mefticaret blog yazısı.";
+  head: ({ params, loaderData }) => {
+    const post = loaderData?.post;
+    const title = post ? `${post.meta_title || post.title} — Mefticaret Blog` : "Mefticaret Blog";
+    const description =
+      post?.seo_description ||
+      post?.excerpt ||
+      "Mefticaret blogunda e-ticaret, pazaryeri ve büyüme rehberleri.";
+    const cover = post?.cover_url;
+    const absoluteCover = cover && /^https:\/\//.test(cover) ? cover : null;
+    const canonical = post?.canonical_url && /^https?:\/\//.test(post.canonical_url)
+      ? post.canonical_url
+      : null;
+
     return {
       meta: [
         { title },
@@ -37,11 +50,19 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:description", content: description },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
+        ...(absoluteCover
+          ? [
+              { property: "og:image", content: absoluteCover },
+              { name: "twitter:image", content: absoluteCover },
+            ]
+          : []),
       ],
+      links: canonical ? [{ rel: "canonical", href: canonical }] : [],
     };
   },
   component: BlogPostPage,
 });
+
 
 function BlogPostPage() {
   const { slug } = Route.useParams();
@@ -76,7 +97,9 @@ function BlogPostPage() {
             />
           ) : null}
           {data.excerpt ? <p className="mt-5 text-muted-foreground">{data.excerpt}</p> : null}
-          <div className="mt-8 space-y-4 leading-relaxed whitespace-pre-line">{data.body}</div>
+          <div className="markdown-body mt-8">
+            <Markdown remarkPlugins={[remarkGfm]}>{data.body}</Markdown>
+          </div>
           {(data.tags ?? []).length > 0 ? (
             <p className="mt-8 text-xs text-muted-foreground">
               Etiketler: {(data.tags ?? []).join(", ")}

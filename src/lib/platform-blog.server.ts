@@ -17,12 +17,19 @@ export const platformPostSchema = z.object({
     .optional()
     .transform((value) => (value ? value : undefined)),
   excerpt: z.string().trim().max(600).optional(),
+  metaTitle: z.string().trim().max(70).optional(),
+  canonicalUrl: z
+    .string()
+    .trim()
+    .max(400)
+    .optional()
+    .refine((value) => !value || /^https?:\/\//.test(value), "Canonical adresi http(s) ile başlamalı"),
+  status: z.enum(["draft", "published", "archived"]).default("draft"),
   body: z.string().max(60_000).default(""),
   coverUrl: z.string().trim().max(600).optional(),
   seoDescription: z.string().trim().max(320).optional(),
   authorName: z.string().trim().max(120).optional(),
   tags: z.array(z.string().trim().min(1).max(40)).max(12).default([]),
-  isPublished: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
   sortOrder: z.number().int().min(0).max(999).default(0),
 });
@@ -38,30 +45,22 @@ export async function upsertPlatformPost(
     title: input.title,
     slug,
     excerpt: input.excerpt ?? null,
+    meta_title: input.metaTitle ?? null,
+    canonical_url: input.canonicalUrl ?? null,
+    status: input.status,
     body: input.body,
     cover_url: input.coverUrl ?? null,
     seo_description: input.seoDescription ?? null,
     author_name: input.authorName ?? null,
     tags: input.tags,
-    is_published: input.isPublished,
     is_featured: input.isFeatured,
     sort_order: input.sortOrder,
   };
 
   if (input.postId) {
-    const { data: current } = await supabase
-      .from("platform_posts")
-      .select("published_at")
-      .eq("id", input.postId)
-      .maybeSingle();
-
-    const publishedAt = input.isPublished
-      ? (current?.published_at ?? new Date().toISOString())
-      : null;
-
     const { data, error } = await supabase
       .from("platform_posts")
-      .update({ ...row, published_at: publishedAt })
+      .update(row)
       .eq("id", input.postId)
       .select("id, slug")
       .maybeSingle();
@@ -72,7 +71,7 @@ export async function upsertPlatformPost(
 
   const { data, error } = await supabase
     .from("platform_posts")
-    .insert({ ...row, published_at: input.isPublished ? new Date().toISOString() : null })
+    .insert(row)
     .select("id, slug")
     .single();
   if (error) throw new Error(error.message);

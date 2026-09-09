@@ -9,8 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { CoverImageUpload } from "@/components/cover-image-upload";
+import { MarkdownEditor } from "@/components/markdown-editor";
 import { formatDateTime } from "@/lib/mefti";
 import { platformPostsQuery } from "@/lib/platform-blog-queries";
 import { removePlatformPost, savePlatformPost } from "@/lib/platform-blog.functions";
@@ -24,10 +27,12 @@ const EMPTY = {
   excerpt: "",
   body: "",
   coverUrl: "",
+  metaTitle: "",
+  canonicalUrl: "",
   seoDescription: "",
+  status: "draft" as PostStatus,
   authorName: "Mefticaret Ekibi",
   tags: "",
-  isPublished: false,
   isFeatured: false,
   sortOrder: 0,
 };
@@ -39,13 +44,28 @@ const TEMPLATES = [
   { title: "SEO ipuçları", body: "Mağazalar için SEO ipuçları taslağı." },
 ];
 
-type Filter = "all" | "published" | "draft";
+type PostStatus = "draft" | "published" | "archived";
+
+type Filter = "all" | PostStatus;
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: "all", label: "Tümü" },
   { key: "published", label: "Yayında" },
   { key: "draft", label: "Taslak" },
+  { key: "archived", label: "Arşiv" },
 ];
+
+const STATUS_LABEL: Record<PostStatus, string> = {
+  draft: "Taslak",
+  published: "Yayında",
+  archived: "Arşiv",
+};
+
+function postStatus(post: { status?: string | null; is_published?: boolean | null }): PostStatus {
+  const raw = post.status;
+  if (raw === "draft" || raw === "published" || raw === "archived") return raw;
+  return post.is_published ? "published" : "draft";
+}
 
 export function PlatformBlogManager() {
   const queryClient = useQueryClient();
@@ -66,8 +86,7 @@ export function PlatformBlogManager() {
   const rows = useMemo(() => {
     const needle = term.trim().toLocaleLowerCase("tr");
     const list = (posts ?? []).filter((post) => {
-      if (filter === "published" && !post.is_published) return false;
-      if (filter === "draft" && post.is_published) return false;
+      if (filter !== "all" && postStatus(post) !== filter) return false;
       if (!needle) return true;
       return `${post.title} ${post.slug}`.toLocaleLowerCase("tr").includes(needle);
     });
@@ -87,6 +106,9 @@ export function PlatformBlogManager() {
           excerpt: form.excerpt || undefined,
           body: form.body,
           coverUrl: form.coverUrl || undefined,
+          metaTitle: form.metaTitle || undefined,
+          canonicalUrl: form.canonicalUrl || undefined,
+          status: form.status,
           seoDescription: form.seoDescription || undefined,
           authorName: form.authorName || undefined,
           tags: form.tags
@@ -94,7 +116,6 @@ export function PlatformBlogManager() {
             .map((tag) => tag.trim())
             .filter(Boolean)
             .slice(0, 12),
-          isPublished: form.isPublished,
           isFeatured: form.isFeatured,
           sortOrder: form.sortOrder,
         },
@@ -211,10 +232,12 @@ export function PlatformBlogManager() {
                       excerpt: post.excerpt ?? "",
                       body: post.body,
                       coverUrl: post.cover_url ?? "",
+                      metaTitle: post.meta_title ?? "",
+                      canonicalUrl: post.canonical_url ?? "",
+                      status: postStatus(post),
                       seoDescription: post.seo_description ?? "",
                       authorName: post.author_name ?? "",
                       tags: (post.tags ?? []).join(", "),
-                      isPublished: post.is_published,
                       isFeatured: post.is_featured,
                       sortOrder: post.sort_order,
                     });
@@ -223,8 +246,16 @@ export function PlatformBlogManager() {
                 >
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold">{post.title}</span>
-                    <Badge variant={post.is_published ? "default" : "secondary"}>
-                      {post.is_published ? "Yayında" : "Taslak"}
+                    <Badge
+                      variant={
+                        postStatus(post) === "published"
+                          ? "default"
+                          : postStatus(post) === "archived"
+                            ? "outline"
+                            : "secondary"
+                      }
+                    >
+                      {STATUS_LABEL[postStatus(post)]}
                     </Badge>
                     {post.is_featured ? (
                       <Badge variant="outline" className="gap-1">
@@ -241,7 +272,7 @@ export function PlatformBlogManager() {
                   </span>
                 </button>
                 <div className="flex shrink-0 items-center gap-1">
-                  {post.is_published ? (
+                  {postStatus(post) === "published" ? (
                     <Button asChild variant="ghost" size="icon" aria-label="Sitede görüntüle">
                       <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer">
                         <ExternalLink className="size-4" />
@@ -307,13 +338,11 @@ export function PlatformBlogManager() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="pb-body">İçerik</Label>
-              <Textarea
+              <Label htmlFor="pb-body">İçerik (Markdown)</Label>
+              <MarkdownEditor
                 id="pb-body"
-                rows={12}
                 value={form.body}
-                onChange={(event) => setForm((f) => ({ ...f, body: event.target.value }))}
-                placeholder="Yazı metnini buraya yaz…"
+                onChange={(body) => setForm((f) => ({ ...f, body }))}
               />
             </div>
 
@@ -371,35 +400,62 @@ export function PlatformBlogManager() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="pb-cover">Kapak görseli adresi</Label>
-              <Input
-                id="pb-cover"
+              <Label>Kapak görseli</Label>
+              <CoverImageUpload
                 value={form.coverUrl}
-                onChange={(event) => setForm((f) => ({ ...f, coverUrl: event.target.value }))}
-                placeholder="https://…"
+                onChange={(coverUrl) => setForm((f) => ({ ...f, coverUrl }))}
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="pb-seo">SEO açıklaması</Label>
-              <Input
-                id="pb-seo"
-                maxLength={320}
-                value={form.seoDescription}
-                onChange={(event) => setForm((f) => ({ ...f, seoDescription: event.target.value }))}
-              />
+            <div className="space-y-3 rounded-lg border p-3">
+              <p className="text-sm font-semibold">Arama motoru bilgileri</p>
+              <div className="space-y-2">
+                <Label htmlFor="pb-meta-title">Meta başlık</Label>
+                <Input
+                  id="pb-meta-title"
+                  maxLength={70}
+                  value={form.metaTitle}
+                  onChange={(event) => setForm((f) => ({ ...f, metaTitle: event.target.value }))}
+                  placeholder="Boş bırakılırsa başlık kullanılır"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pb-seo">Meta açıklama</Label>
+                <Textarea
+                  id="pb-seo"
+                  rows={2}
+                  maxLength={320}
+                  value={form.seoDescription}
+                  onChange={(event) => setForm((f) => ({ ...f, seoDescription: event.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pb-canonical">Canonical adres</Label>
+                <Input
+                  id="pb-canonical"
+                  value={form.canonicalUrl}
+                  onChange={(event) => setForm((f) => ({ ...f, canonicalUrl: event.target.value }))}
+                  placeholder="https://mefticaret.com/blog/..."
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="flex items-center justify-between rounded-lg border p-3">
-                <Label htmlFor="pb-published" className="text-sm">
-                  Yayında
-                </Label>
-                <Switch
-                  id="pb-published"
-                  checked={form.isPublished}
-                  onCheckedChange={(checked) => setForm((f) => ({ ...f, isPublished: checked }))}
-                />
+              <div className="space-y-2">
+                <Label htmlFor="pb-status">Durum</Label>
+                <Select
+                  value={form.status}
+                  onValueChange={(status) => setForm((f) => ({ ...f, status: status as PostStatus }))}
+                >
+                  <SelectTrigger id="pb-status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Taslak</SelectItem>
+                    <SelectItem value="published">Yayında</SelectItem>
+                    <SelectItem value="archived">Arşiv</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex items-center justify-between rounded-lg border p-3">
                 <Label htmlFor="pb-featured" className="text-sm">

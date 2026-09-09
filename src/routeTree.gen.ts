@@ -222,6 +222,7 @@ import { Route as AuthenticatedStoreStoreIdWarehousesRouteImport } from './route
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
 import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/_authenticated/store.$storeId.whatsapp'
 import { Route as AuthenticatedStoreStoreIdXmlFeedRouteImport } from './routes/_authenticated/store.$storeId.xml-feed'
+import { Route as ApiPublicBlogCoverSplatRouteImport } from './routes/api/public/blog-cover.$'
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronExchangeRatesRouteImport } from './routes/api/public/cron.exchange-rates'
@@ -1466,6 +1467,11 @@ const AuthenticatedStoreStoreIdXmlFeedRoute =
     path: '/store/$storeId/xml-feed',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicBlogCoverSplatRoute = ApiPublicBlogCoverSplatRouteImport.update({
+  id: '/api/public/blog-cover/$',
+  path: '/api/public/blog-cover/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronAutomationTickRoute =
   ApiPublicCronAutomationTickRouteImport.update({
     id: '/api/public/cron/automation-tick',
@@ -1858,6 +1864,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
+  '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
@@ -2102,6 +2109,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
+  '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
@@ -2350,6 +2358,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/_authenticated/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/_authenticated/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
+  '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
@@ -2598,6 +2607,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/webhooks'
     | '/store/$storeId/whatsapp'
     | '/store/$storeId/xml-feed'
+    | '/api/public/blog-cover/$'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
@@ -2842,6 +2852,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/webhooks'
     | '/store/$storeId/whatsapp'
     | '/store/$storeId/xml-feed'
+    | '/api/public/blog-cover/$'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
@@ -3089,6 +3100,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/webhooks'
     | '/_authenticated/store/$storeId/whatsapp'
     | '/_authenticated/store/$storeId/xml-feed'
+    | '/api/public/blog-cover/$'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
@@ -3174,6 +3186,7 @@ export interface RootRouteChildren {
   SSlugSearchRoute: typeof SSlugSearchRoute
   SSlugTermsRoute: typeof SSlugTermsRoute
   SSlugIndexRoute: typeof SSlugIndexRoute
+  ApiPublicBlogCoverSplatRoute: typeof ApiPublicBlogCoverSplatRoute
   ApiPublicCronAutomationTickRoute: typeof ApiPublicCronAutomationTickRoute
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronExchangeRatesRoute: typeof ApiPublicCronExchangeRatesRoute
@@ -4695,6 +4708,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdXmlFeedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/blog-cover/$': {
+      id: '/api/public/blog-cover/$'
+      path: '/api/public/blog-cover/$'
+      fullPath: '/api/public/blog-cover/$'
+      preLoaderRoute: typeof ApiPublicBlogCoverSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/automation-tick': {
       id: '/api/public/cron/automation-tick'
       path: '/api/public/cron/automation-tick'
@@ -5445,6 +5465,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugSearchRoute: SSlugSearchRoute,
   SSlugTermsRoute: SSlugTermsRoute,
   SSlugIndexRoute: SSlugIndexRoute,
+  ApiPublicBlogCoverSplatRoute: ApiPublicBlogCoverSplatRoute,
   ApiPublicCronAutomationTickRoute: ApiPublicCronAutomationTickRoute,
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronExchangeRatesRoute: ApiPublicCronExchangeRatesRoute,
