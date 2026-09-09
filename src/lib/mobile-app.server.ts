@@ -152,7 +152,7 @@ export async function loadMobileApp(supabase: Client, storeId: string) {
 
   const devices = deviceRes.data ?? [];
   return {
-    draft: resolveMobileAppConfig(configRes.data?.draft_config, name),
+    draft: withPublishingDefaults(resolveMobileAppConfig(configRes.data?.draft_config, name), slug, name),
     published: configRes.data?.published_config ? resolveMobileAppConfig(configRes.data.published_config, name) : null,
     version: configRes.data?.version ?? 1,
     publishedAt: configRes.data?.published_at ?? null,
