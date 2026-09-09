@@ -68,6 +68,7 @@ export const FONT_PAIRS = [
   { value: "outfit-figtree", label: "Outfit + Figtree" },
   { value: "archivo-hind", label: "Archivo + Hind" },
   { value: "montserrat-nunito", label: "Montserrat + Nunito Sans" },
+  { value: "inter-inter", label: "Inter (Horizon)" },
   { value: "tenor-sans-jost", label: "Tenor Sans + Jost" },
 ] as const;
 

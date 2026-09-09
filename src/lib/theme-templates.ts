@@ -635,6 +635,138 @@ const EMPIRE: ThemeTemplate = {
   ],
 };
 
-export const THEME_TEMPLATES: ThemeTemplate[] = [EMPIRE, WOKIEE, BE_YOURS, ATELIER_MODE];
+/**
+ * HORIZON — Shopify Horizon (OS 2.0) yerleşimi baz alınarak hazırlanan
+ * ultra minimal tema. Beyaz zemin, siyah tipografi, Inter font ailesi,
+ * dar içerik genişliği, 14px yuvarlatılmış butonlar ve sade ürün ızgarası.
+ */
+const HORIZON: ThemeTemplate = {
+  code: "horizon-minimal",
+  name: "Horizon",
+  tagline: "Ultra minimal · Inter",
+  description:
+    "Shopify Horizon yerleşimini birebir izleyen sade tema. Kayan duyuru şeridi, tam genişlik görsel hero, dar içerik alanı, 4 kolonlu temiz ürün ızgarası, marka şeridi, editorial görsel + metin bloğu ve minimal footer. Beyaz zemin (#ffffff), siyah metin (#000000) ve gri çizgilerle (#DFDFDF) kurulmuş yüksek okunabilirlikli bir görünüm.",
+  tags: ["Minimal", "Modern", "Inter", "Horizon", "Çok amaçlı"],
+  store: {
+    price: 0,
+    priceNote: "Ücretsiz · sınırsız mağaza",
+    featured: true,
+    features: [
+      "Horizon yerleşimi: kayan duyuru + sade sticky header",
+      "Tam genişlik görsel hero ve ortalanmış çağrı butonu",
+      "Dar içerik genişliği (1180px) ile editorial okuma alanı",
+      "4 kolonlu, çerçevesiz temiz ürün ızgarası",
+      "Kategori kartları ve yeni gelenler bloğu",
+      "Marka şeridi ve görsel + metin editorial bloğu",
+      "Sepet çekmecesi uyumlu minimal butonlar (14px köşe)",
+      "Beyaz/siyah kontrastlı erişilebilir tipografi",
+    ],
+    previewImage: "/themes/horizon/cover.jpg",
+  },
+  theme: {
+    primaryColor: "#000000",
+    accentColor: "#000000",
+    backgroundColor: "#ffffff",
+    fontPair: "inter-inter",
+    radius: 0.875,
+    layout: "hero-grid",
+    buttonStyle: "solid",
+    cardStyle: "flat",
+    contentWidth: 1180,
+    sectionSpacing: 56,
+    heroTitle: "Yeni ürünlerimize göz at",
+    heroSubtitle: "Özenle seçilmiş, sade ve kaliteli parçalar.",
+    heroCtaLabel: "Tümünü keşfet",
+    announcement: "Mağazamıza hoş geldiniz",
+    showAnnouncement: true,
+  },
+  sections: [
+    {
+      type: "announcement_bar",
+      settings: {
+        text: "Mağazamıza hoş geldiniz · Tüm siparişlerde hızlı kargo",
+        linkLabel: "",
+        linkUrl: "",
+        tone: "soft",
+      },
+    },
+    {
+      type: "header",
+      settings: { sticky: true, showSearch: true, showFavorites: true, showCart: true, tagline: "" },
+    },
+    {
+      type: "hero_center",
+      settings: {
+        badge: "",
+        title: "Yeni ürünlerimize göz at",
+        subtitle: "Özenle seçilmiş, sade ve kaliteli parçalar.",
+        ctaLabel: "Tümünü keşfet",
+        ctaUrl: "#urunler",
+        height: 560,
+      },
+    },
+    {
+      type: "product_grid",
+      settings: {
+        title: "Öne çıkan ürünler",
+        collectionSlug: "",
+        limit: 8,
+        columns: 4,
+        showSearch: false,
+        showPrice: true,
+      },
+    },
+    { type: "category_cards", settings: { title: "Kategoriler", limit: 6, columns: 3, showCount: true } },
+    { type: "product_new", settings: { title: "Yeni gelenler", limit: 8, columns: 4 } },
+    {
+      type: "image_text",
+      settings: {
+        title: "Sade tasarım, uzun ömür",
+        text: "Her ürün az sayıda üretilir; malzemesinden paketine kadar tek tek kontrol edilir.",
+        imageUrl: "",
+        imagePosition: "right",
+        ctaLabel: "Hikâyemiz",
+        ctaUrl: "#hakkimizda",
+      },
+    },
+    { type: "product_bestsellers", settings: { title: "En çok satanlar", limit: 8, columns: 4, layout: "grid" } },
+    {
+      type: "trust_badges",
+      settings: {
+        items:
+          "🚚 | Hızlı kargo | 1-3 iş günü içinde teslim\n🔐 | Güvenli ödeme | 3D Secure ile korunur\n↩️ | Kolay iade | 14 gün içinde ücretsiz",
+        columns: 3,
+      },
+    },
+    {
+      type: "testimonials",
+      settings: {
+        title: "Müşteri yorumları",
+        items:
+          "Sade ve şık, tam beklediğim gibi geldi. | Ayşe T.\nKargo çok hızlıydı, paketleme özenliydi. | Kaan D.\nKalitesi fiyatının üzerinde. | Selin M.",
+        columns: 3,
+      },
+    },
+    {
+      type: "newsletter",
+      settings: {
+        title: "E-posta listemize katıl",
+        text: "Yeni ürünler ve kampanyalardan ilk sen haberdar ol.",
+        buttonLabel: "Kaydol",
+      },
+    },
+    {
+      type: "footer",
+      settings: {
+        showLegalLinks: true,
+        showPages: true,
+        about: "Sade tasarım, güvenli ödeme ve hızlı teslimat.",
+      },
+    },
+  ],
+};
+
+export const THEME_TEMPLATES: ThemeTemplate[] = [HORIZON, EMPIRE, WOKIEE, BE_YOURS, ATELIER_MODE];
+
 
 export const TEMPLATE_BY_CODE = new Map(THEME_TEMPLATES.map((template) => [template.code, template]));
