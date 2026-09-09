@@ -89,6 +89,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { to: "/admin/themes", label: "Temalar", icon: Palette, hint: "Tema kütüphanesi", keywords: "tema şablon renk" },
       { to: "/admin/pages", label: "Mağaza Sayfaları", icon: FileText, hint: "Mağaza sayfalarını oluştur ve düzenle", keywords: "sayfa ekle mağaza hakkımızda iletişim kvkk sss" },
       { to: "/admin/site-pages", label: "Platform Sayfaları", icon: FileText, hint: "Mefticaret kurumsal sayfaları", keywords: "platform kurumsal sayfa hakkımızda kvkk gizlilik iletişim şartlar" },
+      { to: "/admin/site-seo", label: "SEO Etiketleri", icon: FileText, hint: "Sayfa bazında meta başlık, açıklama, canonical", keywords: "seo meta title description canonical noindex etiket sayfa blog ana sayfa" },
       { to: "/admin/cms", label: "Sayfa Raporu (CMS)", icon: FileText, hint: "Tüm mağaza sayfaları listesi", keywords: "cms liste rapor sayfa" },
       { to: "/admin/blog", label: "Blog Sistemi", icon: PenLine, hint: "Yazılar ve yayın takvimi", keywords: "makale içerik yazı" },
       { to: "/admin/site-blog", label: "Platform Blogu", icon: PenLine, hint: "Mefticaret'in kendi blog yazıları", keywords: "platform blog yazı makale mefticaret kurumsal" },
