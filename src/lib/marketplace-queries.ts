@@ -197,7 +197,7 @@ export const sellerOrderLinesQuery = (sellerId: string, storeId: string) =>
         status: row.status ?? "pending",
         placed_at: row.placed_at ?? "",
         currency: row.order_currency ?? "TRY",
-        title: row.title,
+        title: row.title ?? "—",
         variant_title: row.variant_title,
         quantity: Number(row.quantity ?? 0),
         line_total: Number(row.line_total ?? 0),
