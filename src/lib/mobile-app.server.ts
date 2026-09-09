@@ -275,11 +275,21 @@ export async function createCampaign(
   const scheduled = Boolean(input.scheduledAt);
 
   let delivered = 0;
-  if (providerConfigured && !scheduled && tokens.length > 0) {
-    delivered = await sendViaFcm(tokens, input);
+  let topicSent = false;
+  if (providerConfigured && !scheduled) {
+    if (tokens.length > 0) {
+      delivered = await sendViaFcm(tokens, input);
+    } else {
+      // Henüz kayıtlı cihaz yoksa mağaza konusuna (topic) gönderilir; uygulama
+      // ilk açılışta bu konuya abone olur, böylece duyuru kaybolmaz.
+      topicSent = await sendTopicViaFcm(`store-${input.storeId}`, input);
+    }
   }
 
-  const status = scheduled || !providerConfigured ? "scheduled" : "sent";
+  const status: "sent" | "scheduled" =
+    scheduled || !providerConfigured || (!topicSent && delivered === 0 && tokens.length > 0)
+      ? "scheduled"
+      : "sent";
   const { error } = await supabase.from("mobile_push_campaigns").insert({
     store_id: input.storeId,
     title: input.title,
@@ -296,6 +306,36 @@ export async function createCampaign(
   if (error) throw new Error(error.message);
 
   return { status, recipients: status === "sent" ? delivered : tokens.length, providerConfigured };
+}
+
+const FCM_GATEWAY = "https://connector-gateway.lovable.dev/firebase_messaging/v1/projects/_/messages:send";
+
+function fcmHeaders() {
+  return {
+    Authorization: `Bearer ${process.env["LOVABLE_API_KEY"]}`,
+    "X-Connection-Api-Key": process.env["FIREBASE_MESSAGING_API_KEY"] ?? "",
+    "Content-Type": "application/json",
+  };
+}
+
+/** Mağaza konusuna (topic) tek gönderim: cihaz token'ı olmadan duyuru. */
+async function sendTopicViaFcm(topic: string, input: z.infer<typeof campaignSchema>): Promise<boolean> {
+  const response = await fetch(FCM_GATEWAY, {
+    method: "POST",
+    headers: fcmHeaders(),
+    body: JSON.stringify({
+      message: {
+        topic,
+        notification: { title: input.title, body: input.body, ...(input.imageUrl ? { image: input.imageUrl } : {}) },
+        data: { deepLink: input.deepLink || "mefticaret://home" },
+      },
+    }),
+  });
+  if (!response.ok) {
+    console.error(`FCM konu gönderimi başarısız [${response.status}]: ${await response.text()}`);
+    return false;
+  }
+  return true;
 }
 
 /** FCM HTTP v1 üzerinden (Lovable connector gateway) gönderim. */
