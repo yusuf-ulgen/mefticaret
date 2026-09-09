@@ -180,27 +180,23 @@ export const sellerOrderLinesQuery = (sellerId: string, storeId: string) =>
   queryOptions({
     queryKey: ["seller-order-lines", sellerId],
     queryFn: async (): Promise<SellerOrderLine[]> => {
-      const { data, error } = await supabase
-        .from("seller_order_lines")
-        .select(
-          "order_id, order_number, status, placed_at, order_currency, title, variant_title, quantity, line_total, created_at",
-        )
-        .eq("store_id", storeId)
-        .eq("seller_id", sellerId)
-        .order("created_at", { ascending: false })
-        .limit(2000);
+      const { data, error } = await supabase.rpc("seller_order_lines", {
+        _store_id: storeId,
+        _seller_id: sellerId,
+      });
       if (error) throw error;
 
-      return (data ?? []).map((row) => ({
-        order_id: row.order_id,
-        order_number: row.order_number ?? "—",
-        status: row.status ?? "pending",
-        placed_at: row.placed_at ?? "",
-        currency: row.order_currency ?? "TRY",
-        title: row.title,
-        variant_title: row.variant_title,
-        quantity: Number(row.quantity ?? 0),
-        line_total: Number(row.line_total ?? 0),
+      const rows = (data ?? []) as unknown as Record<string, unknown>[];
+      return rows.map((row) => ({
+        order_id: (row["order_id"] as string | null) ?? null,
+        order_number: (row["order_number"] as string | null) ?? "—",
+        status: (row["status"] as string | null) ?? "pending",
+        placed_at: (row["placed_at"] as string | null) ?? "",
+        currency: (row["order_currency"] as string | null) ?? "TRY",
+        title: (row["title"] as string | null) ?? "—",
+        variant_title: (row["variant_title"] as string | null) ?? null,
+        quantity: Number(row["quantity"] ?? 0),
+        line_total: Number(row["line_total"] ?? 0),
       }));
     },
   });

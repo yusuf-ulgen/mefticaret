@@ -33,6 +33,7 @@ import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticated/supplier'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
+import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
@@ -60,6 +61,7 @@ import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin.seo'
 import { Route as AuthenticatedAdminSeoAiRouteImport } from './routes/_authenticated/admin.seo-ai'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminSitePagesRouteImport } from './routes/_authenticated/admin.site-pages'
 import { Route as AuthenticatedAdminStoresRouteImport } from './routes/_authenticated/admin.stores'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
@@ -370,6 +372,11 @@ const FaturaTokenRoute = FaturaTokenRouteImport.update({
   path: '/fatura/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SayfaSlugRoute = SayfaSlugRouteImport.update({
+  id: '/sayfa/$slug',
+  path: '/sayfa/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
   path: '/.lovable/oauth/consent',
@@ -516,6 +523,12 @@ const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
     path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSitePagesRoute =
+  AuthenticatedAdminSitePagesRouteImport.update({
+    id: '/site-pages',
+    path: '/site-pages',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminStoresRoute =
@@ -1631,6 +1644,7 @@ export interface FileRoutesByFullPath {
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/sayfa/$slug': typeof SayfaSlugRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -1657,6 +1671,7 @@ export interface FileRoutesByFullPath {
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/admin/seo-ai': typeof AuthenticatedAdminSeoAiRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/site-pages': typeof AuthenticatedAdminSitePagesRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -1870,6 +1885,7 @@ export interface FileRoutesByTo {
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/sayfa/$slug': typeof SayfaSlugRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -1896,6 +1912,7 @@ export interface FileRoutesByTo {
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/admin/seo-ai': typeof AuthenticatedAdminSeoAiRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/site-pages': typeof AuthenticatedAdminSitePagesRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -2111,6 +2128,7 @@ export interface FileRoutesById {
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/sayfa/$slug': typeof SayfaSlugRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2137,6 +2155,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/admin/seo-ai': typeof AuthenticatedAdminSeoAiRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/site-pages': typeof AuthenticatedAdminSitePagesRoute
   '/_authenticated/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -2353,6 +2372,7 @@ export interface FileRouteTypes {
     | '/stores'
     | '/supplier'
     | '/fatura/$token'
+    | '/sayfa/$slug'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2379,6 +2399,7 @@ export interface FileRouteTypes {
     | '/admin/seo'
     | '/admin/seo-ai'
     | '/admin/settings'
+    | '/admin/site-pages'
     | '/admin/stores'
     | '/admin/subscriptions'
     | '/admin/support'
@@ -2592,6 +2613,7 @@ export interface FileRouteTypes {
     | '/stores'
     | '/supplier'
     | '/fatura/$token'
+    | '/sayfa/$slug'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2618,6 +2640,7 @@ export interface FileRouteTypes {
     | '/admin/seo'
     | '/admin/seo-ai'
     | '/admin/settings'
+    | '/admin/site-pages'
     | '/admin/stores'
     | '/admin/subscriptions'
     | '/admin/support'
@@ -2832,6 +2855,7 @@ export interface FileRouteTypes {
     | '/_authenticated/stores'
     | '/_authenticated/supplier'
     | '/fatura/$token'
+    | '/sayfa/$slug'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
@@ -2858,6 +2882,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/seo'
     | '/_authenticated/admin/seo-ai'
     | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/site-pages'
     | '/_authenticated/admin/stores'
     | '/_authenticated/admin/subscriptions'
     | '/_authenticated/admin/support'
@@ -3069,6 +3094,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
+  SayfaSlugRoute: typeof SayfaSlugRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
   ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
@@ -3294,6 +3320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaturaTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sayfa/$slug': {
+      id: '/sayfa/$slug'
+      path: '/sayfa/$slug'
+      fullPath: '/sayfa/$slug'
+      preLoaderRoute: typeof SayfaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
       path: '/.lovable/oauth/consent'
@@ -3481,6 +3514,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/admin/settings'
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/site-pages': {
+      id: '/_authenticated/admin/site-pages'
+      path: '/site-pages'
+      fullPath: '/admin/site-pages'
+      preLoaderRoute: typeof AuthenticatedAdminSitePagesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/stores': {
@@ -4828,6 +4868,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAdminSeoAiRoute: typeof AuthenticatedAdminSeoAiRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSitePagesRoute: typeof AuthenticatedAdminSitePagesRoute
   AuthenticatedAdminStoresRoute: typeof AuthenticatedAdminStoresRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
   AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
@@ -4870,6 +4911,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAdminSeoAiRoute: AuthenticatedAdminSeoAiRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSitePagesRoute: AuthenticatedAdminSitePagesRoute,
   AuthenticatedAdminStoresRoute: AuthenticatedAdminStoresRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
   AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
@@ -5289,6 +5331,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   FaturaTokenRoute: FaturaTokenRoute,
+  SayfaSlugRoute: SayfaSlugRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
   ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
