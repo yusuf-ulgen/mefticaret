@@ -39,7 +39,7 @@ const TEMPLATES = [
   { title: "Hizmet Şartları", body: "Üyelik ve hizmet kullanım koşulları." },
 ];
 
-export function PagesManager({ storeId, storeSlug }: { storeId: string; storeSlug?: string }) {
+export function PagesManager({ storeId, storeSlug }: { storeId: string; storeSlug?: string | undefined }) {
   const queryClient = useQueryClient();
   const { data: pages, isLoading } = useQuery(storePagesQuery(storeId));
 
