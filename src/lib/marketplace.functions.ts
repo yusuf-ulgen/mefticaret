@@ -280,3 +280,35 @@ export const reviewPayoutRequest = createServerFn({ method: "POST" })
     if (updated.status !== data.status) throw new Error("Bu talebi yönetme yetkiniz yok.");
     return { ok: true };
   });
+
+/**
+ * Satıcının kendi sipariş kalemleri.
+ * Satıcı kimliği kullanıcı bağlamında (RLS) doğrulanır; ardından PII içermeyen
+ * daraltılmış veri servis rolü ile okunur. İşlev tarayıcıdan çağrılamaz.
+ */
+export const fetchSellerOrderLines = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z.object({ storeId: z.guid(), sellerId: z.guid() }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: seller, error: sellerError } = await context.supabase
+      .from("marketplace_sellers")
+      .select("id, status")
+      .eq("id", data.sellerId)
+      .eq("store_id", data.storeId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (sellerError) throw new Error(sellerError.message);
+    if (!seller || seller.status !== "approved") {
+      throw new Error("Bu satıcı kaydına erişim yetkiniz yok.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin.rpc("seller_order_lines", {
+      _store_id: data.storeId,
+      _seller_id: data.sellerId,
+    });
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as unknown as Record<string, unknown>[];
+  });
