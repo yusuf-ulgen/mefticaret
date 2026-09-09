@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ArrowUpRight, Check, Menu, X } from "lucide-react";
 
 import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 
 import {
@@ -24,8 +25,30 @@ const FALLBACK_TITLE = "Mefticaret — E-Ticaret Altyapısı ve Mağaza Yönetim
 const FALLBACK_DESCRIPTION =
   "Türkiye'nin kapsamlı SaaS e-ticaret altyapısı. Dakikalar içinde mağazanı aç; stok, sipariş, kargo ve pazaryeri entegrasyonlarını tek panelden yönet.";
 
+type PlanOffer = { name: string; price: number; currency: string };
+
+async function loadPlanOffers(): Promise<PlanOffer[]> {
+  try {
+    const { data, error } = await supabase
+      .from("plans")
+      .select("name, price_monthly, currency, is_active, sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    if (error || !data) return [];
+    return data
+      .filter((plan) => Number(plan.price_monthly) > 0)
+      .map((plan) => ({
+        name: plan.name as string,
+        price: Number(plan.price_monthly),
+        currency: (plan.currency as string) || "TRY",
+      }));
+  } catch {
+    return [];
+  }
+}
+
 export const Route = createFileRoute("/")({
-  loader: async () => ({ homeSeo: await fetchHomeSeo() }),
+  loader: async () => ({ homeSeo: await fetchHomeSeo(), planOffers: await loadPlanOffers() }),
   head: ({ loaderData }) => ({
     meta: [
       { title: loaderData?.homeSeo?.title || FALLBACK_TITLE },
@@ -53,6 +76,25 @@ export const Route = createFileRoute("/")({
           description: loaderData?.homeSeo?.description || FALLBACK_DESCRIPTION,
           inLanguage: "tr-TR",
           publisher: { "@type": "Organization", name: "Mefticaret" },
+          ...((loaderData?.planOffers?.length ?? 0) > 0
+            ? {
+                offers: {
+                  "@type": "AggregateOffer",
+                  priceCurrency: loaderData!.planOffers[0]!.currency,
+                  lowPrice: Math.min(...loaderData!.planOffers.map((plan) => plan.price)),
+                  highPrice: Math.max(...loaderData!.planOffers.map((plan) => plan.price)),
+                  offerCount: loaderData!.planOffers.length,
+                  offers: loaderData!.planOffers.map((plan) => ({
+                    "@type": "Offer",
+                    name: plan.name,
+                    price: plan.price,
+                    priceCurrency: plan.currency,
+                    url: "https://mefticaret.com/#fiyatlandirma",
+                    availability: "https://schema.org/InStock",
+                  })),
+                },
+              }
+            : {}),
         }),
       },
     ],
