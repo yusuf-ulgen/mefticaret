@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { fetchSellerOrderLines } from "@/lib/marketplace.functions";
 
 export type SellerStatus = "pending" | "approved" | "rejected" | "suspended";
 export type PayoutRequestStatus = "pending" | "processing" | "paid" | "failed";
@@ -175,30 +176,12 @@ export type SellerOrderLine = {
 };
 
 
-/** Satıcının sipariş kalemleri — daraltılmış görünümden okunur; müşteri PII içermez. */
+/** Satıcının sipariş kalemleri — sunucu doğrulamalı; müşteri PII içermez. */
 export const sellerOrderLinesQuery = (sellerId: string, storeId: string) =>
   queryOptions({
     queryKey: ["seller-order-lines", sellerId],
-    queryFn: async (): Promise<SellerOrderLine[]> => {
-      const { data, error } = await supabase.rpc("seller_order_lines", {
-        _store_id: storeId,
-        _seller_id: sellerId,
-      });
-      if (error) throw error;
-
-      const rows = (data ?? []) as unknown as Record<string, unknown>[];
-      return rows.map((row) => ({
-        order_id: (row["order_id"] as string | null) ?? null,
-        order_number: (row["order_number"] as string | null) ?? "—",
-        status: (row["status"] as string | null) ?? "pending",
-        placed_at: (row["placed_at"] as string | null) ?? "",
-        currency: (row["order_currency"] as string | null) ?? "TRY",
-        title: (row["title"] as string | null) ?? "—",
-        variant_title: (row["variant_title"] as string | null) ?? null,
-        quantity: Number(row["quantity"] ?? 0),
-        line_total: Number(row["line_total"] ?? 0),
-      }));
-    },
+    queryFn: async (): Promise<SellerOrderLine[]> =>
+      fetchSellerOrderLines({ data: { storeId, sellerId } }),
   });
 
 
