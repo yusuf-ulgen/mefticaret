@@ -214,6 +214,9 @@ export async function publishConfig(
   );
   if (error) throw new Error(error.message);
 
+  // Mobil düzen değişikliklerini tema düzenleyicisine geri yansıt.
+  await syncThemeFromMobile(supabase, input.storeId, config);
+
   await recordAudit(supabase, {
     action: "mobile_app.publish",
     storeId: input.storeId,
