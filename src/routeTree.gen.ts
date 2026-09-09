@@ -153,6 +153,7 @@ import { Route as AuthenticatedStoreStoreIdMarketplaceAnalyticsRouteImport } fro
 import { Route as AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport } from './routes/_authenticated/store.$storeId.marketplace-returns'
 import { Route as AuthenticatedStoreStoreIdMarketsPricingRouteImport } from './routes/_authenticated/store.$storeId.markets-pricing'
 import { Route as AuthenticatedStoreStoreIdMediaRouteImport } from './routes/_authenticated/store.$storeId.media'
+import { Route as AuthenticatedStoreStoreIdMobileAppRouteImport } from './routes/_authenticated/store.$storeId.mobile-app'
 import { Route as AuthenticatedStoreStoreIdNavigationRouteImport } from './routes/_authenticated/store.$storeId.navigation'
 import { Route as AuthenticatedStoreStoreIdNotificationsRouteImport } from './routes/_authenticated/store.$storeId.notifications'
 import { Route as AuthenticatedStoreStoreIdOauthRouteImport } from './routes/_authenticated/store.$storeId.oauth'
@@ -225,6 +226,7 @@ import { Route as ApiPublicCronSubscriptionRenewalRouteImport } from './routes/a
 import { Route as ApiPublicCronTiktokEventsRouteImport } from './routes/api/public/cron.tiktok-events'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/public/instagram.$storeId'
+import { Route as ApiPublicMobileAppStoreSlugRouteImport } from './routes/api/public/mobile-app.$storeSlug'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
@@ -1047,6 +1049,12 @@ const AuthenticatedStoreStoreIdMediaRoute =
     path: '/store/$storeId/media',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdMobileAppRoute =
+  AuthenticatedStoreStoreIdMobileAppRouteImport.update({
+    id: '/store/$storeId/mobile-app',
+    path: '/store/$storeId/mobile-app',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdNavigationRoute =
   AuthenticatedStoreStoreIdNavigationRouteImport.update({
     id: '/store/$storeId/navigation',
@@ -1477,6 +1485,12 @@ const ApiPublicInstagramStoreIdRoute =
     path: '/api/public/instagram/$storeId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicMobileAppStoreSlugRoute =
+  ApiPublicMobileAppStoreSlugRouteImport.update({
+    id: '/api/public/mobile-app/$storeSlug',
+    path: '/api/public/mobile-app/$storeSlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicOauthRevokeRoute = ApiPublicOauthRevokeRouteImport.update({
   id: '/api/public/oauth/revoke',
   path: '/api/public/oauth/revoke',
@@ -1724,6 +1738,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/store/$storeId/markets-pricing': typeof AuthenticatedStoreStoreIdMarketsPricingRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
+  '/store/$storeId/mobile-app': typeof AuthenticatedStoreStoreIdMobileAppRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
   '/store/$storeId/oauth': typeof AuthenticatedStoreStoreIdOauthRoute
@@ -1796,6 +1811,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
+  '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -1959,6 +1975,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/store/$storeId/markets-pricing': typeof AuthenticatedStoreStoreIdMarketsPricingRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
+  '/store/$storeId/mobile-app': typeof AuthenticatedStoreStoreIdMobileAppRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
   '/store/$storeId/oauth': typeof AuthenticatedStoreStoreIdOauthRoute
@@ -2030,6 +2047,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
+  '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -2196,6 +2214,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/_authenticated/store/$storeId/markets-pricing': typeof AuthenticatedStoreStoreIdMarketsPricingRoute
   '/_authenticated/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
+  '/_authenticated/store/$storeId/mobile-app': typeof AuthenticatedStoreStoreIdMobileAppRoute
   '/_authenticated/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/_authenticated/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
   '/_authenticated/store/$storeId/oauth': typeof AuthenticatedStoreStoreIdOauthRoute
@@ -2268,6 +2287,7 @@ export interface FileRoutesById {
   '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
+  '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -2434,6 +2454,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/marketplace-returns'
     | '/store/$storeId/markets-pricing'
     | '/store/$storeId/media'
+    | '/store/$storeId/mobile-app'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
     | '/store/$storeId/oauth'
@@ -2506,6 +2527,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
+    | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
@@ -2669,6 +2691,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/marketplace-returns'
     | '/store/$storeId/markets-pricing'
     | '/store/$storeId/media'
+    | '/store/$storeId/mobile-app'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
     | '/store/$storeId/oauth'
@@ -2740,6 +2763,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
+    | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
@@ -2905,6 +2929,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/marketplace-returns'
     | '/_authenticated/store/$storeId/markets-pricing'
     | '/_authenticated/store/$storeId/media'
+    | '/_authenticated/store/$storeId/mobile-app'
     | '/_authenticated/store/$storeId/navigation'
     | '/_authenticated/store/$storeId/notifications'
     | '/_authenticated/store/$storeId/oauth'
@@ -2977,6 +3002,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
+    | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/robots/$slug'
@@ -3058,6 +3084,7 @@ export interface RootRouteChildren {
   ApiPublicCronTiktokEventsRoute: typeof ApiPublicCronTiktokEventsRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicInstagramStoreIdRoute: typeof ApiPublicInstagramStoreIdRoute
+  ApiPublicMobileAppStoreSlugRoute: typeof ApiPublicMobileAppStoreSlugRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
@@ -4083,6 +4110,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMediaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/mobile-app': {
+      id: '/_authenticated/store/$storeId/mobile-app'
+      path: '/store/$storeId/mobile-app'
+      fullPath: '/store/$storeId/mobile-app'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdMobileAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/navigation': {
       id: '/_authenticated/store/$storeId/navigation'
       path: '/store/$storeId/navigation'
@@ -4587,6 +4621,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicInstagramStoreIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/mobile-app/$storeSlug': {
+      id: '/api/public/mobile-app/$storeSlug'
+      path: '/api/public/mobile-app/$storeSlug'
+      fullPath: '/api/public/mobile-app/$storeSlug'
+      preLoaderRoute: typeof ApiPublicMobileAppStoreSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/oauth/revoke': {
       id: '/api/public/oauth/revoke'
       path: '/api/public/oauth/revoke'
@@ -4924,6 +4965,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdMarketplaceReturnsRoute: typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   AuthenticatedStoreStoreIdMarketsPricingRoute: typeof AuthenticatedStoreStoreIdMarketsPricingRoute
   AuthenticatedStoreStoreIdMediaRoute: typeof AuthenticatedStoreStoreIdMediaRoute
+  AuthenticatedStoreStoreIdMobileAppRoute: typeof AuthenticatedStoreStoreIdMobileAppRoute
   AuthenticatedStoreStoreIdNavigationRoute: typeof AuthenticatedStoreStoreIdNavigationRoute
   AuthenticatedStoreStoreIdNotificationsRoute: typeof AuthenticatedStoreStoreIdNotificationsRoute
   AuthenticatedStoreStoreIdOauthRoute: typeof AuthenticatedStoreStoreIdOauthRoute
@@ -5078,6 +5120,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdMarketsPricingRoute:
     AuthenticatedStoreStoreIdMarketsPricingRoute,
   AuthenticatedStoreStoreIdMediaRoute: AuthenticatedStoreStoreIdMediaRoute,
+  AuthenticatedStoreStoreIdMobileAppRoute:
+    AuthenticatedStoreStoreIdMobileAppRoute,
   AuthenticatedStoreStoreIdNavigationRoute:
     AuthenticatedStoreStoreIdNavigationRoute,
   AuthenticatedStoreStoreIdNotificationsRoute:
@@ -5242,6 +5286,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronTiktokEventsRoute: ApiPublicCronTiktokEventsRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicInstagramStoreIdRoute: ApiPublicInstagramStoreIdRoute,
+  ApiPublicMobileAppStoreSlugRoute: ApiPublicMobileAppStoreSlugRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
