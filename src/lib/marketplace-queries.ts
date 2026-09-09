@@ -163,7 +163,7 @@ export const storeProductsForAssignmentQuery = (storeId: string) =>
   });
 
 export type SellerOrderLine = {
-  order_id: string;
+  order_id: string | null;
   order_number: string;
   status: string;
   placed_at: string;
@@ -173,6 +173,7 @@ export type SellerOrderLine = {
   quantity: number;
   line_total: number;
 };
+
 
 /** Satıcının sipariş kalemleri — daraltılmış görünümden okunur; müşteri PII içermez. */
 export const sellerOrderLinesQuery = (sellerId: string, storeId: string) =>
