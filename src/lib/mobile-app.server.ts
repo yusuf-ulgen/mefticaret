@@ -305,6 +305,36 @@ export async function createCampaign(
   return { status, recipients: status === "sent" ? delivered : tokens.length, providerConfigured };
 }
 
+const FCM_GATEWAY = "https://connector-gateway.lovable.dev/firebase_messaging/v1/projects/_/messages:send";
+
+function fcmHeaders() {
+  return {
+    Authorization: `Bearer ${process.env["LOVABLE_API_KEY"]}`,
+    "X-Connection-Api-Key": process.env["FIREBASE_MESSAGING_API_KEY"] ?? "",
+    "Content-Type": "application/json",
+  };
+}
+
+/** Mağaza konusuna (topic) tek gönderim: cihaz token'ı olmadan duyuru. */
+async function sendTopicViaFcm(topic: string, input: z.infer<typeof campaignSchema>): Promise<boolean> {
+  const response = await fetch(FCM_GATEWAY, {
+    method: "POST",
+    headers: fcmHeaders(),
+    body: JSON.stringify({
+      message: {
+        topic,
+        notification: { title: input.title, body: input.body, ...(input.imageUrl ? { image: input.imageUrl } : {}) },
+        data: { deepLink: input.deepLink || "mefticaret://home" },
+      },
+    }),
+  });
+  if (!response.ok) {
+    console.error(`FCM konu gönderimi başarısız [${response.status}]: ${await response.text()}`);
+    return false;
+  }
+  return true;
+}
+
 /** FCM HTTP v1 üzerinden (Lovable connector gateway) gönderim. */
 async function sendViaFcm(tokens: string[], input: z.infer<typeof campaignSchema>): Promise<number> {
   const gateway = "https://connector-gateway.lovable.dev/firebase_messaging/v1/projects/_/messages:send";
