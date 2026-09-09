@@ -13,6 +13,7 @@ import {
   Images,
   LayoutTemplate,
   LifeBuoy,
+  Megaphone,
   MousePointerClick,
   Palette,
   PenLine,
@@ -134,6 +135,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { to: "/admin/api", label: "API Anahtarları", icon: Terminal, hint: "Erişim anahtarları", keywords: "api anahtar token" },
       { to: "/admin/webhooks", label: "Webhook", icon: Webhook, hint: "Olay bildirimleri", keywords: "webhook olay" },
       { to: "/admin/notifications", label: "Bildirimler", icon: Bell, hint: "Bildirim akışı", keywords: "bildirim" },
+      { to: "/admin/push", label: "Push Bildirimleri", icon: Megaphone, hint: "Firebase mobil duyuru", keywords: "push firebase fcm mobil bildirim duyuru" },
     ],
   },
   {
