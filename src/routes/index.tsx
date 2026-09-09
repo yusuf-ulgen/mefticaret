@@ -495,17 +495,9 @@ function LandingPage() {
             </div>
             <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
             <span>© {new Date().getFullYear()} Mefticaret</span>
-            <Link to="/en-iyi-e-ticaret-altyapisi" className="hover:text-foreground">
-              En iyi e-ticaret altyapısı rehberi
-            </Link>
-            <Link to="/dropshipping-nasil-yapilir" className="hover:text-foreground">
-              Dropshipping nasıl yapılır
-            </Link>
-            <Link to="/pazaryeri-entegrasyonu" className="hover:text-foreground">
-              Pazaryeri entegrasyonu
-            </Link>
             <span className="ml-auto">{footer.badge}</span>
             </div>
+
           </div>
         </footer>
       ) : null}
