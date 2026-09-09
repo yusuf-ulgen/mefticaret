@@ -68,6 +68,7 @@ export const FONT_PAIRS = [
   { value: "outfit-figtree", label: "Outfit + Figtree" },
   { value: "archivo-hind", label: "Archivo + Hind" },
   { value: "montserrat-nunito", label: "Montserrat + Nunito Sans" },
+  { value: "inter-inter", label: "Inter (Horizon)" },
   { value: "tenor-sans-jost", label: "Tenor Sans + Jost" },
 ] as const;
 
@@ -94,6 +95,11 @@ export const FONT_STACKS: Record<string, { heading: string; body: string }> = {
     heading: "Montserrat, system-ui, sans-serif",
     body: "'Nunito Sans', system-ui, sans-serif",
   },
+  "inter-inter": {
+    heading: "Inter, system-ui, sans-serif",
+    body: "Inter, system-ui, sans-serif",
+  },
+
   "tenor-sans-jost": {
     heading: "'Tenor Sans', 'Times New Roman', serif",
     body: "Jost, system-ui, sans-serif",
