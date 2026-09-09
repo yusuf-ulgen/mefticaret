@@ -7,9 +7,24 @@ import { platformPageQuery } from "@/lib/platform-pages-queries";
 
 export const Route = createFileRoute("/sayfa/$slug")({
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(platformPageQuery(params.slug));
+    try {
+      await context.queryClient.ensureQueryData(platformPageQuery(params.slug));
+    } catch (error) {
+      console.error(error);
+    }
     return null;
   },
+  errorComponent: ({ error }) => (
+    <main className="mx-auto w-full max-w-3xl px-5 py-14" role="alert">
+      <h1 className="text-2xl font-semibold">Sayfa şu anda görüntülenemiyor</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+    </main>
+  ),
+  notFoundComponent: () => (
+    <main className="mx-auto w-full max-w-3xl px-5 py-14">
+      <h1 className="text-2xl font-semibold">Sayfa bulunamadı</h1>
+    </main>
+  ),
   head: ({ params }) => ({
     meta: [
       { title: `${params.slug} — Mefticaret` },
