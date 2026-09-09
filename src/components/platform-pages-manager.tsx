@@ -26,6 +26,7 @@ const EMPTY = {
   seoDescription: "",
   isPublished: true,
   showInFooter: true,
+  showContactForm: false,
   sortOrder: 0,
 };
 
@@ -88,6 +89,7 @@ export function PlatformPagesManager() {
           seoDescription: form.seoDescription || undefined,
           isPublished: form.isPublished,
           showInFooter: form.showInFooter,
+          showContactForm: form.showContactForm,
           sortOrder: form.sortOrder,
         },
       }),
@@ -205,6 +207,7 @@ export function PlatformPagesManager() {
                       seoDescription: page.seo_description ?? "",
                       isPublished: page.is_published,
                       showInFooter: page.show_in_footer,
+                      showContactForm: page.show_contact_form ?? false,
                       sortOrder: page.sort_order,
                     });
                     setOpen(true);
@@ -362,6 +365,16 @@ export function PlatformPagesManager() {
                   id="pp-footer"
                   checked={form.showInFooter}
                   onCheckedChange={(checked) => setForm((f) => ({ ...f, showInFooter: checked }))}
+                />
+              </div>
+              <div className="flex items-center justify-between rounded-lg border p-3 sm:col-span-2">
+                <Label htmlFor="pp-contact" className="text-sm">
+                  İletişim formu göster
+                </Label>
+                <Switch
+                  id="pp-contact"
+                  checked={form.showContactForm}
+                  onCheckedChange={(checked) => setForm((f) => ({ ...f, showContactForm: checked }))}
                 />
               </div>
             </div>

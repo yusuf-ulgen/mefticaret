@@ -6516,6 +6516,51 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_read: boolean
+          message: string
+          name: string
+          page_slug: string | null
+          phone: string | null
+          read_at: string | null
+          subject: string | null
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_read?: boolean
+          message: string
+          name: string
+          page_slug?: string | null
+          phone?: string | null
+          read_at?: string | null
+          subject?: string | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          name?: string
+          page_slug?: string | null
+          phone?: string | null
+          read_at?: string | null
+          subject?: string | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       platform_currencies: {
         Row: {
           code: string
@@ -6557,6 +6602,7 @@ export type Database = {
           id: string
           is_published: boolean
           seo_description: string | null
+          show_contact_form: boolean
           show_in_footer: boolean
           slug: string
           sort_order: number
@@ -6570,6 +6616,7 @@ export type Database = {
           id?: string
           is_published?: boolean
           seo_description?: string | null
+          show_contact_form?: boolean
           show_in_footer?: boolean
           slug: string
           sort_order?: number
@@ -6583,6 +6630,7 @@ export type Database = {
           id?: string
           is_published?: boolean
           seo_description?: string | null
+          show_contact_form?: boolean
           show_in_footer?: boolean
           slug?: string
           sort_order?: number

@@ -9,6 +9,7 @@ import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
+import { platformFooterPagesQuery } from "@/lib/platform-pages-queries";
 import { LanguageSwitcher } from "@/components/storefront-language";
 import { storefrontUI } from "@/lib/storefront-ui";
 import { PredictiveSearch } from "@/components/wokiee/predictive-search";
@@ -197,6 +198,7 @@ export function StorefrontChrome({
   const favorites = useFavorites();
   const compare = useCompare();
   const { data: menuItems } = useQuery(storefrontMenuQuery(storeSlug));
+  const { data: platformPages } = useQuery(platformFooterPagesQuery());
   const headerItems = (menuItems ?? []).filter((item) => item.location === "header");
   const footerItems = (menuItems ?? []).filter((item) => item.location === "footer");
 
@@ -484,7 +486,8 @@ export function StorefrontChrome({
           </div>
         ) : null}
 
-        {flag(footerCfg, "showPages") && (footerItems.length || footerPages?.length) ? (
+        {flag(footerCfg, "showPages") &&
+        (footerItems.length || footerPages?.length || platformPages?.length) ? (
           <nav
             style={{
               display: "flex",
@@ -508,6 +511,16 @@ export function StorefrontChrome({
                 key={page.slug}
                 to="/s/$slug/page/$pageSlug"
                 params={{ slug: storeSlug, pageSlug: page.slug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                {page.title}
+              </Link>
+            ))}
+            {platformPages?.map((page) => (
+              <Link
+                key={`platform-${page.slug}`}
+                to="/sayfa/$slug"
+                params={{ slug: page.slug }}
                 style={{ color: muted, textDecoration: "none" }}
               >
                 {page.title}
