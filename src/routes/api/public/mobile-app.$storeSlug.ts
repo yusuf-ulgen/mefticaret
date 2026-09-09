@@ -33,22 +33,37 @@ export const Route = createFileRoute("/api/public/mobile-app/$storeSlug")({
 
         const config = resolveMobileAppConfig(row.published_config, store.name);
 
-        const [{ data: categories }, { data: products }] = await Promise.all([
-          supabaseAdmin
-            .from("categories")
-            .select("id, name, slug, image_url")
-            .eq("store_id", store.id)
-            .eq("is_active", true)
-            .order("sort_order", { ascending: true })
-            .limit(20),
-          supabaseAdmin
-            .from("products")
-            .select("id, title, slug, base_price, compare_at_price, currency")
-            .eq("store_id", store.id)
-            .eq("status", "active")
-            .order("created_at", { ascending: false })
-            .limit(40),
-        ]);
+        const [{ data: categories }, { data: products }, { data: storePages }, { data: platformPages }] =
+          await Promise.all([
+            supabaseAdmin
+              .from("categories")
+              .select("id, name, slug, image_url")
+              .eq("store_id", store.id)
+              .eq("is_active", true)
+              .order("sort_order", { ascending: true })
+              .limit(20),
+            supabaseAdmin
+              .from("products")
+              .select("id, title, slug, base_price, compare_at_price, currency")
+              .eq("store_id", store.id)
+              .eq("status", "active")
+              .order("created_at", { ascending: false })
+              .limit(40),
+            supabaseAdmin
+              .from("store_pages")
+              .select("id, title, slug, excerpt, body, updated_at")
+              .eq("store_id", store.id)
+              .eq("is_published", true)
+              .eq("page_kind", "page")
+              .order("sort_order", { ascending: true })
+              .limit(40),
+            supabaseAdmin
+              .from("platform_pages")
+              .select("id, title, slug, excerpt, body, updated_at")
+              .eq("is_published", true)
+              .order("sort_order", { ascending: true })
+              .limit(40),
+          ]);
 
         const allProducts = products ?? [];
         const allCategories = categories ?? [];
@@ -84,13 +99,57 @@ export const Route = createFileRoute("/api/public/mobile-app/$storeSlug")({
           }
         }
 
+        /**
+         * İçerik sayfaları senkronu: mağaza sayfaları `mefticaret://page/<slug>`,
+         * platform (Mefticaret kurumsal) sayfaları web adresiyle açılır. Drawer
+         * menüsü bu listeyle otomatik güncellenir; elle düzenleme gerekmez.
+         */
+        const pages = [
+          ...(storePages ?? []).map((page) => ({
+            id: page.id,
+            scope: "store" as const,
+            title: page.title,
+            slug: page.slug,
+            excerpt: page.excerpt ?? "",
+            body: page.body ?? "",
+            updatedAt: page.updated_at,
+            link: `mefticaret://page/${page.slug}`,
+          })),
+          ...(platformPages ?? []).map((page) => ({
+            id: page.id,
+            scope: "platform" as const,
+            title: page.title,
+            slug: page.slug,
+            excerpt: page.excerpt ?? "",
+            body: page.body ?? "",
+            updatedAt: page.updated_at,
+            link: `https://mefticaret.com/sayfa/${page.slug}`,
+          })),
+        ];
+
+        const drawerLinks = new Set(config.navigation.drawer.map((item) => item.link));
+        const navigation = {
+          ...config.navigation,
+          drawer: [
+            ...config.navigation.drawer,
+            ...pages
+              .filter((page) => !drawerLinks.has(page.link))
+              .map((page) => ({
+                id: `page-${page.scope}-${page.slug}`,
+                label: page.title.slice(0, 40),
+                link: page.link,
+              })),
+          ].slice(0, 30),
+        };
+
         return Response.json(
           {
             store: { id: store.id, name: store.name, slug: store.slug, currency: store.currency },
             version: row.version,
             publishedAt: row.published_at,
-            config,
+            config: { ...config, navigation },
             widgetData,
+            pages,
             catalog: { categories: allCategories, products: allProducts },
           },
           { headers: { "cache-control": "public, max-age=60, s-maxage=300" } },

@@ -24,7 +24,7 @@ export const platformPageQuery = (slug: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("platform_pages")
-        .select("title, slug, excerpt, body, seo_description, updated_at")
+        .select("title, slug, excerpt, body, seo_description, show_contact_form, updated_at")
         .eq("slug", slug)
         .eq("is_published", true)
         .maybeSingle();
@@ -32,4 +32,21 @@ export const platformPageQuery = (slug: string) =>
       return data;
     },
     staleTime: 60_000,
+  });
+
+/** Vitrin ve mobil uygulamada gösterilecek platform sayfaları (alt menü). */
+export const platformFooterPagesQuery = () =>
+  queryOptions({
+    queryKey: ["platform-footer-pages"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("platform_pages")
+        .select("title, slug")
+        .eq("is_published", true)
+        .eq("show_in_footer", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 300_000,
   });

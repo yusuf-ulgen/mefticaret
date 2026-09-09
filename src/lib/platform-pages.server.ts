@@ -20,6 +20,7 @@ export const platformPageSchema = z.object({
   seoDescription: z.string().trim().max(300).optional(),
   isPublished: z.boolean().default(true),
   showInFooter: z.boolean().default(true),
+  showContactForm: z.boolean().default(false),
   sortOrder: z.number().int().min(0).max(999).default(0),
 });
 
@@ -67,6 +68,7 @@ export async function upsertPlatformPage(
     seo_description: input.seoDescription ?? null,
     is_published: input.isPublished,
     show_in_footer: input.showInFooter,
+    show_contact_form: input.showContactForm,
     sort_order: input.sortOrder,
   };
 

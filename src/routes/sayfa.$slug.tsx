@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
+import { PlatformContactForm } from "@/components/platform-contact-form";
 import { platformPageQuery } from "@/lib/platform-pages-queries";
 
 /** Platform kurumsal içerik sayfası (süper yönetici tarafından yönetilir). */
@@ -57,11 +58,14 @@ function PlatformPage() {
           </p>
         </div>
       ) : (
-        <article className="mt-6">
-          <h1 className="text-3xl font-semibold tracking-tight">{data.title}</h1>
-          {data.excerpt ? <p className="mt-3 text-muted-foreground">{data.excerpt}</p> : null}
-          <div className="mt-8 space-y-4 leading-relaxed whitespace-pre-line">{data.body}</div>
-        </article>
+        <>
+          <article className="mt-6">
+            <h1 className="text-3xl font-semibold tracking-tight">{data.title}</h1>
+            {data.excerpt ? <p className="mt-3 text-muted-foreground">{data.excerpt}</p> : null}
+            <div className="mt-8 space-y-4 leading-relaxed whitespace-pre-line">{data.body}</div>
+          </article>
+          {data.show_contact_form ? <PlatformContactForm pageSlug={slug} /> : null}
+        </>
       )}
     </main>
   );

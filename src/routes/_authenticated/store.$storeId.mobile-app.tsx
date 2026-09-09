@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { MobilePagesPanel } from "@/components/mobile-pages-panel";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -223,6 +224,7 @@ function MobileAppBuilderPage() {
               <TabsTrigger value="branding">Marka & Ayarlar</TabsTrigger>
               <TabsTrigger value="navigation">Navigasyon</TabsTrigger>
               <TabsTrigger value="push">Push Bildirimleri</TabsTrigger>
+              <TabsTrigger value="pages">Sayfalar</TabsTrigger>
               <TabsTrigger value="publish">Yayınlama</TabsTrigger>
             </TabsList>
 
@@ -592,6 +594,16 @@ function MobileAppBuilderPage() {
                 onSaved={invalidate}
               />
             </TabsContent>
+
+            {/* --------------------------- PAGES ---------------------------- */}
+            <TabsContent value="pages" className="mt-4 space-y-4">
+              <MobilePagesPanel
+                storeId={storeId}
+                storeSlug={data?.storeSlug}
+                branding={config.branding}
+              />
+            </TabsContent>
+
 
             {/* -------------------------- PUBLISH -------------------------- */}
             <TabsContent value="publish" className="mt-4 space-y-4">

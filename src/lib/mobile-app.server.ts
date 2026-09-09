@@ -164,6 +164,7 @@ export async function loadMobileApp(supabase: Client, storeId: string) {
       android: devices.filter((d) => d.platform === "android").length,
     },
     storeName: name,
+    storeSlug: slug,
   };
 }
 
