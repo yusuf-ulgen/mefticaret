@@ -50,6 +50,66 @@ async function storeName(supabase: Client, storeId: string): Promise<string> {
   return data?.name ?? "Mağazam";
 }
 
+/** Mağaza slug'ından ters-DNS uygulama kimliği üretir: `com.mefticaret.utebaylarmarket`. */
+export function bundleIdFromSlug(slug: string): string {
+  const clean = (slug || "magaza").toLowerCase().replace(/[^a-z0-9]/g, "");
+  return `com.mefticaret.${clean || "magaza"}`;
+}
+
+/** Yayın alanları boşsa mağaza slug'ına göre doldurur (App Store / Google Play). */
+function withPublishingDefaults(config: MobileAppConfig, slug: string, name: string): MobileAppConfig {
+  const bundle = bundleIdFromSlug(slug);
+  return {
+    ...config,
+    publishing: {
+      ...config.publishing,
+      iosBundleId: config.publishing.iosBundleId || bundle,
+      androidPackage: config.publishing.androidPackage || bundle,
+      versionName: config.publishing.versionName || "1.0.0",
+      releaseNotes: config.publishing.releaseNotes || `${name} mobil uygulamasının ilk sürümü.`,
+    },
+  };
+}
+
+/**
+ * Mobil tasarımı tema düzenleyicisine geri yansıtır: renkler, köşe yuvarlaklığı
+ * ve duyuru şeridi metni `store_themes` kaydına yazılır, böylece vitrin ve
+ * mobil uygulama aynı tasarım dilini paylaşır.
+ */
+async function syncThemeFromMobile(supabase: Client, storeId: string, config: MobileAppConfig) {
+  const ticker = config.home.find((widget) => widget.type === "announcement_ticker" && widget.visible);
+
+  const { data: theme } = await supabase
+    .from("store_themes")
+    .select("design_tokens")
+    .eq("store_id", storeId)
+    .maybeSingle();
+
+  const tokens = resolveDesignTokens(theme?.design_tokens);
+
+  const { error } = await supabase.from("store_themes").upsert(
+    {
+      store_id: storeId,
+      primary_color: config.branding.primary,
+      accent_color: config.branding.accent,
+      background_color: config.branding.background,
+      radius: Math.min(24, Math.max(0, config.branding.radius)),
+      ...(ticker?.title ? { announcement: ticker.title, show_announcement: true } : {}),
+      design_tokens: {
+        ...tokens,
+        colors: {
+          ...tokens.colors,
+          surface: config.branding.surface,
+          text: config.branding.text,
+          secondary: config.branding.accent,
+        },
+      },
+    },
+    { onConflict: "store_id" },
+  );
+  if (error) throw new Error(error.message);
+}
+
 /** Editör verisi: taslak/yayın config, otomasyonlar, kampanyalar ve cihaz sayıları. */
 export async function loadMobileApp(supabase: Client, storeId: string) {
   const name = await storeName(supabase, storeId);
