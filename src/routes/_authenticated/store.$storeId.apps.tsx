@@ -22,6 +22,7 @@ const APP_MODULE_ROUTES: Record<string, string | undefined> = {
   "tiktok-dm": "/store/$storeId/tiktok",
   "facebook-marketplace": "/store/$storeId/facebook-marketplace",
   "language-center": "/store/$storeId/languages",
+  "mobile-app-builder": "/store/$storeId/mobile-app",
 
 
   "whatsapp-crm": "/store/$storeId/inbox",

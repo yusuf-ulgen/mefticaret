@@ -50,6 +50,39 @@ export const Route = createFileRoute("/api/public/mobile-app/$storeSlug")({
             .limit(40),
         ]);
 
+        const allProducts = products ?? [];
+        const allCategories = categories ?? [];
+        const discounted = allProducts.filter(
+          (p) => Number(p.compare_at_price ?? 0) > Number(p.base_price ?? 0),
+        );
+
+        /**
+         * Vitrin verisini widget'lara otomatik bağlar: ürün ızgarası ve flash
+         * indirim widget'ları mağazadaki canlı ürünlerle, kategori daireleri ve
+         * hikayeler elle içerik girilmediğinde canlı kategorilerle dolar.
+         */
+        const widgetData: Record<string, unknown> = {};
+        for (const widget of config.home) {
+          if (widget.type === "product_grid") {
+            widgetData[widget.id] = { products: allProducts.slice(0, widget.limit) };
+          } else if (widget.type === "flash_sale") {
+            widgetData[widget.id] = {
+              products: (discounted.length ? discounted : allProducts).slice(0, widget.limit),
+            };
+          } else if (
+            (widget.type === "category_circles" || widget.type === "stories") &&
+            widget.items.length === 0
+          ) {
+            widgetData[widget.id] = {
+              items: allCategories.slice(0, widget.limit).map((category) => ({
+                id: category.id,
+                label: category.name,
+                imageUrl: category.image_url ?? "",
+                link: `mefticaret://category/${category.slug}`,
+              })),
+            };
+          }
+        }
 
         return Response.json(
           {
@@ -57,7 +90,8 @@ export const Route = createFileRoute("/api/public/mobile-app/$storeSlug")({
             version: row.version,
             publishedAt: row.published_at,
             config,
-            catalog: { categories: categories ?? [], products: products ?? [] },
+            widgetData,
+            catalog: { categories: allCategories, products: allProducts },
           },
           { headers: { "cache-control": "public, max-age=60, s-maxage=300" } },
         );
