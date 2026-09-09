@@ -40,7 +40,7 @@ export const publicPlatformPostQuery = (slug: string) =>
       const { data, error } = await supabase
         .from("platform_posts")
         .select(
-          "title, slug, excerpt, body, cover_url, meta_title, canonical_url, seo_description, author_name, tags, published_at, updated_at",
+          "title, slug, excerpt, body, cover_url, meta_title, canonical_url, noindex, seo_description, author_name, tags, published_at, updated_at",
         )
         .eq("slug", slug)
         .eq("is_published", true)
