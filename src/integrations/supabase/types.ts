@@ -6556,6 +6556,48 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_pages: {
+        Row: {
+          body: string
+          created_at: string
+          excerpt: string | null
+          id: string
+          is_published: boolean
+          seo_description: string | null
+          show_in_footer: boolean
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean
+          seo_description?: string | null
+          show_in_footer?: boolean
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean
+          seo_description?: string | null
+          show_in_footer?: boolean
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_seo_ai_actions: {
         Row: {
           action: string
