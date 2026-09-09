@@ -32,9 +32,12 @@ export const Route = createFileRoute("/_authenticated/admin/pages")({
 function AdminPagesPage() {
   const { isPlatformAdmin } = useAuth();
   const stores = useQuery(adminStoresQuery(isPlatformAdmin));
-  const [storeId, setStoreId] = useState<string>("");
+  const [picked, setPicked] = useState<string>("");
 
   const rows = (stores.data ?? []) as Record<string, unknown>[];
+  /** Mağaza seçilmediyse ilk mağaza otomatik açılır. */
+  const storeId = picked || (rows[0] ? String(rows[0]["id"]) : "");
+  const setStoreId = setPicked;
   const selected = rows.find((row) => String(row["id"]) === storeId);
   const storeSlug = selected ? String(selected["slug"] ?? "") : undefined;
 
