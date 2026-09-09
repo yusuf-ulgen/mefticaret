@@ -113,7 +113,10 @@ async function syncThemeFromMobile(supabase: Client, storeId: string, config: Mo
 
 /** Editör verisi: taslak/yayın config, otomasyonlar, kampanyalar ve cihaz sayıları. */
 export async function loadMobileApp(supabase: Client, storeId: string) {
-  const name = await storeName(supabase, storeId);
+  const { data: store } = await supabase.from("stores").select("name, slug").eq("id", storeId).maybeSingle();
+  const name = store?.name ?? "Mağazam";
+  const slug = store?.slug ?? "magaza";
+
 
   const [configRes, automationRes, campaignRes, deviceRes] = await Promise.all([
     supabase.from("mobile_app_configs").select("*").eq("store_id", storeId).maybeSingle(),
