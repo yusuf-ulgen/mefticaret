@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ArrowUpRight, Check, Menu, X } from "lucide-react";
 
 import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 
 import {
