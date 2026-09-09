@@ -4928,6 +4928,200 @@ export type Database = {
           },
         ]
       }
+      mobile_app_configs: {
+        Row: {
+          created_at: string
+          draft_config: Json
+          id: string
+          published_at: string | null
+          published_config: Json | null
+          store_id: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          draft_config?: Json
+          id?: string
+          published_at?: string | null
+          published_config?: Json | null
+          store_id: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          draft_config?: Json
+          id?: string
+          published_at?: string | null
+          published_config?: Json | null
+          store_id?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mobile_app_configs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mobile_app_devices: {
+        Row: {
+          app_version: string | null
+          created_at: string
+          customer_id: string | null
+          id: string
+          last_seen_at: string
+          platform: string
+          push_token: string
+          store_id: string
+        }
+        Insert: {
+          app_version?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          last_seen_at?: string
+          platform: string
+          push_token: string
+          store_id: string
+        }
+        Update: {
+          app_version?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          last_seen_at?: string
+          platform?: string
+          push_token?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mobile_app_devices_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mobile_push_automations: {
+        Row: {
+          body: string
+          created_at: string
+          deep_link: string | null
+          delay_minutes: number
+          discount_code: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          store_id: string
+          title: string
+          trigger: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          deep_link?: string | null
+          delay_minutes?: number
+          discount_code?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          store_id: string
+          title: string
+          trigger: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          deep_link?: string | null
+          delay_minutes?: number
+          discount_code?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          store_id?: string
+          title?: string
+          trigger?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mobile_push_automations_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mobile_push_campaigns: {
+        Row: {
+          audience: string
+          body: string
+          created_at: string
+          created_by: string | null
+          deep_link: string | null
+          id: string
+          image_url: string | null
+          recipients_count: number
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          store_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          deep_link?: string | null
+          id?: string
+          image_url?: string | null
+          recipients_count?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          store_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          deep_link?: string | null
+          id?: string
+          image_url?: string | null
+          recipients_count?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          store_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mobile_push_campaigns_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_settings: {
         Row: {
           created_at: string
