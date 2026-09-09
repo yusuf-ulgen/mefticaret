@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { recordAudit } from "@/lib/audit.server";
 import { assertStoreManager } from "@/lib/store-access.server";
+import { resolveDesignTokens } from "@/lib/theme-design";
 import {
   PUSH_AUDIENCES,
   PUSH_TRIGGERS,
