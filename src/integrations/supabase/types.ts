@@ -1718,13 +1718,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "commissions_order_item_id_fkey"
-            columns: ["order_item_id"]
-            isOneToOne: false
-            referencedRelation: "seller_order_lines"
-            referencedColumns: ["order_item_id"]
-          },
-          {
             foreignKeyName: "commissions_seller_id_fkey"
             columns: ["seller_id"]
             isOneToOne: false
@@ -8190,13 +8183,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "return_items_order_item_id_fkey"
-            columns: ["order_item_id"]
-            isOneToOne: false
-            referencedRelation: "seller_order_lines"
-            referencedColumns: ["order_item_id"]
-          },
-          {
             foreignKeyName: "return_items_return_id_fkey"
             columns: ["return_id"]
             isOneToOne: false
@@ -8846,13 +8832,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "order_items"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "shipment_items_order_item_id_fkey"
-            columns: ["order_item_id"]
-            isOneToOne: false
-            referencedRelation: "seller_order_lines"
-            referencedColumns: ["order_item_id"]
           },
           {
             foreignKeyName: "shipment_items_shipment_id_fkey"
@@ -12853,54 +12832,7 @@ export type Database = {
       }
     }
     Views: {
-      seller_order_lines: {
-        Row: {
-          created_at: string | null
-          line_total: number | null
-          order_currency: string | null
-          order_id: string | null
-          order_item_id: string | null
-          order_number: string | null
-          placed_at: string | null
-          product_id: string | null
-          quantity: number | null
-          seller_id: string | null
-          status: Database["public"]["Enums"]["order_status"] | null
-          store_id: string | null
-          title: string | null
-          variant_title: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "order_items_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "order_items_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "stores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "products_seller_id_fkey"
-            columns: ["seller_id"]
-            isOneToOne: false
-            referencedRelation: "marketplace_sellers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       cache_get: { Args: { _key: string }; Returns: Json }
@@ -13069,6 +13001,25 @@ export type Database = {
         }[]
       }
       seed_demo_store: { Args: { _store_id: string }; Returns: Json }
+      seller_order_lines: {
+        Args: { _seller_id: string; _store_id: string }
+        Returns: {
+          created_at: string
+          line_total: number
+          order_currency: string
+          order_id: string
+          order_item_id: string
+          order_number: string
+          placed_at: string
+          product_id: string
+          quantity: number
+          seller_id: string
+          status: Database["public"]["Enums"]["order_status"]
+          store_id: string
+          title: string
+          variant_title: string
+        }[]
+      }
     }
     Enums: {
       app_category:
