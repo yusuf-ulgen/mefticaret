@@ -33,6 +33,7 @@ import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticated/supplier'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
+import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
@@ -369,6 +370,11 @@ const AuthenticatedSupplierRoute = AuthenticatedSupplierRouteImport.update({
 const FaturaTokenRoute = FaturaTokenRouteImport.update({
   id: '/fatura/$token',
   path: '/fatura/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SayfaSlugRoute = SayfaSlugRouteImport.update({
+  id: '/sayfa/$slug',
+  path: '/sayfa/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
@@ -1638,6 +1644,7 @@ export interface FileRoutesByFullPath {
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/sayfa/$slug': typeof SayfaSlugRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -1878,6 +1885,7 @@ export interface FileRoutesByTo {
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/sayfa/$slug': typeof SayfaSlugRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2120,6 +2128,7 @@ export interface FileRoutesById {
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/sayfa/$slug': typeof SayfaSlugRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2363,6 +2372,7 @@ export interface FileRouteTypes {
     | '/stores'
     | '/supplier'
     | '/fatura/$token'
+    | '/sayfa/$slug'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2603,6 +2613,7 @@ export interface FileRouteTypes {
     | '/stores'
     | '/supplier'
     | '/fatura/$token'
+    | '/sayfa/$slug'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2844,6 +2855,7 @@ export interface FileRouteTypes {
     | '/_authenticated/stores'
     | '/_authenticated/supplier'
     | '/fatura/$token'
+    | '/sayfa/$slug'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
@@ -3082,6 +3094,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
+  SayfaSlugRoute: typeof SayfaSlugRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
   ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
@@ -3305,6 +3318,13 @@ declare module '@tanstack/react-router' {
       path: '/fatura/$token'
       fullPath: '/fatura/$token'
       preLoaderRoute: typeof FaturaTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sayfa/$slug': {
+      id: '/sayfa/$slug'
+      path: '/sayfa/$slug'
+      fullPath: '/sayfa/$slug'
+      preLoaderRoute: typeof SayfaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.lovable/oauth/consent': {
@@ -5311,6 +5331,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   FaturaTokenRoute: FaturaTokenRoute,
+  SayfaSlugRoute: SayfaSlugRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
   ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
