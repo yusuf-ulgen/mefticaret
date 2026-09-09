@@ -97,7 +97,9 @@ function BlogPostPage() {
             />
           ) : null}
           {data.excerpt ? <p className="mt-5 text-muted-foreground">{data.excerpt}</p> : null}
-          <div className="mt-8 space-y-4 leading-relaxed whitespace-pre-line">{data.body}</div>
+          <div className="markdown-body mt-8">
+            <Markdown remarkPlugins={[remarkGfm]}>{data.body}</Markdown>
+          </div>
           {(data.tags ?? []).length > 0 ? (
             <p className="mt-8 text-xs text-muted-foreground">
               Etiketler: {(data.tags ?? []).join(", ")}
