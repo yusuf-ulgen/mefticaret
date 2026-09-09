@@ -174,50 +174,36 @@ export type SellerOrderLine = {
   line_total: number;
 };
 
-/** Satıcının sipariş kalemleri — RLS ile yalnızca kendi ürünlerini içeren siparişler. */
+/** Satıcının sipariş kalemleri — daraltılmış görünümden okunur; müşteri PII içermez. */
 export const sellerOrderLinesQuery = (sellerId: string, storeId: string) =>
   queryOptions({
     queryKey: ["seller-order-lines", sellerId],
     queryFn: async (): Promise<SellerOrderLine[]> => {
       const { data, error } = await supabase
-        .from("order_items")
+        .from("seller_order_lines")
         .select(
-          "order_id, title, variant_title, quantity, line_total, products!inner(seller_id), orders(order_number, status, placed_at, currency)",
+          "order_id, order_number, status, placed_at, order_currency, title, variant_title, quantity, line_total, created_at",
         )
         .eq("store_id", storeId)
-        .eq("products.seller_id", sellerId)
+        .eq("seller_id", sellerId)
         .order("created_at", { ascending: false })
         .limit(2000);
       if (error) throw error;
 
-      return (data ?? []).map((row) => {
-        const item = row as unknown as {
-          order_id: string;
-          title: string;
-          variant_title: string | null;
-          quantity: number;
-          line_total: number;
-          orders: {
-            order_number: string;
-            status: string;
-            placed_at: string;
-            currency: string;
-          } | null;
-        };
-        return {
-          order_id: item.order_id,
-          order_number: item.orders?.order_number ?? "—",
-          status: item.orders?.status ?? "pending",
-          placed_at: item.orders?.placed_at ?? "",
-          currency: item.orders?.currency ?? "TRY",
-          title: item.title,
-          variant_title: item.variant_title,
-          quantity: Number(item.quantity ?? 0),
-          line_total: Number(item.line_total ?? 0),
-        };
-      });
+      return (data ?? []).map((row) => ({
+        order_id: row.order_id,
+        order_number: row.order_number ?? "—",
+        status: row.status ?? "pending",
+        placed_at: row.placed_at ?? "",
+        currency: row.order_currency ?? "TRY",
+        title: row.title,
+        variant_title: row.variant_title,
+        quantity: Number(row.quantity ?? 0),
+        line_total: Number(row.line_total ?? 0),
+      }));
     },
   });
+
 
 export const sellerPayoutRequestsQuery = (sellerId: string) =>
   queryOptions({
