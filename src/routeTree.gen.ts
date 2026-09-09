@@ -32,6 +32,8 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticated/supplier'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -61,6 +63,7 @@ import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin.seo'
 import { Route as AuthenticatedAdminSeoAiRouteImport } from './routes/_authenticated/admin.seo-ai'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminSiteBlogRouteImport } from './routes/_authenticated/admin.site-blog'
 import { Route as AuthenticatedAdminSitePagesRouteImport } from './routes/_authenticated/admin.site-pages'
 import { Route as AuthenticatedAdminStoresRouteImport } from './routes/_authenticated/admin.stores'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
@@ -367,6 +370,16 @@ const AuthenticatedSupplierRoute = AuthenticatedSupplierRouteImport.update({
   path: '/supplier',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FaturaTokenRoute = FaturaTokenRouteImport.update({
   id: '/fatura/$token',
   path: '/fatura/$token',
@@ -523,6 +536,12 @@ const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
     path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSiteBlogRoute =
+  AuthenticatedAdminSiteBlogRouteImport.update({
+    id: '/site-blog',
+    path: '/site-blog',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminSitePagesRoute =
@@ -1643,8 +1662,10 @@ export interface FileRoutesByFullPath {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -1671,6 +1692,7 @@ export interface FileRoutesByFullPath {
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/admin/seo-ai': typeof AuthenticatedAdminSeoAiRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/site-blog': typeof AuthenticatedAdminSiteBlogRoute
   '/admin/site-pages': typeof AuthenticatedAdminSitePagesRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -1884,8 +1906,10 @@ export interface FileRoutesByTo {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
+  '/blog': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -1912,6 +1936,7 @@ export interface FileRoutesByTo {
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/admin/seo-ai': typeof AuthenticatedAdminSeoAiRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/site-blog': typeof AuthenticatedAdminSiteBlogRoute
   '/admin/site-pages': typeof AuthenticatedAdminSitePagesRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -2127,8 +2152,10 @@ export interface FileRoutesById {
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2155,6 +2182,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
   '/_authenticated/admin/seo-ai': typeof AuthenticatedAdminSeoAiRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/site-blog': typeof AuthenticatedAdminSiteBlogRoute
   '/_authenticated/admin/site-pages': typeof AuthenticatedAdminSitePagesRoute
   '/_authenticated/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -2371,8 +2399,10 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/supplier'
+    | '/blog/$slug'
     | '/fatura/$token'
     | '/sayfa/$slug'
+    | '/blog/'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2399,6 +2429,7 @@ export interface FileRouteTypes {
     | '/admin/seo'
     | '/admin/seo-ai'
     | '/admin/settings'
+    | '/admin/site-blog'
     | '/admin/site-pages'
     | '/admin/stores'
     | '/admin/subscriptions'
@@ -2612,8 +2643,10 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/supplier'
+    | '/blog/$slug'
     | '/fatura/$token'
     | '/sayfa/$slug'
+    | '/blog'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2640,6 +2673,7 @@ export interface FileRouteTypes {
     | '/admin/seo'
     | '/admin/seo-ai'
     | '/admin/settings'
+    | '/admin/site-blog'
     | '/admin/site-pages'
     | '/admin/stores'
     | '/admin/subscriptions'
@@ -2854,8 +2888,10 @@ export interface FileRouteTypes {
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
     | '/_authenticated/supplier'
+    | '/blog/$slug'
     | '/fatura/$token'
     | '/sayfa/$slug'
+    | '/blog/'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
@@ -2882,6 +2918,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/seo'
     | '/_authenticated/admin/seo-ai'
     | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/site-blog'
     | '/_authenticated/admin/site-pages'
     | '/_authenticated/admin/stores'
     | '/_authenticated/admin/subscriptions'
@@ -3093,8 +3130,10 @@ export interface RootRouteChildren {
   SitemapProductsDotxmlRoute: typeof SitemapProductsDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
   ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
@@ -3313,6 +3352,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSupplierRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/fatura/$token': {
       id: '/fatura/$token'
       path: '/fatura/$token'
@@ -3514,6 +3567,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/admin/settings'
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/site-blog': {
+      id: '/_authenticated/admin/site-blog'
+      path: '/site-blog'
+      fullPath: '/admin/site-blog'
+      preLoaderRoute: typeof AuthenticatedAdminSiteBlogRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/site-pages': {
@@ -4868,6 +4928,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
   AuthenticatedAdminSeoAiRoute: typeof AuthenticatedAdminSeoAiRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSiteBlogRoute: typeof AuthenticatedAdminSiteBlogRoute
   AuthenticatedAdminSitePagesRoute: typeof AuthenticatedAdminSitePagesRoute
   AuthenticatedAdminStoresRoute: typeof AuthenticatedAdminStoresRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
@@ -4911,6 +4972,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
   AuthenticatedAdminSeoAiRoute: AuthenticatedAdminSeoAiRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSiteBlogRoute: AuthenticatedAdminSiteBlogRoute,
   AuthenticatedAdminSitePagesRoute: AuthenticatedAdminSitePagesRoute,
   AuthenticatedAdminStoresRoute: AuthenticatedAdminStoresRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
@@ -5330,8 +5392,10 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  BlogSlugRoute: BlogSlugRoute,
   FaturaTokenRoute: FaturaTokenRoute,
   SayfaSlugRoute: SayfaSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
   ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
