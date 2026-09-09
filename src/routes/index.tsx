@@ -422,7 +422,10 @@ function LandingPage() {
           </section>
         ) : null}
 
+        <GuidesSection />
+
         <BlogSection section={get("blog")} />
+
 
         <FaqSection section={get("faq")} />
 
