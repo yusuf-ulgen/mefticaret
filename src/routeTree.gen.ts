@@ -32,6 +32,8 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticated/supplier'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -367,6 +369,16 @@ const AuthenticatedSupplierRoute = AuthenticatedSupplierRouteImport.update({
   id: '/supplier',
   path: '/supplier',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const FaturaTokenRoute = FaturaTokenRouteImport.update({
   id: '/fatura/$token',
@@ -1650,8 +1662,10 @@ export interface FileRoutesByFullPath {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -1892,8 +1906,10 @@ export interface FileRoutesByTo {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
+  '/blog': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2136,8 +2152,10 @@ export interface FileRoutesById {
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2381,8 +2399,10 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/supplier'
+    | '/blog/$slug'
     | '/fatura/$token'
     | '/sayfa/$slug'
+    | '/blog/'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2623,8 +2643,10 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/supplier'
+    | '/blog/$slug'
     | '/fatura/$token'
     | '/sayfa/$slug'
+    | '/blog'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2866,8 +2888,10 @@ export interface FileRouteTypes {
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
     | '/_authenticated/supplier'
+    | '/blog/$slug'
     | '/fatura/$token'
     | '/sayfa/$slug'
+    | '/blog/'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
@@ -3106,8 +3130,10 @@ export interface RootRouteChildren {
   SitemapProductsDotxmlRoute: typeof SitemapProductsDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
   ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
@@ -3325,6 +3351,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/supplier'
       preLoaderRoute: typeof AuthenticatedSupplierRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/fatura/$token': {
       id: '/fatura/$token'
@@ -5352,8 +5392,10 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  BlogSlugRoute: BlogSlugRoute,
   FaturaTokenRoute: FaturaTokenRoute,
   SayfaSlugRoute: SayfaSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
   ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
