@@ -175,18 +175,15 @@ export type SellerOrderLine = {
 };
 
 
-/** Satıcının sipariş kalemleri — daraltılmış görünümden okunur; müşteri PII içermez. */
+/** Satıcının sipariş kalemleri — sunucu doğrulamalı; müşteri PII içermez. */
 export const sellerOrderLinesQuery = (sellerId: string, storeId: string) =>
   queryOptions({
     queryKey: ["seller-order-lines", sellerId],
     queryFn: async (): Promise<SellerOrderLine[]> => {
-      const { data, error } = await supabase.rpc("seller_order_lines", {
-        _store_id: storeId,
-        _seller_id: sellerId,
+      const rows = await fetchSellerOrderLines({
+        data: { storeId, sellerId },
       });
-      if (error) throw error;
 
-      const rows = (data ?? []) as unknown as Record<string, unknown>[];
       return rows.map((row) => ({
         order_id: (row["order_id"] as string | null) ?? null,
         order_number: (row["order_number"] as string | null) ?? "—",
