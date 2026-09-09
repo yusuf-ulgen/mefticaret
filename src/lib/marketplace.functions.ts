@@ -310,5 +310,16 @@ export const fetchSellerOrderLines = createServerFn({ method: "POST" })
       _seller_id: data.sellerId,
     });
     if (error) throw new Error(error.message);
-    return (rows ?? []) as unknown as Record<string, unknown>[];
+
+    return ((rows ?? []) as unknown as Record<string, unknown>[]).map((row) => ({
+      order_id: (row["order_id"] as string | null) ?? null,
+      order_number: (row["order_number"] as string | null) ?? "\u2014",
+      status: (row["status"] as string | null) ?? "pending",
+      placed_at: (row["placed_at"] as string | null) ?? "",
+      currency: (row["order_currency"] as string | null) ?? "TRY",
+      title: (row["title"] as string | null) ?? "\u2014",
+      variant_title: (row["variant_title"] as string | null) ?? null,
+      quantity: Number(row["quantity"] ?? 0),
+      line_total: Number(row["line_total"] ?? 0),
+    }));
   });
