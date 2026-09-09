@@ -275,8 +275,15 @@ export async function createCampaign(
   const scheduled = Boolean(input.scheduledAt);
 
   let delivered = 0;
-  if (providerConfigured && !scheduled && tokens.length > 0) {
-    delivered = await sendViaFcm(tokens, input);
+  let topicSent = false;
+  if (providerConfigured && !scheduled) {
+    if (tokens.length > 0) {
+      delivered = await sendViaFcm(tokens, input);
+    } else {
+      // Henüz kayıtlı cihaz yoksa mağaza konusuna (topic) gönderilir; uygulama
+      // ilk açılışta bu konuya abone olur, böylece duyuru kaybolmaz.
+      topicSent = await sendTopicViaFcm(`store-${input.storeId}`, input);
+    }
   }
 
   const status = scheduled || !providerConfigured ? "scheduled" : "sent";
