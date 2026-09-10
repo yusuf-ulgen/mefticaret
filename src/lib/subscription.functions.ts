@@ -91,6 +91,11 @@ export const upsertSubscription = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const [{ supabaseAdmin }, { assertStoreManager }] = await Promise.all([
+      import("@/integrations/supabase/client.server"),
+      import("@/lib/store-access.server"),
+    ]);
+    await assertStoreManager(supabase, data.storeId, userId);
 
     const { data: plan, error: planError } = await supabase
       .from("plans")
@@ -137,7 +142,7 @@ export const upsertSubscription = createServerFn({ method: "POST" })
       canceled_at: null,
     };
 
-    const { data: saved, error: saveError } = await supabase
+    const { data: saved, error: saveError } = await supabaseAdmin
       .from("subscriptions")
       .upsert(payload, { onConflict: "store_id" })
       .select("id")
@@ -161,7 +166,7 @@ export const upsertSubscription = createServerFn({ method: "POST" })
 
     await supabase.from("stores").update({ plan_id: plan.id }).eq("id", data.storeId);
 
-    await supabase.from("billing_cycles").insert({
+    await supabaseAdmin.from("billing_cycles").insert({
       subscription_id: saved.id,
       store_id: data.storeId,
       period_start: payload.current_period_start,
@@ -192,8 +197,13 @@ export const setSubscriptionCancellation = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const [{ supabaseAdmin }, { assertStoreManager }] = await Promise.all([
+      import("@/integrations/supabase/client.server"),
+      import("@/lib/store-access.server"),
+    ]);
+    await assertStoreManager(supabase, data.storeId, userId);
 
-    const { data: updated, error } = await supabase
+    const { data: updated, error } = await supabaseAdmin
       .from("subscriptions")
       .update({
         cancel_at_period_end: data.cancel,
@@ -230,7 +240,12 @@ export const recordUsage = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const [{ supabaseAdmin }, { assertStoreManager }] = await Promise.all([
+      import("@/integrations/supabase/client.server"),
+      import("@/lib/store-access.server"),
+    ]);
+    await assertStoreManager(supabase, data.storeId, userId);
 
     const { data: subscription } = await supabase
       .from("subscriptions")
@@ -241,7 +256,7 @@ export const recordUsage = createServerFn({ method: "POST" })
     const period = new Date();
     period.setDate(1);
 
-    const { error } = await supabase.from("usage_records").insert({
+    const { error } = await supabaseAdmin.from("usage_records").insert({
       store_id: data.storeId,
       subscription_id: subscription?.id ?? null,
       metric_key: data.metricKey,
@@ -261,6 +276,11 @@ export const issueInvoiceForCycle = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const [{ supabaseAdmin }, { assertStoreManager }] = await Promise.all([
+      import("@/integrations/supabase/client.server"),
+      import("@/lib/store-access.server"),
+    ]);
+    await assertStoreManager(supabase, data.storeId, userId);
 
     const { data: cycle, error: cycleError } = await supabase
       .from("billing_cycles")
@@ -290,7 +310,7 @@ export const issueInvoiceForCycle = createServerFn({ method: "POST" })
     const number = `MEF-${new Date(cycle.period_start).toISOString().slice(0, 7).replace("-", "")}-${cycle.id.slice(0, 6).toUpperCase()}`;
     const dueAt = new Date(Date.now() + 7 * 86_400_000).toISOString();
 
-    const { data: invoice, error: invoiceError } = await supabase
+    const { data: invoice, error: invoiceError } = await supabaseAdmin
       .from("invoices")
       .insert({
         store_id: data.storeId,
@@ -309,7 +329,7 @@ export const issueInvoiceForCycle = createServerFn({ method: "POST" })
       .single();
     if (invoiceError) throw new Error(invoiceError.message);
 
-    const { error: closeError } = await supabase
+    const { error: closeError } = await supabaseAdmin
       .from("billing_cycles")
       .update({ status: "invoiced", closed_at: new Date().toISOString(), amount_due: subtotal + taxTotal })
       .eq("id", cycle.id);
@@ -327,7 +347,11 @@ export const issueInvoiceForCycle = createServerFn({ method: "POST" })
     return { invoiceNumber: invoice.invoice_number, total: Number(invoice.total) };
   });
 
-/** Faturayı ödendi olarak işaretler. */
+/**
+ * Faturayı ödendi olarak işaretler — yalnızca platform yöneticisi.
+ * Mağaza sahipleri kendi faturalarını ödendi işaretleyemez; ödeme sağlayıcı
+ * akışı (ödeme linki / webhook) veya platform yöneticisi onayı gerekir.
+ */
 export const markInvoicePaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
@@ -336,7 +360,21 @@ export const markInvoicePaid = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    const { data: invoice, error } = await supabase
+    const { data: role, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "platform_admin")
+      .maybeSingle();
+    if (roleError) throw new Error(roleError.message);
+    if (!role) throw new Error("Fatura ödemesi yalnızca ödeme sağlayıcı akışı ile onaylanabilir");
+
+    const [{ supabaseAdmin }, { restoreAfterPayment }] = await Promise.all([
+      import("@/integrations/supabase/client.server"),
+      import("@/lib/billing-lifecycle.server"),
+    ]);
+
+    const { data: invoice, error } = await supabaseAdmin
       .from("invoices")
       .update({ status: "paid", paid_at: new Date().toISOString() })
       .eq("id", data.invoiceId)
@@ -346,18 +384,13 @@ export const markInvoicePaid = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!invoice) throw new Error("Fatura bulunamadı veya yetkiniz yok");
 
-    await supabase
+    await supabaseAdmin
       .from("subscriptions")
       .update({ status: "active" })
       .eq("store_id", data.storeId);
 
     // Kademeli kısıtlamayı kaldır: dondurulmuş mağazayı yeniden aç.
-    const [{ supabaseAdmin }, { restoreAfterPayment }] = await Promise.all([
-      import("@/integrations/supabase/client.server"),
-      import("@/lib/billing-lifecycle.server"),
-    ]);
     await restoreAfterPayment(supabaseAdmin, data.storeId);
-
 
     await insertAuditRow(supabase, {
       store_id: data.storeId,
