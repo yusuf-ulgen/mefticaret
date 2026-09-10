@@ -109,6 +109,7 @@ import { Route as AuthenticatedAdminFrontendIndexRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminFrontendStoreIdRouteImport } from './routes/_authenticated/admin.frontend.$storeId'
 import { Route as AuthenticatedAdminFrontendLandingRouteImport } from './routes/_authenticated/admin.frontend.landing'
 import { Route as AuthenticatedAdminStoreStoreIdRouteImport } from './routes/_authenticated/admin.store.$storeId'
+import { Route as AuthenticatedAdminThemeStudioStoreIdRouteImport } from './routes/_authenticated/admin.theme-studio.$storeId'
 import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_authenticated/store.$storeId.abc'
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
 import { Route as AuthenticatedStoreStoreIdAgingRouteImport } from './routes/_authenticated/store.$storeId.aging'
@@ -789,6 +790,12 @@ const AuthenticatedAdminStoreStoreIdRoute =
   AuthenticatedAdminStoreStoreIdRouteImport.update({
     id: '/store/$storeId',
     path: '/store/$storeId',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminThemeStudioStoreIdRoute =
+  AuthenticatedAdminThemeStudioStoreIdRouteImport.update({
+    id: '/theme-studio/$storeId',
+    path: '/theme-studio/$storeId',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedStoreStoreIdAbcRoute =
@@ -1771,6 +1778,7 @@ export interface FileRoutesByFullPath {
   '/admin/frontend/$storeId': typeof AuthenticatedAdminFrontendStoreIdRoute
   '/admin/frontend/landing': typeof AuthenticatedAdminFrontendLandingRoute
   '/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
+  '/admin/theme-studio/$storeId': typeof AuthenticatedAdminThemeStudioStoreIdRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
@@ -2020,6 +2028,7 @@ export interface FileRoutesByTo {
   '/admin/frontend/$storeId': typeof AuthenticatedAdminFrontendStoreIdRoute
   '/admin/frontend/landing': typeof AuthenticatedAdminFrontendLandingRoute
   '/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
+  '/admin/theme-studio/$storeId': typeof AuthenticatedAdminThemeStudioStoreIdRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
@@ -2271,6 +2280,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/frontend/$storeId': typeof AuthenticatedAdminFrontendStoreIdRoute
   '/_authenticated/admin/frontend/landing': typeof AuthenticatedAdminFrontendLandingRoute
   '/_authenticated/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
+  '/_authenticated/admin/theme-studio/$storeId': typeof AuthenticatedAdminThemeStudioStoreIdRoute
   '/_authenticated/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/_authenticated/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/_authenticated/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
@@ -2523,6 +2533,7 @@ export interface FileRouteTypes {
     | '/admin/frontend/$storeId'
     | '/admin/frontend/landing'
     | '/admin/store/$storeId'
+    | '/admin/theme-studio/$storeId'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
     | '/store/$storeId/aging'
@@ -2772,6 +2783,7 @@ export interface FileRouteTypes {
     | '/admin/frontend/$storeId'
     | '/admin/frontend/landing'
     | '/admin/store/$storeId'
+    | '/admin/theme-studio/$storeId'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
     | '/store/$storeId/aging'
@@ -3022,6 +3034,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/frontend/$storeId'
     | '/_authenticated/admin/frontend/landing'
     | '/_authenticated/admin/store/$storeId'
+    | '/_authenticated/admin/theme-studio/$storeId'
     | '/_authenticated/store/$storeId/abc'
     | '/_authenticated/store/$storeId/activity'
     | '/_authenticated/store/$storeId/aging'
@@ -3955,6 +3968,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId'
       fullPath: '/admin/store/$storeId'
       preLoaderRoute: typeof AuthenticatedAdminStoreStoreIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/theme-studio/$storeId': {
+      id: '/_authenticated/admin/theme-studio/$storeId'
+      path: '/theme-studio/$storeId'
+      fullPath: '/admin/theme-studio/$storeId'
+      preLoaderRoute: typeof AuthenticatedAdminThemeStudioStoreIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/store/$storeId/abc': {
@@ -5046,6 +5066,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminFrontendStoreIdRoute: typeof AuthenticatedAdminFrontendStoreIdRoute
   AuthenticatedAdminFrontendLandingRoute: typeof AuthenticatedAdminFrontendLandingRoute
   AuthenticatedAdminStoreStoreIdRoute: typeof AuthenticatedAdminStoreStoreIdRoute
+  AuthenticatedAdminThemeStudioStoreIdRoute: typeof AuthenticatedAdminThemeStudioStoreIdRoute
   AuthenticatedAdminFrontendIndexRoute: typeof AuthenticatedAdminFrontendIndexRoute
 }
 
@@ -5094,6 +5115,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminFrontendLandingRoute:
     AuthenticatedAdminFrontendLandingRoute,
   AuthenticatedAdminStoreStoreIdRoute: AuthenticatedAdminStoreStoreIdRoute,
+  AuthenticatedAdminThemeStudioStoreIdRoute:
+    AuthenticatedAdminThemeStudioStoreIdRoute,
   AuthenticatedAdminFrontendIndexRoute: AuthenticatedAdminFrontendIndexRoute,
 }
 
