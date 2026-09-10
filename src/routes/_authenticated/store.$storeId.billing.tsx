@@ -39,7 +39,7 @@ import {
 
 import {
   issueInvoiceForCycle,
-  markInvoicePaid,
+  
   setSubscriptionCancellation,
   upsertSubscription,
 } from "@/lib/subscription.functions";
@@ -82,7 +82,7 @@ function BillingPage() {
   const subscribeFn = useServerFn(upsertSubscription);
   const cancelFn = useServerFn(setSubscriptionCancellation);
   const invoiceFn = useServerFn(issueInvoiceForCycle);
-  const payFn = useServerFn(markInvoicePaid);
+  
 
   const refresh = () => {
     for (const key of [
@@ -150,14 +150,6 @@ function BillingPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const payMutation = useMutation({
-    mutationFn: (invoiceId: string) => payFn({ data: { storeId, invoiceId } }),
-    onSuccess: () => {
-      toast.success("Fatura ödendi olarak işaretlendi");
-      refresh();
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
 
   const activePlanId = subscription?.plan_id ?? store?.plan_id ?? null;
   const currentPlan = plans?.find((plan) => plan.id === activePlanId) ?? null;
@@ -447,14 +439,11 @@ function BillingPage() {
                       <span className="font-medium">
                         {formatMoney(Number(invoice.total ?? 0), invoice.currency)}
                       </span>
-                      {invoice.status !== "paid" ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={payMutation.isPending}
-                          onClick={() => payMutation.mutate(invoice.id)}
-                        >
-                          Ödendi işaretle
+                      {invoice.status !== "paid" && invoice.pay_token ? (
+                        <Button size="sm" variant="outline" asChild>
+                          <a href={`/fatura/${invoice.pay_token}`} target="_blank" rel="noreferrer">
+                            Öde
+                          </a>
                         </Button>
                       ) : null}
                     </div>
