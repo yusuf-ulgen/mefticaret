@@ -18,6 +18,7 @@ import { Route as EnIyiETicaretAltyapisiRouteImport } from './routes/en-iyi-e-ti
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as OdemeTamamRouteImport } from './routes/odeme-tamam'
 import { Route as PazaryeriEntegrasyonuRouteImport } from './routes/pazaryeri-entegrasyonu'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
@@ -239,6 +240,7 @@ import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/publ
 import { Route as ApiPublicMobileAppStoreSlugRouteImport } from './routes/api/public/mobile-app.$storeSlug'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments.webhook'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicRssSlugRouteImport } from './routes/api/public/rss.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
@@ -300,6 +302,11 @@ const LoginRoute = LoginRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OdemeTamamRoute = OdemeTamamRouteImport.update({
+  id: '/odeme-tamam',
+  path: '/odeme-tamam',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PazaryeriEntegrasyonuRoute = PazaryeriEntegrasyonuRouteImport.update({
@@ -1565,6 +1572,12 @@ const ApiPublicOauthTokenRoute = ApiPublicOauthTokenRouteImport.update({
   path: '/api/public/oauth/token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicRobotsSlugRoute = ApiPublicRobotsSlugRouteImport.update({
   id: '/api/public/robots/$slug',
   path: '/api/public/robots/$slug',
@@ -1668,6 +1681,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
@@ -1888,6 +1902,7 @@ export interface FileRoutesByFullPath {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -1916,6 +1931,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
@@ -2134,6 +2150,7 @@ export interface FileRoutesByTo {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -2164,6 +2181,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
@@ -2384,6 +2402,7 @@ export interface FileRoutesById {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -2414,6 +2433,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/mcp'
+    | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/sitemap-blog.xml'
@@ -2634,6 +2654,7 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
+    | '/api/public/payments/webhook'
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
@@ -2662,6 +2683,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/mcp'
+    | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/sitemap-blog.xml'
@@ -2880,6 +2902,7 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
+    | '/api/public/payments/webhook'
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
@@ -2909,6 +2932,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/mcp'
+    | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/sitemap-blog.xml'
@@ -3129,6 +3153,7 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
+    | '/api/public/payments/webhook'
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
@@ -3159,6 +3184,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
+  OdemeTamamRoute: typeof OdemeTamamRoute
   PazaryeriEntegrasyonuRoute: typeof PazaryeriEntegrasyonuRoute
   RegisterRoute: typeof RegisterRoute
   SitemapBlogDotxmlRoute: typeof SitemapBlogDotxmlRoute
@@ -3215,6 +3241,7 @@ export interface RootRouteChildren {
   ApiPublicMobileAppStoreSlugRoute: typeof ApiPublicMobileAppStoreSlugRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicRssSlugRoute: typeof ApiPublicRssSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
@@ -3291,6 +3318,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/odeme-tamam': {
+      id: '/odeme-tamam'
+      path: '/odeme-tamam'
+      fullPath: '/odeme-tamam'
+      preLoaderRoute: typeof OdemeTamamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pazaryeri-entegrasyonu': {
@@ -4840,6 +4874,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOauthTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/robots/$slug': {
       id: '/api/public/robots/$slug'
       path: '/api/public/robots/$slug'
@@ -5446,6 +5487,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
+  OdemeTamamRoute: OdemeTamamRoute,
   PazaryeriEntegrasyonuRoute: PazaryeriEntegrasyonuRoute,
   RegisterRoute: RegisterRoute,
   SitemapBlogDotxmlRoute: SitemapBlogDotxmlRoute,
@@ -5503,6 +5545,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMobileAppStoreSlugRoute: ApiPublicMobileAppStoreSlugRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicRssSlugRoute: ApiPublicRssSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
