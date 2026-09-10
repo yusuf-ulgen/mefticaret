@@ -120,7 +120,7 @@ export function StudioField({
           rows={field.kind === "code" ? 8 : field.kind === "lines" ? 5 : 3}
           spellCheck={field.kind === "textarea"}
           onChange={(event) => onChange(event.target.value)}
-          className={field.kind === "text" ? "" : field.kind === "code" ? "font-mono text-xs" : "text-sm"}
+          className={field.kind === "code" ? "font-mono text-xs" : "text-sm"}
         />
         {help}
       </div>
