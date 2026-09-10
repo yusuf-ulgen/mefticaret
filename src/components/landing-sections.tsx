@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -18,6 +19,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { getPublicAppShowcase } from "@/lib/app-showcase.functions";
+import { publicPlatformPostsQuery } from "@/lib/platform-blog-queries";
 import { sectionIcon, type SiteSection } from "@/lib/site-content";
 
 
@@ -179,7 +181,27 @@ export function PlatformCapabilitiesSection() {
 /* ------------------------------------- Blog ---------------------------------------- */
 
 export function BlogSection({ section }: { section: SiteSection | null }) {
+  const { data: posts } = useQuery(publicPlatformPostsQuery());
+  const [category, setCategory] = useState<string>("all");
+
+  const categories = useMemo(
+    () =>
+      [...new Set((posts ?? []).map((post) => (post.category ?? "").trim()).filter(Boolean))].sort(
+        (a, b) => a.localeCompare(b, "tr"),
+      ),
+    [posts],
+  );
+
+  const visible = useMemo(
+    () =>
+      (posts ?? [])
+        .filter((post) => category === "all" || (post.category ?? "") === category)
+        .slice(0, 6),
+    [posts, category],
+  );
+
   if (!section) return null;
+
   return (
     <section id="blog" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
       <div className="flex flex-wrap items-end justify-between gap-6">
@@ -190,17 +212,67 @@ export function BlogSection({ section }: { section: SiteSection | null }) {
           </h2>
           <p className="mt-5 max-w-xl text-muted-foreground">{section.subtitle}</p>
         </div>
+        <Button asChild variant="outline" className="rounded-full">
+          <Link to="/blog">
+            Tüm yazılar
+            <ArrowUpRight className="ml-1 size-4" />
+          </Link>
+        </Button>
       </div>
-      <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-        {section.items.map((post, index) => (
-          <article key={`${post["title"]}-${index}`} className="showcase-card flex flex-col p-6">
-            {post["tag"] ? <span className="eyebrow">{post["tag"]}</span> : null}
-            <h3 className="mt-4 text-lg font-semibold leading-snug">{post["title"]}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{post["text"]}</p>
-            <p className="mt-6 text-xs text-muted-foreground">{post["read"]}</p>
-          </article>
-        ))}
-      </div>
+
+      {categories.length > 0 ? (
+        <div className="mt-8 flex flex-wrap gap-2">
+          {["all", ...categories].map((item) => (
+            <Button
+              key={item}
+              type="button"
+              size="sm"
+              variant={category === item ? "default" : "outline"}
+              className="rounded-full"
+              onClick={() => setCategory(item)}
+            >
+              {item === "all" ? "Tümü" : item}
+            </Button>
+          ))}
+        </div>
+      ) : null}
+
+      {visible.length > 0 ? (
+        <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {visible.map((post) => (
+            <Link
+              key={post.slug}
+              to="/blog/$slug"
+              params={{ slug: post.slug }}
+              className="showcase-card group flex flex-col p-6"
+            >
+              {post.category ? <span className="eyebrow">{post.category}</span> : null}
+              <h3 className="mt-4 text-lg font-semibold leading-snug group-hover:underline">
+                {post.title}
+              </h3>
+              {post.excerpt ? (
+                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                  {post.excerpt}
+                </p>
+              ) : null}
+              <p className="mt-6 text-xs text-muted-foreground">
+                {post.author_name ?? "Mefticaret"}
+              </p>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {section.items.map((post, index) => (
+            <article key={`${post["title"]}-${index}`} className="showcase-card flex flex-col p-6">
+              {post["tag"] ? <span className="eyebrow">{post["tag"]}</span> : null}
+              <h3 className="mt-4 text-lg font-semibold leading-snug">{post["title"]}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{post["text"]}</p>
+              <p className="mt-6 text-xs text-muted-foreground">{post["read"]}</p>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

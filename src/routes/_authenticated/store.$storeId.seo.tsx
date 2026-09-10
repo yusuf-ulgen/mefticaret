@@ -2,7 +2,15 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ExternalLink, FileWarning, Gauge, Link2, Settings2, ShieldCheck } from "lucide-react";
+import {
+  ExternalLink,
+  FileText,
+  FileWarning,
+  Gauge,
+  Link2,
+  Settings2,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -14,6 +22,7 @@ import { SeoMetaTab } from "@/components/seo/seo-meta";
 import { SeoOverviewTab, type SeoCheck } from "@/components/seo/seo-overview";
 import { SeoRedirectsTab } from "@/components/seo/seo-redirects";
 import { seoTemplateDefaults, type SeoTemplateKey } from "@/components/seo/seo-shared";
+import { StorePagesSeoTab } from "@/components/seo/store-pages-seo";
 import { SeoUrlsTab } from "@/components/seo/seo-urls";
 import { storePagesQuery } from "@/lib/pages-queries";
 import { readStoreSeo, type StoreSeoSettings } from "@/lib/seo";
@@ -331,6 +340,9 @@ function SeoCenterPage() {
             <TabsTrigger value="meta" className="gap-2">
               <Settings2 className="h-4 w-4" /> Meta şablonları
             </TabsTrigger>
+            <TabsTrigger value="pages" className="gap-2">
+              <FileText className="h-4 w-4" /> Sayfa SEO
+            </TabsTrigger>
             <TabsTrigger value="urls" className="gap-2">
               <Link2 className="h-4 w-4" /> URL yapısı
             </TabsTrigger>
@@ -381,6 +393,16 @@ function SeoCenterPage() {
               save={() => saveMutation.mutate()}
             />
           </TabsContent>
+
+          <TabsContent value="pages">
+            <StorePagesSeoTab
+              storeId={storeId}
+              storeSlug={slug}
+              pages={pages ?? []}
+              origin={typeof window === "undefined" ? "https://mefticaret.com" : window.location.origin}
+            />
+          </TabsContent>
+
 
           <TabsContent value="urls">
             <SeoUrlsTab

@@ -32,6 +32,7 @@ const EMPTY = {
   seoDescription: "",
   status: "draft" as PostStatus,
   authorName: "Mefticaret Ekibi",
+  category: "",
   tags: "",
   isFeatured: false,
   sortOrder: 0,
@@ -80,21 +81,33 @@ export function PlatformBlogManager() {
   const [term, setTerm] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [newestFirst, setNewestFirst] = useState(true);
+  const [category, setCategory] = useState<string>("all");
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["platform-posts"] });
+
+  const categoryOptions = useMemo(
+    () =>
+      [...new Set((posts ?? []).map((post) => (post.category ?? "").trim()).filter(Boolean))].sort(
+        (a, b) => a.localeCompare(b, "tr"),
+      ),
+    [posts],
+  );
 
   const rows = useMemo(() => {
     const needle = term.trim().toLocaleLowerCase("tr");
     const list = (posts ?? []).filter((post) => {
       if (filter !== "all" && postStatus(post) !== filter) return false;
+      if (category !== "all" && (post.category ?? "") !== category) return false;
       if (!needle) return true;
-      return `${post.title} ${post.slug}`.toLocaleLowerCase("tr").includes(needle);
+      return `${post.title} ${post.slug} ${post.category ?? ""}`
+        .toLocaleLowerCase("tr")
+        .includes(needle);
     });
     return [...list].sort((a, b) => {
       const diff = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       return newestFirst ? diff : -diff;
     });
-  }, [posts, filter, term, newestFirst]);
+  }, [posts, filter, category, term, newestFirst]);
 
   const saveMutation = useMutation({
     mutationFn: () =>
@@ -111,6 +124,7 @@ export function PlatformBlogManager() {
           status: form.status,
           seoDescription: form.seoDescription || undefined,
           authorName: form.authorName || undefined,
+          category: form.category || undefined,
           tags: form.tags
             .split(",")
             .map((tag) => tag.trim())
@@ -172,6 +186,21 @@ export function PlatformBlogManager() {
                 {item.label}
               </Button>
             ))}
+            {categoryOptions.length > 0 ? (
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="h-9 w-40" aria-label="Kategoriye göre filtrele">
+                  <SelectValue placeholder="Kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tüm kategoriler</SelectItem>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : null}
           </div>
           <div className="flex items-center gap-2">
             {showSearch ? (
@@ -237,6 +266,7 @@ export function PlatformBlogManager() {
                       status: postStatus(post),
                       seoDescription: post.seo_description ?? "",
                       authorName: post.author_name ?? "",
+                      category: post.category ?? "",
                       tags: (post.tags ?? []).join(", "),
                       isFeatured: post.is_featured,
                       sortOrder: post.sort_order,
@@ -396,6 +426,21 @@ export function PlatformBlogManager() {
                   onChange={(event) => setForm((f) => ({ ...f, tags: event.target.value }))}
                   placeholder="e-ticaret, rehber"
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pb-category">Kategori</Label>
+                <Input
+                  id="pb-category"
+                  list="pb-category-options"
+                  value={form.category}
+                  onChange={(event) => setForm((f) => ({ ...f, category: event.target.value }))}
+                  placeholder="Rehberler"
+                />
+                <datalist id="pb-category-options">
+                  {categoryOptions.map((option) => (
+                    <option key={option} value={option} />
+                  ))}
+                </datalist>
               </div>
             </div>
 
