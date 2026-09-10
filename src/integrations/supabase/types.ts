@@ -6653,6 +6653,7 @@ export type Database = {
           author_name: string | null
           body: string
           canonical_url: string | null
+          category: string | null
           cover_url: string | null
           created_at: string
           excerpt: string | null
@@ -6674,6 +6675,7 @@ export type Database = {
           author_name?: string | null
           body?: string
           canonical_url?: string | null
+          category?: string | null
           cover_url?: string | null
           created_at?: string
           excerpt?: string | null
@@ -6695,6 +6697,7 @@ export type Database = {
           author_name?: string | null
           body?: string
           canonical_url?: string | null
+          category?: string | null
           cover_url?: string | null
           created_at?: string
           excerpt?: string | null
