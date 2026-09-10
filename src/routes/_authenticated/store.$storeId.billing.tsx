@@ -400,9 +400,14 @@ function BillingPage() {
                           }
                           disabled={
                             (active && subscription?.billing_interval === interval) ||
-                            subscribeMutation.isPending
+                            subscribeMutation.isPending ||
+                            checkoutMutation.isPending
                           }
-                          onClick={() => subscribeMutation.mutate(plan.id)}
+                          onClick={() =>
+                            isPaidPlanSlug(plan.code)
+                              ? checkoutMutation.mutate(plan.id)
+                              : subscribeMutation.mutate(plan.id)
+                          }
                         >
                           {active && subscription?.billing_interval === interval
                             ? "Mevcut abonelik"
