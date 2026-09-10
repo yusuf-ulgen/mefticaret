@@ -25,6 +25,7 @@ function AdminFrontendIndexPage() {
         emptyHint="Henüz mağaza yok. Mağazalar ekranından yeni bir mağaza oluşturabilirsin."
         links={[
           { path: "/admin/frontend/:id", label: "Vitrin editörü" },
+          { path: "/admin/theme-studio/:id", label: "Tema Stüdyosu" },
           { path: "/store/:id/theme-editor", label: "Tema & metinler" },
           { path: "/store/:id/pages", label: "Sayfalar" },
           { path: "/store/:id/blog", label: "Blog" },
