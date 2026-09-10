@@ -77,8 +77,10 @@ export async function applySubscriptionEvent(
   const storeId = customStoreId(event.customData);
   if (!storeId) return { handled: false };
 
-  const paddlePriceId = event.items?.[0]?.price?.id ?? null;
-  const externalId = paddlePriceId ? await readPriceExternalId(env, paddlePriceId) : null;
+  const item = event.items?.[0]?.price ?? null;
+  const externalId =
+    item?.importMeta?.externalId ??
+    (item?.id ? await readPriceExternalId(env, item.id) : null);
   const parsed = parsePlanPriceId(externalId);
   if (!parsed) return { handled: false, storeId };
 
