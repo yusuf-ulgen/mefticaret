@@ -14,14 +14,19 @@ export const Route = createFileRoute("/api/public/cron/subscription-renewal")({
         const denied = await authenticateCronRequest(request);
         if (denied) return denied;
 
-        const [{ supabaseAdmin }, { processBillingLifecycle }] = await Promise.all([
+        const [{ supabaseAdmin }, { processBillingLifecycle }, scheduled] = await Promise.all([
           import("@/integrations/supabase/client.server"),
           import("@/lib/billing-lifecycle.server"),
+          import("@/lib/paddle-subscriptions.server"),
         ]);
 
         try {
           const result = await processBillingLifecycle(supabaseAdmin);
-          return Response.json({ ok: true, ...result });
+          // Dönem sonuna gelen düşürme/iptal değişikliklerini uygular.
+          const changes = await scheduled.applyScheduledSubscriptionChanges(
+            supabaseAdmin as never,
+          );
+          return Response.json({ ok: true, ...result, ...changes });
         } catch (cause) {
           return Response.json(
             { error: cause instanceof Error ? cause.message : "unknown_error" },

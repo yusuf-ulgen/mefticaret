@@ -18,6 +18,7 @@ import { Route as EnIyiETicaretAltyapisiRouteImport } from './routes/en-iyi-e-ti
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as OdemeTamamRouteImport } from './routes/odeme-tamam'
 import { Route as PazaryeriEntegrasyonuRouteImport } from './routes/pazaryeri-entegrasyonu'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
@@ -301,6 +302,11 @@ const LoginRoute = LoginRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OdemeTamamRoute = OdemeTamamRouteImport.update({
+  id: '/odeme-tamam',
+  path: '/odeme-tamam',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PazaryeriEntegrasyonuRoute = PazaryeriEntegrasyonuRouteImport.update({
@@ -1675,6 +1681,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
@@ -1924,6 +1931,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
@@ -2173,6 +2181,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
@@ -2424,6 +2433,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/mcp'
+    | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/sitemap-blog.xml'
@@ -2673,6 +2683,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/mcp'
+    | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/sitemap-blog.xml'
@@ -2921,6 +2932,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/mcp'
+    | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/sitemap-blog.xml'
@@ -3172,6 +3184,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
+  OdemeTamamRoute: typeof OdemeTamamRoute
   PazaryeriEntegrasyonuRoute: typeof PazaryeriEntegrasyonuRoute
   RegisterRoute: typeof RegisterRoute
   SitemapBlogDotxmlRoute: typeof SitemapBlogDotxmlRoute
@@ -3305,6 +3318,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/odeme-tamam': {
+      id: '/odeme-tamam'
+      path: '/odeme-tamam'
+      fullPath: '/odeme-tamam'
+      preLoaderRoute: typeof OdemeTamamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pazaryeri-entegrasyonu': {
@@ -5467,6 +5487,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
+  OdemeTamamRoute: OdemeTamamRoute,
   PazaryeriEntegrasyonuRoute: PazaryeriEntegrasyonuRoute,
   RegisterRoute: RegisterRoute,
   SitemapBlogDotxmlRoute: SitemapBlogDotxmlRoute,
