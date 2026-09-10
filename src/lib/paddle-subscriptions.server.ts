@@ -23,7 +23,9 @@ type SubscriptionEvent = {
   customData?: unknown;
   scheduledChange?: { action?: string; effectiveAt?: string | null } | null;
   currentBillingPeriod?: { startsAt?: string | null; endsAt?: string | null } | null;
-  items?: Array<{ price?: { id?: string; productId?: string } | null }>;
+  items?: Array<{
+    price?: { id?: string; productId?: string; importMeta?: { externalId?: string | null } | null } | null;
+  }>;
 };
 
 const STATUS_MAP: Record<string, Database["public"]["Enums"]["subscription_status"]> = {
