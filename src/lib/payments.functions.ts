@@ -50,13 +50,13 @@ export const preparePlanCheckout = createServerFn({ method: "POST" })
 
     const { data: plan, error } = await supabase
       .from("plans")
-      .select("id, slug, name, currency, price_monthly, price_yearly, is_active")
+      .select("id, code, name, currency, price_monthly, price_yearly, is_active")
       .eq("id", data.planId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!plan || !plan.is_active) throw new Error("Paket bulunamadı");
 
-    const priceId = planPriceId(plan.slug, data.billingInterval);
+    const priceId = planPriceId(plan.code, data.billingInterval);
     if (!priceId) throw new Error("Bu paket için ödeme alınmıyor, lütfen bizimle iletişime geçin");
 
     const amount = Number(
