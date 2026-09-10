@@ -2,7 +2,7 @@ import { resolvePaddlePrice } from "@/lib/payments.functions";
 
 /** Paddle.js istemci yardımcıları (ödeme kasası açma için). */
 
-const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined;
+const clientToken = import.meta.env["VITE_PAYMENTS_CLIENT_TOKEN"] as string | undefined;
 
 declare global {
   interface Window {
