@@ -4928,6 +4928,45 @@ export type Database = {
           },
         ]
       }
+      migration_credentials: {
+        Row: {
+          created_at: string
+          credentials: Json
+          source_id: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credentials?: Json
+          source_id: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credentials?: Json
+          source_id?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "migration_credentials_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: true
+            referencedRelation: "migration_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "migration_credentials_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       migration_jobs: {
         Row: {
           created_at: string
