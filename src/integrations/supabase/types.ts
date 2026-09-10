@@ -10962,11 +10962,21 @@ export type Database = {
           currency: string
           current_period_end: string
           current_period_start: string
+          environment: string
           frozen_at: string | null
           id: string
           meta: Json
           past_due_since: string | null
           plan_id: string | null
+          provider: string
+          provider_customer_id: string | null
+          provider_price_id: string | null
+          provider_subscription_id: string | null
+          scheduled_change_at: string | null
+          scheduled_interval:
+            | Database["public"]["Enums"]["billing_interval"]
+            | null
+          scheduled_plan_id: string | null
           started_at: string
           status: Database["public"]["Enums"]["subscription_status"]
           store_id: string
@@ -10982,11 +10992,21 @@ export type Database = {
           currency?: string
           current_period_end?: string
           current_period_start?: string
+          environment?: string
           frozen_at?: string | null
           id?: string
           meta?: Json
           past_due_since?: string | null
           plan_id?: string | null
+          provider?: string
+          provider_customer_id?: string | null
+          provider_price_id?: string | null
+          provider_subscription_id?: string | null
+          scheduled_change_at?: string | null
+          scheduled_interval?:
+            | Database["public"]["Enums"]["billing_interval"]
+            | null
+          scheduled_plan_id?: string | null
           started_at?: string
           status?: Database["public"]["Enums"]["subscription_status"]
           store_id: string
@@ -11002,11 +11022,21 @@ export type Database = {
           currency?: string
           current_period_end?: string
           current_period_start?: string
+          environment?: string
           frozen_at?: string | null
           id?: string
           meta?: Json
           past_due_since?: string | null
           plan_id?: string | null
+          provider?: string
+          provider_customer_id?: string | null
+          provider_price_id?: string | null
+          provider_subscription_id?: string | null
+          scheduled_change_at?: string | null
+          scheduled_interval?:
+            | Database["public"]["Enums"]["billing_interval"]
+            | null
+          scheduled_plan_id?: string | null
           started_at?: string
           status?: Database["public"]["Enums"]["subscription_status"]
           store_id?: string
@@ -11017,6 +11047,13 @@ export type Database = {
           {
             foreignKeyName: "subscriptions_plan_id_fkey"
             columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_scheduled_plan_id_fkey"
+            columns: ["scheduled_plan_id"]
             isOneToOne: false
             referencedRelation: "plans"
             referencedColumns: ["id"]
