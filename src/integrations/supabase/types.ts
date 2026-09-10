@@ -4928,6 +4928,189 @@ export type Database = {
           },
         ]
       }
+      migration_jobs: {
+        Row: {
+          created_at: string
+          cursor: Json
+          finished_at: string | null
+          id: string
+          last_error: string | null
+          mode: string
+          sample: Json
+          scope: Json
+          source_id: string
+          started_at: string | null
+          status: string
+          store_id: string
+          totals: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cursor?: Json
+          finished_at?: string | null
+          id?: string
+          last_error?: string | null
+          mode?: string
+          sample?: Json
+          scope?: Json
+          source_id: string
+          started_at?: string | null
+          status?: string
+          store_id: string
+          totals?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cursor?: Json
+          finished_at?: string | null
+          id?: string
+          last_error?: string | null
+          mode?: string
+          sample?: Json
+          scope?: Json
+          source_id?: string
+          started_at?: string | null
+          status?: string
+          store_id?: string
+          totals?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "migration_jobs_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "migration_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "migration_jobs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      migration_records: {
+        Row: {
+          action: string
+          created_at: string
+          entity: string
+          external_id: string
+          id: string
+          job_id: string
+          local_id: string | null
+          message: string | null
+          source_id: string | null
+          store_id: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          entity: string
+          external_id: string
+          id?: string
+          job_id: string
+          local_id?: string | null
+          message?: string | null
+          source_id?: string | null
+          store_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity?: string
+          external_id?: string
+          id?: string
+          job_id?: string
+          local_id?: string | null
+          message?: string | null
+          source_id?: string | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "migration_records_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "migration_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "migration_records_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "migration_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "migration_records_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      migration_sources: {
+        Row: {
+          config_ref: string | null
+          created_at: string
+          id: string
+          label: string | null
+          last_error: string | null
+          last_run_at: string | null
+          options: Json
+          provider: string
+          scope: Json
+          shop_domain: string | null
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          config_ref?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          last_error?: string | null
+          last_run_at?: string | null
+          options?: Json
+          provider: string
+          scope?: Json
+          shop_domain?: string | null
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          config_ref?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          last_error?: string | null
+          last_run_at?: string | null
+          options?: Json
+          provider?: string
+          scope?: Json
+          shop_domain?: string | null
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "migration_sources_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mobile_app_configs: {
         Row: {
           created_at: string
