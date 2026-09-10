@@ -314,6 +314,7 @@ function BillingPage() {
           </TabsList>
 
           <TabsContent value="plans" className="space-y-4">
+            <PaymentTestModeBanner />
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm text-muted-foreground">Ödeme dönemi:</span>
               {(["monthly", "yearly"] as const).map((option) => (
