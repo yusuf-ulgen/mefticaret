@@ -6,6 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
+import { suppressClientAbort } from "./vite-plugins/suppress-client-abort";
 
 export default defineConfig({
   tanstackStart: {
@@ -22,6 +23,6 @@ export default defineConfig({
     prerender: { enabled: true, autoStaticPathsDiscovery: false },
   },
   vite: {
-    plugins: [mcpPlugin()],
+    plugins: [suppressClientAbort(), mcpPlugin()],
   },
 });

@@ -32,14 +32,15 @@ function install() {
   if (installed) return;
   installed = true;
 
+  // Gerçek hatalar diğer dinleyiciler/log kanalları tarafından raporlanmaya
+  // devam eder; burada sadece iptaller sessizce yutulur.
   process.on("uncaughtException", (error) => {
     if (isClientAbort(error)) return;
-    // Diğer dinleyiciler kendi işini yapar; burada yalnızca iptalleri filtreliyoruz.
-    throw error;
+    console.error(error);
   });
   process.on("unhandledRejection", (reason) => {
     if (isClientAbort(reason)) return;
-    throw reason;
+    console.error(reason);
   });
 
   // Bağlantı kopması izleri log akışına da yazılmasın.
