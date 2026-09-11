@@ -164,6 +164,7 @@ import { Route as AuthenticatedStoreStoreIdMarketplaceAnalyticsRouteImport } fro
 import { Route as AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport } from './routes/_authenticated/store.$storeId.marketplace-returns'
 import { Route as AuthenticatedStoreStoreIdMarketsPricingRouteImport } from './routes/_authenticated/store.$storeId.markets-pricing'
 import { Route as AuthenticatedStoreStoreIdMediaRouteImport } from './routes/_authenticated/store.$storeId.media'
+import { Route as AuthenticatedStoreStoreIdMigrationRouteImport } from './routes/_authenticated/store.$storeId.migration'
 import { Route as AuthenticatedStoreStoreIdMobileAppRouteImport } from './routes/_authenticated/store.$storeId.mobile-app'
 import { Route as AuthenticatedStoreStoreIdNavigationRouteImport } from './routes/_authenticated/store.$storeId.navigation'
 import { Route as AuthenticatedStoreStoreIdNotificationsRouteImport } from './routes/_authenticated/store.$storeId.notifications'
@@ -1122,6 +1123,12 @@ const AuthenticatedStoreStoreIdMediaRoute =
     path: '/store/$storeId/media',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdMigrationRoute =
+  AuthenticatedStoreStoreIdMigrationRouteImport.update({
+    id: '/store/$storeId/migration',
+    path: '/store/$storeId/migration',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStoreStoreIdMobileAppRoute =
   AuthenticatedStoreStoreIdMobileAppRouteImport.update({
     id: '/store/$storeId/mobile-app',
@@ -1833,6 +1840,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/store/$storeId/markets-pricing': typeof AuthenticatedStoreStoreIdMarketsPricingRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
+  '/store/$storeId/migration': typeof AuthenticatedStoreStoreIdMigrationRoute
   '/store/$storeId/mobile-app': typeof AuthenticatedStoreStoreIdMobileAppRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -2083,6 +2091,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/store/$storeId/markets-pricing': typeof AuthenticatedStoreStoreIdMarketsPricingRoute
   '/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
+  '/store/$storeId/migration': typeof AuthenticatedStoreStoreIdMigrationRoute
   '/store/$storeId/mobile-app': typeof AuthenticatedStoreStoreIdMobileAppRoute
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -2335,6 +2344,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/_authenticated/store/$storeId/markets-pricing': typeof AuthenticatedStoreStoreIdMarketsPricingRoute
   '/_authenticated/store/$storeId/media': typeof AuthenticatedStoreStoreIdMediaRoute
+  '/_authenticated/store/$storeId/migration': typeof AuthenticatedStoreStoreIdMigrationRoute
   '/_authenticated/store/$storeId/mobile-app': typeof AuthenticatedStoreStoreIdMobileAppRoute
   '/_authenticated/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/_authenticated/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -2588,6 +2598,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/marketplace-returns'
     | '/store/$storeId/markets-pricing'
     | '/store/$storeId/media'
+    | '/store/$storeId/migration'
     | '/store/$storeId/mobile-app'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
@@ -2838,6 +2849,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/marketplace-returns'
     | '/store/$storeId/markets-pricing'
     | '/store/$storeId/media'
+    | '/store/$storeId/migration'
     | '/store/$storeId/mobile-app'
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
@@ -3089,6 +3101,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/marketplace-returns'
     | '/_authenticated/store/$storeId/markets-pricing'
     | '/_authenticated/store/$storeId/media'
+    | '/_authenticated/store/$storeId/migration'
     | '/_authenticated/store/$storeId/mobile-app'
     | '/_authenticated/store/$storeId/navigation'
     | '/_authenticated/store/$storeId/notifications'
@@ -4355,6 +4368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMediaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId/migration': {
+      id: '/_authenticated/store/$storeId/migration'
+      path: '/store/$storeId/migration'
+      fullPath: '/store/$storeId/migration'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdMigrationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/store/$storeId/mobile-app': {
       id: '/_authenticated/store/$storeId/mobile-app'
       path: '/store/$storeId/mobile-app'
@@ -5239,6 +5259,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdMarketplaceReturnsRoute: typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   AuthenticatedStoreStoreIdMarketsPricingRoute: typeof AuthenticatedStoreStoreIdMarketsPricingRoute
   AuthenticatedStoreStoreIdMediaRoute: typeof AuthenticatedStoreStoreIdMediaRoute
+  AuthenticatedStoreStoreIdMigrationRoute: typeof AuthenticatedStoreStoreIdMigrationRoute
   AuthenticatedStoreStoreIdMobileAppRoute: typeof AuthenticatedStoreStoreIdMobileAppRoute
   AuthenticatedStoreStoreIdNavigationRoute: typeof AuthenticatedStoreStoreIdNavigationRoute
   AuthenticatedStoreStoreIdNotificationsRoute: typeof AuthenticatedStoreStoreIdNotificationsRoute
@@ -5394,6 +5415,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStoreStoreIdMarketsPricingRoute:
     AuthenticatedStoreStoreIdMarketsPricingRoute,
   AuthenticatedStoreStoreIdMediaRoute: AuthenticatedStoreStoreIdMediaRoute,
+  AuthenticatedStoreStoreIdMigrationRoute:
+    AuthenticatedStoreStoreIdMigrationRoute,
   AuthenticatedStoreStoreIdMobileAppRoute:
     AuthenticatedStoreStoreIdMobileAppRoute,
   AuthenticatedStoreStoreIdNavigationRoute:
