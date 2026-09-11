@@ -14,9 +14,15 @@ import { checkAdminPanelSession } from "@/lib/admin-auth.functions";
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async ({ location }) => {
     try {
-      const result = await checkPlatformAdminAccess({ data: { route: location.pathname } });
+      const [result, panel] = await Promise.all([
+        checkPlatformAdminAccess({ data: { route: location.pathname } }),
+        checkAdminPanelSession(),
+      ]);
 
       if (!result.allowed) throw redirect({ to: "/unauthorized" });
+      // Süper admin bölümü ayrıca kendi giriş akışını (şifre + tek kullanımlık
+      // kod) gerektirir; Supabase oturumu tek başına yeterli değildir.
+      if (!panel.allowed) throw redirect({ to: "/admin/login" });
       return { platformAdmin: true as const };
     } catch (error) {
       if (isRedirect(error)) throw error;
