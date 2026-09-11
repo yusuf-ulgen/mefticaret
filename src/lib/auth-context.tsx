@@ -70,9 +70,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let lastUserId: string | null = null;
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (!mounted) return;
+      const nextUserId = nextSession?.user?.id ?? null;
+      // Kullanıcı değiştiyse önceki hesabın önbelleği asla devralınmamalı.
+      if (nextUserId !== lastUserId) {
+        setProfile(null);
+        setPlatformRoles([]);
+        queryClient.clear();
+        lastUserId = nextUserId;
+      }
       setSession(nextSession);
       void load(nextSession);
     });
