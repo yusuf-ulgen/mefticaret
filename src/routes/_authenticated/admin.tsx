@@ -1,6 +1,7 @@
 import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-router";
 
 import { checkPlatformAdminAccess } from "@/lib/access-guard.functions";
+import { checkAdminPanelSession } from "@/lib/admin-auth.functions";
 
 /**
  * Süper admin bölümünün layout route'u.
