@@ -1,5 +1,7 @@
 import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-router";
 
+import { checkPlatformAdminAccess } from "@/lib/access-guard.functions";
+
 /**
  * Süper admin bölümünün layout route'u.
  *
@@ -11,8 +13,8 @@ import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-r
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async ({ location }) => {
     try {
-      const { checkPlatformAdminAccess } = await import("@/lib/access-guard.functions");
       const result = await checkPlatformAdminAccess({ data: { route: location.pathname } });
+
       if (!result.allowed) throw redirect({ to: "/unauthorized" });
       return { platformAdmin: true as const };
     } catch (error) {
