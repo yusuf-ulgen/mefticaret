@@ -31,7 +31,7 @@ export type AdminPanelSession = {
   userId?: string;
   email?: string;
   at?: number;
-  pendingSecret?: string;
+  pendingSecret?: string | undefined;
 };
 
 function sessionConfig() {
