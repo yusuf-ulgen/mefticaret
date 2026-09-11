@@ -37,7 +37,7 @@ export async function logSecurityEvent(entry: SecurityEventInput): Promise<void>
       severity: entry.severity,
       ip,
       user_agent: userAgent,
-      meta: entry.meta ?? {},
+      meta: JSON.parse(JSON.stringify(entry.meta ?? {})) as never,
     });
     if (error) console.error("security_events insert failed", error);
   } catch (error) {
