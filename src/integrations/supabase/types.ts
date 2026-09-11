@@ -112,6 +112,48 @@ export type Database = {
           },
         ]
       }
+      admin_panel_auth: {
+        Row: {
+          created_at: string
+          email: string
+          failed_attempts: number
+          id: string
+          last_login_at: string | null
+          last_login_ip: string | null
+          locked_until: string | null
+          totp_enrolled_at: string | null
+          totp_secret: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          failed_attempts?: number
+          id?: string
+          last_login_at?: string | null
+          last_login_ip?: string | null
+          locked_until?: string | null
+          totp_enrolled_at?: string | null
+          totp_secret?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          failed_attempts?: number
+          id?: string
+          last_login_at?: string | null
+          last_login_ip?: string | null
+          locked_until?: string | null
+          totp_enrolled_at?: string | null
+          totp_secret?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_content_drafts: {
         Row: {
           applied_at: string | null
