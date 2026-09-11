@@ -116,8 +116,8 @@ async function request(
           body = JSON.parse(text);
         } catch {
           const { parseFeedPayload } = await import("@/lib/dropshipping");
-          const kind = text.trimStart().startsWith("<") ? "xml" : "csv";
-          body = parseFeedPayload(text, kind as never, null);
+          const kind: "xml" | "csv" = text.trimStart().startsWith("<") ? "xml" : "csv";
+          body = parseFeedPayload(text, kind, null);
         }
       }
       return { body, headers: response.headers };
@@ -238,8 +238,7 @@ async function upsertCategory(
     parent_id: data.parentExternalId ? parents.get(data.parentExternalId) ?? null : null,
     sort_order: data.sortOrder,
     is_active: data.isActive,
-    seo_title: data.seoTitle,
-    seo_description: data.seoDescription,
+    seo: { title: data.seoTitle, description: data.seoDescription },
   };
   if (existing) {
     const { error } = await admin.from("categories").update(payload).eq("id", existing).eq("store_id", storeId);
@@ -277,10 +276,9 @@ async function upsertProduct(
     sku: data.sku,
     barcode: data.barcode,
     weight_grams: data.weightGrams,
-    tax_rate: data.taxRate,
+    tax_rate: data.taxRate ?? 0,
     category_id: categoryId,
-    seo_title: data.seoTitle,
-    seo_description: data.seoDescription,
+    seo: { title: data.seoTitle, description: data.seoDescription },
   };
 
   let productId = existing;
@@ -478,8 +476,8 @@ async function upsertContent(
     is_published: data.isPublished,
     status: data.isPublished ? "published" : "draft",
     published_at: data.publishedAt,
-    seo_title: data.seoTitle,
     seo_description: data.seoDescription,
+    seo: { title: data.seoTitle, description: data.seoDescription },
   };
   if (existing) {
     const { error } = await admin.from("store_pages").update(payload).eq("id", existing).eq("store_id", storeId);
