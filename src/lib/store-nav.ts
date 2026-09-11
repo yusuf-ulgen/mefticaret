@@ -102,6 +102,12 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Fiyatlandırma", to: p("pricing"), icon: Tags },
         { label: "Barkod Etiketi", to: p("barcodes"), icon: Barcode },
         { label: "İçe / Dışa Aktarma", to: p("import-export"), icon: FileSpreadsheet, keywords: "csv" },
+        {
+          label: "Mağaza Taşıma",
+          to: p("migration"),
+          icon: FileSpreadsheet,
+          keywords: "taşıma migration shopify ikas wix wordpress woocommerce ticimax shopier aktarım veri transfer",
+        },
       ],
     },
     {
