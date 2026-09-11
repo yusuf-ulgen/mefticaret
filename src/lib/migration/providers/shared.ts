@@ -204,16 +204,8 @@ export function genericNormalize(
         seoTitle: toStr(pickValue(raw, ["seo_title", "metaTitle", "meta_title"])),
         seoDescription: toStr(pickValue(raw, ["seo_description", "metaDescription", "meta_description"])),
         sourcePath: toStr(pickValue(raw, ["permalink", "link", "url"])),
-        ...(rawVariants.length === 0 ? {} : {}),
       },
-    } satisfies NormalizedRecord & { data: { variants: unknown[] } } extends never
-      ? never
-      : {
-          entity: "product";
-          data: import("../types").NormalizedProduct;
-        } as NormalizedRecord & { data: import("../types").NormalizedProduct } extends never
-      ? never
-      : NormalizedRecord;
+    };
   }
 
   if (entity === "customer") {
