@@ -27,6 +27,7 @@ import { Route as SitemapIndexDotxmlRouteImport } from './routes/sitemap-index[.
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapProductsDotxmlRouteImport } from './routes/sitemap-products[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -79,6 +80,7 @@ import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminWebhooksRouteImport } from './routes/_authenticated/admin.webhooks'
 import { Route as AuthenticatedOauthAuthorizeRouteImport } from './routes/_authenticated/oauth.authorize'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
+import { Route as AuthenticatedStoreStoreIdRouteImport } from './routes/_authenticated/store.$storeId'
 import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
 import { Route as ApiPublicOdealCallbackRouteImport } from './routes/api/public/odeal-callback'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
@@ -349,6 +351,11 @@ const SitemapProductsDotxmlRoute = SitemapProductsDotxmlRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnauthorizedRoute = UnauthorizedRouteImport.update({
+  id: '/unauthorized',
+  path: '/unauthorized',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
@@ -639,6 +646,12 @@ const AuthenticatedSellerSellerIdRoute =
     path: '/seller/$sellerId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStoreStoreIdRoute =
+  AuthenticatedStoreStoreIdRouteImport.update({
+    id: '/store/$storeId',
+    path: '/store/$storeId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicIndexnowRoute = ApiPublicIndexnowRouteImport.update({
   id: '/api/public/indexnow',
   path: '/api/public/indexnow',
@@ -801,699 +814,699 @@ const AuthenticatedAdminThemeStudioStoreIdRoute =
   } as any)
 const AuthenticatedStoreStoreIdAbcRoute =
   AuthenticatedStoreStoreIdAbcRouteImport.update({
-    id: '/store/$storeId/abc',
-    path: '/store/$storeId/abc',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/abc',
+    path: '/abc',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdActivityRoute =
   AuthenticatedStoreStoreIdActivityRouteImport.update({
-    id: '/store/$storeId/activity',
-    path: '/store/$storeId/activity',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdAgingRoute =
   AuthenticatedStoreStoreIdAgingRouteImport.update({
-    id: '/store/$storeId/aging',
-    path: '/store/$storeId/aging',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/aging',
+    path: '/aging',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdAiRoute =
   AuthenticatedStoreStoreIdAiRouteImport.update({
-    id: '/store/$storeId/ai',
-    path: '/store/$storeId/ai',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/ai',
+    path: '/ai',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdAiStudioRoute =
   AuthenticatedStoreStoreIdAiStudioRouteImport.update({
-    id: '/store/$storeId/ai-studio',
-    path: '/store/$storeId/ai-studio',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/ai-studio',
+    path: '/ai-studio',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdAnalyticsRoute =
   AuthenticatedStoreStoreIdAnalyticsRouteImport.update({
-    id: '/store/$storeId/analytics',
-    path: '/store/$storeId/analytics',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdApiRoute =
   AuthenticatedStoreStoreIdApiRouteImport.update({
-    id: '/store/$storeId/api',
-    path: '/store/$storeId/api',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/api',
+    path: '/api',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdAppsRoute =
   AuthenticatedStoreStoreIdAppsRouteImport.update({
-    id: '/store/$storeId/apps',
-    path: '/store/$storeId/apps',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/apps',
+    path: '/apps',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdAutomationsRoute =
   AuthenticatedStoreStoreIdAutomationsRouteImport.update({
-    id: '/store/$storeId/automations',
-    path: '/store/$storeId/automations',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/automations',
+    path: '/automations',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdBarcodesRoute =
   AuthenticatedStoreStoreIdBarcodesRouteImport.update({
-    id: '/store/$storeId/barcodes',
-    path: '/store/$storeId/barcodes',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/barcodes',
+    path: '/barcodes',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdBasketRoute =
   AuthenticatedStoreStoreIdBasketRouteImport.update({
-    id: '/store/$storeId/basket',
-    path: '/store/$storeId/basket',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/basket',
+    path: '/basket',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdBillingRoute =
   AuthenticatedStoreStoreIdBillingRouteImport.update({
-    id: '/store/$storeId/billing',
-    path: '/store/$storeId/billing',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/billing',
+    path: '/billing',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdBlogRoute =
   AuthenticatedStoreStoreIdBlogRouteImport.update({
-    id: '/store/$storeId/blog',
-    path: '/store/$storeId/blog',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/blog',
+    path: '/blog',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCampaignsRoute =
   AuthenticatedStoreStoreIdCampaignsRouteImport.update({
-    id: '/store/$storeId/campaigns',
-    path: '/store/$storeId/campaigns',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/campaigns',
+    path: '/campaigns',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCartsRoute =
   AuthenticatedStoreStoreIdCartsRouteImport.update({
-    id: '/store/$storeId/carts',
-    path: '/store/$storeId/carts',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/carts',
+    path: '/carts',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCashflowRoute =
   AuthenticatedStoreStoreIdCashflowRouteImport.update({
-    id: '/store/$storeId/cashflow',
-    path: '/store/$storeId/cashflow',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/cashflow',
+    path: '/cashflow',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdChannelsRoute =
   AuthenticatedStoreStoreIdChannelsRouteImport.update({
-    id: '/store/$storeId/channels',
-    path: '/store/$storeId/channels',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/channels',
+    path: '/channels',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCohortsRoute =
   AuthenticatedStoreStoreIdCohortsRouteImport.update({
-    id: '/store/$storeId/cohorts',
-    path: '/store/$storeId/cohorts',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/cohorts',
+    path: '/cohorts',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCollectionsRoute =
   AuthenticatedStoreStoreIdCollectionsRouteImport.update({
-    id: '/store/$storeId/collections',
-    path: '/store/$storeId/collections',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/collections',
+    path: '/collections',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCopilotRoute =
   AuthenticatedStoreStoreIdCopilotRouteImport.update({
-    id: '/store/$storeId/copilot',
-    path: '/store/$storeId/copilot',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/copilot',
+    path: '/copilot',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCustomerSegmentsRoute =
   AuthenticatedStoreStoreIdCustomerSegmentsRouteImport.update({
-    id: '/store/$storeId/customer-segments',
-    path: '/store/$storeId/customer-segments',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/customer-segments',
+    path: '/customer-segments',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCustomersRoute =
   AuthenticatedStoreStoreIdCustomersRouteImport.update({
-    id: '/store/$storeId/customers',
-    path: '/store/$storeId/customers',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/customers',
+    path: '/customers',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdDashboardRoute =
   AuthenticatedStoreStoreIdDashboardRouteImport.update({
-    id: '/store/$storeId/dashboard',
-    path: '/store/$storeId/dashboard',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdDiscountsRoute =
   AuthenticatedStoreStoreIdDiscountsRouteImport.update({
-    id: '/store/$storeId/discounts',
-    path: '/store/$storeId/discounts',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/discounts',
+    path: '/discounts',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdDomainsRoute =
   AuthenticatedStoreStoreIdDomainsRouteImport.update({
-    id: '/store/$storeId/domains',
-    path: '/store/$storeId/domains',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/domains',
+    path: '/domains',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdDropshippingRoute =
   AuthenticatedStoreStoreIdDropshippingRouteImport.update({
-    id: '/store/$storeId/dropshipping',
-    path: '/store/$storeId/dropshipping',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/dropshipping',
+    path: '/dropshipping',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdElasticityRoute =
   AuthenticatedStoreStoreIdElasticityRouteImport.update({
-    id: '/store/$storeId/elasticity',
-    path: '/store/$storeId/elasticity',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/elasticity',
+    path: '/elasticity',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdFacebookMarketplaceRoute =
   AuthenticatedStoreStoreIdFacebookMarketplaceRouteImport.update({
-    id: '/store/$storeId/facebook-marketplace',
-    path: '/store/$storeId/facebook-marketplace',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/facebook-marketplace',
+    path: '/facebook-marketplace',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdFeedsRoute =
   AuthenticatedStoreStoreIdFeedsRouteImport.update({
-    id: '/store/$storeId/feeds',
-    path: '/store/$storeId/feeds',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/feeds',
+    path: '/feeds',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdFinanceRoute =
   AuthenticatedStoreStoreIdFinanceRouteImport.update({
-    id: '/store/$storeId/finance',
-    path: '/store/$storeId/finance',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/finance',
+    path: '/finance',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdForecastRoute =
   AuthenticatedStoreStoreIdForecastRouteImport.update({
-    id: '/store/$storeId/forecast',
-    path: '/store/$storeId/forecast',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/forecast',
+    path: '/forecast',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdFunnelRoute =
   AuthenticatedStoreStoreIdFunnelRouteImport.update({
-    id: '/store/$storeId/funnel',
-    path: '/store/$storeId/funnel',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/funnel',
+    path: '/funnel',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdGeoRoute =
   AuthenticatedStoreStoreIdGeoRouteImport.update({
-    id: '/store/$storeId/geo',
-    path: '/store/$storeId/geo',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/geo',
+    path: '/geo',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdGiftCardsRoute =
   AuthenticatedStoreStoreIdGiftCardsRouteImport.update({
-    id: '/store/$storeId/gift-cards',
-    path: '/store/$storeId/gift-cards',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/gift-cards',
+    path: '/gift-cards',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdGiftLiabilityRoute =
   AuthenticatedStoreStoreIdGiftLiabilityRouteImport.update({
-    id: '/store/$storeId/gift-liability',
-    path: '/store/$storeId/gift-liability',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/gift-liability',
+    path: '/gift-liability',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdHealthRoute =
   AuthenticatedStoreStoreIdHealthRouteImport.update({
-    id: '/store/$storeId/health',
-    path: '/store/$storeId/health',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/health',
+    path: '/health',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdImportExportRoute =
   AuthenticatedStoreStoreIdImportExportRouteImport.update({
-    id: '/store/$storeId/import-export',
-    path: '/store/$storeId/import-export',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/import-export',
+    path: '/import-export',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdInboxRoute =
   AuthenticatedStoreStoreIdInboxRouteImport.update({
-    id: '/store/$storeId/inbox',
-    path: '/store/$storeId/inbox',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/inbox',
+    path: '/inbox',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdInstagramRoute =
   AuthenticatedStoreStoreIdInstagramRouteImport.update({
-    id: '/store/$storeId/instagram',
-    path: '/store/$storeId/instagram',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/instagram',
+    path: '/instagram',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdInventoryRoute =
   AuthenticatedStoreStoreIdInventoryRouteImport.update({
-    id: '/store/$storeId/inventory',
-    path: '/store/$storeId/inventory',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/inventory',
+    path: '/inventory',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdJobsRoute =
   AuthenticatedStoreStoreIdJobsRouteImport.update({
-    id: '/store/$storeId/jobs',
-    path: '/store/$storeId/jobs',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/jobs',
+    path: '/jobs',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdLanguagesRoute =
   AuthenticatedStoreStoreIdLanguagesRouteImport.update({
-    id: '/store/$storeId/languages',
-    path: '/store/$storeId/languages',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/languages',
+    path: '/languages',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdLedgerRoute =
   AuthenticatedStoreStoreIdLedgerRouteImport.update({
-    id: '/store/$storeId/ledger',
-    path: '/store/$storeId/ledger',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/ledger',
+    path: '/ledger',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdLifecycleRoute =
   AuthenticatedStoreStoreIdLifecycleRouteImport.update({
-    id: '/store/$storeId/lifecycle',
-    path: '/store/$storeId/lifecycle',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/lifecycle',
+    path: '/lifecycle',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdListingLinksRoute =
   AuthenticatedStoreStoreIdListingLinksRouteImport.update({
-    id: '/store/$storeId/listing-links',
-    path: '/store/$storeId/listing-links',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/listing-links',
+    path: '/listing-links',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdLiveRoute =
   AuthenticatedStoreStoreIdLiveRouteImport.update({
-    id: '/store/$storeId/live',
-    path: '/store/$storeId/live',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/live',
+    path: '/live',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdLocalizationRoute =
   AuthenticatedStoreStoreIdLocalizationRouteImport.update({
-    id: '/store/$storeId/localization',
-    path: '/store/$storeId/localization',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/localization',
+    path: '/localization',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdLossesRoute =
   AuthenticatedStoreStoreIdLossesRouteImport.update({
-    id: '/store/$storeId/losses',
-    path: '/store/$storeId/losses',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/losses',
+    path: '/losses',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdLtvRoute =
   AuthenticatedStoreStoreIdLtvRouteImport.update({
-    id: '/store/$storeId/ltv',
-    path: '/store/$storeId/ltv',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/ltv',
+    path: '/ltv',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdMarketingRoute =
   AuthenticatedStoreStoreIdMarketingRouteImport.update({
-    id: '/store/$storeId/marketing',
-    path: '/store/$storeId/marketing',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/marketing',
+    path: '/marketing',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute =
   AuthenticatedStoreStoreIdMarketplaceAnalyticsRouteImport.update({
-    id: '/store/$storeId/marketplace-analytics',
-    path: '/store/$storeId/marketplace-analytics',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/marketplace-analytics',
+    path: '/marketplace-analytics',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdMarketplaceReturnsRoute =
   AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport.update({
-    id: '/store/$storeId/marketplace-returns',
-    path: '/store/$storeId/marketplace-returns',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/marketplace-returns',
+    path: '/marketplace-returns',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdMarketsPricingRoute =
   AuthenticatedStoreStoreIdMarketsPricingRouteImport.update({
-    id: '/store/$storeId/markets-pricing',
-    path: '/store/$storeId/markets-pricing',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/markets-pricing',
+    path: '/markets-pricing',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdMediaRoute =
   AuthenticatedStoreStoreIdMediaRouteImport.update({
-    id: '/store/$storeId/media',
-    path: '/store/$storeId/media',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/media',
+    path: '/media',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdMigrationRoute =
   AuthenticatedStoreStoreIdMigrationRouteImport.update({
-    id: '/store/$storeId/migration',
-    path: '/store/$storeId/migration',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/migration',
+    path: '/migration',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdMobileAppRoute =
   AuthenticatedStoreStoreIdMobileAppRouteImport.update({
-    id: '/store/$storeId/mobile-app',
-    path: '/store/$storeId/mobile-app',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/mobile-app',
+    path: '/mobile-app',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdNavigationRoute =
   AuthenticatedStoreStoreIdNavigationRouteImport.update({
-    id: '/store/$storeId/navigation',
-    path: '/store/$storeId/navigation',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/navigation',
+    path: '/navigation',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdNotificationsRoute =
   AuthenticatedStoreStoreIdNotificationsRouteImport.update({
-    id: '/store/$storeId/notifications',
-    path: '/store/$storeId/notifications',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdOauthRoute =
   AuthenticatedStoreStoreIdOauthRouteImport.update({
-    id: '/store/$storeId/oauth',
-    path: '/store/$storeId/oauth',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/oauth',
+    path: '/oauth',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdOrdersRoute =
   AuthenticatedStoreStoreIdOrdersRouteImport.update({
-    id: '/store/$storeId/orders',
-    path: '/store/$storeId/orders',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdPagesRoute =
   AuthenticatedStoreStoreIdPagesRouteImport.update({
-    id: '/store/$storeId/pages',
-    path: '/store/$storeId/pages',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/pages',
+    path: '/pages',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdPaymentsRoute =
   AuthenticatedStoreStoreIdPaymentsRouteImport.update({
-    id: '/store/$storeId/payments',
-    path: '/store/$storeId/payments',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/payments',
+    path: '/payments',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdPopupsRoute =
   AuthenticatedStoreStoreIdPopupsRouteImport.update({
-    id: '/store/$storeId/popups',
-    path: '/store/$storeId/popups',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/popups',
+    path: '/popups',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdPricingRoute =
   AuthenticatedStoreStoreIdPricingRouteImport.update({
-    id: '/store/$storeId/pricing',
-    path: '/store/$storeId/pricing',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/pricing',
+    path: '/pricing',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdProductsRoute =
   AuthenticatedStoreStoreIdProductsRouteImport.update({
-    id: '/store/$storeId/products',
-    path: '/store/$storeId/products',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/products',
+    path: '/products',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdProfitRoute =
   AuthenticatedStoreStoreIdProfitRouteImport.update({
-    id: '/store/$storeId/profit',
-    path: '/store/$storeId/profit',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/profit',
+    path: '/profit',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdPurchasingRoute =
   AuthenticatedStoreStoreIdPurchasingRouteImport.update({
-    id: '/store/$storeId/purchasing',
-    path: '/store/$storeId/purchasing',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/purchasing',
+    path: '/purchasing',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdQuestionsRoute =
   AuthenticatedStoreStoreIdQuestionsRouteImport.update({
-    id: '/store/$storeId/questions',
-    path: '/store/$storeId/questions',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/questions',
+    path: '/questions',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdReceivablesRoute =
   AuthenticatedStoreStoreIdReceivablesRouteImport.update({
-    id: '/store/$storeId/receivables',
-    path: '/store/$storeId/receivables',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/receivables',
+    path: '/receivables',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdReorderRoute =
   AuthenticatedStoreStoreIdReorderRouteImport.update({
-    id: '/store/$storeId/reorder',
-    path: '/store/$storeId/reorder',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/reorder',
+    path: '/reorder',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdReportMonthlyRoute =
   AuthenticatedStoreStoreIdReportMonthlyRouteImport.update({
-    id: '/store/$storeId/report-monthly',
-    path: '/store/$storeId/report-monthly',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/report-monthly',
+    path: '/report-monthly',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdReportsRoute =
   AuthenticatedStoreStoreIdReportsRouteImport.update({
-    id: '/store/$storeId/reports',
-    path: '/store/$storeId/reports',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdRepurchaseRoute =
   AuthenticatedStoreStoreIdRepurchaseRouteImport.update({
-    id: '/store/$storeId/repurchase',
-    path: '/store/$storeId/repurchase',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/repurchase',
+    path: '/repurchase',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdReturnsRoute =
   AuthenticatedStoreStoreIdReturnsRouteImport.update({
-    id: '/store/$storeId/returns',
-    path: '/store/$storeId/returns',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/returns',
+    path: '/returns',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdReturnsAnalyticsRoute =
   AuthenticatedStoreStoreIdReturnsAnalyticsRouteImport.update({
-    id: '/store/$storeId/returns-analytics',
-    path: '/store/$storeId/returns-analytics',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/returns-analytics',
+    path: '/returns-analytics',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdReviewImpactRoute =
   AuthenticatedStoreStoreIdReviewImpactRouteImport.update({
-    id: '/store/$storeId/review-impact',
-    path: '/store/$storeId/review-impact',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/review-impact',
+    path: '/review-impact',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdReviewsRoute =
   AuthenticatedStoreStoreIdReviewsRouteImport.update({
-    id: '/store/$storeId/reviews',
-    path: '/store/$storeId/reviews',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/reviews',
+    path: '/reviews',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSecurityRoute =
   AuthenticatedStoreStoreIdSecurityRouteImport.update({
-    id: '/store/$storeId/security',
-    path: '/store/$storeId/security',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/security',
+    path: '/security',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSegmentsRoute =
   AuthenticatedStoreStoreIdSegmentsRouteImport.update({
-    id: '/store/$storeId/segments',
-    path: '/store/$storeId/segments',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/segments',
+    path: '/segments',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSellersRoute =
   AuthenticatedStoreStoreIdSellersRouteImport.update({
-    id: '/store/$storeId/sellers',
-    path: '/store/$storeId/sellers',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/sellers',
+    path: '/sellers',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSeoRoute =
   AuthenticatedStoreStoreIdSeoRouteImport.update({
-    id: '/store/$storeId/seo',
-    path: '/store/$storeId/seo',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/seo',
+    path: '/seo',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSeoEditorRoute =
   AuthenticatedStoreStoreIdSeoEditorRouteImport.update({
-    id: '/store/$storeId/seo-editor',
-    path: '/store/$storeId/seo-editor',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/seo-editor',
+    path: '/seo-editor',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSettingsRoute =
   AuthenticatedStoreStoreIdSettingsRouteImport.update({
-    id: '/store/$storeId/settings',
-    path: '/store/$storeId/settings',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSettlementsRoute =
   AuthenticatedStoreStoreIdSettlementsRouteImport.update({
-    id: '/store/$storeId/settlements',
-    path: '/store/$storeId/settlements',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/settlements',
+    path: '/settlements',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdShipmentsRoute =
   AuthenticatedStoreStoreIdShipmentsRouteImport.update({
-    id: '/store/$storeId/shipments',
-    path: '/store/$storeId/shipments',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/shipments',
+    path: '/shipments',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdShippingRoute =
   AuthenticatedStoreStoreIdShippingRouteImport.update({
-    id: '/store/$storeId/shipping',
-    path: '/store/$storeId/shipping',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/shipping',
+    path: '/shipping',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdShippingEconomicsRoute =
   AuthenticatedStoreStoreIdShippingEconomicsRouteImport.update({
-    id: '/store/$storeId/shipping-economics',
-    path: '/store/$storeId/shipping-economics',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/shipping-economics',
+    path: '/shipping-economics',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdShippingPerformanceRoute =
   AuthenticatedStoreStoreIdShippingPerformanceRouteImport.update({
-    id: '/store/$storeId/shipping-performance',
-    path: '/store/$storeId/shipping-performance',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/shipping-performance',
+    path: '/shipping-performance',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSimulatorRoute =
   AuthenticatedStoreStoreIdSimulatorRouteImport.update({
-    id: '/store/$storeId/simulator',
-    path: '/store/$storeId/simulator',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/simulator',
+    path: '/simulator',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSiteKitRoute =
   AuthenticatedStoreStoreIdSiteKitRouteImport.update({
-    id: '/store/$storeId/site-kit',
-    path: '/store/$storeId/site-kit',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/site-kit',
+    path: '/site-kit',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSlaRoute =
   AuthenticatedStoreStoreIdSlaRouteImport.update({
-    id: '/store/$storeId/sla',
-    path: '/store/$storeId/sla',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/sla',
+    path: '/sla',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSocialShareRoute =
   AuthenticatedStoreStoreIdSocialShareRouteImport.update({
-    id: '/store/$storeId/social-share',
-    path: '/store/$storeId/social-share',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/social-share',
+    path: '/social-share',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdStatisticsRoute =
   AuthenticatedStoreStoreIdStatisticsRouteImport.update({
-    id: '/store/$storeId/statistics',
-    path: '/store/$storeId/statistics',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/statistics',
+    path: '/statistics',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdStockAlertsRoute =
   AuthenticatedStoreStoreIdStockAlertsRouteImport.update({
-    id: '/store/$storeId/stock-alerts',
-    path: '/store/$storeId/stock-alerts',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/stock-alerts',
+    path: '/stock-alerts',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdStockCountRoute =
   AuthenticatedStoreStoreIdStockCountRouteImport.update({
-    id: '/store/$storeId/stock-count',
-    path: '/store/$storeId/stock-count',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/stock-count',
+    path: '/stock-count',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdStockoutRoute =
   AuthenticatedStoreStoreIdStockoutRouteImport.update({
-    id: '/store/$storeId/stockout',
-    path: '/store/$storeId/stockout',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/stockout',
+    path: '/stockout',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSupplierPerformanceRoute =
   AuthenticatedStoreStoreIdSupplierPerformanceRouteImport.update({
-    id: '/store/$storeId/supplier-performance',
-    path: '/store/$storeId/supplier-performance',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/supplier-performance',
+    path: '/supplier-performance',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSupportRoute =
   AuthenticatedStoreStoreIdSupportRouteImport.update({
-    id: '/store/$storeId/support',
-    path: '/store/$storeId/support',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/support',
+    path: '/support',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdSupportPerformanceRoute =
   AuthenticatedStoreStoreIdSupportPerformanceRouteImport.update({
-    id: '/store/$storeId/support-performance',
-    path: '/store/$storeId/support-performance',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/support-performance',
+    path: '/support-performance',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdTasksRoute =
   AuthenticatedStoreStoreIdTasksRouteImport.update({
-    id: '/store/$storeId/tasks',
-    path: '/store/$storeId/tasks',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/tasks',
+    path: '/tasks',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdTaxRoute =
   AuthenticatedStoreStoreIdTaxRouteImport.update({
-    id: '/store/$storeId/tax',
-    path: '/store/$storeId/tax',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/tax',
+    path: '/tax',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdTeamRoute =
   AuthenticatedStoreStoreIdTeamRouteImport.update({
-    id: '/store/$storeId/team',
-    path: '/store/$storeId/team',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/team',
+    path: '/team',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdTeamPerformanceRoute =
   AuthenticatedStoreStoreIdTeamPerformanceRouteImport.update({
-    id: '/store/$storeId/team-performance',
-    path: '/store/$storeId/team-performance',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/team-performance',
+    path: '/team-performance',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdThemeDesignRoute =
   AuthenticatedStoreStoreIdThemeDesignRouteImport.update({
-    id: '/store/$storeId/theme-design',
-    path: '/store/$storeId/theme-design',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/theme-design',
+    path: '/theme-design',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdThemeEditorRoute =
   AuthenticatedStoreStoreIdThemeEditorRouteImport.update({
-    id: '/store/$storeId/theme-editor',
-    path: '/store/$storeId/theme-editor',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/theme-editor',
+    path: '/theme-editor',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdThemeSectionsRoute =
   AuthenticatedStoreStoreIdThemeSectionsRouteImport.update({
-    id: '/store/$storeId/theme-sections',
-    path: '/store/$storeId/theme-sections',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/theme-sections',
+    path: '/theme-sections',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdThemeStoreRoute =
   AuthenticatedStoreStoreIdThemeStoreRouteImport.update({
-    id: '/store/$storeId/theme-store',
-    path: '/store/$storeId/theme-store',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/theme-store',
+    path: '/theme-store',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdThemesRoute =
   AuthenticatedStoreStoreIdThemesRouteImport.update({
-    id: '/store/$storeId/themes',
-    path: '/store/$storeId/themes',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/themes',
+    path: '/themes',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdTiktokRoute =
   AuthenticatedStoreStoreIdTiktokRouteImport.update({
-    id: '/store/$storeId/tiktok',
-    path: '/store/$storeId/tiktok',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/tiktok',
+    path: '/tiktok',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdTransfersRoute =
   AuthenticatedStoreStoreIdTransfersRouteImport.update({
-    id: '/store/$storeId/transfers',
-    path: '/store/$storeId/transfers',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/transfers',
+    path: '/transfers',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdValuationRoute =
   AuthenticatedStoreStoreIdValuationRouteImport.update({
-    id: '/store/$storeId/valuation',
-    path: '/store/$storeId/valuation',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/valuation',
+    path: '/valuation',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdVendorsRoute =
   AuthenticatedStoreStoreIdVendorsRouteImport.update({
-    id: '/store/$storeId/vendors',
-    path: '/store/$storeId/vendors',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/vendors',
+    path: '/vendors',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdWarehousesRoute =
   AuthenticatedStoreStoreIdWarehousesRouteImport.update({
-    id: '/store/$storeId/warehouses',
-    path: '/store/$storeId/warehouses',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/warehouses',
+    path: '/warehouses',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdWebhooksRoute =
   AuthenticatedStoreStoreIdWebhooksRouteImport.update({
-    id: '/store/$storeId/webhooks',
-    path: '/store/$storeId/webhooks',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/webhooks',
+    path: '/webhooks',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdWhatsappRoute =
   AuthenticatedStoreStoreIdWhatsappRouteImport.update({
-    id: '/store/$storeId/whatsapp',
-    path: '/store/$storeId/whatsapp',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/whatsapp',
+    path: '/whatsapp',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdXmlFeedRoute =
   AuthenticatedStoreStoreIdXmlFeedRouteImport.update({
-    id: '/store/$storeId/xml-feed',
-    path: '/store/$storeId/xml-feed',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/xml-feed',
+    path: '/xml-feed',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const ApiPublicBlogCoverSplatRoute = ApiPublicBlogCoverSplatRouteImport.update({
   id: '/api/public/blog-cover/$',
@@ -1704,6 +1717,7 @@ export interface FileRoutesByFullPath {
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -1755,6 +1769,7 @@ export interface FileRoutesByFullPath {
   '/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
@@ -1956,6 +1971,7 @@ export interface FileRoutesByTo {
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
@@ -2006,6 +2022,7 @@ export interface FileRoutesByTo {
   '/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
@@ -2208,6 +2225,7 @@ export interface FileRoutesById {
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -2259,6 +2277,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
   '/_authenticated/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/_authenticated/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
@@ -2462,6 +2481,7 @@ export interface FileRouteTypes {
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
     | '/sitemap.xml'
+    | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
     | '/onboarding'
@@ -2513,6 +2533,7 @@ export interface FileRouteTypes {
     | '/admin/webhooks'
     | '/oauth/authorize'
     | '/seller/$sellerId'
+    | '/store/$storeId'
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
     | '/api/v1/$'
@@ -2714,6 +2735,7 @@ export interface FileRouteTypes {
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
     | '/sitemap.xml'
+    | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
     | '/onboarding'
     | '/sellers'
@@ -2764,6 +2786,7 @@ export interface FileRouteTypes {
     | '/admin/webhooks'
     | '/oauth/authorize'
     | '/seller/$sellerId'
+    | '/store/$storeId'
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
     | '/api/v1/$'
@@ -2965,6 +2988,7 @@ export interface FileRouteTypes {
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
     | '/sitemap.xml'
+    | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
     | '/_authenticated/onboarding'
@@ -3016,6 +3040,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/webhooks'
     | '/_authenticated/oauth/authorize'
     | '/_authenticated/seller/$sellerId'
+    | '/_authenticated/store/$storeId'
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
     | '/api/v1/$'
@@ -3219,6 +3244,7 @@ export interface RootRouteChildren {
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapProductsDotxmlRoute: typeof SitemapProductsDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  UnauthorizedRoute: typeof UnauthorizedRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   BlogSlugRoute: typeof BlogSlugRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
@@ -3407,6 +3433,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unauthorized': {
+      id: '/unauthorized'
+      path: '/unauthorized'
+      fullPath: '/unauthorized'
+      preLoaderRoute: typeof UnauthorizedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/oauth-protected-resource': {
@@ -3773,6 +3806,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSellerSellerIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/store/$storeId': {
+      id: '/_authenticated/store/$storeId'
+      path: '/store/$storeId'
+      fullPath: '/store/$storeId'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/indexnow': {
       id: '/api/public/indexnow'
       path: '/api/public/indexnow'
@@ -3992,815 +4032,815 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/store/$storeId/abc': {
       id: '/_authenticated/store/$storeId/abc'
-      path: '/store/$storeId/abc'
+      path: '/abc'
       fullPath: '/store/$storeId/abc'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAbcRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/activity': {
       id: '/_authenticated/store/$storeId/activity'
-      path: '/store/$storeId/activity'
+      path: '/activity'
       fullPath: '/store/$storeId/activity'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdActivityRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/aging': {
       id: '/_authenticated/store/$storeId/aging'
-      path: '/store/$storeId/aging'
+      path: '/aging'
       fullPath: '/store/$storeId/aging'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAgingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/ai': {
       id: '/_authenticated/store/$storeId/ai'
-      path: '/store/$storeId/ai'
+      path: '/ai'
       fullPath: '/store/$storeId/ai'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAiRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/ai-studio': {
       id: '/_authenticated/store/$storeId/ai-studio'
-      path: '/store/$storeId/ai-studio'
+      path: '/ai-studio'
       fullPath: '/store/$storeId/ai-studio'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAiStudioRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/analytics': {
       id: '/_authenticated/store/$storeId/analytics'
-      path: '/store/$storeId/analytics'
+      path: '/analytics'
       fullPath: '/store/$storeId/analytics'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAnalyticsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/api': {
       id: '/_authenticated/store/$storeId/api'
-      path: '/store/$storeId/api'
+      path: '/api'
       fullPath: '/store/$storeId/api'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdApiRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/apps': {
       id: '/_authenticated/store/$storeId/apps'
-      path: '/store/$storeId/apps'
+      path: '/apps'
       fullPath: '/store/$storeId/apps'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAppsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/automations': {
       id: '/_authenticated/store/$storeId/automations'
-      path: '/store/$storeId/automations'
+      path: '/automations'
       fullPath: '/store/$storeId/automations'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdAutomationsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/barcodes': {
       id: '/_authenticated/store/$storeId/barcodes'
-      path: '/store/$storeId/barcodes'
+      path: '/barcodes'
       fullPath: '/store/$storeId/barcodes'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdBarcodesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/basket': {
       id: '/_authenticated/store/$storeId/basket'
-      path: '/store/$storeId/basket'
+      path: '/basket'
       fullPath: '/store/$storeId/basket'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdBasketRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/billing': {
       id: '/_authenticated/store/$storeId/billing'
-      path: '/store/$storeId/billing'
+      path: '/billing'
       fullPath: '/store/$storeId/billing'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdBillingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/blog': {
       id: '/_authenticated/store/$storeId/blog'
-      path: '/store/$storeId/blog'
+      path: '/blog'
       fullPath: '/store/$storeId/blog'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdBlogRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/campaigns': {
       id: '/_authenticated/store/$storeId/campaigns'
-      path: '/store/$storeId/campaigns'
+      path: '/campaigns'
       fullPath: '/store/$storeId/campaigns'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCampaignsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/carts': {
       id: '/_authenticated/store/$storeId/carts'
-      path: '/store/$storeId/carts'
+      path: '/carts'
       fullPath: '/store/$storeId/carts'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCartsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/cashflow': {
       id: '/_authenticated/store/$storeId/cashflow'
-      path: '/store/$storeId/cashflow'
+      path: '/cashflow'
       fullPath: '/store/$storeId/cashflow'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCashflowRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/channels': {
       id: '/_authenticated/store/$storeId/channels'
-      path: '/store/$storeId/channels'
+      path: '/channels'
       fullPath: '/store/$storeId/channels'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdChannelsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/cohorts': {
       id: '/_authenticated/store/$storeId/cohorts'
-      path: '/store/$storeId/cohorts'
+      path: '/cohorts'
       fullPath: '/store/$storeId/cohorts'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCohortsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/collections': {
       id: '/_authenticated/store/$storeId/collections'
-      path: '/store/$storeId/collections'
+      path: '/collections'
       fullPath: '/store/$storeId/collections'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCollectionsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/copilot': {
       id: '/_authenticated/store/$storeId/copilot'
-      path: '/store/$storeId/copilot'
+      path: '/copilot'
       fullPath: '/store/$storeId/copilot'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCopilotRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/customer-segments': {
       id: '/_authenticated/store/$storeId/customer-segments'
-      path: '/store/$storeId/customer-segments'
+      path: '/customer-segments'
       fullPath: '/store/$storeId/customer-segments'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCustomerSegmentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/customers': {
       id: '/_authenticated/store/$storeId/customers'
-      path: '/store/$storeId/customers'
+      path: '/customers'
       fullPath: '/store/$storeId/customers'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCustomersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/dashboard': {
       id: '/_authenticated/store/$storeId/dashboard'
-      path: '/store/$storeId/dashboard'
+      path: '/dashboard'
       fullPath: '/store/$storeId/dashboard'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/discounts': {
       id: '/_authenticated/store/$storeId/discounts'
-      path: '/store/$storeId/discounts'
+      path: '/discounts'
       fullPath: '/store/$storeId/discounts'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdDiscountsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/domains': {
       id: '/_authenticated/store/$storeId/domains'
-      path: '/store/$storeId/domains'
+      path: '/domains'
       fullPath: '/store/$storeId/domains'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdDomainsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/dropshipping': {
       id: '/_authenticated/store/$storeId/dropshipping'
-      path: '/store/$storeId/dropshipping'
+      path: '/dropshipping'
       fullPath: '/store/$storeId/dropshipping'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdDropshippingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/elasticity': {
       id: '/_authenticated/store/$storeId/elasticity'
-      path: '/store/$storeId/elasticity'
+      path: '/elasticity'
       fullPath: '/store/$storeId/elasticity'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdElasticityRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/facebook-marketplace': {
       id: '/_authenticated/store/$storeId/facebook-marketplace'
-      path: '/store/$storeId/facebook-marketplace'
+      path: '/facebook-marketplace'
       fullPath: '/store/$storeId/facebook-marketplace'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdFacebookMarketplaceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/feeds': {
       id: '/_authenticated/store/$storeId/feeds'
-      path: '/store/$storeId/feeds'
+      path: '/feeds'
       fullPath: '/store/$storeId/feeds'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdFeedsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/finance': {
       id: '/_authenticated/store/$storeId/finance'
-      path: '/store/$storeId/finance'
+      path: '/finance'
       fullPath: '/store/$storeId/finance'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdFinanceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/forecast': {
       id: '/_authenticated/store/$storeId/forecast'
-      path: '/store/$storeId/forecast'
+      path: '/forecast'
       fullPath: '/store/$storeId/forecast'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdForecastRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/funnel': {
       id: '/_authenticated/store/$storeId/funnel'
-      path: '/store/$storeId/funnel'
+      path: '/funnel'
       fullPath: '/store/$storeId/funnel'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdFunnelRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/geo': {
       id: '/_authenticated/store/$storeId/geo'
-      path: '/store/$storeId/geo'
+      path: '/geo'
       fullPath: '/store/$storeId/geo'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdGeoRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/gift-cards': {
       id: '/_authenticated/store/$storeId/gift-cards'
-      path: '/store/$storeId/gift-cards'
+      path: '/gift-cards'
       fullPath: '/store/$storeId/gift-cards'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdGiftCardsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/gift-liability': {
       id: '/_authenticated/store/$storeId/gift-liability'
-      path: '/store/$storeId/gift-liability'
+      path: '/gift-liability'
       fullPath: '/store/$storeId/gift-liability'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdGiftLiabilityRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/health': {
       id: '/_authenticated/store/$storeId/health'
-      path: '/store/$storeId/health'
+      path: '/health'
       fullPath: '/store/$storeId/health'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdHealthRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/import-export': {
       id: '/_authenticated/store/$storeId/import-export'
-      path: '/store/$storeId/import-export'
+      path: '/import-export'
       fullPath: '/store/$storeId/import-export'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdImportExportRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/inbox': {
       id: '/_authenticated/store/$storeId/inbox'
-      path: '/store/$storeId/inbox'
+      path: '/inbox'
       fullPath: '/store/$storeId/inbox'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdInboxRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/instagram': {
       id: '/_authenticated/store/$storeId/instagram'
-      path: '/store/$storeId/instagram'
+      path: '/instagram'
       fullPath: '/store/$storeId/instagram'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdInstagramRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/inventory': {
       id: '/_authenticated/store/$storeId/inventory'
-      path: '/store/$storeId/inventory'
+      path: '/inventory'
       fullPath: '/store/$storeId/inventory'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdInventoryRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/jobs': {
       id: '/_authenticated/store/$storeId/jobs'
-      path: '/store/$storeId/jobs'
+      path: '/jobs'
       fullPath: '/store/$storeId/jobs'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdJobsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/languages': {
       id: '/_authenticated/store/$storeId/languages'
-      path: '/store/$storeId/languages'
+      path: '/languages'
       fullPath: '/store/$storeId/languages'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLanguagesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/ledger': {
       id: '/_authenticated/store/$storeId/ledger'
-      path: '/store/$storeId/ledger'
+      path: '/ledger'
       fullPath: '/store/$storeId/ledger'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLedgerRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/lifecycle': {
       id: '/_authenticated/store/$storeId/lifecycle'
-      path: '/store/$storeId/lifecycle'
+      path: '/lifecycle'
       fullPath: '/store/$storeId/lifecycle'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLifecycleRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/listing-links': {
       id: '/_authenticated/store/$storeId/listing-links'
-      path: '/store/$storeId/listing-links'
+      path: '/listing-links'
       fullPath: '/store/$storeId/listing-links'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdListingLinksRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/live': {
       id: '/_authenticated/store/$storeId/live'
-      path: '/store/$storeId/live'
+      path: '/live'
       fullPath: '/store/$storeId/live'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLiveRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/localization': {
       id: '/_authenticated/store/$storeId/localization'
-      path: '/store/$storeId/localization'
+      path: '/localization'
       fullPath: '/store/$storeId/localization'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLocalizationRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/losses': {
       id: '/_authenticated/store/$storeId/losses'
-      path: '/store/$storeId/losses'
+      path: '/losses'
       fullPath: '/store/$storeId/losses'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLossesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/ltv': {
       id: '/_authenticated/store/$storeId/ltv'
-      path: '/store/$storeId/ltv'
+      path: '/ltv'
       fullPath: '/store/$storeId/ltv'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdLtvRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/marketing': {
       id: '/_authenticated/store/$storeId/marketing'
-      path: '/store/$storeId/marketing'
+      path: '/marketing'
       fullPath: '/store/$storeId/marketing'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/marketplace-analytics': {
       id: '/_authenticated/store/$storeId/marketplace-analytics'
-      path: '/store/$storeId/marketplace-analytics'
+      path: '/marketplace-analytics'
       fullPath: '/store/$storeId/marketplace-analytics'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketplaceAnalyticsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/marketplace-returns': {
       id: '/_authenticated/store/$storeId/marketplace-returns'
-      path: '/store/$storeId/marketplace-returns'
+      path: '/marketplace-returns'
       fullPath: '/store/$storeId/marketplace-returns'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/markets-pricing': {
       id: '/_authenticated/store/$storeId/markets-pricing'
-      path: '/store/$storeId/markets-pricing'
+      path: '/markets-pricing'
       fullPath: '/store/$storeId/markets-pricing'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketsPricingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/media': {
       id: '/_authenticated/store/$storeId/media'
-      path: '/store/$storeId/media'
+      path: '/media'
       fullPath: '/store/$storeId/media'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMediaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/migration': {
       id: '/_authenticated/store/$storeId/migration'
-      path: '/store/$storeId/migration'
+      path: '/migration'
       fullPath: '/store/$storeId/migration'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMigrationRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/mobile-app': {
       id: '/_authenticated/store/$storeId/mobile-app'
-      path: '/store/$storeId/mobile-app'
+      path: '/mobile-app'
       fullPath: '/store/$storeId/mobile-app'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMobileAppRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/navigation': {
       id: '/_authenticated/store/$storeId/navigation'
-      path: '/store/$storeId/navigation'
+      path: '/navigation'
       fullPath: '/store/$storeId/navigation'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdNavigationRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/notifications': {
       id: '/_authenticated/store/$storeId/notifications'
-      path: '/store/$storeId/notifications'
+      path: '/notifications'
       fullPath: '/store/$storeId/notifications'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdNotificationsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/oauth': {
       id: '/_authenticated/store/$storeId/oauth'
-      path: '/store/$storeId/oauth'
+      path: '/oauth'
       fullPath: '/store/$storeId/oauth'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdOauthRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/orders': {
       id: '/_authenticated/store/$storeId/orders'
-      path: '/store/$storeId/orders'
+      path: '/orders'
       fullPath: '/store/$storeId/orders'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdOrdersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/pages': {
       id: '/_authenticated/store/$storeId/pages'
-      path: '/store/$storeId/pages'
+      path: '/pages'
       fullPath: '/store/$storeId/pages'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdPagesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/payments': {
       id: '/_authenticated/store/$storeId/payments'
-      path: '/store/$storeId/payments'
+      path: '/payments'
       fullPath: '/store/$storeId/payments'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdPaymentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/popups': {
       id: '/_authenticated/store/$storeId/popups'
-      path: '/store/$storeId/popups'
+      path: '/popups'
       fullPath: '/store/$storeId/popups'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdPopupsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/pricing': {
       id: '/_authenticated/store/$storeId/pricing'
-      path: '/store/$storeId/pricing'
+      path: '/pricing'
       fullPath: '/store/$storeId/pricing'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdPricingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/products': {
       id: '/_authenticated/store/$storeId/products'
-      path: '/store/$storeId/products'
+      path: '/products'
       fullPath: '/store/$storeId/products'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdProductsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/profit': {
       id: '/_authenticated/store/$storeId/profit'
-      path: '/store/$storeId/profit'
+      path: '/profit'
       fullPath: '/store/$storeId/profit'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdProfitRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/purchasing': {
       id: '/_authenticated/store/$storeId/purchasing'
-      path: '/store/$storeId/purchasing'
+      path: '/purchasing'
       fullPath: '/store/$storeId/purchasing'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdPurchasingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/questions': {
       id: '/_authenticated/store/$storeId/questions'
-      path: '/store/$storeId/questions'
+      path: '/questions'
       fullPath: '/store/$storeId/questions'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdQuestionsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/receivables': {
       id: '/_authenticated/store/$storeId/receivables'
-      path: '/store/$storeId/receivables'
+      path: '/receivables'
       fullPath: '/store/$storeId/receivables'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdReceivablesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/reorder': {
       id: '/_authenticated/store/$storeId/reorder'
-      path: '/store/$storeId/reorder'
+      path: '/reorder'
       fullPath: '/store/$storeId/reorder'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdReorderRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/report-monthly': {
       id: '/_authenticated/store/$storeId/report-monthly'
-      path: '/store/$storeId/report-monthly'
+      path: '/report-monthly'
       fullPath: '/store/$storeId/report-monthly'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdReportMonthlyRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/reports': {
       id: '/_authenticated/store/$storeId/reports'
-      path: '/store/$storeId/reports'
+      path: '/reports'
       fullPath: '/store/$storeId/reports'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdReportsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/repurchase': {
       id: '/_authenticated/store/$storeId/repurchase'
-      path: '/store/$storeId/repurchase'
+      path: '/repurchase'
       fullPath: '/store/$storeId/repurchase'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdRepurchaseRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/returns': {
       id: '/_authenticated/store/$storeId/returns'
-      path: '/store/$storeId/returns'
+      path: '/returns'
       fullPath: '/store/$storeId/returns'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdReturnsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/returns-analytics': {
       id: '/_authenticated/store/$storeId/returns-analytics'
-      path: '/store/$storeId/returns-analytics'
+      path: '/returns-analytics'
       fullPath: '/store/$storeId/returns-analytics'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdReturnsAnalyticsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/review-impact': {
       id: '/_authenticated/store/$storeId/review-impact'
-      path: '/store/$storeId/review-impact'
+      path: '/review-impact'
       fullPath: '/store/$storeId/review-impact'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdReviewImpactRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/reviews': {
       id: '/_authenticated/store/$storeId/reviews'
-      path: '/store/$storeId/reviews'
+      path: '/reviews'
       fullPath: '/store/$storeId/reviews'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdReviewsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/security': {
       id: '/_authenticated/store/$storeId/security'
-      path: '/store/$storeId/security'
+      path: '/security'
       fullPath: '/store/$storeId/security'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSecurityRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/segments': {
       id: '/_authenticated/store/$storeId/segments'
-      path: '/store/$storeId/segments'
+      path: '/segments'
       fullPath: '/store/$storeId/segments'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSegmentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/sellers': {
       id: '/_authenticated/store/$storeId/sellers'
-      path: '/store/$storeId/sellers'
+      path: '/sellers'
       fullPath: '/store/$storeId/sellers'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSellersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/seo': {
       id: '/_authenticated/store/$storeId/seo'
-      path: '/store/$storeId/seo'
+      path: '/seo'
       fullPath: '/store/$storeId/seo'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSeoRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/seo-editor': {
       id: '/_authenticated/store/$storeId/seo-editor'
-      path: '/store/$storeId/seo-editor'
+      path: '/seo-editor'
       fullPath: '/store/$storeId/seo-editor'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSeoEditorRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/settings': {
       id: '/_authenticated/store/$storeId/settings'
-      path: '/store/$storeId/settings'
+      path: '/settings'
       fullPath: '/store/$storeId/settings'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/settlements': {
       id: '/_authenticated/store/$storeId/settlements'
-      path: '/store/$storeId/settlements'
+      path: '/settlements'
       fullPath: '/store/$storeId/settlements'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSettlementsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/shipments': {
       id: '/_authenticated/store/$storeId/shipments'
-      path: '/store/$storeId/shipments'
+      path: '/shipments'
       fullPath: '/store/$storeId/shipments'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdShipmentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/shipping': {
       id: '/_authenticated/store/$storeId/shipping'
-      path: '/store/$storeId/shipping'
+      path: '/shipping'
       fullPath: '/store/$storeId/shipping'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdShippingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/shipping-economics': {
       id: '/_authenticated/store/$storeId/shipping-economics'
-      path: '/store/$storeId/shipping-economics'
+      path: '/shipping-economics'
       fullPath: '/store/$storeId/shipping-economics'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdShippingEconomicsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/shipping-performance': {
       id: '/_authenticated/store/$storeId/shipping-performance'
-      path: '/store/$storeId/shipping-performance'
+      path: '/shipping-performance'
       fullPath: '/store/$storeId/shipping-performance'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdShippingPerformanceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/simulator': {
       id: '/_authenticated/store/$storeId/simulator'
-      path: '/store/$storeId/simulator'
+      path: '/simulator'
       fullPath: '/store/$storeId/simulator'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSimulatorRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/site-kit': {
       id: '/_authenticated/store/$storeId/site-kit'
-      path: '/store/$storeId/site-kit'
+      path: '/site-kit'
       fullPath: '/store/$storeId/site-kit'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSiteKitRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/sla': {
       id: '/_authenticated/store/$storeId/sla'
-      path: '/store/$storeId/sla'
+      path: '/sla'
       fullPath: '/store/$storeId/sla'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSlaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/social-share': {
       id: '/_authenticated/store/$storeId/social-share'
-      path: '/store/$storeId/social-share'
+      path: '/social-share'
       fullPath: '/store/$storeId/social-share'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSocialShareRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/statistics': {
       id: '/_authenticated/store/$storeId/statistics'
-      path: '/store/$storeId/statistics'
+      path: '/statistics'
       fullPath: '/store/$storeId/statistics'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdStatisticsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/stock-alerts': {
       id: '/_authenticated/store/$storeId/stock-alerts'
-      path: '/store/$storeId/stock-alerts'
+      path: '/stock-alerts'
       fullPath: '/store/$storeId/stock-alerts'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdStockAlertsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/stock-count': {
       id: '/_authenticated/store/$storeId/stock-count'
-      path: '/store/$storeId/stock-count'
+      path: '/stock-count'
       fullPath: '/store/$storeId/stock-count'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdStockCountRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/stockout': {
       id: '/_authenticated/store/$storeId/stockout'
-      path: '/store/$storeId/stockout'
+      path: '/stockout'
       fullPath: '/store/$storeId/stockout'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdStockoutRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/supplier-performance': {
       id: '/_authenticated/store/$storeId/supplier-performance'
-      path: '/store/$storeId/supplier-performance'
+      path: '/supplier-performance'
       fullPath: '/store/$storeId/supplier-performance'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSupplierPerformanceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/support': {
       id: '/_authenticated/store/$storeId/support'
-      path: '/store/$storeId/support'
+      path: '/support'
       fullPath: '/store/$storeId/support'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSupportRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/support-performance': {
       id: '/_authenticated/store/$storeId/support-performance'
-      path: '/store/$storeId/support-performance'
+      path: '/support-performance'
       fullPath: '/store/$storeId/support-performance'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSupportPerformanceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/tasks': {
       id: '/_authenticated/store/$storeId/tasks'
-      path: '/store/$storeId/tasks'
+      path: '/tasks'
       fullPath: '/store/$storeId/tasks'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdTasksRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/tax': {
       id: '/_authenticated/store/$storeId/tax'
-      path: '/store/$storeId/tax'
+      path: '/tax'
       fullPath: '/store/$storeId/tax'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdTaxRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/team': {
       id: '/_authenticated/store/$storeId/team'
-      path: '/store/$storeId/team'
+      path: '/team'
       fullPath: '/store/$storeId/team'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdTeamRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/team-performance': {
       id: '/_authenticated/store/$storeId/team-performance'
-      path: '/store/$storeId/team-performance'
+      path: '/team-performance'
       fullPath: '/store/$storeId/team-performance'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdTeamPerformanceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/theme-design': {
       id: '/_authenticated/store/$storeId/theme-design'
-      path: '/store/$storeId/theme-design'
+      path: '/theme-design'
       fullPath: '/store/$storeId/theme-design'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeDesignRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/theme-editor': {
       id: '/_authenticated/store/$storeId/theme-editor'
-      path: '/store/$storeId/theme-editor'
+      path: '/theme-editor'
       fullPath: '/store/$storeId/theme-editor'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeEditorRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/theme-sections': {
       id: '/_authenticated/store/$storeId/theme-sections'
-      path: '/store/$storeId/theme-sections'
+      path: '/theme-sections'
       fullPath: '/store/$storeId/theme-sections'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeSectionsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/theme-store': {
       id: '/_authenticated/store/$storeId/theme-store'
-      path: '/store/$storeId/theme-store'
+      path: '/theme-store'
       fullPath: '/store/$storeId/theme-store'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeStoreRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/themes': {
       id: '/_authenticated/store/$storeId/themes'
-      path: '/store/$storeId/themes'
+      path: '/themes'
       fullPath: '/store/$storeId/themes'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdThemesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/tiktok': {
       id: '/_authenticated/store/$storeId/tiktok'
-      path: '/store/$storeId/tiktok'
+      path: '/tiktok'
       fullPath: '/store/$storeId/tiktok'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdTiktokRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/transfers': {
       id: '/_authenticated/store/$storeId/transfers'
-      path: '/store/$storeId/transfers'
+      path: '/transfers'
       fullPath: '/store/$storeId/transfers'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdTransfersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/valuation': {
       id: '/_authenticated/store/$storeId/valuation'
-      path: '/store/$storeId/valuation'
+      path: '/valuation'
       fullPath: '/store/$storeId/valuation'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdValuationRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/vendors': {
       id: '/_authenticated/store/$storeId/vendors'
-      path: '/store/$storeId/vendors'
+      path: '/vendors'
       fullPath: '/store/$storeId/vendors'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdVendorsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/warehouses': {
       id: '/_authenticated/store/$storeId/warehouses'
-      path: '/store/$storeId/warehouses'
+      path: '/warehouses'
       fullPath: '/store/$storeId/warehouses'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdWarehousesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/webhooks': {
       id: '/_authenticated/store/$storeId/webhooks'
-      path: '/store/$storeId/webhooks'
+      path: '/webhooks'
       fullPath: '/store/$storeId/webhooks'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdWebhooksRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/whatsapp': {
       id: '/_authenticated/store/$storeId/whatsapp'
-      path: '/store/$storeId/whatsapp'
+      path: '/whatsapp'
       fullPath: '/store/$storeId/whatsapp'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdWhatsappRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/xml-feed': {
       id: '/_authenticated/store/$storeId/xml-feed'
-      path: '/store/$storeId/xml-feed'
+      path: '/xml-feed'
       fullPath: '/store/$storeId/xml-feed'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdXmlFeedRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/api/public/blog-cover/$': {
       id: '/api/public/blog-cover/$'
@@ -5197,14 +5237,7 @@ const AuthenticatedStoreStoreIdProductsRouteWithChildren =
     AuthenticatedStoreStoreIdProductsRouteChildren,
   )
 
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
-  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
-  AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
-  AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
-  AuthenticatedSupplierRoute: typeof AuthenticatedSupplierRoute
-  AuthenticatedOauthAuthorizeRoute: typeof AuthenticatedOauthAuthorizeRoute
-  AuthenticatedSellerSellerIdRoute: typeof AuthenticatedSellerSellerIdRoute
+interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdAbcRoute: typeof AuthenticatedStoreStoreIdAbcRoute
   AuthenticatedStoreStoreIdActivityRoute: typeof AuthenticatedStoreStoreIdActivityRoute
   AuthenticatedStoreStoreIdAgingRoute: typeof AuthenticatedStoreStoreIdAgingRoute
@@ -5323,6 +5356,228 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStoreStoreIdXmlFeedRoute: typeof AuthenticatedStoreStoreIdXmlFeedRoute
 }
 
+const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChildren =
+  {
+    AuthenticatedStoreStoreIdAbcRoute: AuthenticatedStoreStoreIdAbcRoute,
+    AuthenticatedStoreStoreIdActivityRoute:
+      AuthenticatedStoreStoreIdActivityRoute,
+    AuthenticatedStoreStoreIdAgingRoute: AuthenticatedStoreStoreIdAgingRoute,
+    AuthenticatedStoreStoreIdAiRoute: AuthenticatedStoreStoreIdAiRoute,
+    AuthenticatedStoreStoreIdAiStudioRoute:
+      AuthenticatedStoreStoreIdAiStudioRoute,
+    AuthenticatedStoreStoreIdAnalyticsRoute:
+      AuthenticatedStoreStoreIdAnalyticsRoute,
+    AuthenticatedStoreStoreIdApiRoute: AuthenticatedStoreStoreIdApiRoute,
+    AuthenticatedStoreStoreIdAppsRoute: AuthenticatedStoreStoreIdAppsRoute,
+    AuthenticatedStoreStoreIdAutomationsRoute:
+      AuthenticatedStoreStoreIdAutomationsRoute,
+    AuthenticatedStoreStoreIdBarcodesRoute:
+      AuthenticatedStoreStoreIdBarcodesRoute,
+    AuthenticatedStoreStoreIdBasketRoute: AuthenticatedStoreStoreIdBasketRoute,
+    AuthenticatedStoreStoreIdBillingRoute:
+      AuthenticatedStoreStoreIdBillingRoute,
+    AuthenticatedStoreStoreIdBlogRoute: AuthenticatedStoreStoreIdBlogRoute,
+    AuthenticatedStoreStoreIdCampaignsRoute:
+      AuthenticatedStoreStoreIdCampaignsRoute,
+    AuthenticatedStoreStoreIdCartsRoute: AuthenticatedStoreStoreIdCartsRoute,
+    AuthenticatedStoreStoreIdCashflowRoute:
+      AuthenticatedStoreStoreIdCashflowRoute,
+    AuthenticatedStoreStoreIdChannelsRoute:
+      AuthenticatedStoreStoreIdChannelsRoute,
+    AuthenticatedStoreStoreIdCohortsRoute:
+      AuthenticatedStoreStoreIdCohortsRoute,
+    AuthenticatedStoreStoreIdCollectionsRoute:
+      AuthenticatedStoreStoreIdCollectionsRoute,
+    AuthenticatedStoreStoreIdCopilotRoute:
+      AuthenticatedStoreStoreIdCopilotRoute,
+    AuthenticatedStoreStoreIdCustomerSegmentsRoute:
+      AuthenticatedStoreStoreIdCustomerSegmentsRoute,
+    AuthenticatedStoreStoreIdCustomersRoute:
+      AuthenticatedStoreStoreIdCustomersRouteWithChildren,
+    AuthenticatedStoreStoreIdDashboardRoute:
+      AuthenticatedStoreStoreIdDashboardRoute,
+    AuthenticatedStoreStoreIdDiscountsRoute:
+      AuthenticatedStoreStoreIdDiscountsRoute,
+    AuthenticatedStoreStoreIdDomainsRoute:
+      AuthenticatedStoreStoreIdDomainsRoute,
+    AuthenticatedStoreStoreIdDropshippingRoute:
+      AuthenticatedStoreStoreIdDropshippingRoute,
+    AuthenticatedStoreStoreIdElasticityRoute:
+      AuthenticatedStoreStoreIdElasticityRoute,
+    AuthenticatedStoreStoreIdFacebookMarketplaceRoute:
+      AuthenticatedStoreStoreIdFacebookMarketplaceRoute,
+    AuthenticatedStoreStoreIdFeedsRoute: AuthenticatedStoreStoreIdFeedsRoute,
+    AuthenticatedStoreStoreIdFinanceRoute:
+      AuthenticatedStoreStoreIdFinanceRoute,
+    AuthenticatedStoreStoreIdForecastRoute:
+      AuthenticatedStoreStoreIdForecastRoute,
+    AuthenticatedStoreStoreIdFunnelRoute: AuthenticatedStoreStoreIdFunnelRoute,
+    AuthenticatedStoreStoreIdGeoRoute: AuthenticatedStoreStoreIdGeoRoute,
+    AuthenticatedStoreStoreIdGiftCardsRoute:
+      AuthenticatedStoreStoreIdGiftCardsRoute,
+    AuthenticatedStoreStoreIdGiftLiabilityRoute:
+      AuthenticatedStoreStoreIdGiftLiabilityRoute,
+    AuthenticatedStoreStoreIdHealthRoute: AuthenticatedStoreStoreIdHealthRoute,
+    AuthenticatedStoreStoreIdImportExportRoute:
+      AuthenticatedStoreStoreIdImportExportRoute,
+    AuthenticatedStoreStoreIdInboxRoute: AuthenticatedStoreStoreIdInboxRoute,
+    AuthenticatedStoreStoreIdInstagramRoute:
+      AuthenticatedStoreStoreIdInstagramRoute,
+    AuthenticatedStoreStoreIdInventoryRoute:
+      AuthenticatedStoreStoreIdInventoryRoute,
+    AuthenticatedStoreStoreIdJobsRoute: AuthenticatedStoreStoreIdJobsRoute,
+    AuthenticatedStoreStoreIdLanguagesRoute:
+      AuthenticatedStoreStoreIdLanguagesRoute,
+    AuthenticatedStoreStoreIdLedgerRoute: AuthenticatedStoreStoreIdLedgerRoute,
+    AuthenticatedStoreStoreIdLifecycleRoute:
+      AuthenticatedStoreStoreIdLifecycleRoute,
+    AuthenticatedStoreStoreIdListingLinksRoute:
+      AuthenticatedStoreStoreIdListingLinksRoute,
+    AuthenticatedStoreStoreIdLiveRoute: AuthenticatedStoreStoreIdLiveRoute,
+    AuthenticatedStoreStoreIdLocalizationRoute:
+      AuthenticatedStoreStoreIdLocalizationRoute,
+    AuthenticatedStoreStoreIdLossesRoute: AuthenticatedStoreStoreIdLossesRoute,
+    AuthenticatedStoreStoreIdLtvRoute: AuthenticatedStoreStoreIdLtvRoute,
+    AuthenticatedStoreStoreIdMarketingRoute:
+      AuthenticatedStoreStoreIdMarketingRoute,
+    AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute:
+      AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute,
+    AuthenticatedStoreStoreIdMarketplaceReturnsRoute:
+      AuthenticatedStoreStoreIdMarketplaceReturnsRoute,
+    AuthenticatedStoreStoreIdMarketsPricingRoute:
+      AuthenticatedStoreStoreIdMarketsPricingRoute,
+    AuthenticatedStoreStoreIdMediaRoute: AuthenticatedStoreStoreIdMediaRoute,
+    AuthenticatedStoreStoreIdMigrationRoute:
+      AuthenticatedStoreStoreIdMigrationRoute,
+    AuthenticatedStoreStoreIdMobileAppRoute:
+      AuthenticatedStoreStoreIdMobileAppRoute,
+    AuthenticatedStoreStoreIdNavigationRoute:
+      AuthenticatedStoreStoreIdNavigationRoute,
+    AuthenticatedStoreStoreIdNotificationsRoute:
+      AuthenticatedStoreStoreIdNotificationsRoute,
+    AuthenticatedStoreStoreIdOauthRoute: AuthenticatedStoreStoreIdOauthRoute,
+    AuthenticatedStoreStoreIdOrdersRoute:
+      AuthenticatedStoreStoreIdOrdersRouteWithChildren,
+    AuthenticatedStoreStoreIdPagesRoute: AuthenticatedStoreStoreIdPagesRoute,
+    AuthenticatedStoreStoreIdPaymentsRoute:
+      AuthenticatedStoreStoreIdPaymentsRoute,
+    AuthenticatedStoreStoreIdPopupsRoute: AuthenticatedStoreStoreIdPopupsRoute,
+    AuthenticatedStoreStoreIdPricingRoute:
+      AuthenticatedStoreStoreIdPricingRoute,
+    AuthenticatedStoreStoreIdProductsRoute:
+      AuthenticatedStoreStoreIdProductsRouteWithChildren,
+    AuthenticatedStoreStoreIdProfitRoute: AuthenticatedStoreStoreIdProfitRoute,
+    AuthenticatedStoreStoreIdPurchasingRoute:
+      AuthenticatedStoreStoreIdPurchasingRoute,
+    AuthenticatedStoreStoreIdQuestionsRoute:
+      AuthenticatedStoreStoreIdQuestionsRoute,
+    AuthenticatedStoreStoreIdReceivablesRoute:
+      AuthenticatedStoreStoreIdReceivablesRoute,
+    AuthenticatedStoreStoreIdReorderRoute:
+      AuthenticatedStoreStoreIdReorderRoute,
+    AuthenticatedStoreStoreIdReportMonthlyRoute:
+      AuthenticatedStoreStoreIdReportMonthlyRoute,
+    AuthenticatedStoreStoreIdReportsRoute:
+      AuthenticatedStoreStoreIdReportsRoute,
+    AuthenticatedStoreStoreIdRepurchaseRoute:
+      AuthenticatedStoreStoreIdRepurchaseRoute,
+    AuthenticatedStoreStoreIdReturnsRoute:
+      AuthenticatedStoreStoreIdReturnsRoute,
+    AuthenticatedStoreStoreIdReturnsAnalyticsRoute:
+      AuthenticatedStoreStoreIdReturnsAnalyticsRoute,
+    AuthenticatedStoreStoreIdReviewImpactRoute:
+      AuthenticatedStoreStoreIdReviewImpactRoute,
+    AuthenticatedStoreStoreIdReviewsRoute:
+      AuthenticatedStoreStoreIdReviewsRoute,
+    AuthenticatedStoreStoreIdSecurityRoute:
+      AuthenticatedStoreStoreIdSecurityRoute,
+    AuthenticatedStoreStoreIdSegmentsRoute:
+      AuthenticatedStoreStoreIdSegmentsRoute,
+    AuthenticatedStoreStoreIdSellersRoute:
+      AuthenticatedStoreStoreIdSellersRoute,
+    AuthenticatedStoreStoreIdSeoRoute: AuthenticatedStoreStoreIdSeoRoute,
+    AuthenticatedStoreStoreIdSeoEditorRoute:
+      AuthenticatedStoreStoreIdSeoEditorRoute,
+    AuthenticatedStoreStoreIdSettingsRoute:
+      AuthenticatedStoreStoreIdSettingsRoute,
+    AuthenticatedStoreStoreIdSettlementsRoute:
+      AuthenticatedStoreStoreIdSettlementsRoute,
+    AuthenticatedStoreStoreIdShipmentsRoute:
+      AuthenticatedStoreStoreIdShipmentsRoute,
+    AuthenticatedStoreStoreIdShippingRoute:
+      AuthenticatedStoreStoreIdShippingRoute,
+    AuthenticatedStoreStoreIdShippingEconomicsRoute:
+      AuthenticatedStoreStoreIdShippingEconomicsRoute,
+    AuthenticatedStoreStoreIdShippingPerformanceRoute:
+      AuthenticatedStoreStoreIdShippingPerformanceRoute,
+    AuthenticatedStoreStoreIdSimulatorRoute:
+      AuthenticatedStoreStoreIdSimulatorRoute,
+    AuthenticatedStoreStoreIdSiteKitRoute:
+      AuthenticatedStoreStoreIdSiteKitRoute,
+    AuthenticatedStoreStoreIdSlaRoute: AuthenticatedStoreStoreIdSlaRoute,
+    AuthenticatedStoreStoreIdSocialShareRoute:
+      AuthenticatedStoreStoreIdSocialShareRoute,
+    AuthenticatedStoreStoreIdStatisticsRoute:
+      AuthenticatedStoreStoreIdStatisticsRoute,
+    AuthenticatedStoreStoreIdStockAlertsRoute:
+      AuthenticatedStoreStoreIdStockAlertsRoute,
+    AuthenticatedStoreStoreIdStockCountRoute:
+      AuthenticatedStoreStoreIdStockCountRoute,
+    AuthenticatedStoreStoreIdStockoutRoute:
+      AuthenticatedStoreStoreIdStockoutRoute,
+    AuthenticatedStoreStoreIdSupplierPerformanceRoute:
+      AuthenticatedStoreStoreIdSupplierPerformanceRoute,
+    AuthenticatedStoreStoreIdSupportRoute:
+      AuthenticatedStoreStoreIdSupportRoute,
+    AuthenticatedStoreStoreIdSupportPerformanceRoute:
+      AuthenticatedStoreStoreIdSupportPerformanceRoute,
+    AuthenticatedStoreStoreIdTasksRoute: AuthenticatedStoreStoreIdTasksRoute,
+    AuthenticatedStoreStoreIdTaxRoute: AuthenticatedStoreStoreIdTaxRoute,
+    AuthenticatedStoreStoreIdTeamRoute: AuthenticatedStoreStoreIdTeamRoute,
+    AuthenticatedStoreStoreIdTeamPerformanceRoute:
+      AuthenticatedStoreStoreIdTeamPerformanceRoute,
+    AuthenticatedStoreStoreIdThemeDesignRoute:
+      AuthenticatedStoreStoreIdThemeDesignRoute,
+    AuthenticatedStoreStoreIdThemeEditorRoute:
+      AuthenticatedStoreStoreIdThemeEditorRoute,
+    AuthenticatedStoreStoreIdThemeSectionsRoute:
+      AuthenticatedStoreStoreIdThemeSectionsRoute,
+    AuthenticatedStoreStoreIdThemeStoreRoute:
+      AuthenticatedStoreStoreIdThemeStoreRoute,
+    AuthenticatedStoreStoreIdThemesRoute: AuthenticatedStoreStoreIdThemesRoute,
+    AuthenticatedStoreStoreIdTiktokRoute: AuthenticatedStoreStoreIdTiktokRoute,
+    AuthenticatedStoreStoreIdTransfersRoute:
+      AuthenticatedStoreStoreIdTransfersRoute,
+    AuthenticatedStoreStoreIdValuationRoute:
+      AuthenticatedStoreStoreIdValuationRoute,
+    AuthenticatedStoreStoreIdVendorsRoute:
+      AuthenticatedStoreStoreIdVendorsRoute,
+    AuthenticatedStoreStoreIdWarehousesRoute:
+      AuthenticatedStoreStoreIdWarehousesRoute,
+    AuthenticatedStoreStoreIdWebhooksRoute:
+      AuthenticatedStoreStoreIdWebhooksRoute,
+    AuthenticatedStoreStoreIdWhatsappRoute:
+      AuthenticatedStoreStoreIdWhatsappRoute,
+    AuthenticatedStoreStoreIdXmlFeedRoute:
+      AuthenticatedStoreStoreIdXmlFeedRoute,
+  }
+
+const AuthenticatedStoreStoreIdRouteWithChildren =
+  AuthenticatedStoreStoreIdRoute._addFileChildren(
+    AuthenticatedStoreStoreIdRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
+  AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
+  AuthenticatedSupplierRoute: typeof AuthenticatedSupplierRoute
+  AuthenticatedOauthAuthorizeRoute: typeof AuthenticatedOauthAuthorizeRoute
+  AuthenticatedSellerSellerIdRoute: typeof AuthenticatedSellerSellerIdRoute
+  AuthenticatedStoreStoreIdRoute: typeof AuthenticatedStoreStoreIdRouteWithChildren
+}
+
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
@@ -5331,193 +5586,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSupplierRoute: AuthenticatedSupplierRoute,
   AuthenticatedOauthAuthorizeRoute: AuthenticatedOauthAuthorizeRoute,
   AuthenticatedSellerSellerIdRoute: AuthenticatedSellerSellerIdRoute,
-  AuthenticatedStoreStoreIdAbcRoute: AuthenticatedStoreStoreIdAbcRoute,
-  AuthenticatedStoreStoreIdActivityRoute:
-    AuthenticatedStoreStoreIdActivityRoute,
-  AuthenticatedStoreStoreIdAgingRoute: AuthenticatedStoreStoreIdAgingRoute,
-  AuthenticatedStoreStoreIdAiRoute: AuthenticatedStoreStoreIdAiRoute,
-  AuthenticatedStoreStoreIdAiStudioRoute:
-    AuthenticatedStoreStoreIdAiStudioRoute,
-  AuthenticatedStoreStoreIdAnalyticsRoute:
-    AuthenticatedStoreStoreIdAnalyticsRoute,
-  AuthenticatedStoreStoreIdApiRoute: AuthenticatedStoreStoreIdApiRoute,
-  AuthenticatedStoreStoreIdAppsRoute: AuthenticatedStoreStoreIdAppsRoute,
-  AuthenticatedStoreStoreIdAutomationsRoute:
-    AuthenticatedStoreStoreIdAutomationsRoute,
-  AuthenticatedStoreStoreIdBarcodesRoute:
-    AuthenticatedStoreStoreIdBarcodesRoute,
-  AuthenticatedStoreStoreIdBasketRoute: AuthenticatedStoreStoreIdBasketRoute,
-  AuthenticatedStoreStoreIdBillingRoute: AuthenticatedStoreStoreIdBillingRoute,
-  AuthenticatedStoreStoreIdBlogRoute: AuthenticatedStoreStoreIdBlogRoute,
-  AuthenticatedStoreStoreIdCampaignsRoute:
-    AuthenticatedStoreStoreIdCampaignsRoute,
-  AuthenticatedStoreStoreIdCartsRoute: AuthenticatedStoreStoreIdCartsRoute,
-  AuthenticatedStoreStoreIdCashflowRoute:
-    AuthenticatedStoreStoreIdCashflowRoute,
-  AuthenticatedStoreStoreIdChannelsRoute:
-    AuthenticatedStoreStoreIdChannelsRoute,
-  AuthenticatedStoreStoreIdCohortsRoute: AuthenticatedStoreStoreIdCohortsRoute,
-  AuthenticatedStoreStoreIdCollectionsRoute:
-    AuthenticatedStoreStoreIdCollectionsRoute,
-  AuthenticatedStoreStoreIdCopilotRoute: AuthenticatedStoreStoreIdCopilotRoute,
-  AuthenticatedStoreStoreIdCustomerSegmentsRoute:
-    AuthenticatedStoreStoreIdCustomerSegmentsRoute,
-  AuthenticatedStoreStoreIdCustomersRoute:
-    AuthenticatedStoreStoreIdCustomersRouteWithChildren,
-  AuthenticatedStoreStoreIdDashboardRoute:
-    AuthenticatedStoreStoreIdDashboardRoute,
-  AuthenticatedStoreStoreIdDiscountsRoute:
-    AuthenticatedStoreStoreIdDiscountsRoute,
-  AuthenticatedStoreStoreIdDomainsRoute: AuthenticatedStoreStoreIdDomainsRoute,
-  AuthenticatedStoreStoreIdDropshippingRoute:
-    AuthenticatedStoreStoreIdDropshippingRoute,
-  AuthenticatedStoreStoreIdElasticityRoute:
-    AuthenticatedStoreStoreIdElasticityRoute,
-  AuthenticatedStoreStoreIdFacebookMarketplaceRoute:
-    AuthenticatedStoreStoreIdFacebookMarketplaceRoute,
-  AuthenticatedStoreStoreIdFeedsRoute: AuthenticatedStoreStoreIdFeedsRoute,
-  AuthenticatedStoreStoreIdFinanceRoute: AuthenticatedStoreStoreIdFinanceRoute,
-  AuthenticatedStoreStoreIdForecastRoute:
-    AuthenticatedStoreStoreIdForecastRoute,
-  AuthenticatedStoreStoreIdFunnelRoute: AuthenticatedStoreStoreIdFunnelRoute,
-  AuthenticatedStoreStoreIdGeoRoute: AuthenticatedStoreStoreIdGeoRoute,
-  AuthenticatedStoreStoreIdGiftCardsRoute:
-    AuthenticatedStoreStoreIdGiftCardsRoute,
-  AuthenticatedStoreStoreIdGiftLiabilityRoute:
-    AuthenticatedStoreStoreIdGiftLiabilityRoute,
-  AuthenticatedStoreStoreIdHealthRoute: AuthenticatedStoreStoreIdHealthRoute,
-  AuthenticatedStoreStoreIdImportExportRoute:
-    AuthenticatedStoreStoreIdImportExportRoute,
-  AuthenticatedStoreStoreIdInboxRoute: AuthenticatedStoreStoreIdInboxRoute,
-  AuthenticatedStoreStoreIdInstagramRoute:
-    AuthenticatedStoreStoreIdInstagramRoute,
-  AuthenticatedStoreStoreIdInventoryRoute:
-    AuthenticatedStoreStoreIdInventoryRoute,
-  AuthenticatedStoreStoreIdJobsRoute: AuthenticatedStoreStoreIdJobsRoute,
-  AuthenticatedStoreStoreIdLanguagesRoute:
-    AuthenticatedStoreStoreIdLanguagesRoute,
-  AuthenticatedStoreStoreIdLedgerRoute: AuthenticatedStoreStoreIdLedgerRoute,
-  AuthenticatedStoreStoreIdLifecycleRoute:
-    AuthenticatedStoreStoreIdLifecycleRoute,
-  AuthenticatedStoreStoreIdListingLinksRoute:
-    AuthenticatedStoreStoreIdListingLinksRoute,
-  AuthenticatedStoreStoreIdLiveRoute: AuthenticatedStoreStoreIdLiveRoute,
-  AuthenticatedStoreStoreIdLocalizationRoute:
-    AuthenticatedStoreStoreIdLocalizationRoute,
-  AuthenticatedStoreStoreIdLossesRoute: AuthenticatedStoreStoreIdLossesRoute,
-  AuthenticatedStoreStoreIdLtvRoute: AuthenticatedStoreStoreIdLtvRoute,
-  AuthenticatedStoreStoreIdMarketingRoute:
-    AuthenticatedStoreStoreIdMarketingRoute,
-  AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute:
-    AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute,
-  AuthenticatedStoreStoreIdMarketplaceReturnsRoute:
-    AuthenticatedStoreStoreIdMarketplaceReturnsRoute,
-  AuthenticatedStoreStoreIdMarketsPricingRoute:
-    AuthenticatedStoreStoreIdMarketsPricingRoute,
-  AuthenticatedStoreStoreIdMediaRoute: AuthenticatedStoreStoreIdMediaRoute,
-  AuthenticatedStoreStoreIdMigrationRoute:
-    AuthenticatedStoreStoreIdMigrationRoute,
-  AuthenticatedStoreStoreIdMobileAppRoute:
-    AuthenticatedStoreStoreIdMobileAppRoute,
-  AuthenticatedStoreStoreIdNavigationRoute:
-    AuthenticatedStoreStoreIdNavigationRoute,
-  AuthenticatedStoreStoreIdNotificationsRoute:
-    AuthenticatedStoreStoreIdNotificationsRoute,
-  AuthenticatedStoreStoreIdOauthRoute: AuthenticatedStoreStoreIdOauthRoute,
-  AuthenticatedStoreStoreIdOrdersRoute:
-    AuthenticatedStoreStoreIdOrdersRouteWithChildren,
-  AuthenticatedStoreStoreIdPagesRoute: AuthenticatedStoreStoreIdPagesRoute,
-  AuthenticatedStoreStoreIdPaymentsRoute:
-    AuthenticatedStoreStoreIdPaymentsRoute,
-  AuthenticatedStoreStoreIdPopupsRoute: AuthenticatedStoreStoreIdPopupsRoute,
-  AuthenticatedStoreStoreIdPricingRoute: AuthenticatedStoreStoreIdPricingRoute,
-  AuthenticatedStoreStoreIdProductsRoute:
-    AuthenticatedStoreStoreIdProductsRouteWithChildren,
-  AuthenticatedStoreStoreIdProfitRoute: AuthenticatedStoreStoreIdProfitRoute,
-  AuthenticatedStoreStoreIdPurchasingRoute:
-    AuthenticatedStoreStoreIdPurchasingRoute,
-  AuthenticatedStoreStoreIdQuestionsRoute:
-    AuthenticatedStoreStoreIdQuestionsRoute,
-  AuthenticatedStoreStoreIdReceivablesRoute:
-    AuthenticatedStoreStoreIdReceivablesRoute,
-  AuthenticatedStoreStoreIdReorderRoute: AuthenticatedStoreStoreIdReorderRoute,
-  AuthenticatedStoreStoreIdReportMonthlyRoute:
-    AuthenticatedStoreStoreIdReportMonthlyRoute,
-  AuthenticatedStoreStoreIdReportsRoute: AuthenticatedStoreStoreIdReportsRoute,
-  AuthenticatedStoreStoreIdRepurchaseRoute:
-    AuthenticatedStoreStoreIdRepurchaseRoute,
-  AuthenticatedStoreStoreIdReturnsRoute: AuthenticatedStoreStoreIdReturnsRoute,
-  AuthenticatedStoreStoreIdReturnsAnalyticsRoute:
-    AuthenticatedStoreStoreIdReturnsAnalyticsRoute,
-  AuthenticatedStoreStoreIdReviewImpactRoute:
-    AuthenticatedStoreStoreIdReviewImpactRoute,
-  AuthenticatedStoreStoreIdReviewsRoute: AuthenticatedStoreStoreIdReviewsRoute,
-  AuthenticatedStoreStoreIdSecurityRoute:
-    AuthenticatedStoreStoreIdSecurityRoute,
-  AuthenticatedStoreStoreIdSegmentsRoute:
-    AuthenticatedStoreStoreIdSegmentsRoute,
-  AuthenticatedStoreStoreIdSellersRoute: AuthenticatedStoreStoreIdSellersRoute,
-  AuthenticatedStoreStoreIdSeoRoute: AuthenticatedStoreStoreIdSeoRoute,
-  AuthenticatedStoreStoreIdSeoEditorRoute:
-    AuthenticatedStoreStoreIdSeoEditorRoute,
-  AuthenticatedStoreStoreIdSettingsRoute:
-    AuthenticatedStoreStoreIdSettingsRoute,
-  AuthenticatedStoreStoreIdSettlementsRoute:
-    AuthenticatedStoreStoreIdSettlementsRoute,
-  AuthenticatedStoreStoreIdShipmentsRoute:
-    AuthenticatedStoreStoreIdShipmentsRoute,
-  AuthenticatedStoreStoreIdShippingRoute:
-    AuthenticatedStoreStoreIdShippingRoute,
-  AuthenticatedStoreStoreIdShippingEconomicsRoute:
-    AuthenticatedStoreStoreIdShippingEconomicsRoute,
-  AuthenticatedStoreStoreIdShippingPerformanceRoute:
-    AuthenticatedStoreStoreIdShippingPerformanceRoute,
-  AuthenticatedStoreStoreIdSimulatorRoute:
-    AuthenticatedStoreStoreIdSimulatorRoute,
-  AuthenticatedStoreStoreIdSiteKitRoute: AuthenticatedStoreStoreIdSiteKitRoute,
-  AuthenticatedStoreStoreIdSlaRoute: AuthenticatedStoreStoreIdSlaRoute,
-  AuthenticatedStoreStoreIdSocialShareRoute:
-    AuthenticatedStoreStoreIdSocialShareRoute,
-  AuthenticatedStoreStoreIdStatisticsRoute:
-    AuthenticatedStoreStoreIdStatisticsRoute,
-  AuthenticatedStoreStoreIdStockAlertsRoute:
-    AuthenticatedStoreStoreIdStockAlertsRoute,
-  AuthenticatedStoreStoreIdStockCountRoute:
-    AuthenticatedStoreStoreIdStockCountRoute,
-  AuthenticatedStoreStoreIdStockoutRoute:
-    AuthenticatedStoreStoreIdStockoutRoute,
-  AuthenticatedStoreStoreIdSupplierPerformanceRoute:
-    AuthenticatedStoreStoreIdSupplierPerformanceRoute,
-  AuthenticatedStoreStoreIdSupportRoute: AuthenticatedStoreStoreIdSupportRoute,
-  AuthenticatedStoreStoreIdSupportPerformanceRoute:
-    AuthenticatedStoreStoreIdSupportPerformanceRoute,
-  AuthenticatedStoreStoreIdTasksRoute: AuthenticatedStoreStoreIdTasksRoute,
-  AuthenticatedStoreStoreIdTaxRoute: AuthenticatedStoreStoreIdTaxRoute,
-  AuthenticatedStoreStoreIdTeamRoute: AuthenticatedStoreStoreIdTeamRoute,
-  AuthenticatedStoreStoreIdTeamPerformanceRoute:
-    AuthenticatedStoreStoreIdTeamPerformanceRoute,
-  AuthenticatedStoreStoreIdThemeDesignRoute:
-    AuthenticatedStoreStoreIdThemeDesignRoute,
-  AuthenticatedStoreStoreIdThemeEditorRoute:
-    AuthenticatedStoreStoreIdThemeEditorRoute,
-  AuthenticatedStoreStoreIdThemeSectionsRoute:
-    AuthenticatedStoreStoreIdThemeSectionsRoute,
-  AuthenticatedStoreStoreIdThemeStoreRoute:
-    AuthenticatedStoreStoreIdThemeStoreRoute,
-  AuthenticatedStoreStoreIdThemesRoute: AuthenticatedStoreStoreIdThemesRoute,
-  AuthenticatedStoreStoreIdTiktokRoute: AuthenticatedStoreStoreIdTiktokRoute,
-  AuthenticatedStoreStoreIdTransfersRoute:
-    AuthenticatedStoreStoreIdTransfersRoute,
-  AuthenticatedStoreStoreIdValuationRoute:
-    AuthenticatedStoreStoreIdValuationRoute,
-  AuthenticatedStoreStoreIdVendorsRoute: AuthenticatedStoreStoreIdVendorsRoute,
-  AuthenticatedStoreStoreIdWarehousesRoute:
-    AuthenticatedStoreStoreIdWarehousesRoute,
-  AuthenticatedStoreStoreIdWebhooksRoute:
-    AuthenticatedStoreStoreIdWebhooksRoute,
-  AuthenticatedStoreStoreIdWhatsappRoute:
-    AuthenticatedStoreStoreIdWhatsappRoute,
-  AuthenticatedStoreStoreIdXmlFeedRoute: AuthenticatedStoreStoreIdXmlFeedRoute,
+  AuthenticatedStoreStoreIdRoute: AuthenticatedStoreStoreIdRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -5542,6 +5611,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapProductsDotxmlRoute: SitemapProductsDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  UnauthorizedRoute: UnauthorizedRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   BlogSlugRoute: BlogSlugRoute,

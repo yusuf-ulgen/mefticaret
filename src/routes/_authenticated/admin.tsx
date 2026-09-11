@@ -1,7 +1,25 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-router";
 
-/** Süper admin bölümünün layout route'u; alt sayfalar kendi kabuk başlıklarını verir. */
+/**
+ * Süper admin bölümünün layout route'u.
+ *
+ * Tüm `/admin/*` sayfaları buradan geçer ve erişim sunucuda `platform_admin`
+ * rolü ile doğrulanır. İstemci durumu (state, localStorage, cache) yetki
+ * kaynağı olarak kullanılmaz; yetkisiz denemeler 403 sayfasına yönlenir ve
+ * güvenlik kaydına yazılır.
+ */
 export const Route = createFileRoute("/_authenticated/admin")({
+  beforeLoad: async ({ location }) => {
+    try {
+      const { checkPlatformAdminAccess } = await import("@/lib/access-guard.functions");
+      const result = await checkPlatformAdminAccess({ data: { route: location.pathname } });
+      if (!result.allowed) throw redirect({ to: "/unauthorized" });
+      return { platformAdmin: true as const };
+    } catch (error) {
+      if (isRedirect(error)) throw error;
+      throw redirect({ to: "/unauthorized" });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Süper Admin — Mefticaret" },

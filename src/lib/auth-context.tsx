@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Session, User } from "@supabase/supabase-js";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [platformRoles, setPlatformRoles] = useState<string[]>([]);
+  const queryClient = useQueryClient();
 
   const load = useCallback(async (activeSession: Session | null) => {
     if (!activeSession?.user) {
@@ -68,9 +70,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let lastUserId: string | null = null;
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (!mounted) return;
+      const nextUserId = nextSession?.user?.id ?? null;
+      // Kullanıcı değiştiyse önceki hesabın önbelleği asla devralınmamalı.
+      if (nextUserId !== lastUserId) {
+        setProfile(null);
+        setPlatformRoles([]);
+        queryClient.clear();
+        lastUserId = nextUserId;
+      }
       setSession(nextSession);
       void load(nextSession);
     });
@@ -86,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       mounted = false;
       subscription.subscription.unsubscribe();
     };
-  }, [load]);
+  }, [load, queryClient]);
 
   const refresh = useCallback(async () => {
     const { data } = await supabase.auth.getSession();
@@ -102,11 +113,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Denetim kaydı başarısız olsa da çıkış işlemi devam etmeli.
     }
+    // Yetki sızmasını önlemek için önce uçuşan sorgular durdurulup önbellek boşaltılır.
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
     setSession(null);
     setProfile(null);
     setPlatformRoles([]);
-  }, []);
+  }, [queryClient]);
 
 
   const value = useMemo<AuthState>(
