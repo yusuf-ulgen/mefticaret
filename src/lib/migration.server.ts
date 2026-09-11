@@ -9,7 +9,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 import { requireMigrationProvider } from "@/lib/migration";
 import {
   ENTITY_ORDER,
@@ -54,7 +54,7 @@ export interface MigrationRunReport {
   provider: string;
   dryRun: boolean;
   totals: MigrationEntityTotals;
-  sample: Partial<Record<MigrationEntity, unknown[]>>;
+  sample: Partial<Record<MigrationEntity, Json[]>>;
   errors: string[];
 }
 
@@ -541,7 +541,9 @@ export async function runMigration(
       continue;
     }
 
-    report.sample[entity] = records.slice(0, PREVIEW_SAMPLE).map((record) => record.data);
+    report.sample[entity] = records
+      .slice(0, PREVIEW_SAMPLE)
+      .map((record) => JSON.parse(JSON.stringify(record.data)) as Json);
     if (dryRun) {
       totals.created = records.length;
       continue;

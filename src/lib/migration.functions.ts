@@ -230,8 +230,8 @@ export const startMigrationJob = createServerFn({ method: "POST" })
         .from("migration_jobs")
         .update({
           status: report.errors.length > 0 ? "completed_with_errors" : "completed",
-          totals: report.totals,
-          sample: report.sample,
+          totals: report.totals as unknown as Record<string, never>,
+          sample: report.sample as unknown as Record<string, never>,
           last_error: report.errors.slice(0, 5).join(" | ") || null,
           finished_at: new Date().toISOString(),
         })
@@ -240,7 +240,7 @@ export const startMigrationJob = createServerFn({ method: "POST" })
         .from("migration_sources")
         .update({ last_run_at: new Date().toISOString(), status: "ready" })
         .eq("id", source.id);
-      return { jobId: job.id, ...report };
+      return { ...report, jobId: job.id };
     } catch (error) {
       const message = error instanceof Error ? error.message : "Bilinmeyen hata";
       await admin
