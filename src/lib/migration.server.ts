@@ -116,7 +116,8 @@ async function request(
           body = JSON.parse(text);
         } catch {
           const { parseFeedPayload } = await import("@/lib/dropshipping");
-          body = parseFeedPayload(text, text.trimStart().startsWith("<") ? "xml" : "csv", null);
+          const kind = text.trimStart().startsWith("<") ? "xml" : "csv";
+          body = parseFeedPayload(text, kind as never, null);
         }
       }
       return { body, headers: response.headers };
