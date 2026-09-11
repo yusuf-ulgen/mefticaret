@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       mounted = false;
       subscription.subscription.unsubscribe();
     };
-  }, [load]);
+  }, [load, queryClient]);
 
   const refresh = useCallback(async () => {
     const { data } = await supabase.auth.getSession();
