@@ -1,5 +1,7 @@
 import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-router";
 
+import { checkStoreAccess } from "@/lib/access-guard.functions";
+
 /**
  * Mağaza panelinin kapısı.
  *
@@ -10,10 +12,10 @@ import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-r
 export const Route = createFileRoute("/_authenticated/store/$storeId")({
   beforeLoad: async ({ params, location }) => {
     try {
-      const { checkStoreAccess } = await import("@/lib/access-guard.functions");
       const result = await checkStoreAccess({
         data: { storeId: params.storeId, route: location.pathname },
       });
+
       if (!result.allowed) throw redirect({ to: "/unauthorized" });
       return { storeAccess: result };
     } catch (error) {
