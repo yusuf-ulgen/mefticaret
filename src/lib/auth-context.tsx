@@ -104,11 +104,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Denetim kaydı başarısız olsa da çıkış işlemi devam etmeli.
     }
+    // Yetki sızmasını önlemek için önce uçuşan sorgular durdurulup önbellek boşaltılır.
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
     setSession(null);
     setProfile(null);
     setPlatformRoles([]);
-  }, []);
+  }, [queryClient]);
 
 
   const value = useMemo<AuthState>(
