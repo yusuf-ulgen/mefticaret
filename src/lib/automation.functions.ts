@@ -46,6 +46,9 @@ export const saveWorkflow = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    const { requirePlanModule } = await import("@/lib/entitlements.server");
+    await requirePlanModule(supabase as never, data.storeId, "module_automation");
+
     const payload = {
       store_id: data.storeId,
       name: data.name,
