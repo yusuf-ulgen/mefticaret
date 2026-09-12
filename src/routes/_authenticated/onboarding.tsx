@@ -59,8 +59,8 @@ function OnboardingPage() {
       }),
     onSuccess: async (store) => {
       await queryClient.invalidateQueries({ queryKey: ["my-stores"] });
-      toast.success("Mağazan oluşturuldu — kurulumun %40'ı tamam.");
-      void navigate({ to: "/store/$storeId/dashboard", params: { storeId: store.id } });
+      toast.success("Mağazan oluşturuldu — kurulum sihirbazına yönlendiriliyorsun.");
+      void navigate({ to: "/store/$storeId/setup", params: { storeId: store.id } });
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -70,7 +70,7 @@ function OnboardingPage() {
   return (
     <AppShell
       title="Mağaza kurulumu"
-      description="Adım 2-3-9: marka adı, sektör ve temel ayarlar. Kalan adımlar panelden tamamlanır."
+      description="Marka adı, sektör ve temel ayarlar. Kalan adımlar Kurulum Sihirbazı ile tamamlanır."
     >
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <form
@@ -177,7 +177,7 @@ function OnboardingPage() {
               </li>
             ))}
           </ol>
-          <Badge variant="secondary" className="mt-5">FAZ 1 kapsamı</Badge>
+          <Badge variant="secondary" className="mt-5">Kurulum sihirbazı</Badge>
         </aside>
       </div>
     </AppShell>

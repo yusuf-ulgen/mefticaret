@@ -36,6 +36,7 @@ import {
   PenLine,
   Radio,
   Receipt,
+  Rocket,
   RefreshCcw,
   RotateCcw,
   Search,
