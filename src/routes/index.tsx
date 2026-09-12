@@ -605,7 +605,7 @@ function GuidesSection() {
         </p>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
+      <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
         {GUIDES.map((guide) => (
           <Link
             key={guide.to}
