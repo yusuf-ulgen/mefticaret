@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ExternalLink, Search, Sparkles, Wand2 } from "lucide-react";
@@ -210,13 +209,13 @@ export function SeoContentTab({
                       {complete ? "SEO tam" : !row.seo.title ? "Başlık eksik" : "Açıklama eksik"}
                     </Badge>
                     <Button asChild size="sm" variant="ghost">
-                      <Link
-                        to="/s/$slug/$"
-                        params={{ slug: storeSlug, _splat: `${URL_PREFIX[row.kind]}/${row.slug}` }}
+                      <a
+                        href={`/s/${storeSlug}/${URL_PREFIX[row.kind]}/${row.slug}`}
                         target="_blank"
+                        rel="noreferrer"
                       >
                         <ExternalLink className="h-4 w-4" />
-                      </Link>
+                      </a>
                     </Button>
                   </div>
                 </div>

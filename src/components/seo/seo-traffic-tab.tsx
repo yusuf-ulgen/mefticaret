@@ -36,18 +36,18 @@ export function SeoTrafficTab({ storeId }: { storeId: string }) {
     [events, revenue, orders],
   );
 
-  const organic = traffic.sources.find(([source]) => source === "organic")?.[1] ?? 0;
+  const organic = traffic.sources.find((row) => row.key === "organic")?.count ?? 0;
   const organicShare = traffic.sessions > 0 ? (organic / traffic.sessions) * 100 : 0;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-2">
-        {RANGE_PRESETS.filter((item) => item.value !== "custom").map((item) => (
+        {RANGE_PRESETS.filter((item) => item.id !== "custom").map((item) => (
           <Button
-            key={item.value}
+            key={item.id}
             size="sm"
-            variant={preset === item.value ? "default" : "outline"}
-            onClick={() => setPreset(item.value)}
+            variant={preset === item.id ? "default" : "outline"}
+            onClick={() => setPreset(item.id)}
           >
             {item.label}
           </Button>
@@ -80,22 +80,22 @@ export function SeoTrafficTab({ storeId }: { storeId: string }) {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Breakdown
               title="Trafik kaynakları"
-              rows={traffic.sources.map(([key, count]) => [SOURCE_LABELS[key] ?? key, count])}
+              rows={traffic.sources.map((row) => [SOURCE_LABELS[row.key] ?? row.key, row.count] as [string, number])}
               total={traffic.sessions}
             />
             <Breakdown
               title="Yönlendiren siteler"
-              rows={traffic.referrers.map(([key, count]) => [key, count])}
+              rows={traffic.referrers.map((row) => [row.key, row.count] as [string, number])}
               total={traffic.sessions}
             />
             <Breakdown
               title="En çok görüntülenen sayfalar"
-              rows={traffic.topPages.map(([key, count]) => [key, count])}
+              rows={traffic.topPages.map((row) => [row.key, row.count] as [string, number])}
               total={traffic.pageViews}
             />
             <Breakdown
               title="Ülkeler"
-              rows={traffic.countries.map(([key, count]) => [key, count])}
+              rows={traffic.countries.map((row) => [row.key, row.count] as [string, number])}
               total={traffic.sessions}
             />
           </div>
