@@ -7,12 +7,18 @@ export type ProductStatus = "draft" | "active" | "archived";
 export const productsQuery = (storeId: string) =>
   queryOptions({
     queryKey: ["products", storeId],
+    // Liste ekranı için ilk 500 kayıt yeterli; büyük kataloglarda mobil
+    // yüklemeyi hızlandırır. Kısa süreli önbellek sekme geçişlerinde
+    // gereksiz yeniden istekleri önler.
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
         .select("*, product_variants(id, stock, price), product_images(url, position)")
         .eq("store_id", storeId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(500);
       if (error) throw error;
       return data ?? [];
     },
