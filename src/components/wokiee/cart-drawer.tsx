@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { SmartImage } from "@/components/smart-image";
 
 import { isDark, storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
@@ -7,6 +9,7 @@ import { formatMoney } from "@/lib/mefti";
 import { storefrontUI, useStorefrontUI } from "@/lib/storefront-ui";
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import { resolveDesignTokens } from "@/lib/theme-design";
+import { storefrontQuery } from "@/lib/storefront-queries";
 
 const NOTE_KEY = "mefti-cart-note-v1";
 
@@ -27,6 +30,7 @@ export function CartDrawer({
   const { t, fonts, muted, border, radius, text } = storefrontTokens(theme);
   const [note, setNote] = useState("");
   const [gift, setGift] = useState(false);
+  const storefront = useQuery(storefrontQuery(storeSlug));
 
   const lines = cart.linesFor(storeSlug);
   const subtotal = cart.subtotalFor(storeSlug);
@@ -36,6 +40,8 @@ export function CartDrawer({
   const remaining = threshold ? Math.max(0, threshold - subtotal) : 0;
   const progress = threshold ? Math.min(100, Math.round((subtotal / threshold) * 100)) : 0;
   const accentContrast = isDark(t.accent_color) ? "#ffffff" : "#101418";
+  const cartSlugs = new Set(lines.map((line) => line.productSlug));
+  const recommendations = (storefront.data?.products ?? []).filter((product) => !cartSlugs.has(product.slug)).slice(0, 3);
 
   useEffect(() => {
     try {
@@ -198,6 +204,26 @@ export function CartDrawer({
                 }}
               />
             </div>
+          ) : null}
+
+          {lines.length && recommendations.length ? (
+            <section style={{ borderTop: `1px solid ${border}`, paddingTop: 14 }}>
+              <strong style={{ fontFamily: fonts.heading, fontSize: 13 }}>Bunlar da hoşuna gidebilir</strong>
+              <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                {recommendations.map((product) => (
+                  <Link
+                    key={product.id}
+                    to="/s/$slug/p/$productSlug"
+                    params={{ slug: storeSlug, productSlug: product.slug }}
+                    onClick={() => storefrontUI.closeCart()}
+                    style={{ display: "grid", gridTemplateColumns: "52px 1fr", gap: 10, color: "inherit", textDecoration: "none", alignItems: "center" }}
+                  >
+                    <SmartImage src={product.coverUrl} alt={product.title} width={104} style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 8 }} />
+                    <span style={{ minWidth: 0, fontSize: 12 }}><strong style={{ display: "block" }}>{product.title}</strong><span style={{ color: muted }}>{formatMoney(Number(product.livePrice ?? product.base_price), product.currency ?? currency)}</span></span>
+                  </Link>
+                ))}
+              </div>
+            </section>
           ) : null}
         </div>
 
