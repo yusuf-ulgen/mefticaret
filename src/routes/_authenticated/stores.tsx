@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/stores")({
 });
 
 function StoresPage() {
-  const { user, isPlatformAdmin } = useAuth();
+  const { user } = useAuth();
   const { data: stores, isLoading } = useQuery(myStoresQuery(user?.id));
   const { data: demoStore } = useQuery(demoStoreQuery());
 

@@ -303,7 +303,7 @@ function StoreSwitcher({ storeId }: { storeId: string }) {
 }
 
 function UserMenu() {
-  const { profile, user, isPlatformAdmin, signOut } = useAuth();
+  const { profile, user, signOut } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 

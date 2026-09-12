@@ -88,7 +88,6 @@ function AuthPage() {
     }
     void logAuthEvent({ data: { event: "login", method: "password" } }).catch(() => {});
     toast.success("Hoş geldin!");
-    void navigate({ to: safeNext, replace: true });
   }
 
   async function handleRegister(event: React.FormEvent) {
