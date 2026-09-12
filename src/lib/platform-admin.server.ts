@@ -1414,3 +1414,239 @@ export async function toggleApp(input: z.infer<typeof appToggleSchema>, actorId:
   });
   return { ok: true as const };
 }
+
+/* ------------------------------------------------------------------ */
+/* Mağaza yetkilendirme: roller ve izinler                              */
+/* ------------------------------------------------------------------ */
+
+const STORE_ROLES = ["owner", "admin", "staff", "marketing", "support"] as const;
+
+export const storeAccessSchema = z.object({ storeId: z.guid() });
+
+export const storeMemberInviteSchema = z.object({
+  storeId: z.guid(),
+  email: z.string().trim().max(200).email(),
+  role: z.enum(STORE_ROLES),
+  permissions: z.array(z.string().trim().max(60)).max(40).default([]),
+});
+
+export const storeMemberRoleSchema = z.object({
+  storeId: z.guid(),
+  userId: z.guid(),
+  role: z.enum(STORE_ROLES),
+  permissions: z.array(z.string().trim().max(60)).max(40).optional(),
+});
+
+export const storeMemberRemoveSchema = z.object({ storeId: z.guid(), userId: z.guid() });
+export const storeOwnerSchema = z.object({ storeId: z.guid(), userId: z.guid() });
+
+type ProfileRow = { id: string; email: string | null; full_name: string | null };
+
+/** Bir mağazanın sahibi, ekip üyeleri ve platform rolleri. */
+export async function storeAccessOverview(input: z.infer<typeof storeAccessSchema>) {
+  const db = await admin();
+  const { data: store, error } = await db
+    .from("stores")
+    .select("id, name, slug, status, owner_id, created_at")
+    .eq("id", input.storeId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!store) throw new Error("Mağaza bulunamadı");
+
+  const { data: members } = await db
+    .from("store_users")
+    .select("user_id, role, permissions, invited_email, created_at")
+    .eq("store_id", input.storeId)
+    .limit(200);
+
+  const memberRows = (members ?? []) as {
+    user_id: string;
+    role: string;
+    permissions: string[] | null;
+    invited_email: string | null;
+    created_at: string;
+  }[];
+
+  const ids = [...new Set([String((store as { owner_id: string }).owner_id), ...memberRows.map((row) => row.user_id)])].filter(Boolean);
+  const { data: profiles } = ids.length
+    ? await db.from("profiles").select("id, email, full_name").in("id", ids)
+    : { data: [] as ProfileRow[] };
+  const { data: appRoles } = ids.length
+    ? await db.from("user_roles").select("user_id, role").in("user_id", ids)
+    : { data: [] as { user_id: string; role: string }[] };
+
+  const profileById = new Map(((profiles ?? []) as ProfileRow[]).map((row) => [row.id, row]));
+  const platformRoles = ((appRoles ?? []) as { user_id: string; role: string }[]).reduce<Record<string, string[]>>(
+    (acc, row) => {
+      (acc[row.user_id] ??= []).push(row.role);
+      return acc;
+    },
+    {},
+  );
+
+  const ownerId = String((store as { owner_id: string }).owner_id);
+  const ownerProfile = profileById.get(ownerId) ?? null;
+
+  return {
+    store: store as unknown as { id: string; name: string; slug: string; status: string; owner_id: string; created_at: string },
+    owner: {
+      userId: ownerId,
+      email: ownerProfile?.email ?? null,
+      fullName: ownerProfile?.full_name ?? null,
+      platformRoles: platformRoles[ownerId] ?? [],
+    },
+    members: memberRows.map((row) => ({
+      userId: row.user_id,
+      role: row.role,
+      permissions: row.permissions ?? [],
+      invitedEmail: row.invited_email,
+      createdAt: row.created_at,
+      email: profileById.get(row.user_id)?.email ?? row.invited_email ?? null,
+      fullName: profileById.get(row.user_id)?.full_name ?? null,
+      platformRoles: platformRoles[row.user_id] ?? [],
+      isOwner: row.user_id === ownerId,
+    })),
+  };
+}
+
+async function findProfileByEmail(db: SupabaseLike, email: string) {
+  const { data, error } = await db.from("profiles").select("id, email, full_name").ilike("email", email).maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data ?? null) as ProfileRow | null;
+}
+
+/** E-posta ile mevcut bir hesabı mağaza ekibine ekler. */
+export async function addStoreMember(input: z.infer<typeof storeMemberInviteSchema>, actorId: string) {
+  const db = await admin();
+  const profile = await findProfileByEmail(db, input.email);
+  if (!profile) throw new Error("Bu e-posta ile kayıtlı bir hesap bulunamadı");
+
+  const { error } = await db.from("store_users").upsert(
+    {
+      store_id: input.storeId,
+      user_id: profile.id,
+      role: input.role,
+      permissions: input.permissions,
+      invited_email: input.email,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "store_id,user_id" },
+  );
+  if (error) throw new Error(error.message);
+
+  await insertAuditRow(db as never, {
+    store_id: input.storeId,
+    actor_id: actorId,
+    action: "platform.store_member_added",
+    entity: "store_users",
+    entity_id: profile.id,
+    new_value: { role: input.role, permissions: input.permissions } as never,
+  });
+  return { ok: true as const, userId: profile.id };
+}
+
+/** Ekip üyesinin yetki seviyesini (rol ve izinler) değiştirir. */
+export async function setStoreMemberRole(input: z.infer<typeof storeMemberRoleSchema>, actorId: string) {
+  const db = await admin();
+  const patch: Record<string, unknown> = { role: input.role, updated_at: new Date().toISOString() };
+  if (input.permissions) patch["permissions"] = input.permissions;
+
+  const { data, error } = await db
+    .from("store_users")
+    .update(patch)
+    .eq("store_id", input.storeId)
+    .eq("user_id", input.userId)
+    .select("user_id")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) {
+    const { error: insertError } = await db.from("store_users").insert({
+      store_id: input.storeId,
+      user_id: input.userId,
+      role: input.role,
+      permissions: input.permissions ?? [],
+    });
+    if (insertError) throw new Error(insertError.message);
+  }
+
+  await insertAuditRow(db as never, {
+    store_id: input.storeId,
+    actor_id: actorId,
+    action: "platform.store_member_role_changed",
+    entity: "store_users",
+    entity_id: input.userId,
+    new_value: patch as never,
+  });
+  return { ok: true as const };
+}
+
+/** Ekip üyesini mağazadan çıkarır (mağaza sahibi çıkarılamaz). */
+export async function removeStoreMember(input: z.infer<typeof storeMemberRemoveSchema>, actorId: string) {
+  const db = await admin();
+  const { data: store } = await db.from("stores").select("owner_id").eq("id", input.storeId).maybeSingle();
+  if (store && String((store as { owner_id: string }).owner_id) === input.userId) {
+    throw new Error("Mağaza sahibi ekipten çıkarılamaz; önce sahipliği devret");
+  }
+
+  const { error } = await db
+    .from("store_users")
+    .delete()
+    .eq("store_id", input.storeId)
+    .eq("user_id", input.userId);
+  if (error) throw new Error(error.message);
+
+  await insertAuditRow(db as never, {
+    store_id: input.storeId,
+    actor_id: actorId,
+    action: "platform.store_member_removed",
+    entity: "store_users",
+    entity_id: input.userId,
+    new_value: null as never,
+  });
+  return { ok: true as const };
+}
+
+/** Mağaza sahipliğini başka bir ekip üyesine devreder. */
+export async function setStoreOwner(input: z.infer<typeof storeOwnerSchema>, actorId: string) {
+  const db = await admin();
+  const { data: store, error: storeError } = await db
+    .from("stores")
+    .select("id, owner_id")
+    .eq("id", input.storeId)
+    .maybeSingle();
+  if (storeError) throw new Error(storeError.message);
+  if (!store) throw new Error("Mağaza bulunamadı");
+
+  const previousOwner = String((store as { owner_id: string }).owner_id);
+  if (previousOwner === input.userId) return { ok: true as const, unchanged: true as const };
+
+  const { data: profile } = await db.from("profiles").select("id").eq("id", input.userId).maybeSingle();
+  if (!profile) throw new Error("Hesap bulunamadı");
+
+  const { error } = await db
+    .from("stores")
+    .update({ owner_id: input.userId, updated_at: new Date().toISOString() })
+    .eq("id", input.storeId);
+  if (error) throw new Error(error.message);
+
+  // Yeni sahip ekipte owner rolüyle, eski sahip yönetici olarak kalır.
+  await db.from("store_users").upsert(
+    { store_id: input.storeId, user_id: input.userId, role: "owner", updated_at: new Date().toISOString() },
+    { onConflict: "store_id,user_id" },
+  );
+  await db.from("store_users").upsert(
+    { store_id: input.storeId, user_id: previousOwner, role: "admin", updated_at: new Date().toISOString() },
+    { onConflict: "store_id,user_id" },
+  );
+
+  await insertAuditRow(db as never, {
+    store_id: input.storeId,
+    actor_id: actorId,
+    action: "platform.store_owner_changed",
+    entity: "stores",
+    entity_id: input.storeId,
+    old_value: { owner_id: previousOwner } as never,
+    new_value: { owner_id: input.userId } as never,
+  });
+  return { ok: true as const };
+}
