@@ -62,6 +62,10 @@ function ProductsPage() {
     });
   }, [products, filter, search]);
 
+  // Mobilde uzun listeler yavaş açıldığı için ekrana parça parça basılır.
+  const [visibleCount, setVisibleCount] = useState(40);
+  const shown = useMemo(() => rows.slice(0, visibleCount), [rows, visibleCount]);
+
   const allSelected = rows.length > 0 && rows.every((row) => selected.includes(row.id));
 
   const exportCsv = () => {
