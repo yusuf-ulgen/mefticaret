@@ -264,3 +264,52 @@ export const toggleAdminApp = createServerFn({ method: "POST" })
     await server.assertPlatformAdmin(context.supabase, context.userId);
     return server.toggleApp(server.appToggleSchema.parse(data), context.userId);
   });
+
+/* ------------------------------------------------------------------ */
+/* Mağaza yetkilendirme (rol & izin yönetimi)                           */
+/* ------------------------------------------------------------------ */
+
+export const fetchStoreAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ storeId: z.guid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.storeAccessOverview(server.storeAccessSchema.parse(data));
+  });
+
+export const addStoreMemberFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.addStoreMember(server.storeMemberInviteSchema.parse(data), context.userId);
+  });
+
+export const setStoreMemberRoleFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.setStoreMemberRole(server.storeMemberRoleSchema.parse(data), context.userId);
+  });
+
+export const removeStoreMemberFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.removeStoreMember(server.storeMemberRemoveSchema.parse(data), context.userId);
+  });
+
+export const setStoreOwnerFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => data)
+  .handler(async ({ data, context }) => {
+    const server = await import("@/lib/platform-admin.server");
+    await server.assertPlatformAdmin(context.supabase, context.userId);
+    return server.setStoreOwner(server.storeOwnerSchema.parse(data), context.userId);
+  });
