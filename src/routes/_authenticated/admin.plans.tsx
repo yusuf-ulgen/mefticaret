@@ -20,6 +20,7 @@ import { savePlatformPlan } from "@/lib/admin.functions";
 import { savePlanFeatures } from "@/lib/subscription.functions";
 import { planFeaturesQuery, type PlanFeatureRow } from "@/lib/subscription-queries";
 import { METRIC_CATALOG, limitLabel } from "@/lib/subscription";
+import { MODULE_CATALOG, isModuleKey } from "@/lib/plan-features";
 
 export const Route = createFileRoute("/_authenticated/admin/plans")({
   head: () => ({
@@ -53,6 +54,9 @@ type FeatureDraft = {
   limitValue: string;
   isEnabled: boolean;
   sortOrder: number;
+  /** Modül (aç/kapa özellik) satırı mı? */
+  isModule: boolean;
+  description?: string;
 };
 
 function toDraft(plan?: PlanRow): PlanDraft {
