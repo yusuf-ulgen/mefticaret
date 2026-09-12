@@ -417,11 +417,55 @@ function AdminPlans() {
                           }
                         />
                       </div>
+                      )
                     ))}
                   </div>
                 ) : (
                   <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
                     Paketi kaydettikten sonra limitleri düzenleyebilirsin.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label>Paket özellikleri (modüller)</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Kapalı modüller mağaza menüsünde görünmez ve sunucu tarafında da engellenir.
+                  </p>
+                </div>
+                {draft.id ? (
+                  <div className="space-y-2">
+                    {features.map((feature, index) =>
+                      feature.isModule ? (
+                        <div
+                          key={feature.metricKey}
+                          className="flex items-center justify-between gap-3 rounded-lg border border-border p-2"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">{feature.label}</p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {feature.description ?? feature.metricKey}
+                            </p>
+                          </div>
+                          <Switch
+                            checked={feature.isEnabled}
+                            aria-label={`${feature.label} açık`}
+                            onCheckedChange={(checked) =>
+                              setFeatures(
+                                features.map((row, rowIndex) =>
+                                  rowIndex === index ? { ...row, isEnabled: checked } : row,
+                                ),
+                              )
+                            }
+                          />
+                        </div>
+                      ) : null,
+                    )}
+                  </div>
+                ) : (
+                  <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+                    Paketi kaydettikten sonra modülleri açıp kapatabilirsin.
                   </p>
                 )}
               </div>
