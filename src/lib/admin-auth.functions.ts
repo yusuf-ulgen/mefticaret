@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
 /**
  * `/admin/login` akışının sunucu uçları.
  *
@@ -79,6 +81,35 @@ export const adminLoginPassword = createServerFn({ method: "POST" })
 
     const tokenHash = await mod.mintSupabaseHandoff(row.email);
     return { ok: true as const, tokenHash, email: row.email };
+  });
+
+/**
+ * Normal e-posta/şifre girişinden sonra çağrılır.
+ *
+ * Kullanıcının `platform_admin` rolü veritabanından doğrulanır; yalnızca gerçek
+ * platform yöneticileri için panel oturumu açılır. Diğer tüm kullanıcılar için
+ * `allowed: false` döner ve hiçbir çerez yazılmaz.
+ */
+export const openAdminPanelSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const mod = await import("./admin-auth.server");
+    const userId = context.userId;
+    if (!userId) return { allowed: false as const };
+
+    if (!(await mod.isPlatformAdminUser(userId))) {
+      await mod.clearAdminSession();
+      return { allowed: false as const };
+    }
+
+    const session = await mod.adminSession();
+    await session.update({
+      stage: "authenticated",
+      userId,
+      email: (context.claims as { email?: string } | undefined)?.email,
+      at: Date.now(),
+    });
+    return { allowed: true as const };
   });
 
 /** Panel oturumunu kapatır. */
