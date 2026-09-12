@@ -1,4 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { openAdminPanelSession } from "@/lib/admin-auth.functions";
 import { useEffect, useState } from "react";
 import { Eye, EyeOff, Lock, Mail, Rocket, User } from "lucide-react";
 import { toast } from "sonner";
@@ -51,12 +53,29 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
 
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/stores";
+  const openAdminPanel = useServerFn(openAdminPanelSession);
+  const [routing, setRouting] = useState(false);
 
   useEffect(() => {
-    if (!loading && session) {
-      void navigate({ to: safeNext, replace: true });
-    }
-  }, [loading, session, navigate, safeNext]);
+    if (loading || !session || routing) return;
+    setRouting(true);
+    void (async () => {
+      // Süper yönetici hesapları doğrudan platform paneline gider; yetki
+      // yalnızca sunucuda, veritabanındaki role göre belirlenir.
+      if (safeNext === "/stores" || safeNext === "/admin") {
+        try {
+          const result = await openAdminPanel();
+          if (result.allowed) {
+            await navigate({ to: "/admin", replace: true });
+            return;
+          }
+        } catch {
+          /* yetkisiz hesaplar normal panele yönlendirilir */
+        }
+      }
+      await navigate({ to: safeNext === "/admin" ? "/stores" : safeNext, replace: true });
+    })();
+  }, [loading, session, navigate, safeNext, routing, openAdminPanel]);
 
   async function handleLogin(event: React.FormEvent) {
     event.preventDefault();
@@ -69,7 +88,6 @@ function AuthPage() {
     }
     void logAuthEvent({ data: { event: "login", method: "password" } }).catch(() => {});
     toast.success("Hoş geldin!");
-    void navigate({ to: safeNext, replace: true });
   }
 
   async function handleRegister(event: React.FormEvent) {
