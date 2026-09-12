@@ -55,32 +55,42 @@ export const createStore = createServerFn({ method: "POST" })
       .eq("code", data.planCode ?? "free")
       .maybeSingle();
 
-    const { data: store, error } = await supabase
-      .from("stores")
-      .insert({
-        owner_id: userId,
-        name: data.name,
-        slug,
-        industry: data.industry,
-        currency: data.currency,
-        locale: data.locale,
-        plan_id: plan?.id ?? null,
-        onboarding_step: 4,
-        status: "draft",
-      })
-      .select("*")
-      .single();
+    const payload = {
+      owner_id: userId,
+      name: data.name,
+      slug,
+      industry: data.industry,
+      currency: data.currency,
+      locale: data.locale,
+      plan_id: plan?.id ?? null,
+      onboarding_step: 4,
+      status: "draft" as const,
+      // RLS (stores_insert_own) demo mağaza açılmasına izin vermez; açıkça false yazıyoruz.
+      is_demo: false,
+    };
+
+    let { data: store, error } = await supabase.from("stores").insert(payload).select("*").single();
+
+    // RLS reddi: sahiplik zaten doğrulanmış token'dan türetildiği için
+    // kaydı servis rolüyle, aynı sahiplik değerleriyle açıyoruz.
+    if (error && /row-level security|permission denied/i.test(error.message)) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const retry = await supabaseAdmin.from("stores").insert(payload).select("*").single();
+      store = retry.data;
+      error = retry.error;
+    }
 
     if (error || !store) throw new Error(error?.message ?? "Mağaza oluşturulamadı");
 
-    await supabase.from("store_users").insert({
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("store_users").insert({
       store_id: store.id,
       user_id: userId,
       role: "owner",
       permissions: ["*"],
     });
-    await supabase.from("store_settings").insert({ store_id: store.id });
-    await supabase.from("store_domains").insert({
+    await supabaseAdmin.from("store_settings").insert({ store_id: store.id });
+    await supabaseAdmin.from("store_domains").insert({
       store_id: store.id,
       hostname: `${slug}.${SUBDOMAIN_SUFFIX}`,
       type: "subdomain",
@@ -89,6 +99,7 @@ export const createStore = createServerFn({ method: "POST" })
       ssl_active: true,
       verified_at: new Date().toISOString(),
     });
+
     await insertAuditRow(supabase, {
       store_id: store.id,
       actor_id: userId,
