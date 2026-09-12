@@ -240,6 +240,7 @@ function AdminPlans() {
             </p>
             <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">
               {featuresByPlan(plan.id)
+                .filter((feature) => !isModuleKey(feature.metric_key))
                 .slice(0, 4)
                 .map((feature) => (
                   <li key={feature.id}>
