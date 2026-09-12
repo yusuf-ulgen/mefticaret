@@ -581,6 +581,13 @@ const GUIDES = [
     description:
       "Trendyol, Hepsiburada, Amazon ve N11 stok, fiyat ve siparişlerini tek panelde yönetin.",
   },
+  {
+    to: "/seo-ve-raporlama",
+    eyebrow: "SEO & Rapor",
+    title: "SEO ve raporlama",
+    description:
+      "Dönüşüm ve kanal raporlarını tek ekranda izleyin, SEO ayarlarıyla organik trafiğinizi artırın.",
+  },
 ] as const;
 
 /** Ana sayfada rehber içeriklerini öne çıkaran bölüm. */
