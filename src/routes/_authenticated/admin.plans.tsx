@@ -74,7 +74,7 @@ function toDraft(plan?: PlanRow): PlanDraft {
   };
 }
 
-/** Paket limitleri veritabanından okunur; eksik metrikler katalogdan boş (sınırsız) eklenir. */
+/** Paket limitleri ve modülleri veritabanından okunur; eksik satırlar katalogdan eklenir. */
 function toFeatureDrafts(rows: PlanFeatureRow[]): FeatureDraft[] {
   const byKey = new Map(rows.map((row) => [row.metric_key, row]));
   const drafts: FeatureDraft[] = METRIC_CATALOG.map((metric, index) => {
@@ -87,8 +87,25 @@ function toFeatureDrafts(rows: PlanFeatureRow[]): FeatureDraft[] {
       limitValue: row?.limit_value === null || row?.limit_value === undefined ? "" : String(row.limit_value),
       isEnabled: row?.is_enabled ?? true,
       sortOrder: row?.sort_order ?? index + 1,
+      isModule: false,
     };
   });
+
+  for (const [index, module] of MODULE_CATALOG.entries()) {
+    const row = byKey.get(module.key);
+    byKey.delete(module.key);
+    drafts.push({
+      metricKey: module.key,
+      label: row?.label ?? module.label,
+      unit: row?.unit ?? "modül",
+      limitValue: "",
+      isEnabled: row?.is_enabled ?? false,
+      sortOrder: row?.sort_order ?? 101 + index,
+      isModule: true,
+      description: module.description,
+    });
+  }
+
   let extra = drafts.length;
   for (const row of byKey.values()) {
     extra += 1;
@@ -99,6 +116,7 @@ function toFeatureDrafts(rows: PlanFeatureRow[]): FeatureDraft[] {
       limitValue: row.limit_value === null ? "" : String(row.limit_value),
       isEnabled: row.is_enabled,
       sortOrder: row.sort_order || extra,
+      isModule: isModuleKey(row.metric_key),
     });
   }
   return drafts;
