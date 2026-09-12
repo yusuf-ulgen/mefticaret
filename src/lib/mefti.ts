@@ -1,6 +1,6 @@
 /**
  * Mefticaret çekirdek sabitleri ve yardımcıları (framework-agnostik, izomorfik).
- * Modül sınırları: /lib -> shared katman. Modüller (products, orders ...) FAZ 2+.
+ * Modül sınırları: /lib -> shared katman.
  */
 
 export const INDUSTRIES = [
@@ -31,10 +31,10 @@ export const ONBOARDING_STEPS = [
   { step: 1, title: "Hesap", description: "Hesabın hazır" },
   { step: 2, title: "Mağaza adı", description: "Marka adını belirle" },
   { step: 3, title: "Sektör", description: "Ne satıyorsun?" },
-  { step: 4, title: "Tema", description: "Görünümü seç (FAZ 3)" },
-  { step: 5, title: "İlk ürün", description: "Katalog başlangıcı (FAZ 2)" },
-  { step: 6, title: "Ödeme", description: "Ödeme sağlayıcısı (FAZ 4)" },
-  { step: 7, title: "Kargo", description: "Kargo sağlayıcısı (FAZ 4)" },
+  { step: 4, title: "Tema", description: "Vitrin temasını seç ve yayınla" },
+  { step: 5, title: "İlk ürün", description: "Katalogda ilk ürünü yayınla" },
+  { step: 6, title: "Ödeme", description: "Ödeme yöntemini etkinleştir" },
+  { step: 7, title: "Kargo", description: "Kargo tarifesi tanımla" },
   { step: 8, title: "Domain", description: "Alt alan adı / özel domain" },
   { step: 9, title: "Ayarlar", description: "Para birimi, dil, vergi" },
   { step: 10, title: "Yayınla", description: "Mağazayı yayına al" },

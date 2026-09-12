@@ -36,6 +36,7 @@ import {
   PenLine,
   Radio,
   Receipt,
+  Rocket,
   RefreshCcw,
   RotateCcw,
   Search,
@@ -85,6 +86,12 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       icon: LayoutDashboard,
       items: [
         { label: "Panel", to: p("dashboard"), icon: LayoutDashboard, keywords: "dashboard özet" },
+        {
+          label: "Kurulum Sihirbazı",
+          to: p("setup"),
+          icon: Rocket,
+          keywords: "kurulum setup onboarding adım yayına al",
+        },
         { label: "Canlı İzleme", to: p("live"), icon: Radio, keywords: "live gerçek zamanlı" },
         { label: "Operasyon Merkezi", to: p("tasks"), icon: ClipboardList, keywords: "görev" },
         { label: "Bildirimler", to: p("notifications"), icon: Bell },

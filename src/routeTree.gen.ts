@@ -198,6 +198,7 @@ import { Route as AuthenticatedStoreStoreIdSeoRouteImport } from './routes/_auth
 import { Route as AuthenticatedStoreStoreIdSeoEditorRouteImport } from './routes/_authenticated/store.$storeId.seo-editor'
 import { Route as AuthenticatedStoreStoreIdSettingsRouteImport } from './routes/_authenticated/store.$storeId.settings'
 import { Route as AuthenticatedStoreStoreIdSettlementsRouteImport } from './routes/_authenticated/store.$storeId.settlements'
+import { Route as AuthenticatedStoreStoreIdSetupRouteImport } from './routes/_authenticated/store.$storeId.setup'
 import { Route as AuthenticatedStoreStoreIdShipmentsRouteImport } from './routes/_authenticated/store.$storeId.shipments'
 import { Route as AuthenticatedStoreStoreIdShippingRouteImport } from './routes/_authenticated/store.$storeId.shipping'
 import { Route as AuthenticatedStoreStoreIdShippingEconomicsRouteImport } from './routes/_authenticated/store.$storeId.shipping-economics'
@@ -1329,6 +1330,12 @@ const AuthenticatedStoreStoreIdSettlementsRoute =
     path: '/settlements',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdSetupRoute =
+  AuthenticatedStoreStoreIdSetupRouteImport.update({
+    id: '/setup',
+    path: '/setup',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdShipmentsRoute =
   AuthenticatedStoreStoreIdShipmentsRouteImport.update({
     id: '/shipments',
@@ -1900,6 +1907,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/seo-editor': typeof AuthenticatedStoreStoreIdSeoEditorRoute
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/settlements': typeof AuthenticatedStoreStoreIdSettlementsRoute
+  '/store/$storeId/setup': typeof AuthenticatedStoreStoreIdSetupRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
   '/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
@@ -2154,6 +2162,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/seo-editor': typeof AuthenticatedStoreStoreIdSeoEditorRoute
   '/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/store/$storeId/settlements': typeof AuthenticatedStoreStoreIdSettlementsRoute
+  '/store/$storeId/setup': typeof AuthenticatedStoreStoreIdSetupRoute
   '/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
   '/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
@@ -2412,6 +2421,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/seo-editor': typeof AuthenticatedStoreStoreIdSeoEditorRoute
   '/_authenticated/store/$storeId/settings': typeof AuthenticatedStoreStoreIdSettingsRoute
   '/_authenticated/store/$storeId/settlements': typeof AuthenticatedStoreStoreIdSettlementsRoute
+  '/_authenticated/store/$storeId/setup': typeof AuthenticatedStoreStoreIdSetupRoute
   '/_authenticated/store/$storeId/shipments': typeof AuthenticatedStoreStoreIdShipmentsRoute
   '/_authenticated/store/$storeId/shipping': typeof AuthenticatedStoreStoreIdShippingRoute
   '/_authenticated/store/$storeId/shipping-economics': typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
@@ -2670,6 +2680,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/seo-editor'
     | '/store/$storeId/settings'
     | '/store/$storeId/settlements'
+    | '/store/$storeId/setup'
     | '/store/$storeId/shipments'
     | '/store/$storeId/shipping'
     | '/store/$storeId/shipping-economics'
@@ -2924,6 +2935,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/seo-editor'
     | '/store/$storeId/settings'
     | '/store/$storeId/settlements'
+    | '/store/$storeId/setup'
     | '/store/$storeId/shipments'
     | '/store/$storeId/shipping'
     | '/store/$storeId/shipping-economics'
@@ -3181,6 +3193,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/seo-editor'
     | '/_authenticated/store/$storeId/settings'
     | '/_authenticated/store/$storeId/settlements'
+    | '/_authenticated/store/$storeId/setup'
     | '/_authenticated/store/$storeId/shipments'
     | '/_authenticated/store/$storeId/shipping'
     | '/_authenticated/store/$storeId/shipping-economics'
@@ -4658,6 +4671,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSettlementsRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/setup': {
+      id: '/_authenticated/store/$storeId/setup'
+      path: '/setup'
+      fullPath: '/store/$storeId/setup'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSetupRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/shipments': {
       id: '/_authenticated/store/$storeId/shipments'
       path: '/shipments'
@@ -5364,6 +5384,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdSeoEditorRoute: typeof AuthenticatedStoreStoreIdSeoEditorRoute
   AuthenticatedStoreStoreIdSettingsRoute: typeof AuthenticatedStoreStoreIdSettingsRoute
   AuthenticatedStoreStoreIdSettlementsRoute: typeof AuthenticatedStoreStoreIdSettlementsRoute
+  AuthenticatedStoreStoreIdSetupRoute: typeof AuthenticatedStoreStoreIdSetupRoute
   AuthenticatedStoreStoreIdShipmentsRoute: typeof AuthenticatedStoreStoreIdShipmentsRoute
   AuthenticatedStoreStoreIdShippingRoute: typeof AuthenticatedStoreStoreIdShippingRoute
   AuthenticatedStoreStoreIdShippingEconomicsRoute: typeof AuthenticatedStoreStoreIdShippingEconomicsRoute
@@ -5544,6 +5565,7 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdSettingsRoute,
     AuthenticatedStoreStoreIdSettlementsRoute:
       AuthenticatedStoreStoreIdSettlementsRoute,
+    AuthenticatedStoreStoreIdSetupRoute: AuthenticatedStoreStoreIdSetupRoute,
     AuthenticatedStoreStoreIdShipmentsRoute:
       AuthenticatedStoreStoreIdShipmentsRoute,
     AuthenticatedStoreStoreIdShippingRoute:
