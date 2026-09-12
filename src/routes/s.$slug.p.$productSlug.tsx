@@ -246,7 +246,7 @@ function ProductPage() {
   };
 
   return (
-    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} commerce={commerce} sections={storefrontData?.sections}>
+    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} commerce={commerce}>
       <nav style={{ padding: "20px 0", fontSize: 13, color: muted }}>
         <Link to="/s/$slug" params={{ slug: store.slug }} style={{ color: muted, textDecoration: "none" }}>
           Ürünler
