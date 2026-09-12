@@ -94,15 +94,19 @@ type IdMap = Map<string, string>;
 
 async function loadMap(db: Db, targetStoreId: string, entity: string): Promise<IdMap> {
   const map: IdMap = new Map();
-  const { data, error } = await any(db)
-    .from("migration_records")
-    .select("external_id, local_id")
-    .eq("store_id", targetStoreId)
-    .eq("entity", entity)
-    .not("local_id", "is", null);
-  if (error) throw new Error(error.message);
-  for (const row of (data ?? []) as { external_id: string; local_id: string }[]) {
-    map.set(row.external_id, row.local_id);
+  const page = 1000;
+  for (let offset = 0; offset < 50_000; offset += page) {
+    const { data, error } = await any(db)
+      .from("migration_records")
+      .select("external_id, local_id")
+      .eq("store_id", targetStoreId)
+      .eq("entity", entity)
+      .not("local_id", "is", null)
+      .range(offset, offset + page - 1);
+    if (error) throw new Error(error.message);
+    const batch = (data ?? []) as { external_id: string; local_id: string }[];
+    for (const row of batch) map.set(row.external_id, row.local_id);
+    if (batch.length < page) break;
   }
   return map;
 }
