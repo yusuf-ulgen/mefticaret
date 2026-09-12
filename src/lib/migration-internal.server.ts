@@ -71,14 +71,22 @@ function chunks<T>(items: T[]): T[][] {
 }
 
 async function fetchRows(db: Db, table: string, storeId: string): Promise<Record<string, unknown>[]> {
-  const { data, error } = await any(db)
-    .from(table)
-    .select("*")
-    .eq("store_id", storeId)
-    .order("created_at", { ascending: true })
-    .limit(MAX_ROWS);
-  if (error) throw new Error(`${table}: ${error.message}`);
-  return (data ?? []) as Record<string, unknown>[];
+  const rows: Record<string, unknown>[] = [];
+  const page = 1000;
+  // PostgREST tek istekte en fazla 1000 satır döner; sayfalayarak tümünü okur.
+  for (let offset = 0; offset < MAX_ROWS; offset += page) {
+    const { data, error } = await any(db)
+      .from(table)
+      .select("*")
+      .eq("store_id", storeId)
+      .order("created_at", { ascending: true })
+      .range(offset, offset + page - 1);
+    if (error) throw new Error(`${table}: ${error.message}`);
+    const batch = (data ?? []) as Record<string, unknown>[];
+    rows.push(...batch);
+    if (batch.length < page) break;
+  }
+  return rows;
 }
 
 /** Kaynak kayıt kimliği → hedef kayıt kimliği eşlemesi. */
