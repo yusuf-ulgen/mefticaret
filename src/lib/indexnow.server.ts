@@ -9,7 +9,15 @@ import { buildStoreSitemap } from "@/lib/sitemap.server";
 
 export const INDEXNOW_KEY = "83870d8d07e0416d9f34d4dbc1ff917f";
 
-const MARKETING_PATHS = ["/", "/en-iyi-e-ticaret-altyapisi"];
+const MARKETING_PATHS = [
+  "/",
+  "/en-iyi-e-ticaret-altyapisi",
+  "/seo-ve-raporlama",
+  "/e-ticaret-sitesi-kurma",
+  "/dropshipping-nasil-yapilir",
+  "/pazaryeri-entegrasyonu",
+  "/blog",
+];
 
 const ENDPOINTS = [
   "https://api.indexnow.org/indexnow",
