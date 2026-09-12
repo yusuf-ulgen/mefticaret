@@ -450,3 +450,24 @@ export function serpPreview(title: string, description: string, url: string) {
       plainText(description).length >= 70 && plainText(description).length <= SEO_DESCRIPTION_MAX,
   };
 }
+
+/**
+ * Mağaza SEO şablonlarındaki {{token}} alanlarını gerçek içerik değerleriyle
+ * doldurur. Boş kalan token'lar temizlenir; sonuç boşsa null döner.
+ */
+export function renderSeoTemplate(
+  template: string | undefined | null,
+  tokens: Record<string, string | number | null | undefined>,
+): string | null {
+  if (!template || !template.trim()) return null;
+  const filled = template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_match, key: string) => {
+    const value = tokens[key];
+    return value === null || value === undefined ? "" : String(value);
+  });
+  const cleaned = filled
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s*([|–-])\s*(?=$|[|–-])/g, "")
+    .replace(/^[\s|–-]+|[\s|–-]+$/g, "")
+    .trim();
+  return cleaned.length > 0 ? cleaned : null;
+}
