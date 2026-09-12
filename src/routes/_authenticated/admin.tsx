@@ -18,11 +18,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
       // istekte doğrulanır ve kullanıcının `platform_admin` rolü veritabanından
       // yeniden okunur.
       const panel = await checkAdminPanelSession();
-      if (!panel.allowed) throw redirect({ to: "/admin/login" });
+      if (!panel.allowed) throw redirect({ to: "/auth", search: { next: "/admin" } });
       return { platformAdmin: true as const };
     } catch (error) {
       if (isRedirect(error)) throw error;
-      throw redirect({ to: "/admin/login" });
+      throw redirect({ to: "/auth", search: { next: "/admin" } });
     }
   },
   head: () => ({

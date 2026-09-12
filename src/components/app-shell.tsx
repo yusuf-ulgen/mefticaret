@@ -336,11 +336,6 @@ function UserMenu() {
         <DropdownMenuItem asChild>
           <Link to="/stores">Mağazalarım</Link>
         </DropdownMenuItem>
-        {isPlatformAdmin ? (
-          <DropdownMenuItem asChild>
-            <Link to="/admin">Süper Admin</Link>
-          </DropdownMenuItem>
-        ) : null}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 size-4" /> Çıkış yap

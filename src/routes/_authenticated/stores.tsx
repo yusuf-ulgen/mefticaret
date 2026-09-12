@@ -34,15 +34,6 @@ function StoresPage() {
       description="Tek hesap ile birden fazla mağaza yönet. Her mağazanın verisi tamamen izoledir."
       actions={
         <>
-          <Badge variant="secondary" className="self-center">
-            {isPlatformAdmin ? "Platform yöneticisi" : "Mağaza sahibi"}
-          </Badge>
-          {/* Süper admin girişi yalnızca veritabanındaki platform_admin rolüyle görünür. */}
-          {isPlatformAdmin ? (
-            <Button asChild variant="outline">
-              <Link to="/admin">Süper Admin</Link>
-            </Button>
-          ) : null}
           <Button asChild>
             <Link to="/onboarding">
               <Plus className="mr-2 size-4" /> Yeni mağaza
