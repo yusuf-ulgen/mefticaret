@@ -20,6 +20,7 @@ import {
   type SectionProps,
 } from "@/components/storefront-primitives";
 import { formatMoney } from "@/lib/mefti";
+import { WokieeProductCard } from "@/components/wokiee/product-card";
 import type { ResolvedSection } from "@/lib/theme-sections";
 
 /** Gelişmiş tema bloklarının vitrin karşılıkları (kategori bazlı blok kütüphanesi). */
@@ -250,6 +251,8 @@ export function ExtendedBlock({ section, context }: { section: ResolvedSection; 
       return <ProductBlock {...props} source="filter" filterKey="filter" />;
     case "product_feed":
       return <ProductFeedBlock {...props} />;
+    case "product_tabs":
+      return <ProductTabs {...props} />;
     case "product_recently_viewed":
       return <RecentlyViewedBlock {...props} />;
 
@@ -294,6 +297,12 @@ export function ExtendedBlock({ section, context }: { section: ResolvedSection; 
       return <SocialProof {...props} />;
     case "reviews":
       return <ReviewsBlock {...props} />;
+    case "lookbook_hotspots":
+      return <LookbookHotspots {...props} />;
+    case "flash_sale":
+      return <FlashSale {...props} />;
+    case "social_gallery":
+      return <SocialGallery {...props} />;
 
     /* E-TİCARET */
     case "cart_block":

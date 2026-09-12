@@ -35,6 +35,7 @@ export type ExtendedSectionType =
   | "product_recently_viewed"
   | "product_recommended"
   | "product_feed"
+  | "product_tabs"
   // Kategori
   | "category_slider"
   | "category_cards"
@@ -56,6 +57,9 @@ export type ExtendedSectionType =
   | "trust_badges"
   | "social_proof"
   | "reviews"
+  | "lookbook_hotspots"
+  | "flash_sale"
+  | "social_gallery"
   // E-ticaret
   | "cart_block"
   | "featured_collection"
@@ -573,6 +577,21 @@ export const EXTENDED_SECTIONS: ThemeSectionDefinition[] = [
       },
     ],
   },
+  {
+    type: "product_tabs",
+    label: "Sekmeli ürün vitrini",
+    category: "product",
+    description: "En çok satanlar, yeni gelenler ve trend ürünleri tek alanda gösterir.",
+    slot: "body",
+    repeatable: true,
+    defaults: { title: "Şimdi keşfet", tabs: "En Çok Satanlar | bestsellers\nYeni Gelenler | new\nTrend Ürünler | trending", limit: 8, columns: 4 },
+    fields: [
+      title("Başlık"),
+      { key: "tabs", label: "Sekmeler", kind: "lines", help: "Her satır: Etiket | bestsellers, new, trending veya discounted" },
+      limitField(2, 24),
+      columnsField(2, 5),
+    ],
+  },
 
   /* ------------------------------------------------------------ KATEGORİ */
   {
@@ -884,6 +903,57 @@ export const EXTENDED_SECTIONS: ThemeSectionDefinition[] = [
       { key: "items", label: "Yorumlar", kind: "lines", help: "Her satır: Puan (1-5) | Yorum | İsim" },
       columnsField(1, 4),
     ],
+  },
+  {
+    type: "lookbook_hotspots",
+    label: "Hotspot Lookbook",
+    category: "marketing",
+    description: "Görsel üzerinde ürün detaylarını açan etkileşimli noktalar.",
+    slot: "body",
+    repeatable: true,
+    defaults: {
+      title: "Görünümü tamamla",
+      text: "Parçaların üzerine dokun, görünümü keşfet.",
+      imageUrl: "",
+      hotspots: "36 | 48 | İlk parça | 1\n57 | 69 | İkinci parça | 2\n48 | 88 | Üçüncü parça | 3",
+    },
+    fields: [
+      title("Başlık"), textArea, imageUrl,
+      { key: "hotspots", label: "Ürün noktaları", kind: "lines", help: "Her satır: Sol % | Üst % | Etiket | Ürün sırası" },
+    ],
+  },
+  {
+    type: "flash_sale",
+    label: "Stoklu Flaş İndirim",
+    category: "marketing",
+    description: "Geri sayım ve stok ilerlemesi bulunan kampanya alanı.",
+    slot: "body",
+    repeatable: true,
+    defaults: {
+      title: "Flaş fırsat",
+      text: "Seçili ürünlerde süreli fiyatlar.",
+      imageUrl: "",
+      endsAt: "2027-01-01T00:00:00",
+      stockPercent: 72,
+      ctaLabel: "Fırsatları keşfet",
+      ctaUrl: "#urunler",
+    },
+    fields: [
+      title("Başlık"), textArea, imageUrl,
+      { key: "endsAt", label: "Bitiş tarihi", kind: "text", placeholder: "2027-01-01T00:00:00" },
+      { key: "stockPercent", label: "Satılan stok (%)", kind: "number", min: 0, max: 100 },
+      ctaLabel, ctaUrl,
+    ],
+  },
+  {
+    type: "social_gallery",
+    label: "Sosyal Galeri",
+    category: "marketing",
+    description: "Sosyal medya görünümünde alışveriş yapılabilir görsel akışı.",
+    slot: "body",
+    repeatable: true,
+    defaults: { title: "Topluluğumuzdan", text: "@magazam etiketiyle paylaş.", imageUrl: "", columns: 4 },
+    fields: [title("Başlık"), textArea, imageUrl, columnsField(2, 6)],
   },
 
   /* ---------------------------------------------------------- E-TİCARET */
