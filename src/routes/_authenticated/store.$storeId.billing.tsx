@@ -379,11 +379,17 @@ function BillingPage() {
                   .filter((plan) => plan.is_active)
                   .map((plan) => {
                     const active = plan.id === activePlanId;
-                    const planLimits = (planFeatures ?? [])
-                      .filter((feature) => feature.plan_id === plan.id && feature.is_enabled)
+                    const planRows = (planFeatures ?? []).filter(
+                      (feature) => feature.plan_id === plan.id && feature.is_enabled,
+                    );
+                    const planLimits = planRows
+                      .filter((feature) => !isModuleKey(feature.metric_key))
                       .sort((a, b) => a.sort_order - b.sort_order)
                       .slice(0, 6);
-                    const extras = readFeatures(plan.features).slice(0, 3);
+                    const planModules = planRows
+                      .filter((feature) => isModuleKey(feature.metric_key))
+                      .sort((a, b) => a.sort_order - b.sort_order);
+                    const extras = readFeatures(plan.features).slice(0, 2);
                     const price =
                       interval === "yearly"
                         ? Number(plan.price_yearly ?? 0)
