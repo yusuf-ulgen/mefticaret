@@ -74,9 +74,20 @@ export const adminLoginLogout = createServerFn({ method: "POST" }).handler(async
   return { ok: true as const };
 });
 
-/** `/admin/*` kapısı: ayrı panel oturumu zorunlu. */
+/**
+ * `/admin/*` kapısı: ayrı panel oturumu zorunlu.
+ *
+ * Yetki, çerezdeki kullanıcı için her istekte veritabanından yeniden
+ * doğrulanır; istemci durumu yetki kaynağı değildir.
+ */
 export const checkAdminPanelSession = createServerFn({ method: "POST" }).handler(async () => {
   const mod = await import("./admin-auth.server");
   const data = await mod.readAdminSession();
-  return { allowed: mod.hasAdminPanelSession(data) };
+  if (!mod.hasAdminPanelSession(data) || !data.userId) return { allowed: false as const };
+  const isAdmin = await mod.isPlatformAdminUser(data.userId);
+  if (!isAdmin) {
+    await mod.clearAdminSession();
+    return { allowed: false as const };
+  }
+  return { allowed: true as const };
 });

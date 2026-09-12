@@ -5,12 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
+    // Süper admin bölümü tamamen ayrı bir giriş akışıyla korunur
+    // (`/admin/login` + sunucu tarafı panel oturumu), bu yüzden mağaza
+    // oturumu burada zorunlu tutulmaz.
+    const isAdminArea =
+      location.pathname === "/admin" || location.pathname.startsWith("/admin/");
+    if (isAdminArea) return;
+
     const { data } = await supabase.auth.getSession();
     if (!data.session) {
-      // Süper admin bölümünün kendi giriş akışı var; mağaza girişine yönlendirilmez.
-      if (location.pathname === "/admin" || location.pathname.startsWith("/admin/")) {
-        throw redirect({ to: "/admin/login" });
-      }
       throw redirect({ to: "/auth", search: { next: location.href } });
     }
   },

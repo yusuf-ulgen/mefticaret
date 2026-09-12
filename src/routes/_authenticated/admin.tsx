@@ -1,6 +1,6 @@
 import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-router";
 
-import { checkPlatformAdminAccess } from "@/lib/access-guard.functions";
+
 import { checkAdminPanelSession } from "@/lib/admin-auth.functions";
 
 /**
@@ -12,21 +12,17 @@ import { checkAdminPanelSession } from "@/lib/admin-auth.functions";
  * güvenlik kaydına yazılır.
  */
 export const Route = createFileRoute("/_authenticated/admin")({
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async () => {
     try {
-      const [result, panel] = await Promise.all([
-        checkPlatformAdminAccess({ data: { route: location.pathname } }),
-        checkAdminPanelSession(),
-      ]);
-
-      if (!result.allowed) throw redirect({ to: "/unauthorized" });
-      // Süper admin bölümü ayrıca kendi giriş akışını (şifre + tek kullanımlık
-      // kod) gerektirir; Supabase oturumu tek başına yeterli değildir.
+      // Tek yetki kaynağı: sunucu tarafındaki panel oturumu. Oturum çerezi her
+      // istekte doğrulanır ve kullanıcının `platform_admin` rolü veritabanından
+      // yeniden okunur.
+      const panel = await checkAdminPanelSession();
       if (!panel.allowed) throw redirect({ to: "/admin/login" });
       return { platformAdmin: true as const };
     } catch (error) {
       if (isRedirect(error)) throw error;
-      throw redirect({ to: "/unauthorized" });
+      throw redirect({ to: "/admin/login" });
     }
   },
   head: () => ({
