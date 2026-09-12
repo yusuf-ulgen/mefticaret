@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ArrowUpRight, Check, Menu, X } from "lucide-react";
 
+import gdprBadge from "@/assets/gdpr-badge.webp.asset.json";
 import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -538,9 +539,17 @@ function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
-            <span>© {new Date().getFullYear()} Mefticaret</span>
-            <span className="ml-auto">{footer.badge}</span>
+            <div className="mt-10 flex flex-col items-center gap-4 border-t border-border pt-6 text-sm text-muted-foreground sm:flex-row sm:justify-between">
+              <span>© {new Date().getFullYear()} Mefticaret</span>
+              <img
+                src={gdprBadge.url}
+                alt="GDPR uyumlu"
+                loading="lazy"
+                width={48}
+                height={48}
+                className="size-12 object-contain"
+              />
+              <span>{footer.badge}</span>
             </div>
 
           </div>
