@@ -23,6 +23,7 @@ const APP_MODULE_ROUTES: Record<string, string | undefined> = {
   "facebook-marketplace": "/store/$storeId/facebook-marketplace",
   "language-center": "/store/$storeId/languages",
   "mobile-app-builder": "/store/$storeId/mobile-app",
+  "store-migration": "/store/$storeId/migration",
 
 
   "whatsapp-crm": "/store/$storeId/inbox",

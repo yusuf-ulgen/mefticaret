@@ -8,6 +8,7 @@ import {
   fetchPlatformSettings,
   fetchPlatformSummary,
   fetchPlatformTickets,
+  fetchStoreAccess,
   fetchStoreControl,
   fetchTicketMessages,
 } from "@/lib/platform-admin.functions";
@@ -77,4 +78,11 @@ export const platformLiveQuery = (minutes: number, enabled: boolean) =>
     enabled,
     refetchInterval: 15_000,
     queryFn: () => fetchPlatformLive({ data: { minutes } }),
+  });
+
+export const storeAccessQuery = (storeId: string) =>
+  queryOptions({
+    queryKey: ["platform-store-access", storeId],
+    enabled: Boolean(storeId),
+    queryFn: () => fetchStoreAccess({ data: { storeId } }),
   });

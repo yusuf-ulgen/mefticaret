@@ -66,6 +66,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { to: "/admin/stores", label: "Mağazalar", icon: Store, hint: "Oluştur, düzenle, sil", keywords: "tenant store crud" },
       { to: "/admin/users", label: "Kullanıcılar", icon: Users, hint: "Hesaplar ve roller", keywords: "profil rol" },
       { to: "/admin/sellers", label: "Satıcılar", icon: BadgeCheck, hint: "Marketplace satıcıları", keywords: "seller onay" },
+      {
+        to: "/admin/store-access",
+        label: "Mağaza Yetkilendirme",
+        icon: ShieldCheck,
+        hint: "Rol, izin ve mağaza sahipliği",
+        keywords: "yetki rol izin permission sahip owner devret ekip personel",
+      },
     ],
   },
   {

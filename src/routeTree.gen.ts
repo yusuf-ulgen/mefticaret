@@ -70,6 +70,7 @@ import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminSiteBlogRouteImport } from './routes/_authenticated/admin.site-blog'
 import { Route as AuthenticatedAdminSitePagesRouteImport } from './routes/_authenticated/admin.site-pages'
 import { Route as AuthenticatedAdminSiteSeoRouteImport } from './routes/_authenticated/admin.site-seo'
+import { Route as AuthenticatedAdminStoreAccessRouteImport } from './routes/_authenticated/admin.store-access'
 import { Route as AuthenticatedAdminStoresRouteImport } from './routes/_authenticated/admin.stores'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
@@ -585,6 +586,12 @@ const AuthenticatedAdminSiteSeoRoute =
   AuthenticatedAdminSiteSeoRouteImport.update({
     id: '/site-seo',
     path: '/site-seo',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminStoreAccessRoute =
+  AuthenticatedAdminStoreAccessRouteImport.update({
+    id: '/store-access',
+    path: '/store-access',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminStoresRoute =
@@ -1765,6 +1772,7 @@ export interface FileRoutesByFullPath {
   '/admin/site-blog': typeof AuthenticatedAdminSiteBlogRoute
   '/admin/site-pages': typeof AuthenticatedAdminSitePagesRoute
   '/admin/site-seo': typeof AuthenticatedAdminSiteSeoRoute
+  '/admin/store-access': typeof AuthenticatedAdminStoreAccessRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -2019,6 +2027,7 @@ export interface FileRoutesByTo {
   '/admin/site-blog': typeof AuthenticatedAdminSiteBlogRoute
   '/admin/site-pages': typeof AuthenticatedAdminSitePagesRoute
   '/admin/site-seo': typeof AuthenticatedAdminSiteSeoRoute
+  '/admin/store-access': typeof AuthenticatedAdminStoreAccessRoute
   '/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -2275,6 +2284,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/site-blog': typeof AuthenticatedAdminSiteBlogRoute
   '/_authenticated/admin/site-pages': typeof AuthenticatedAdminSitePagesRoute
   '/_authenticated/admin/site-seo': typeof AuthenticatedAdminSiteSeoRoute
+  '/_authenticated/admin/store-access': typeof AuthenticatedAdminStoreAccessRoute
   '/_authenticated/admin/stores': typeof AuthenticatedAdminStoresRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -2532,6 +2542,7 @@ export interface FileRouteTypes {
     | '/admin/site-blog'
     | '/admin/site-pages'
     | '/admin/site-seo'
+    | '/admin/store-access'
     | '/admin/stores'
     | '/admin/subscriptions'
     | '/admin/support'
@@ -2786,6 +2797,7 @@ export interface FileRouteTypes {
     | '/admin/site-blog'
     | '/admin/site-pages'
     | '/admin/site-seo'
+    | '/admin/store-access'
     | '/admin/stores'
     | '/admin/subscriptions'
     | '/admin/support'
@@ -3041,6 +3053,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/site-blog'
     | '/_authenticated/admin/site-pages'
     | '/_authenticated/admin/site-seo'
+    | '/_authenticated/admin/store-access'
     | '/_authenticated/admin/stores'
     | '/_authenticated/admin/subscriptions'
     | '/_authenticated/admin/support'
@@ -3747,6 +3760,13 @@ declare module '@tanstack/react-router' {
       path: '/site-seo'
       fullPath: '/admin/site-seo'
       preLoaderRoute: typeof AuthenticatedAdminSiteSeoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/store-access': {
+      id: '/_authenticated/admin/store-access'
+      path: '/store-access'
+      fullPath: '/admin/store-access'
+      preLoaderRoute: typeof AuthenticatedAdminStoreAccessRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/stores': {
@@ -5133,6 +5153,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSiteBlogRoute: typeof AuthenticatedAdminSiteBlogRoute
   AuthenticatedAdminSitePagesRoute: typeof AuthenticatedAdminSitePagesRoute
   AuthenticatedAdminSiteSeoRoute: typeof AuthenticatedAdminSiteSeoRoute
+  AuthenticatedAdminStoreAccessRoute: typeof AuthenticatedAdminStoreAccessRoute
   AuthenticatedAdminStoresRoute: typeof AuthenticatedAdminStoresRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
   AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
@@ -5180,6 +5201,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSiteBlogRoute: AuthenticatedAdminSiteBlogRoute,
   AuthenticatedAdminSitePagesRoute: AuthenticatedAdminSitePagesRoute,
   AuthenticatedAdminSiteSeoRoute: AuthenticatedAdminSiteSeoRoute,
+  AuthenticatedAdminStoreAccessRoute: AuthenticatedAdminStoreAccessRoute,
   AuthenticatedAdminStoresRoute: AuthenticatedAdminStoresRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
   AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
