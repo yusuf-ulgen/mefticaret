@@ -21,6 +21,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as OdemeTamamRouteImport } from './routes/odeme-tamam'
 import { Route as PazaryeriEntegrasyonuRouteImport } from './routes/pazaryeri-entegrasyonu'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SeoVeRaporlamaRouteImport } from './routes/seo-ve-raporlama'
 import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
 import { Route as SitemapCategoriesDotxmlRouteImport } from './routes/sitemap-categories[.]xml'
 import { Route as SitemapIndexDotxmlRouteImport } from './routes/sitemap-index[.]xml'
@@ -325,6 +326,11 @@ const PazaryeriEntegrasyonuRoute = PazaryeriEntegrasyonuRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeoVeRaporlamaRoute = SeoVeRaporlamaRouteImport.update({
+  id: '/seo-ve-raporlama',
+  path: '/seo-ve-raporlama',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapBlogDotxmlRoute = SitemapBlogDotxmlRouteImport.update({
@@ -1738,6 +1744,7 @@ export interface FileRoutesByFullPath {
   '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
+  '/seo-ve-raporlama': typeof SeoVeRaporlamaRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
@@ -1996,6 +2003,7 @@ export interface FileRoutesByTo {
   '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
+  '/seo-ve-raporlama': typeof SeoVeRaporlamaRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
@@ -2254,6 +2262,7 @@ export interface FileRoutesById {
   '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
+  '/seo-ve-raporlama': typeof SeoVeRaporlamaRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
@@ -2514,6 +2523,7 @@ export interface FileRouteTypes {
     | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
+    | '/seo-ve-raporlama'
     | '/sitemap-blog.xml'
     | '/sitemap-categories.xml'
     | '/sitemap-index.xml'
@@ -2772,6 +2782,7 @@ export interface FileRouteTypes {
     | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
+    | '/seo-ve-raporlama'
     | '/sitemap-blog.xml'
     | '/sitemap-categories.xml'
     | '/sitemap-index.xml'
@@ -3029,6 +3040,7 @@ export interface FileRouteTypes {
     | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
+    | '/seo-ve-raporlama'
     | '/sitemap-blog.xml'
     | '/sitemap-categories.xml'
     | '/sitemap-index.xml'
@@ -3289,6 +3301,7 @@ export interface RootRouteChildren {
   OdemeTamamRoute: typeof OdemeTamamRoute
   PazaryeriEntegrasyonuRoute: typeof PazaryeriEntegrasyonuRoute
   RegisterRoute: typeof RegisterRoute
+  SeoVeRaporlamaRoute: typeof SeoVeRaporlamaRoute
   SitemapBlogDotxmlRoute: typeof SitemapBlogDotxmlRoute
   SitemapCategoriesDotxmlRoute: typeof SitemapCategoriesDotxmlRoute
   SitemapIndexDotxmlRoute: typeof SitemapIndexDotxmlRoute
@@ -3443,6 +3456,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seo-ve-raporlama': {
+      id: '/seo-ve-raporlama'
+      path: '/seo-ve-raporlama'
+      fullPath: '/seo-ve-raporlama'
+      preLoaderRoute: typeof SeoVeRaporlamaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-blog.xml': {
@@ -5691,6 +5711,7 @@ const rootRouteChildren: RootRouteChildren = {
   OdemeTamamRoute: OdemeTamamRoute,
   PazaryeriEntegrasyonuRoute: PazaryeriEntegrasyonuRoute,
   RegisterRoute: RegisterRoute,
+  SeoVeRaporlamaRoute: SeoVeRaporlamaRoute,
   SitemapBlogDotxmlRoute: SitemapBlogDotxmlRoute,
   SitemapCategoriesDotxmlRoute: SitemapCategoriesDotxmlRoute,
   SitemapIndexDotxmlRoute: SitemapIndexDotxmlRoute,

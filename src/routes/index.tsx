@@ -581,6 +581,13 @@ const GUIDES = [
     description:
       "Trendyol, Hepsiburada, Amazon ve N11 stok, fiyat ve siparişlerini tek panelde yönetin.",
   },
+  {
+    to: "/seo-ve-raporlama",
+    eyebrow: "SEO & Rapor",
+    title: "SEO ve raporlama",
+    description:
+      "Dönüşüm ve kanal raporlarını tek ekranda izleyin, SEO ayarlarıyla organik trafiğinizi artırın.",
+  },
 ] as const;
 
 /** Ana sayfada rehber içeriklerini öne çıkaran bölüm. */
@@ -598,7 +605,7 @@ function GuidesSection() {
         </p>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
+      <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
         {GUIDES.map((guide) => (
           <Link
             key={guide.to}

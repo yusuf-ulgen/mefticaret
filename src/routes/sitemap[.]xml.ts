@@ -29,6 +29,10 @@ export const Route = createFileRoute("/sitemap.xml")({
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/en-iyi-e-ticaret-altyapisi", changefreq: "monthly", priority: "0.9" },
+          { path: "/dropshipping-nasil-yapilir", changefreq: "monthly", priority: "0.8" },
+          { path: "/pazaryeri-entegrasyonu", changefreq: "monthly", priority: "0.8" },
+          { path: "/e-ticaret-sitesi-kurma", changefreq: "monthly", priority: "0.8" },
+          { path: "/seo-ve-raporlama", changefreq: "monthly", priority: "0.8" },
         ];
 
         const { createClient } = await import("@supabase/supabase-js");
