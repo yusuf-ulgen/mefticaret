@@ -46,15 +46,19 @@ export const checkPlatformAdminAccess = createServerFn({ method: "POST" })
 export const checkStoreAccess = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z
-      .object({ storeId: z.string().uuid(), route: z.string().trim().max(300).default("") })
+      .object({ storeId: z.string().trim().max(100), route: z.string().trim().max(300).default("") })
       .parse(input),
   )
   .handler(async ({ data }) => {
+    const denied = { allowed: false, role: null, isPlatformAdmin: false, canManage: false };
+    // Geçersiz mağaza kimliği: hata fırlatmak yerine erişimi reddet (boş ekran olmasın).
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.storeId);
+    if (!isUuid) return denied;
+
     const { resolveCaller, logSecurityEvent } = await import("./access-guard.server");
     const caller = await resolveCaller();
-    if (!caller) {
-      return { allowed: false, role: null, isPlatformAdmin: false, canManage: false };
-    }
+    if (!caller) return denied;
 
     const [{ data: store }, { data: membership }, { data: platformRole }] = await Promise.all([
       caller.supabase.from("stores").select("id, owner_id").eq("id", data.storeId).maybeSingle(),
