@@ -33,7 +33,10 @@ function MigrationPage() {
       title="Mağaza Taşıma"
       description="Eski mağazandaki ürün, kategori, müşteri, sipariş ve içerik verilerini güvenli şekilde aktar."
     >
-      <StoreMigration storeId={storeId} />
+      <div className="space-y-6">
+        <StoreTransfer storeId={storeId} />
+        <StoreMigration storeId={storeId} />
+      </div>
     </AppShell>
   );
 }
