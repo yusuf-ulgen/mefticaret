@@ -145,7 +145,7 @@ function AdminPlans() {
     mutationFn: async (input: PlanDraft) => {
       const limits = Object.fromEntries(
         features
-          .filter((feature) => feature.isEnabled)
+          .filter((feature) => feature.isEnabled && !feature.isModule)
           .map((feature) => [
             feature.metricKey,
             feature.limitValue.trim() === "" ? -1 : Number(feature.limitValue),
