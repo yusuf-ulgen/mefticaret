@@ -300,6 +300,12 @@ export function storeQuickLinks(storeId: string): StoreNavItem[] {
     { label: "Ürünler", to: p("products"), icon: Package },
     { label: "Müşteriler", to: p("customers"), icon: Users },
     { label: "Tema", to: p("theme-editor"), icon: Palette, keywords: "tema blok vitrin" },
+    {
+      label: "Mağaza Taşıma",
+      to: p("migration"),
+      icon: ArrowLeftRight,
+      keywords: "taşıma aktarım migration veri transfer shopify ikas",
+    },
     { label: "Ayarlar", to: p("settings"), icon: Cog },
   ];
 }
