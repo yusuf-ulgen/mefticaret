@@ -83,8 +83,16 @@ export function storefrontHead(input: StorefrontHeadInput) {
   const storeName = ctx?.storeName;
   const seo = input.seo ?? {};
   const path = seo.canonical || input.path;
-  const title = seo.title || buildTitle(input.fallbackTitle, storeName);
-  const description = seo.description || input.fallbackDescription;
+
+  // Mağaza panelindeki meta şablonları (Ürün / Koleksiyon / Sayfa / Blog),
+  // içerik için özel başlık veya açıklama girilmediğinde otomatik uygulanır.
+  const template = input.templateKey ? ctx?.settings.templates?.[input.templateKey] : undefined;
+  const tokens = { store_name: storeName ?? "", ...(input.tokens ?? {}) };
+  const templateTitle = renderSeoTemplate(template?.title, tokens);
+  const templateDescription = renderSeoTemplate(template?.description, tokens);
+
+  const title = seo.title || templateTitle || buildTitle(input.fallbackTitle, storeName);
+  const description = seo.description || templateDescription || input.fallbackDescription;
   const image = seo.ogImage || input.image || ctx?.settings.defaultOgImage || null;
   const noindex = Boolean(seo.noindex || ctx?.settings.noindexStore);
   const keywords = seo.keywords || ctx?.settings.keywords;
