@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { AppShell } from "@/components/app-shell";
 import { StoreMigration } from "@/components/store-migration";
+import { StoreTransfer } from "@/components/store-transfer";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/migration")({
   head: () => ({
