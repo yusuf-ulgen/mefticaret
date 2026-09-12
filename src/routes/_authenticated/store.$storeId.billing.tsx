@@ -428,6 +428,12 @@ function BillingPage() {
                               {feature.unit ? ` ${feature.unit}` : ""}
                             </li>
                           ))}
+                          {planModules.map((feature) => (
+                            <li key={feature.id} className="flex items-center gap-1.5">
+                              <Check className="size-3.5 shrink-0 text-primary" />
+                              {feature.label}
+                            </li>
+                          ))}
                           {extras.map((extra) => (
                             <li key={extra} className="flex items-center gap-1.5">
                               <Check className="size-3.5 text-primary" />
