@@ -9,3 +9,5 @@
 - [x] Header, ana sayfa, PLP, PDP ve AJAX sepet deneyimi
 - [x] Tema editörü/önizleme entegrasyonu
 - [x] Mobil-masaüstü etkileşim ve regresyon doğrulaması
+
+- [x] Paket bazlı özellik (modül) hakları: plan_features modül satırları, menü filtresi, sunucu tarafı zorlama ve abonelik ekranında özellik listesi.
