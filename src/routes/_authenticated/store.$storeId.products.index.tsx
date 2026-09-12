@@ -62,6 +62,10 @@ function ProductsPage() {
     });
   }, [products, filter, search]);
 
+  // Mobilde uzun listeler yavaş açıldığı için ekrana parça parça basılır.
+  const [visibleCount, setVisibleCount] = useState(40);
+  const shown = useMemo(() => rows.slice(0, visibleCount), [rows, visibleCount]);
+
   const allSelected = rows.length > 0 && rows.every((row) => selected.includes(row.id));
 
   const exportCsv = () => {
@@ -93,14 +97,15 @@ function ProductsPage() {
       title="Ürünler"
       description="Varyant, stok ve fiyat yönetimi tek ekranda."
       actions={
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative">
+        <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
+          <div className="relative col-span-2 sm:col-auto">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Ürün ara…"
-              className="w-52 pl-8"
+              className="w-full pl-8 sm:w-52"
+              inputMode="search"
             />
           </div>
           <Button variant="outline" className="gap-2" onClick={exportCsv} disabled={rows.length === 0}>
@@ -201,7 +206,7 @@ function ProductsPage() {
               <p className="font-medium">Bu filtrede ürün yok</p>
             </li>
           ) : (
-            rows.map((product) => {
+            shown.map((product) => {
               const variants = product.product_variants ?? [];
               const stockTotal = variants.reduce((sum, v) => sum + (v.stock ?? 0), 0);
               const image = (product.product_images ?? [])
@@ -289,7 +294,7 @@ function ProductsPage() {
                   </td>
                 </tr>
               ) : (
-                rows.map((product) => {
+                shown.map((product) => {
                   const variants = product.product_variants ?? [];
                   const stockTotal = variants.reduce((sum, variant) => sum + (variant.stock ?? 0), 0);
                   const image = (product.product_images ?? [])
@@ -357,6 +362,14 @@ function ProductsPage() {
             </tbody>
           </table>
         </div>
+
+        {rows.length > shown.length ? (
+          <div className="border-t border-border p-3 text-center">
+            <Button variant="outline" onClick={() => setVisibleCount((n) => n + 40)}>
+              Daha fazla göster ({rows.length - shown.length})
+            </Button>
+          </div>
+        ) : null}
       </div>
     </AppShell>
   );

@@ -17,6 +17,8 @@ export type OrderStatus =
 export const ordersQuery = (storeId: string) =>
   queryOptions({
     queryKey: ["orders", storeId],
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
@@ -46,6 +48,8 @@ export const orderQuery = (orderId: string) =>
 export const customersQuery = (storeId: string) =>
   queryOptions({
     queryKey: ["customers", storeId],
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("customers")

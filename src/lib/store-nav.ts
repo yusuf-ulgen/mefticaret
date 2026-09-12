@@ -87,6 +87,12 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       items: [
         { label: "Panel", to: p("dashboard"), icon: LayoutDashboard, keywords: "dashboard özet" },
         {
+          label: "Tüm Paneller",
+          to: p("panels"),
+          icon: Grid3x3,
+          keywords: "tüm paneller ekranlar raporlar liste merkez katalog hepsi",
+        },
+        {
           label: "Kurulum Sihirbazı",
           to: p("setup"),
           icon: Rocket,
@@ -303,6 +309,7 @@ export function storeQuickLinks(storeId: string): StoreNavItem[] {
   const p = (path: string) => `/store/${storeId}/${path}`;
   return [
     { label: "Panel", to: p("dashboard"), icon: LayoutDashboard },
+    { label: "Tüm Paneller", to: p("panels"), icon: Grid3x3, keywords: "ekranlar raporlar hepsi" },
     { label: "Siparişler", to: p("orders"), icon: ShoppingBag },
     { label: "Ürünler", to: p("products"), icon: Package },
     { label: "Müşteriler", to: p("customers"), icon: Users },

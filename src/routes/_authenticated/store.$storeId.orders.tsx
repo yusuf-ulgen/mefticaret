@@ -84,6 +84,10 @@ function OrdersPage() {
     });
   }, [orders, filter, search]);
 
+  // Mobilde uzun tabloları tek seferde basmak yavaş; parça parça gösterilir.
+  const [visibleCount, setVisibleCount] = useState(30);
+  const shown = useMemo(() => rows.slice(0, visibleCount), [rows, visibleCount]);
+
   const revenue = (orders ?? [])
     .filter((order) => order.payment_status === "paid")
     .reduce((sum, order) => sum + Number(order.grand_total), 0);
@@ -171,41 +175,46 @@ function OrdersPage() {
         </Button>
       }
     >
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="surface-card p-5">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Toplam sipariş</p>
-          <p className="mt-1 text-2xl font-semibold">{(orders ?? []).length}</p>
+      <div className="mb-4 grid grid-cols-3 gap-2 sm:mb-6 sm:gap-4">
+        <div className="surface-card p-3 sm:p-5">
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">Sipariş</p>
+          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">{(orders ?? []).length}</p>
         </div>
-        <div className="surface-card p-5">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Ödenmiş ciro</p>
-          <p className="mt-1 text-2xl font-semibold">{formatMoney(revenue)}</p>
+        <div className="surface-card p-3 sm:p-5">
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">Ödenmiş ciro</p>
+          <p className="mt-1 truncate text-lg font-semibold tabular-nums sm:text-2xl">{formatMoney(revenue)}</p>
         </div>
-        <div className="surface-card p-5">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Bekleyen</p>
-          <p className="mt-1 text-2xl font-semibold">
+        <div className="surface-card p-3 sm:p-5">
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">Bekleyen</p>
+          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">
             {(orders ?? []).filter((order) => order.status === "pending").length}
           </p>
         </div>
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className="mb-3 -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
         {FILTERS.map((item) => (
           <Button
             key={item.value}
             size="sm"
             variant={filter === item.value ? "default" : "outline"}
             onClick={() => setFilter(item.value)}
+            className="shrink-0"
           >
             {item.label}
           </Button>
         ))}
+      </div>
+
+      <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2">
         <Input
-          className="ml-auto w-full sm:w-64"
+          className="min-w-0"
           placeholder="Sipariş no veya müşteri ara"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
+          inputMode="search"
         />
-        <Button size="sm" variant="outline" className="gap-2" onClick={exportCsv}>
+        <Button size="sm" variant="outline" className="h-10 shrink-0 gap-2" onClick={exportCsv}>
           <Download className="size-4" /> CSV
         </Button>
       </div>
@@ -263,8 +272,44 @@ function OrdersPage() {
           <p className="text-sm text-muted-foreground">Filtreyi değiştirip tekrar dene.</p>
         </div>
       ) : (
-        <div className="surface-card overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="surface-card overflow-hidden">
+          {/* Mobil: kart listesi */}
+          <ul className="divide-y divide-border md:hidden">
+            {shown.map((order) => (
+              <li key={order.id} className="px-4 py-3">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                  <div className="min-w-0">
+                    <Link
+                      to="/store/$storeId/orders/$orderId"
+                      params={{ storeId, orderId: order.id }}
+                      className="block truncate font-medium hover:underline"
+                    >
+                      {order.order_number}
+                    </Link>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {order.customer_name ?? "Misafir"}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-semibold tabular-nums">
+                    {formatMoney(Number(order.grand_total), order.currency)}
+                  </span>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <Badge variant={statusVariant(order.status)}>
+                    {ORDER_STATUS_LABELS[order.status]}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {PAYMENT_STATUS_LABELS[order.payment_status]}
+                  </span>
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {formatDateTime(order.placed_at)}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <table className="hidden w-full text-sm md:table">
             <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th className="w-10 px-4 py-3">
@@ -286,7 +331,7 @@ function OrdersPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((order) => (
+              {shown.map((order) => (
                 <tr key={order.id} className="border-b border-border/60 last:border-0">
                   <td className="px-4 py-3">
                     <Checkbox
@@ -335,6 +380,14 @@ function OrdersPage() {
               ))}
             </tbody>
           </table>
+
+          {rows.length > shown.length ? (
+            <div className="border-t border-border p-3 text-center">
+              <Button variant="outline" onClick={() => setVisibleCount((n) => n + 30)}>
+                Daha fazla göster ({rows.length - shown.length})
+              </Button>
+            </div>
+          ) : null}
         </div>
       )}
     </AppShell>

@@ -108,6 +108,10 @@ function CustomersPage() {
     );
   }, [customers, search]);
 
+  // Mobilde uzun listeleri parça parça bas.
+  const [visibleCount, setVisibleCount] = useState(30);
+  const shown = useMemo(() => rows.slice(0, visibleCount), [rows, visibleCount]);
+
   return (
     <AppShell
       storeId={storeId}
@@ -116,7 +120,7 @@ function CustomersPage() {
     >
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <form
-          className="surface-card space-y-4 p-6"
+          className="surface-card order-2 space-y-4 p-4 sm:p-6 lg:order-none"
           onSubmit={(event) => {
             event.preventDefault();
             createMutation.mutate();
@@ -190,10 +194,11 @@ function CustomersPage() {
           </Button>
         </form>
 
-        <div className="space-y-4 lg:col-span-2">
+        <div className="order-1 space-y-4 lg:order-none lg:col-span-2">
           <div className="flex flex-wrap items-center gap-2">
             <Input
-              className="flex-1 min-w-[200px]"
+              className="min-w-0 flex-1"
+              inputMode="search"
               placeholder="Müşteri ara"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -234,8 +239,46 @@ function CustomersPage() {
               </p>
             </div>
           ) : (
-            <div className="surface-card overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="surface-card overflow-hidden">
+              {/* Mobil: kart listesi */}
+              <ul className="divide-y divide-border md:hidden">
+                {shown.map((customer) => (
+                  <li key={customer.id} className="px-4 py-3">
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                      <div className="min-w-0">
+                        <Link
+                          className="block truncate font-medium hover:underline"
+                          to="/store/$storeId/customers/$customerId"
+                          params={{ storeId, customerId: customer.id }}
+                        >
+                          {customer.full_name}
+                        </Link>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {customer.email ?? customer.phone ?? "—"}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-sm font-semibold tabular-nums">
+                        {formatMoney(Number(customer.total_spent))}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <Badge variant="secondary" className="text-[0.65rem]">
+                        {customer.orders_count} sipariş
+                      </Badge>
+                      {(customer.tags ?? []).slice(0, 2).map((tag: string) => (
+                        <Badge key={tag} variant="outline" className="text-[0.65rem]">
+                          {tag}
+                        </Badge>
+                      ))}
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {formatDate(customer.created_at)}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              <table className="hidden w-full text-sm md:table">
                 <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3">Müşteri</th>
@@ -248,7 +291,7 @@ function CustomersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((customer) => (
+                  {shown.map((customer) => (
                     <tr key={customer.id} className="border-b border-border/60 last:border-0">
                       <td className="px-4 py-3">
                         <Link
@@ -301,6 +344,14 @@ function CustomersPage() {
                   ))}
                 </tbody>
               </table>
+
+              {rows.length > shown.length ? (
+                <div className="border-t border-border p-3 text-center">
+                  <Button variant="outline" onClick={() => setVisibleCount((n) => n + 30)}>
+                    Daha fazla göster ({rows.length - shown.length})
+                  </Button>
+                </div>
+              ) : null}
             </div>
           )}
         </div>
