@@ -16,6 +16,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { readFeatures } from "@/lib/billing-queries";
+import { MODULE_CATALOG, isModuleKey } from "@/lib/plan-features";
 import { formatDateTime, formatMoney, formatNumber } from "@/lib/mefti";
 import { plansQuery, storeAuditQuery, storeQuery } from "@/lib/store-queries";
 import {
@@ -162,8 +163,18 @@ function BillingPage() {
   const activePlanId = subscription?.plan_id ?? store?.plan_id ?? null;
   const currentPlan = plans?.find((plan) => plan.id === activePlanId) ?? null;
   const currentFeatures = (planFeatures ?? [])
-    .filter((feature) => feature.plan_id === activePlanId && feature.is_enabled)
+    .filter(
+      (feature) =>
+        feature.plan_id === activePlanId && feature.is_enabled && !isModuleKey(feature.metric_key),
+    )
     .sort((a, b) => a.sort_order - b.sort_order);
+  /** Paketle açılan/kapanan modüller (kotalardan ayrı gösterilir). */
+  const currentModules = MODULE_CATALOG.map((module) => {
+    const row = (planFeatures ?? []).find(
+      (feature) => feature.plan_id === activePlanId && feature.metric_key === module.key,
+    );
+    return { ...module, enabled: Boolean(row?.is_enabled) };
+  });
   const trialLeft = trialDaysLeft(subscription?.trial_ends_at);
 
   const openInvoice = (invoices ?? []).find((invoice) => invoice.status !== "paid") ?? null;
