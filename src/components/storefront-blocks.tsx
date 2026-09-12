@@ -20,6 +20,7 @@ import {
   type SectionProps,
 } from "@/components/storefront-primitives";
 import { formatMoney } from "@/lib/mefti";
+import { WokieeProductCard } from "@/components/wokiee/product-card";
 import type { ResolvedSection } from "@/lib/theme-sections";
 
 /** Gelişmiş tema bloklarının vitrin karşılıkları (kategori bazlı blok kütüphanesi). */
@@ -250,6 +251,8 @@ export function ExtendedBlock({ section, context }: { section: ResolvedSection; 
       return <ProductBlock {...props} source="filter" filterKey="filter" />;
     case "product_feed":
       return <ProductFeedBlock {...props} />;
+    case "product_tabs":
+      return <ProductTabs {...props} />;
     case "product_recently_viewed":
       return <RecentlyViewedBlock {...props} />;
 
@@ -294,6 +297,12 @@ export function ExtendedBlock({ section, context }: { section: ResolvedSection; 
       return <SocialProof {...props} />;
     case "reviews":
       return <ReviewsBlock {...props} />;
+    case "lookbook_hotspots":
+      return <LookbookHotspots {...props} />;
+    case "flash_sale":
+      return <FlashSale {...props} />;
+    case "social_gallery":
+      return <SocialGallery {...props} />;
 
     /* E-TİCARET */
     case "cart_block":
@@ -1675,6 +1684,124 @@ function ReviewsBlock({ settings, context }: SectionProps) {
             </div>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+function ProductTabs({ settings, context }: SectionProps) {
+  const tabs = parseRows(settings["tabs"], 2);
+  const [active, setActive] = useState(tabs[0]?.[1] || "bestsellers");
+  const { fonts, muted, border, t } = storefrontTokens(context.theme);
+  if (!tabs.length) return null;
+  const items = selectProducts(context, active === "trending" ? "all" : active, "", num(settings, "limit", 8));
+
+  return (
+    <section id="urunler">
+      <div className="mef-ultra-section-head">
+        <div>
+          <span className="mef-ultra-kicker">Özenle seçildi</span>
+          <h2 style={{ fontFamily: fonts.heading }}>{str(settings, "title")}</h2>
+        </div>
+        <div className="mef-ultra-tabs" role="tablist" aria-label="Ürün koleksiyonları">
+          {tabs.map(([label, source]) => (
+            <button
+              key={`${label}-${source}`}
+              type="button"
+              role="tab"
+              aria-selected={active === source}
+              onClick={() => setActive(source || "all")}
+              style={{ color: active === source ? t.primary_color : muted, borderColor: active === source ? t.accent_color : border }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mef-ultra-product-grid">
+        {items.map((product) => (
+          <WokieeProductCard
+            key={product.id}
+            theme={context.theme}
+            storeSlug={context.storeSlug}
+            product={{ ...product, currency: product.currency ?? context.storeCurrency }}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function LookbookHotspots({ settings, context }: SectionProps) {
+  const { fonts, muted, radius, cardBg, border } = storefrontTokens(context.theme);
+  const image = str(settings, "imageUrl");
+  const hotspots = parseRows(settings["hotspots"], 4);
+  const [active, setActive] = useState<number | null>(null);
+  return (
+    <section className="mef-ultra-lookbook">
+      <div className="mef-ultra-section-head">
+        <div>
+          <span className="mef-ultra-kicker">Stili satın al</span>
+          <h2 style={{ fontFamily: fonts.heading }}>{str(settings, "title")}</h2>
+          <p style={{ color: muted }}>{str(settings, "text")}</p>
+        </div>
+      </div>
+      <div className="mef-ultra-lookbook-media" style={{ borderRadius: radius, border: `1px solid ${border}` }}>
+        {image ? <img src={image} alt={str(settings, "title")} loading="lazy" width={1408} height={1008} /> : null}
+        {hotspots.map(([left, top, label, productIndex], index) => {
+          const product = context.products[Math.max(0, Number(productIndex) - 1)];
+          return (
+            <div key={`${left}-${top}-${index}`} className="mef-ultra-hotspot" style={{ left: `${left}%`, top: `${top}%` }}>
+              <button type="button" aria-label={`${label} ürününü göster`} onClick={() => setActive(active === index ? null : index)}>+</button>
+              {active === index && product ? (
+                <div className="mef-ultra-hotspot-popover" style={{ background: cardBg, borderColor: border }}>
+                  <strong>{product.title}</strong>
+                  <span>{formatMoney(Number(product.base_price), product.currency ?? context.storeCurrency)}</span>
+                  {!context.preview ? <Link to="/s/$slug/p/$productSlug" params={{ slug: context.storeSlug, productSlug: product.slug }}>Ürünü gör →</Link> : null}
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function FlashSale({ settings, context }: SectionProps) {
+  const { fonts, muted, radius } = storefrontTokens(context.theme);
+  const sold = Math.min(100, Math.max(0, num(settings, "stockPercent", 72)));
+  return (
+    <section className="mef-ultra-flash" style={{ borderRadius: radius, backgroundImage: `linear-gradient(90deg, rgba(8,9,10,.94), rgba(8,9,10,.18)), url(${str(settings, "imageUrl")})` }}>
+      <div>
+        <span className="mef-ultra-kicker">Sınırlı stok</span>
+        <h2 style={{ fontFamily: fonts.heading }}>{str(settings, "title")}</h2>
+        <p style={{ color: muted }}>{str(settings, "text")}</p>
+        <CountdownDisplay endsAt={str(settings, "endsAt")} theme={context.theme} />
+        <div className="mef-ultra-stock-label"><span>Satılan</span><strong>%{sold}</strong></div>
+        <div className="mef-ultra-stock"><span style={{ width: `${sold}%` }} /></div>
+        <Cta label={str(settings, "ctaLabel")} url={str(settings, "ctaUrl")} theme={context.theme} preview={context.preview} />
+      </div>
+    </section>
+  );
+}
+
+function SocialGallery({ settings, context }: SectionProps) {
+  const { fonts, muted, radius } = storefrontTokens(context.theme);
+  const image = str(settings, "imageUrl");
+  const items = context.products.slice(0, Math.max(4, num(settings, "columns", 4)));
+  return (
+    <section>
+      <div className="mef-ultra-section-head">
+        <div><span className="mef-ultra-kicker">Sosyal keşif</span><h2 style={{ fontFamily: fonts.heading }}>{str(settings, "title")}</h2><p style={{ color: muted }}>{str(settings, "text")}</p></div>
+      </div>
+      <div className="mef-ultra-social-grid">
+        {items.map((product, index) => (
+          <div key={product.id} className="mef-ultra-social-tile" style={{ borderRadius: radius }}>
+            <img src={product.coverUrl || image} alt={product.title} loading="lazy" width={600} height={600} />
+            <span>{index % 2 === 0 ? "♡" : "◉"} {product.title}</span>
+          </div>
+        ))}
       </div>
     </section>
   );

@@ -154,6 +154,9 @@ function ProductPage() {
   const { data } = useSuspenseQuery(storefrontProductQuery(slug, productSlug));
   const { data: storefrontData } = useQuery(storefrontQuery(slug));
   const [variantId, setVariantId] = useState<string | null>(null);
+  const [activeImage, setActiveImage] = useState(0);
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const cart = useCart();
   const favorites = useFavorites();
   const compare = useCompare();
@@ -186,7 +189,7 @@ function ProductPage() {
   const variantImage = selected?.imageUrl
     ? { url: selected.imageUrl, alt: selected.title }
     : null;
-  const heroImage = variantImage ?? (images.length ? { url: images[0]!.url, alt: images[0]!.alt } : null);
+  const heroImage = variantImage ?? (images.length ? { url: images[Math.min(activeImage, images.length - 1)]!.url, alt: images[Math.min(activeImage, images.length - 1)]!.alt } : null);
 
   // Seçenek grupları: ürün tanımı yoksa varyant seçeneklerinden türetilir.
   const definedGroups = (Array.isArray(product.variant_options) ? product.variant_options : []) as {
@@ -243,7 +246,7 @@ function ProductPage() {
   };
 
   return (
-    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
+    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} commerce={commerce}>
       <nav style={{ padding: "20px 0", fontSize: 13, color: muted }}>
         <Link to="/s/$slug" params={{ slug: store.slug }} style={{ color: muted, textDecoration: "none" }}>
           Ürünler
@@ -254,12 +257,14 @@ function ProductPage() {
       <section className="sf-detail-grid">
         <div>
           {heroImage ? (
-            <img
-              src={heroImage.url}
-              alt={heroImage.alt ?? product.title}
-              loading="lazy"
-              style={{ width: "100%", borderRadius: radius, border: `1px solid ${border}` }}
-            />
+            <button type="button" onClick={() => setZoomOpen(true)} aria-label="Ürün görselini büyüt" style={{ display: "block", width: "100%", padding: 0, border: 0, background: "transparent", cursor: "zoom-in" }}>
+              <img
+                src={heroImage.url}
+                alt={heroImage.alt ?? product.title}
+                loading="eager"
+                style={{ width: "100%", borderRadius: radius, border: `1px solid ${border}` }}
+              />
+            </button>
           ) : (
             <div
               style={{
@@ -272,6 +277,23 @@ function ProductPage() {
               }}
             />
           )}
+
+          {images.length > 1 ? (
+            <div className="mef-ultra-pdp-thumbs" aria-label="Ürün görselleri">
+              {images.map((image, index) => (
+                <button key={image.id} type="button" onClick={() => setActiveImage(index)} aria-label={`${index + 1}. görseli aç`} style={{ borderColor: activeImage === index ? t.accent_color : border }}>
+                  <img src={image.url} alt={image.alt ?? `${product.title} ${index + 1}`} loading="lazy" />
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          {zoomOpen && heroImage ? (
+            <div className="mef-ultra-zoom" role="dialog" aria-modal="true" aria-label="Büyütülmüş ürün görseli" onClick={() => setZoomOpen(false)}>
+              <button type="button" aria-label="Kapat" onClick={() => setZoomOpen(false)}>×</button>
+              <img src={heroImage.url} alt={heroImage.alt ?? product.title} />
+            </div>
+          ) : null}
 
           {product.video_url ? (
             <div style={{ marginTop: 16 }}>
@@ -321,6 +343,9 @@ function ProductPage() {
             optionGroups.map((group) => (
               <div key={group.name} style={{ marginTop: 20 }}>
                 <div style={{ fontSize: 13, color: muted, marginBottom: 8 }}>{group.name}</div>
+                {/beden|size|ölçü/i.test(group.name) ? (
+                  <button type="button" onClick={() => setSizeGuideOpen(true)} style={{ float: "right", marginTop: -26, border: 0, background: "transparent", color: t.accent_color, fontSize: 12, cursor: "pointer", textDecoration: "underline" }}>Beden rehberi</button>
+                ) : null}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {group.values.map((value) => {
                     const active = selectedOptions[group.name] === value;
@@ -534,12 +559,26 @@ function ProductPage() {
           </button>
 
           {product.description ? (
-            <p style={{ marginTop: 24, color: muted, fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-line" }}>
-              {product.description}
-            </p>
+            <div className="mef-ultra-pdp-accordions" style={{ borderColor: border }}>
+              <details open><summary>Ürün açıklaması</summary><p style={{ color: muted, whiteSpace: "pre-line" }}>{product.description}</p></details>
+              <details><summary>Teslimat ve iade</summary><p style={{ color: muted }}>{commerce?.fastestEtaDays ? `Tahmini ${commerce.fastestEtaDays} iş gününde teslim.` : "Teslimat süresi seçtiğiniz kargo yöntemine göre ödeme adımında gösterilir."} İade koşulları mağaza politikalarına göre uygulanır.</p></details>
+              <details><summary>Güvenli ödeme</summary><p style={{ color: muted }}>{commerce?.payments.length ? commerce.payments.map((item) => item.displayName).join(", ") : "Aktif güvenli ödeme seçenekleri"} ile ödeme yapabilirsiniz.</p></details>
+            </div>
           ) : null}
         </div>
       </section>
+
+      {sizeGuideOpen ? (
+        <div className="mef-ultra-size-modal" role="dialog" aria-modal="true" aria-label="Beden rehberi">
+          <button className="mef-ultra-size-backdrop" type="button" aria-label="Kapat" onClick={() => setSizeGuideOpen(false)} />
+          <div style={{ background: cardBg, borderColor: border, borderRadius: radius }}>
+            <button type="button" onClick={() => setSizeGuideOpen(false)} aria-label="Kapat">×</button>
+            <h2 style={{ fontFamily: fonts.heading }}>Beden rehberi</h2>
+            <p style={{ color: muted }}>En doğru seçim için ürün varyant adlarını ve kendi ölçülerinizi karşılaştırın.</p>
+            <table><thead><tr><th>Beden</th><th>Göğüs</th><th>Bel</th></tr></thead><tbody><tr><td>S</td><td>86–91 cm</td><td>71–76 cm</td></tr><tr><td>M</td><td>92–97 cm</td><td>77–82 cm</td></tr><tr><td>L</td><td>98–104 cm</td><td>83–89 cm</td></tr></tbody></table>
+          </div>
+        </div>
+      ) : null}
 
       <StorefrontReviews
         storeSlug={store.slug}
@@ -578,7 +617,7 @@ function ProductPage() {
       {related.length ? (
         <section style={{ padding: "40px 0 8px" }}>
           <h2 style={{ fontFamily: fonts.heading, fontSize: 22, marginBottom: 16 }}>
-            Benzer ürünler
+            Birlikte sık tercih edilenler
           </h2>
           <div
             style={{

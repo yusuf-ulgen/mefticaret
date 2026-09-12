@@ -2,16 +2,13 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { FavoriteButton } from "@/components/favorite-button";
-import { QuickAddButton } from "@/components/quick-add-button";
-import { SmartImage } from "@/components/smart-image";
 import { StorefrontAdminLink } from "@/components/storefront-admin-link";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
-import { formatMoney } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { missingHead, storefrontHead } from "@/lib/storefront-seo";
+import { WokieeProductCard, productSwatches } from "@/components/wokiee/product-card";
 
 export const Route = createFileRoute("/s/$slug/products")({
   loader: async ({ context, params }) => {
@@ -68,6 +65,9 @@ function StorefrontProductsPage() {
   const [type, setType] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [inStock, setInStock] = useState(false);
+  const [color, setColor] = useState("all");
+  const [columns, setColumns] = useState<2 | 3 | 4>(4);
   const [page, setPage] = useState(1);
   const pageSize = 24;
 
@@ -77,6 +77,7 @@ function StorefrontProductsPage() {
     () => [...new Set(products.map((p) => p.product_type).filter((v): v is string => Boolean(v)))].sort(),
     [products],
   );
+  const colors = useMemo(() => [...new Set(products.flatMap((product) => productSwatches(product.tags).map((item) => item.tag)))], [products]);
 
   const visible = useMemo(() => {
     const q = normalize(term.trim());
@@ -87,6 +88,8 @@ function StorefrontProductsPage() {
       const price = Number(product.base_price);
       if (min !== null && Number.isFinite(min) && price < min) return false;
       if (max !== null && Number.isFinite(max) && price > max) return false;
+      if (inStock && (product.stockTotal ?? 0) <= 0) return false;
+      if (color !== "all" && !productSwatches(product.tags).some((item) => item.tag === color)) return false;
       if (q && !normalize(`${product.title} ${product.product_type ?? ""} ${(product.tags ?? []).join(" ")}`).includes(q))
         return false;
       return true;
@@ -96,7 +99,7 @@ function StorefrontProductsPage() {
     else if (sort === "price_desc") sorted.sort((a, b) => Number(b.base_price) - Number(a.base_price));
     else if (sort === "title") sorted.sort((a, b) => a.title.localeCompare(b.title, "tr"));
     return sorted;
-  }, [products, term, type, minPrice, maxPrice, sort]);
+  }, [products, term, type, minPrice, maxPrice, sort, inStock, color]);
 
   const pageCount = Math.max(1, Math.ceil(visible.length / pageSize));
   const currentPage = Math.min(page, pageCount);
@@ -148,6 +151,16 @@ function StorefrontProductsPage() {
           placeholder="Ürün ara"
           style={{ ...controlStyle, minWidth: 220 }}
         />
+        {colors.length ? (
+          <select value={color} onChange={(event) => { setColor(event.target.value); setPage(1); }} style={controlStyle}>
+            <option value="all">Tüm renkler</option>
+            {colors.map((value) => <option key={value} value={value}>{value}</option>)}
+          </select>
+        ) : null}
+        <label style={{ ...controlStyle, display: "flex", gap: 7, alignItems: "center", cursor: "pointer" }}>
+          <input type="checkbox" checked={inStock} onChange={(event) => { setInStock(event.target.checked); setPage(1); }} />
+          Stoktakiler
+        </label>
         <select value={sort} onChange={(event) => { setSort(event.target.value as SortKey); setPage(1); }} style={controlStyle}>
           <option value="newest">Yeni eklenenler</option>
           <option value="price_asc">Fiyat: artan</option>
@@ -181,7 +194,10 @@ function StorefrontProductsPage() {
         <span className="sf-filters-count" style={{ color: muted, fontSize: 13 }}>
           {visible.length} ürün
         </span>
-        {term || type !== "all" || minPrice || maxPrice ? (
+        <span className="sf-grid-switch" style={{ display: "flex", gap: 4 }}>
+          {([2, 3, 4] as const).map((value) => <button key={value} type="button" onClick={() => setColumns(value)} aria-label={`${value} sütun`} style={{ ...controlStyle, paddingInline: 8, background: columns === value ? t.accent_color : "transparent", color: columns === value ? "#fff" : "inherit" }}>{value}</button>)}
+        </span>
+        {term || type !== "all" || minPrice || maxPrice || inStock || color !== "all" ? (
           <button
             type="button"
             onClick={() => {
@@ -189,6 +205,8 @@ function StorefrontProductsPage() {
               setType("all");
               setMinPrice("");
               setMaxPrice("");
+              setInStock(false);
+              setColor("all");
               setPage(1);
             }}
             style={{ ...controlStyle, cursor: "pointer" }}
@@ -201,63 +219,9 @@ function StorefrontProductsPage() {
       {visible.length === 0 ? (
         <p style={{ color: muted, paddingBottom: 60 }}>Aramanla eşleşen ürün bulunamadı.</p>
       ) : (
-        <div className="sf-product-grid" style={{ paddingBottom: 64 }}>
+        <div className="sf-product-grid" style={{ paddingBottom: 64, gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
           {paged.map((product) => (
-            <Link
-              key={product.id}
-              to="/s/$slug/p/$productSlug"
-              params={{ slug, productSlug: product.slug }}
-              style={{
-                background: cardBg,
-                border: `1px solid ${border}`,
-                borderRadius: radius,
-                overflow: "hidden",
-                textDecoration: "none",
-                color: "inherit",
-                display: "block",
-                position: "relative",
-              }}
-            >
-              <FavoriteButton
-                item={{
-                  storeSlug: store.slug,
-                  productSlug: product.slug,
-                  title: product.title,
-                  price: Number(product.base_price),
-                  currency: product.currency ?? store.currency,
-                  image: product.coverUrl ?? null,
-                }}
-                border={border}
-                cardBg={cardBg}
-                accent={t.accent_color}
-                muted={muted}
-              />
-              <div style={{ aspectRatio: "1 / 1", background: border, overflow: "hidden" }}>
-                <SmartImage
-                  src={product.coverUrl}
-                  alt={product.title}
-                  width={480}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              </div>
-              <div className="sf-card-body" style={{ padding: 14 }}>
-                <p className="sf-card-title" style={{ margin: 0, fontWeight: 600, fontSize: 15 }}>
-                  {product.title}
-                </p>
-                <p className="sf-card-price" style={{ margin: "6px 0 0", color: muted, fontSize: 14 }}>
-                  {formatMoney(
-                    Number(product.livePrice ?? product.base_price),
-                    product.currency ?? store.currency,
-                  )}
-                </p>
-                {product.stockTotal !== null && product.stockTotal !== undefined ? (
-                  <p style={{ margin: "4px 0 0", fontSize: 12, color: product.stockTotal > 0 ? muted : "#dc2626" }}>
-                    {product.stockTotal > 0 ? `Stokta ${product.stockTotal} adet` : "Tükendi"}
-                  </p>
-                ) : null}
-                <QuickAddButton storeSlug={store.slug} productSlug={product.slug} accent={t.accent_color} />
-              </div>
-            </Link>
+            <WokieeProductCard key={product.id} theme={theme} storeSlug={store.slug} product={{ ...product, currency: product.currency ?? store.currency }} />
           ))}
         </div>
       )}

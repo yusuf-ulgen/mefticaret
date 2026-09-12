@@ -766,7 +766,71 @@ const HORIZON: ThemeTemplate = {
   ],
 };
 
-export const THEME_TEMPLATES: ThemeTemplate[] = [HORIZON, EMPIRE, WOKIEE, BE_YOURS, ATELIER_MODE];
+const MEF_ULTRA: ThemeTemplate = {
+  code: "mef-ultra",
+  name: "Mef‑Ultra",
+  tagline: "Enterprise conversion · Editorial commerce",
+  description:
+    "Yüksek dönüşüm için tasarlanan premium vitrin; güçlü arama, mega menü, sekmeli ürün keşfi, hotspot lookbook, flaş satış, sosyal kanıt ve AJAX sepet deneyimini birleştirir.",
+  tags: ["Premium", "Dönüşüm", "Moda", "Mega menü", "Mobil öncelikli"],
+  store: {
+    price: 0,
+    priceNote: "Mefticaret mağazalarına özel",
+    featured: true,
+    previewImage: "/themes/mef-ultra/hero-main.jpg",
+    features: [
+      "Tahminli arama ve çok seviyeli mega menü",
+      "Sekmeli ürün vitrini ve hızlı alışveriş",
+      "Etkileşimli hotspot lookbook",
+      "Geri sayımlı flaş satış ve stok göstergesi",
+      "AJAX sepet, ücretsiz kargo ve sipariş notu",
+      "Responsive PLP, PDP ve mobil alt navigasyon",
+    ],
+  },
+  theme: {
+    primaryColor: "#101214",
+    accentColor: "#ff5a4f",
+    backgroundColor: "#fffdf9",
+    fontPair: "space-grotesk-dm-sans",
+    radius: 0.65,
+    layout: "full-width-sections",
+    buttonStyle: "solid",
+    cardStyle: "flat",
+    contentWidth: 1480,
+    sectionSpacing: 64,
+    heroTitle: "Yeni nesil stil. Sıfır taviz.",
+    heroSubtitle: "Gün boyu hareket için tasarlanan seçkileri keşfet.",
+    heroCtaLabel: "Koleksiyonu keşfet",
+    announcement: "Ücretsiz kargo · Kolay iade · Güvenli ödeme",
+    showAnnouncement: true,
+  },
+  sections: [
+    { type: "announcement_bar", settings: { text: "YENİ SEZON · Ücretsiz kargo fırsatı · Kolay iade", linkLabel: "Keşfet", linkUrl: "#urunler", tone: "primary" } },
+    { type: "header", settings: { sticky: true, showSearch: true, showFavorites: true, showCart: true, tagline: "MODERN GOODS · EST. 2026" } },
+    {
+      type: "hero_slider",
+      settings: {
+        items: "Yeni nesil stil | Şehrin ritmine uyum sağlayan zamansız parçalar. | /themes/mef-ultra/hero-main.jpg | Koleksiyonu keşfet | #urunler\nSezonun renkleri | Koral enerji, yeşil denge ve güçlü siyahlar. | /themes/mef-ultra/flash-sale.jpg | Yeni gelenleri gör | #urunler",
+        height: 680,
+        autoplay: true,
+        interval: 6,
+      },
+    },
+    { type: "trust_badges", settings: { items: "🚚 | Hızlı teslimat | Gerçek kargo seçenekleri\n↩ | Kolay iade | Güvenli iade süreci\n🔐 | Güvenli ödeme | Aktif ödeme yöntemleri\n☏ | Canlı destek | Sipariş öncesi ve sonrası", columns: 4 } },
+    { type: "category_slider", settings: { title: "Kategorine göre keşfet", limit: 8, cardWidth: 170, showCount: true } },
+    { type: "product_tabs", settings: { title: "Editörün seçtikleri", tabs: "En Çok Satanlar | bestsellers\nYeni Gelenler | new\nTrend Ürünler | trending\nİndirimdekiler | discounted", limit: 8, columns: 4 } },
+    { type: "lookbook_hotspots", settings: { title: "Görünümü tamamla", text: "Detayları keşfetmek için noktaların üzerine dokun.", imageUrl: "/themes/mef-ultra/lookbook.jpg", hotspots: "38 | 42 | Dış giyim | 1\n48 | 66 | Alt giyim | 2\n54 | 89 | Sneaker | 3\n36 | 70 | Aksesuar | 4" } },
+    { type: "flash_sale", settings: { title: "Flaş fırsat başladı", text: "Seçili favoriler, stoklarla sınırlı avantajlarla.", imageUrl: "/themes/mef-ultra/flash-sale.jpg", endsAt: "2027-01-01T00:00:00", stockPercent: 72, ctaLabel: "Fırsatları keşfet", ctaUrl: "#urunler" } },
+    { type: "product_new", settings: { title: "Yeni geldi", limit: 8, columns: 4 } },
+    { type: "social_proof", settings: { items: "İstanbul'dan bir müşteri sipariş verdi | az önce\nİzmir'de bir ürün favorilere eklendi | 3 dakika önce\nAnkara'dan doğrulanmış yorum geldi | 8 dakika önce", intervalSeconds: 5 } },
+    { type: "social_gallery", settings: { title: "Gerçek hayatta Mef‑Ultra", text: "Stilini #MefUltra etiketiyle paylaş.", imageUrl: "/themes/mef-ultra/social-grid.jpg", columns: 5 } },
+    { type: "reviews", settings: { title: "Topluluğun favorisi", items: "5 | Kumaşı ve kalıbı beklediğimden daha iyi. | Ece K. · Doğrulanmış alışveriş\n5 | Mobil alışveriş çok hızlı, ürün ertesi gün geldi. | Mert A. · Doğrulanmış alışveriş\n4 | Renk ve beden seçenekleri çok anlaşılır. | Derya S. · Doğrulanmış alışveriş", columns: 3 } },
+    { type: "newsletter", settings: { title: "İlk sen haberdar ol", text: "Yeni koleksiyonlar, özel erişim ve seçilmiş fırsatlar gelen kutunda.", buttonLabel: "Listeye katıl" } },
+    { type: "footer", settings: { showLegalLinks: true, showPages: true, about: "Günlük yaşam için tasarlanmış, özenle seçilmiş modern ürünler." } },
+  ],
+};
+
+export const THEME_TEMPLATES: ThemeTemplate[] = [MEF_ULTRA, HORIZON, EMPIRE, WOKIEE, BE_YOURS, ATELIER_MODE];
 
 
 export const TEMPLATE_BY_CODE = new Map(THEME_TEMPLATES.map((template) => [template.code, template]));
