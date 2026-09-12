@@ -20,16 +20,9 @@ import { storefrontUI } from "@/lib/storefront-ui";
 import { ConversionBoosters, StickyAddToCartBar } from "@/components/wokiee/pdp-boosters";
 import { trackEvent } from "@/lib/track";
 import { getRequestOrigin } from "@/lib/origin.functions";
-import {
-  absoluteUrl,
-  breadcrumbSchema,
-  buildSeoHead,
-  buildTitle,
-  jsonLdScript,
-  plainText,
-  productSchema,
-  readSeo,
-} from "@/lib/seo";
+import { getStoreSeoContext } from "@/lib/seo-public.functions";
+import { missingHead, storefrontHead } from "@/lib/storefront-seo";
+import { absoluteUrl, plainText, productSchema, readSeo } from "@/lib/seo";
 
 /** YouTube/Vimeo adreslerini gömme adresine çevirir. */
 function embedUrl(url: string) {
@@ -42,14 +35,16 @@ function embedUrl(url: string) {
 
 export const Route = createFileRoute("/s/$slug/p/$productSlug")({
   loader: async ({ context, params }) => {
-    const [data, origin] = await Promise.all([
+    const [data, origin, ctx] = await Promise.all([
       context.queryClient.ensureQueryData(storefrontProductQuery(params.slug, params.productSlug)),
       getRequestOrigin(),
+      getStoreSeoContext({ data: { slug: params.slug } }),
     ]);
     if (!data) throw notFound();
     const seo = readSeo(data.product.seo);
     return {
       origin,
+      ctx,
       slug: params.slug,
       productSlug: params.productSlug,
       title: data.product.title,
@@ -69,30 +64,14 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
     };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) {
-      return { meta: [{ title: "Ürün bulunamadı" }, { name: "robots", content: "noindex" }] };
-    }
+    if (!loaderData) return missingHead("Ürün bulunamadı");
+
     const base = `/s/${loaderData.slug}`;
-    const path = loaderData.seo.canonical || `${base}/p/${loaderData.productSlug}`;
-    const title = loaderData.seo.title || buildTitle(loaderData.title, loaderData.storeName);
-    const description =
+    const path = `${base}/p/${loaderData.productSlug}`;
+    const fallbackDescription =
       loaderData.description ||
       `${loaderData.title} ürününü ${loaderData.storeName} vitrininde keşfedin.`;
-    const image = loaderData.seo.ogImage || loaderData.images[0] || null;
-    const canonicalUrl = absoluteUrl(path, loaderData.origin);
-
-    const head = buildSeoHead({
-      title,
-      description,
-      canonicalPath: path,
-      origin: loaderData.origin,
-      image,
-      ogType: "product",
-      siteName: loaderData.storeName,
-      locale: "tr_TR",
-      ...(loaderData.seo.keywords ? { keywords: loaderData.seo.keywords } : {}),
-      ...(loaderData.seo.noindex ? { noindex: true } : {}),
-    });
+    const image = loaderData.images[0] ?? null;
 
     const breadcrumbs = [
       { name: "Ana sayfa", path: base },
@@ -100,35 +79,52 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
       ...(loaderData.category
         ? [{ name: loaderData.category, path: `${base}/products?type=${encodeURIComponent(loaderData.category)}` }]
         : []),
-      { name: loaderData.title, path: `${base}/p/${loaderData.productSlug}` },
+      { name: loaderData.title, path },
     ];
 
+    const head = storefrontHead({
+      slug: loaderData.slug,
+      path,
+      origin: loaderData.origin,
+      ctx: loaderData.ctx,
+      seo: loaderData.seo,
+      fallbackTitle: loaderData.title,
+      fallbackDescription,
+      ogType: "product",
+      templateKey: "product",
+      tokens: {
+        product_name: loaderData.title,
+        product_type: loaderData.category ?? "",
+        brand_name: loaderData.brand ?? "",
+        price: loaderData.price,
+      },
+      breadcrumbs,
+      ...(image ? { image } : {}),
+      schemas: [
+        productSchema({
+          name: loaderData.title,
+          description: loaderData.seo.description || fallbackDescription,
+          url: absoluteUrl(loaderData.seo.canonical || path, loaderData.origin),
+          images: loaderData.images.map((src) => absoluteUrl(src, loaderData.origin)),
+          price: loaderData.price,
+          currency: loaderData.currency,
+          inStock: loaderData.inStock,
+          brand: loaderData.brand,
+          sku: loaderData.sku,
+          barcode: loaderData.barcode,
+          ratingValue: loaderData.ratingAverage,
+          reviewCount: loaderData.reviewCount,
+        }),
+      ],
+    });
+
     return {
+      ...head,
       meta: [
         ...head.meta,
         { property: "product:price:amount", content: String(loaderData.price) },
         { property: "product:price:currency", content: loaderData.currency },
         { property: "product:availability", content: loaderData.inStock ? "in stock" : "out of stock" },
-      ],
-      links: head.links,
-      scripts: [
-        jsonLdScript(
-          productSchema({
-            name: loaderData.title,
-            description,
-            url: canonicalUrl,
-            images: loaderData.images.map((src) => absoluteUrl(src, loaderData.origin)),
-            price: loaderData.price,
-            currency: loaderData.currency,
-            inStock: loaderData.inStock,
-            brand: loaderData.brand,
-            sku: loaderData.sku,
-            barcode: loaderData.barcode,
-            ratingValue: loaderData.ratingAverage,
-            reviewCount: loaderData.reviewCount,
-          }),
-        ),
-        jsonLdScript(breadcrumbSchema(breadcrumbs, loaderData.origin)),
       ],
     };
   },

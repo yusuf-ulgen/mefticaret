@@ -42,6 +42,8 @@ export const Route = createFileRoute("/s/$slug/c/$collectionSlug")({
         loaderData.description ||
         `${loaderData.storeName} ${loaderData.title} koleksiyonundaki ürünleri keşfedin.`,
       seo: loaderData.ctx?.entity ?? null,
+      templateKey: "collection",
+      tokens: { collection_name: loaderData.title },
       breadcrumbs: [
         { name: "Ana sayfa", path: base },
         { name: "Koleksiyonlar", path: `${base}/collections` },

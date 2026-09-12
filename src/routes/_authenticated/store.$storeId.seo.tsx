@@ -22,6 +22,8 @@ import { SeoMetaTab } from "@/components/seo/seo-meta";
 import { SeoOverviewTab, type SeoCheck } from "@/components/seo/seo-overview";
 import { SeoRedirectsTab } from "@/components/seo/seo-redirects";
 import { seoTemplateDefaults, type SeoTemplateKey } from "@/components/seo/seo-shared";
+import { SeoContentTab } from "@/components/seo/seo-content-tab";
+import { SeoTrafficTab } from "@/components/seo/seo-traffic-tab";
 import { StorePagesSeoTab } from "@/components/seo/store-pages-seo";
 import { SeoUrlsTab } from "@/components/seo/seo-urls";
 import { storePagesQuery } from "@/lib/pages-queries";
@@ -340,6 +342,12 @@ function SeoCenterPage() {
             <TabsTrigger value="meta" className="gap-2">
               <Settings2 className="h-4 w-4" /> Meta şablonları
             </TabsTrigger>
+            <TabsTrigger value="content" className="gap-2">
+              <FileText className="h-4 w-4" /> İçerik SEO
+            </TabsTrigger>
+            <TabsTrigger value="traffic" className="gap-2">
+              <Gauge className="h-4 w-4" /> Trafik &amp; görünürlük
+            </TabsTrigger>
             <TabsTrigger value="pages" className="gap-2">
               <FileText className="h-4 w-4" /> Sayfa SEO
             </TabsTrigger>
@@ -392,6 +400,14 @@ function SeoCenterPage() {
               updateTemplate={updateTemplate}
               save={() => saveMutation.mutate()}
             />
+          </TabsContent>
+
+          <TabsContent value="content">
+            <SeoContentTab storeId={storeId} storeSlug={slug} settings={current} />
+          </TabsContent>
+
+          <TabsContent value="traffic">
+            <SeoTrafficTab storeId={storeId} />
           </TabsContent>
 
           <TabsContent value="pages">

@@ -45,6 +45,12 @@ export const Route = createFileRoute("/s/$slug/page/$pageSlug")({
       fallbackDescription: description,
       seo: entity,
       ogType: isBlog ? "article" : "website",
+      templateKey: isBlog ? "blog" : "page",
+      tokens: {
+        page_title: loaderData.title,
+        page_excerpt: loaderData.description,
+        ...(entity?.author ? { author_name: entity.author } : {}),
+      },
       breadcrumbs: [
         { name: "Ana sayfa", path: base },
         ...(isBlog ? [{ name: "Blog", path: `${base}/blog` }] : []),
