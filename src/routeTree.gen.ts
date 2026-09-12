@@ -175,6 +175,7 @@ import { Route as AuthenticatedStoreStoreIdNotificationsRouteImport } from './ro
 import { Route as AuthenticatedStoreStoreIdOauthRouteImport } from './routes/_authenticated/store.$storeId.oauth'
 import { Route as AuthenticatedStoreStoreIdOrdersRouteImport } from './routes/_authenticated/store.$storeId.orders'
 import { Route as AuthenticatedStoreStoreIdPagesRouteImport } from './routes/_authenticated/store.$storeId.pages'
+import { Route as AuthenticatedStoreStoreIdPanelsRouteImport } from './routes/_authenticated/store.$storeId.panels'
 import { Route as AuthenticatedStoreStoreIdPaymentsRouteImport } from './routes/_authenticated/store.$storeId.payments'
 import { Route as AuthenticatedStoreStoreIdPopupsRouteImport } from './routes/_authenticated/store.$storeId.popups'
 import { Route as AuthenticatedStoreStoreIdPricingRouteImport } from './routes/_authenticated/store.$storeId.pricing'
@@ -1192,6 +1193,12 @@ const AuthenticatedStoreStoreIdPagesRoute =
     path: '/pages',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdPanelsRoute =
+  AuthenticatedStoreStoreIdPanelsRouteImport.update({
+    id: '/panels',
+    path: '/panels',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdPaymentsRoute =
   AuthenticatedStoreStoreIdPaymentsRouteImport.update({
     id: '/payments',
@@ -1884,6 +1891,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/oauth': typeof AuthenticatedStoreStoreIdOauthRoute
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
+  '/store/$storeId/panels': typeof AuthenticatedStoreStoreIdPanelsRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
   '/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
   '/store/$storeId/pricing': typeof AuthenticatedStoreStoreIdPricingRoute
@@ -2140,6 +2148,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/oauth': typeof AuthenticatedStoreStoreIdOauthRoute
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
+  '/store/$storeId/panels': typeof AuthenticatedStoreStoreIdPanelsRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
   '/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
   '/store/$storeId/pricing': typeof AuthenticatedStoreStoreIdPricingRoute
@@ -2398,6 +2407,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/oauth': typeof AuthenticatedStoreStoreIdOauthRoute
   '/_authenticated/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/_authenticated/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
+  '/_authenticated/store/$storeId/panels': typeof AuthenticatedStoreStoreIdPanelsRoute
   '/_authenticated/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
   '/_authenticated/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
   '/_authenticated/store/$storeId/pricing': typeof AuthenticatedStoreStoreIdPricingRoute
@@ -2657,6 +2667,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/oauth'
     | '/store/$storeId/orders'
     | '/store/$storeId/pages'
+    | '/store/$storeId/panels'
     | '/store/$storeId/payments'
     | '/store/$storeId/popups'
     | '/store/$storeId/pricing'
@@ -2913,6 +2924,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/oauth'
     | '/store/$storeId/orders'
     | '/store/$storeId/pages'
+    | '/store/$storeId/panels'
     | '/store/$storeId/payments'
     | '/store/$storeId/popups'
     | '/store/$storeId/pricing'
@@ -3170,6 +3182,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/oauth'
     | '/_authenticated/store/$storeId/orders'
     | '/_authenticated/store/$storeId/pages'
+    | '/_authenticated/store/$storeId/panels'
     | '/_authenticated/store/$storeId/payments'
     | '/_authenticated/store/$storeId/popups'
     | '/_authenticated/store/$storeId/pricing'
@@ -4510,6 +4523,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdPagesRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/panels': {
+      id: '/_authenticated/store/$storeId/panels'
+      path: '/panels'
+      fullPath: '/store/$storeId/panels'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdPanelsRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/payments': {
       id: '/_authenticated/store/$storeId/payments'
       path: '/payments'
@@ -5361,6 +5381,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdOauthRoute: typeof AuthenticatedStoreStoreIdOauthRoute
   AuthenticatedStoreStoreIdOrdersRoute: typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   AuthenticatedStoreStoreIdPagesRoute: typeof AuthenticatedStoreStoreIdPagesRoute
+  AuthenticatedStoreStoreIdPanelsRoute: typeof AuthenticatedStoreStoreIdPanelsRoute
   AuthenticatedStoreStoreIdPaymentsRoute: typeof AuthenticatedStoreStoreIdPaymentsRoute
   AuthenticatedStoreStoreIdPopupsRoute: typeof AuthenticatedStoreStoreIdPopupsRoute
   AuthenticatedStoreStoreIdPricingRoute: typeof AuthenticatedStoreStoreIdPricingRoute
@@ -5522,6 +5543,7 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdOrdersRoute:
       AuthenticatedStoreStoreIdOrdersRouteWithChildren,
     AuthenticatedStoreStoreIdPagesRoute: AuthenticatedStoreStoreIdPagesRoute,
+    AuthenticatedStoreStoreIdPanelsRoute: AuthenticatedStoreStoreIdPanelsRoute,
     AuthenticatedStoreStoreIdPaymentsRoute:
       AuthenticatedStoreStoreIdPaymentsRoute,
     AuthenticatedStoreStoreIdPopupsRoute: AuthenticatedStoreStoreIdPopupsRoute,
