@@ -54,23 +54,27 @@ export const createProduct = createServerFn({ method: "POST" })
 
     const { data: store, error: storeError } = await supabase
       .from("stores")
-      .select("id, currency, plan_id, plans(limits)")
+      .select("id, currency, plan_id")
       .eq("id", data.storeId)
       .maybeSingle();
     if (storeError) throw new Error(storeError.message);
     if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
 
-    const limits = ((store as { plans?: { limits?: Record<string, number> } }).plans?.limits ??
-      {}) as { products?: number };
-    if (typeof limits.products === "number" && limits.products >= 0) {
-      const { count } = await supabase
-        .from("products")
-        .select("id", { count: "exact", head: true })
-        .eq("store_id", data.storeId);
-      if ((count ?? 0) >= limits.products) {
-        throw new Error(`Paket ürün limitine ulaştınız (${limits.products}). Paketi yükseltin.`);
-      }
-    }
+    // Paket kotası veritabanındaki plan_features üzerinden zorlanır.
+    const { requirePlanQuota } = await import("@/lib/entitlements.server");
+    await requirePlanQuota(
+      supabase as never,
+      data.storeId,
+      "products",
+      async () => {
+        const { count } = await supabase
+          .from("products")
+          .select("id", { count: "exact", head: true })
+          .eq("store_id", data.storeId);
+        return count ?? 0;
+      },
+      "Paket ürün",
+    );
 
     const slug = await uniqueSlug(supabase as never, data.storeId, data.title);
 

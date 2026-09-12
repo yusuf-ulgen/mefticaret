@@ -119,6 +119,8 @@ export const saveSupplierFeed = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     await storeGuard(supabase, data.storeId);
+    const { requirePlanModule } = await import("@/lib/entitlements.server");
+    await requirePlanModule(supabase as never, data.storeId, "module_xml_feed");
     const { nextRunAt } = await import("@/lib/dropshipping");
 
     const payload = {

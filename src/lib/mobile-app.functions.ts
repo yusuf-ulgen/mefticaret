@@ -29,12 +29,20 @@ export const getMobileApp = createServerFn({ method: "GET" })
 export const saveMobileAppDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => saveConfigSchema.parse(data))
-  .handler(async ({ data, context }) => saveDraftConfig(context.supabase, data));
+  .handler(async ({ data, context }) => {
+    const { requirePlanModule } = await import("@/lib/entitlements.server");
+    await requirePlanModule(context.supabase as never, data.storeId, "module_mobile_app");
+    return saveDraftConfig(context.supabase, data);
+  });
 
 export const publishMobileApp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => saveConfigSchema.parse(data))
-  .handler(async ({ data, context }) => publishConfig(context.supabase, data, context.userId));
+  .handler(async ({ data, context }) => {
+    const { requirePlanModule } = await import("@/lib/entitlements.server");
+    await requirePlanModule(context.supabase as never, data.storeId, "module_mobile_app");
+    return publishConfig(context.supabase, data, context.userId);
+  });
 
 export const saveMobilePushAutomation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

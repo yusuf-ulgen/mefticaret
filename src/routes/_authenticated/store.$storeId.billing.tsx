@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { AlertTriangle, Check, FileText, Gauge, History, Sparkles } from "lucide-react";
+import { AlertTriangle, Check, FileText, Gauge, History, Lock, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -16,6 +16,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { readFeatures } from "@/lib/billing-queries";
+import { MODULE_CATALOG, isModuleKey } from "@/lib/plan-features";
 import { formatDateTime, formatMoney, formatNumber } from "@/lib/mefti";
 import { plansQuery, storeAuditQuery, storeQuery } from "@/lib/store-queries";
 import {
@@ -162,8 +163,18 @@ function BillingPage() {
   const activePlanId = subscription?.plan_id ?? store?.plan_id ?? null;
   const currentPlan = plans?.find((plan) => plan.id === activePlanId) ?? null;
   const currentFeatures = (planFeatures ?? [])
-    .filter((feature) => feature.plan_id === activePlanId && feature.is_enabled)
+    .filter(
+      (feature) =>
+        feature.plan_id === activePlanId && feature.is_enabled && !isModuleKey(feature.metric_key),
+    )
     .sort((a, b) => a.sort_order - b.sort_order);
+  /** Paketle açılan/kapanan modüller (kotalardan ayrı gösterilir). */
+  const currentModules = MODULE_CATALOG.map((module) => {
+    const row = (planFeatures ?? []).find(
+      (feature) => feature.plan_id === activePlanId && feature.metric_key === module.key,
+    );
+    return { ...module, enabled: Boolean(row?.is_enabled) };
+  });
   const trialLeft = trialDaysLeft(subscription?.trial_ends_at);
 
   const openInvoice = (invoices ?? []).find((invoice) => invoice.status !== "paid") ?? null;
@@ -303,6 +314,33 @@ function BillingPage() {
               })
             )}
           </div>
+
+          <div className="mt-8 space-y-3">
+            <h3 className="text-sm font-semibold">Paketinizle açılan özellikler</h3>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {currentModules.map((module) => (
+                <div
+                  key={module.key}
+                  className={`flex items-start gap-2 rounded-lg border p-3 text-sm ${
+                    module.enabled ? "bg-background" : "bg-muted/40 text-muted-foreground"
+                  }`}
+                >
+                  {module.enabled ? (
+                    <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                  ) : (
+                    <Lock className="mt-0.5 size-4 shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-medium">{module.label}</p>
+                    <p className="text-xs text-muted-foreground">{module.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Kapalı özellikler menüde görünmez ve işlem yapılamaz. Üst pakete geçerek açabilirsiniz.
+            </p>
+          </div>
         </section>
 
         <Tabs defaultValue="plans" className="space-y-4">
@@ -341,11 +379,17 @@ function BillingPage() {
                   .filter((plan) => plan.is_active)
                   .map((plan) => {
                     const active = plan.id === activePlanId;
-                    const planLimits = (planFeatures ?? [])
-                      .filter((feature) => feature.plan_id === plan.id && feature.is_enabled)
+                    const planRows = (planFeatures ?? []).filter(
+                      (feature) => feature.plan_id === plan.id && feature.is_enabled,
+                    );
+                    const planLimits = planRows
+                      .filter((feature) => !isModuleKey(feature.metric_key))
                       .sort((a, b) => a.sort_order - b.sort_order)
                       .slice(0, 6);
-                    const extras = readFeatures(plan.features).slice(0, 3);
+                    const planModules = planRows
+                      .filter((feature) => isModuleKey(feature.metric_key))
+                      .sort((a, b) => a.sort_order - b.sort_order);
+                    const extras = readFeatures(plan.features).slice(0, 2);
                     const price =
                       interval === "yearly"
                         ? Number(plan.price_yearly ?? 0)
@@ -382,6 +426,12 @@ function BillingPage() {
                             <li key={feature.id}>
                               {feature.label}: {limitLabel(feature.limit_value)}
                               {feature.unit ? ` ${feature.unit}` : ""}
+                            </li>
+                          ))}
+                          {planModules.map((feature) => (
+                            <li key={feature.id} className="flex items-center gap-1.5">
+                              <Check className="size-3.5 shrink-0 text-primary" />
+                              {feature.label}
                             </li>
                           ))}
                           {extras.map((extra) => (

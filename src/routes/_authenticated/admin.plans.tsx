@@ -20,6 +20,7 @@ import { savePlatformPlan } from "@/lib/admin.functions";
 import { savePlanFeatures } from "@/lib/subscription.functions";
 import { planFeaturesQuery, type PlanFeatureRow } from "@/lib/subscription-queries";
 import { METRIC_CATALOG, limitLabel } from "@/lib/subscription";
+import { MODULE_CATALOG, isModuleKey } from "@/lib/plan-features";
 
 export const Route = createFileRoute("/_authenticated/admin/plans")({
   head: () => ({
@@ -53,6 +54,9 @@ type FeatureDraft = {
   limitValue: string;
   isEnabled: boolean;
   sortOrder: number;
+  /** Modül (aç/kapa özellik) satırı mı? */
+  isModule: boolean;
+  description?: string;
 };
 
 function toDraft(plan?: PlanRow): PlanDraft {
@@ -70,7 +74,7 @@ function toDraft(plan?: PlanRow): PlanDraft {
   };
 }
 
-/** Paket limitleri veritabanından okunur; eksik metrikler katalogdan boş (sınırsız) eklenir. */
+/** Paket limitleri ve modülleri veritabanından okunur; eksik satırlar katalogdan eklenir. */
 function toFeatureDrafts(rows: PlanFeatureRow[]): FeatureDraft[] {
   const byKey = new Map(rows.map((row) => [row.metric_key, row]));
   const drafts: FeatureDraft[] = METRIC_CATALOG.map((metric, index) => {
@@ -83,8 +87,25 @@ function toFeatureDrafts(rows: PlanFeatureRow[]): FeatureDraft[] {
       limitValue: row?.limit_value === null || row?.limit_value === undefined ? "" : String(row.limit_value),
       isEnabled: row?.is_enabled ?? true,
       sortOrder: row?.sort_order ?? index + 1,
+      isModule: false,
     };
   });
+
+  for (const [index, module] of MODULE_CATALOG.entries()) {
+    const row = byKey.get(module.key);
+    byKey.delete(module.key);
+    drafts.push({
+      metricKey: module.key,
+      label: row?.label ?? module.label,
+      unit: row?.unit ?? "modül",
+      limitValue: "",
+      isEnabled: row?.is_enabled ?? false,
+      sortOrder: row?.sort_order ?? 101 + index,
+      isModule: true,
+      description: module.description,
+    });
+  }
+
   let extra = drafts.length;
   for (const row of byKey.values()) {
     extra += 1;
@@ -95,6 +116,7 @@ function toFeatureDrafts(rows: PlanFeatureRow[]): FeatureDraft[] {
       limitValue: row.limit_value === null ? "" : String(row.limit_value),
       isEnabled: row.is_enabled,
       sortOrder: row.sort_order || extra,
+      isModule: isModuleKey(row.metric_key),
     });
   }
   return drafts;
@@ -123,7 +145,7 @@ function AdminPlans() {
     mutationFn: async (input: PlanDraft) => {
       const limits = Object.fromEntries(
         features
-          .filter((feature) => feature.isEnabled)
+          .filter((feature) => feature.isEnabled && !feature.isModule)
           .map((feature) => [
             feature.metricKey,
             feature.limitValue.trim() === "" ? -1 : Number(feature.limitValue),
@@ -218,6 +240,7 @@ function AdminPlans() {
             </p>
             <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">
               {featuresByPlan(plan.id)
+                .filter((feature) => !isModuleKey(feature.metric_key))
                 .slice(0, 4)
                 .map((feature) => (
                   <li key={feature.id}>
@@ -349,6 +372,7 @@ function AdminPlans() {
                 {draft.id ? (
                   <div className="space-y-2">
                     {features.map((feature, index) => (
+                      feature.isModule ? null : (
                       <div
                         key={feature.metricKey}
                         className="grid grid-cols-[1fr_110px_70px_auto] items-center gap-2 rounded-lg border border-border p-2"
@@ -394,11 +418,55 @@ function AdminPlans() {
                           }
                         />
                       </div>
+                      )
                     ))}
                   </div>
                 ) : (
                   <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
                     Paketi kaydettikten sonra limitleri düzenleyebilirsin.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label>Paket özellikleri (modüller)</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Kapalı modüller mağaza menüsünde görünmez ve sunucu tarafında da engellenir.
+                  </p>
+                </div>
+                {draft.id ? (
+                  <div className="space-y-2">
+                    {features.map((feature, index) =>
+                      feature.isModule ? (
+                        <div
+                          key={feature.metricKey}
+                          className="flex items-center justify-between gap-3 rounded-lg border border-border p-2"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">{feature.label}</p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {feature.description ?? feature.metricKey}
+                            </p>
+                          </div>
+                          <Switch
+                            checked={feature.isEnabled}
+                            aria-label={`${feature.label} açık`}
+                            onCheckedChange={(checked) =>
+                              setFeatures(
+                                features.map((row, rowIndex) =>
+                                  rowIndex === index ? { ...row, isEnabled: checked } : row,
+                                ),
+                              )
+                            }
+                          />
+                        </div>
+                      ) : null,
+                    )}
+                  </div>
+                ) : (
+                  <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+                    Paketi kaydettikten sonra modülleri açıp kapatabilirsin.
                   </p>
                 )}
               </div>
