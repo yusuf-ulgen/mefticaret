@@ -20,16 +20,9 @@ import { storefrontUI } from "@/lib/storefront-ui";
 import { ConversionBoosters, StickyAddToCartBar } from "@/components/wokiee/pdp-boosters";
 import { trackEvent } from "@/lib/track";
 import { getRequestOrigin } from "@/lib/origin.functions";
-import {
-  absoluteUrl,
-  breadcrumbSchema,
-  buildSeoHead,
-  buildTitle,
-  jsonLdScript,
-  plainText,
-  productSchema,
-  readSeo,
-} from "@/lib/seo";
+import { getStoreSeoContext } from "@/lib/seo-public.functions";
+import { missingHead, storefrontHead } from "@/lib/storefront-seo";
+import { absoluteUrl, plainText, productSchema, readSeo } from "@/lib/seo";
 
 /** YouTube/Vimeo adreslerini gömme adresine çevirir. */
 function embedUrl(url: string) {
