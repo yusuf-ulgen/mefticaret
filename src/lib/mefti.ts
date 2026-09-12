@@ -43,9 +43,13 @@ export const ONBOARDING_STEPS = [
 export const STORE_ROLE_LABELS: Record<string, string> = {
   owner: "Mağaza Sahibi",
   admin: "Mağaza Yöneticisi",
+  manager: "Mağaza Müdürü",
   staff: "Personel",
   marketing: "Pazarlama",
   support: "Destek",
+  seo_manager: "SEO Sorumlusu",
+  pricing_manager: "Fiyatlandırma Sorumlusu",
+  translator: "Çevirmen",
 };
 
 export const APP_ROLE_LABELS: Record<string, string> = {

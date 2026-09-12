@@ -19,6 +19,9 @@ export const RATE_LIMITS = {
   public_form: { limit: 20, windowSeconds: 600 },
   data_request: { limit: 5, windowSeconds: 3600 },
   consent: { limit: 60, windowSeconds: 600 },
+  // Panel girişleri: IP başına deneme sınırı (hesap kilidi ile birlikte çalışır).
+  admin_login: { limit: 10, windowSeconds: 600 },
+  admin_route: { limit: 300, windowSeconds: 60 },
 } satisfies Record<string, RateLimitRule>;
 
 export function clientIp(request: Request): string {
