@@ -171,3 +171,143 @@ export const savePageSeoMeta = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/**
+ * Mağaza meta şablonlarını, başlığı veya açıklaması eksik olan ürün, kategori,
+ * sayfa ve blog kayıtlarına uygular. Mevcut manuel değerler korunur.
+ */
+export const applySeoTemplates = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        kinds: z.array(z.enum(["product", "collection", "page", "blog"])).min(1),
+        overwrite: z.boolean().optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { readSeo, readStoreSeo, renderSeoTemplate, plainText } = await import("@/lib/seo");
+
+    const [{ data: store, error: storeError }, { data: settings, error: settingsError }] = await Promise.all([
+      supabase.from("stores").select("id, name").eq("id", data.storeId).maybeSingle(),
+      supabase.from("store_settings").select("seo").eq("store_id", data.storeId).maybeSingle(),
+    ]);
+    if (storeError) throw new Error(storeError.message);
+    if (settingsError) throw new Error(settingsError.message);
+    if (!store) throw new Error("Mağaza bulunamadı.");
+
+    const seoSettings = readStoreSeo(settings?.seo ?? null);
+    const templates = seoSettings.templates ?? {};
+    const storeName = store.name;
+    const overwrite = Boolean(data.overwrite);
+
+    let updated = 0;
+    let skipped = 0;
+
+    const applyRow = async (
+      table: "products" | "collections" | "store_pages",
+      id: string,
+      current: unknown,
+      title: string | null,
+      description: string | null,
+      templateKey: "product" | "collection" | "page" | "blog",
+      extraTokens: Record<string, string | number | null | undefined>,
+    ) => {
+      const template = templates[templateKey];
+      if (!template) {
+        skipped += 1;
+        return;
+      }
+      const existing = readSeo(current);
+      const tokens = { store_name: storeName, ...extraTokens };
+      const nextTitle = overwrite || !existing.title ? renderSeoTemplate(template.title, tokens) : null;
+      const nextDescription =
+        overwrite || !existing.description ? renderSeoTemplate(template.description, tokens) : null;
+
+      if (!nextTitle && !nextDescription) {
+        skipped += 1;
+        return;
+      }
+
+      const merged = {
+        ...existing,
+        ...(nextTitle ? { title: nextTitle.slice(0, 120) } : {}),
+        ...(nextDescription ? { description: nextDescription.slice(0, 320) } : {}),
+      } as Json;
+
+      const { error } = await supabase
+        .from(table)
+        .update({ seo: merged } as never)
+        .eq("id", id)
+        .eq("store_id", data.storeId);
+      if (error) throw new Error(error.message);
+      updated += 1;
+      void title;
+      void description;
+    };
+
+    if (data.kinds.includes("product")) {
+      const { data: rows, error } = await supabase
+        .from("products")
+        .select("id, title, description, product_type, vendor, base_price, seo")
+        .eq("store_id", data.storeId)
+        .limit(1000);
+      if (error) throw new Error(error.message);
+      for (const row of rows ?? []) {
+        await applyRow("products", String(row.id), row.seo, row.title, row.description, "product", {
+          product_name: row.title,
+          product_type: row.product_type ?? "",
+          brand_name: row.vendor ?? "",
+          price: row.base_price ?? "",
+        });
+      }
+    }
+
+    if (data.kinds.includes("collection")) {
+      const { data: rows, error } = await supabase
+        .from("collections")
+        .select("id, title, description, seo")
+        .eq("store_id", data.storeId)
+        .limit(500);
+      if (error) throw new Error(error.message);
+      for (const row of rows ?? []) {
+        await applyRow("collections", String(row.id), row.seo, row.title, row.description, "collection", {
+          collection_name: row.title,
+        });
+      }
+    }
+
+    const pageKinds = data.kinds.filter((kind) => kind === "page" || kind === "blog");
+    if (pageKinds.length) {
+      const { data: rows, error } = await supabase
+        .from("store_pages")
+        .select("id, title, excerpt, body, seo_description, page_kind, author_name, seo")
+        .eq("store_id", data.storeId)
+        .limit(500);
+      if (error) throw new Error(error.message);
+      for (const row of rows ?? []) {
+        const kind = row.page_kind === "blog" ? "blog" : "page";
+        if (!pageKinds.includes(kind)) continue;
+        const excerpt = plainText(row.seo_description ?? row.excerpt ?? row.body ?? "").slice(0, 200);
+        await applyRow("store_pages", String(row.id), row.seo, row.title, excerpt, kind, {
+          page_title: row.title,
+          page_excerpt: excerpt,
+          author_name: row.author_name ?? "",
+        });
+      }
+    }
+
+    await insertAuditRow(supabase, {
+      store_id: data.storeId,
+      actor_id: userId,
+      action: "seo.templates.apply",
+      entity: "store_settings",
+      entity_id: data.storeId,
+      meta: { kinds: data.kinds, overwrite, updated, skipped } as Json,
+    });
+
+    return { updated, skipped };
+  });
