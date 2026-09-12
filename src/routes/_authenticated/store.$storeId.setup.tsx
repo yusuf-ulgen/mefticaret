@@ -240,9 +240,9 @@ function SetupPage() {
                   </div>
                   {step.to ? (
                     <Button asChild variant="ghost" size="sm">
-                      <Link to={step.to}>
+                      <a href={step.to}>
                         Aç <ArrowRight className="ml-1 size-3.5" />
-                      </Link>
+                      </a>
                     </Button>
                   ) : null}
                 </li>
@@ -251,7 +251,11 @@ function SetupPage() {
 
             <p className="text-xs text-muted-foreground">
               Daha ayrıntılı kontrol listesi için{" "}
-              <Link className="underline" to={`${base}/health`}>
+              <Link
+                className="underline"
+                to="/store/$storeId/health"
+                params={{ storeId }}
+              >
                 Yayına Hazırlık
               </Link>{" "}
               sayfasına bakabilirsin.
