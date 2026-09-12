@@ -283,3 +283,133 @@ export const listMigrationIssues = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
+
+/* ------------------------------- Mefticaret → Mefticaret mağaza aktarımı */
+
+const transferEntitySchema = z.enum(["category", "product", "customer", "order", "page", "theme"]);
+
+const transferInput = z.object({
+  sourceStoreId: z.string().uuid(),
+  targetStoreId: z.string().uuid(),
+  scope: z.array(transferEntitySchema).min(1),
+});
+
+/** Kullanıcının erişebildiği mağazalar (kaynak/hedef seçimi için). */
+export const listTransferableStores = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("stores")
+      .select("id, name, slug, status")
+      .order("created_at", { ascending: true })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+/** Aktarım için hedef mağazaya bağlı iç kaynak kaydını bulur veya oluşturur. */
+async function ensureInternalSource(targetStoreId: string, sourceStoreId: string): Promise<string> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: existing } = await supabaseAdmin
+    .from("migration_sources")
+    .select("id")
+    .eq("store_id", targetStoreId)
+    .eq("provider", "mefticaret")
+    .eq("shop_domain", sourceStoreId)
+    .maybeSingle();
+  if (existing?.id) return existing.id;
+
+  const { data, error } = await supabaseAdmin
+    .from("migration_sources")
+    .insert({
+      store_id: targetStoreId,
+      provider: "mefticaret",
+      label: "Mefticaret mağazası",
+      shop_domain: sourceStoreId,
+      scope: ["product", "order", "customer", "page"],
+      config_ref: "migration:mefticaret",
+      status: "ready",
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  return data.id;
+}
+
+/** Kuru çalışma: kaç kayıt aktarılacağını hesaplar, hiçbir şey yazmaz. */
+export const previewStoreTransfer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => transferInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (data.sourceStoreId === data.targetStoreId) throw new Error("Kaynak ve hedef mağaza aynı olamaz");
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.sourceStoreId, context.userId);
+    await assertStoreManager(context.supabase, data.targetStoreId, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { transferStoreData } = await import("@/lib/migration-internal.server");
+    return transferStoreData(supabaseAdmin, {
+      sourceStoreId: data.sourceStoreId,
+      targetStoreId: data.targetStoreId,
+      scope: data.scope,
+      dryRun: true,
+    });
+  });
+
+/** Gerçek aktarım: iş kaydı açar, verileri kopyalar ve raporu döner. */
+export const runStoreTransfer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => transferInput.parse(input))
+  .handler(async ({ data, context }) => {
+    if (data.sourceStoreId === data.targetStoreId) throw new Error("Kaynak ve hedef mağaza aynı olamaz");
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.sourceStoreId, context.userId);
+    await assertStoreManager(context.supabase, data.targetStoreId, context.userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const sourceId = await ensureInternalSource(data.targetStoreId, data.sourceStoreId);
+    const { data: job, error: jobError } = await supabaseAdmin
+      .from("migration_jobs")
+      .insert({
+        store_id: data.targetStoreId,
+        source_id: sourceId,
+        mode: "run",
+        scope: data.scope,
+        status: "running",
+        started_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+    if (jobError) throw new Error(jobError.message);
+
+    const { transferStoreData } = await import("@/lib/migration-internal.server");
+    try {
+      const report = await transferStoreData(supabaseAdmin, {
+        sourceStoreId: data.sourceStoreId,
+        targetStoreId: data.targetStoreId,
+        scope: data.scope,
+        dryRun: false,
+        jobId: job.id,
+      });
+      await supabaseAdmin
+        .from("migration_jobs")
+        .update({
+          status: report.errors.length > 0 ? "completed_with_errors" : "completed",
+          totals: report.totals as unknown as Record<string, never>,
+          last_error: report.errors.slice(0, 5).join(" | ") || null,
+          finished_at: new Date().toISOString(),
+        })
+        .eq("id", job.id);
+      await supabaseAdmin
+        .from("migration_sources")
+        .update({ last_run_at: new Date().toISOString(), status: "ready" })
+        .eq("id", sourceId);
+      return { ...report, jobId: job.id };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Bilinmeyen hata";
+      await supabaseAdmin
+        .from("migration_jobs")
+        .update({ status: "failed", last_error: message.slice(0, 500), finished_at: new Date().toISOString() })
+        .eq("id", job.id);
+      throw new Error(message);
+    }
+  });
