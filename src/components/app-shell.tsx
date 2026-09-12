@@ -34,6 +34,8 @@ import { useAuth } from "@/lib/auth-context";
 import { myStoresQuery } from "@/lib/store-queries";
 import { STORE_ROLE_LABELS } from "@/lib/mefti";
 import { storeNavGroups, storeQuickLinks, type StoreNavItem } from "@/lib/store-nav";
+import { storeEntitlementsQuery } from "@/lib/entitlements-queries";
+import { moduleKeyForPath } from "@/lib/plan-features";
 import { cn } from "@/lib/utils";
 
 const PIN_STORAGE_KEY = "mefti:pinned-nav";
@@ -110,7 +112,22 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [query, setQuery] = useState("");
   const { pinned, toggle } = usePinnedNav();
-  const groups = useMemo(() => storeNavGroups(storeId), [storeId]);
+  const baseGroups = useMemo(() => storeNavGroups(storeId), [storeId]);
+  const { data: entitlements } = useQuery(storeEntitlementsQuery(storeId));
+
+  // Paketin kapsamadığı modüller menüde gösterilmez; asıl kontrol sunucudadır.
+  const groups = useMemo(() => {
+    if (!entitlements) return baseGroups;
+    return baseGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => {
+          const moduleKey = moduleKeyForPath(item.to);
+          return !moduleKey || entitlements.modules[moduleKey] === true;
+        }),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [baseGroups, entitlements]);
 
   const term = query.trim().toLocaleLowerCase("tr");
   const filtered = useMemo(() => {
