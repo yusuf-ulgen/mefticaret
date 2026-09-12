@@ -283,3 +283,45 @@ export const listMigrationIssues = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
+
+/* ------------------------------- Mefticaret → Mefticaret mağaza aktarımı */
+
+const transferEntitySchema = z.enum(["category", "product", "customer", "order", "page", "theme"]);
+
+const transferInput = z.object({
+  sourceStoreId: z.string().uuid(),
+  targetStoreId: z.string().uuid(),
+  scope: z.array(transferEntitySchema).min(1),
+});
+
+/** Kullanıcının yönetebildiği mağazalar (kaynak/hedef seçimi için). */
+export const listTransferableStores = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("stores")
+      .select("id, name, slug, status")
+      .order("created_at", { ascending: true })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+async function internalSourceId(admin: {
+  from: (table: "migration_sources") => never;
+}, storeId: string, sourceStoreId: string): Promise<string> {
+  const db = admin as unknown as {
+    from: (table: string) => {
+      select: (cols: string) => never;
+      insert: (row: Record<string, unknown>) => never;
+      update: (row: Record<string, unknown>) => never;
+    };
+  };
+  const table = () => (db.from("migration_sources") as unknown as Record<string, (...args: unknown[]) => unknown>);
+  const existing = (await (table()["select"] as (c: string) => never)("id")) as unknown;
+  void existing;
+  void storeId;
+  void sourceStoreId;
+  return "";
+}
+void internalSourceId;
