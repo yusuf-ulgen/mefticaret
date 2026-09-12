@@ -371,6 +371,7 @@ function AdminPlans() {
                 {draft.id ? (
                   <div className="space-y-2">
                     {features.map((feature, index) => (
+                      feature.isModule ? null : (
                       <div
                         key={feature.metricKey}
                         className="grid grid-cols-[1fr_110px_70px_auto] items-center gap-2 rounded-lg border border-border p-2"
