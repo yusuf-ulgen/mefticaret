@@ -8,4 +8,4 @@
 - [x] Tema paketi, özgün görseller ve tema mağazası kaydı
 - [x] Header, ana sayfa, PLP, PDP ve AJAX sepet deneyimi
 - [x] Tema editörü/önizleme entegrasyonu
-- [ ] Mobil-masaüstü etkileşim ve regresyon doğrulaması
+- [x] Mobil-masaüstü etkileşim ve regresyon doğrulaması
