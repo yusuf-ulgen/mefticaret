@@ -35,6 +35,20 @@ export const adminLoginPassword = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const mod = await import("./admin-auth.server");
+
+    // IP başına deneme sınırı: hesap kilidinin yanında kaba kuvvet denemelerini
+    // farklı hesap/oturum denemelerinde de yavaşlatır.
+    const { RATE_LIMITS, consumeRateLimit, clientIp } = await import("./rate-limit.server");
+    let ip = "unknown";
+    try {
+      const { getRequest } = await import("@tanstack/react-start/server");
+      ip = clientIp(getRequest());
+    } catch {
+      /* istek bağlamı yoksa varsayılan kova kullanılır */
+    }
+    const limit = await consumeRateLimit(`admin_login:${ip}`, RATE_LIMITS.admin_login);
+    if (!limit.allowed) return { ok: false as const, error: "locked" as const };
+
     const row = await mod.loadAdminAuthRow();
     if (!row) return { ok: false as const, error: "not_configured" as const };
     if (mod.isLocked(row)) return { ok: false as const, error: "locked" as const };
