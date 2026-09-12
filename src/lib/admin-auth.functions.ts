@@ -106,7 +106,7 @@ export const openAdminPanelSession = createServerFn({ method: "POST" })
     await session.update({
       stage: "authenticated",
       userId,
-      email: (context.claims as { email?: string } | undefined)?.email,
+      email: (context.claims as { email?: string } | undefined)?.email ?? "",
       at: Date.now(),
     });
     return { allowed: true as const };
