@@ -13651,7 +13651,16 @@ export type Database = {
         | "returned"
         | "cancelled"
       stock_transfer_status: "draft" | "in_transit" | "received" | "cancelled"
-      store_role: "owner" | "admin" | "staff" | "marketing" | "support"
+      store_role:
+        | "owner"
+        | "admin"
+        | "staff"
+        | "marketing"
+        | "support"
+        | "manager"
+        | "seo_manager"
+        | "pricing_manager"
+        | "translator"
       store_status: "draft" | "active" | "suspended" | "archived"
       subscription_item_kind: "plan" | "addon" | "usage"
       subscription_status:
@@ -14051,7 +14060,17 @@ export const Constants = {
         "cancelled",
       ],
       stock_transfer_status: ["draft", "in_transit", "received", "cancelled"],
-      store_role: ["owner", "admin", "staff", "marketing", "support"],
+      store_role: [
+        "owner",
+        "admin",
+        "staff",
+        "marketing",
+        "support",
+        "manager",
+        "seo_manager",
+        "pricing_manager",
+        "translator",
+      ],
       store_status: ["draft", "active", "suspended", "archived"],
       subscription_item_kind: ["plan", "addon", "usage"],
       subscription_status: [
