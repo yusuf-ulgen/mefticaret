@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { AlertTriangle, Check, FileText, Gauge, History, Sparkles } from "lucide-react";
+import { AlertTriangle, Check, FileText, Gauge, History, Lock, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -313,6 +313,33 @@ function BillingPage() {
                 );
               })
             )}
+          </div>
+
+          <div className="mt-8 space-y-3">
+            <h3 className="text-sm font-semibold">Paketinizle açılan özellikler</h3>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {currentModules.map((module) => (
+                <div
+                  key={module.key}
+                  className={`flex items-start gap-2 rounded-lg border p-3 text-sm ${
+                    module.enabled ? "bg-background" : "bg-muted/40 text-muted-foreground"
+                  }`}
+                >
+                  {module.enabled ? (
+                    <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                  ) : (
+                    <Lock className="mt-0.5 size-4 shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-medium">{module.label}</p>
+                    <p className="text-xs text-muted-foreground">{module.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Kapalı özellikler menüde görünmez ve işlem yapılamaz. Üst pakete geçerek açabilirsiniz.
+            </p>
           </div>
         </section>
 
