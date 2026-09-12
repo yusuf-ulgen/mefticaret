@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ArrowUpRight, Check, Menu, X } from "lucide-react";
 
+import gdprBadge from "@/assets/gdpr-badge.webp.asset.json";
 import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
 import { supabase } from "@/integrations/supabase/client";
 
