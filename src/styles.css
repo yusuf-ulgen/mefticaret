@@ -544,3 +544,19 @@
 @media (max-width:900px) { .mef-ultra-product-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .mef-ultra-social-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media (max-width:640px) { .mef-ultra-section-head { align-items:start; flex-direction:column; } .mef-ultra-tabs { width:100%; overflow-x:auto; flex-wrap:nowrap; } .mef-ultra-tabs button { white-space:nowrap; } .mef-ultra-hotspot-popover { left:auto; right:42px; width:160px; } .mef-ultra-flash { min-height:460px; } .mef-ultra-social-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (prefers-reduced-motion:reduce) { .mef-ultra-social-tile img,.mef-ultra-social-tile span { transition:none; } }
+.mef-ultra-pdp-thumbs { display:flex; gap:9px; margin-top:12px; overflow-x:auto; }
+.mef-ultra-pdp-thumbs button { flex:0 0 74px; aspect-ratio:1; padding:0; overflow:hidden; border:2px solid; border-radius:8px; background:transparent; cursor:pointer; }
+.mef-ultra-pdp-thumbs img { width:100%; height:100%; object-fit:cover; }
+.mef-ultra-zoom { position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.9); display:grid; place-items:center; padding:30px; }
+.mef-ultra-zoom>button { position:absolute; right:22px; top:15px; border:0; background:transparent; color:white; font-size:2.4rem; cursor:pointer; }
+.mef-ultra-zoom img { max-width:94vw; max-height:92vh; object-fit:contain; }
+.mef-ultra-pdp-accordions { margin-top:24px; border-top:1px solid; }
+.mef-ultra-pdp-accordions details { border-bottom:1px solid; padding:15px 0; }
+.mef-ultra-pdp-accordions summary { cursor:pointer; font-weight:700; font-size:.88rem; }
+.mef-ultra-pdp-accordions p { font-size:.85rem; line-height:1.7; }
+.mef-ultra-size-modal { position:fixed; inset:0; z-index:95; display:grid; place-items:center; padding:20px; }
+.mef-ultra-size-backdrop { position:absolute; inset:0; border:0; background:rgba(0,0,0,.5); }
+.mef-ultra-size-modal>div { position:relative; width:min(520px,100%); padding:28px; border:1px solid; box-shadow:0 24px 80px rgba(0,0,0,.28); }
+.mef-ultra-size-modal>div>button { position:absolute; right:16px; top:12px; border:0; background:transparent; font-size:1.7rem; cursor:pointer; }
+.mef-ultra-size-modal table { width:100%; border-collapse:collapse; margin-top:16px; font-size:.82rem; }
+.mef-ultra-size-modal th,.mef-ultra-size-modal td { text-align:left; padding:9px; border-bottom:1px solid rgba(120,120,120,.2); }
