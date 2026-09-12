@@ -4,6 +4,7 @@ import {
   buildSeoHead,
   buildTitle,
   jsonLdScript,
+  renderSeoTemplate,
   localBusinessSchema,
   organizationSchema,
   websiteSchema,
@@ -29,6 +30,10 @@ export type StorefrontHeadInput = {
   image?: string | null;
   ogType?: "website" | "product" | "article";
   breadcrumbs?: BreadcrumbItem[];
+  /** Mağaza panelindeki meta şablon anahtarı. */
+  templateKey?: "product" | "collection" | "page" | "blog";
+  /** Şablon token değerleri: product_name, collection_name, page_title vb. */
+  tokens?: Record<string, string | number | null | undefined>;
   schemas?: unknown[];
   includeStoreSchema?: boolean;
 };
