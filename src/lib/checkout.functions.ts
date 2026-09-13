@@ -15,6 +15,29 @@ import {
   quoteCheckoutSchema,
 } from "@/lib/checkout.server";
 
+/**
+ * Kasa uçlarında IP bazlı sıkı hız sınırı. Limit aşılırsa istek reddedilir ve
+ * güvenlik olayı kaydedilir (bot/kart deneme saldırılarına karşı).
+ */
+async function guardCheckoutRate(bucket: string, kind: "checkout_quote" | "checkout_order") {
+  const { getRequest } = await import("@tanstack/react-start/server");
+  const { consumeRateLimit, clientIp, RATE_LIMITS, recordSecurityEvent } = await import(
+    "@/lib/rate-limit.server"
+  );
+  const request = getRequest();
+  const ip = clientIp(request);
+  const limit = await consumeRateLimit(`${kind}:${bucket}:${ip}`, RATE_LIMITS[kind]);
+  if (!limit.allowed) {
+    await recordSecurityEvent({
+      kind: `rate_limited_${kind}`,
+      severity: "warning",
+      request,
+      meta: { bucket },
+    });
+    throw new Error("Çok fazla deneme yaptınız. Lütfen birkaç dakika sonra tekrar deneyin.");
+  }
+}
+
 export const getCheckoutOptions = createServerFn({ method: "GET" })
   .inputValidator((data) => checkoutOptionsSchema.parse(data))
   .handler(async ({ data }) => loadCheckoutOptions(data));
