@@ -89,3 +89,26 @@ export async function pushUrlsToIndexNow(origin: string, urls: string[]): Promis
 
   return { host, urlCount: urlList.length, batches: batches.length, endpoints: results };
 }
+
+/** Tüm pazarlama ve mağaza adreslerini toplayıp gönderir. */
+export async function submitToIndexNow(origin: string): Promise<IndexNowResult> {
+  return pushUrlsToIndexNow(origin, await collectIndexableUrls(origin));
+}
+
+/** Tek bir ürün sayfasını (ve mağaza sitemap'ini) hızlı indekslemeye bildirir. */
+export async function pingProductIndexNow(
+  origin: string,
+  storeSlug: string,
+  productSlug: string,
+): Promise<void> {
+  const base = origin.replace(/\/$/, "");
+  try {
+    await pushUrlsToIndexNow(base, [
+      `${base}/s/${storeSlug}/p/${productSlug}`,
+      `${base}/s/${storeSlug}`,
+      `${base}/api/public/sitemap/${storeSlug}`,
+    ]);
+  } catch {
+    /* indeksleme bildirimi ürün kaydını engellemez */
+  }
+}
