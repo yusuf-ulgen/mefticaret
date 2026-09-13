@@ -70,6 +70,7 @@ export const placeMemberOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => placeOrderSchema.parse(data))
   .handler(async ({ data, context }) => {
+    await guardCheckoutRate(data.slug, "checkout_order");
     const { data: userData } = await context.supabase.auth.getUser();
     const email = userData.user?.email?.trim().toLowerCase();
     if (!email) throw new Error("Hesabınızda e-posta adresi bulunamadı.");
