@@ -122,6 +122,22 @@ export const Route = createFileRoute("/")({
             : {}),
         }),
       },
+      ...((loaderData?.faqItems?.length ?? 0) > 0
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: loaderData!.faqItems.map((item) => ({
+                  "@type": "Question",
+                  name: item.q,
+                  acceptedAnswer: { "@type": "Answer", text: item.a },
+                })),
+              }),
+            },
+          ]
+        : []),
     ],
   }),
   errorComponent: () => (
