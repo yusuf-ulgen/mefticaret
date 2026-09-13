@@ -30,58 +30,13 @@ export const adminLoginState = createServerFn({ method: "GET" }).handler(async (
   };
 });
 
-/** Panel şifresi ile giriş. */
-export const adminLoginPassword = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
-    z.object({ password: z.string().min(1).max(200) }).parse(input),
-  )
-  .handler(async ({ data }) => {
-    const mod = await import("./admin-auth.server");
-
-    // IP başına deneme sınırı: hesap kilidinin yanında kaba kuvvet denemelerini
-    // farklı hesap/oturum denemelerinde de yavaşlatır.
-    const { RATE_LIMITS, consumeRateLimit, clientIp } = await import("./rate-limit.server");
-    let ip = "unknown";
-    try {
-      const { getRequest } = await import("@tanstack/react-start/server");
-      ip = clientIp(getRequest());
-    } catch {
-      /* istek bağlamı yoksa varsayılan kova kullanılır */
-    }
-    const limit = await consumeRateLimit(`admin_login:${ip}`, RATE_LIMITS.admin_login);
-    if (!limit.allowed) return { ok: false as const, error: "locked" as const };
-
-    const row = await mod.loadAdminAuthRow();
-    if (!row) return { ok: false as const, error: "not_configured" as const };
-    if (mod.isLocked(row)) return { ok: false as const, error: "locked" as const };
-    if (!mod.panelPasswordConfigured()) {
-      return { ok: false as const, error: "not_configured" as const };
-    }
-
-    if (!mod.panelPasswordMatches(data.password)) {
-      await mod.registerFailure(row, "password");
-      return { ok: false as const, error: "invalid" as const };
-    }
-
-    // Yetki her zaman veritabanından doğrulanır.
-    if (!(await mod.isPlatformAdminUser(row.user_id))) {
-      await mod.registerFailure(row, "not_platform_admin");
-      await mod.clearAdminSession();
-      return { ok: false as const, error: "forbidden" as const };
-    }
-
-    const session = await mod.adminSession();
-    await session.update({
-      stage: "authenticated",
-      userId: row.user_id,
-      email: row.email,
-      at: Date.now(),
-    });
-    await mod.registerSuccess(row);
-
-    const tokenHash = await mod.mintSupabaseHandoff(row.email);
-    return { ok: true as const, tokenHash, email: row.email };
-  });
+/**
+ * Eski yalnızca-şifre giriş ucu kaldırıldı.
+ *
+ * Süper yönetici girişi artık normal Supabase e-posta/şifre girişinden sonra
+ * `openAdminPanelSession` ile açılır; ikinci faktör atlanabilen paylaşımlı
+ * panel şifresi akışı bulunmuyor.
+ */
 
 /**
  * Normal e-posta/şifre girişinden sonra çağrılır.
