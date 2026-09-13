@@ -48,7 +48,7 @@ export const Route = createFileRoute("/blog/$slug")({
         ? rawDescription
         : `${rawDescription.slice(0, 159).replace(/[\s,;.:-]+$/, "")}…`;
     const cover = post?.cover_url;
-    const absoluteCover = cover && /^https:\/\//.test(cover) ? cover : null;
+    const absoluteCover = cover && /^https:\/\//.test(cover) ? cover : "https://mefticaret.com/og-mefticaret.jpg";
     const canonical =
       post?.canonical_url && /^https?:\/\//.test(post.canonical_url)
         ? post.canonical_url
