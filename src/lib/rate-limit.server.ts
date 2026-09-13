@@ -19,6 +19,9 @@ export const RATE_LIMITS = {
   public_form: { limit: 20, windowSeconds: 600 },
   data_request: { limit: 5, windowSeconds: 3600 },
   consent: { limit: 60, windowSeconds: 600 },
+  // Kasa: fiyat sorgulama sık, sipariş oluşturma sıkı sınırlanır.
+  checkout_quote: { limit: 60, windowSeconds: 60 },
+  checkout_order: { limit: 8, windowSeconds: 300 },
   // Panel girişleri: IP başına deneme sınırı (hesap kilidi ile birlikte çalışır).
   admin_login: { limit: 10, windowSeconds: 600 },
   admin_route: { limit: 300, windowSeconds: 60 },
