@@ -58,10 +58,11 @@ export type IndexNowResult = {
   endpoints: { endpoint: string; status: number | "error" }[];
 };
 
-/** Adresleri IndexNow uçlarına gönderir (10.000'lik gruplar hâlinde). */
-export async function submitToIndexNow(origin: string): Promise<IndexNowResult> {
+/** Verilen adresleri IndexNow uçlarına gönderir (10.000'lik gruplar hâlinde). */
+export async function pushUrlsToIndexNow(origin: string, urls: string[]): Promise<IndexNowResult> {
   const host = new URL(origin).host;
-  const urlList = await collectIndexableUrls(origin);
+  const urlList = [...new Set(urls.filter(Boolean))];
+  if (urlList.length === 0) return { host, urlCount: 0, batches: 0, endpoints: [] };
   const batches: string[][] = [];
   for (let i = 0; i < urlList.length; i += 10000) batches.push(urlList.slice(i, i + 10000));
 
