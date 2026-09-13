@@ -54,7 +54,7 @@ export const createProduct = createServerFn({ method: "POST" })
 
     const { data: store, error: storeError } = await supabase
       .from("stores")
-      .select("id, currency, plan_id")
+      .select("id, slug, currency, plan_id")
       .eq("id", data.storeId)
       .maybeSingle();
     if (storeError) throw new Error(storeError.message);
@@ -113,6 +113,23 @@ export const createProduct = createServerFn({ method: "POST" })
       entity_id: product.id,
       new_value: { title: product.title, slug: product.slug } as never,
     });
+
+    // Yeni yayınlanan ürün hızlı indekslemeye bildirilir (hata kayıt akışını durdurmaz).
+    if (product.status === "active") {
+      const [{ pingProductIndexNow }, { getRequest }] = await Promise.all([
+        import("@/lib/indexnow.server"),
+        import("@tanstack/react-start/server"),
+      ]);
+      try {
+        await pingProductIndexNow(
+          new URL(getRequest().url).origin,
+          String(store.slug),
+          String(product.slug),
+        );
+      } catch {
+        /* bildirim başarısız olsa da ürün oluşturulmuş sayılır */
+      }
+    }
 
     return product;
   });
@@ -545,7 +562,7 @@ export const createProductAdvanced = createServerFn({ method: "POST" })
 
     const { data: store, error: storeError } = await supabase
       .from("stores")
-      .select("id, currency, plan_id, plans(limits)")
+      .select("id, slug, currency, plan_id, plans(limits)")
       .eq("id", data.storeId)
       .maybeSingle();
     if (storeError) throw new Error(storeError.message);
@@ -669,6 +686,23 @@ export const createProductAdvanced = createServerFn({ method: "POST" })
         variants: rows.length,
       } as never,
     });
+
+    // Yeni yayınlanan ürün hızlı indekslemeye bildirilir (hata kayıt akışını durdurmaz).
+    if (product.status === "active") {
+      const [{ pingProductIndexNow }, { getRequest }] = await Promise.all([
+        import("@/lib/indexnow.server"),
+        import("@tanstack/react-start/server"),
+      ]);
+      try {
+        await pingProductIndexNow(
+          new URL(getRequest().url).origin,
+          String(store.slug),
+          String(product.slug),
+        );
+      } catch {
+        /* bildirim başarısız olsa da ürün oluşturulmuş sayılır */
+      }
+    }
 
     return product;
   });

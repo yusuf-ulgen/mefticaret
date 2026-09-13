@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ExternalLink, Search, Sparkles, Wand2 } from "lucide-react";
+import { ExternalLink, Radar, Search, Sparkles, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { seoEntitiesQuery, type SeoEntity } from "@/lib/seo-entities-queries";
 import { applySeoTemplates } from "@/lib/seo.functions";
+import { submitStoreUrlsToIndexNow } from "@/lib/indexnow.functions";
 import { seoTemplateLabels, type SeoTemplateKey } from "@/components/seo/seo-shared";
 import type { StoreSeoSettings } from "@/lib/seo";
 
@@ -94,6 +95,17 @@ export function SeoContentTab({
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const submitIndexNow = useServerFn(submitStoreUrlsToIndexNow);
+  const indexNowMutation = useMutation({
+    mutationFn: async () =>
+      submitIndexNow({ data: { storeId, kinds: ["product", "collection", "page"] } }),
+    onSuccess: (result) =>
+      toast.success(
+        `${result.urlCount} adres IndexNow'a bildirildi (${result.accepted}/${result.endpoints} arama motoru kabul etti).`,
+      ),
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const templateKeys = Object.keys(settings.templates ?? {}) as SeoTemplateKey[];
   const selectedKinds: SeoTemplateKey[] =
     kind === "all" ? ["product", "collection", "page", "blog"] : [kind];
@@ -151,6 +163,24 @@ export function SeoContentTab({
             ))}
           </div>
         )}
+      </div>
+
+      <div className="surface-card flex flex-wrap items-center justify-between gap-3 p-5">
+        <div>
+          <h2 className="text-sm font-semibold">Hızlı indeksleme (IndexNow)</h2>
+          <p className="text-xs text-muted-foreground">
+            Güncellenen ürün, kategori ve sayfa adreslerini Bing, Yandex ve IndexNow ağına anında
+            bildirin. Yeni eklenen yayında ürünler otomatik olarak bildirilir.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => indexNowMutation.mutate()}
+          disabled={indexNowMutation.isPending}
+        >
+          <Radar className="mr-2 h-4 w-4" />
+          {indexNowMutation.isPending ? "Bildiriliyor…" : "IndexNow'a bildir"}
+        </Button>
       </div>
 
       <div className="surface-card space-y-4 p-5">

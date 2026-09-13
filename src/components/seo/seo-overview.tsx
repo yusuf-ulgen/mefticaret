@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, Search, TriangleAlert } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Metric } from "@/components/seo/seo-shared";
-import { formatNumber } from "@/lib/mefti";
+import { formatNumber, formatPercent } from "@/lib/mefti";
+import {
+  analyticsEventsQuery,
+  analyticsRangeOrdersQuery,
+  summarizeEvents,
+} from "@/lib/analytics-events-queries";
+import { buildRange } from "@/lib/analytics-range";
 
 export type SeoCheck = { id: string; label: string; hint: string; ok: boolean; to?: string };
 export type SeoProductIssue = { id: string; title: string; slug: string; issues: string[] };
@@ -28,6 +36,17 @@ export function SeoOverviewTab({
   loading: boolean;
   storeId: string;
 }) {
+  // Gerçek vitrin analitiği: son 30 günün ziyaretçi, organik ve dönüşüm verisi.
+  const range = useMemo(() => buildRange("30d", "", ""), []);
+  const { data: events } = useQuery(analyticsEventsQuery(storeId, range));
+  const { data: orders } = useQuery(analyticsRangeOrdersQuery(storeId, range));
+  const revenue = (orders ?? []).reduce((total, row) => total + Number(row.grand_total ?? 0), 0);
+  const traffic = useMemo(
+    () => summarizeEvents(events ?? [], revenue, (orders ?? []).length),
+    [events, revenue, orders],
+  );
+  const organic = traffic.sources.find((row) => row.key === "organic")?.count ?? 0;
+
   return (
     <div className="space-y-6">
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -39,6 +58,33 @@ export function SeoOverviewTab({
           label="Eksiği olan ürün"
           value={formatNumber(issues.length)}
           hint={`${formatNumber(activeCount)} aktif ürün içinde`}
+        />
+      </section>
+
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Metric
+          label="Ziyaretçi (30 gün)"
+          value={formatNumber(traffic.visitors)}
+          hint={`${formatNumber(traffic.sessions)} oturum`}
+        />
+        <Metric
+          label="Organik oturum"
+          value={formatNumber(organic)}
+          hint={
+            traffic.sessions > 0
+              ? `Trafiğin %${((organic / traffic.sessions) * 100).toFixed(1)}'i`
+              : "Henüz trafik yok"
+          }
+        />
+        <Metric
+          label="Ürün sayfası tıklaması"
+          value={formatNumber(traffic.productViews)}
+          hint={`${formatNumber(traffic.addToCart)} sepete ekleme`}
+        />
+        <Metric
+          label="Dönüşüm oranı"
+          value={formatPercent(traffic.conversion)}
+          hint={`${formatNumber(traffic.orders)} sipariş`}
         />
       </section>
 
