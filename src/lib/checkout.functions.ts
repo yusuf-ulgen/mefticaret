@@ -44,7 +44,10 @@ export const getCheckoutOptions = createServerFn({ method: "GET" })
 
 export const placeOrder = createServerFn({ method: "POST" })
   .inputValidator((data) => placeOrderSchema.parse(data))
-  .handler(async ({ data }) => createStorefrontOrder(data));
+  .handler(async ({ data }) => {
+    await guardCheckoutRate(data.slug, "checkout_order");
+    return createStorefrontOrder(data);
+  });
 
 export const getOrderStatus = createServerFn({ method: "POST" })
   .inputValidator((data) => orderStatusSchema.parse(data))
