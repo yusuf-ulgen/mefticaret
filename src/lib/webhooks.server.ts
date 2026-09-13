@@ -125,7 +125,8 @@ export async function dispatchWebhook(
   const started = Date.now();
 
   try {
-    const response = await fetch(hook.target_url, {
+    const { safeFetch } = await import("./safe-fetch.server");
+    const response = await safeFetch(hook.target_url, {
       method: "POST",
       headers: {
         "content-type": "application/json",

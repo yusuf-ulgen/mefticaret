@@ -80,14 +80,13 @@ const slugify = (value: string): string =>
     .slice(0, 60) || "urun";
 
 async function fetchFeedBody(feed: FeedRow): Promise<string> {
+  // SSRF koruması: iç ağ/metadata adresleri reddedilir, yönlendirmeler doğrulanır.
+  const { assertPublicUrl, safeFetch } = await import("./safe-fetch.server");
   let url: URL;
   try {
-    url = new URL(feed.source_url);
-  } catch {
-    throw new Error("Geçersiz besleme adresi");
-  }
-  if (url.protocol !== "https:" && url.protocol !== "http:") {
-    throw new Error("Yalnızca http/https adresleri desteklenir");
+    url = assertPublicUrl(feed.source_url);
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : "Geçersiz besleme adresi");
   }
 
   const headers: Record<string, string> = {
@@ -99,7 +98,7 @@ async function fetchFeedBody(feed: FeedRow): Promise<string> {
     if (name && rest.length) headers[name.trim().toLowerCase()] = rest.join(":").trim();
   }
 
-  const response = await fetch(url.toString(), { headers, redirect: "follow" });
+  const response = await safeFetch(url.toString(), { headers });
   if (!response.ok) throw new Error(`Kaynak yanıtı ${response.status}`);
   const body = await response.text();
   if (!body.trim()) throw new Error("Kaynak boş yanıt döndü");
