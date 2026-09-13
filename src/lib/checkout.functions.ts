@@ -60,7 +60,10 @@ export const previewCheckoutDiscount = createServerFn({ method: "POST" })
 /** Kasada gösterilen tüm tutarlar bu fonksiyondan gelir (istemci hesabına güvenilmez). */
 export const getCheckoutQuote = createServerFn({ method: "POST" })
   .inputValidator((data) => quoteCheckoutSchema.parse(data))
-  .handler(async ({ data }) => quoteCheckout(data));
+  .handler(async ({ data }) => {
+    await guardCheckoutRate(data.slug, "checkout_quote");
+    return quoteCheckout(data);
+  });
 
 /** Üyelikle ödeme: oturum doğrulanır, sipariş müşteri hesabına bağlanır. */
 export const placeMemberOrder = createServerFn({ method: "POST" })
