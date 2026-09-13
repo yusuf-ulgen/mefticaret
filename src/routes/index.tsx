@@ -48,8 +48,32 @@ async function loadPlanOffers(): Promise<PlanOffer[]> {
   }
 }
 
+type FaqItem = { q: string; a: string };
+
+async function loadFaqItems(): Promise<FaqItem[]> {
+  try {
+    const { data, error } = await supabase
+      .from("site_sections" as never)
+      .select("items, is_enabled")
+      .eq("section_key", "faq")
+      .maybeSingle();
+    if (error || !data) return [];
+    const row = data as unknown as { items?: { q?: string; a?: string }[]; is_enabled?: boolean };
+    if (row.is_enabled === false) return [];
+    return (row.items ?? [])
+      .filter((item) => item?.q && item?.a)
+      .map((item) => ({ q: String(item.q), a: String(item.a) }));
+  } catch {
+    return [];
+  }
+}
+
 export const Route = createFileRoute("/")({
-  loader: async () => ({ homeSeo: await fetchHomeSeo(), planOffers: await loadPlanOffers() }),
+  loader: async () => ({
+    homeSeo: await fetchHomeSeo(),
+    planOffers: await loadPlanOffers(),
+    faqItems: await loadFaqItems(),
+  }),
   head: ({ loaderData }) => ({
     meta: [
       { title: loaderData?.homeSeo?.title || FALLBACK_TITLE },
@@ -98,6 +122,22 @@ export const Route = createFileRoute("/")({
             : {}),
         }),
       },
+      ...((loaderData?.faqItems?.length ?? 0) > 0
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: loaderData!.faqItems.map((item) => ({
+                  "@type": "Question",
+                  name: item.q,
+                  acceptedAnswer: { "@type": "Answer", text: item.a },
+                })),
+              }),
+            },
+          ]
+        : []),
     ],
   }),
   errorComponent: () => (
