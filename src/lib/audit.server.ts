@@ -34,7 +34,17 @@ export function requestIp(request: Request): string | null {
  * eski/yeni değerleri birlikte saklar. Audit yazımı asıl işlemi bozmamalıdır,
  * bu yüzden hatalar yalnızca loglanır.
  */
-export async function recordAudit(client: unknown, entry: AuditEntry): Promise<void> {
+/**
+ * Denetim kayıtları yalnızca sunucu tarafında yazılır: istemci token'ıyla
+ * gelen client yok sayılır ve kayıt service-role bağlantısıyla atılır.
+ * Böylece istemciden uydurma audit satırı eklenemez.
+ */
+async function auditClient(): Promise<MinimalClient> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin as unknown as MinimalClient;
+}
+
+export async function recordAudit(_client: unknown, entry: AuditEntry): Promise<void> {
   let ip: string | null = null;
   let userAgent: string | null = null;
   try {
@@ -46,7 +56,8 @@ export async function recordAudit(client: unknown, entry: AuditEntry): Promise<v
   }
 
   try {
-    const { error } = await (client as MinimalClient).from("audit_logs").insert({
+    const db = await auditClient();
+    const { error } = await db.from("audit_logs").insert({
       store_id: entry.storeId ?? null,
       actor_id: entry.actorId ?? null,
       action: entry.action,
@@ -68,7 +79,7 @@ export async function recordAudit(client: unknown, entry: AuditEntry): Promise<v
  * IP + user-agent bilgisini ekler. Mevcut çağrı noktaları bu yolu kullanır.
  */
 export async function insertAuditRow(
-  client: unknown,
+  _client: unknown,
   row: Record<string, unknown>,
 ): Promise<void> {
   let ip: string | null = null;
@@ -81,7 +92,8 @@ export async function insertAuditRow(
     // İstek bağlamı yok (cron/worker).
   }
   try {
-    const { error } = await (client as MinimalClient)
+    const db = await auditClient();
+    const { error } = await db
       .from("audit_logs")
       .insert({ ip, user_agent: userAgent, ...row });
     if (error) console.error("audit_logs insert failed", error);
