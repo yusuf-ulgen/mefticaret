@@ -469,13 +469,19 @@ export async function sendInvoice(input: SendInput, userId: string) {
     if (result.fault) throw new Error(result.fault);
     if (result.status >= 400) throw new Error(`Servis hatası (HTTP ${result.status})`);
 
+    // Akış adımı 2: dönüş değerindeki <belgeOid> kaydedilir; durum sorgulaması bununla yapılır.
+    const belgeOid =
+      readTag(result.xml, "belgeOid") ?? readTag(result.xml, "oid") ?? readTag(result.xml, "return");
+
     await client
       .from("einvoice_documents")
       .update({
         status: "sent",
         sent_at: new Date().toISOString(),
+        belge_oid: belgeOid,
         response_summary: {
           httpStatus: result.status,
+          belgeOid,
           returnCode: readTag(result.xml, "returnCode") ?? readTag(result.xml, "resultCode"),
           message: (readTag(result.xml, "returnMessage") ?? readTag(result.xml, "message") ?? "").slice(0, 500),
         },
@@ -489,10 +495,10 @@ export async function sendInvoice(input: SendInput, userId: string) {
       actorId: userId,
       entity: "einvoice_documents",
       entityId: doc.id,
-      newValue: { documentNumber, ettn, environment: settings.environment },
+      newValue: { documentNumber, ettn, belgeOid, profile, environment: settings.environment },
     });
 
-    return { ok: true as const, documentNumber, ettn };
+    return { ok: true as const, documentNumber, ettn, profile, belgeOid, documentId: doc.id };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Bilinmeyen hata";
     await client
