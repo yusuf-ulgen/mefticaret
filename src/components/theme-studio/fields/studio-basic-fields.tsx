@@ -27,9 +27,9 @@ export function TextField({
 }: {
   id: string;
   label: string;
-  help?: string;
+  help?: string | undefined;
   value: string;
-  placeholder?: string;
+  placeholder?: string | undefined;
   maxLength?: number;
   onChange: (next: string) => void;
 }) {
@@ -71,7 +71,7 @@ export function TextareaField({
 }: {
   id: string;
   label: string;
-  help?: string;
+  help?: string | undefined;
   value: string;
   rows?: number;
   mono?: boolean;
@@ -105,12 +105,12 @@ export function NumberField({
 }: {
   id: string;
   label: string;
-  help?: string;
+  help?: string | undefined;
   value: number;
   min?: number;
   max?: number;
   step?: number;
-  unit?: string;
+  unit?: string | undefined;
   onChange: (next: number) => void;
 }) {
   const clamp = (next: number) => Math.min(max, Math.max(min, next));
@@ -167,12 +167,12 @@ export function RangeField({
 }: {
   id: string;
   label: string;
-  help?: string;
+  help?: string | undefined;
   value: number;
   min?: number;
   max?: number;
   step?: number;
-  unit?: string;
+  unit?: string | undefined;
   onChange: (next: number) => void;
 }) {
   const current = Math.min(max, Math.max(min, Number.isFinite(value) ? value : min));
@@ -225,14 +225,14 @@ export function SelectField({
 }: {
   id: string;
   label: string;
-  help?: string;
+  help?: string | undefined;
   value: string;
   options: FieldOption[];
   onChange: (next: string) => void;
 }) {
   return (
     <FieldShell id={id} label={label} help={help}>
-      <Select value={value || undefined} onValueChange={onChange}>
+      <Select {...(value ? { value } : {})} onValueChange={onChange}>
         <SelectTrigger id={id} className="h-9 text-sm">
           <SelectValue placeholder="Seç" />
         </SelectTrigger>
@@ -259,7 +259,7 @@ export function MultiSelectField({
 }: {
   id: string;
   label: string;
-  help?: string;
+  help?: string | undefined;
   value: string;
   options: FieldOption[];
   onChange: (next: string) => void;
@@ -314,7 +314,7 @@ export function RadioField({
 }: {
   id: string;
   label: string;
-  help?: string;
+  help?: string | undefined;
   value: string;
   options: FieldOption[];
   onChange: (next: string) => void;
@@ -350,7 +350,7 @@ export function SwitchField({
 }: {
   id: string;
   label: string;
-  help?: string;
+  help?: string | undefined;
   value: boolean;
   onChange: (next: boolean) => void;
 }) {
@@ -380,9 +380,9 @@ export function UrlField({
 }: {
   id: string;
   label: string;
-  help?: string;
+  help?: string | undefined;
   value: string;
-  placeholder?: string;
+  placeholder?: string | undefined;
   onChange: (next: string) => void;
 }) {
   const [local, setLocal] = useDebouncedField(value, onChange);

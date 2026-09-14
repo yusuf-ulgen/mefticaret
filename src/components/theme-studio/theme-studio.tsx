@@ -24,10 +24,12 @@ import { resolveDesignTokens } from "@/lib/theme-design";
 import { SECTION_BY_TYPE } from "@/lib/theme-sections";
 import { cn } from "@/lib/utils";
 
+import { StudioFieldProvider } from "./fields/studio-context";
 import { StudioAddSection } from "./studio-add-section";
 import { PREVIEW_DEVICES, PREVIEW_PAGES, StudioCanvas, type PreviewDevice, type PreviewPage } from "./studio-canvas";
 import { StudioInspector } from "./studio-inspector";
 import { StudioSectionList } from "./studio-section-list";
+import { StudioVersions } from "./studio-versions";
 import { useThemeStudio } from "./use-theme-studio";
 
 type Pane = "sections" | "preview" | "inspector";
@@ -49,10 +51,30 @@ export function ThemeStudio({ storeId, backTo }: { storeId: string; backTo: "sto
   const [pane, setPane] = useState<Pane>("preview");
 
   const { save, dirty, saving, undo, redo } = studio;
+  const selectedId = studio.selectedId;
 
-  // Klavye kısayolları: kaydet, geri al, yinele.
+  // Klavye kısayolları: kaydet, geri al/yinele, kopyala, gizle, sil, bölüm ekle.
   useEffect(() => {
+    const isTyping = (target: EventTarget | null) => {
+      const node = target as HTMLElement | null;
+      if (!node) return false;
+      return (
+        node.isContentEditable ||
+        ["INPUT", "TEXTAREA", "SELECT"].includes(node.tagName)
+      );
+    };
+
     const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        studio.setSelectedId(null);
+        return;
+      }
+      if ((event.key === "Delete" || event.key === "Backspace") && !isTyping(event.target)) {
+        if (!selectedId) return;
+        event.preventDefault();
+        studio.deleteSection(selectedId);
+        return;
+      }
       if (!(event.ctrlKey || event.metaKey)) return;
       const key = event.key.toLowerCase();
       if (key === "s") {
@@ -64,11 +86,20 @@ export function ThemeStudio({ storeId, backTo }: { storeId: string; backTo: "sto
       } else if ((key === "z" && event.shiftKey) || key === "y") {
         event.preventDefault();
         redo();
+      } else if (key === "d" && selectedId) {
+        event.preventDefault();
+        studio.duplicateSection(selectedId);
+      } else if (key === "h" && selectedId) {
+        event.preventDefault();
+        studio.toggleSection(selectedId);
+      } else if (key === "a" && event.shiftKey) {
+        event.preventDefault();
+        setAddOpen(true);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [dirty, redo, save, saving, undo]);
+  }, [dirty, redo, save, saving, selectedId, studio, undo]);
 
   // Kaydedilmemiş değişiklikle sayfadan ayrılma uyarısı.
   useEffect(() => {
@@ -113,6 +144,21 @@ export function ThemeStudio({ storeId, backTo }: { storeId: string; backTo: "sto
   const status = saving ? "Kaydediliyor…" : dirty ? "Kaydedilmedi" : studio.savedAt ? "Kaydedildi" : "";
 
   return (
+    <StudioFieldProvider
+      value={{
+        storeId,
+        products: (studio.products ?? []).map((product) => ({
+          id: product.id,
+          title: product.title,
+          slug: product.slug,
+        })),
+        collections: (studio.collections ?? []).map((collection) => ({
+          id: collection.id,
+          title: collection.title,
+          slug: collection.slug,
+        })),
+      }}
+    >
     <div className="flex h-screen flex-col bg-background">
       <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border bg-card px-2 py-2 lg:h-14 lg:flex-nowrap lg:px-3 lg:py-0">
         <div className="flex min-w-0 items-center gap-2">
@@ -186,6 +232,7 @@ export function ThemeStudio({ storeId, backTo }: { storeId: string; backTo: "sto
         </div>
 
         <div className="flex items-center gap-1.5">
+          <StudioVersions storeId={storeId} onRestored={() => window.location.reload()} />
           <Button size="icon" variant="ghost" className="size-8" disabled={!studio.canUndo} onClick={undo} aria-label="Geri al">
             <Undo2 className="size-4" />
           </Button>
@@ -353,6 +400,7 @@ export function ThemeStudio({ storeId, backTo }: { storeId: string; backTo: "sto
       />
       <ThemeSettingsDialog storeId={storeId} theme={studio.theme} open={brandOpen} onOpenChange={setBrandOpen} />
     </div>
+    </StudioFieldProvider>
   );
 }
 

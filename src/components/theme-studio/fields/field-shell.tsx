@@ -11,12 +11,12 @@ export function FieldShell({
   children,
   error,
 }: {
-  id?: string;
+  id?: string | undefined;
   label: string;
-  help?: string;
-  aside?: ReactNode;
+  help?: string | undefined;
+  aside?: ReactNode | undefined;
   children: ReactNode;
-  error?: string | null;
+  error?: string | null | undefined;
 }) {
   return (
     <div className="space-y-1.5">
