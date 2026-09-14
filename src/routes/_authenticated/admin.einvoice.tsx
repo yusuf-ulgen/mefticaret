@@ -6,6 +6,13 @@ import { Download, FileCheck2, Inbox, PlugZap, RefreshCw, Search, Send } from "l
 import { toast } from "sonner";
 
 import { AdminShell } from "@/components/admin-shell";
+import {
+  EinvoiceFlow,
+  InboxSummary,
+  OutgoingStatusBadge,
+  OutgoingSummary,
+  outgoingStages,
+} from "@/components/einvoice-tracking";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -563,26 +570,26 @@ function AdminEinvoicePage() {
           </form>
         </TabsContent>
 
-        <TabsContent value="log" className="mt-4">
-          <div className="surface-card divide-y overflow-hidden">
+        <TabsContent value="log" className="mt-4 space-y-3">
+          <OutgoingSummary docs={data?.documents ?? []} />
+          <div className="space-y-3">
             {(data?.documents ?? []).length === 0 ? (
-              <p className="p-4 text-sm text-muted-foreground">Henüz gönderim kaydı yok.</p>
+              <p className="surface-card p-4 text-sm text-muted-foreground">Henüz gönderim kaydı yok.</p>
             ) : (
               (data?.documents ?? []).map((doc) => (
-                <div key={doc.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
+                <div key={doc.id} className="surface-card flex flex-wrap items-center gap-3 p-4 text-sm">
                   <FileCheck2 className="size-4 text-muted-foreground" />
                   <span className="font-medium">{doc.document_number ?? "—"}</span>
-                  <Badge
-                    variant={
-                      doc.status === "sent" ? "secondary" : doc.status === "failed" ? "destructive" : "outline"
-                    }
-                  >
-                    {doc.status === "sent" ? "Gönderildi" : doc.status === "failed" ? "Hata" : "Kuyrukta"}
-                  </Badge>
-                  {doc.ulasti_mi ? <Badge variant="secondary">Alıcıya ulaştı</Badge> : null}
+                  <OutgoingStatusBadge doc={doc} />
                   {doc.document_kind === "earsiv" ? <Badge variant="outline">e-Arşiv</Badge> : null}
+                  {doc.resendable ? <Badge variant="outline">Yeniden gönderilebilir</Badge> : null}
                   <span className="text-muted-foreground">{doc.environment}</span>
                   <span className="text-muted-foreground">{formatDateTime(doc.created_at)}</span>
+                  {doc.last_checked_at ? (
+                    <span className="text-xs text-muted-foreground">
+                      Son sorgu: {formatDateTime(doc.last_checked_at)}
+                    </span>
+                  ) : null}
                   <div className="ml-auto flex flex-wrap items-center gap-2">
                     {doc.earsiv_url ? (
                       <Button asChild type="button" size="sm" variant="ghost">
@@ -616,11 +623,16 @@ function AdminEinvoicePage() {
                       Durum sorgula
                     </Button>
                   </div>
+                  <div className="w-full border-t pt-3">
+                    <EinvoiceFlow stages={outgoingStages(doc)} />
+                  </div>
                   {doc.service_message ? (
                     <span className="w-full text-xs text-muted-foreground">{doc.service_message}</span>
                   ) : null}
                   {doc.error_message ? (
-                    <span className="w-full text-xs text-destructive">{doc.error_message}</span>
+                    <span className="w-full rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">
+                      {doc.error_message}
+                    </span>
                   ) : null}
                 </div>
               ))
@@ -644,20 +656,30 @@ function AdminEinvoicePage() {
               {inboxSync.isPending ? "Alınıyor…" : "Gelen faturaları al"}
             </Button>
           </div>
-          <div className="surface-card divide-y overflow-hidden">
+          <InboxSummary rows={inbox} />
+          <div className="grid gap-3 lg:grid-cols-2">
             {inbox.length === 0 ? (
-              <p className="p-4 text-sm text-muted-foreground">Henüz gelen fatura kaydı yok.</p>
+              <p className="surface-card p-4 text-sm text-muted-foreground lg:col-span-2">
+                Henüz gelen fatura kaydı yok.
+              </p>
             ) : (
               inbox.map((row) => (
-                <div key={row.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
-                  <FileCheck2 className="size-4 text-muted-foreground" />
-                  <span className="font-medium">{row.document_number ?? row.ettn}</span>
-                  <span className="text-muted-foreground">{row.sender_title ?? row.sender_tax_id ?? "—"}</span>
-                  <span className="text-muted-foreground">
-                    {row.payable_amount !== null ? `${row.payable_amount} ${row.currency ?? ""}` : ""}
-                  </span>
-                  <span className="text-muted-foreground">{row.document_date ?? ""}</span>
-                  <div className="ml-auto flex flex-wrap items-center gap-2">
+                <div key={row.id} className="surface-card flex flex-col gap-2 p-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <FileCheck2 className="size-4 text-muted-foreground" />
+                    <span className="font-medium">{row.document_number ?? row.ettn}</span>
+                    <span className="ml-auto font-display text-base font-semibold">
+                      {row.payable_amount !== null
+                        ? `${Number(row.payable_amount).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} ${row.currency ?? ""}`
+                        : "—"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {row.sender_title ?? row.sender_tax_id ?? "—"}
+                    {row.document_date ? ` · ${row.document_date}` : ""}
+                  </p>
+                  <p className="truncate text-[11px] text-muted-foreground">ETTN: {row.ettn}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 border-t pt-2">
                     {(["PDF", "UBL"] as const).map((format) => (
                       <Button
                         key={format}
