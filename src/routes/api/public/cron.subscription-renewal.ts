@@ -17,7 +17,7 @@ export const Route = createFileRoute("/api/public/cron/subscription-renewal")({
         const [{ supabaseAdmin }, { processBillingLifecycle }, scheduled] = await Promise.all([
           import("@/integrations/supabase/client.server"),
           import("@/lib/billing-lifecycle.server"),
-          import("@/lib/paddle-subscriptions.server"),
+          import("@/lib/subscription-schedule.server"),
         ]);
 
         try {

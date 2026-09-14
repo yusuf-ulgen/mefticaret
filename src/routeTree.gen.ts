@@ -251,7 +251,6 @@ import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/publ
 import { Route as ApiPublicMobileAppStoreSlugRouteImport } from './routes/api/public/mobile-app.$storeSlug'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments.webhook'
 import { Route as ApiPublicQnbpayRefundWebhookRouteImport } from './routes/api/public/qnbpay.refund-webhook'
 import { Route as ApiPublicQnbpaySaleWebhookRouteImport } from './routes/api/public/qnbpay.sale-webhook'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
@@ -1648,12 +1647,6 @@ const ApiPublicOauthTokenRoute = ApiPublicOauthTokenRouteImport.update({
   path: '/api/public/oauth/token',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicPaymentsWebhookRoute =
-  ApiPublicPaymentsWebhookRouteImport.update({
-    id: '/api/public/payments/webhook',
-    path: '/api/public/payments/webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicQnbpayRefundWebhookRoute =
   ApiPublicQnbpayRefundWebhookRouteImport.update({
     id: '/api/public/qnbpay/refund-webhook',
@@ -2001,7 +1994,6 @@ export interface FileRoutesByFullPath {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
   '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -2262,7 +2254,6 @@ export interface FileRoutesByTo {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
   '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -2527,7 +2518,6 @@ export interface FileRoutesById {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
   '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -2792,7 +2782,6 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
-    | '/api/public/payments/webhook'
     | '/api/public/qnbpay/refund-webhook'
     | '/api/public/qnbpay/sale-webhook'
     | '/api/public/robots/$slug'
@@ -3053,7 +3042,6 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
-    | '/api/public/payments/webhook'
     | '/api/public/qnbpay/refund-webhook'
     | '/api/public/qnbpay/sale-webhook'
     | '/api/public/robots/$slug'
@@ -3317,7 +3305,6 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
-    | '/api/public/payments/webhook'
     | '/api/public/qnbpay/refund-webhook'
     | '/api/public/qnbpay/sale-webhook'
     | '/api/public/robots/$slug'
@@ -3410,7 +3397,6 @@ export interface RootRouteChildren {
   ApiPublicMobileAppStoreSlugRoute: typeof ApiPublicMobileAppStoreSlugRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
-  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicQnbpayRefundWebhookRoute: typeof ApiPublicQnbpayRefundWebhookRoute
   ApiPublicQnbpaySaleWebhookRoute: typeof ApiPublicQnbpaySaleWebhookRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
@@ -5122,13 +5108,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOauthTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/payments/webhook': {
-      id: '/api/public/payments/webhook'
-      path: '/api/public/payments/webhook'
-      fullPath: '/api/public/payments/webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/qnbpay/refund-webhook': {
       id: '/api/public/qnbpay/refund-webhook'
       path: '/api/public/qnbpay/refund-webhook'
@@ -5855,7 +5834,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMobileAppStoreSlugRoute: ApiPublicMobileAppStoreSlugRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
-  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicQnbpayRefundWebhookRoute: ApiPublicQnbpayRefundWebhookRoute,
   ApiPublicQnbpaySaleWebhookRoute: ApiPublicQnbpaySaleWebhookRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
