@@ -1,0 +1,2 @@
+ALTER TABLE public.einvoice_settings ALTER COLUMN check_user_operation SET DEFAULT 'efaturaKullaniciBilgisi';
+UPDATE public.einvoice_settings SET check_user_operation = 'efaturaKullaniciBilgisi' WHERE check_user_operation IN ('efaturaKullaniciListesi', '');

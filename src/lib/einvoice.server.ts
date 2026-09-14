@@ -6,6 +6,8 @@
  * adresleri ve gönderici bilgileri süper yönetici panelinden yönetilir.
  */
 
+import { createHash } from "node:crypto";
+
 import type { SendInput, SettingsInput } from "./einvoice-schemas";
 
 import { buildUblInvoice, type UblLine } from "./einvoice-ubl.server";
@@ -238,28 +240,55 @@ async function serviceCall(settings: SettingsRow, body: string) {
   return result;
 }
 
+/** `kayitZamani` (YYYYAAGGSSDDss) değerini Date'e çevirir. */
+function parseKayitZamani(raw: string | null): Date | null {
+  if (!raw) return null;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length < 8) return null;
+  const iso = `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}T${
+    digits.slice(8, 10) || "00"
+  }:${digits.slice(10, 12) || "00"}:${digits.slice(12, 14) || "00"}Z`;
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 /**
  * Akışın ilk adımı: alıcı e-fatura mükellefi mi?
- * `efaturaKullaniciListesi` (tekil sorgulama) çağrılır; kayıt dönerse alıcı
- * e-Fatura mükellefidir ve belge e-Fatura olarak düzenlenir, aksi hâlde e-Arşiv.
+ * `efaturaKullaniciBilgisi` çağrılır; dönen `etiket`, `unvan`, `kayitZamani` ve
+ * `kamuKurulusu` alanları okunur. Kayıt zamanından önceki bir tarihe e-Fatura
+ * düzenlenemez; bu durumda belge e-Arşiv olarak düzenlenir.
  */
-export async function checkRecipient(taxId: string) {
+export async function checkRecipient(taxId: string, issueDate?: string | null) {
   const settings = await loadSettingsRow();
   const operation = settings.check_user_operation;
   const result = await serviceCall(
     settings,
-    `<ser:${operation}><vknTckn>${taxId}</vknTckn></ser:${operation}>`,
+    `<ser:${operation}><vergiTcKimlikNo>${taxId}</vergiTcKimlikNo></ser:${operation}>`,
   );
 
   const alias = readTag(result.xml, "etiket") ?? readTag(result.xml, "alias") ?? readTag(result.xml, "gbEtiketi");
   const title = readTag(result.xml, "unvan") ?? readTag(result.xml, "title");
+  const registeredAtRaw = readTag(result.xml, "kayitZamani");
+  const registeredAt = parseKayitZamani(registeredAtRaw);
+  const publicInstitution = (readTag(result.xml, "kamuKurulusu") ?? "").toLowerCase() === "true";
   const registered = Boolean(alias) || /<(?:[a-zA-Z0-9_-]+:)?return[\s>]/i.test(result.xml);
+
+  // Fatura tarihi mükellefin kayıt tarihinden önceyse e-Fatura düzenlenemez.
+  const issued = issueDate ? new Date(issueDate) : null;
+  const beforeRegistration = Boolean(
+    registered && registeredAt && issued && !Number.isNaN(issued.getTime()) && issued < registeredAt,
+  );
 
   return {
     registered,
-    profile: (registered ? "TEMELFATURA" : "EARSIVFATURA") as "TEMELFATURA" | "EARSIVFATURA",
+    beforeRegistration,
+    publicInstitution,
+    profile: (registered && !beforeRegistration ? "TEMELFATURA" : "EARSIVFATURA") as
+      | "TEMELFATURA"
+      | "EARSIVFATURA",
     ...(alias ? { alias } : {}),
     ...(title ? { title } : {}),
+    ...(registeredAt ? { registeredAt: registeredAt.toISOString() } : {}),
   };
 }
 
@@ -377,7 +406,7 @@ export async function sendInvoice(input: SendInput, userId: string) {
   let profile: "TEMELFATURA" | "EARSIVFATURA";
   let recipientRegistered: boolean | null = null;
   if (input.profile === "AUTO") {
-    const check = await checkRecipient(input.buyerTaxId);
+    const check = await checkRecipient(input.buyerTaxId, invoice.issued_at ?? null);
     profile = check.profile;
     recipientRegistered = check.registered;
   } else {
@@ -442,7 +471,18 @@ export async function sendInvoice(input: SendInput, userId: string) {
   if (docError) throw new Error(docError.message);
 
   const base64 = Buffer.from(xml, "utf8").toString("base64");
-  const body = `<ser:${settings.send_operation}><invoiceUUID>${ettn}</invoiceUUID><docType>XML</docType><fileName>${documentNumber}.xml</fileName><binaryData>${base64}</binaryData></ser:${settings.send_operation}>`;
+  // belgeGonderExt: parametreler bloğu; belgeHash MD5, mimeType application/xml, belgeVersiyon 1.0
+  const belgeHash = createHash("md5").update(Buffer.from(xml, "utf8")).digest("hex");
+  const body =
+    `<ser:${settings.send_operation}><parametreler>` +
+    `<vergiTcKimlikNo>${settings.sender_tax_id}</vergiTcKimlikNo>` +
+    `<belgeTuru>FATURA_UBL</belgeTuru>` +
+    `<belgeNo>${documentNumber}</belgeNo>` +
+    `<veri>${base64}</veri>` +
+    `<belgeHash>${belgeHash}</belgeHash>` +
+    `<mimeType>application/xml</mimeType>` +
+    `<belgeVersiyon>1.0</belgeVersiyon>` +
+    `</parametreler></ser:${settings.send_operation}>`;
 
   try {
     let cookie: string | null = null;
