@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { FileCheck2, PlugZap, RefreshCw, Search, Send } from "lucide-react";
+import { Download, FileCheck2, Inbox, PlugZap, RefreshCw, Search, Send } from "lucide-react";
 import { toast } from "sonner";
 
 import { AdminShell } from "@/components/admin-shell";
@@ -23,12 +23,30 @@ import { formatDateTime } from "@/lib/mefti";
 import type { SendInput, SettingsInput } from "@/lib/einvoice-schemas";
 import {
   checkEinvoiceRecipient,
+  downloadEinvoiceDocument,
+  downloadEinvoiceInboxDocument,
   getEinvoiceOverview,
   queryEinvoiceStatus,
   saveEinvoiceSettings,
   sendEinvoiceDocument,
+  syncEinvoiceInbox,
   testEinvoiceConnection,
 } from "@/lib/einvoice.functions";
+
+/** Servisten gelen base64 .zip içeriğini tarayıcıda indirir. */
+function saveBase64Zip(fileName: string, base64: string) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  const url = URL.createObjectURL(new Blob([bytes], { type: "application/zip" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 const DESCRIPTION =
   "QNB eSolutions Özel Entegratör web servisiyle bağlantıyı yönet ve platform faturalarını e-fatura olarak gönder.";
