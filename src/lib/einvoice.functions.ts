@@ -48,3 +48,23 @@ export const sendEinvoiceDocument = createServerFn({ method: "POST" })
     const { sendInvoice } = await import("@/lib/einvoice.server");
     return sendInvoice(data, context.userId);
   });
+
+/** Akış adımı 1: alıcı e-fatura mükellefi mi? */
+export const checkEinvoiceRecipient = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => recipientSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { checkRecipient } = await import("@/lib/einvoice.server");
+    return checkRecipient(data.taxId);
+  });
+
+/** Akış adımı 3: gönderilen belgenin durumu sorgulanır. */
+export const queryEinvoiceStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => statusSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { queryDocumentStatus } = await import("@/lib/einvoice.server");
+    return queryDocumentStatus(data.documentId, context.userId);
+  });
