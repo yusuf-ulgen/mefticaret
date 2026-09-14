@@ -561,6 +561,8 @@ export async function sendInvoice(input: SendInput, userId: string) {
     `<belgeVersiyon>1.0</belgeVersiyon>` +
     `</parametreler></ser:${settings.send_operation}>`;
 
+  const isEarsiv = profile === "EARSIVFATURA" && Boolean(settings.earsiv_service_url);
+
   try {
     let cookie: string | null = null;
     if (settings.auth_mode === "cookie") {
@@ -573,6 +575,85 @@ export async function sendInvoice(input: SendInput, userId: string) {
           credentials,
         })
       ).cookie;
+    }
+
+    // e-Arşiv fatura ayrı servisten (`faturaOlusturExt`) gönderilir; alıcı e-fatura
+    // mükellefi değilse veya kayıt tarihinden önceki bir tarihe fatura düzenleniyorsa bu yol kullanılır.
+    if (isEarsiv) {
+      const earsivInput = JSON.stringify({
+        islemId: ettn,
+        vkn: settings.sender_tax_id,
+        sube: settings.earsiv_branch,
+        kasa: settings.earsiv_cashbox,
+        donenBelgeFormati: "9",
+        ...(settings.erp_code ? { erpKodu: settings.erp_code } : {}),
+      });
+      const earsivResult = await postSoap({
+        url: settings.earsiv_service_url as string,
+        namespace: settings.earsiv_namespace,
+        body:
+          `<ser:${settings.earsiv_operation}><input>${escapeXml(earsivInput)}</input>` +
+          `<fatura><belgeFormati>UBL</belgeFormati><belgeIcerigi>${base64}</belgeIcerigi></fatura>` +
+          `</ser:${settings.earsiv_operation}>`,
+        cookie,
+        ...(settings.auth_mode === "wsse" ? { credentials } : {}),
+      });
+      if (earsivResult.fault) throw new Error(earsivResult.fault);
+      if (earsivResult.status >= 400) {
+        throw new Error(`e-Arşiv servis hatası (HTTP ${earsivResult.status})`);
+      }
+
+      const extra = parseResultExtra(earsivResult.xml);
+      const resultCode = readTag(earsivResult.xml, "resultCode");
+      const resultText = readTag(earsivResult.xml, "resultText") ?? "";
+      if (resultCode && resultCode !== "AE00000") {
+        throw new Error(`e-Arşiv reddedildi (${resultCode}) ${resultText}`.trim());
+      }
+
+      const earsivUrl = extra["faturaURL"] ?? null;
+      const earsivNumber = extra["faturaNo"] ?? null;
+
+      await client
+        .from("einvoice_documents")
+        .update({
+          status: "sent",
+          sent_at: new Date().toISOString(),
+          earsiv_url: earsivUrl,
+          earsiv_invoice_number: earsivNumber,
+          service_message: [resultText, earsivNumber ? `Fatura no: ${earsivNumber}` : null]
+            .filter(Boolean)
+            .join(" · ")
+            .slice(0, 800),
+          response_summary: {
+            httpStatus: earsivResult.status,
+            resultCode,
+            resultText: resultText.slice(0, 500),
+            faturaURL: earsivUrl,
+            faturaNo: earsivNumber,
+            uuid: extra["uuid"] ?? null,
+          },
+          error_message: null,
+        })
+        .eq("id", doc.id);
+
+      await recordAudit(null, {
+        action: "einvoice.earsiv.sent",
+        storeId: invoice.store_id,
+        actorId: userId,
+        entity: "einvoice_documents",
+        entityId: doc.id,
+        newValue: { documentNumber, ettn, earsivNumber, environment: settings.environment },
+      });
+
+      return {
+        ok: true as const,
+        documentNumber: earsivNumber ?? documentNumber,
+        ettn,
+        profile,
+        belgeOid: null as string | null,
+        earsivUrl,
+        documentId: doc.id,
+      };
     }
 
     const result = await postSoap({
