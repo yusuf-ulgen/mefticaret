@@ -73,10 +73,10 @@ export async function loadOverview() {
   const client = await db();
   const settings = await loadSettingsRow();
 
-  const [documents, invoices] = await Promise.all([
+  const [documents, invoices, inbox] = await Promise.all([
     client
       .from("einvoice_documents")
-      .select("id, invoice_id, store_id, environment, document_number, ettn, belge_oid, status, operation, error_message, ulasti_mi, durum_kodu, yanit_durum, yanit_durum_kodu, service_message, last_checked_at, sent_at, created_at")
+      .select("id, invoice_id, store_id, environment, document_number, ettn, belge_oid, status, operation, document_kind, earsiv_url, earsiv_invoice_number, resendable, error_message, ulasti_mi, durum_kodu, yanit_durum, yanit_durum_kodu, service_message, last_checked_at, sent_at, created_at")
       .order("created_at", { ascending: false })
       .limit(50),
     client
@@ -84,15 +84,22 @@ export async function loadOverview() {
       .select("id, store_id, invoice_number, status, total, currency, issued_at, stores(name)")
       .order("issued_at", { ascending: false })
       .limit(50),
+    client
+      .from("einvoice_inbox")
+      .select("id, environment, ettn, document_number, document_type, document_date, sender_tax_id, sender_title, sender_alias, payable_amount, currency, sequence_no, envelope_id, arrived_at, created_at")
+      .order("created_at", { ascending: false })
+      .limit(100),
   ]);
 
   if (documents.error) throw new Error(documents.error.message);
   if (invoices.error) throw new Error(invoices.error.message);
+  if (inbox.error) throw new Error(inbox.error.message);
 
   return {
     settings,
     credentialsConfigured: readSoapCredentials() !== null,
     documents: documents.data ?? [],
+    inbox: inbox.data ?? [],
     invoices: (invoices.data ?? []).map((row) => ({
       id: row.id,
       storeId: row.store_id,
