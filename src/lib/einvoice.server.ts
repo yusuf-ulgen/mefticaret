@@ -434,7 +434,7 @@ export async function sendInvoice(input: SendInput, userId: string) {
       ettn,
       status: "queued",
       operation: settings.send_operation,
-      request_summary: { profile: input.profile, total, currency, bytes: xml.length },
+      request_summary: { profile, recipientRegistered, total, currency, bytes: xml.length },
       created_by: userId,
     })
     .select("id")
