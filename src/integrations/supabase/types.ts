@@ -2715,8 +2715,11 @@ export type Database = {
           created_at: string
           created_by: string | null
           direction: string
+          document_kind: string
           document_number: string | null
           durum_kodu: number | null
+          earsiv_invoice_number: string | null
+          earsiv_url: string | null
           environment: string
           error_message: string | null
           ettn: string | null
@@ -2741,8 +2744,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           direction?: string
+          document_kind?: string
           document_number?: string | null
           durum_kodu?: number | null
+          earsiv_invoice_number?: string | null
+          earsiv_url?: string | null
           environment?: string
           error_message?: string | null
           ettn?: string | null
@@ -2767,8 +2773,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           direction?: string
+          document_kind?: string
           document_number?: string | null
           durum_kodu?: number | null
+          earsiv_invoice_number?: string | null
+          earsiv_url?: string | null
           environment?: string
           error_message?: string | null
           ettn?: string | null
@@ -2798,15 +2807,88 @@ export type Database = {
           },
         ]
       }
+      einvoice_inbox: {
+        Row: {
+          arrived_at: string | null
+          created_at: string
+          currency: string | null
+          document_date: string | null
+          document_number: string | null
+          document_type: string | null
+          envelope_id: string | null
+          environment: string
+          ettn: string
+          id: string
+          payable_amount: number | null
+          raw: Json
+          receiver_alias: string | null
+          sender_alias: string | null
+          sender_tax_id: string | null
+          sender_title: string | null
+          sequence_no: string | null
+          updated_at: string
+        }
+        Insert: {
+          arrived_at?: string | null
+          created_at?: string
+          currency?: string | null
+          document_date?: string | null
+          document_number?: string | null
+          document_type?: string | null
+          envelope_id?: string | null
+          environment?: string
+          ettn: string
+          id?: string
+          payable_amount?: number | null
+          raw?: Json
+          receiver_alias?: string | null
+          sender_alias?: string | null
+          sender_tax_id?: string | null
+          sender_title?: string | null
+          sequence_no?: string | null
+          updated_at?: string
+        }
+        Update: {
+          arrived_at?: string | null
+          created_at?: string
+          currency?: string | null
+          document_date?: string | null
+          document_number?: string | null
+          document_type?: string | null
+          envelope_id?: string | null
+          environment?: string
+          ettn?: string
+          id?: string
+          payable_amount?: number | null
+          raw?: Json
+          receiver_alias?: string | null
+          sender_alias?: string | null
+          sender_tax_id?: string | null
+          sender_title?: string | null
+          sequence_no?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       einvoice_settings: {
         Row: {
           auth_mode: string
           check_user_operation: string
           created_at: string
+          download_operation: string
+          earsiv_branch: string
+          earsiv_cashbox: string
+          earsiv_namespace: string
+          earsiv_operation: string
+          earsiv_service_url: string | null
           environment: string
+          erp_code: string | null
           id: string
+          inbox_download_operation: string
+          inbox_list_operation: string
           invoice_prefix: string
           is_enabled: boolean
+          last_inbox_sequence: string
           list_users_operation: string
           login_namespace: string
           login_operation: string
@@ -2828,10 +2910,20 @@ export type Database = {
           auth_mode?: string
           check_user_operation?: string
           created_at?: string
+          download_operation?: string
+          earsiv_branch?: string
+          earsiv_cashbox?: string
+          earsiv_namespace?: string
+          earsiv_operation?: string
+          earsiv_service_url?: string | null
           environment?: string
+          erp_code?: string | null
           id?: string
+          inbox_download_operation?: string
+          inbox_list_operation?: string
           invoice_prefix?: string
           is_enabled?: boolean
+          last_inbox_sequence?: string
           list_users_operation?: string
           login_namespace?: string
           login_operation?: string
@@ -2853,10 +2945,20 @@ export type Database = {
           auth_mode?: string
           check_user_operation?: string
           created_at?: string
+          download_operation?: string
+          earsiv_branch?: string
+          earsiv_cashbox?: string
+          earsiv_namespace?: string
+          earsiv_operation?: string
+          earsiv_service_url?: string | null
           environment?: string
+          erp_code?: string | null
           id?: string
+          inbox_download_operation?: string
+          inbox_list_operation?: string
           invoice_prefix?: string
           is_enabled?: boolean
+          last_inbox_sequence?: string
           list_users_operation?: string
           login_namespace?: string
           login_operation?: string

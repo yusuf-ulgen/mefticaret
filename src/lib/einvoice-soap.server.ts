@@ -66,6 +66,19 @@ export function readTag(xml: string, localName: string): string | null {
   return match?.[1]?.trim() ?? null;
 }
 
+/** Yanıt gövdesindeki aynı adlı tüm etiketlerin değerlerini döner. */
+export function readTags(xml: string, localName: string): string[] {
+  const pattern = new RegExp(
+    `<(?:[a-zA-Z0-9_-]+:)?${localName}[^>]*>([\\s\\S]*?)</(?:[a-zA-Z0-9_-]+:)?${localName}>`,
+    "gi",
+  );
+  const values: string[] = [];
+  for (const match of xml.matchAll(pattern)) {
+    values.push((match[1] ?? "").trim());
+  }
+  return values;
+}
+
 /** SOAP Fault varsa mesajını döner. */
 export function readFault(xml: string): string | null {
   if (!/<(?:[a-zA-Z0-9_-]+:)?Fault[\s>]/i.test(xml)) return null;

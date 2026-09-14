@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { FileCheck2, PlugZap, RefreshCw, Search, Send } from "lucide-react";
+import { Download, FileCheck2, Inbox, PlugZap, RefreshCw, Search, Send } from "lucide-react";
 import { toast } from "sonner";
 
 import { AdminShell } from "@/components/admin-shell";
@@ -23,12 +23,30 @@ import { formatDateTime } from "@/lib/mefti";
 import type { SendInput, SettingsInput } from "@/lib/einvoice-schemas";
 import {
   checkEinvoiceRecipient,
+  downloadEinvoiceDocument,
+  downloadEinvoiceInboxDocument,
   getEinvoiceOverview,
   queryEinvoiceStatus,
   saveEinvoiceSettings,
   sendEinvoiceDocument,
+  syncEinvoiceInbox,
   testEinvoiceConnection,
 } from "@/lib/einvoice.functions";
+
+/** Servisten gelen base64 .zip içeriğini tarayıcıda indirir. */
+function saveBase64Zip(fileName: string, base64: string) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  const url = URL.createObjectURL(new Blob([bytes], { type: "application/zip" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 const DESCRIPTION =
   "QNB eSolutions Özel Entegratör web servisiyle bağlantıyı yönet ve platform faturalarını e-fatura olarak gönder.";
@@ -65,6 +83,9 @@ function AdminEinvoicePage() {
   const sendFn = useServerFn(sendEinvoiceDocument);
   const checkFn = useServerFn(checkEinvoiceRecipient);
   const statusFn = useServerFn(queryEinvoiceStatus);
+  const downloadFn = useServerFn(downloadEinvoiceDocument);
+  const syncFn = useServerFn(syncEinvoiceInbox);
+  const inboxDownloadFn = useServerFn(downloadEinvoiceInboxDocument);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-einvoice"],
@@ -97,6 +118,15 @@ function AdminEinvoicePage() {
       checkUserOperation: row.check_user_operation,
       listUsersOperation: row.list_users_operation,
       resendOperation: row.resend_operation,
+      downloadOperation: row.download_operation,
+      inboxListOperation: row.inbox_list_operation,
+      inboxDownloadOperation: row.inbox_download_operation,
+      earsivServiceUrl: row.earsiv_service_url ?? "",
+      earsivNamespace: row.earsiv_namespace,
+      earsivOperation: row.earsiv_operation,
+      earsivBranch: row.earsiv_branch,
+      earsivCashbox: row.earsiv_cashbox,
+      erpCode: row.erp_code ?? "",
     });
   }, [data, form]);
 
@@ -165,7 +195,41 @@ function AdminEinvoicePage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const download = useMutation({
+    mutationFn: (input: { documentId: string; format: "UBL" | "PDF" | "HTML" }) =>
+      downloadFn({ data: input }),
+    onSuccess: (result) => {
+      saveBase64Zip(result.fileName, result.base64);
+      toast.success("Belge indirildi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const inboxSync = useMutation({
+    mutationFn: () => syncFn({ data: { fromSequence: "" } }),
+    onSuccess: async (result) => {
+      toast.success(
+        result.fetched > 0
+          ? `${result.fetched} gelen fatura alındı (son sıra ${result.lastSequence})`
+          : "Yeni gelen fatura yok",
+      );
+      await invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const inboxDownload = useMutation({
+    mutationFn: (input: { ettn: string; format: "UBL" | "PDF" | "HTML" }) =>
+      inboxDownloadFn({ data: input }),
+    onSuccess: (result) => {
+      saveBase64Zip(result.fileName, result.base64);
+      toast.success("Gelen fatura indirildi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const invoices = useMemo(() => data?.invoices ?? [], [data]);
+  const inbox = useMemo(() => data?.inbox ?? [], [data]);
   const set = <K extends keyof SettingsInput>(key: K, value: SettingsInput[K]) =>
     setForm((prev) => (prev ? { ...prev, [key]: value } : prev));
 
@@ -199,6 +263,7 @@ function AdminEinvoicePage() {
           <TabsTrigger value="settings">Bağlantı ayarları</TabsTrigger>
           <TabsTrigger value="send">Fatura gönder</TabsTrigger>
           <TabsTrigger value="log">Gönderim kayıtları</TabsTrigger>
+          <TabsTrigger value="inbox">Gelen faturalar</TabsTrigger>
         </TabsList>
 
         <TabsContent value="settings" className="mt-4">
@@ -301,6 +366,57 @@ function AdminEinvoicePage() {
                 <Label>Tekrar gönderim operasyonu</Label>
                 <Input value={form.resendOperation} onChange={(e) => set("resendOperation", e.target.value)} />
               </div>
+              <div className="grid gap-2">
+                <Label>Giden belge indirme operasyonu</Label>
+                <Input value={form.downloadOperation} onChange={(e) => set("downloadOperation", e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>Gelen belge listeleme operasyonu</Label>
+                <Input
+                  value={form.inboxListOperation}
+                  onChange={(e) => set("inboxListOperation", e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Gelen belge indirme operasyonu</Label>
+                <Input
+                  value={form.inboxDownloadOperation}
+                  onChange={(e) => set("inboxDownloadOperation", e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>ERP kodu</Label>
+                <Input value={form.erpCode ?? ""} onChange={(e) => set("erpCode", e.target.value)} />
+              </div>
+
+              <div className="grid gap-2 md:col-span-2">
+                <Label>e-Arşiv servisi adresi</Label>
+                <Input
+                  value={form.earsivServiceUrl ?? ""}
+                  placeholder="https://.../EArsivService"
+                  onChange={(e) => set("earsivServiceUrl", e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Alıcı e-fatura mükellefi değilse fatura bu servisten e-Arşiv olarak düzenlenir.
+                </p>
+              </div>
+              <div className="grid gap-2">
+                <Label>e-Arşiv isim alanı (namespace)</Label>
+                <Input value={form.earsivNamespace} onChange={(e) => set("earsivNamespace", e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>e-Arşiv operasyonu</Label>
+                <Input value={form.earsivOperation} onChange={(e) => set("earsivOperation", e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>e-Arşiv şube</Label>
+                <Input value={form.earsivBranch} onChange={(e) => set("earsivBranch", e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>e-Arşiv kasa</Label>
+                <Input value={form.earsivCashbox} onChange={(e) => set("earsivCashbox", e.target.value)} />
+              </div>
+
 
               <div className="grid gap-2">
                 <Label>Gönderici vergi kimlik no</Label>
@@ -464,25 +580,98 @@ function AdminEinvoicePage() {
                     {doc.status === "sent" ? "Gönderildi" : doc.status === "failed" ? "Hata" : "Kuyrukta"}
                   </Badge>
                   {doc.ulasti_mi ? <Badge variant="secondary">Alıcıya ulaştı</Badge> : null}
+                  {doc.document_kind === "earsiv" ? <Badge variant="outline">e-Arşiv</Badge> : null}
                   <span className="text-muted-foreground">{doc.environment}</span>
                   <span className="text-muted-foreground">{formatDateTime(doc.created_at)}</span>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="ml-auto"
-                    disabled={status.isPending}
-                    onClick={() => status.mutate(doc.id)}
-                  >
-                    <RefreshCw className="mr-2 size-4" />
-                    Durum sorgula
-                  </Button>
+                  <div className="ml-auto flex flex-wrap items-center gap-2">
+                    {doc.earsiv_url ? (
+                      <Button asChild type="button" size="sm" variant="ghost">
+                        <a href={doc.earsiv_url} target="_blank" rel="noreferrer">
+                          Faturayı görüntüle
+                        </a>
+                      </Button>
+                    ) : null}
+                    {(["PDF", "UBL"] as const).map((format) => (
+                      <Button
+                        key={format}
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        disabled={download.isPending || !doc.belge_oid}
+                        title={doc.belge_oid ? undefined : "Önce durum sorgulaması yapın"}
+                        onClick={() => download.mutate({ documentId: doc.id, format })}
+                      >
+                        <Download className="mr-2 size-4" />
+                        {format}
+                      </Button>
+                    ))}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={status.isPending}
+                      onClick={() => status.mutate(doc.id)}
+                    >
+                      <RefreshCw className="mr-2 size-4" />
+                      Durum sorgula
+                    </Button>
+                  </div>
                   {doc.service_message ? (
                     <span className="w-full text-xs text-muted-foreground">{doc.service_message}</span>
                   ) : null}
                   {doc.error_message ? (
                     <span className="w-full text-xs text-destructive">{doc.error_message}</span>
                   ) : null}
+                </div>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="inbox" className="mt-4 space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-sm text-muted-foreground">
+              Son alınan belge sıra numarası: {data?.settings.last_inbox_sequence ?? "0"}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              className="ml-auto"
+              disabled={inboxSync.isPending || !data}
+              onClick={() => inboxSync.mutate()}
+            >
+              <Inbox className="mr-2 size-4" />
+              {inboxSync.isPending ? "Alınıyor…" : "Gelen faturaları al"}
+            </Button>
+          </div>
+          <div className="surface-card divide-y overflow-hidden">
+            {inbox.length === 0 ? (
+              <p className="p-4 text-sm text-muted-foreground">Henüz gelen fatura kaydı yok.</p>
+            ) : (
+              inbox.map((row) => (
+                <div key={row.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
+                  <FileCheck2 className="size-4 text-muted-foreground" />
+                  <span className="font-medium">{row.document_number ?? row.ettn}</span>
+                  <span className="text-muted-foreground">{row.sender_title ?? row.sender_tax_id ?? "—"}</span>
+                  <span className="text-muted-foreground">
+                    {row.payable_amount !== null ? `${row.payable_amount} ${row.currency ?? ""}` : ""}
+                  </span>
+                  <span className="text-muted-foreground">{row.document_date ?? ""}</span>
+                  <div className="ml-auto flex flex-wrap items-center gap-2">
+                    {(["PDF", "UBL"] as const).map((format) => (
+                      <Button
+                        key={format}
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        disabled={inboxDownload.isPending}
+                        onClick={() => inboxDownload.mutate({ ettn: row.ettn, format })}
+                      >
+                        <Download className="mr-2 size-4" />
+                        {format}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               ))
             )}

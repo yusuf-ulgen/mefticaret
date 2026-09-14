@@ -1,7 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { recipientSchema, sendSchema, settingsSchema, statusSchema } from "@/lib/einvoice-schemas";
+import {
+  downloadSchema,
+  inboxDownloadSchema,
+  inboxSyncSchema,
+  recipientSchema,
+  sendSchema,
+  settingsSchema,
+  statusSchema,
+} from "@/lib/einvoice-schemas";
 
 /**
  * QNB eSolutions e-fatura sunucu fonksiyonları.
@@ -67,4 +75,34 @@ export const queryEinvoiceStatus = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { queryDocumentStatus } = await import("@/lib/einvoice.server");
     return queryDocumentStatus(data.documentId, context.userId);
+  });
+
+/** Giden belgeyi PDF/HTML/UBL olarak indirir (base64 .zip döner). */
+export const downloadEinvoiceDocument = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => downloadSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { downloadOutgoingDocument } = await import("@/lib/einvoice.server");
+    return downloadOutgoingDocument(data.documentId, data.format, context.userId);
+  });
+
+/** Gelen e-Faturaları servisten çeker. */
+export const syncEinvoiceInbox = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => inboxSyncSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { syncInbox } = await import("@/lib/einvoice.server");
+    return syncInbox(data.fromSequence ?? null, context.userId);
+  });
+
+/** Gelen faturayı ETTN ile indirir. */
+export const downloadEinvoiceInboxDocument = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => inboxDownloadSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { downloadInboxDocument } = await import("@/lib/einvoice.server");
+    return downloadInboxDocument(data.ettn, data.format, context.userId);
   });

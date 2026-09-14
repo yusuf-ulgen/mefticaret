@@ -11,7 +11,14 @@ import { createHash } from "node:crypto";
 import type { SendInput, SettingsInput } from "./einvoice-schemas";
 
 import { buildUblInvoice, type UblLine } from "./einvoice-ubl.server";
-import { postSoap, readTag, readSoapCredentials, soapLogin } from "./einvoice-soap.server";
+import {
+  escapeXml,
+  postSoap,
+  readSoapCredentials,
+  readTag,
+  readTags,
+  soapLogin,
+} from "./einvoice-soap.server";
 import { recordAudit } from "./audit.server";
 
 export type { SettingsInput, SendInput } from "./einvoice-schemas";
@@ -42,6 +49,16 @@ type SettingsRow = {
   check_user_operation: string;
   list_users_operation: string;
   resend_operation: string;
+  download_operation: string;
+  inbox_list_operation: string;
+  inbox_download_operation: string;
+  earsiv_service_url: string | null;
+  earsiv_namespace: string;
+  earsiv_operation: string;
+  earsiv_branch: string;
+  earsiv_cashbox: string;
+  erp_code: string | null;
+  last_inbox_sequence: string;
   updated_at: string;
 };
 
@@ -63,10 +80,10 @@ export async function loadOverview() {
   const client = await db();
   const settings = await loadSettingsRow();
 
-  const [documents, invoices] = await Promise.all([
+  const [documents, invoices, inbox] = await Promise.all([
     client
       .from("einvoice_documents")
-      .select("id, invoice_id, store_id, environment, document_number, ettn, belge_oid, status, operation, error_message, ulasti_mi, durum_kodu, yanit_durum, yanit_durum_kodu, service_message, last_checked_at, sent_at, created_at")
+      .select("id, invoice_id, store_id, environment, document_number, ettn, belge_oid, status, operation, document_kind, earsiv_url, earsiv_invoice_number, resendable, error_message, ulasti_mi, durum_kodu, yanit_durum, yanit_durum_kodu, service_message, last_checked_at, sent_at, created_at")
       .order("created_at", { ascending: false })
       .limit(50),
     client
@@ -74,15 +91,22 @@ export async function loadOverview() {
       .select("id, store_id, invoice_number, status, total, currency, issued_at, stores(name)")
       .order("issued_at", { ascending: false })
       .limit(50),
+    client
+      .from("einvoice_inbox")
+      .select("id, environment, ettn, document_number, document_type, document_date, sender_tax_id, sender_title, sender_alias, payable_amount, currency, sequence_no, envelope_id, arrived_at, created_at")
+      .order("created_at", { ascending: false })
+      .limit(100),
   ]);
 
   if (documents.error) throw new Error(documents.error.message);
   if (invoices.error) throw new Error(invoices.error.message);
+  if (inbox.error) throw new Error(inbox.error.message);
 
   return {
     settings,
     credentialsConfigured: readSoapCredentials() !== null,
     documents: documents.data ?? [],
+    inbox: inbox.data ?? [],
     invoices: (invoices.data ?? []).map((row) => ({
       id: row.id,
       storeId: row.store_id,
@@ -121,6 +145,15 @@ export async function saveSettings(input: SettingsInput, userId: string) {
       check_user_operation: input.checkUserOperation,
       list_users_operation: input.listUsersOperation,
       resend_operation: input.resendOperation,
+      download_operation: input.downloadOperation,
+      inbox_list_operation: input.inboxListOperation,
+      inbox_download_operation: input.inboxDownloadOperation,
+      earsiv_service_url: input.earsivServiceUrl || null,
+      earsiv_namespace: input.earsivNamespace,
+      earsiv_operation: input.earsivOperation,
+      earsiv_branch: input.earsivBranch,
+      earsiv_cashbox: input.earsivCashbox,
+      erp_code: input.erpCode || null,
       updated_by: userId,
     })
     .eq("id", settings.id);
@@ -510,7 +543,10 @@ export async function sendInvoice(input: SendInput, userId: string) {
       document_number: documentNumber,
       ettn,
       status: "queued",
-      operation: settings.send_operation,
+      operation: profile === "EARSIVFATURA" && settings.earsiv_service_url
+        ? settings.earsiv_operation
+        : settings.send_operation,
+      document_kind: profile === "EARSIVFATURA" && settings.earsiv_service_url ? "earsiv" : "efatura",
       request_summary: { profile, recipientRegistered, total, currency, bytes: xml.length },
       created_by: userId,
     })
@@ -532,6 +568,8 @@ export async function sendInvoice(input: SendInput, userId: string) {
     `<belgeVersiyon>1.0</belgeVersiyon>` +
     `</parametreler></ser:${settings.send_operation}>`;
 
+  const isEarsiv = profile === "EARSIVFATURA" && Boolean(settings.earsiv_service_url);
+
   try {
     let cookie: string | null = null;
     if (settings.auth_mode === "cookie") {
@@ -544,6 +582,85 @@ export async function sendInvoice(input: SendInput, userId: string) {
           credentials,
         })
       ).cookie;
+    }
+
+    // e-Arşiv fatura ayrı servisten (`faturaOlusturExt`) gönderilir; alıcı e-fatura
+    // mükellefi değilse veya kayıt tarihinden önceki bir tarihe fatura düzenleniyorsa bu yol kullanılır.
+    if (isEarsiv) {
+      const earsivInput = JSON.stringify({
+        islemId: ettn,
+        vkn: settings.sender_tax_id,
+        sube: settings.earsiv_branch,
+        kasa: settings.earsiv_cashbox,
+        donenBelgeFormati: "9",
+        ...(settings.erp_code ? { erpKodu: settings.erp_code } : {}),
+      });
+      const earsivResult = await postSoap({
+        url: settings.earsiv_service_url as string,
+        namespace: settings.earsiv_namespace,
+        body:
+          `<ser:${settings.earsiv_operation}><input>${escapeXml(earsivInput)}</input>` +
+          `<fatura><belgeFormati>UBL</belgeFormati><belgeIcerigi>${base64}</belgeIcerigi></fatura>` +
+          `</ser:${settings.earsiv_operation}>`,
+        cookie,
+        ...(settings.auth_mode === "wsse" ? { credentials } : {}),
+      });
+      if (earsivResult.fault) throw new Error(earsivResult.fault);
+      if (earsivResult.status >= 400) {
+        throw new Error(`e-Arşiv servis hatası (HTTP ${earsivResult.status})`);
+      }
+
+      const extra = parseResultExtra(earsivResult.xml);
+      const resultCode = readTag(earsivResult.xml, "resultCode");
+      const resultText = readTag(earsivResult.xml, "resultText") ?? "";
+      if (resultCode && resultCode !== "AE00000") {
+        throw new Error(`e-Arşiv reddedildi (${resultCode}) ${resultText}`.trim());
+      }
+
+      const earsivUrl = extra["faturaURL"] ?? null;
+      const earsivNumber = extra["faturaNo"] ?? null;
+
+      await client
+        .from("einvoice_documents")
+        .update({
+          status: "sent",
+          sent_at: new Date().toISOString(),
+          earsiv_url: earsivUrl,
+          earsiv_invoice_number: earsivNumber,
+          service_message: [resultText, earsivNumber ? `Fatura no: ${earsivNumber}` : null]
+            .filter(Boolean)
+            .join(" · ")
+            .slice(0, 800),
+          response_summary: {
+            httpStatus: earsivResult.status,
+            resultCode,
+            resultText: resultText.slice(0, 500),
+            faturaURL: earsivUrl,
+            faturaNo: earsivNumber,
+            uuid: extra["uuid"] ?? null,
+          },
+          error_message: null,
+        })
+        .eq("id", doc.id);
+
+      await recordAudit(null, {
+        action: "einvoice.earsiv.sent",
+        storeId: invoice.store_id,
+        actorId: userId,
+        entity: "einvoice_documents",
+        entityId: doc.id,
+        newValue: { documentNumber, ettn, earsivNumber, environment: settings.environment },
+      });
+
+      return {
+        ok: true as const,
+        documentNumber: earsivNumber ?? documentNumber,
+        ettn,
+        profile,
+        belgeOid: null as string | null,
+        earsivUrl,
+        documentId: doc.id,
+      };
     }
 
     const result = await postSoap({
@@ -595,4 +712,194 @@ export async function sendInvoice(input: SendInput, userId: string) {
       .eq("id", doc.id);
     throw new Error(message);
   }
+}
+
+/** `resultExtra` içindeki key/value çiftlerini okur (e-Arşiv yanıtı). */
+function parseResultExtra(xml: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  const entries = xml.match(
+    /<(?:[a-zA-Z0-9_-]+:)?entry[^>]*>[\s\S]*?<\/(?:[a-zA-Z0-9_-]+:)?entry>/gi,
+  );
+  for (const entry of entries ?? []) {
+    const key = readTag(entry, "key");
+    const value = readTag(entry, "value");
+    if (key) out[key] = value ?? "";
+  }
+  return out;
+}
+
+/** Yanıttaki aynı adlı blokları (ör. tekrarlı `return` düğümleri) döner. */
+function readBlocks(xml: string, localName: string): string[] {
+  const pattern = new RegExp(
+    `<(?:[a-zA-Z0-9_-]+:)?${localName}[^>]*>([\\s\\S]*?)</(?:[a-zA-Z0-9_-]+:)?${localName}>`,
+    "gi",
+  );
+  return [...xml.matchAll(pattern)].map((match) => match[1] ?? "");
+}
+
+/**
+ * Giden belgeyi (e-Fatura / uygulama yanıtı) PDF, HTML veya UBL olarak indirir.
+ * `gidenBelgeleriIndirExt` base64 kodlanmış bir .zip döner; içerik istemciye
+ * base64 olarak aktarılır ve tarayıcıda .zip olarak kaydedilir.
+ */
+export async function downloadOutgoingDocument(
+  documentId: string,
+  format: "UBL" | "PDF" | "HTML",
+  userId: string,
+) {
+  const client = await db();
+  const settings = await loadSettingsRow();
+  if (!settings.sender_tax_id) throw new Error("Gönderici vergi kimlik numarası tanımlı değil");
+
+  const { data: doc, error } = await client
+    .from("einvoice_documents")
+    .select("id, belge_oid, document_number, earsiv_url")
+    .eq("id", documentId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!doc) throw new Error("Gönderim kaydı bulunamadı");
+  if (!doc.belge_oid) {
+    throw new Error("Belge kimliği (OID) yok; önce durum sorgulaması yapın");
+  }
+
+  const operation = settings.download_operation;
+  const result = await serviceCall(
+    settings,
+    `<ser:${operation}>` +
+      `<vergiTcKimlikNo>${settings.sender_tax_id}</vergiTcKimlikNo>` +
+      `<belgeOidListesi>${escapeXml(doc.belge_oid)}</belgeOidListesi>` +
+      `<belgeTuru>FATURA</belgeTuru>` +
+      `<belgeFormati>${format}</belgeFormati>` +
+      `</ser:${operation}>`,
+  );
+
+  const base64 = readTag(result.xml, "return");
+  if (!base64) throw new Error("Servis belge içeriği döndürmedi");
+
+  await recordAudit(null, {
+    action: "einvoice.document.downloaded",
+    actorId: userId,
+    entity: "einvoice_documents",
+    entityId: doc.id,
+    newValue: { format, bytes: base64.length },
+  });
+
+  return {
+    ok: true as const,
+    fileName: `${doc.document_number ?? doc.belge_oid}-${format}.zip`,
+    base64,
+  };
+}
+
+/**
+ * Gelen e-Faturaları `gelenBelgeleriListeleExt` ile çeker ve kaydeder.
+ * Servis, son alınan belge sıra numarasından sonraki belgeleri döndürür;
+ * en büyük sıra numarası ayarlara yazılır ki sonraki çağrı kaldığı yerden devam etsin.
+ */
+export async function syncInbox(fromSequence: string | null, userId: string) {
+  const client = await db();
+  const settings = await loadSettingsRow();
+  if (!settings.sender_tax_id) throw new Error("Gönderici vergi kimlik numarası tanımlı değil");
+
+  const startSequence = (fromSequence && fromSequence.trim()) || settings.last_inbox_sequence || "0";
+  const operation = settings.inbox_list_operation;
+  const result = await serviceCall(
+    settings,
+    `<ser:${operation}><parametreler>` +
+      `<vergiTcKimlikNo>${settings.sender_tax_id}</vergiTcKimlikNo>` +
+      `<belgeTuru>FATURA</belgeTuru>` +
+      `<sonAlinanBelgeSiraNumarasi>${escapeXml(startSequence)}</sonAlinanBelgeSiraNumarasi>` +
+      `<donusTipiVersiyon>6.0</donusTipiVersiyon>` +
+      (settings.erp_code ? `<erpKodu>${escapeXml(settings.erp_code)}</erpKodu>` : "") +
+      `</parametreler></ser:${operation}>`,
+  );
+
+  const blocks = readBlocks(result.xml, "return");
+  const rows = blocks
+    .map((block) => {
+      const ettn = readTag(block, "ettn");
+      if (!ettn) return null;
+      const amount = readTag(block, "odenecekTutar");
+      return {
+        environment: settings.environment,
+        ettn,
+        document_number: readTag(block, "belgeNo"),
+        document_type: readTag(block, "belgeTuru"),
+        document_date: readTag(block, "belgeTarihi"),
+        sender_tax_id: readTag(block, "gonderenVknTckn"),
+        sender_title: readTag(block, "saticiUnvan"),
+        sender_alias: readTag(block, "gonderenEtiket"),
+        receiver_alias: readTag(block, "alanEtiket"),
+        payable_amount: amount ? Number(amount.replace(",", ".")) || null : null,
+        currency: readTag(block, "odenecekTutarDovizCinsi"),
+        sequence_no: readTag(block, "belgeSiraNo"),
+        envelope_id: readTag(block, "zarfId"),
+        arrived_at: readTag(block, "faturaGelisTarihi"),
+        raw: { hash: readTag(block, "belgeHash"), archived: readTag(block, "arsivlenmis") },
+      };
+    })
+    .filter((row): row is NonNullable<typeof row> => row !== null);
+
+  if (rows.length > 0) {
+    const { error } = await client
+      .from("einvoice_inbox")
+      .upsert(rows, { onConflict: "environment,ettn" });
+    if (error) throw new Error(error.message);
+  }
+
+  const sequences = readTags(result.xml, "belgeSiraNo")
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value));
+  const lastSequence = sequences.length > 0 ? String(Math.max(...sequences)) : startSequence;
+
+  if (lastSequence !== settings.last_inbox_sequence) {
+    await client
+      .from("einvoice_settings")
+      .update({ last_inbox_sequence: lastSequence })
+      .eq("id", settings.id);
+  }
+
+  await recordAudit(null, {
+    action: "einvoice.inbox.synced",
+    actorId: userId,
+    entity: "einvoice_settings",
+    entityId: settings.id,
+    newValue: { fetched: rows.length, fromSequence: startSequence, lastSequence },
+  });
+
+  return { ok: true as const, fetched: rows.length, lastSequence };
+}
+
+/** Gelen faturayı ETTN ile indirir (`gelenBelgeleriIndirExt`). */
+export async function downloadInboxDocument(
+  ettn: string,
+  format: "UBL" | "PDF" | "HTML",
+  userId: string,
+) {
+  const settings = await loadSettingsRow();
+  if (!settings.sender_tax_id) throw new Error("Gönderici vergi kimlik numarası tanımlı değil");
+
+  const operation = settings.inbox_download_operation;
+  const result = await serviceCall(
+    settings,
+    `<ser:${operation}><parametreler>` +
+      `<vergiTcKimlikNo>${settings.sender_tax_id}</vergiTcKimlikNo>` +
+      `<belgeFormati>${format}</belgeFormati>` +
+      `<belgeTuru>FATURA</belgeTuru>` +
+      `<ettn>${escapeXml(ettn)}</ettn>` +
+      `</parametreler></ser:${operation}>`,
+  );
+
+  const base64 = readTag(result.xml, "return");
+  if (!base64) throw new Error("Servis belge içeriği döndürmedi");
+
+  await recordAudit(null, {
+    action: "einvoice.inbox.downloaded",
+    actorId: userId,
+    entity: "einvoice_inbox",
+    entityId: ettn,
+    newValue: { format, bytes: base64.length },
+  });
+
+  return { ok: true as const, fileName: `gelen-${ettn}-${format}.zip`, base64 };
 }
