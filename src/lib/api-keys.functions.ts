@@ -27,7 +27,12 @@ export const getStoreApiLogs = createServerFn({ method: "GET" })
 export const createStoreApiKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => createKeySchema.parse(data))
-  .handler(async ({ data, context }) => createApiKey(context.supabase, context.userId, data));
+  .handler(async ({ data, context }) => {
+    // API erişimi paket modülüne bağlıdır.
+    const { requirePlanModule } = await import("@/lib/entitlements.server");
+    await requirePlanModule(context.supabase as never, data.storeId, "module_api");
+    return createApiKey(context.supabase, context.userId, data);
+  });
 
 export const revokeStoreApiKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

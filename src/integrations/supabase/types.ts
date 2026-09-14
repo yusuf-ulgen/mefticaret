@@ -13986,7 +13986,6 @@ export type Database = {
           title: string
         }[]
       }
-      seed_demo_store: { Args: { _store_id: string }; Returns: Json }
       seller_order_lines: {
         Args: { _seller_id: string; _store_id: string }
         Returns: {

@@ -47,12 +47,20 @@ export const publishMobileApp = createServerFn({ method: "POST" })
 export const saveMobilePushAutomation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => automationSchema.parse(data))
-  .handler(async ({ data, context }) => upsertAutomation(context.supabase, data));
+  .handler(async ({ data, context }) => {
+    const { requirePlanModule } = await import("@/lib/entitlements.server");
+    await requirePlanModule(context.supabase as never, data.storeId, "module_mobile_app");
+    return upsertAutomation(context.supabase, data);
+  });
 
 export const sendMobilePushCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => campaignSchema.parse(data))
-  .handler(async ({ data, context }) => createCampaign(context.supabase, data, context.userId));
+  .handler(async ({ data, context }) => {
+    const { requirePlanModule } = await import("@/lib/entitlements.server");
+    await requirePlanModule(context.supabase as never, data.storeId, "module_mobile_app");
+    return createCampaign(context.supabase, data, context.userId);
+  });
 
 export const requestMobileAppBuild = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

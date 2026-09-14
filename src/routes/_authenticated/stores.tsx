@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Eye, Plus, Store } from "lucide-react";
+import { ArrowRight, Plus, Store } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/auth-context";
 import { INDUSTRIES, STORE_ROLE_LABELS, STORE_STATUS_LABELS, SUBDOMAIN_SUFFIX } from "@/lib/mefti";
-import { demoStoreQuery, myStoresQuery } from "@/lib/store-queries";
+import { myStoresQuery } from "@/lib/store-queries";
 
 export const Route = createFileRoute("/_authenticated/stores")({
   head: () => ({
@@ -26,7 +26,6 @@ export const Route = createFileRoute("/_authenticated/stores")({
 function StoresPage() {
   const { user } = useAuth();
   const { data: stores, isLoading } = useQuery(myStoresQuery(user?.id));
-  const { data: demoStore } = useQuery(demoStoreQuery());
 
   return (
     <AppShell
@@ -119,24 +118,6 @@ function StoresPage() {
         </div>
       )}
 
-      {demoStore ? (
-        <div className="surface-card flex flex-wrap items-center gap-4 p-5">
-          <span className="grid size-10 place-items-center rounded-xl bg-secondary">
-            <Eye className="size-5" />
-          </span>
-          <div className="min-w-0">
-            <h2 className="font-display text-base font-semibold">{demoStore.name}</h2>
-            <p className="text-sm text-muted-foreground">
-              90 günlük gerçekçi satış verisiyle hazır demo mağaza — panelin nasıl çalıştığını gör.
-            </p>
-          </div>
-          <Button asChild variant="outline" className="ml-auto">
-            <Link to="/store/$storeId/dashboard" params={{ storeId: demoStore.id }}>
-              Demo paneli aç
-            </Link>
-          </Button>
-        </div>
-      ) : null}
     </AppShell>
   );
 }

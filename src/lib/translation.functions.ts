@@ -81,6 +81,19 @@ export const upsertStoreLocale = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertStoreAccess(supabase, data.storeId);
 
+    // Ek dil eklemek çoklu dil modülü açık paketlerde mümkündür (varsayılan dil hariç).
+    if (!data.id) {
+      const { data: existing } = await supabase
+        .from("store_locales")
+        .select("id")
+        .eq("store_id", data.storeId)
+        .neq("locale", data.locale);
+      if ((existing?.length ?? 0) > 0) {
+        const { requirePlanModule } = await import("@/lib/entitlements.server");
+        await requirePlanModule(supabase as never, data.storeId, "module_multi_language");
+      }
+    }
+
     const payload = {
       store_id: data.storeId,
       code: data.locale.slice(0, 2).toLowerCase(),
