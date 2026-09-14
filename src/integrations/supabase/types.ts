@@ -2709,6 +2709,140 @@ export type Database = {
           },
         ]
       }
+      einvoice_documents: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          direction: string
+          document_number: string | null
+          environment: string
+          error_message: string | null
+          ettn: string | null
+          id: string
+          invoice_id: string | null
+          operation: string | null
+          request_summary: Json
+          response_summary: Json
+          sent_at: string | null
+          status: string
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          document_number?: string | null
+          environment?: string
+          error_message?: string | null
+          ettn?: string | null
+          id?: string
+          invoice_id?: string | null
+          operation?: string | null
+          request_summary?: Json
+          response_summary?: Json
+          sent_at?: string | null
+          status?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          document_number?: string | null
+          environment?: string
+          error_message?: string | null
+          ettn?: string | null
+          id?: string
+          invoice_id?: string | null
+          operation?: string | null
+          request_summary?: Json
+          response_summary?: Json
+          sent_at?: string | null
+          status?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "einvoice_documents_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      einvoice_settings: {
+        Row: {
+          auth_mode: string
+          created_at: string
+          environment: string
+          id: string
+          invoice_prefix: string
+          is_enabled: boolean
+          login_namespace: string
+          login_operation: string
+          login_url: string | null
+          send_operation: string
+          sender_address: string | null
+          sender_city: string | null
+          sender_country: string
+          sender_tax_id: string | null
+          sender_title: string | null
+          service_namespace: string
+          service_url: string | null
+          status_operation: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          auth_mode?: string
+          created_at?: string
+          environment?: string
+          id?: string
+          invoice_prefix?: string
+          is_enabled?: boolean
+          login_namespace?: string
+          login_operation?: string
+          login_url?: string | null
+          send_operation?: string
+          sender_address?: string | null
+          sender_city?: string | null
+          sender_country?: string
+          sender_tax_id?: string | null
+          sender_title?: string | null
+          service_namespace?: string
+          service_url?: string | null
+          status_operation?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          auth_mode?: string
+          created_at?: string
+          environment?: string
+          id?: string
+          invoice_prefix?: string
+          is_enabled?: boolean
+          login_namespace?: string
+          login_operation?: string
+          login_url?: string | null
+          send_operation?: string
+          sender_address?: string | null
+          sender_city?: string | null
+          sender_country?: string
+          sender_tax_id?: string | null
+          sender_title?: string | null
+          service_namespace?: string
+          service_url?: string | null
+          status_operation?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       exchange_rate_history: {
         Row: {
           base_currency: string
