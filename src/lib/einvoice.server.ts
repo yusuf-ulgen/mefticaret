@@ -116,10 +116,14 @@ export async function saveSettings(input: SettingsInput, userId: string) {
       sender_country: input.senderCountry,
       invoice_prefix: input.invoicePrefix,
       is_enabled: input.isEnabled,
+      check_user_operation: input.checkUserOperation,
+      list_users_operation: input.listUsersOperation,
+      resend_operation: input.resendOperation,
       updated_by: userId,
     })
     .eq("id", settings.id);
   if (error) throw new Error(error.message);
+
 
   await recordAudit(null, {
     action: "einvoice.settings.updated",
