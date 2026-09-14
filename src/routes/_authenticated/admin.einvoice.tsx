@@ -115,6 +115,15 @@ function AdminEinvoicePage() {
       checkUserOperation: row.check_user_operation,
       listUsersOperation: row.list_users_operation,
       resendOperation: row.resend_operation,
+      downloadOperation: row.download_operation,
+      inboxListOperation: row.inbox_list_operation,
+      inboxDownloadOperation: row.inbox_download_operation,
+      earsivServiceUrl: row.earsiv_service_url ?? "",
+      earsivNamespace: row.earsiv_namespace,
+      earsivOperation: row.earsiv_operation,
+      earsivBranch: row.earsiv_branch,
+      earsivCashbox: row.earsiv_cashbox,
+      erpCode: row.erp_code ?? "",
     });
   }, [data, form]);
 
