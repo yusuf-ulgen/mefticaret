@@ -144,6 +144,21 @@ export function ThemeStudio({ storeId, backTo }: { storeId: string; backTo: "sto
   const status = saving ? "Kaydediliyor…" : dirty ? "Kaydedilmedi" : studio.savedAt ? "Kaydedildi" : "";
 
   return (
+    <StudioFieldProvider
+      value={{
+        storeId,
+        products: (studio.products ?? []).map((product) => ({
+          id: product.id,
+          title: product.title,
+          slug: product.slug,
+        })),
+        collections: (studio.collections ?? []).map((collection) => ({
+          id: collection.id,
+          title: collection.title,
+          slug: collection.slug,
+        })),
+      }}
+    >
     <div className="flex h-screen flex-col bg-background">
       <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border bg-card px-2 py-2 lg:h-14 lg:flex-nowrap lg:px-3 lg:py-0">
         <div className="flex min-w-0 items-center gap-2">
@@ -217,6 +232,7 @@ export function ThemeStudio({ storeId, backTo }: { storeId: string; backTo: "sto
         </div>
 
         <div className="flex items-center gap-1.5">
+          <StudioVersions storeId={storeId} onRestored={() => window.location.reload()} />
           <Button size="icon" variant="ghost" className="size-8" disabled={!studio.canUndo} onClick={undo} aria-label="Geri al">
             <Undo2 className="size-4" />
           </Button>
@@ -384,6 +400,7 @@ export function ThemeStudio({ storeId, backTo }: { storeId: string; backTo: "sto
       />
       <ThemeSettingsDialog storeId={storeId} theme={studio.theme} open={brandOpen} onOpenChange={setBrandOpen} />
     </div>
+    </StudioFieldProvider>
   );
 }
 
