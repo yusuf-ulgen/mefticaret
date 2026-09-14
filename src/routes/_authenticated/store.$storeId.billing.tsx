@@ -6,7 +6,7 @@ import { AlertTriangle, Check, FileText, Gauge, History, Lock, Sparkles } from "
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
-import { isPaidPlanSlug } from "@/lib/paddle-plans";
+import { isPaidPlanSlug } from "@/lib/plan-tiers";
 import { startPlanCardPayment } from "@/lib/plan-checkout.functions";
 
 import { Badge } from "@/components/ui/badge";

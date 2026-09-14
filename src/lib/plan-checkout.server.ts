@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
-import { PLAN_RANK, type PlanInterval } from "@/lib/paddle-plans";
+import { PLAN_RANK, type PlanInterval } from "@/lib/plan-tiers";
 import { recordAudit } from "@/lib/audit.server";
 
 /**

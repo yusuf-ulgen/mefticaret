@@ -1,4 +1,4 @@
-/** Paket slug + ödeme dönemi -> ödeme sağlayıcısı fiyat kimliği eşlemesi (istemci tarafı güvenli). */
+/** Paket slug + ödeme dönemi eşlemeleri ve paket sıralaması (istemci tarafı güvenli). */
 
 export const PAID_PLAN_SLUGS = ["starter", "professional", "business"] as const;
 
