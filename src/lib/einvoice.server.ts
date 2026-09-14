@@ -37,6 +37,9 @@ type SettingsRow = {
   sender_country: string;
   invoice_prefix: string;
   is_enabled: boolean;
+  check_user_operation: string;
+  list_users_operation: string;
+  resend_operation: string;
   updated_at: string;
 };
 
@@ -61,7 +64,7 @@ export async function loadOverview() {
   const [documents, invoices] = await Promise.all([
     client
       .from("einvoice_documents")
-      .select("id, invoice_id, store_id, environment, document_number, ettn, status, operation, error_message, sent_at, created_at")
+      .select("id, invoice_id, store_id, environment, document_number, ettn, belge_oid, status, operation, error_message, ulasti_mi, durum_kodu, yanit_durum, yanit_durum_kodu, service_message, last_checked_at, sent_at, created_at")
       .order("created_at", { ascending: false })
       .limit(50),
     client
@@ -113,10 +116,14 @@ export async function saveSettings(input: SettingsInput, userId: string) {
       sender_country: input.senderCountry,
       invoice_prefix: input.invoicePrefix,
       is_enabled: input.isEnabled,
+      check_user_operation: input.checkUserOperation,
+      list_users_operation: input.listUsersOperation,
+      resend_operation: input.resendOperation,
       updated_by: userId,
     })
     .eq("id", settings.id);
   if (error) throw new Error(error.message);
+
 
   await recordAudit(null, {
     action: "einvoice.settings.updated",
@@ -200,6 +207,152 @@ function parseLines(raw: unknown, fallbackTotal: number, taxTotal: number, subto
   });
 }
 
+/** Fatura servisine çağrı yapar; cookie yönteminde önce `wsLogin` çalıştırır. */
+async function serviceCall(settings: SettingsRow, body: string) {
+  const credentials = readSoapCredentials();
+  if (!credentials) throw new Error("QNB kullanıcı adı/şifresi tanımlı değil");
+  if (!settings.service_url) throw new Error("Servis adresi tanımlı değil");
+
+  let cookie: string | null = null;
+  if (settings.auth_mode === "cookie") {
+    if (!settings.login_url) throw new Error("Giriş servisi adresi tanımlı değil");
+    cookie = (
+      await soapLogin({
+        url: settings.login_url,
+        namespace: settings.login_namespace,
+        operation: settings.login_operation,
+        credentials,
+      })
+    ).cookie;
+  }
+
+  const result = await postSoap({
+    url: settings.service_url,
+    namespace: settings.service_namespace,
+    body,
+    cookie,
+    ...(settings.auth_mode === "wsse" ? { credentials } : {}),
+  });
+  if (result.fault) throw new Error(result.fault);
+  if (result.status >= 400) throw new Error(`Servis hatası (HTTP ${result.status})`);
+  return result;
+}
+
+/**
+ * Akışın ilk adımı: alıcı e-fatura mükellefi mi?
+ * `efaturaKullaniciListesi` (tekil sorgulama) çağrılır; kayıt dönerse alıcı
+ * e-Fatura mükellefidir ve belge e-Fatura olarak düzenlenir, aksi hâlde e-Arşiv.
+ */
+export async function checkRecipient(taxId: string) {
+  const settings = await loadSettingsRow();
+  const operation = settings.check_user_operation;
+  const result = await serviceCall(
+    settings,
+    `<ser:${operation}><vknTckn>${taxId}</vknTckn></ser:${operation}>`,
+  );
+
+  const alias = readTag(result.xml, "etiket") ?? readTag(result.xml, "alias") ?? readTag(result.xml, "gbEtiketi");
+  const title = readTag(result.xml, "unvan") ?? readTag(result.xml, "title");
+  const registered = Boolean(alias) || /<(?:[a-zA-Z0-9_-]+:)?return[\s>]/i.test(result.xml);
+
+  return {
+    registered,
+    profile: (registered ? "TEMELFATURA" : "EARSIVFATURA") as "TEMELFATURA" | "EARSIVFATURA",
+    ...(alias ? { alias } : {}),
+    ...(title ? { title } : {}),
+  };
+}
+
+const DURUM_LABEL: Record<number, string> = {
+  1: "Alındı",
+  2: "Servis tarafından işleniyor",
+  3: "Şema/şematron hatası",
+};
+
+const YANIT_LABEL: Record<number, string> = {
+  [-2]: "Ticari faturanın cevap süresi doldu",
+  [-1]: "Temel fatura (uygulama yanıtı beklenmez)",
+  0: "Ticari fatura: alıcı henüz yanıt vermedi",
+  1: "Ticari fatura: alıcı yanıt verdi",
+  2: "Ticari fatura: alıcı yanıt verdi",
+};
+
+/**
+ * Akışın son adımı: `gidenBelgeDurumSorgulaExt` ile belge durumu sorgulanır.
+ * `ulastiMi` alanı true ise fatura alıcıya ulaşmıştır; ticari faturalarda
+ * `yanitDurum` / `yanitDurumKodu` alanları kabul/ret bilgisini taşır.
+ */
+export async function queryDocumentStatus(documentId: string, userId: string) {
+  const client = await db();
+  const settings = await loadSettingsRow();
+
+  const { data: doc, error } = await client
+    .from("einvoice_documents")
+    .select("id, belge_oid, document_number, ettn, store_id")
+    .eq("id", documentId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!doc) throw new Error("Gönderim kaydı bulunamadı");
+
+  const operation = settings.status_operation;
+  const selector = doc.belge_oid
+    ? `<belgeOid>${doc.belge_oid}</belgeOid>`
+    : `<yerelBelgeNo>${doc.document_number ?? ""}</yerelBelgeNo>`;
+  const result = await serviceCall(settings, `<ser:${operation}>${selector}</ser:${operation}>`);
+
+  const num = (name: string) => {
+    const raw = readTag(result.xml, name);
+    if (raw === null || raw === "") return null;
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : null;
+  };
+
+  const ulastiMi = (readTag(result.xml, "ulastiMi") ?? "").toLowerCase() === "true";
+  const durum = num("durum");
+  const yanitDurum = num("yanitDurum");
+  const yanitDurumKodu = num("yanitDurumKodu");
+  const aciklama = readTag(result.xml, "aciklama");
+  const resendable = (readTag(result.xml, "yenidenGonderilebilirMi") ?? "").toLowerCase() === "true";
+
+  const parts: string[] = [];
+  if (durum !== null) parts.push(DURUM_LABEL[durum] ?? `Durum kodu ${durum}`);
+  if (ulastiMi) parts.push("Fatura alıcıya iletildi");
+  else if (durum === 3) parts.push("Şema/şematron kontrolünden geçemedi, düzeltip yeniden gönderin");
+  else parts.push("Belirli aralıklarla yeniden sorgulanmalı");
+  if (yanitDurum !== null) parts.push(YANIT_LABEL[yanitDurum] ?? `Yanıt durumu ${yanitDurum}`);
+  if (yanitDurumKodu === 1) parts.push("Fatura kabul edildi");
+  if (yanitDurumKodu === 2) parts.push("Fatura reddedildi");
+  if (aciklama) parts.push(aciklama.slice(0, 300));
+
+  const detail = parts.join(" · ");
+  const failed = durum === 3 || yanitDurumKodu === 2;
+
+  await client
+    .from("einvoice_documents")
+    .update({
+      ulasti_mi: ulastiMi,
+      durum_kodu: durum,
+      yanit_durum: yanitDurum,
+      yanit_durum_kodu: yanitDurumKodu,
+      service_message: detail.slice(0, 800),
+      resendable,
+      last_checked_at: new Date().toISOString(),
+      ...(failed ? { status: "failed", error_message: detail.slice(0, 800) } : {}),
+    })
+    .eq("id", doc.id);
+
+  await recordAudit(null, {
+    action: "einvoice.status.queried",
+    actorId: userId,
+    entity: "einvoice_documents",
+    entityId: doc.id,
+    newValue: { ulastiMi, durum, yanitDurum, yanitDurumKodu },
+  });
+
+  return { ok: true as const, detail, ulastiMi, durum, yanitDurum, yanitDurumKodu, resendable };
+}
+
+
 /** Platform aboneliği faturasını QNB servisine gönderir. */
 export async function sendInvoice(input: SendInput, userId: string) {
   const client = await db();
@@ -220,6 +373,17 @@ export async function sendInvoice(input: SendInput, userId: string) {
   if (invoiceError) throw new Error(invoiceError.message);
   if (!invoice) throw new Error("Fatura bulunamadı");
 
+  // Akış adımı 1: alıcı e-fatura mükellefi mi? "AUTO" seçiliyse servise sorulur.
+  let profile: "TEMELFATURA" | "EARSIVFATURA";
+  let recipientRegistered: boolean | null = null;
+  if (input.profile === "AUTO") {
+    const check = await checkRecipient(input.buyerTaxId);
+    profile = check.profile;
+    recipientRegistered = check.registered;
+  } else {
+    profile = input.profile;
+  }
+
   const ettn = crypto.randomUUID();
   const issued = new Date(invoice.issued_at ?? Date.now());
   const documentNumber = `${settings.invoice_prefix}${issued.getFullYear()}${String(
@@ -237,7 +401,7 @@ export async function sendInvoice(input: SendInput, userId: string) {
     issueDate: issued.toISOString().slice(0, 10),
     issueTime: issued.toISOString().slice(11, 19),
     currency,
-    profile: input.profile,
+    profile,
     supplier: {
       taxId: settings.sender_tax_id,
       title: settings.sender_title,
@@ -270,7 +434,7 @@ export async function sendInvoice(input: SendInput, userId: string) {
       ettn,
       status: "queued",
       operation: settings.send_operation,
-      request_summary: { profile: input.profile, total, currency, bytes: xml.length },
+      request_summary: { profile, recipientRegistered, total, currency, bytes: xml.length },
       created_by: userId,
     })
     .select("id")
@@ -305,13 +469,19 @@ export async function sendInvoice(input: SendInput, userId: string) {
     if (result.fault) throw new Error(result.fault);
     if (result.status >= 400) throw new Error(`Servis hatası (HTTP ${result.status})`);
 
+    // Akış adımı 2: dönüş değerindeki <belgeOid> kaydedilir; durum sorgulaması bununla yapılır.
+    const belgeOid =
+      readTag(result.xml, "belgeOid") ?? readTag(result.xml, "oid") ?? readTag(result.xml, "return");
+
     await client
       .from("einvoice_documents")
       .update({
         status: "sent",
         sent_at: new Date().toISOString(),
+        belge_oid: belgeOid,
         response_summary: {
           httpStatus: result.status,
+          belgeOid,
           returnCode: readTag(result.xml, "returnCode") ?? readTag(result.xml, "resultCode"),
           message: (readTag(result.xml, "returnMessage") ?? readTag(result.xml, "message") ?? "").slice(0, 500),
         },
@@ -325,10 +495,10 @@ export async function sendInvoice(input: SendInput, userId: string) {
       actorId: userId,
       entity: "einvoice_documents",
       entityId: doc.id,
-      newValue: { documentNumber, ettn, environment: settings.environment },
+      newValue: { documentNumber, ettn, belgeOid, profile, environment: settings.environment },
     });
 
-    return { ok: true as const, documentNumber, ettn };
+    return { ok: true as const, documentNumber, ettn, profile, belgeOid, documentId: doc.id };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Bilinmeyen hata";
     await client

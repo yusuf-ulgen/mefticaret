@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { FileCheck2, PlugZap, Send } from "lucide-react";
+import { FileCheck2, PlugZap, RefreshCw, Search, Send } from "lucide-react";
 import { toast } from "sonner";
 
 import { AdminShell } from "@/components/admin-shell";
@@ -22,7 +22,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateTime } from "@/lib/mefti";
 import type { SendInput, SettingsInput } from "@/lib/einvoice-schemas";
 import {
+  checkEinvoiceRecipient,
   getEinvoiceOverview,
+  queryEinvoiceStatus,
   saveEinvoiceSettings,
   sendEinvoiceDocument,
   testEinvoiceConnection,
@@ -52,7 +54,7 @@ const emptySend: SendInput = {
   buyerAddress: "",
   buyerCity: "",
   buyerEmail: "",
-  profile: "EARSIVFATURA",
+  profile: "AUTO",
 };
 
 function AdminEinvoicePage() {
@@ -61,6 +63,8 @@ function AdminEinvoicePage() {
   const saveFn = useServerFn(saveEinvoiceSettings);
   const testFn = useServerFn(testEinvoiceConnection);
   const sendFn = useServerFn(sendEinvoiceDocument);
+  const checkFn = useServerFn(checkEinvoiceRecipient);
+  const statusFn = useServerFn(queryEinvoiceStatus);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-einvoice"],
@@ -90,6 +94,9 @@ function AdminEinvoicePage() {
       senderCountry: row.sender_country,
       invoicePrefix: row.invoice_prefix,
       isEnabled: row.is_enabled,
+      checkUserOperation: row.check_user_operation,
+      listUsersOperation: row.list_users_operation,
+      resendOperation: row.resend_operation,
     });
   }, [data, form]);
 
@@ -115,6 +122,28 @@ function AdminEinvoicePage() {
     onSuccess: async (result) => {
       toast.success(`Fatura gönderildi: ${result.documentNumber}`);
       setSend(emptySend);
+      await invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const lookup = useMutation({
+    mutationFn: (taxId: string) => checkFn({ data: { taxId } }),
+    onSuccess: (result) => {
+      setSend((prev) => ({ ...prev, profile: result.profile }));
+      toast.success(
+        result.registered
+          ? `Alıcı e-fatura mükellefi${result.alias ? ` (etiket: ${result.alias})` : ""} — e-Fatura olarak düzenlenecek`
+          : "Alıcı e-fatura mükellefi değil — e-Arşiv fatura olarak düzenlenecek",
+      );
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const status = useMutation({
+    mutationFn: (documentId: string) => statusFn({ data: { documentId } }),
+    onSuccess: async (result) => {
+      toast.success(result.detail || "Durum güncellendi");
       await invalidate();
     },
     onError: (error: Error) => toast.error(error.message),
@@ -238,6 +267,24 @@ function AdminEinvoicePage() {
                 <Label>Fatura seri kodu</Label>
                 <Input value={form.invoicePrefix} onChange={(e) => set("invoicePrefix", e.target.value)} />
               </div>
+              <div className="grid gap-2">
+                <Label>Mükellef sorgulama operasyonu</Label>
+                <Input
+                  value={form.checkUserOperation}
+                  onChange={(e) => set("checkUserOperation", e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Tüm kullanıcı listesi operasyonu</Label>
+                <Input
+                  value={form.listUsersOperation}
+                  onChange={(e) => set("listUsersOperation", e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Tekrar gönderim operasyonu</Label>
+                <Input value={form.resendOperation} onChange={(e) => set("resendOperation", e.target.value)} />
+              </div>
 
               <div className="grid gap-2">
                 <Label>Gönderici vergi kimlik no</Label>
@@ -316,6 +363,7 @@ function AdminEinvoicePage() {
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="AUTO">Otomatik (mükellefe göre seç)</SelectItem>
                   <SelectItem value="EARSIVFATURA">e-Arşiv fatura</SelectItem>
                   <SelectItem value="TEMELFATURA">e-Fatura (temel)</SelectItem>
                 </SelectContent>
@@ -324,11 +372,25 @@ function AdminEinvoicePage() {
 
             <div className="grid gap-2">
               <Label>Alıcı VKN / TCKN</Label>
-              <Input
-                value={send.buyerTaxId}
-                inputMode="numeric"
-                onChange={(e) => setSend((prev) => ({ ...prev, buyerTaxId: e.target.value }))}
-              />
+              <div className="flex gap-2">
+                <Input
+                  value={send.buyerTaxId}
+                  inputMode="numeric"
+                  onChange={(e) => setSend((prev) => ({ ...prev, buyerTaxId: e.target.value }))}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={lookup.isPending || !/^\d{10,11}$/.test(send.buyerTaxId)}
+                  onClick={() => lookup.mutate(send.buyerTaxId)}
+                >
+                  <Search className="mr-2 size-4" />
+                  {lookup.isPending ? "Sorgulanıyor…" : "Mükellef sorgula"}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Alıcı e-fatura mükellefiyse belge e-Fatura, değilse e-Arşiv fatura olarak düzenlenir.
+              </p>
             </div>
             <div className="grid gap-2">
               <Label>Alıcı unvan</Label>
@@ -385,8 +447,23 @@ function AdminEinvoicePage() {
                   >
                     {doc.status === "sent" ? "Gönderildi" : doc.status === "failed" ? "Hata" : "Kuyrukta"}
                   </Badge>
+                  {doc.ulasti_mi ? <Badge variant="secondary">Alıcıya ulaştı</Badge> : null}
                   <span className="text-muted-foreground">{doc.environment}</span>
                   <span className="text-muted-foreground">{formatDateTime(doc.created_at)}</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="ml-auto"
+                    disabled={status.isPending}
+                    onClick={() => status.mutate(doc.id)}
+                  >
+                    <RefreshCw className="mr-2 size-4" />
+                    Durum sorgula
+                  </Button>
+                  {doc.service_message ? (
+                    <span className="w-full text-xs text-muted-foreground">{doc.service_message}</span>
+                  ) : null}
                   {doc.error_message ? (
                     <span className="w-full text-xs text-destructive">{doc.error_message}</span>
                   ) : null}

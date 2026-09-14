@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { sendSchema, settingsSchema } from "@/lib/einvoice-schemas";
+import { recipientSchema, sendSchema, settingsSchema, statusSchema } from "@/lib/einvoice-schemas";
 
 /**
  * QNB eSolutions e-fatura sunucu fonksiyonları.
@@ -47,4 +47,24 @@ export const sendEinvoiceDocument = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { sendInvoice } = await import("@/lib/einvoice.server");
     return sendInvoice(data, context.userId);
+  });
+
+/** Akış adımı 1: alıcı e-fatura mükellefi mi? */
+export const checkEinvoiceRecipient = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => recipientSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { checkRecipient } = await import("@/lib/einvoice.server");
+    return checkRecipient(data.taxId);
+  });
+
+/** Akış adımı 3: gönderilen belgenin durumu sorgulanır. */
+export const queryEinvoiceStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => statusSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { queryDocumentStatus } = await import("@/lib/einvoice.server");
+    return queryDocumentStatus(data.documentId, context.userId);
   });
