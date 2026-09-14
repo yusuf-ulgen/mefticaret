@@ -131,10 +131,26 @@ function AdminEinvoicePage() {
     mutationFn: (taxId: string) => checkFn({ data: { taxId } }),
     onSuccess: (result) => {
       setSend((prev) => ({ ...prev, profile: result.profile }));
+      if (!result.registered) {
+        toast.success("Alıcı e-fatura mükellefi değil — e-Arşiv fatura olarak düzenlenecek");
+        return;
+      }
+      const parts = [
+        result.title ? `Unvan: ${result.title}` : null,
+        result.alias ? `Etiket: ${result.alias}` : null,
+        result.registeredAt
+          ? `Kayıt: ${new Date(result.registeredAt).toLocaleDateString("tr-TR")}`
+          : null,
+        result.publicInstitution ? "Kamu kuruluşu" : null,
+      ].filter(Boolean);
       toast.success(
-        result.registered
-          ? `Alıcı e-fatura mükellefi${result.alias ? ` (etiket: ${result.alias})` : ""} — e-Fatura olarak düzenlenecek`
-          : "Alıcı e-fatura mükellefi değil — e-Arşiv fatura olarak düzenlenecek",
+        result.beforeRegistration
+          ? `Fatura tarihi mükellefin kayıt tarihinden önce — e-Arşiv olarak düzenlenecek${
+              parts.length ? ` · ${parts.join(" · ")}` : ""
+            }`
+          : `Alıcı e-fatura mükellefi — e-Fatura olarak düzenlenecek${
+              parts.length ? ` · ${parts.join(" · ")}` : ""
+            }`,
       );
     },
     onError: (error: Error) => toast.error(error.message),
