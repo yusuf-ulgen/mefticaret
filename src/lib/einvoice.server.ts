@@ -6,6 +6,8 @@
  * adresleri ve gönderici bilgileri süper yönetici panelinden yönetilir.
  */
 
+import { createHash } from "node:crypto";
+
 import type { SendInput, SettingsInput } from "./einvoice-schemas";
 
 import { buildUblInvoice, type UblLine } from "./einvoice-ubl.server";
@@ -404,7 +406,7 @@ export async function sendInvoice(input: SendInput, userId: string) {
   let profile: "TEMELFATURA" | "EARSIVFATURA";
   let recipientRegistered: boolean | null = null;
   if (input.profile === "AUTO") {
-    const check = await checkRecipient(input.buyerTaxId);
+    const check = await checkRecipient(input.buyerTaxId, invoice.issued_at ?? null);
     profile = check.profile;
     recipientRegistered = check.registered;
   } else {
@@ -469,7 +471,18 @@ export async function sendInvoice(input: SendInput, userId: string) {
   if (docError) throw new Error(docError.message);
 
   const base64 = Buffer.from(xml, "utf8").toString("base64");
-  const body = `<ser:${settings.send_operation}><invoiceUUID>${ettn}</invoiceUUID><docType>XML</docType><fileName>${documentNumber}.xml</fileName><binaryData>${base64}</binaryData></ser:${settings.send_operation}>`;
+  // belgeGonderExt: parametreler bloğu; belgeHash MD5, mimeType application/xml, belgeVersiyon 1.0
+  const belgeHash = createHash("md5").update(Buffer.from(xml, "utf8")).digest("hex");
+  const body =
+    `<ser:${settings.send_operation}><parametreler>` +
+    `<vergiTcKimlikNo>${settings.sender_tax_id}</vergiTcKimlikNo>` +
+    `<belgeTuru>FATURA_UBL</belgeTuru>` +
+    `<belgeNo>${documentNumber}</belgeNo>` +
+    `<veri>${base64}</veri>` +
+    `<belgeHash>${belgeHash}</belgeHash>` +
+    `<mimeType>application/xml</mimeType>` +
+    `<belgeVersiyon>1.0</belgeVersiyon>` +
+    `</parametreler></ser:${settings.send_operation}>`;
 
   try {
     let cookie: string | null = null;
