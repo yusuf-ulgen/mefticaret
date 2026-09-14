@@ -263,6 +263,7 @@ function AdminEinvoicePage() {
           <TabsTrigger value="settings">Bağlantı ayarları</TabsTrigger>
           <TabsTrigger value="send">Fatura gönder</TabsTrigger>
           <TabsTrigger value="log">Gönderim kayıtları</TabsTrigger>
+          <TabsTrigger value="inbox">Gelen faturalar</TabsTrigger>
         </TabsList>
 
         <TabsContent value="settings" className="mt-4">
@@ -579,25 +580,98 @@ function AdminEinvoicePage() {
                     {doc.status === "sent" ? "Gönderildi" : doc.status === "failed" ? "Hata" : "Kuyrukta"}
                   </Badge>
                   {doc.ulasti_mi ? <Badge variant="secondary">Alıcıya ulaştı</Badge> : null}
+                  {doc.document_kind === "earsiv" ? <Badge variant="outline">e-Arşiv</Badge> : null}
                   <span className="text-muted-foreground">{doc.environment}</span>
                   <span className="text-muted-foreground">{formatDateTime(doc.created_at)}</span>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="ml-auto"
-                    disabled={status.isPending}
-                    onClick={() => status.mutate(doc.id)}
-                  >
-                    <RefreshCw className="mr-2 size-4" />
-                    Durum sorgula
-                  </Button>
+                  <div className="ml-auto flex flex-wrap items-center gap-2">
+                    {doc.earsiv_url ? (
+                      <Button asChild type="button" size="sm" variant="ghost">
+                        <a href={doc.earsiv_url} target="_blank" rel="noreferrer">
+                          Faturayı görüntüle
+                        </a>
+                      </Button>
+                    ) : null}
+                    {(["PDF", "UBL"] as const).map((format) => (
+                      <Button
+                        key={format}
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        disabled={download.isPending || !doc.belge_oid}
+                        title={doc.belge_oid ? undefined : "Önce durum sorgulaması yapın"}
+                        onClick={() => download.mutate({ documentId: doc.id, format })}
+                      >
+                        <Download className="mr-2 size-4" />
+                        {format}
+                      </Button>
+                    ))}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={status.isPending}
+                      onClick={() => status.mutate(doc.id)}
+                    >
+                      <RefreshCw className="mr-2 size-4" />
+                      Durum sorgula
+                    </Button>
+                  </div>
                   {doc.service_message ? (
                     <span className="w-full text-xs text-muted-foreground">{doc.service_message}</span>
                   ) : null}
                   {doc.error_message ? (
                     <span className="w-full text-xs text-destructive">{doc.error_message}</span>
                   ) : null}
+                </div>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="inbox" className="mt-4 space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-sm text-muted-foreground">
+              Son alınan belge sıra numarası: {data?.settings.last_inbox_sequence ?? "0"}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              className="ml-auto"
+              disabled={inboxSync.isPending || !data}
+              onClick={() => inboxSync.mutate()}
+            >
+              <Inbox className="mr-2 size-4" />
+              {inboxSync.isPending ? "Alınıyor…" : "Gelen faturaları al"}
+            </Button>
+          </div>
+          <div className="surface-card divide-y overflow-hidden">
+            {inbox.length === 0 ? (
+              <p className="p-4 text-sm text-muted-foreground">Henüz gelen fatura kaydı yok.</p>
+            ) : (
+              inbox.map((row) => (
+                <div key={row.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
+                  <FileCheck2 className="size-4 text-muted-foreground" />
+                  <span className="font-medium">{row.document_number ?? row.ettn}</span>
+                  <span className="text-muted-foreground">{row.sender_title ?? row.sender_tax_id ?? "—"}</span>
+                  <span className="text-muted-foreground">
+                    {row.payable_amount !== null ? `${row.payable_amount} ${row.currency ?? ""}` : ""}
+                  </span>
+                  <span className="text-muted-foreground">{row.document_date ?? ""}</span>
+                  <div className="ml-auto flex flex-wrap items-center gap-2">
+                    {(["PDF", "UBL"] as const).map((format) => (
+                      <Button
+                        key={format}
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        disabled={inboxDownload.isPending}
+                        onClick={() => inboxDownload.mutate({ ettn: row.ettn, format })}
+                      >
+                        <Download className="mr-2 size-4" />
+                        {format}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               ))
             )}
