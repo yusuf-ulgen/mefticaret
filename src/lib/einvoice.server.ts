@@ -238,28 +238,55 @@ async function serviceCall(settings: SettingsRow, body: string) {
   return result;
 }
 
+/** `kayitZamani` (YYYYAAGGSSDDss) değerini Date'e çevirir. */
+function parseKayitZamani(raw: string | null): Date | null {
+  if (!raw) return null;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length < 8) return null;
+  const iso = `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}T${
+    digits.slice(8, 10) || "00"
+  }:${digits.slice(10, 12) || "00"}:${digits.slice(12, 14) || "00"}Z`;
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 /**
  * Akışın ilk adımı: alıcı e-fatura mükellefi mi?
- * `efaturaKullaniciListesi` (tekil sorgulama) çağrılır; kayıt dönerse alıcı
- * e-Fatura mükellefidir ve belge e-Fatura olarak düzenlenir, aksi hâlde e-Arşiv.
+ * `efaturaKullaniciBilgisi` çağrılır; dönen `etiket`, `unvan`, `kayitZamani` ve
+ * `kamuKurulusu` alanları okunur. Kayıt zamanından önceki bir tarihe e-Fatura
+ * düzenlenemez; bu durumda belge e-Arşiv olarak düzenlenir.
  */
-export async function checkRecipient(taxId: string) {
+export async function checkRecipient(taxId: string, issueDate?: string | null) {
   const settings = await loadSettingsRow();
   const operation = settings.check_user_operation;
   const result = await serviceCall(
     settings,
-    `<ser:${operation}><vknTckn>${taxId}</vknTckn></ser:${operation}>`,
+    `<ser:${operation}><vergiTcKimlikNo>${taxId}</vergiTcKimlikNo></ser:${operation}>`,
   );
 
   const alias = readTag(result.xml, "etiket") ?? readTag(result.xml, "alias") ?? readTag(result.xml, "gbEtiketi");
   const title = readTag(result.xml, "unvan") ?? readTag(result.xml, "title");
+  const registeredAtRaw = readTag(result.xml, "kayitZamani");
+  const registeredAt = parseKayitZamani(registeredAtRaw);
+  const publicInstitution = (readTag(result.xml, "kamuKurulusu") ?? "").toLowerCase() === "true";
   const registered = Boolean(alias) || /<(?:[a-zA-Z0-9_-]+:)?return[\s>]/i.test(result.xml);
+
+  // Fatura tarihi mükellefin kayıt tarihinden önceyse e-Fatura düzenlenemez.
+  const issued = issueDate ? new Date(issueDate) : null;
+  const beforeRegistration = Boolean(
+    registered && registeredAt && issued && !Number.isNaN(issued.getTime()) && issued < registeredAt,
+  );
 
   return {
     registered,
-    profile: (registered ? "TEMELFATURA" : "EARSIVFATURA") as "TEMELFATURA" | "EARSIVFATURA",
+    beforeRegistration,
+    publicInstitution,
+    profile: (registered && !beforeRegistration ? "TEMELFATURA" : "EARSIVFATURA") as
+      | "TEMELFATURA"
+      | "EARSIVFATURA",
     ...(alias ? { alias } : {}),
     ...(title ? { title } : {}),
+    ...(registeredAt ? { registeredAt: registeredAt.toISOString() } : {}),
   };
 }
 
