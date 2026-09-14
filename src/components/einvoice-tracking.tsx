@@ -38,7 +38,7 @@ export type InboxDoc = {
 
 type StageState = "done" | "active" | "error" | "idle";
 
-type Stage = { label: string; state: StageState; hint?: string };
+type Stage = { label: string; state: StageState; hint?: string | undefined };
 
 /** Belgenin servis yanıtlarına göre 5 aşamalı akış durumu. */
 export function outgoingStages(doc: OutgoingDoc): Stage[] {
