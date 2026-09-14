@@ -197,9 +197,9 @@ export async function loadCommissions(currency: "TRY" | "USD" | "EUR") {
       }),
     ),
   ]);
-  return { commissions, installments } as {
-    commissions: Record<string, unknown>;
-    installments: Record<string, unknown>;
+  return {
+    commissions: JSON.stringify(commissions, null, 2),
+    installments: JSON.stringify(installments, null, 2),
   };
 }
 
