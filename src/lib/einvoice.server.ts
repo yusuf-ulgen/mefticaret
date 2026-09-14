@@ -536,7 +536,10 @@ export async function sendInvoice(input: SendInput, userId: string) {
       document_number: documentNumber,
       ettn,
       status: "queued",
-      operation: settings.send_operation,
+      operation: profile === "EARSIVFATURA" && settings.earsiv_service_url
+        ? settings.earsiv_operation
+        : settings.send_operation,
+      document_kind: profile === "EARSIVFATURA" && settings.earsiv_service_url ? "earsiv" : "efatura",
       request_summary: { profile, recipientRegistered, total, currency, bytes: xml.length },
       created_by: userId,
     })
