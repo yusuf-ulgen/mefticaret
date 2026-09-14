@@ -292,28 +292,52 @@ export async function checkRecipient(taxId: string, issueDate?: string | null) {
   };
 }
 
+/** `durum`: 1 Alındı, 2 İşleme hatası, 3 İşlendi. */
 const DURUM_LABEL: Record<number, string> = {
-  1: "Alındı",
-  2: "Servis tarafından işleniyor",
-  3: "Şema/şematron hatası",
+  1: "Alındı (portalde henüz işlenmedi, bir süre sonra yeniden sorgulanmalı)",
+  2: "İşleme hatası (açıklamaya göre düzeltip yeniden gönderin)",
+  3: "İşlendi",
 };
 
-const YANIT_LABEL: Record<number, string> = {
-  [-2]: "Ticari faturanın cevap süresi doldu",
-  [-1]: "Temel fatura (uygulama yanıtı beklenmez)",
-  0: "Ticari fatura: alıcı henüz yanıt vermedi",
-  1: "Ticari fatura: alıcı yanıt verdi",
-  2: "Ticari fatura: alıcı yanıt verdi",
+/** `gonderimDurumu` kodları. */
+const GONDERIM_LABEL: Record<number, string> = {
+  [-2]: "İptal edildi, gönderilmeyecek",
+  [-1]: "GİB gönderim kuyruğuna eklendi",
+  0: "Gönderilemedi, sistem yeniden deneyecek",
+  1: "Gönderilecek",
+  2: "GİB'e gönderildi",
+  3: "GİB merkez yanıtı geldi",
+  4: "Alıcı yanıtı geldi",
 };
+
+/** `yanitDurumu` kodları. */
+const YANIT_LABEL: Record<number, string> = {
+  [-1]: "Temel fatura (yanıt beklenmez)",
+  0: "Ticari fatura: alıcı yanıtı bekleniyor",
+  1: "Alıcı red yanıtı verdi",
+  2: "Alıcı kabul yanıtı verdi",
+};
+
+/** GİB/alıcı gönderim cevabı kodlarının açıklaması. */
+function gonderimCevabiAciklama(code: number): string | null {
+  if (code === 1200 || code === 1300) return "Fatura alıcıya ulaştı";
+  if (code === 1210) return "GİB alıcıya iletmeye çalışıyor, tekrar denenecek";
+  if (code === 1215) return "GİB alıcıya iletemedi, belge yeniden gönderilebilir";
+  if (code === 1220) return "GİB alıcıya iletti, sistem yanıtı bekleniyor";
+  if (code === 1230) return "Alıcı sistem yanıtı başarısız, belge yeniden gönderilebilir";
+  if (code > 1100 && code < 1200) return "Gönderimde hata; cevap detayını kontrol edin";
+  return null;
+}
 
 /**
  * Akışın son adımı: `gidenBelgeDurumSorgulaExt` ile belge durumu sorgulanır.
- * `ulastiMi` alanı true ise fatura alıcıya ulaşmıştır; ticari faturalarda
- * `yanitDurum` / `yanitDurumKodu` alanları kabul/ret bilgisini taşır.
+ * Sorgulama önce `belgeOid` ("OID"), yoksa yerel belge numarası ("YEREL") ile
+ * yapılır; ETTN ile sorgulama yalnız "İşlendi" durumunda çalıştığı için kullanılmaz.
  */
 export async function queryDocumentStatus(documentId: string, userId: string) {
   const client = await db();
   const settings = await loadSettingsRow();
+  if (!settings.sender_tax_id) throw new Error("Gönderici vergi kimlik numarası tanımlı değil");
 
   const { data: doc, error } = await client
     .from("einvoice_documents")
@@ -324,10 +348,15 @@ export async function queryDocumentStatus(documentId: string, userId: string) {
   if (!doc) throw new Error("Gönderim kaydı bulunamadı");
 
   const operation = settings.status_operation;
-  const selector = doc.belge_oid
-    ? `<belgeOid>${doc.belge_oid}</belgeOid>`
-    : `<yerelBelgeNo>${doc.document_number ?? ""}</yerelBelgeNo>`;
-  const result = await serviceCall(settings, `<ser:${operation}>${selector}</ser:${operation}>`);
+  const belgeNo = doc.belge_oid ?? doc.document_number ?? "";
+  const belgeNoTipi = doc.belge_oid ? "OID" : "YEREL";
+  const result = await serviceCall(
+    settings,
+    `<ser:${operation}><vergiTcKimlikNo>${settings.sender_tax_id}</vergiTcKimlikNo><parametreler>` +
+      `<belgeNo>${belgeNo}</belgeNo><belgeNoTipi>${belgeNoTipi}</belgeNoTipi>` +
+      `<belgeTuru>FATURA_UBL</belgeTuru><donusTipiVersiyon>6.0</donusTipiVersiyon>` +
+      `</parametreler></ser:${operation}>`,
+  );
 
   const num = (name: string) => {
     const raw = readTag(result.xml, name);
@@ -338,23 +367,32 @@ export async function queryDocumentStatus(documentId: string, userId: string) {
 
   const ulastiMi = (readTag(result.xml, "ulastiMi") ?? "").toLowerCase() === "true";
   const durum = num("durum");
-  const yanitDurum = num("yanitDurum");
-  const yanitDurumKodu = num("yanitDurumKodu");
+  const gonderimDurumu = num("gonderimDurumu");
+  const gonderimCevabiKodu = num("gonderimCevabiKodu");
+  const gonderimCevabiDetayi = readTag(result.xml, "gonderimCevabiDetayi");
+  const yanitDurum = num("yanitDurumu") ?? num("yanitDurum");
+  const yanitDetayi = readTag(result.xml, "yanitDetayi") ?? readTag(result.xml, "yanitDetay");
   const aciklama = readTag(result.xml, "aciklama");
   const resendable = (readTag(result.xml, "yenidenGonderilebilirMi") ?? "").toLowerCase() === "true";
+  const belgeOid = readTag(result.xml, "yerelBelgeOid");
 
   const parts: string[] = [];
   if (durum !== null) parts.push(DURUM_LABEL[durum] ?? `Durum kodu ${durum}`);
-  if (ulastiMi) parts.push("Fatura alıcıya iletildi");
-  else if (durum === 3) parts.push("Şema/şematron kontrolünden geçemedi, düzeltip yeniden gönderin");
-  else parts.push("Belirli aralıklarla yeniden sorgulanmalı");
+  if (gonderimDurumu !== null) {
+    parts.push(GONDERIM_LABEL[gonderimDurumu] ?? `Gönderim durumu ${gonderimDurumu}`);
+  }
+  if (gonderimCevabiKodu !== null && gonderimCevabiKodu !== 0) {
+    const label = gonderimCevabiAciklama(gonderimCevabiKodu);
+    parts.push(label ? `${label} (kod ${gonderimCevabiKodu})` : `Cevap kodu ${gonderimCevabiKodu}`);
+  }
+  if (ulastiMi) parts.push("Fatura alıcıya iletildi, yeniden sorgulama gerekmiyor");
   if (yanitDurum !== null) parts.push(YANIT_LABEL[yanitDurum] ?? `Yanıt durumu ${yanitDurum}`);
-  if (yanitDurumKodu === 1) parts.push("Fatura kabul edildi");
-  if (yanitDurumKodu === 2) parts.push("Fatura reddedildi");
+  if (gonderimCevabiDetayi) parts.push(gonderimCevabiDetayi.slice(0, 300));
+  if (yanitDetayi) parts.push(yanitDetayi.slice(0, 300));
   if (aciklama) parts.push(aciklama.slice(0, 300));
 
   const detail = parts.join(" · ");
-  const failed = durum === 3 || yanitDurumKodu === 2;
+  const failed = durum === 2 || yanitDurum === 1 || gonderimDurumu === -2;
 
   await client
     .from("einvoice_documents")
@@ -362,10 +400,11 @@ export async function queryDocumentStatus(documentId: string, userId: string) {
       ulasti_mi: ulastiMi,
       durum_kodu: durum,
       yanit_durum: yanitDurum,
-      yanit_durum_kodu: yanitDurumKodu,
+      yanit_durum_kodu: gonderimCevabiKodu,
       service_message: detail.slice(0, 800),
       resendable,
       last_checked_at: new Date().toISOString(),
+      ...(belgeOid && !doc.belge_oid ? { belge_oid: belgeOid } : {}),
       ...(failed ? { status: "failed", error_message: detail.slice(0, 800) } : {}),
     })
     .eq("id", doc.id);
@@ -375,10 +414,19 @@ export async function queryDocumentStatus(documentId: string, userId: string) {
     actorId: userId,
     entity: "einvoice_documents",
     entityId: doc.id,
-    newValue: { ulastiMi, durum, yanitDurum, yanitDurumKodu },
+    newValue: { ulastiMi, durum, gonderimDurumu, gonderimCevabiKodu, yanitDurum },
   });
 
-  return { ok: true as const, detail, ulastiMi, durum, yanitDurum, yanitDurumKodu, resendable };
+  return {
+    ok: true as const,
+    detail,
+    ulastiMi,
+    durum,
+    gonderimDurumu,
+    gonderimCevabiKodu,
+    yanitDurum,
+    resendable,
+  };
 }
 
 
