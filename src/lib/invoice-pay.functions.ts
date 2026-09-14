@@ -52,24 +52,20 @@ export const getInvoiceByToken = createServerFn({ method: "GET" })
       storeName: store?.name ?? "Mağaza",
       storeId: store?.id ?? invoice.store_id,
       storeStatus: String(store?.status ?? "active"),
-      cardPaymentEnabled: isOdealConfigured(),
+      cardPaymentEnabled: await cardPaymentAvailable(),
     };
   });
 
-/** Fatura için Ödeal üzerinden tek kullanımlık kart ödeme linki oluşturur. */
+/** Fatura için QNBpay üzerinden tek kullanımlık kart ödeme bağlantısı oluşturur. */
 export const startInvoiceCardPayment = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z.object({ token: z.string().min(16).max(64).regex(/^[a-f0-9]+$/) }).parse(data),
   )
   .handler(async ({ data }): Promise<{ checkoutUrl: string }> => {
-    const [{ supabaseAdmin }, odeal] = await Promise.all([
+    const [{ supabaseAdmin }, qnbpay] = await Promise.all([
       import("@/integrations/supabase/client.server"),
-      import("@/lib/odeal.server"),
+      import("@/lib/qnbpay-admin.server"),
     ]);
-
-    if (!odeal.isOdealConfigured()) {
-      throw new Error("Kart ile ödeme şu anda kullanılamıyor.");
-    }
 
     const { data: invoice, error } = await supabaseAdmin
       .from("invoices")
@@ -89,28 +85,14 @@ export const startInvoiceCardPayment = createServerFn({ method: "POST" })
       .eq("id", invoice.store_id)
       .maybeSingle();
 
-    const externalId = `${invoice.invoice_number}-${Date.now().toString(36)}`;
-    const created = await odeal.createPayByLink({
-      amount,
-      externalId,
-      currency: invoice.currency ?? "TRY",
-      buyerName: store?.name ?? null,
-    });
-
-
-    await supabaseAdmin.from("invoice_payments").insert({
-      invoice_id: invoice.id,
-      store_id: invoice.store_id,
-      provider: "odeal",
-      environment: odeal.odealEnvironment(),
-      external_id: externalId,
-      provider_payment_id: created.paymentId,
-      status: "PENDING",
+    const created = await qnbpay.createInvoiceCheckout({
+      invoiceId: invoice.id,
+      storeId: invoice.store_id,
       amount,
       currency: invoice.currency ?? "TRY",
-      checkout_url: created.checkoutUrl,
+      invoiceNumber: invoice.invoice_number,
+      buyerName: store?.name ?? "Mefticaret Musteri",
     });
 
-    return { checkoutUrl: created.checkoutUrl };
+    return { checkoutUrl: created.link };
   });
-
