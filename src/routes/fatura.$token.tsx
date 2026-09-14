@@ -138,7 +138,7 @@ function InvoicePayPage() {
                     <p className="text-center text-xs text-destructive">{payError}</p>
                   ) : (
                     <p className="text-center text-xs text-muted-foreground">
-                      Ödeme, Ödeal güvenli 3D Secure sayfasında tamamlanır; kart bilgileriniz
+                      Ödeme, QNBpay güvenli 3D Secure sayfasında tamamlanır; kart bilgileriniz
                       Mefticaret sunucularına iletilmez.
                     </p>
                   )}

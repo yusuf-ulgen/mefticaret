@@ -138,6 +138,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { to: "/admin/commissions", label: "Komisyonlar", icon: Activity, hint: "Satıcı komisyonları", keywords: "komisyon satıcı" },
       { to: "/admin/finance", label: "Finans Merkezi", icon: Wallet, hint: "Ciro ve bakiye", keywords: "finans ciro" },
       {
+        to: "/admin/qnbpay",
+        label: "QNBpay POS",
+        icon: CreditCard,
+        hint: "Sanal POS, fiyatlar ve tahsilat",
+        keywords: "qnbpay pos sanal kart tahsilat taksit komisyon iade webhook ödeme linki fiyat",
+      },
+      {
         to: "/admin/einvoice",
         label: "E-Fatura (QNB)",
         icon: FileText,
