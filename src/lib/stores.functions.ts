@@ -311,6 +311,23 @@ export const addStoreDomain = createServerFn({ method: "POST" })
       throw new Error("Platform alan adları için 'Alt alan adı ekle' bölümünü kullanın");
     }
 
+    // Paket alan adı kotası veritabanındaki plan_features üzerinden zorlanır.
+    const { requirePlanQuota } = await import("@/lib/entitlements.server");
+    await requirePlanQuota(
+      supabase as never,
+      data.storeId,
+      "domains",
+      async () => {
+        const { count } = await supabase
+          .from("store_domains")
+          .select("id", { count: "exact", head: true })
+          .eq("store_id", data.storeId)
+          .eq("type", "custom");
+        return count ?? 0;
+      },
+      "Paket alan adı",
+    );
+
     const hostnames: string[] = [host];
     if (data.includeWww && isApexDomain(host)) hostnames.push(`www.${host}`);
 
