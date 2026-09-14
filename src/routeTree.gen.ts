@@ -64,6 +64,7 @@ import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin.payments'
 import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
 import { Route as AuthenticatedAdminPushRouteImport } from './routes/_authenticated/admin.push'
+import { Route as AuthenticatedAdminQnbpayRouteImport } from './routes/_authenticated/admin.qnbpay'
 import { Route as AuthenticatedAdminSecurityRouteImport } from './routes/_authenticated/admin.security'
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin.sellers'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin.seo'
@@ -251,6 +252,8 @@ import { Route as ApiPublicMobileAppStoreSlugRouteImport } from './routes/api/pu
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments.webhook'
+import { Route as ApiPublicQnbpayRefundWebhookRouteImport } from './routes/api/public/qnbpay.refund-webhook'
+import { Route as ApiPublicQnbpaySaleWebhookRouteImport } from './routes/api/public/qnbpay.sale-webhook'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
 import { Route as ApiPublicRssSlugRouteImport } from './routes/api/public/rss.$slug'
 import { Route as ApiPublicSitemapSlugRouteImport } from './routes/api/public/sitemap.$slug'
@@ -557,6 +560,12 @@ const AuthenticatedAdminPushRoute = AuthenticatedAdminPushRouteImport.update({
   path: '/push',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminQnbpayRoute =
+  AuthenticatedAdminQnbpayRouteImport.update({
+    id: '/qnbpay',
+    path: '/qnbpay',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSecurityRoute =
   AuthenticatedAdminSecurityRouteImport.update({
     id: '/security',
@@ -1645,6 +1654,18 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicQnbpayRefundWebhookRoute =
+  ApiPublicQnbpayRefundWebhookRouteImport.update({
+    id: '/api/public/qnbpay/refund-webhook',
+    path: '/api/public/qnbpay/refund-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicQnbpaySaleWebhookRoute =
+  ApiPublicQnbpaySaleWebhookRouteImport.update({
+    id: '/api/public/qnbpay/sale-webhook',
+    path: '/api/public/qnbpay/sale-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicRobotsSlugRoute = ApiPublicRobotsSlugRouteImport.update({
   id: '/api/public/robots/$slug',
   path: '/api/public/robots/$slug',
@@ -1793,6 +1814,7 @@ export interface FileRoutesByFullPath {
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/push': typeof AuthenticatedAdminPushRoute
+  '/admin/qnbpay': typeof AuthenticatedAdminQnbpayRoute
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -1980,6 +2002,8 @@ export interface FileRoutesByFullPath {
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
+  '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -2052,6 +2076,7 @@ export interface FileRoutesByTo {
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/push': typeof AuthenticatedAdminPushRoute
+  '/admin/qnbpay': typeof AuthenticatedAdminQnbpayRoute
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -2238,6 +2263,8 @@ export interface FileRoutesByTo {
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
+  '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -2313,6 +2340,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/push': typeof AuthenticatedAdminPushRoute
+  '/_authenticated/admin/qnbpay': typeof AuthenticatedAdminQnbpayRoute
   '/_authenticated/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -2500,6 +2528,8 @@ export interface FileRoutesById {
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
+  '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
   '/api/public/rss/$slug': typeof ApiPublicRssSlugRoute
   '/api/public/sitemap/$slug': typeof ApiPublicSitemapSlugRoute
@@ -2575,6 +2605,7 @@ export interface FileRouteTypes {
     | '/admin/payments'
     | '/admin/plans'
     | '/admin/push'
+    | '/admin/qnbpay'
     | '/admin/security'
     | '/admin/sellers'
     | '/admin/seo'
@@ -2762,6 +2793,8 @@ export interface FileRouteTypes {
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/payments/webhook'
+    | '/api/public/qnbpay/refund-webhook'
+    | '/api/public/qnbpay/sale-webhook'
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
@@ -2834,6 +2867,7 @@ export interface FileRouteTypes {
     | '/admin/payments'
     | '/admin/plans'
     | '/admin/push'
+    | '/admin/qnbpay'
     | '/admin/security'
     | '/admin/sellers'
     | '/admin/seo'
@@ -3020,6 +3054,8 @@ export interface FileRouteTypes {
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/payments/webhook'
+    | '/api/public/qnbpay/refund-webhook'
+    | '/api/public/qnbpay/sale-webhook'
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
@@ -3094,6 +3130,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/payments'
     | '/_authenticated/admin/plans'
     | '/_authenticated/admin/push'
+    | '/_authenticated/admin/qnbpay'
     | '/_authenticated/admin/security'
     | '/_authenticated/admin/sellers'
     | '/_authenticated/admin/seo'
@@ -3281,6 +3318,8 @@ export interface FileRouteTypes {
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
     | '/api/public/payments/webhook'
+    | '/api/public/qnbpay/refund-webhook'
+    | '/api/public/qnbpay/sale-webhook'
     | '/api/public/robots/$slug'
     | '/api/public/rss/$slug'
     | '/api/public/sitemap/$slug'
@@ -3372,6 +3411,8 @@ export interface RootRouteChildren {
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicQnbpayRefundWebhookRoute: typeof ApiPublicQnbpayRefundWebhookRoute
+  ApiPublicQnbpaySaleWebhookRoute: typeof ApiPublicQnbpaySaleWebhookRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
   ApiPublicRssSlugRoute: typeof ApiPublicRssSlugRoute
   ApiPublicSitemapSlugRoute: typeof ApiPublicSitemapSlugRoute
@@ -3770,6 +3811,13 @@ declare module '@tanstack/react-router' {
       path: '/push'
       fullPath: '/admin/push'
       preLoaderRoute: typeof AuthenticatedAdminPushRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/qnbpay': {
+      id: '/_authenticated/admin/qnbpay'
+      path: '/qnbpay'
+      fullPath: '/admin/qnbpay'
+      preLoaderRoute: typeof AuthenticatedAdminQnbpayRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/security': {
@@ -5081,6 +5129,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/qnbpay/refund-webhook': {
+      id: '/api/public/qnbpay/refund-webhook'
+      path: '/api/public/qnbpay/refund-webhook'
+      fullPath: '/api/public/qnbpay/refund-webhook'
+      preLoaderRoute: typeof ApiPublicQnbpayRefundWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/qnbpay/sale-webhook': {
+      id: '/api/public/qnbpay/sale-webhook'
+      path: '/api/public/qnbpay/sale-webhook'
+      fullPath: '/api/public/qnbpay/sale-webhook'
+      preLoaderRoute: typeof ApiPublicQnbpaySaleWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/robots/$slug': {
       id: '/api/public/robots/$slug'
       path: '/api/public/robots/$slug'
@@ -5226,6 +5288,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
   AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminPushRoute: typeof AuthenticatedAdminPushRoute
+  AuthenticatedAdminQnbpayRoute: typeof AuthenticatedAdminQnbpayRoute
   AuthenticatedAdminSecurityRoute: typeof AuthenticatedAdminSecurityRoute
   AuthenticatedAdminSellersRoute: typeof AuthenticatedAdminSellersRoute
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
@@ -5275,6 +5338,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
   AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminPushRoute: AuthenticatedAdminPushRoute,
+  AuthenticatedAdminQnbpayRoute: AuthenticatedAdminQnbpayRoute,
   AuthenticatedAdminSecurityRoute: AuthenticatedAdminSecurityRoute,
   AuthenticatedAdminSellersRoute: AuthenticatedAdminSellersRoute,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
@@ -5792,6 +5856,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicQnbpayRefundWebhookRoute: ApiPublicQnbpayRefundWebhookRoute,
+  ApiPublicQnbpaySaleWebhookRoute: ApiPublicQnbpaySaleWebhookRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
   ApiPublicRssSlugRoute: ApiPublicRssSlugRoute,
   ApiPublicSitemapSlugRoute: ApiPublicSitemapSlugRoute,
