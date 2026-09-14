@@ -623,11 +623,16 @@ function AdminEinvoicePage() {
                       Durum sorgula
                     </Button>
                   </div>
+                  <div className="w-full border-t pt-3">
+                    <EinvoiceFlow stages={outgoingStages(doc)} />
+                  </div>
                   {doc.service_message ? (
                     <span className="w-full text-xs text-muted-foreground">{doc.service_message}</span>
                   ) : null}
                   {doc.error_message ? (
-                    <span className="w-full text-xs text-destructive">{doc.error_message}</span>
+                    <span className="w-full rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">
+                      {doc.error_message}
+                    </span>
                   ) : null}
                 </div>
               ))
