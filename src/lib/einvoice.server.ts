@@ -11,7 +11,14 @@ import { createHash } from "node:crypto";
 import type { SendInput, SettingsInput } from "./einvoice-schemas";
 
 import { buildUblInvoice, type UblLine } from "./einvoice-ubl.server";
-import { postSoap, readTag, readSoapCredentials, soapLogin } from "./einvoice-soap.server";
+import {
+  escapeXml,
+  postSoap,
+  readSoapCredentials,
+  readTag,
+  readTags,
+  soapLogin,
+} from "./einvoice-soap.server";
 import { recordAudit } from "./audit.server";
 
 export type { SettingsInput, SendInput } from "./einvoice-schemas";
