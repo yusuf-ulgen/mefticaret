@@ -83,6 +83,9 @@ function AdminEinvoicePage() {
   const sendFn = useServerFn(sendEinvoiceDocument);
   const checkFn = useServerFn(checkEinvoiceRecipient);
   const statusFn = useServerFn(queryEinvoiceStatus);
+  const downloadFn = useServerFn(downloadEinvoiceDocument);
+  const syncFn = useServerFn(syncEinvoiceInbox);
+  const inboxDownloadFn = useServerFn(downloadEinvoiceInboxDocument);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-einvoice"],
