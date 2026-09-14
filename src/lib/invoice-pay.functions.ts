@@ -39,7 +39,7 @@ export const getInvoiceByToken = createServerFn({ method: "GET" })
       .eq("id", invoice.store_id)
       .maybeSingle();
 
-    const { isOdealConfigured } = await import("@/lib/odeal.server");
+    const { cardPaymentAvailable } = await import("@/lib/qnbpay-admin.server");
 
     return {
       invoiceNumber: invoice.invoice_number,

@@ -64,6 +64,7 @@ import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin.payments'
 import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
 import { Route as AuthenticatedAdminPushRouteImport } from './routes/_authenticated/admin.push'
+import { Route as AuthenticatedAdminQnbpayRouteImport } from './routes/_authenticated/admin.qnbpay'
 import { Route as AuthenticatedAdminSecurityRouteImport } from './routes/_authenticated/admin.security'
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin.sellers'
 import { Route as AuthenticatedAdminSeoRouteImport } from './routes/_authenticated/admin.seo'
@@ -559,6 +560,12 @@ const AuthenticatedAdminPushRoute = AuthenticatedAdminPushRouteImport.update({
   path: '/push',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminQnbpayRoute =
+  AuthenticatedAdminQnbpayRouteImport.update({
+    id: '/qnbpay',
+    path: '/qnbpay',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSecurityRoute =
   AuthenticatedAdminSecurityRouteImport.update({
     id: '/security',
@@ -1807,6 +1814,7 @@ export interface FileRoutesByFullPath {
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/push': typeof AuthenticatedAdminPushRoute
+  '/admin/qnbpay': typeof AuthenticatedAdminQnbpayRoute
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -2068,6 +2076,7 @@ export interface FileRoutesByTo {
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/push': typeof AuthenticatedAdminPushRoute
+  '/admin/qnbpay': typeof AuthenticatedAdminQnbpayRoute
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -2331,6 +2340,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/push': typeof AuthenticatedAdminPushRoute
+  '/_authenticated/admin/qnbpay': typeof AuthenticatedAdminQnbpayRoute
   '/_authenticated/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/_authenticated/admin/seo': typeof AuthenticatedAdminSeoRoute
@@ -2595,6 +2605,7 @@ export interface FileRouteTypes {
     | '/admin/payments'
     | '/admin/plans'
     | '/admin/push'
+    | '/admin/qnbpay'
     | '/admin/security'
     | '/admin/sellers'
     | '/admin/seo'
@@ -2856,6 +2867,7 @@ export interface FileRouteTypes {
     | '/admin/payments'
     | '/admin/plans'
     | '/admin/push'
+    | '/admin/qnbpay'
     | '/admin/security'
     | '/admin/sellers'
     | '/admin/seo'
@@ -3118,6 +3130,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/payments'
     | '/_authenticated/admin/plans'
     | '/_authenticated/admin/push'
+    | '/_authenticated/admin/qnbpay'
     | '/_authenticated/admin/security'
     | '/_authenticated/admin/sellers'
     | '/_authenticated/admin/seo'
@@ -3798,6 +3811,13 @@ declare module '@tanstack/react-router' {
       path: '/push'
       fullPath: '/admin/push'
       preLoaderRoute: typeof AuthenticatedAdminPushRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/qnbpay': {
+      id: '/_authenticated/admin/qnbpay'
+      path: '/qnbpay'
+      fullPath: '/admin/qnbpay'
+      preLoaderRoute: typeof AuthenticatedAdminQnbpayRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/security': {
@@ -5268,6 +5288,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
   AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminPushRoute: typeof AuthenticatedAdminPushRoute
+  AuthenticatedAdminQnbpayRoute: typeof AuthenticatedAdminQnbpayRoute
   AuthenticatedAdminSecurityRoute: typeof AuthenticatedAdminSecurityRoute
   AuthenticatedAdminSellersRoute: typeof AuthenticatedAdminSellersRoute
   AuthenticatedAdminSeoRoute: typeof AuthenticatedAdminSeoRoute
@@ -5317,6 +5338,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
   AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminPushRoute: AuthenticatedAdminPushRoute,
+  AuthenticatedAdminQnbpayRoute: AuthenticatedAdminQnbpayRoute,
   AuthenticatedAdminSecurityRoute: AuthenticatedAdminSecurityRoute,
   AuthenticatedAdminSellersRoute: AuthenticatedAdminSellersRoute,
   AuthenticatedAdminSeoRoute: AuthenticatedAdminSeoRoute,
