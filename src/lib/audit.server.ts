@@ -34,7 +34,17 @@ export function requestIp(request: Request): string | null {
  * eski/yeni değerleri birlikte saklar. Audit yazımı asıl işlemi bozmamalıdır,
  * bu yüzden hatalar yalnızca loglanır.
  */
-export async function recordAudit(client: unknown, entry: AuditEntry): Promise<void> {
+/**
+ * Denetim kayıtları yalnızca sunucu tarafında yazılır: istemci token'ıyla
+ * gelen client yok sayılır ve kayıt service-role bağlantısıyla atılır.
+ * Böylece istemciden uydurma audit satırı eklenemez.
+ */
+async function auditClient(): Promise<MinimalClient> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin as unknown as MinimalClient;
+}
+
+export async function recordAudit(_client: unknown, entry: AuditEntry): Promise<void> {
   let ip: string | null = null;
   let userAgent: string | null = null;
   try {
