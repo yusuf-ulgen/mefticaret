@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LayoutGrid, Search, Star } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { AppShell } from "@/components/app-shell";
 import { Input } from "@/components/ui/input";
@@ -28,28 +28,31 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/panels")({
   component: PanelsPage,
 });
 
-const FAV_KEY = "mefti.panel.favs";
+/** Favoriler mağaza bazında saklanır; farklı mağazalar birbirinin favorisini görmez. */
+const favKey = (storeId: string) => `mefti.panel.favs.${storeId}`;
 
 function PanelsPage() {
   const { storeId } = Route.useParams();
   const sections = useMemo(() => panelSections(storeId), [storeId]);
   const [term, setTerm] = useState("");
   const [active, setActive] = useState<string>("all");
-  const [favs, setFavs] = useState<string[]>(() => {
-    if (typeof window === "undefined") return [];
+  const [favs, setFavs] = useState<string[]>([]);
+
+  // Hidrasyon uyuşmazlığı olmaması için depolama render sonrası okunur.
+  useEffect(() => {
     try {
-      const raw = window.localStorage.getItem(FAV_KEY);
-      return raw ? (JSON.parse(raw) as string[]) : [];
+      const raw = window.localStorage.getItem(favKey(storeId));
+      setFavs(raw ? (JSON.parse(raw) as string[]) : []);
     } catch {
-      return [];
+      setFavs([]);
     }
-  });
+  }, [storeId]);
 
   const toggleFav = (to: string) =>
     setFavs((prev) => {
       const next = prev.includes(to) ? prev.filter((x) => x !== to) : [...prev, to];
       try {
-        window.localStorage.setItem(FAV_KEY, JSON.stringify(next));
+        window.localStorage.setItem(favKey(storeId), JSON.stringify(next));
       } catch {
         /* depolama kapalıysa yoksay */
       }
