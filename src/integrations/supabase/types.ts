@@ -7049,6 +7049,51 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_charge_items: {
+        Row: {
+          code: string
+          commission_rate: number
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          is_active: boolean
+          kind: string
+          name: string
+          price: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          commission_rate?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          name: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          commission_rate?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          name?: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_contact_messages: {
         Row: {
           created_at: string
@@ -8682,6 +8727,251 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qnbpay_refunds: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          ref_no: string | null
+          response_summary: Json
+          status: string
+          status_code: number | null
+          status_description: string | null
+          transaction_id: string
+          updated_at: string
+          webhook_payload: Json | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          ref_no?: string | null
+          response_summary?: Json
+          status?: string
+          status_code?: number | null
+          status_description?: string | null
+          transaction_id: string
+          updated_at?: string
+          webhook_payload?: Json | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          ref_no?: string | null
+          response_summary?: Json
+          status?: string
+          status_code?: number | null
+          status_description?: string | null
+          transaction_id?: string
+          updated_at?: string
+          webhook_payload?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qnbpay_refunds_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "qnbpay_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qnbpay_settings: {
+        Row: {
+          created_at: string
+          currency_code: string
+          environment: string
+          force_3d: boolean
+          id: string
+          is_commission_from_user: boolean
+          is_enabled: boolean
+          live_app_id: string
+          live_merchant_key: string
+          max_installments: number
+          payment_completed_by: string
+          refund_webhook_key: string | null
+          return_origin: string | null
+          sale_webhook_key: string | null
+          selected_installments: number[]
+          test_app_id: string
+          test_merchant_key: string
+          transaction_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency_code?: string
+          environment?: string
+          force_3d?: boolean
+          id?: string
+          is_commission_from_user?: boolean
+          is_enabled?: boolean
+          live_app_id?: string
+          live_merchant_key?: string
+          max_installments?: number
+          payment_completed_by?: string
+          refund_webhook_key?: string | null
+          return_origin?: string | null
+          sale_webhook_key?: string | null
+          selected_installments?: number[]
+          test_app_id?: string
+          test_merchant_key?: string
+          transaction_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency_code?: string
+          environment?: string
+          force_3d?: boolean
+          id?: string
+          is_commission_from_user?: boolean
+          is_enabled?: boolean
+          live_app_id?: string
+          live_merchant_key?: string
+          max_installments?: number
+          payment_completed_by?: string
+          refund_webhook_key?: string | null
+          return_origin?: string | null
+          sale_webhook_key?: string | null
+          selected_installments?: number[]
+          test_app_id?: string
+          test_merchant_key?: string
+          transaction_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      qnbpay_transactions: {
+        Row: {
+          amount: number
+          bank_status_code: string | null
+          bank_status_description: string | null
+          charge_item_code: string | null
+          checkout_url: string | null
+          created_at: string
+          credit_card_no: string | null
+          currency: string
+          description: string | null
+          environment: string
+          error_code: string | null
+          error_message: string | null
+          id: string
+          installment: number
+          invoice_id: string | null
+          md_status: number | null
+          merchant_commission: number | null
+          order_id: string | null
+          paid_at: string | null
+          payment_status: number | null
+          purpose: string
+          qnbpay_invoice_id: string
+          refunded_amount: number
+          request_summary: Json
+          response_summary: Json
+          status: string
+          status_code: number | null
+          status_description: string | null
+          store_id: string | null
+          transaction_id: string | null
+          transaction_status: string | null
+          transaction_type: string
+          updated_at: string
+          user_commission: number | null
+          webhook_payload: Json | null
+        }
+        Insert: {
+          amount?: number
+          bank_status_code?: string | null
+          bank_status_description?: string | null
+          charge_item_code?: string | null
+          checkout_url?: string | null
+          created_at?: string
+          credit_card_no?: string | null
+          currency?: string
+          description?: string | null
+          environment?: string
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          installment?: number
+          invoice_id?: string | null
+          md_status?: number | null
+          merchant_commission?: number | null
+          order_id?: string | null
+          paid_at?: string | null
+          payment_status?: number | null
+          purpose?: string
+          qnbpay_invoice_id: string
+          refunded_amount?: number
+          request_summary?: Json
+          response_summary?: Json
+          status?: string
+          status_code?: number | null
+          status_description?: string | null
+          store_id?: string | null
+          transaction_id?: string | null
+          transaction_status?: string | null
+          transaction_type?: string
+          updated_at?: string
+          user_commission?: number | null
+          webhook_payload?: Json | null
+        }
+        Update: {
+          amount?: number
+          bank_status_code?: string | null
+          bank_status_description?: string | null
+          charge_item_code?: string | null
+          checkout_url?: string | null
+          created_at?: string
+          credit_card_no?: string | null
+          currency?: string
+          description?: string | null
+          environment?: string
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          installment?: number
+          invoice_id?: string | null
+          md_status?: number | null
+          merchant_commission?: number | null
+          order_id?: string | null
+          paid_at?: string | null
+          payment_status?: number | null
+          purpose?: string
+          qnbpay_invoice_id?: string
+          refunded_amount?: number
+          request_summary?: Json
+          response_summary?: Json
+          status?: string
+          status_code?: number | null
+          status_description?: string | null
+          store_id?: string | null
+          transaction_id?: string | null
+          transaction_status?: string | null
+          transaction_type?: string
+          updated_at?: string
+          user_commission?: number | null
+          webhook_payload?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qnbpay_transactions_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qnbpay_transactions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]
