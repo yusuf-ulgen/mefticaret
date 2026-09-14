@@ -111,23 +111,18 @@ function BillingPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  // Ücretli paketler gerçek ödeme kasasından geçer; fiyat sunucuda belirlenir.
-  const prepareCheckoutFn = useServerFn(preparePlanCheckout);
-  const { openCheckout } = usePaddleCheckout();
+  // Ücretli paketler QNBpay tahsilat sayfasından geçer; fiyat sunucuda belirlenir.
+  const startPlanPaymentFn = useServerFn(startPlanCardPayment);
   const checkoutMutation = useMutation({
-    mutationFn: async (planId: string) => {
-      const prepared = await prepareCheckoutFn({
-        data: { storeId, planId, billingInterval: interval },
-      });
-      await openCheckout({
-        priceId: prepared.priceId,
-        customData: { storeId, planId },
-        successUrl: `${window.location.origin}/odeme-tamam`,
-      });
-      return prepared;
+    mutationFn: (planId: string) =>
+      startPlanPaymentFn({ data: { storeId, planId, billingInterval: interval } }),
+    onSuccess: (result) => {
+      toast.success(`${result.planName} için ödeme sayfası açılıyor`);
+      window.location.href = result.link;
     },
     onError: (error: Error) => toast.error(error.message),
   });
+
 
   const cancelMutation = useMutation({
     mutationFn: (cancel: boolean) => cancelFn({ data: { storeId, cancel } }),
