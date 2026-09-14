@@ -66,12 +66,12 @@ async function publishedStore(slug: string) {
   const supabase = await admin();
   const { data, error } = await supabase
     .from("stores")
-    .select("id, name, slug, currency, locale, status, published_at, is_demo")
+    .select("id, name, slug, currency, locale, status, published_at")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) return null;
-  const published = data.status === "active" || Boolean(data.published_at) || data.is_demo;
+  const published = data.status === "active" || Boolean(data.published_at);
   if (!published) return null;
   return data;
 }

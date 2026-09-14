@@ -101,12 +101,12 @@ export async function claimStoreAccount(supabase: Client, userId: string, storeI
 
   const { data: store, error: storeError } = await supabaseAdmin
     .from("stores")
-    .select("id, name, slug, status, published_at, is_demo")
+    .select("id, name, slug, status, published_at")
     .eq("id", storeId)
     .maybeSingle();
   if (storeError) throw new Error(storeError.message);
   if (!store) throw new Error("Mağaza bulunamadı.");
-  const published = store.status === "active" || Boolean(store.published_at) || store.is_demo;
+  const published = store.status === "active" || Boolean(store.published_at);
   if (!published) throw new Error("Bu mağaza şu anda üyelik kabul etmiyor.");
 
   // Aynı mağazada zaten bağlı kayıt var mı?

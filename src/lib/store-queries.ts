@@ -60,21 +60,6 @@ export const myStoresQuery = (userId: string | undefined) =>
     },
   });
 
-export const demoStoreQuery = () =>
-  queryOptions({
-    queryKey: ["demo-store"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("stores")
-        .select("*")
-        .eq("is_demo", true)
-        .maybeSingle();
-      if (error) throw error;
-      return data as StoreRow | null;
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-
 export const storeQuery = (storeId: string) =>
   queryOptions({
     queryKey: ["store", storeId],
