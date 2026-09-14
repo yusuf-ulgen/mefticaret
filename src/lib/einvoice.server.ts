@@ -64,7 +64,7 @@ export async function loadOverview() {
   const [documents, invoices] = await Promise.all([
     client
       .from("einvoice_documents")
-      .select("id, invoice_id, store_id, environment, document_number, ettn, status, operation, error_message, sent_at, created_at")
+      .select("id, invoice_id, store_id, environment, document_number, ettn, belge_oid, status, operation, error_message, ulasti_mi, durum_kodu, yanit_durum, yanit_durum_kodu, service_message, last_checked_at, sent_at, created_at")
       .order("created_at", { ascending: false })
       .limit(50),
     client
