@@ -137,6 +137,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { to: "/admin/transactions", label: "İşlemler", icon: Coins, hint: "Muhasebe hareketleri", keywords: "hareket işlem" },
       { to: "/admin/commissions", label: "Komisyonlar", icon: Activity, hint: "Satıcı komisyonları", keywords: "komisyon satıcı" },
       { to: "/admin/finance", label: "Finans Merkezi", icon: Wallet, hint: "Ciro ve bakiye", keywords: "finans ciro" },
+      {
+        to: "/admin/einvoice",
+        label: "E-Fatura (QNB)",
+        icon: FileText,
+        hint: "QNB eSolutions web servisi",
+        keywords: "qnb esolutions e-fatura e-arşiv soap özel entegratör ubl",
+      },
     ],
   },
   {
