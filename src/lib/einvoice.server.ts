@@ -9,8 +9,8 @@
 import { z } from "zod";
 
 import { buildUblInvoice, type UblLine } from "./einvoice-ubl.server";
-import { postSoap, readTag, readSoapCredentialsSafe, soapLogin } from "./einvoice-transport.server";
-import { insertAuditRow } from "./audit.server";
+import { postSoap, readTag, readSoapCredentials, soapLogin } from "./einvoice-soap.server";
+import { recordAudit } from "./audit.server";
 
 export const settingsSchema = z.object({
   environment: z.enum(["test", "live"]),
@@ -106,7 +106,7 @@ export async function loadOverview() {
 
   return {
     settings,
-    credentialsConfigured: readSoapCredentialsSafe() !== null,
+    credentialsConfigured: readSoapCredentials() !== null,
     documents: documents.data ?? [],
     invoices: (invoices.data ?? []).map((row) => ({
       id: row.id,
@@ -148,13 +148,12 @@ export async function saveSettings(input: SettingsInput, userId: string) {
     .eq("id", settings.id);
   if (error) throw new Error(error.message);
 
-  await insertAuditRow({
-    storeId: null,
-    userId,
+  await recordAudit(null, {
     action: "einvoice.settings.updated",
-    entityType: "einvoice_settings",
+    actorId: userId,
+    entity: "einvoice_settings",
     entityId: settings.id,
-    meta: { environment: input.environment, authMode: input.authMode, enabled: input.isEnabled },
+    newValue: { environment: input.environment, authMode: input.authMode, enabled: input.isEnabled },
   });
 
   return { ok: true as const };
@@ -163,7 +162,7 @@ export async function saveSettings(input: SettingsInput, userId: string) {
 /** Bağlantı testi: cookie yönteminde gerçek `wsLogin`, wsse yönteminde servis erişimi. */
 export async function testConnection(userId: string) {
   const settings = await loadSettingsRow();
-  const credentials = readSoapCredentialsSafe();
+  const credentials = readSoapCredentials();
   if (!credentials) {
     throw new Error("QNB kullanıcı adı/şifresi tanımlı değil");
   }
@@ -197,13 +196,12 @@ export async function testConnection(userId: string) {
       : `Servise ulaşıldı (HTTP ${result.status})`;
   }
 
-  await insertAuditRow({
-    storeId: null,
-    userId,
+  await recordAudit(null, {
     action: "einvoice.connection.tested",
-    entityType: "einvoice_settings",
+    actorId: userId,
+    entity: "einvoice_settings",
     entityId: settings.id,
-    meta: { authMode: settings.auth_mode, environment: settings.environment },
+    newValue: { authMode: settings.auth_mode, environment: settings.environment },
   });
 
   return { ok: true as const, detail };
@@ -241,7 +239,7 @@ export async function sendInvoice(input: SendInput, userId: string) {
   if (!settings.sender_tax_id || !settings.sender_title) {
     throw new Error("Gönderici vergi kimlik numarası ve unvanı zorunlu");
   }
-  const credentials = readSoapCredentialsSafe();
+  const credentials = readSoapCredentials();
   if (!credentials) throw new Error("QNB kullanıcı adı/şifresi tanımlı değil");
 
   const { data: invoice, error: invoiceError } = await client
@@ -282,6 +280,7 @@ export async function sendInvoice(input: SendInput, userId: string) {
       title: input.buyerTitle,
       address: input.buyerAddress,
       city: input.buyerCity,
+      country: settings.sender_country,
       ...(input.buyerEmail ? { email: input.buyerEmail } : {}),
     },
     lines: parseLines(invoice.line_items, total, taxTotal, subtotal),
@@ -350,13 +349,13 @@ export async function sendInvoice(input: SendInput, userId: string) {
       })
       .eq("id", doc.id);
 
-    await insertAuditRow({
-      storeId: invoice.store_id,
-      userId,
+    await recordAudit(null, {
       action: "einvoice.invoice.sent",
-      entityType: "einvoice_documents",
+      storeId: invoice.store_id,
+      actorId: userId,
+      entity: "einvoice_documents",
       entityId: doc.id,
-      meta: { documentNumber, ettn, environment: settings.environment },
+      newValue: { documentNumber, ettn, environment: settings.environment },
     });
 
     return { ok: true as const, documentNumber, ettn };
