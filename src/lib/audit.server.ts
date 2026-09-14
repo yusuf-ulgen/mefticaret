@@ -56,7 +56,8 @@ export async function recordAudit(_client: unknown, entry: AuditEntry): Promise<
   }
 
   try {
-    const { error } = await (client as MinimalClient).from("audit_logs").insert({
+    const db = await auditClient();
+    const { error } = await db.from("audit_logs").insert({
       store_id: entry.storeId ?? null,
       actor_id: entry.actorId ?? null,
       action: entry.action,
@@ -78,7 +79,7 @@ export async function recordAudit(_client: unknown, entry: AuditEntry): Promise<
  * IP + user-agent bilgisini ekler. Mevcut çağrı noktaları bu yolu kullanır.
  */
 export async function insertAuditRow(
-  client: unknown,
+  _client: unknown,
   row: Record<string, unknown>,
 ): Promise<void> {
   let ip: string | null = null;
@@ -91,7 +92,8 @@ export async function insertAuditRow(
     // İstek bağlamı yok (cron/worker).
   }
   try {
-    const { error } = await (client as MinimalClient)
+    const db = await auditClient();
+    const { error } = await db
       .from("audit_logs")
       .insert({ ip, user_agent: userAgent, ...row });
     if (error) console.error("audit_logs insert failed", error);
