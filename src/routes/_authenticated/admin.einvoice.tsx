@@ -192,7 +192,41 @@ function AdminEinvoicePage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const download = useMutation({
+    mutationFn: (input: { documentId: string; format: "UBL" | "PDF" | "HTML" }) =>
+      downloadFn({ data: input }),
+    onSuccess: (result) => {
+      saveBase64Zip(result.fileName, result.base64);
+      toast.success("Belge indirildi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const inboxSync = useMutation({
+    mutationFn: () => syncFn({ data: { fromSequence: "" } }),
+    onSuccess: async (result) => {
+      toast.success(
+        result.fetched > 0
+          ? `${result.fetched} gelen fatura alındı (son sıra ${result.lastSequence})`
+          : "Yeni gelen fatura yok",
+      );
+      await invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const inboxDownload = useMutation({
+    mutationFn: (input: { ettn: string; format: "UBL" | "PDF" | "HTML" }) =>
+      inboxDownloadFn({ data: input }),
+    onSuccess: (result) => {
+      saveBase64Zip(result.fileName, result.base64);
+      toast.success("Gelen fatura indirildi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const invoices = useMemo(() => data?.invoices ?? [], [data]);
+  const inbox = useMemo(() => data?.inbox ?? [], [data]);
   const set = <K extends keyof SettingsInput>(key: K, value: SettingsInput[K]) =>
     setForm((prev) => (prev ? { ...prev, [key]: value } : prev));
 
@@ -328,6 +362,57 @@ function AdminEinvoicePage() {
                 <Label>Tekrar gönderim operasyonu</Label>
                 <Input value={form.resendOperation} onChange={(e) => set("resendOperation", e.target.value)} />
               </div>
+              <div className="grid gap-2">
+                <Label>Giden belge indirme operasyonu</Label>
+                <Input value={form.downloadOperation} onChange={(e) => set("downloadOperation", e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>Gelen belge listeleme operasyonu</Label>
+                <Input
+                  value={form.inboxListOperation}
+                  onChange={(e) => set("inboxListOperation", e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Gelen belge indirme operasyonu</Label>
+                <Input
+                  value={form.inboxDownloadOperation}
+                  onChange={(e) => set("inboxDownloadOperation", e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>ERP kodu</Label>
+                <Input value={form.erpCode ?? ""} onChange={(e) => set("erpCode", e.target.value)} />
+              </div>
+
+              <div className="grid gap-2 md:col-span-2">
+                <Label>e-Arşiv servisi adresi</Label>
+                <Input
+                  value={form.earsivServiceUrl ?? ""}
+                  placeholder="https://.../EArsivService"
+                  onChange={(e) => set("earsivServiceUrl", e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Alıcı e-fatura mükellefi değilse fatura bu servisten e-Arşiv olarak düzenlenir.
+                </p>
+              </div>
+              <div className="grid gap-2">
+                <Label>e-Arşiv isim alanı (namespace)</Label>
+                <Input value={form.earsivNamespace} onChange={(e) => set("earsivNamespace", e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>e-Arşiv operasyonu</Label>
+                <Input value={form.earsivOperation} onChange={(e) => set("earsivOperation", e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>e-Arşiv şube</Label>
+                <Input value={form.earsivBranch} onChange={(e) => set("earsivBranch", e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>e-Arşiv kasa</Label>
+                <Input value={form.earsivCashbox} onChange={(e) => set("earsivCashbox", e.target.value)} />
+              </div>
+
 
               <div className="grid gap-2">
                 <Label>Gönderici vergi kimlik no</Label>
