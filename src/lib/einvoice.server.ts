@@ -37,6 +37,9 @@ type SettingsRow = {
   sender_country: string;
   invoice_prefix: string;
   is_enabled: boolean;
+  check_user_operation: string;
+  list_users_operation: string;
+  resend_operation: string;
   updated_at: string;
 };
 
