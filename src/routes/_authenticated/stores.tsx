@@ -119,24 +119,6 @@ function StoresPage() {
         </div>
       )}
 
-      {demoStore ? (
-        <div className="surface-card flex flex-wrap items-center gap-4 p-5">
-          <span className="grid size-10 place-items-center rounded-xl bg-secondary">
-            <Eye className="size-5" />
-          </span>
-          <div className="min-w-0">
-            <h2 className="font-display text-base font-semibold">{demoStore.name}</h2>
-            <p className="text-sm text-muted-foreground">
-              90 günlük gerçekçi satış verisiyle hazır demo mağaza — panelin nasıl çalıştığını gör.
-            </p>
-          </div>
-          <Button asChild variant="outline" className="ml-auto">
-            <Link to="/store/$storeId/dashboard" params={{ storeId: demoStore.id }}>
-              Demo paneli aç
-            </Link>
-          </Button>
-        </div>
-      ) : null}
     </AppShell>
   );
 }
