@@ -6,7 +6,6 @@ import { AlertTriangle, Check, FileText, Gauge, History, Lock, Sparkles } from "
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
-import { PaymentTestModeBanner } from "@/components/payment-test-mode-banner";
 import { isPaidPlanSlug } from "@/lib/paddle-plans";
 import { startPlanCardPayment } from "@/lib/plan-checkout.functions";
 
@@ -347,7 +346,6 @@ function BillingPage() {
           </TabsList>
 
           <TabsContent value="plans" className="space-y-4">
-            <PaymentTestModeBanner />
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm text-muted-foreground">Ödeme dönemi:</span>
               {(["monthly", "yearly"] as const).map((option) => (
