@@ -6,10 +6,9 @@ import { AlertTriangle, Check, FileText, Gauge, History, Lock, Sparkles } from "
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
-import { PaymentTestModeBanner } from "@/components/payment-test-mode-banner";
-import { usePaddleCheckout } from "@/hooks/use-paddle-checkout";
-import { isPaidPlanSlug } from "@/lib/paddle-plans";
-import { preparePlanCheckout } from "@/lib/payments.functions";
+import { isPaidPlanSlug } from "@/lib/plan-tiers";
+import { startPlanCardPayment } from "@/lib/plan-checkout.functions";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -111,23 +110,18 @@ function BillingPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  // Ücretli paketler gerçek ödeme kasasından geçer; fiyat sunucuda belirlenir.
-  const prepareCheckoutFn = useServerFn(preparePlanCheckout);
-  const { openCheckout } = usePaddleCheckout();
+  // Ücretli paketler QNBpay tahsilat sayfasından geçer; fiyat sunucuda belirlenir.
+  const startPlanPaymentFn = useServerFn(startPlanCardPayment);
   const checkoutMutation = useMutation({
-    mutationFn: async (planId: string) => {
-      const prepared = await prepareCheckoutFn({
-        data: { storeId, planId, billingInterval: interval },
-      });
-      await openCheckout({
-        priceId: prepared.priceId,
-        customData: { storeId, planId },
-        successUrl: `${window.location.origin}/odeme-tamam`,
-      });
-      return prepared;
+    mutationFn: (planId: string) =>
+      startPlanPaymentFn({ data: { storeId, planId, billingInterval: interval } }),
+    onSuccess: (result) => {
+      toast.success(`${result.planName} için ödeme sayfası açılıyor`);
+      window.location.href = result.link;
     },
     onError: (error: Error) => toast.error(error.message),
   });
+
 
   const cancelMutation = useMutation({
     mutationFn: (cancel: boolean) => cancelFn({ data: { storeId, cancel } }),
@@ -352,7 +346,6 @@ function BillingPage() {
           </TabsList>
 
           <TabsContent value="plans" className="space-y-4">
-            <PaymentTestModeBanner />
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm text-muted-foreground">Ödeme dönemi:</span>
               {(["monthly", "yearly"] as const).map((option) => (

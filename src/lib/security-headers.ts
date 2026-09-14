@@ -12,7 +12,7 @@ const CSP = [
   "media-src 'self' blob: https:",
   "font-src 'self' data: https:",
   "connect-src 'self' https: wss:",
-  // Ödeme kasası (Paddle) ve editör önizlemesi çerçeve olarak gömülür.
+  // Ödeme sayfası (QNBpay) ve editör önizlemesi çerçeve olarak gömülür.
   "frame-src 'self' https:",
   "object-src 'none'",
   "base-uri 'self'",

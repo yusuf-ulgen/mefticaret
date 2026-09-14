@@ -362,21 +362,33 @@ export async function queryTransactionStatus(transactionId: string, actorId: str
   return { status, transactionStatus: result.transactionStatus, description: result.statusDescription };
 }
 
-/** Ödeme tamamlandığında bağlı platform faturasını kapatır ve mağazayı açar. */
+/**
+ * Ödeme tamamlandığında: paket satın almasını aboneliğe uygular, bağlı platform
+ * faturasını kapatır ve dondurulmuş mağazayı yeniden açar.
+ */
 export async function settleTransaction(db: Admin, transactionId: string) {
   const transaction = await transactionById(db, transactionId);
-  if (!transaction.invoice_id) return;
-  const { error } = await db
-    .from("invoices")
-    .update({ status: "paid", paid_at: new Date().toISOString() })
-    .eq("id", transaction.invoice_id)
-    .neq("status", "paid");
-  if (error) throw new Error(error.message);
+
+  if (transaction.purpose === "plan") {
+    const { activatePlanFromTransaction } = await import("@/lib/plan-checkout.server");
+    await activatePlanFromTransaction(db as never, transaction as never);
+  }
+
+  if (transaction.invoice_id) {
+    const { error } = await db
+      .from("invoices")
+      .update({ status: "paid", paid_at: new Date().toISOString() })
+      .eq("id", transaction.invoice_id)
+      .neq("status", "paid");
+    if (error) throw new Error(error.message);
+  }
+
   if (transaction.store_id) {
     const { restoreAfterPayment } = await import("@/lib/billing-lifecycle.server");
     await restoreAfterPayment(db as never, transaction.store_id);
   }
 }
+
 
 export async function completeTransaction(
   input: { transactionId: string; action: "complete" | "cancel" },
