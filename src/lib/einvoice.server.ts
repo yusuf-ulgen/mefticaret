@@ -42,6 +42,16 @@ type SettingsRow = {
   check_user_operation: string;
   list_users_operation: string;
   resend_operation: string;
+  download_operation: string;
+  inbox_list_operation: string;
+  inbox_download_operation: string;
+  earsiv_service_url: string | null;
+  earsiv_namespace: string;
+  earsiv_operation: string;
+  earsiv_branch: string;
+  earsiv_cashbox: string;
+  erp_code: string | null;
+  last_inbox_sequence: string;
   updated_at: string;
 };
 
@@ -121,6 +131,15 @@ export async function saveSettings(input: SettingsInput, userId: string) {
       check_user_operation: input.checkUserOperation,
       list_users_operation: input.listUsersOperation,
       resend_operation: input.resendOperation,
+      download_operation: input.downloadOperation,
+      inbox_list_operation: input.inboxListOperation,
+      inbox_download_operation: input.inboxDownloadOperation,
+      earsiv_service_url: input.earsivServiceUrl || null,
+      earsiv_namespace: input.earsivNamespace,
+      earsiv_operation: input.earsivOperation,
+      earsiv_branch: input.earsivBranch,
+      earsiv_cashbox: input.earsivCashbox,
+      erp_code: input.erpCode || null,
       updated_by: userId,
     })
     .eq("id", settings.id);
