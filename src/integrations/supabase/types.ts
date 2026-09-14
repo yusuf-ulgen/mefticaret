@@ -2711,58 +2711,82 @@ export type Database = {
       }
       einvoice_documents: {
         Row: {
+          belge_oid: string | null
           created_at: string
           created_by: string | null
           direction: string
           document_number: string | null
+          durum_kodu: number | null
           environment: string
           error_message: string | null
           ettn: string | null
           id: string
           invoice_id: string | null
+          last_checked_at: string | null
           operation: string | null
           request_summary: Json
+          resendable: boolean | null
           response_summary: Json
           sent_at: string | null
+          service_message: string | null
           status: string
           store_id: string | null
+          ulasti_mi: boolean | null
           updated_at: string
+          yanit_durum: number | null
+          yanit_durum_kodu: number | null
         }
         Insert: {
+          belge_oid?: string | null
           created_at?: string
           created_by?: string | null
           direction?: string
           document_number?: string | null
+          durum_kodu?: number | null
           environment?: string
           error_message?: string | null
           ettn?: string | null
           id?: string
           invoice_id?: string | null
+          last_checked_at?: string | null
           operation?: string | null
           request_summary?: Json
+          resendable?: boolean | null
           response_summary?: Json
           sent_at?: string | null
+          service_message?: string | null
           status?: string
           store_id?: string | null
+          ulasti_mi?: boolean | null
           updated_at?: string
+          yanit_durum?: number | null
+          yanit_durum_kodu?: number | null
         }
         Update: {
+          belge_oid?: string | null
           created_at?: string
           created_by?: string | null
           direction?: string
           document_number?: string | null
+          durum_kodu?: number | null
           environment?: string
           error_message?: string | null
           ettn?: string | null
           id?: string
           invoice_id?: string | null
+          last_checked_at?: string | null
           operation?: string | null
           request_summary?: Json
+          resendable?: boolean | null
           response_summary?: Json
           sent_at?: string | null
+          service_message?: string | null
           status?: string
           store_id?: string | null
+          ulasti_mi?: boolean | null
           updated_at?: string
+          yanit_durum?: number | null
+          yanit_durum_kodu?: number | null
         }
         Relationships: [
           {
@@ -2777,14 +2801,17 @@ export type Database = {
       einvoice_settings: {
         Row: {
           auth_mode: string
+          check_user_operation: string
           created_at: string
           environment: string
           id: string
           invoice_prefix: string
           is_enabled: boolean
+          list_users_operation: string
           login_namespace: string
           login_operation: string
           login_url: string | null
+          resend_operation: string
           send_operation: string
           sender_address: string | null
           sender_city: string | null
@@ -2799,14 +2826,17 @@ export type Database = {
         }
         Insert: {
           auth_mode?: string
+          check_user_operation?: string
           created_at?: string
           environment?: string
           id?: string
           invoice_prefix?: string
           is_enabled?: boolean
+          list_users_operation?: string
           login_namespace?: string
           login_operation?: string
           login_url?: string | null
+          resend_operation?: string
           send_operation?: string
           sender_address?: string | null
           sender_city?: string | null
@@ -2821,14 +2851,17 @@ export type Database = {
         }
         Update: {
           auth_mode?: string
+          check_user_operation?: string
           created_at?: string
           environment?: string
           id?: string
           invoice_prefix?: string
           is_enabled?: boolean
+          list_users_operation?: string
           login_namespace?: string
           login_operation?: string
           login_url?: string | null
+          resend_operation?: string
           send_operation?: string
           sender_address?: string | null
           sender_city?: string | null
