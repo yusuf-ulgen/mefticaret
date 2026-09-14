@@ -373,6 +373,17 @@ export async function sendInvoice(input: SendInput, userId: string) {
   if (invoiceError) throw new Error(invoiceError.message);
   if (!invoice) throw new Error("Fatura bulunamadı");
 
+  // Akış adımı 1: alıcı e-fatura mükellefi mi? "AUTO" seçiliyse servise sorulur.
+  let profile: "TEMELFATURA" | "EARSIVFATURA";
+  let recipientRegistered: boolean | null = null;
+  if (input.profile === "AUTO") {
+    const check = await checkRecipient(input.buyerTaxId);
+    profile = check.profile;
+    recipientRegistered = check.registered;
+  } else {
+    profile = input.profile;
+  }
+
   const ettn = crypto.randomUUID();
   const issued = new Date(invoice.issued_at ?? Date.now());
   const documentNumber = `${settings.invoice_prefix}${issued.getFullYear()}${String(
@@ -390,7 +401,7 @@ export async function sendInvoice(input: SendInput, userId: string) {
     issueDate: issued.toISOString().slice(0, 10),
     issueTime: issued.toISOString().slice(11, 19),
     currency,
-    profile: input.profile,
+    profile,
     supplier: {
       taxId: settings.sender_tax_id,
       title: settings.sender_title,
