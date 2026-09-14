@@ -656,20 +656,30 @@ function AdminEinvoicePage() {
               {inboxSync.isPending ? "Alınıyor…" : "Gelen faturaları al"}
             </Button>
           </div>
-          <div className="surface-card divide-y overflow-hidden">
+          <InboxSummary rows={inbox} />
+          <div className="grid gap-3 lg:grid-cols-2">
             {inbox.length === 0 ? (
-              <p className="p-4 text-sm text-muted-foreground">Henüz gelen fatura kaydı yok.</p>
+              <p className="surface-card p-4 text-sm text-muted-foreground lg:col-span-2">
+                Henüz gelen fatura kaydı yok.
+              </p>
             ) : (
               inbox.map((row) => (
-                <div key={row.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
-                  <FileCheck2 className="size-4 text-muted-foreground" />
-                  <span className="font-medium">{row.document_number ?? row.ettn}</span>
-                  <span className="text-muted-foreground">{row.sender_title ?? row.sender_tax_id ?? "—"}</span>
-                  <span className="text-muted-foreground">
-                    {row.payable_amount !== null ? `${row.payable_amount} ${row.currency ?? ""}` : ""}
-                  </span>
-                  <span className="text-muted-foreground">{row.document_date ?? ""}</span>
-                  <div className="ml-auto flex flex-wrap items-center gap-2">
+                <div key={row.id} className="surface-card flex flex-col gap-2 p-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <FileCheck2 className="size-4 text-muted-foreground" />
+                    <span className="font-medium">{row.document_number ?? row.ettn}</span>
+                    <span className="ml-auto font-display text-base font-semibold">
+                      {row.payable_amount !== null
+                        ? `${Number(row.payable_amount).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} ${row.currency ?? ""}`
+                        : "—"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {row.sender_title ?? row.sender_tax_id ?? "—"}
+                    {row.document_date ? ` · ${row.document_date}` : ""}
+                  </p>
+                  <p className="truncate text-[11px] text-muted-foreground">ETTN: {row.ettn}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 border-t pt-2">
                     {(["PDF", "UBL"] as const).map((format) => (
                       <Button
                         key={format}
