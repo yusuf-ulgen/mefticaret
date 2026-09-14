@@ -7,9 +7,9 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { PaymentTestModeBanner } from "@/components/payment-test-mode-banner";
-import { usePaddleCheckout } from "@/hooks/use-paddle-checkout";
 import { isPaidPlanSlug } from "@/lib/paddle-plans";
-import { preparePlanCheckout } from "@/lib/payments.functions";
+import { startPlanCardPayment } from "@/lib/plan-checkout.functions";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
