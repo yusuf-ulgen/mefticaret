@@ -563,26 +563,26 @@ function AdminEinvoicePage() {
           </form>
         </TabsContent>
 
-        <TabsContent value="log" className="mt-4">
-          <div className="surface-card divide-y overflow-hidden">
+        <TabsContent value="log" className="mt-4 space-y-3">
+          <OutgoingSummary docs={data?.documents ?? []} />
+          <div className="space-y-3">
             {(data?.documents ?? []).length === 0 ? (
-              <p className="p-4 text-sm text-muted-foreground">Henüz gönderim kaydı yok.</p>
+              <p className="surface-card p-4 text-sm text-muted-foreground">Henüz gönderim kaydı yok.</p>
             ) : (
               (data?.documents ?? []).map((doc) => (
-                <div key={doc.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
+                <div key={doc.id} className="surface-card flex flex-wrap items-center gap-3 p-4 text-sm">
                   <FileCheck2 className="size-4 text-muted-foreground" />
                   <span className="font-medium">{doc.document_number ?? "—"}</span>
-                  <Badge
-                    variant={
-                      doc.status === "sent" ? "secondary" : doc.status === "failed" ? "destructive" : "outline"
-                    }
-                  >
-                    {doc.status === "sent" ? "Gönderildi" : doc.status === "failed" ? "Hata" : "Kuyrukta"}
-                  </Badge>
-                  {doc.ulasti_mi ? <Badge variant="secondary">Alıcıya ulaştı</Badge> : null}
+                  <OutgoingStatusBadge doc={doc} />
                   {doc.document_kind === "earsiv" ? <Badge variant="outline">e-Arşiv</Badge> : null}
+                  {doc.resendable ? <Badge variant="outline">Yeniden gönderilebilir</Badge> : null}
                   <span className="text-muted-foreground">{doc.environment}</span>
                   <span className="text-muted-foreground">{formatDateTime(doc.created_at)}</span>
+                  {doc.last_checked_at ? (
+                    <span className="text-xs text-muted-foreground">
+                      Son sorgu: {formatDateTime(doc.last_checked_at)}
+                    </span>
+                  ) : null}
                   <div className="ml-auto flex flex-wrap items-center gap-2">
                     {doc.earsiv_url ? (
                       <Button asChild type="button" size="sm" variant="ghost">
