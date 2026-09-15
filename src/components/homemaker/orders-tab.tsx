@@ -46,6 +46,43 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
   const [busy, setBusy] = useState<string | null>(null);
   const makeCode = useServerFn(createPickupCode);
   const patchOrder = useServerFn(updateOrder);
+  const sendToAras = useServerFn(sendOrderToAras);
+  const refreshTracking = useServerFn(refreshArasTracking);
+  const [syncing, setSyncing] = useState(false);
+
+  const shipWithAras = async (order: SimpleOrder) => {
+    setBusy(order.id);
+    try {
+      const result = await sendToAras({ data: { orderId: order.id } });
+      await queryClient.invalidateQueries({ queryKey: ["kolay-orders", storeId] });
+      toast.success(
+        result.trackingNumber
+          ? `Aras Kargo takip numarası: ${result.trackingNumber}`
+          : "Aras Kargo'ya iletildi. Takip numarası birkaç dakika içinde gelir.",
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kargo oluşturulamadı");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const syncAras = async () => {
+    setSyncing(true);
+    try {
+      const result = await refreshTracking({ data: { storeId } });
+      await queryClient.invalidateQueries({ queryKey: ["kolay-orders", storeId] });
+      toast.success(
+        result.updated > 0
+          ? `${result.updated} gönderinin durumu güncellendi`
+          : "Kargo durumlarında değişiklik yok",
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Durum sorgulanamadı");
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const rows = orders.filter((order) => bucketOf(order) === tab);
 
