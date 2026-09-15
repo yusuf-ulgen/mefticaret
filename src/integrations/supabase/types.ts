@@ -11165,7 +11165,10 @@ export type Database = {
         Row: {
           address: Json
           auto_currency_rates: boolean
+          bank_account_holder: string | null
+          bank_iban: string | null
           base_currency: string
+          bio: string | null
           contact_email: string | null
           contact_phone: string | null
           created_at: string
@@ -11174,6 +11177,7 @@ export type Database = {
           display_currencies: string[]
           guest_checkout: boolean
           legal_name: string | null
+          payment_mode: string
           seo: Json
           social: Json
           store_id: string
@@ -11182,11 +11186,15 @@ export type Database = {
           tax_number: string | null
           updated_at: string
           weight_unit: string
+          whatsapp_phone: string | null
         }
         Insert: {
           address?: Json
           auto_currency_rates?: boolean
+          bank_account_holder?: string | null
+          bank_iban?: string | null
           base_currency?: string
+          bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -11195,6 +11203,7 @@ export type Database = {
           display_currencies?: string[]
           guest_checkout?: boolean
           legal_name?: string | null
+          payment_mode?: string
           seo?: Json
           social?: Json
           store_id: string
@@ -11203,11 +11212,15 @@ export type Database = {
           tax_number?: string | null
           updated_at?: string
           weight_unit?: string
+          whatsapp_phone?: string | null
         }
         Update: {
           address?: Json
           auto_currency_rates?: boolean
+          bank_account_holder?: string | null
+          bank_iban?: string | null
           base_currency?: string
+          bio?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -11216,6 +11229,7 @@ export type Database = {
           display_currencies?: string[]
           guest_checkout?: boolean
           legal_name?: string | null
+          payment_mode?: string
           seo?: Json
           social?: Json
           store_id?: string
@@ -11224,6 +11238,7 @@ export type Database = {
           tax_number?: string | null
           updated_at?: string
           weight_unit?: string
+          whatsapp_phone?: string | null
         }
         Relationships: [
           {
