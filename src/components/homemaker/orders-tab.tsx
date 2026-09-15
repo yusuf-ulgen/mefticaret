@@ -246,18 +246,27 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
                     <MessageCircle className="size-4" /> WhatsApp'tan yaz
                   </a>
                 ) : null}
-                {tab !== "done" && !order.tracking_number ? (
+                {tab !== "done" && !isAras && !order.tracking_number ? (
                   <BigButton
                     tone="teal"
                     disabled={busy === order.id}
-                    onClick={() => void createCode(order)}
+                    onClick={() => void shipWithAras(order)}
                   >
                     {busy === order.id ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      <Truck className="size-4" />
+                      <PackageCheck className="size-4" />
                     )}
-                    Teslim kodu oluştur
+                    Aras Kargo ile gönder
+                  </BigButton>
+                ) : null}
+                {tab !== "done" && !isAras && !order.tracking_number ? (
+                  <BigButton
+                    tone="ghost"
+                    disabled={busy === order.id}
+                    onClick={() => void createCode(order)}
+                  >
+                    <Truck className="size-4" /> Kendim teslim edeceğim
                   </BigButton>
                 ) : null}
                 {tab !== "done" ? (
