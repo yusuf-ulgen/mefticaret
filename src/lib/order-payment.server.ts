@@ -38,6 +38,13 @@ export async function startOrderCardPayment(
     .maybeSingle();
   if (!store || store.status !== "active") throw new Error("Mağaza bulunamadı veya yayında değil");
 
+  const { data: settings } = await db
+    .from("store_settings")
+    .select("payment_mode")
+    .eq("store_id", store.id)
+    .maybeSingle();
+  if (settings?.payment_mode !== "mefpay") throw new Error("Bu mağazada kartla ödeme kapalı");
+
   const { data: order, error } = await db
     .from("orders")
     .select("id, order_number, grand_total, currency, payment_status, customer_name")
