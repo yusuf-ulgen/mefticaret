@@ -352,6 +352,18 @@ function CheckoutPage() {
           ? `Sipariş alındı: ${result.orderNumber} · Hediye kartı: ${formatMoney(result.giftCardApplied, store.currency)}`
           : `Sipariş alındı: ${result.orderNumber}`,
       );
+      // Kartla ödeme açıksa doğrudan güvenli ödeme sayfasına yönlendir.
+      try {
+        const payment = await startOrderPayment({
+          data: { slug, orderNumber: result.orderNumber, email },
+        });
+        if (payment?.link) {
+          window.location.href = payment.link;
+          return;
+        }
+      } catch {
+        // Kart ödemesi kullanılamıyorsa sipariş durumu sayfasına devam edilir.
+      }
       navigate({
         to: "/s/$slug/order",
         params: { slug },
