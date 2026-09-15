@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Banknote, ImagePlus, Loader2, Save, ShieldCheck } from "lucide-react";
+import { Banknote, Facebook, ImagePlus, Instagram, Link2, Loader2, Save, Share2, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -12,10 +12,20 @@ type Store = { id: string; name: string; logo_url: string | null };
 type Settings = {
   bio: string | null;
   whatsapp_phone: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
   payment_mode: string | null;
   bank_iban: string | null;
   bank_account_holder: string | null;
 } | null;
+
+/** Kullanıcı yalnızca kullanıcı adı yazdıysa tam bağlantıya çevirir. */
+const toUrl = (value: string, base: string) => {
+  const v = value.trim();
+  if (!v) return "";
+  if (/^https?:\/\//i.test(v)) return v;
+  return `${base}${v.replace(/^@/, "")}`;
+};
 
 /** "Mağazam" sekmesi: isim, tanıtım, görsel, WhatsApp ve para alma yöntemi. */
 export function StoreTab({
@@ -34,6 +44,8 @@ export function StoreTab({
   const [name, setName] = useState(store.name);
   const [bio, setBio] = useState(settings?.bio ?? "");
   const [whatsapp, setWhatsapp] = useState(settings?.whatsapp_phone ?? "");
+  const [instagram, setInstagram] = useState(settings?.instagram_url ?? "");
+  const [facebook, setFacebook] = useState(settings?.facebook_url ?? "");
   const [mode, setMode] = useState<"mefpay" | "bank_transfer">(
     settings?.payment_mode === "bank_transfer" ? "bank_transfer" : "mefpay",
   );
@@ -66,6 +78,8 @@ export function StoreTab({
           patch: {
             bio: bio.trim(),
             whatsapp_phone: whatsapp.trim(),
+            instagram_url: toUrl(instagram, "https://instagram.com/"),
+            facebook_url: toUrl(facebook, "https://facebook.com/"),
             payment_mode: mode,
             bank_iban: iban.replace(/\s/g, "").toUpperCase(),
             bank_account_holder: holder.trim(),
@@ -153,6 +167,30 @@ export function StoreTab({
             placeholder="0555 555 55 55"
           />
         </Field>
+        <Field label="Instagram sayfanız" hint="Kullanıcı adınızı yazmanız yeterli.">
+          <div className="relative">
+            <Instagram className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
+            <input
+              className={`${inputClass} pl-11`}
+              value={instagram}
+              inputMode="url"
+              onChange={(event) => setInstagram(event.target.value)}
+              placeholder="ornek: elyapimiseker"
+            />
+          </div>
+        </Field>
+        <Field label="Facebook sayfanız" hint="Sayfa adınızı veya tam bağlantıyı yazabilirsiniz.">
+          <div className="relative">
+            <Facebook className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
+            <input
+              className={`${inputClass} pl-11`}
+              value={facebook}
+              inputMode="url"
+              onChange={(event) => setFacebook(event.target.value)}
+              placeholder="ornek: elyapimiseker"
+            />
+          </div>
+        </Field>
       </SoftCard>
 
       <SoftCard className="grid gap-3">
@@ -216,9 +254,51 @@ export function StoreTab({
         ) : null}
       </SoftCard>
 
-      <SoftCard>
+      <SoftCard className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Mağaza adresiniz</p>
-        <p className="mt-1 break-all text-sm text-hm-ink-soft">{storeUrl}</p>
+        <p className="break-all text-sm text-hm-ink-soft">{storeUrl}</p>
+        <p className="text-sm font-semibold text-hm-ink">Mağazanızı sosyal medyada paylaşın</p>
+        <div className="grid grid-cols-3 gap-2">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`${name.trim() || store.name} mağazama göz atın: ${storeUrl}`)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-hm-emerald-soft px-3 text-sm font-semibold text-hm-emerald"
+          >
+            <Share2 className="size-4" />
+            WhatsApp
+          </a>
+          <a
+            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(storeUrl)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-hm-teal-soft px-3 text-sm font-semibold text-hm-teal"
+          >
+            <Facebook className="size-4" />
+            Facebook
+          </a>
+          <button
+            type="button"
+            onClick={() => {
+              void (async () => {
+                try {
+                  if (navigator.share) {
+                    await navigator.share({ title: store.name, url: storeUrl });
+                  } else {
+                    await navigator.clipboard.writeText(storeUrl);
+                    toast.success("Mağaza bağlantınız kopyalandı");
+                  }
+                } catch {
+                  // Kullanıcı paylaşım penceresini kapattıysa sessiz geç.
+                }
+              })();
+            }}
+            className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-hm-rose-soft px-3 text-sm font-semibold text-hm-rose"
+          >
+            <Link2 className="size-4" />
+            Paylaş
+          </button>
+        </div>
       </SoftCard>
 
       <BigButton onClick={save} disabled={saving} className="w-full">
