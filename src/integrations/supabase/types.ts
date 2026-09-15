@@ -11175,7 +11175,9 @@ export type Database = {
           default_locale: string
           default_tax_rate: number
           display_currencies: string[]
+          facebook_url: string | null
           guest_checkout: boolean
+          instagram_url: string | null
           legal_name: string | null
           payment_mode: string
           seo: Json
@@ -11201,7 +11203,9 @@ export type Database = {
           default_locale?: string
           default_tax_rate?: number
           display_currencies?: string[]
+          facebook_url?: string | null
           guest_checkout?: boolean
+          instagram_url?: string | null
           legal_name?: string | null
           payment_mode?: string
           seo?: Json
@@ -11227,7 +11231,9 @@ export type Database = {
           default_locale?: string
           default_tax_rate?: number
           display_currencies?: string[]
+          facebook_url?: string | null
           guest_checkout?: boolean
+          instagram_url?: string | null
           legal_name?: string | null
           payment_mode?: string
           seo?: Json
