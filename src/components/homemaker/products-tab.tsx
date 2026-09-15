@@ -275,6 +275,31 @@ function AddProductSheet({
     }
   };
 
+  const clearBackground = async () => {
+    if (!file) {
+      toast.error("Önce bir fotoğraf seçin.");
+      return;
+    }
+    setCleanBusy(true);
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("Fotoğraf okunamadı"));
+        reader.readAsDataURL(file);
+      });
+      const result = await cleanPhoto({ data: { storeId, dataUrl } });
+      const response = await fetch(result.dataUrl);
+      const blob = await response.blob();
+      setFile(new File([blob], `temiz-${Date.now()}.png`, { type: blob.type || "image/png" }));
+      toast.success("Arka plan temizlendi");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Fotoğraf temizlenemedi");
+    } finally {
+      setCleanBusy(false);
+    }
+  };
+
   const reset = () => {
     setTitle("");
     setPrice("");
