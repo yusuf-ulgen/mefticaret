@@ -137,6 +137,55 @@ function OrderPage() {
             </section>
           ) : null}
 
+          {result && result.payment.unpaid ? (
+            <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
+              <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 10px" }}>Ödeme</h2>
+              {result.payment.cardAvailable ? (
+                <>
+                  <p style={{ margin: "0 0 12px", fontSize: 14, color: muted }}>
+                    Siparişinizin ödemesi henüz alınmadı. Güvenli ödeme sayfasında kartınızla
+                    ödeyebilirsiniz.
+                  </p>
+                  <button
+                    type="button"
+                    disabled={paying}
+                    onClick={() => void payWithCard()}
+                    style={{
+                      padding: "12px 18px",
+                      borderRadius: radius,
+                      border: "none",
+                      background: t.primary_color,
+                      color: "#fff",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: paying ? "progress" : "pointer",
+                    }}
+                  >
+                    {paying ? "Ödeme sayfası açılıyor…" : "Kartla güvenle öde"}
+                  </button>
+                </>
+              ) : result.payment.bankIban ? (
+                <p style={{ margin: 0, fontSize: 14, color: muted, lineHeight: 1.6 }}>
+                  Ödemenizi havale/EFT ile yapabilirsiniz.
+                  <br />
+                  IBAN: <strong style={{ color: "inherit" }}>{result.payment.bankIban}</strong>
+                  {result.payment.bankAccountHolder ? (
+                    <>
+                      <br />
+                      Alıcı: {result.payment.bankAccountHolder}
+                    </>
+                  ) : null}
+                  <br />
+                  Açıklama kısmına {result.order.order_number} numarasını yazmayı unutmayın.
+                </p>
+              ) : (
+                <p style={{ margin: 0, fontSize: 14, color: muted }}>
+                  Ödeme bilgileri mağaza tarafından sizinle paylaşılacak.
+                </p>
+              )}
+            </section>
+          ) : null}
+
           {result && result.shipments.length > 0 ? (
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
               <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>Kargo takibi</h2>
