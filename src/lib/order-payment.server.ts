@@ -110,9 +110,11 @@ export async function markOrderPaidFromTransaction(
     store_id: order.store_id,
     order_id: order.id,
     provider: "qnbpay",
+    method: "card",
     status: "paid",
     amount: Number(transaction.amount ?? 0),
-    paid_at: new Date().toISOString(),
+    captured_at: new Date().toISOString(),
+    provider_reference: transaction.id,
   } as never);
 
   return { handled: true };
