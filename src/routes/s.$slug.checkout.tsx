@@ -12,6 +12,7 @@ import { trackEvent } from "@/lib/track";
 import { myAddressesQuery } from "@/lib/account-queries";
 import { useAuth } from "@/lib/auth-context";
 import { getCheckoutQuote, placeMemberOrder, placeOrder, previewCheckoutDiscount } from "@/lib/checkout.functions";
+import { startOrderPayment } from "@/lib/order-payment.functions";
 import { checkGiftCardBalance } from "@/lib/gift-cards-public.functions";
 import { formatMoney } from "@/lib/mefti";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
