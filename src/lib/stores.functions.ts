@@ -173,6 +173,8 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
             contact_phone: z.string().trim().max(30).optional(),
             bio: z.string().trim().max(400).optional(),
             whatsapp_phone: z.string().trim().max(30).optional(),
+            instagram_url: z.string().trim().max(300).optional(),
+            facebook_url: z.string().trim().max(300).optional(),
             payment_mode: z.enum(["mefpay", "bank_transfer"]).optional(),
             bank_iban: z.string().trim().max(40).optional(),
             bank_account_holder: z.string().trim().max(120).optional(),
