@@ -248,6 +248,8 @@ function AddProductSheet({
   const [optionOne, setOptionOne] = useState({ name: "Renk", values: "" });
   const [optionTwo, setOptionTwo] = useState({ name: "Boyut", values: "" });
   const [aiBusy, setAiBusy] = useState(false);
+  const cleanPhoto = useServerFn(cleanProductPhoto);
+  const [cleanBusy, setCleanBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const previewUrl = useRef<string>("");
 
