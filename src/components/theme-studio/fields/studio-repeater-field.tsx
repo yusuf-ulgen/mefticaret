@@ -205,7 +205,10 @@ export function RepeaterField({
           size="sm"
           variant="outline"
           className="w-full"
-          onClick={() => commit([...rows, { id: `new-${String(rows.length)}`, cells: columns.map(() => "") }])}
+          onClick={() => {
+            nextId.current += 1;
+            commit([...rows, { id: `row-${String(nextId.current)}`, cells: columns.map(() => "") }]);
+          }}
         >
           <Plus className="mr-1.5 size-3.5" />
           Öğe ekle
