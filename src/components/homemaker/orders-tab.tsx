@@ -196,22 +196,40 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
               ) : null}
 
               {order.tracking_number ? (
-                <div className="flex items-center gap-2 rounded-2xl bg-hm-teal-soft p-3">
-                  <span className="text-sm font-semibold text-hm-teal">
-                    Teslim kodu: {order.tracking_number}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label="Kodu kopyala"
-                    onClick={() => {
-                      void navigator.clipboard.writeText(order.tracking_number ?? "");
-                      toast.success("Kod kopyalandı");
-                    }}
-                    className="ml-auto grid size-10 place-items-center rounded-xl bg-white text-hm-teal"
-                  >
-                    <Copy className="size-4" />
-                  </button>
+                <div className="grid gap-2 rounded-2xl bg-hm-teal-soft p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-hm-teal">
+                      {isAras ? "Aras Kargo takip no" : "Teslim kodu"}: {order.tracking_number}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label="Kodu kopyala"
+                      onClick={() => {
+                        void navigator.clipboard.writeText(order.tracking_number ?? "");
+                        toast.success("Kopyalandı");
+                      }}
+                      className="ml-auto grid size-10 place-items-center rounded-xl bg-white text-hm-teal"
+                    >
+                      <Copy className="size-4" />
+                    </button>
+                  </div>
+                  {isAras ? (
+                    <a
+                      href={`https://kargotakip.araskargo.com.tr/mainpage.aspx?code=${encodeURIComponent(
+                        order.tracking_number,
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-semibold text-hm-teal underline"
+                    >
+                      Aras Kargo'da takip et
+                    </a>
+                  ) : null}
                 </div>
+              ) : isAras ? (
+                <p className="rounded-2xl bg-hm-teal-soft p-3 text-sm font-semibold text-hm-teal">
+                  Aras Kargo'ya iletildi, takip numarası bekleniyor.
+                </p>
               ) : null}
 
               <div className="flex flex-wrap gap-2">
