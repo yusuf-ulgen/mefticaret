@@ -133,6 +133,22 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
         })}
       </div>
 
+      <button
+        type="button"
+        onClick={() => void syncAras()}
+        disabled={syncing}
+        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-hm-line bg-white text-sm font-semibold text-hm-ink-soft"
+      >
+        {syncing ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <RefreshCw className="size-4" />
+        )}
+        Kargo durumlarını güncelle
+      </button>
+
+
+
       {rows.length === 0 ? (
         <SoftCard className="text-center">
           <p className="font-semibold text-hm-ink">Burada sipariş yok</p>
