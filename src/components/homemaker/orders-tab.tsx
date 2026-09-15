@@ -175,9 +175,26 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
                       : ""}
                   </p>
                 </div>
-                <p className="text-base font-bold text-hm-rose">
-                  {formatMoney(order.grand_total, order.currency)}
-                </p>
+                <div className="text-right">
+                  <p className="text-base font-bold text-hm-rose">
+                    {formatMoney(order.grand_total, order.currency)}
+                  </p>
+                  <span
+                    className={`mt-1 inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      order.payment_status === "paid"
+                        ? "bg-hm-teal-soft text-hm-teal"
+                        : "bg-hm-sand text-hm-ink-soft"
+                    }`}
+                  >
+                    {order.payment_status === "paid"
+                      ? "Ödeme alındı"
+                      : order.payment_status === "refunded" || order.payment_status === "partially_refunded"
+                        ? "İade edildi"
+                        : order.payment_status === "failed"
+                          ? "Ödeme başarısız"
+                          : "Ödeme bekliyor"}
+                  </span>
+                </div>
               </div>
 
               <ul className="grid gap-1 rounded-2xl bg-hm-sand p-3 text-sm text-hm-ink">
