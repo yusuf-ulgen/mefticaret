@@ -369,6 +369,14 @@ export async function queryTransactionStatus(transactionId: string, actorId: str
 export async function settleTransaction(db: Admin, transactionId: string) {
   const transaction = await transactionById(db, transactionId);
 
+  // Vitrin siparişi ödemesi: yalnızca siparişi öder, abonelik durumunu etkilemez.
+  const summary = (transaction.request_summary ?? {}) as Record<string, unknown>;
+  if (summary["purpose"] === "order") {
+    const { markOrderPaidFromTransaction } = await import("@/lib/order-payment.server");
+    const handled = await markOrderPaidFromTransaction(db as never, transaction as never);
+    if (handled.handled) return;
+  }
+
   if (transaction.purpose === "plan") {
     const { activatePlanFromTransaction } = await import("@/lib/plan-checkout.server");
     await activatePlanFromTransaction(db as never, transaction as never);
