@@ -97,6 +97,13 @@ function RowEditor({
   );
 }
 
+function serializeRows(rows: Row[]) {
+  return rows
+    .map((row) => row.cells.map((cell) => cell.trim()).join(" | ").replace(/(\s\|\s)+$/, ""))
+    .filter((line) => line.replace(/\|/g, "").trim().length > 0)
+    .join("\n");
+}
+
 export function RepeaterField({
   id,
   label,
@@ -111,18 +118,33 @@ export function RepeaterField({
   onChange: (next: string) => void;
 }) {
   const columns = useMemo(() => parseColumns(help), [help]);
-  const rows: Row[] = useMemo(
-    () =>
-      value
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .map((line, index) => ({
-          id: `${index}-${line.slice(0, 12)}`,
+
+  // Satır kimlikleri içerikten türetilmez; aksi halde her tuş vuruşunda
+  // React anahtarı değişip odak kaybolur. Boş satırlar da yerel durumda
+  // korunur, böylece "Öğe ekle" gerçekten yeni bir satır açar.
+  const nextId = useRef(0);
+  const makeRows = (raw: string): Row[] =>
+    raw
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        nextId.current += 1;
+        return {
+          id: `row-${String(nextId.current)}`,
           cells: line.split("|").map((cell) => cell.trim()),
-        })),
-    [value],
-  );
+        };
+      });
+
+  const [rows, setRows] = useState<Row[]>(() => makeRows(value));
+  const lastValue = useRef(value);
+
+  useEffect(() => {
+    if (value === lastValue.current) return;
+    lastValue.current = value;
+    setRows(makeRows(value));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -130,12 +152,10 @@ export function RepeaterField({
   );
 
   const commit = (next: Row[]) => {
-    onChange(
-      next
-        .map((row) => row.cells.map((cell) => cell.trim()).join(" | ").replace(/(\s\|\s)+$/, ""))
-        .filter((line) => line.replace(/\|/g, "").trim().length > 0)
-        .join("\n"),
-    );
+    setRows(next);
+    const serialized = serializeRows(next);
+    lastValue.current = serialized;
+    onChange(serialized);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
