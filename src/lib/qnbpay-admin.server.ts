@@ -905,6 +905,67 @@ export async function handleRefundWebhook(fields: WebhookFields) {
   return { ok: true };
 }
 
+/** Vitrin siparişi için QNBpay ödeme bağlantısı üretir (Mefpay kartla tahsilat). */
+export async function createOrderCheckout(input: {
+  orderId: string;
+  storeId: string;
+  orderNumber: string;
+  amount: number;
+  currency: string;
+  buyerName: string;
+}): Promise<{ link: string; invoiceRef: string }> {
+  const db = await admin();
+  const row = await loadSettingsRow(db);
+  const credentials = credentialsOf(row);
+  if (!row.is_enabled || !qnbpay.isConfigured(credentials)) {
+    throw new Error("Kart ile ödeme şu anda kullanılamıyor.");
+  }
+  const base = origin(row);
+  const invoiceRef = newInvoiceRef("ORD");
+  const [name, ...rest] = input.buyerName.trim().split(" ");
+  const description = `${input.orderNumber} numaralı sipariş ödemesi`;
+  const currency = (["TRY", "USD", "EUR"] as const).includes(input.currency as "TRY")
+    ? (input.currency as "TRY" | "USD" | "EUR")
+    : "TRY";
+
+  const result = await qnbpay.createPaymentLink(credentials, {
+    invoiceId: invoiceRef,
+    description,
+    total: input.amount,
+    currencyCode: currency,
+    returnUrl: `${base}/odeme-tamam`,
+    cancelUrl: `${base}/odeme-tamam?iptal=1`,
+    name: name || "Musteri",
+    surname: rest.join(" ") || "Musteri",
+    items: [{ name: description, price: input.amount, quantity: 1, description }],
+    commissionFromUser: row.is_commission_from_user,
+  });
+
+  const { error } = await db.from("qnbpay_transactions").insert({
+    environment: credentials.environment,
+    purpose: "other",
+    store_id: input.storeId,
+    qnbpay_invoice_id: invoiceRef,
+    order_id: result.orderId,
+    amount: input.amount,
+    currency,
+    status: "pending",
+    transaction_type: row.transaction_type,
+    checkout_url: result.link,
+    description,
+    request_summary: {
+      purpose: "order",
+      orderId: input.orderId,
+      orderNumber: input.orderNumber,
+      storeId: input.storeId,
+    } as never,
+    response_summary: result.raw as never,
+  });
+  if (error) throw new Error(error.message);
+
+  return { link: result.link, invoiceRef };
+}
+
 /** Fatura sayfası için QNBpay ödeme bağlantısı üretir (mağaza abonelik faturaları). */
 export async function createInvoiceCheckout(input: {
   invoiceId: string;
