@@ -6,6 +6,7 @@ import { z } from "zod";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { getOrderStatus } from "@/lib/checkout.functions";
 import { formatDateTime, formatMoney, ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/mefti";
+import { startOrderPayment } from "@/lib/order-payment.functions";
 import { SHIPMENT_STATUS_LABELS, type ShipmentStatus } from "@/lib/shipments-queries";
 import { storefrontQuery } from "@/lib/storefront-queries";
 
@@ -47,6 +48,21 @@ function OrderPage() {
   const [result, setResult] = useState<OrderStatus>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [paying, setPaying] = useState(false);
+
+  async function payWithCard() {
+    if (!result) return;
+    setPaying(true);
+    try {
+      const payment = await startOrderPayment({
+        data: { slug, orderNumber: result.order.order_number, email: email.trim() },
+      });
+      window.location.href = payment.link;
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Ödeme sayfası açılamadı");
+      setPaying(false);
+    }
+  }
 
   async function lookup(no: string, mail: string) {
     if (!no.trim() || !mail.trim()) {
@@ -134,6 +150,55 @@ function OrderPage() {
                 {result.order.shipping_carrier ? ` · Kargo: ${result.order.shipping_carrier}` : ""}
                 {result.order.tracking_number ? ` · Takip: ${result.order.tracking_number}` : ""}
               </p>
+            </section>
+          ) : null}
+
+          {result && result.payment.unpaid ? (
+            <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
+              <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 10px" }}>Ödeme</h2>
+              {result.payment.cardAvailable ? (
+                <>
+                  <p style={{ margin: "0 0 12px", fontSize: 14, color: muted }}>
+                    Siparişinizin ödemesi henüz alınmadı. Güvenli ödeme sayfasında kartınızla
+                    ödeyebilirsiniz.
+                  </p>
+                  <button
+                    type="button"
+                    disabled={paying}
+                    onClick={() => void payWithCard()}
+                    style={{
+                      padding: "12px 18px",
+                      borderRadius: radius,
+                      border: "none",
+                      background: t.primary_color,
+                      color: "#fff",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: paying ? "progress" : "pointer",
+                    }}
+                  >
+                    {paying ? "Ödeme sayfası açılıyor…" : "Kartla güvenle öde"}
+                  </button>
+                </>
+              ) : result.payment.bankIban ? (
+                <p style={{ margin: 0, fontSize: 14, color: muted, lineHeight: 1.6 }}>
+                  Ödemenizi havale/EFT ile yapabilirsiniz.
+                  <br />
+                  IBAN: <strong style={{ color: "inherit" }}>{result.payment.bankIban}</strong>
+                  {result.payment.bankAccountHolder ? (
+                    <>
+                      <br />
+                      Alıcı: {result.payment.bankAccountHolder}
+                    </>
+                  ) : null}
+                  <br />
+                  Açıklama kısmına {result.order.order_number} numarasını yazmayı unutmayın.
+                </p>
+              ) : (
+                <p style={{ margin: 0, fontSize: 14, color: muted }}>
+                  Ödeme bilgileri mağaza tarafından sizinle paylaşılacak.
+                </p>
+              )}
             </section>
           ) : null}
 

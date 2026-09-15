@@ -24,6 +24,7 @@ import { createProduct, deleteProduct, generateVariants, setVariantOptions, upda
 import type { SimpleProduct } from "@/lib/homemaker-queries";
 import { addProductImage } from "@/lib/media.functions";
 import { uploadProductImage } from "@/lib/media";
+import { cleanProductPhoto } from "@/lib/photo-ai.functions";
 import { formatMoney } from "@/lib/mefti";
 
 const CATEGORIES = [
@@ -248,6 +249,8 @@ function AddProductSheet({
   const [optionOne, setOptionOne] = useState({ name: "Renk", values: "" });
   const [optionTwo, setOptionTwo] = useState({ name: "Boyut", values: "" });
   const [aiBusy, setAiBusy] = useState(false);
+  const cleanPhoto = useServerFn(cleanProductPhoto);
+  const [cleanBusy, setCleanBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const previewUrl = useRef<string>("");
 
@@ -269,6 +272,31 @@ function AddProductSheet({
       toast.error(error instanceof Error ? error.message : "Açıklama yazılamadı");
     } finally {
       setAiBusy(false);
+    }
+  };
+
+  const clearBackground = async () => {
+    if (!file) {
+      toast.error("Önce bir fotoğraf seçin.");
+      return;
+    }
+    setCleanBusy(true);
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("Fotoğraf okunamadı"));
+        reader.readAsDataURL(file);
+      });
+      const result = await cleanPhoto({ data: { storeId, dataUrl } });
+      const response = await fetch(result.dataUrl);
+      const blob = await response.blob();
+      setFile(new File([blob], `temiz-${Date.now()}.png`, { type: blob.type || "image/png" }));
+      toast.success("Arka plan temizlendi");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Fotoğraf temizlenemedi");
+    } finally {
+      setCleanBusy(false);
     }
   };
 
@@ -359,6 +387,13 @@ function AddProductSheet({
             />
           </span>
         </label>
+
+        {file ? (
+          <BigButton tone="ghost" disabled={cleanBusy} onClick={() => void clearBackground()}>
+            {cleanBusy ? <Loader2 className="size-5 animate-spin" /> : <Wand2 className="size-5" />}
+            Arka Planı Temizle (AI)
+          </BigButton>
+        ) : null}
 
         <Field label="Ürün adı">
           <input
