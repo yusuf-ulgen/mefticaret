@@ -632,11 +632,35 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
     .eq("order_id", order.id)
     .order("created_at", { ascending: false });
 
+  // Ödeme bilgisi: kartla ödeme yalnızca mağaza Mefpay modundaysa ve QNBpay
+  // yapılandırılmışsa gösterilir; havale modunda IBAN talimatı verilir.
+  const { data: settings } = await supabase
+    .from("store_settings")
+    .select("payment_mode, bank_iban, bank_account_holder")
+    .eq("store_id", store.id)
+    .maybeSingle();
+
+  const paymentMode = (settings?.payment_mode ?? null) as string | null;
+  const unpaid = order.payment_status !== "paid" && !["cancelled", "refunded"].includes(order.status);
+  let cardAvailable = false;
+  if (unpaid && paymentMode === "mefpay" && Number(order.grand_total) > 0) {
+    const { cardPaymentAvailable } = await import("@/lib/qnbpay-admin.server");
+    cardAvailable = await cardPaymentAvailable();
+  }
+
   return {
     store: { name: store.name, slug: store.slug },
     order,
     items: items ?? [],
     shipments: shipments ?? [],
+    payment: {
+      mode: paymentMode,
+      cardAvailable,
+      unpaid,
+      bankIban: unpaid && paymentMode === "bank_transfer" ? (settings?.bank_iban ?? null) : null,
+      bankAccountHolder:
+        unpaid && paymentMode === "bank_transfer" ? (settings?.bank_account_holder ?? null) : null,
+    },
   };
 }
 
