@@ -198,6 +198,19 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Bu mağazanın ayarlarını düzenleme yetkiniz yok");
 
+    // Tahsilat tercihi değiştiyse vitrin ödeme yöntemlerini gerçek altyapıya bağla.
+    if (data.patch.payment_mode) {
+      const { syncKolayPaymentMethods } = await import("@/lib/kolay-payments.server");
+      await syncKolayPaymentMethods(supabase, data.storeId, {
+        mode: data.patch.payment_mode,
+        iban: data.patch.bank_iban ?? (row as { bank_iban?: string | null }).bank_iban ?? null,
+        accountHolder:
+          data.patch.bank_account_holder ??
+          (row as { bank_account_holder?: string | null }).bank_account_holder ??
+          null,
+      });
+    }
+
     await insertAuditRow(supabase, {
       store_id: data.storeId,
       actor_id: userId,
