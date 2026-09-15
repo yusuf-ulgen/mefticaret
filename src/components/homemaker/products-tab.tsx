@@ -388,6 +388,13 @@ function AddProductSheet({
           </span>
         </label>
 
+        {file ? (
+          <BigButton tone="ghost" disabled={cleanBusy} onClick={() => void clearBackground()}>
+            {cleanBusy ? <Loader2 className="size-5 animate-spin" /> : <Wand2 className="size-5" />}
+            Arka Planı Temizle (AI)
+          </BigButton>
+        ) : null}
+
         <Field label="Ürün adı">
           <input
             className={inputClass}
