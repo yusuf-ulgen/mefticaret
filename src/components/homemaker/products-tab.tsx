@@ -24,6 +24,7 @@ import { createProduct, deleteProduct, generateVariants, setVariantOptions, upda
 import type { SimpleProduct } from "@/lib/homemaker-queries";
 import { addProductImage } from "@/lib/media.functions";
 import { uploadProductImage } from "@/lib/media";
+import { cleanProductPhoto } from "@/lib/photo-ai.functions";
 import { formatMoney } from "@/lib/mefti";
 
 const CATEGORIES = [
