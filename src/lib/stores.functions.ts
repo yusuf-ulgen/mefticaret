@@ -121,6 +121,7 @@ export const updateStore = createServerFn({ method: "POST" })
         patch: z
           .object({
             name: z.string().trim().min(2).max(60).optional(),
+            logo_url: z.string().trim().url().max(1200).optional(),
             industry: z.string().trim().max(40).optional(),
             currency: z.enum(["TRY", "USD", "EUR", "GBP", "AED", "SAR"]).optional(),
             locale: z.enum(["tr", "en", "de", "fr", "es", "ar"]).optional(),
@@ -170,6 +171,11 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
           .object({
             contact_email: z.string().trim().email().or(z.literal("")).optional(),
             contact_phone: z.string().trim().max(30).optional(),
+            bio: z.string().trim().max(400).optional(),
+            whatsapp_phone: z.string().trim().max(30).optional(),
+            payment_mode: z.enum(["mefpay", "bank_transfer"]).optional(),
+            bank_iban: z.string().trim().max(40).optional(),
+            bank_account_holder: z.string().trim().max(120).optional(),
             legal_name: z.string().trim().max(120).optional(),
             tax_number: z.string().trim().max(40).optional(),
             tax_included_prices: z.boolean().optional(),
