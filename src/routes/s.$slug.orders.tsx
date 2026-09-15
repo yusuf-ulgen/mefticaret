@@ -139,6 +139,27 @@ function OrdersBody({
                   Kargo: {FULFILLMENT_STATUS_LABELS[order.fulfillment_status] ?? order.fulfillment_status}
                 </span>
               </div>
+              {order.tracking_number ? (
+                <p style={{ margin: 0, fontSize: 13 }}>
+                  {order.shipping_carrier ?? "Kargo"} takip no:{" "}
+                  <strong>{order.tracking_number}</strong>
+                  {order.shipping_carrier === "Aras Kargo" ? (
+                    <>
+                      {" · "}
+                      <a
+                        href={`https://kargotakip.araskargo.com.tr/mainpage.aspx?code=${encodeURIComponent(
+                          order.tracking_number,
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "inherit", fontWeight: 600 }}
+                      >
+                        Kargoyu takip et
+                      </a>
+                    </>
+                  ) : null}
+                </p>
+              ) : null}
               <Link
                 to="/s/$slug/account"
                 params={{ slug }}

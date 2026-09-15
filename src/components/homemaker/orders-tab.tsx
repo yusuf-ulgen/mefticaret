@@ -1,10 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Copy, Loader2, MessageCircle, Truck } from "lucide-react";
+import { Check, Copy, Loader2, MessageCircle, PackageCheck, RefreshCw, Truck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { BigButton, SoftCard } from "@/components/homemaker/kolay-parts";
+import { refreshArasTracking, sendOrderToAras } from "@/lib/aras.functions";
 import { createPickupCode } from "@/lib/homemaker.functions";
 import type { SimpleOrder } from "@/lib/homemaker-queries";
 import { formatMoney } from "@/lib/mefti";
@@ -45,6 +46,43 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
   const [busy, setBusy] = useState<string | null>(null);
   const makeCode = useServerFn(createPickupCode);
   const patchOrder = useServerFn(updateOrder);
+  const sendToAras = useServerFn(sendOrderToAras);
+  const refreshTracking = useServerFn(refreshArasTracking);
+  const [syncing, setSyncing] = useState(false);
+
+  const shipWithAras = async (order: SimpleOrder) => {
+    setBusy(order.id);
+    try {
+      const result = await sendToAras({ data: { orderId: order.id } });
+      await queryClient.invalidateQueries({ queryKey: ["kolay-orders", storeId] });
+      toast.success(
+        result.trackingNumber
+          ? `Aras Kargo takip numarası: ${result.trackingNumber}`
+          : "Aras Kargo'ya iletildi. Takip numarası birkaç dakika içinde gelir.",
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kargo oluşturulamadı");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const syncAras = async () => {
+    setSyncing(true);
+    try {
+      const result = await refreshTracking({ data: { storeId } });
+      await queryClient.invalidateQueries({ queryKey: ["kolay-orders", storeId] });
+      toast.success(
+        result.updated > 0
+          ? `${result.updated} gönderinin durumu güncellendi`
+          : "Kargo durumlarında değişiklik yok",
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Durum sorgulanamadı");
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const rows = orders.filter((order) => bucketOf(order) === tab);
 
@@ -95,6 +133,22 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
         })}
       </div>
 
+      <button
+        type="button"
+        onClick={() => void syncAras()}
+        disabled={syncing}
+        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-hm-line bg-white text-sm font-semibold text-hm-ink-soft"
+      >
+        {syncing ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <RefreshCw className="size-4" />
+        )}
+        Kargo durumlarını güncelle
+      </button>
+
+
+
       {rows.length === 0 ? (
         <SoftCard className="text-center">
           <p className="font-semibold text-hm-ink">Burada sipariş yok</p>
@@ -106,6 +160,7 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
         rows.map((order) => {
           const phone = (order.customer_phone ?? "").replace(/\D/g, "");
           const waPhone = phone.startsWith("90") ? phone : `90${phone.replace(/^0/, "")}`;
+          const isAras = order.shipping_carrier === "Aras Kargo";
           return (
             <SoftCard key={order.id} className="grid gap-3">
               <div className="flex items-start justify-between gap-3">
@@ -142,22 +197,40 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
               ) : null}
 
               {order.tracking_number ? (
-                <div className="flex items-center gap-2 rounded-2xl bg-hm-teal-soft p-3">
-                  <span className="text-sm font-semibold text-hm-teal">
-                    Teslim kodu: {order.tracking_number}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label="Kodu kopyala"
-                    onClick={() => {
-                      void navigator.clipboard.writeText(order.tracking_number ?? "");
-                      toast.success("Kod kopyalandı");
-                    }}
-                    className="ml-auto grid size-10 place-items-center rounded-xl bg-white text-hm-teal"
-                  >
-                    <Copy className="size-4" />
-                  </button>
+                <div className="grid gap-2 rounded-2xl bg-hm-teal-soft p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-hm-teal">
+                      {isAras ? "Aras Kargo takip no" : "Teslim kodu"}: {order.tracking_number}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label="Kodu kopyala"
+                      onClick={() => {
+                        void navigator.clipboard.writeText(order.tracking_number ?? "");
+                        toast.success("Kopyalandı");
+                      }}
+                      className="ml-auto grid size-10 place-items-center rounded-xl bg-white text-hm-teal"
+                    >
+                      <Copy className="size-4" />
+                    </button>
+                  </div>
+                  {isAras ? (
+                    <a
+                      href={`https://kargotakip.araskargo.com.tr/mainpage.aspx?code=${encodeURIComponent(
+                        order.tracking_number,
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-semibold text-hm-teal underline"
+                    >
+                      Aras Kargo'da takip et
+                    </a>
+                  ) : null}
                 </div>
+              ) : isAras ? (
+                <p className="rounded-2xl bg-hm-teal-soft p-3 text-sm font-semibold text-hm-teal">
+                  Aras Kargo'ya iletildi, takip numarası bekleniyor.
+                </p>
               ) : null}
 
               <div className="flex flex-wrap gap-2">
@@ -173,18 +246,27 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
                     <MessageCircle className="size-4" /> WhatsApp'tan yaz
                   </a>
                 ) : null}
-                {tab !== "done" && !order.tracking_number ? (
+                {tab !== "done" && !isAras && !order.tracking_number ? (
                   <BigButton
                     tone="teal"
                     disabled={busy === order.id}
-                    onClick={() => void createCode(order)}
+                    onClick={() => void shipWithAras(order)}
                   >
                     {busy === order.id ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      <Truck className="size-4" />
+                      <PackageCheck className="size-4" />
                     )}
-                    Teslim kodu oluştur
+                    Aras Kargo ile gönder
+                  </BigButton>
+                ) : null}
+                {tab !== "done" && !isAras && !order.tracking_number ? (
+                  <BigButton
+                    tone="ghost"
+                    disabled={busy === order.id}
+                    onClick={() => void createCode(order)}
+                  >
+                    <Truck className="size-4" /> Kendim teslim edeceğim
                   </BigButton>
                 ) : null}
                 {tab !== "done" ? (
