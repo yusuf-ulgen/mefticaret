@@ -47,6 +47,21 @@ function OrderPage() {
   const [result, setResult] = useState<OrderStatus>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [paying, setPaying] = useState(false);
+
+  async function payWithCard() {
+    if (!result) return;
+    setPaying(true);
+    try {
+      const payment = await startOrderPayment({
+        data: { slug, orderNumber: result.order.order_number, email: email.trim() },
+      });
+      window.location.href = payment.link;
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Ödeme sayfası açılamadı");
+      setPaying(false);
+    }
+  }
 
   async function lookup(no: string, mail: string) {
     if (!no.trim() || !mail.trim()) {
