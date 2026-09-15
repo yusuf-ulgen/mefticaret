@@ -160,6 +160,7 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
         rows.map((order) => {
           const phone = (order.customer_phone ?? "").replace(/\D/g, "");
           const waPhone = phone.startsWith("90") ? phone : `90${phone.replace(/^0/, "")}`;
+          const isAras = order.shipping_carrier === "Aras Kargo";
           return (
             <SoftCard key={order.id} className="grid gap-3">
               <div className="flex items-start justify-between gap-3">
