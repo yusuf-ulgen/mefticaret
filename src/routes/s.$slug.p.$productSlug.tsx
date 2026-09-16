@@ -150,7 +150,9 @@ function ProductPage() {
   const { data } = useSuspenseQuery(storefrontProductQuery(slug, productSlug));
   const { data: storefrontData } = useQuery(storefrontQuery(slug));
   const [variantId, setVariantId] = useState<string | null>(null);
+  const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+
   const [zoomOpen, setZoomOpen] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const cart = useCart();
