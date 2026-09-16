@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
   AlertTriangle,
+  Bell,
   ArrowLeft,
   BarChart3,
   Package,
@@ -19,11 +20,13 @@ import { CampaignSheet, type CampaignBanner } from "@/components/homemaker/campa
 import { CustomersTab } from "@/components/homemaker/customers-tab";
 import { EarningsBar } from "@/components/homemaker/earnings-bar";
 import { InsightsTab } from "@/components/homemaker/insights-tab";
-import { ShareSheet } from "@/components/homemaker/kolay-parts";
+import { ShareSheet, Sheet } from "@/components/homemaker/kolay-parts";
 import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
 import { OrdersTab } from "@/components/homemaker/orders-tab";
 import { ProductsTab } from "@/components/homemaker/products-tab";
+import { ShopPageCard } from "@/components/homemaker/shop-page-card";
 import { StoreTab } from "@/components/homemaker/store-tab";
+import { useStoreRealtime } from "@/hooks/use-store-realtime";
 import { speakTurkish } from "@/hooks/use-voice";
 import { simpleOrdersQuery, simpleProductsQuery } from "@/lib/homemaker-queries";
 import { storeQuery, storeSettingsQuery } from "@/lib/store-queries";
@@ -58,6 +61,10 @@ function KolayPanel() {
   const [shareOpen, setShareOpen] = useState(false);
   const [campaignOpen, setCampaignOpen] = useState(false);
   const [origin, setOrigin] = useState("https://mefticaret.com");
+  const [bellOpen, setBellOpen] = useState(false);
+  const [seenCount, setSeenCount] = useState(0);
+  const liveEvents = useStoreRealtime(storeId, { notify: true });
+  const unread = Math.max(0, liveEvents.length - seenCount);
 
   const { data: store } = useQuery(storeQuery(storeId));
   const {
@@ -73,6 +80,13 @@ function KolayPanel() {
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
+
+  // Canlı sipariş geldiğinde Kolay Panel listelerini de tazele.
+  useEffect(() => {
+    if (liveEvents.length === 0) return;
+    void queryClient.invalidateQueries({ queryKey: ["kolay-orders", storeId] });
+    void queryClient.invalidateQueries({ queryKey: ["kolay-finance", storeId] });
+  }, [liveEvents.length, queryClient, storeId]);
 
   // Sesli sipariş bildirimi: yalnızca ayar açıkken ve gerçekten yeni sipariş geldiğinde okur.
   const seenOrders = useRef<Set<string> | null>(null);
@@ -160,6 +174,22 @@ function KolayPanel() {
           </div>
           <button
             type="button"
+            onClick={() => {
+              setBellOpen(true);
+              setSeenCount(liveEvents.length);
+            }}
+            aria-label="Yeni sipariş bildirimleri"
+            className="relative grid size-11 place-items-center rounded-2xl bg-hm-sand text-hm-ink"
+          >
+            <Bell className="size-5" />
+            {unread > 0 ? (
+              <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-hm-rose px-1 text-[11px] font-bold text-white">
+                {unread}
+              </span>
+            ) : null}
+          </button>
+          <button
+            type="button"
             onClick={() => setShareOpen(true)}
             aria-label="Mağazamı paylaş"
             className="grid size-11 place-items-center rounded-2xl bg-hm-rose text-white"
@@ -213,7 +243,18 @@ function KolayPanel() {
           </div>
         ) : null}
         {tab === "store" && !settingsPending && !settingsError ? (
-          <StoreTab store={store} settings={settings ?? null} storeUrl={storeUrl} />
+          <>
+            <StoreTab store={store} settings={settings ?? null} storeUrl={storeUrl} />
+            <div className="mt-4">
+              <ShopPageCard
+                storeUrl={storeUrl}
+                storeName={store.name}
+                products={products ?? []}
+                currency={store.currency ?? "TRY"}
+                live={live}
+              />
+            </div>
+          </>
         ) : null}
         {tab === "products" ? (
           <ProductsTab
@@ -225,7 +266,15 @@ function KolayPanel() {
             currency={store.currency ?? "TRY"}
           />
         ) : null}
-        {tab === "orders" ? <OrdersTab storeId={storeId} orders={orders ?? []} /> : null}
+        {tab === "orders" ? (
+          <OrdersTab
+            storeId={storeId}
+            storeSlug={store.slug}
+            orders={orders ?? []}
+            products={products ?? []}
+            currency={store.currency ?? "TRY"}
+          />
+        ) : null}
         {tab === "customers" ? <CustomersTab storeId={storeId} /> : null}
         {tab === "insights" ? <InsightsTab storeId={storeId} /> : null}
       </main>
@@ -258,6 +307,34 @@ function KolayPanel() {
           ))}
         </div>
       </nav>
+
+      <Sheet open={bellOpen} title="Bildirimler" onClose={() => setBellOpen(false)}>
+        {liveEvents.length === 0 ? (
+          <p className="rounded-2xl bg-hm-sand p-4 text-sm text-hm-ink-soft">
+            Şu an yeni bildirim yok. Sipariş geldiğinde burada ışık yanar ve ekranda uyarı çıkar.
+          </p>
+        ) : (
+          <div className="grid gap-2">
+            {liveEvents.map((event) => (
+              <button
+                key={event.id}
+                type="button"
+                onClick={() => {
+                  setTab("orders");
+                  setBellOpen(false);
+                }}
+                className="rounded-2xl border border-hm-line bg-white p-3 text-left"
+              >
+                <p className="text-sm font-semibold text-hm-ink">{event.title}</p>
+                <p className="text-xs text-hm-ink-soft">{event.detail}</p>
+                <p className="mt-1 text-[11px] text-hm-ink-soft">
+                  {new Date(event.at).toLocaleString("tr-TR")}
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
+      </Sheet>
 
       <ShareSheet
         open={shareOpen}

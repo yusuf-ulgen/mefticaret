@@ -15,9 +15,12 @@ export const manualOrderSchema = z.object({
   storeId: z.guid(),
   customer: z.object({
     fullName: z.string().trim().min(2).max(120),
-    email: z.string().trim().email().max(160),
+    // WhatsApp/telefon siparişlerinde e-posta olmayabilir; telefon yeterlidir.
+    email: z.string().trim().email().max(160).optional().nullable(),
     phone: z.string().trim().max(40).optional().nullable(),
   }),
+  /** Siparişin nereden geldiği: whatsapp, phone veya manual. */
+  source: z.enum(["manual", "whatsapp", "phone"]).default("manual"),
   address: z
     .object({
       city: z.string().trim().max(80).optional().nullable(),
@@ -100,13 +103,18 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
   const taxTotal = settings?.tax_included_prices ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
   const grandTotal = Number((taxable + shippingTotal + taxTotal).toFixed(2));
 
-  const email = input.customer.email.toLowerCase();
-  const { data: existingCustomer } = await supabase
+  const email = input.customer.email?.trim().toLowerCase() || null;
+  const phone = input.customer.phone?.trim() || null;
+  if (!email && !phone) throw new Error("Müşteri için telefon veya e-posta gerekli.");
+
+  // Aynı müşteriyi iki kez açmamak için önce e-posta, yoksa telefon ile eşleşme aranır.
+  const matcher = supabase
     .from("customers")
     .select("id, orders_count, total_spent")
-    .eq("store_id", store.id)
-    .ilike("email", email)
-    .maybeSingle();
+    .eq("store_id", store.id);
+  const { data: existingCustomer } = email
+    ? await matcher.ilike("email", email).maybeSingle()
+    : await matcher.eq("phone", phone!).maybeSingle();
 
   let customerId = existingCustomer?.id ?? null;
   if (!customerId) {
@@ -116,7 +124,7 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
         store_id: store.id,
         full_name: input.customer.fullName,
         email,
-        phone: input.customer.phone ?? null,
+        phone,
       })
       .select("id")
       .single();
@@ -152,6 +160,7 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
       tax_total: taxTotal,
       grand_total: grandTotal,
       customer_email: email,
+      customer_phone: phone,
       customer_name: input.customer.fullName,
       shipping_address: addressJson,
       billing_address: addressJson,
@@ -193,12 +202,18 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
     });
   }
 
+  const sourceLabel =
+    input.source === "whatsapp"
+      ? "WhatsApp siparişi panele kaydedildi"
+      : input.source === "phone"
+        ? "Telefon siparişi panele kaydedildi"
+        : "Panelden manuel sipariş oluşturuldu";
   await supabase.from("order_events").insert({
     order_id: order.id,
     store_id: store.id,
     kind: "created",
-    message: "Panelden manuel sipariş oluşturuldu",
-    meta: { source: "manual" },
+    message: sourceLabel,
+    meta: { source: input.source },
   });
 
   if (existingCustomer) {

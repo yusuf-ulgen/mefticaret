@@ -4,10 +4,13 @@ import {
   Banknote,
   Check,
   Copy,
+  CreditCard,
   Handshake,
   Loader2,
   MessageCircle,
   PackageCheck,
+  Phone,
+  Plus,
   RefreshCw,
   Search,
   Truck,
@@ -17,11 +20,13 @@ import { toast } from "sonner";
 
 import { DelegateSheet } from "@/components/homemaker/delegate-sheet";
 import { BigButton, Sheet, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
+import { ManualOrderSheet } from "@/components/homemaker/manual-order-sheet";
 import { refreshArasTracking, sendOrderToAras } from "@/lib/aras.functions";
 import { createPickupCode } from "@/lib/homemaker.functions";
-import type { SimpleOrder } from "@/lib/homemaker-queries";
+import type { SimpleOrder, SimpleProduct } from "@/lib/homemaker-queries";
 import { delegationsQuery } from "@/lib/kolay-v4-queries";
 import { formatMoney } from "@/lib/mefti";
+import { startOrderPayment } from "@/lib/order-payment.functions";
 import { updateOrder } from "@/lib/sales.functions";
 
 type Bucket = "new" | "toShip" | "done";
@@ -53,7 +58,19 @@ function addressText(order: SimpleOrder) {
 }
 
 /** "Siparişlerim" sekmesi: üç basit aşama, WhatsApp ve teslim kodu. */
-export function OrdersTab({ storeId, orders }: { storeId: string; orders: SimpleOrder[] }) {
+export function OrdersTab({
+  storeId,
+  storeSlug,
+  orders,
+  products = [],
+  currency = "TRY",
+}: {
+  storeId: string;
+  storeSlug?: string;
+  orders: SimpleOrder[];
+  products?: SimpleProduct[];
+  currency?: string;
+}) {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<Bucket>("new");
   const [busy, setBusy] = useState<string | null>(null);
@@ -63,10 +80,39 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
   const patchOrder = useServerFn(updateOrder);
   const sendToAras = useServerFn(sendOrderToAras);
   const refreshTracking = useServerFn(refreshArasTracking);
+  const payLink = useServerFn(startOrderPayment);
   const [syncing, setSyncing] = useState(false);
   const [delegate, setDelegate] = useState<SimpleOrder | null>(null);
   const [collecting, setCollecting] = useState<SimpleOrder | null>(null);
+  const [manualSource, setManualSource] = useState<"whatsapp" | "phone" | null>(null);
   const { data: delegations } = useQuery(delegationsQuery(storeId));
+
+  /** Müşteriye kartla ödeme bağlantısı üretir (tutar sunucuda siparişten okunur). */
+  const sendPaymentLink = async (order: SimpleOrder) => {
+    if (!storeSlug) return;
+    if (!order.customer_email) {
+      toast.error("Kart bağlantısı için siparişte e-posta adresi olmalı.");
+      return;
+    }
+    setBusy(order.id);
+    try {
+      const result = await payLink({
+        data: { slug: storeSlug, orderNumber: order.order_number, email: order.customer_email },
+      });
+      const digits = (order.customer_phone ?? "").replace(/\D/g, "");
+      const waPhone = digits.startsWith("90") ? digits : `90${digits.replace(/^0/, "")}`;
+      const text = `${order.order_number} numaralı siparişinizin ödemesini banka veya kredi kartıyla buradan yapabilirsiniz: ${result.link}`;
+      await navigator.clipboard.writeText(result.link).catch(() => {});
+      if (digits.length >= 10) {
+        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(text)}`, "_blank");
+      }
+      toast.success("Kartla ödeme bağlantısı hazır ve kopyalandı");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Ödeme bağlantısı oluşturulamadı");
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const delegationOf = (orderId: string) =>
     (delegations ?? []).find(
@@ -199,6 +245,20 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
           <p className="text-lg font-bold text-hm-amber">{unpaidCount}</p>
         </SoftCard>
       </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <BigButton tone="emerald" onClick={() => setManualSource("whatsapp")}>
+          <MessageCircle className="size-4" /> WhatsApp siparişi
+        </BigButton>
+        <BigButton tone="teal" onClick={() => setManualSource("phone")}>
+          <Phone className="size-4" /> Telefon siparişi
+        </BigButton>
+      </div>
+      <p className="-mt-2 flex items-center gap-1.5 text-xs text-hm-ink-soft">
+        <Plus className="size-3.5" /> WhatsApp veya telefonla gelen siparişleri buradan ekleyin,
+        listeye ve kazancınıza otomatik işlenir.
+      </p>
+
 
       <div className="relative">
         <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
@@ -371,6 +431,20 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
                     <Banknote className="size-4" /> Ödemeyi aldım
                   </BigButton>
                 ) : null}
+                {order.payment_status !== "paid" && storeSlug ? (
+                  <BigButton
+                    tone="ghost"
+                    disabled={busy === order.id}
+                    onClick={() => void sendPaymentLink(order)}
+                  >
+                    {busy === order.id ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <CreditCard className="size-4" />
+                    )}
+                    Kartla ödeme bağlantısı
+                  </BigButton>
+                ) : null}
                 {tab !== "done" && !isAras && !order.tracking_number ? (
                   <BigButton
                     tone="teal"
@@ -442,6 +516,15 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
       </Sheet>
 
       <DelegateSheet order={delegate} onClose={() => setDelegate(null)} storeId={storeId} />
+
+      <ManualOrderSheet
+        open={manualSource !== null}
+        onClose={() => setManualSource(null)}
+        storeId={storeId}
+        products={products}
+        currency={currency}
+        source={manualSource ?? "whatsapp"}
+      />
     </div>
   );
 }
