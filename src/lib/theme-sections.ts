@@ -516,6 +516,47 @@ export function sanitizeHtml(html: string) {
     .replace(/javascript:/gi, "");
 }
 
+/**
+ * Vitrinde mutlaka bulunması gereken gövde bileşenleri. Mağaza sahibi tema
+ * düzenleyicide yalnızca bir bileşen eklediyse (örn. sadece SSS), ana sayfa
+ * boş görünmesin diye eksik olanlar sanal satır olarak öne eklenir.
+ */
+const ESSENTIAL_BODY_SECTIONS: ThemeSectionType[] = ["hero", "category_grid", "product_grid"];
+
+/**
+ * Eksik temel gövde bileşenlerini tamamlar. Mevcut satırlara dokunulmaz;
+ * eklenen sanal satırlar veritabanına yazılmaz, yalnızca render için kullanılır.
+ */
+export function withEssentialSections(
+  rows: ThemeSectionRow[] | null | undefined,
+  options?: {
+    /** Belirli bileşenler için varsayılanların üzerine yazılacak ayarlar. */
+    overrides?: Partial<Record<ThemeSectionType, SectionSettings>>;
+    /** Tamamlanmayacak bileşenler (örn. ürün yoksa ürün grid'i eklenmez). */
+    skip?: ThemeSectionType[];
+  },
+): ThemeSectionRow[] {
+  const list = rows ?? [];
+  const present = new Set(list.map((row) => row.type));
+  const skip = new Set(options?.skip ?? []);
+  const missing = ESSENTIAL_BODY_SECTIONS.filter((type) => !present.has(type) && !skip.has(type));
+  if (missing.length === 0) return list;
+
+  const minPosition = list.reduce((min, row) => Math.min(min, row.position), 0);
+  const storeId = list[0]?.store_id ?? "";
+
+  const synthetic: ThemeSectionRow[] = missing.map((type, index) => ({
+    id: `auto-${type}`,
+    store_id: storeId,
+    type,
+    position: minPosition - (missing.length - index),
+    is_enabled: true,
+    settings: options?.overrides?.[type] ?? {},
+  }));
+
+  return [...synthetic, ...list];
+}
+
 /** Vitrin bileşeni hiç tanımlanmamışsa kullanılacak varsayılan düzen. */
 export const DEFAULT_SECTION_LAYOUT: ThemeSectionType[] = [
   "announcement_bar",

@@ -180,11 +180,36 @@ function Cta({
   );
 }
 
+/** Verilen zemin renginin üzerinde okunabilir yazı rengini döndürür. */
+function readableOn(background: string) {
+  const hex = background.trim().replace("#", "");
+  const full =
+    hex.length === 3
+      ? hex
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : hex;
+  if (!/^[0-9a-f]{6}$/i.test(full)) return { fg: "#f8fafc", soft: "rgba(248,250,252,.86)" };
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255) as [
+    number,
+    number,
+    number,
+  ];
+  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const luminance = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  return luminance > 0.5
+    ? { fg: "#0b1220", soft: "rgba(11,18,32,.72)" }
+    : { fg: "#f8fafc", soft: "rgba(248,250,252,.86)" };
+}
+
 function HeroSection({ settings, context }: SectionProps) {
-  const { t, fonts, muted, radius } = storefrontTokens(context.theme);
+  const { t, fonts, radius } = storefrontTokens(context.theme);
   const image = str(settings, "imageUrl");
   const center = str(settings, "align") === "center";
   const height = num(settings, "height", 420);
+  // Hero zemini her zaman renkli veya görselli olduğundan yazı rengi zemine göre seçilir.
+  const ink = image ? { fg: "#f8fafc", soft: "rgba(248,250,252,.86)" } : readableOn(t.primary_color);
 
   return (
     <section
@@ -202,16 +227,23 @@ function HeroSection({ settings, context }: SectionProps) {
         background: image
           ? `linear-gradient(rgba(6,10,16,.55), rgba(6,10,16,.55)), url(${image}) center/cover no-repeat`
           : `linear-gradient(140deg, ${t.primary_color}, ${t.accent_color})`,
-        color: image ? "#f8fafc" : undefined,
+        color: ink.fg,
       }}
     >
       <div style={{ maxWidth: 640 }}>
-        <h1 style={{ fontFamily: fonts.heading, fontSize: 42, lineHeight: 1.08, fontWeight: 700, margin: 0 }}>
+        <h1
+          style={{
+            fontFamily: fonts.heading,
+            fontSize: 42,
+            lineHeight: 1.08,
+            fontWeight: 700,
+            margin: 0,
+            color: ink.fg,
+          }}
+        >
           {str(settings, "title")}
         </h1>
-        <p style={{ color: image ? "rgba(248,250,252,.86)" : muted, marginTop: 14, fontSize: 16 }}>
-          {str(settings, "subtitle")}
-        </p>
+        <p style={{ color: ink.soft, marginTop: 14, fontSize: 16 }}>{str(settings, "subtitle")}</p>
         <Cta
           label={str(settings, "ctaLabel")}
           url={str(settings, "ctaUrl")}
