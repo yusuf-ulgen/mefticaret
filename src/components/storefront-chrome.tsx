@@ -462,6 +462,99 @@ export function StorefrontChrome({
 
       </header>
 
+      {menuOpen ? (
+        <div
+          role="dialog"
+          aria-label="Mağaza menüsü"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 60,
+            background: "rgba(6,10,16,.5)",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+          onClick={() => setMenuOpen(false)}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            style={{
+              width: "min(86vw, 340px)",
+              height: "100%",
+              overflowY: "auto",
+              background: t.background_color,
+              color: text,
+              padding: "18px 18px 32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <span style={{ fontFamily: fonts.heading, fontWeight: 700, fontSize: 16 }}>Menü</span>
+              <button
+                type="button"
+                onClick={() => setMenuOpen(false)}
+                aria-label="Menüyü kapat"
+                style={{
+                  background: "transparent",
+                  border: `1px solid ${border}`,
+                  borderRadius: radius,
+                  color: text,
+                  cursor: "pointer",
+                  fontSize: 16,
+                  lineHeight: 1,
+                  padding: "8px 12px",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            {mobileLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                params={{ slug: storeSlug }}
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  color: text,
+                  textDecoration: "none",
+                  fontSize: 15,
+                  padding: "13px 4px",
+                  borderBottom: `1px solid ${border}`,
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                storefrontUI.openCart();
+              }}
+              style={{
+                marginTop: 14,
+                background: t.accent_color,
+                color: isDark(t.accent_color) ? "#fff" : "#12181f",
+                border: "1px solid transparent",
+                borderRadius: radius,
+                padding: "13px 16px",
+                fontSize: 14,
+                fontWeight: 600,
+                fontFamily: "inherit",
+                cursor: "pointer",
+              }}
+            >
+              Sepetim{cartCount ? ` (${cartCount})` : ""}
+            </button>
+            <div style={{ marginTop: 12 }}>
+              <LanguageSwitcher storeSlug={storeSlug} color={muted} />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <main className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>
         {children}
       </main>
