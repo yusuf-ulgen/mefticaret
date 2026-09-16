@@ -430,6 +430,25 @@ function OrdersPage() {
                   <td className="px-4 py-3 text-xs text-muted-foreground">
                     {formatDateTime(order.placed_at)}
                   </td>
+                  <td className="px-4 py-3 text-right">
+                    {NEXT_STATUS[order.status] ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={advance.isPending}
+                        onClick={() =>
+                          advance.mutate({
+                            orderId: order.id,
+                            status: NEXT_STATUS[order.status]!.value,
+                          })
+                        }
+                      >
+                        {NEXT_STATUS[order.status]!.label}
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
