@@ -183,6 +183,17 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
             tax_included_prices: z.boolean().optional(),
             default_tax_rate: z.number().min(0).max(100).optional(),
             guest_checkout: z.boolean().optional(),
+            // Kolay Panel: üretim kapasitesi, güven rozetleri, teslimat ve sesli bildirim
+            daily_order_limit: z.number().int().min(0).max(500).nullable().optional(),
+            trust_badges: z.array(z.string().trim().min(1).max(40)).max(12).optional(),
+            gallery: z.array(z.string().trim().max(600)).max(12).optional(),
+            delivery_methods: z
+              .array(z.enum(["shipping", "local_delivery", "pickup"]))
+              .max(3)
+              .optional(),
+            cold_pack_enabled: z.boolean().optional(),
+            cold_pack_fee: z.number().min(0).max(5000).optional(),
+            voice_alerts: z.boolean().optional(),
           })
           .strict(),
       })

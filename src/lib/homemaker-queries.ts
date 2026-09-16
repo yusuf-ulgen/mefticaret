@@ -25,6 +25,10 @@ export type SimpleProduct = {
   currency: string;
   slug: string | null;
   product_type: string | null;
+  made_to_order: boolean;
+  prep_days: number;
+  custom_note_enabled: boolean;
+  custom_note_label: string | null;
   variants: SimpleVariant[];
   imageUrl: string;
   stock: number;
@@ -39,7 +43,7 @@ export const simpleProductsQuery = (storeId: string) =>
       const { data, error } = await supabase
         .from("products")
         .select(
-          "id, title, description, status, base_price, currency, slug, product_type, product_variants(id, title, price, stock, options), product_images(url, storage_path, position)",
+          "id, title, description, status, base_price, currency, slug, product_type, made_to_order, prep_days, custom_note_enabled, custom_note_label, product_variants(id, title, price, stock, options), product_images(url, storage_path, position)",
         )
         .eq("store_id", storeId)
         .order("created_at", { ascending: false })
@@ -64,6 +68,12 @@ export const simpleProductsQuery = (storeId: string) =>
           stock: variant.stock,
           options: (variant.options ?? null) as Record<string, string> | null,
         }));
+        const extra = row as unknown as {
+          made_to_order?: boolean | null;
+          prep_days?: number | null;
+          custom_note_enabled?: boolean | null;
+          custom_note_label?: string | null;
+        };
         return {
           id: row.id,
           title: row.title,
@@ -73,6 +83,10 @@ export const simpleProductsQuery = (storeId: string) =>
           currency: row.currency,
           slug: row.slug,
           product_type: row.product_type,
+          made_to_order: Boolean(extra.made_to_order),
+          prep_days: Number(extra.prep_days ?? 0),
+          custom_note_enabled: Boolean(extra.custom_note_enabled),
+          custom_note_label: extra.custom_note_label ?? null,
           variants,
           imageUrl: first
             ? first.storage_path

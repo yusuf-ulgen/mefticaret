@@ -1,9 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
+  Calculator,
+  Clock,
   Download,
   ImagePlus,
   Loader2,
+  Mic,
+  MicOff,
   Plus,
   Sparkles,
   Trash2,
@@ -12,6 +16,7 @@ import {
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { CostCalculatorSheet } from "@/components/homemaker/cost-calculator";
 import {
   BigButton,
   Field,
@@ -19,6 +24,7 @@ import {
   SoftCard,
   inputClass,
 } from "@/components/homemaker/kolay-parts";
+import { useSpeechToText } from "@/hooks/use-voice";
 import { generateProductCopy } from "@/lib/ai.functions";
 import { createProduct, deleteProduct, generateVariants, setVariantOptions, updateProduct, upsertVariant } from "@/lib/catalog.functions";
 import type { SimpleProduct } from "@/lib/homemaker-queries";
@@ -249,6 +255,23 @@ function AddProductSheet({
   const [optionOne, setOptionOne] = useState({ name: "Renk", values: "" });
   const [optionTwo, setOptionTwo] = useState({ name: "Boyut", values: "" });
   const [aiBusy, setAiBusy] = useState(false);
+  const [madeToOrder, setMadeToOrder] = useState(false);
+  const [prepDays, setPrepDays] = useState("2");
+  const [noteEnabled, setNoteEnabled] = useState(false);
+  const [noteLabel, setNoteLabel] = useState("Nakışlanacak isim");
+  const [calcOpen, setCalcOpen] = useState(false);
+  const [voiceTarget, setVoiceTarget] = useState<"title" | "description">("title");
+  const patchProduct = useServerFn(updateProduct);
+  const voice = useSpeechToText((text) => {
+    if (voiceTarget === "title") setTitle((current) => (current ? `${current} ${text}` : text));
+    else setDescription((current) => (current ? `${current} ${text}` : text));
+    toast.success("Söyledikleriniz yazıldı");
+  });
+  const listenFor = (target: "title" | "description") => {
+    setVoiceTarget(target);
+    if (voice.listening) voice.stop();
+    else voice.start();
+  };
   const cleanPhoto = useServerFn(cleanProductPhoto);
   const [cleanBusy, setCleanBusy] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -352,6 +375,20 @@ function AddProductSheet({
       if (groups.length > 0) {
         await saveOptions({ data: { productId: product.id, options: groups } });
         await buildVariants({ data: { productId: product.id, options: groups } });
+      }
+
+      if (madeToOrder || noteEnabled) {
+        await patchProduct({
+          data: {
+            productId: product.id,
+            patch: {
+              made_to_order: madeToOrder,
+              prep_days: madeToOrder ? Math.max(0, Math.min(90, Number(prepDays) || 0)) : 0,
+              custom_note_enabled: noteEnabled,
+              custom_note_label: noteEnabled ? noteLabel.trim().slice(0, 80) : null,
+            },
+          },
+        });
       }
 
       await queryClient.invalidateQueries({ queryKey: ["kolay-products", storeId] });

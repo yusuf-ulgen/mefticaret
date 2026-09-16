@@ -6853,6 +6853,56 @@ export type Database = {
           },
         ]
       }
+      payout_requests: {
+        Row: {
+          account_holder: string | null
+          amount: number
+          created_at: string
+          currency: string
+          iban: string | null
+          id: string
+          note: string | null
+          requested_by: string | null
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          account_holder?: string | null
+          amount: number
+          created_at?: string
+          currency?: string
+          iban?: string | null
+          id?: string
+          note?: string | null
+          requested_by?: string | null
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          account_holder?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          iban?: string | null
+          id?: string
+          note?: string | null
+          requested_by?: string | null
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_requests_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payouts: {
         Row: {
           created_at: string
@@ -8426,10 +8476,14 @@ export type Database = {
           cost_price: number | null
           created_at: string
           currency: string
+          custom_note_enabled: boolean
+          custom_note_label: string | null
           description: string | null
           height_cm: number | null
           id: string
           length_cm: number | null
+          made_to_order: boolean
+          prep_days: number
           product_type: string | null
           seller_id: string | null
           seller_name: string | null
@@ -8460,10 +8514,14 @@ export type Database = {
           cost_price?: number | null
           created_at?: string
           currency?: string
+          custom_note_enabled?: boolean
+          custom_note_label?: string | null
           description?: string | null
           height_cm?: number | null
           id?: string
           length_cm?: number | null
+          made_to_order?: boolean
+          prep_days?: number
           product_type?: string | null
           seller_id?: string | null
           seller_name?: string | null
@@ -8494,10 +8552,14 @@ export type Database = {
           cost_price?: number | null
           created_at?: string
           currency?: string
+          custom_note_enabled?: boolean
+          custom_note_label?: string | null
           description?: string | null
           height_cm?: number | null
           id?: string
           length_cm?: number | null
+          made_to_order?: boolean
+          prep_days?: number
           product_type?: string | null
           seller_id?: string | null
           seller_name?: string | null
@@ -11169,13 +11231,18 @@ export type Database = {
           bank_iban: string | null
           base_currency: string
           bio: string | null
+          cold_pack_enabled: boolean
+          cold_pack_fee: number
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          daily_order_limit: number | null
           default_locale: string
           default_tax_rate: number
+          delivery_methods: string[]
           display_currencies: string[]
           facebook_url: string | null
+          gallery: Json
           guest_checkout: boolean
           instagram_url: string | null
           legal_name: string | null
@@ -11186,7 +11253,9 @@ export type Database = {
           supported_locales: string[]
           tax_included_prices: boolean
           tax_number: string | null
+          trust_badges: string[]
           updated_at: string
+          voice_alerts: boolean
           weight_unit: string
           whatsapp_phone: string | null
         }
@@ -11197,13 +11266,18 @@ export type Database = {
           bank_iban?: string | null
           base_currency?: string
           bio?: string | null
+          cold_pack_enabled?: boolean
+          cold_pack_fee?: number
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          daily_order_limit?: number | null
           default_locale?: string
           default_tax_rate?: number
+          delivery_methods?: string[]
           display_currencies?: string[]
           facebook_url?: string | null
+          gallery?: Json
           guest_checkout?: boolean
           instagram_url?: string | null
           legal_name?: string | null
@@ -11214,7 +11288,9 @@ export type Database = {
           supported_locales?: string[]
           tax_included_prices?: boolean
           tax_number?: string | null
+          trust_badges?: string[]
           updated_at?: string
+          voice_alerts?: boolean
           weight_unit?: string
           whatsapp_phone?: string | null
         }
@@ -11225,13 +11301,18 @@ export type Database = {
           bank_iban?: string | null
           base_currency?: string
           bio?: string | null
+          cold_pack_enabled?: boolean
+          cold_pack_fee?: number
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          daily_order_limit?: number | null
           default_locale?: string
           default_tax_rate?: number
+          delivery_methods?: string[]
           display_currencies?: string[]
           facebook_url?: string | null
+          gallery?: Json
           guest_checkout?: boolean
           instagram_url?: string | null
           legal_name?: string | null
@@ -11242,7 +11323,9 @@ export type Database = {
           supported_locales?: string[]
           tax_included_prices?: boolean
           tax_number?: string | null
+          trust_badges?: string[]
           updated_at?: string
+          voice_alerts?: boolean
           weight_unit?: string
           whatsapp_phone?: string | null
         }
