@@ -553,6 +553,71 @@ function ProductPage() {
             commerce={commerce}
           />
 
+          {inStock ? (
+            <div
+              style={{
+                marginTop: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                border: `1px solid ${border}`,
+                borderRadius: radius,
+                padding: "10px 14px",
+                background: cardBg,
+              }}
+            >
+              <span style={{ fontSize: 13, color: muted }}>Adet</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button
+                  type="button"
+                  aria-label="Adet azalt"
+                  onClick={() => setQty((value) => Math.max(1, value - 1))}
+                  disabled={quantity <= 1}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: radius,
+                    border: `1px solid ${border}`,
+                    background: "transparent",
+                    color: "inherit",
+                    fontSize: 18,
+                    cursor: quantity <= 1 ? "not-allowed" : "pointer",
+                    opacity: quantity <= 1 ? 0.5 : 1,
+                  }}
+                >
+                  −
+                </button>
+                <span
+                  aria-live="polite"
+                  style={{ minWidth: 40, textAlign: "center", fontSize: 16, fontWeight: 700 }}
+                >
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Adet arttır"
+                  onClick={() => setQty((value) => Math.min(maxQty, value + 1))}
+                  disabled={quantity >= maxQty}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: radius,
+                    border: `1px solid ${border}`,
+                    background: "transparent",
+                    color: "inherit",
+                    fontSize: 18,
+                    cursor: quantity >= maxQty ? "not-allowed" : "pointer",
+                    opacity: quantity >= maxQty ? 0.5 : 1,
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+
           <button
             type="button"
             disabled={!inStock}
