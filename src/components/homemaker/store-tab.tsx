@@ -433,7 +433,7 @@ export function StoreTab({
         </label>
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-delivery" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Teslimat yöntemleriniz</p>
         <div className="grid gap-2">
           {(Object.keys(DELIVERY_LABELS) as DeliveryMethod[]).map((method) => {
