@@ -503,7 +503,7 @@ export function StoreTab({
         </label>
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-payment" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Paranızı nasıl almak istersiniz?</p>
         <div className="grid gap-2">
           <button
