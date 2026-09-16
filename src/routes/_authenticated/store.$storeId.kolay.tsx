@@ -4,11 +4,13 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   AlertTriangle,
   ArrowLeft,
+  BarChart3,
   Package,
   PartyPopper,
   Share2,
   ShoppingBag,
   Store,
+  Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
