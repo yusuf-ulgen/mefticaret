@@ -44,7 +44,12 @@ function KolayPanel() {
   const [origin, setOrigin] = useState("https://mefticaret.com");
 
   const { data: store } = useQuery(storeQuery(storeId));
-  const { data: settings } = useQuery(storeSettingsQuery(storeId));
+  const {
+    data: settings,
+    isPending: settingsPending,
+    isError: settingsError,
+    refetch: refetchSettings,
+  } = useQuery(storeSettingsQuery(storeId));
   const { data: products } = useQuery(simpleProductsQuery(storeId));
   const { data: orders } = useQuery(simpleOrdersQuery(storeId));
   const saveStore = useServerFn(updateStore);
@@ -120,7 +125,24 @@ function KolayPanel() {
       </header>
 
       <main className="mx-auto max-w-lg px-4 py-4">
-        {tab === "store" ? (
+        {tab === "store" && settingsPending ? (
+          <div className="grid min-h-48 place-items-center rounded-3xl border border-hm-line bg-white text-sm text-hm-ink-soft">
+            Mağaza bilgileriniz yükleniyor…
+          </div>
+        ) : null}
+        {tab === "store" && settingsError ? (
+          <div className="grid min-h-48 place-items-center gap-3 rounded-3xl border border-hm-line bg-white p-6 text-center">
+            <p className="text-sm text-hm-ink-soft">Mağaza bilgileriniz yüklenemedi. Bilgileriniz korunuyor.</p>
+            <button
+              type="button"
+              onClick={() => void refetchSettings()}
+              className="min-h-11 rounded-2xl bg-hm-rose px-5 text-sm font-semibold text-white"
+            >
+              Tekrar dene
+            </button>
+          </div>
+        ) : null}
+        {tab === "store" && !settingsPending && !settingsError ? (
           <StoreTab store={store} settings={settings ?? null} storeUrl={storeUrl} />
         ) : null}
         {tab === "products" ? (
