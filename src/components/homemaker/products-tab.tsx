@@ -161,6 +161,11 @@ export function ProductsTab({
                       : ""}
                     {product.stock > 0 ? `${product.stock} adet var` : "Şu an yok"}
                   </p>
+                  {product.made_to_order ? (
+                    <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-hm-rose-soft px-2 py-0.5 text-xs font-semibold text-hm-rose">
+                      <Clock className="size-3" /> Sipariş üzerine · {product.prep_days} gün
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
