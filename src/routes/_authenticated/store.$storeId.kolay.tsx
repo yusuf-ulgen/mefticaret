@@ -4,17 +4,21 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   AlertTriangle,
   ArrowLeft,
+  BarChart3,
   Package,
   PartyPopper,
   Share2,
   ShoppingBag,
   Store,
+  Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { CampaignSheet, type CampaignBanner } from "@/components/homemaker/campaign-sheet";
+import { CustomersTab } from "@/components/homemaker/customers-tab";
 import { EarningsBar } from "@/components/homemaker/earnings-bar";
+import { InsightsTab } from "@/components/homemaker/insights-tab";
 import { ShareSheet } from "@/components/homemaker/kolay-parts";
 import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
 import { OrdersTab } from "@/components/homemaker/orders-tab";
@@ -45,7 +49,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/kolay")({
   component: KolayPanel,
 });
 
-type Tab = "store" | "products" | "orders";
+type Tab = "store" | "products" | "orders" | "customers" | "insights";
 
 function KolayPanel() {
   const { storeId } = Route.useParams();
@@ -222,30 +226,34 @@ function KolayPanel() {
           />
         ) : null}
         {tab === "orders" ? <OrdersTab storeId={storeId} orders={orders ?? []} /> : null}
+        {tab === "customers" ? <CustomersTab storeId={storeId} /> : null}
+        {tab === "insights" ? <InsightsTab storeId={storeId} /> : null}
       </main>
 
       <nav
         aria-label="Panel bölümleri"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-hm-line bg-white pb-[env(safe-area-inset-bottom)]"
       >
-        <div className="mx-auto grid max-w-lg grid-cols-3">
+        <div className="mx-auto grid max-w-lg grid-cols-5">
           {(
             [
               ["store", "Mağazam", Store],
               ["products", "Ürünlerim", Package],
-              ["orders", "Siparişlerim", ShoppingBag],
+              ["orders", "Siparişler", ShoppingBag],
+              ["customers", "Müşteriler", Users],
+              ["insights", "Raporlar", BarChart3],
             ] as const
           ).map(([key, label, Icon]) => (
             <button
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`grid min-h-16 place-items-center gap-1 py-2 text-xs font-semibold transition-colors ${
+              className={`grid min-h-16 place-items-center gap-1 px-0.5 py-2 text-[11px] font-semibold leading-tight transition-colors ${
                 tab === key ? "text-hm-rose" : "text-hm-ink-soft"
               }`}
             >
-              <Icon className="size-6" />
-              {label}
+              <Icon className="size-5" />
+              <span className="w-full truncate text-center">{label}</span>
             </button>
           ))}
         </div>
