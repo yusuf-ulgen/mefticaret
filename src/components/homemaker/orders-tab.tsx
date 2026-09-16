@@ -153,7 +153,35 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
 
   return (
     <div className="grid gap-4">
+      <div className="grid grid-cols-3 gap-2">
+        <SoftCard className="text-center">
+          <p className="text-xs text-hm-ink-soft">Bugün</p>
+          <p className="text-lg font-bold text-hm-ink">{todayOrders.length}</p>
+        </SoftCard>
+        <SoftCard className="text-center">
+          <p className="text-xs text-hm-ink-soft">Bugünkü tutar</p>
+          <p className="text-lg font-bold text-hm-rose">
+            {formatMoney(todayTotal, orders[0]?.currency ?? "TRY")}
+          </p>
+        </SoftCard>
+        <SoftCard className="text-center">
+          <p className="text-xs text-hm-ink-soft">Ödeme bekliyor</p>
+          <p className="text-lg font-bold text-hm-amber">{unpaidCount}</p>
+        </SoftCard>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Müşteri adı, telefon veya sipariş no ara"
+          className={`${inputClass} pl-11`}
+        />
+      </div>
+
       <div className="grid grid-cols-3 gap-1 rounded-3xl border border-hm-line bg-white p-1.5">
+
         {(Object.keys(BUCKET_LABELS) as Bucket[]).map((key) => {
           const count = orders.filter((order) => bucketOf(order) === key).length;
           return (
