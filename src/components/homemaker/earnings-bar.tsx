@@ -20,6 +20,7 @@ export function EarningsBar({ storeId }: { storeId: string }) {
   const { data: payouts } = useQuery(kolayPayoutsQuery(storeId));
   const askPayout = useServerFn(requestKolayPayout);
   const [busy, setBusy] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const currency = data?.currency ?? "TRY";
   const pending = (payouts ?? []).filter((row) => row.status === "pending");
