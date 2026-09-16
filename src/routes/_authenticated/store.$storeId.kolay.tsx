@@ -1,10 +1,19 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, ArrowLeft, Package, Share2, ShoppingBag, Store } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Package,
+  PartyPopper,
+  Share2,
+  ShoppingBag,
+  Store,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { CampaignSheet, type CampaignBanner } from "@/components/homemaker/campaign-sheet";
 import { EarningsBar } from "@/components/homemaker/earnings-bar";
 import { ShareSheet } from "@/components/homemaker/kolay-parts";
 import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
@@ -43,6 +52,7 @@ function KolayPanel() {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<Tab>("store");
   const [shareOpen, setShareOpen] = useState(false);
+  const [campaignOpen, setCampaignOpen] = useState(false);
   const [origin, setOrigin] = useState("https://mefticaret.com");
 
   const { data: store } = useQuery(storeQuery(storeId));
@@ -62,9 +72,7 @@ function KolayPanel() {
 
   // Sesli sipariş bildirimi: yalnızca ayar açıkken ve gerçekten yeni sipariş geldiğinde okur.
   const seenOrders = useRef<Set<string> | null>(null);
-  const voiceAlerts = Boolean(
-    (settings as { voice_alerts?: boolean | null } | null)?.voice_alerts,
-  );
+  const voiceAlerts = Boolean((settings as { voice_alerts?: boolean | null } | null)?.voice_alerts);
   useEffect(() => {
     const list = orders ?? [];
     if (seenOrders.current === null) {
@@ -90,6 +98,8 @@ function KolayPanel() {
     return placed.toDateString() === now.toDateString();
   }).length;
   const capacityFull = dailyLimit > 0 && todayCount >= dailyLimit;
+  const campaign = ((settings as { campaign_banner?: CampaignBanner } | null)?.campaign_banner ??
+    null) as CampaignBanner;
 
   if (!store) {
     return (
@@ -140,9 +150,7 @@ function KolayPanel() {
                 live ? "bg-hm-emerald-soft text-hm-emerald" : "bg-hm-rose-soft text-hm-rose"
               }`}
             >
-              <span
-                className={`size-2 rounded-full ${live ? "bg-hm-emerald" : "bg-hm-rose"}`}
-              />
+              <span className={`size-2 rounded-full ${live ? "bg-hm-emerald" : "bg-hm-rose"}`} />
               {live ? "Canlı" : "Bakımda"}
             </button>
           </div>
@@ -156,9 +164,24 @@ function KolayPanel() {
           </button>
         </div>
         <EarningsBar storeId={storeId} />
+        <div className="mx-auto flex w-full max-w-lg gap-2 px-4 pb-2">
+          <button
+            type="button"
+            onClick={() => setCampaignOpen(true)}
+            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-hm-rose-soft px-3 text-sm font-semibold text-hm-rose"
+          >
+            <PartyPopper className="size-4" />
+            {campaign?.code ? "Kampanyam açık" : "Özel gün kampanyası başlat"}
+          </button>
+        </div>
       </header>
 
       <main className="mx-auto max-w-lg px-4 py-4">
+        {campaign?.message ? (
+          <div className="mb-4 rounded-3xl bg-hm-emerald-soft px-4 py-3 text-sm font-semibold text-hm-emerald">
+            {campaign.message}
+          </div>
+        ) : null}
         {capacityFull ? (
           <div className="mb-4 flex items-center gap-2 rounded-3xl bg-hm-rose-soft px-4 py-3 text-sm font-semibold text-hm-rose">
             <AlertTriangle className="size-5 shrink-0" />
@@ -173,7 +196,9 @@ function KolayPanel() {
         ) : null}
         {tab === "store" && settingsError ? (
           <div className="grid min-h-48 place-items-center gap-3 rounded-3xl border border-hm-line bg-white p-6 text-center">
-            <p className="text-sm text-hm-ink-soft">Mağaza bilgileriniz yüklenemedi. Bilgileriniz korunuyor.</p>
+            <p className="text-sm text-hm-ink-soft">
+              Mağaza bilgileriniz yüklenemedi. Bilgileriniz korunuyor.
+            </p>
             <button
               type="button"
               onClick={() => void refetchSettings()}
@@ -191,6 +216,7 @@ function KolayPanel() {
             storeId={storeId}
             storeName={store.name}
             storeUrl={storeUrl}
+            storeLogo={store.logo_url}
             products={products ?? []}
             currency={store.currency ?? "TRY"}
           />
@@ -230,6 +256,12 @@ function KolayPanel() {
         onClose={() => setShareOpen(false)}
         url={storeUrl}
         storeName={store.name}
+      />
+      <CampaignSheet
+        open={campaignOpen}
+        onClose={() => setCampaignOpen(false)}
+        storeId={storeId}
+        banner={campaign}
       />
       <OnboardingWizard storeId={storeId} />
     </div>

@@ -9,6 +9,7 @@ import {
   Mic,
   MicOff,
   Plus,
+  Printer,
   Sparkles,
   Trash2,
   Wand2,
@@ -17,16 +18,19 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { CostCalculatorSheet } from "@/components/homemaker/cost-calculator";
-import {
-  BigButton,
-  Field,
-  Sheet,
-  SoftCard,
-  inputClass,
-} from "@/components/homemaker/kolay-parts";
+import { LabelSheet } from "@/components/homemaker/label-designer";
+import { MaterialsPanel } from "@/components/homemaker/materials-panel";
+import { BigButton, Field, Sheet, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
 import { useSpeechToText } from "@/hooks/use-voice";
 import { generateProductCopy } from "@/lib/ai.functions";
-import { createProduct, deleteProduct, generateVariants, setVariantOptions, updateProduct, upsertVariant } from "@/lib/catalog.functions";
+import {
+  createProduct,
+  deleteProduct,
+  generateVariants,
+  setVariantOptions,
+  updateProduct,
+  upsertVariant,
+} from "@/lib/catalog.functions";
 import type { SimpleProduct } from "@/lib/homemaker-queries";
 import { addProductImage } from "@/lib/media.functions";
 import { uploadProductImage } from "@/lib/media";
@@ -48,12 +52,14 @@ const CATEGORIES = [
 export function ProductsTab({
   storeId,
   storeName,
+  storeLogo,
   storeUrl,
   products,
   currency,
 }: {
   storeId: string;
   storeName: string;
+  storeLogo?: string | null;
   storeUrl: string;
   products: SimpleProduct[];
   currency: string;
@@ -61,6 +67,7 @@ export function ProductsTab({
   const queryClient = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
   const [social, setSocial] = useState<SimpleProduct | null>(null);
+  const [labelProduct, setLabelProduct] = useState<SimpleProduct | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const saveVariant = useServerFn(upsertVariant);
@@ -128,6 +135,8 @@ export function ProductsTab({
         <Plus className="size-5" /> Yeni ürün ekle
       </BigButton>
 
+      <MaterialsPanel storeId={storeId} />
+
       {products.length === 0 ? (
         <SoftCard className="text-center">
           <p className="font-semibold text-hm-ink">Henüz ürün yok</p>
@@ -156,9 +165,7 @@ export function ProductsTab({
                     {formatMoney(product.base_price, product.currency || currency)}
                   </p>
                   <p className="mt-0.5 text-xs text-hm-ink-soft">
-                    {product.variants.length > 1
-                      ? `${product.variants.length} seçenek · `
-                      : ""}
+                    {product.variants.length > 1 ? `${product.variants.length} seçenek · ` : ""}
                     {product.stock > 0 ? `${product.stock} adet var` : "Şu an yok"}
                   </p>
                   {product.made_to_order ? (
@@ -203,6 +210,13 @@ export function ProductsTab({
                 </button>
                 <button
                   type="button"
+                  onClick={() => setLabelProduct(product)}
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-2xl bg-hm-teal-soft px-4 text-sm font-semibold text-hm-teal"
+                >
+                  <Printer className="size-4" /> Etiket tasarla
+                </button>
+                <button
+                  type="button"
                   aria-label="Ürünü sil"
                   disabled={busyId === product.id}
                   onClick={() => void remove(product)}
@@ -226,6 +240,15 @@ export function ProductsTab({
         product={social}
         onClose={() => setSocial(null)}
         storeName={storeName}
+        storeUrl={storeUrl}
+        currency={currency}
+      />
+      <LabelSheet
+        product={labelProduct}
+        onClose={() => setLabelProduct(null)}
+        storeId={storeId}
+        storeName={storeName}
+        storeLogo={storeLogo ?? null}
         storeUrl={storeUrl}
         currency={currency}
       />
@@ -575,9 +598,7 @@ function AddProductSheet({
               onChange={(event) => setNoteEnabled(event.target.checked)}
               className="size-5 accent-hm-teal"
             />
-            <span className="text-sm font-semibold text-hm-ink">
-              Müşteri özel not yazabilsin
-            </span>
+            <span className="text-sm font-semibold text-hm-ink">Müşteri özel not yazabilsin</span>
           </label>
           {noteEnabled ? (
             <Field label="Not başlığı" hint="Örn. Nakışlanacak isim, pasta yazısı…">
@@ -590,31 +611,29 @@ function AddProductSheet({
           ) : null}
         </SoftCard>
 
-
         <SoftCard className="grid gap-3 bg-hm-sand">
           <p className="text-sm font-semibold text-hm-ink">Seçenekler (isteğe bağlı)</p>
           <p className="text-xs text-hm-ink-soft">
             Örn. Renk: kırmızı, mavi — Boyut: küçük, büyük. Virgülle ayırın.
           </p>
-          {[
-            [optionOne, setOptionOne] as const,
-            [optionTwo, setOptionTwo] as const,
-          ].map(([group, setGroup], index) => (
-            <div key={index} className="grid grid-cols-2 gap-2">
-              <input
-                className={inputClass}
-                value={group.name}
-                onChange={(event) => setGroup({ ...group, name: event.target.value })}
-                placeholder={index === 0 ? "Renk" : "Boyut"}
-              />
-              <input
-                className={inputClass}
-                value={group.values}
-                onChange={(event) => setGroup({ ...group, values: event.target.value })}
-                placeholder="kırmızı, mavi"
-              />
-            </div>
-          ))}
+          {[[optionOne, setOptionOne] as const, [optionTwo, setOptionTwo] as const].map(
+            ([group, setGroup], index) => (
+              <div key={index} className="grid grid-cols-2 gap-2">
+                <input
+                  className={inputClass}
+                  value={group.name}
+                  onChange={(event) => setGroup({ ...group, name: event.target.value })}
+                  placeholder={index === 0 ? "Renk" : "Boyut"}
+                />
+                <input
+                  className={inputClass}
+                  value={group.values}
+                  onChange={(event) => setGroup({ ...group, values: event.target.value })}
+                  placeholder="kırmızı, mavi"
+                />
+              </div>
+            ),
+          )}
         </SoftCard>
 
         <BigButton onClick={submit} disabled={saving} className="w-full">
@@ -693,7 +712,11 @@ function SocialSheet({
       ctx.fillText(product.title.slice(0, 26), 60, size * 0.72 + 90);
       ctx.fillStyle = "#c2415a";
       ctx.font = "700 68px Geist, sans-serif";
-      ctx.fillText(formatMoney(product.base_price, product.currency || currency), 60, size * 0.72 + 175);
+      ctx.fillText(
+        formatMoney(product.base_price, product.currency || currency),
+        60,
+        size * 0.72 + 175,
+      );
       ctx.fillStyle = "#7a716d";
       ctx.font = "400 34px Geist, sans-serif";
       ctx.fillText(`${storeName} · ${storeUrl.replace(/^https?:\/\//, "")}`, 60, size * 0.72 + 240);
@@ -720,8 +743,8 @@ function SocialSheet({
           <img src={image} alt="" className="w-full rounded-3xl border border-hm-line" />
         ) : (
           <p className="text-sm text-hm-ink-soft">
-            Ürün fotoğrafınızı fiyat ve mağaza adresinizle birlikte kare bir görsele
-            dönüştürelim; Instagram ve WhatsApp durumunda paylaşabilirsiniz.
+            Ürün fotoğrafınızı fiyat ve mağaza adresinizle birlikte kare bir görsele dönüştürelim;
+            Instagram ve WhatsApp durumunda paylaşabilirsiniz.
           </p>
         )}
         <BigButton onClick={build} disabled={busy}>

@@ -74,9 +74,7 @@ export function OnboardingWizard({ storeId }: { storeId: string }) {
           <BigButton tone="ghost" onClick={finish}>
             Geç
           </BigButton>
-          <BigButton
-            onClick={() => (step === STEPS.length - 1 ? finish() : setStep(step + 1))}
-          >
+          <BigButton onClick={() => (step === STEPS.length - 1 ? finish() : setStep(step + 1))}>
             {step === STEPS.length - 1 ? "Başla" : "Devam"}
           </BigButton>
         </div>

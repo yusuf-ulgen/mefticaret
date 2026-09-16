@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { BigButton, Field, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
+import { ShopQrCard } from "@/components/homemaker/shop-qr-card";
 import { uploadStoreLogo } from "@/lib/media";
 import { updateStoreSettings, updateStore } from "@/lib/stores.functions";
 
@@ -38,6 +39,7 @@ type Settings = {
   cold_pack_enabled?: boolean | null;
   cold_pack_fee?: number | null;
   voice_alerts?: boolean | null;
+  campaign_banner?: unknown;
 } | null;
 
 const BADGES = [
@@ -437,17 +439,15 @@ export function StoreTab({
             type="button"
             onClick={() => setMode("mefpay")}
             className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors ${
-              mode === "mefpay"
-                ? "border-hm-emerald bg-hm-emerald-soft"
-                : "border-hm-line bg-white"
+              mode === "mefpay" ? "border-hm-emerald bg-hm-emerald-soft" : "border-hm-line bg-white"
             }`}
           >
             <ShieldCheck className="mt-0.5 size-5 text-hm-emerald" />
             <span>
               <span className="block font-semibold text-hm-ink">Mefpay ile kartla tahsilat</span>
               <span className="block text-sm text-hm-ink-soft">
-                Müşteri kredi kartıyla öder, para hesabınıza geçer. Vergi muafiyeti belgeniz
-                varsa da kullanabilirsiniz.
+                Müşteri kredi kartıyla öder, para hesabınıza geçer. Vergi muafiyeti belgeniz varsa
+                da kullanabilirsiniz.
               </span>
             </span>
           </button>
@@ -537,6 +537,12 @@ export function StoreTab({
           </button>
         </div>
       </SoftCard>
+
+      <ShopQrCard
+        storeName={name.trim() || store.name}
+        storeUrl={storeUrl}
+        campaignCode={(settings?.campaign_banner as { code?: string } | null)?.code ?? null}
+      />
 
       <BigButton onClick={save} disabled={saving} className="w-full">
         {saving ? <Loader2 className="size-5 animate-spin" /> : <Save className="size-5" />}
