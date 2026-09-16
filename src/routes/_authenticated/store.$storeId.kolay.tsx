@@ -213,7 +213,18 @@ function KolayPanel() {
           </div>
         ) : null}
         {tab === "store" && !settingsPending && !settingsError ? (
-          <StoreTab store={store} settings={settings ?? null} storeUrl={storeUrl} />
+          <>
+            <StoreTab store={store} settings={settings ?? null} storeUrl={storeUrl} />
+            <div className="mt-4">
+              <ShopPageCard
+                storeUrl={storeUrl}
+                storeName={store.name}
+                products={products ?? []}
+                currency={store.currency ?? "TRY"}
+                live={live}
+              />
+            </div>
+          </>
         ) : null}
         {tab === "products" ? (
           <ProductsTab
@@ -225,7 +236,15 @@ function KolayPanel() {
             currency={store.currency ?? "TRY"}
           />
         ) : null}
-        {tab === "orders" ? <OrdersTab storeId={storeId} orders={orders ?? []} /> : null}
+        {tab === "orders" ? (
+          <OrdersTab
+            storeId={storeId}
+            storeSlug={store.slug}
+            orders={orders ?? []}
+            products={products ?? []}
+            currency={store.currency ?? "TRY"}
+          />
+        ) : null}
         {tab === "customers" ? <CustomersTab storeId={storeId} /> : null}
         {tab === "insights" ? <InsightsTab storeId={storeId} /> : null}
       </main>
