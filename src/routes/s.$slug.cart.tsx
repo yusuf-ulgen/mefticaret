@@ -200,23 +200,54 @@ function CartPage() {
           </Link>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.6fr) minmax(260px,.9fr)", gap: 24 }}>
+        <div className="sf-cart-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.6fr) minmax(260px,.9fr)", gap: 24 }}>
           <div style={{ display: "grid", gap: 12 }}>
             {lines.map((line) => (
               <div
                 key={line.variantId}
+                className="sf-cart-line"
                 style={{
                   border: `1px solid ${border}`,
                   borderRadius: radius,
                   background: cardBg,
-                  padding: 16,
+                  padding: 14,
                   display: "flex",
-                  gap: 16,
+                  gap: 14,
                   alignItems: "center",
                   flexWrap: "wrap",
                 }}
               >
-                <div style={{ flex: "1 1 200px", minWidth: 0 }}>
+                <Link
+                  to="/s/$slug/p/$productSlug"
+                  params={{ slug, productSlug: line.productSlug }}
+                  aria-label={line.title}
+                  style={{
+                    width: 68,
+                    height: 68,
+                    flex: "0 0 auto",
+                    borderRadius: radius,
+                    overflow: "hidden",
+                    border: `1px solid ${border}`,
+                    display: "grid",
+                    placeItems: "center",
+                    textDecoration: "none",
+                    color: muted,
+                    fontWeight: 700,
+                    fontSize: 20,
+                  }}
+                >
+                  {line.imageUrl ? (
+                    <img
+                      src={line.imageUrl}
+                      alt={line.title}
+                      loading="lazy"
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  ) : (
+                    <span aria-hidden>{line.title.slice(0, 1).toUpperCase()}</span>
+                  )}
+                </Link>
+                <div style={{ flex: "1 1 160px", minWidth: 0 }}>
                   <Link
                     to="/s/$slug/p/$productSlug"
                     params={{ slug, productSlug: line.productSlug }}
@@ -227,10 +258,33 @@ function CartPage() {
                   <div style={{ fontSize: 13, color: muted, marginTop: 4 }}>
                     {line.variantTitle} · {formatMoney(line.price, line.currency)}
                   </div>
+                  {line.maxStock > 0 && line.maxStock <= 5 ? (
+                    <div style={{ fontSize: 12, color: "#e5484d", marginTop: 4 }}>Son {line.maxStock} adet</div>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => cart.remove(line.variantId)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: "6px 0 0",
+                      color: muted,
+                      cursor: "pointer",
+                      fontSize: 13,
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Kaldır
+                  </button>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <QtyButton label="−" onClick={() => cart.setQuantity(line.variantId, line.quantity - 1)} border={border} radius={radius} />
-                  <span style={{ minWidth: 28, textAlign: "center", fontSize: 14 }}>{line.quantity}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <QtyButton
+                    label="−"
+                    onClick={() => cart.setQuantity(line.variantId, line.quantity - 1)}
+                    border={border}
+                    radius={radius}
+                  />
+                  <span style={{ minWidth: 28, textAlign: "center", fontSize: 15, fontWeight: 600 }}>{line.quantity}</span>
                   <QtyButton
                     label="+"
                     disabled={line.quantity >= line.maxStock}
@@ -239,19 +293,13 @@ function CartPage() {
                     radius={radius}
                   />
                 </div>
-                <div style={{ width: 110, textAlign: "right", fontWeight: 600 }}>
+                <div style={{ minWidth: 90, textAlign: "right", fontWeight: 700, flex: "0 0 auto" }}>
                   {formatMoney(line.price * line.quantity, line.currency)}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => cart.remove(line.variantId)}
-                  style={{ background: "none", border: "none", color: muted, cursor: "pointer", fontSize: 13 }}
-                >
-                  Kaldır
-                </button>
               </div>
             ))}
           </div>
+
 
           <aside
             style={{
@@ -436,6 +484,50 @@ function CartPage() {
               Ödemeye geç
             </Link>
           </aside>
+
+          {/* Mobil: özet kartı ekranın altına inince görünen sabit ödeme şeridi */}
+          <div
+            className="sf-cart-bar"
+            style={{
+              position: "fixed",
+              left: 12,
+              right: 12,
+              bottom: 12,
+              zIndex: 65,
+              display: "none",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              padding: "10px 12px",
+              background: cardBg,
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+              boxShadow: "0 10px 30px rgba(0,0,0,.18)",
+            }}
+          >
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 11.5, color: muted }}>
+                {lines.reduce((sum, line) => sum + line.quantity, 0)} ürün · genel toplam
+              </div>
+              <div style={{ fontSize: 17, fontWeight: 700 }}>{formatMoney(grandTotal, currency)}</div>
+            </div>
+            <Link
+              to="/s/$slug/checkout"
+              params={{ slug }}
+              style={{
+                background: t.accent_color,
+                color: "#12181f",
+                padding: "12px 16px",
+                borderRadius: radius,
+                fontSize: 14,
+                fontWeight: 700,
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Ödemeye geç
+            </Link>
+          </div>
         </div>
       )}
       <RecentlyViewed

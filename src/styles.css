@@ -451,6 +451,25 @@
   }
 }
 
+/* Sepet: mobilde tek kolon + sabit ödeme şeridi */
+@media (max-width: 900px) {
+  .sf-cart-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding-bottom: 96px !important;
+  }
+  .sf-cart-bar {
+    display: flex !important;
+  }
+  .sf-cart-line > div:last-child {
+    margin-left: auto;
+  }
+}
+@media (max-width: 720px) {
+  .sf-cart-bar {
+    bottom: calc(72px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
 /* Markdown içerik (blog yazıları ve editör önizlemesi) */
 .markdown-body {
   line-height: 1.75;
