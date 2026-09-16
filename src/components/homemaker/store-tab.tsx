@@ -475,7 +475,7 @@ export function StoreTab({
         ) : null}
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-quota" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Günlük sipariş kotanız</p>
         <Field
           label="Bir günde en fazla kaç sipariş alabilirsiniz?"
