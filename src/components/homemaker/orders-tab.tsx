@@ -139,6 +139,33 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
     }
   };
 
+  /** Kapıda nakit/kart veya havale ile alınan tahsilatı işaretler; tutar siparişten gelir. */
+  const collect = async (order: SimpleOrder, method: string) => {
+    setBusy(order.id);
+    try {
+      await patchOrder({
+        data: {
+          orderId: order.id,
+          patch: {
+            payment_status: "paid",
+            note: [order.note ?? "", `Ödeme alındı: ${method}`].filter(Boolean).join("\n"),
+          },
+        },
+      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["kolay-orders", storeId] }),
+        queryClient.invalidateQueries({ queryKey: ["kolay-finance", storeId] }),
+        queryClient.invalidateQueries({ queryKey: ["kolay-finance-detail", storeId] }),
+      ]);
+      setCollect(null);
+      toast.success(`${method} ile ödeme alındı olarak işaretlendi`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "İşaretlenemedi");
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const complete = async (order: SimpleOrder) => {
     setBusy(order.id);
     try {
