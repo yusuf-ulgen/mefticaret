@@ -160,6 +160,7 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
       tax_total: taxTotal,
       grand_total: grandTotal,
       customer_email: email,
+      customer_phone: phone,
       customer_name: input.customer.fullName,
       shipping_address: addressJson,
       billing_address: addressJson,
