@@ -150,7 +150,9 @@ function ProductPage() {
   const { data } = useSuspenseQuery(storefrontProductQuery(slug, productSlug));
   const { data: storefrontData } = useQuery(storefrontQuery(slug));
   const [variantId, setVariantId] = useState<string | null>(null);
+  const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+
   const [zoomOpen, setZoomOpen] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const cart = useCart();
@@ -182,6 +184,14 @@ function ProductPage() {
   const selected = variants.find((variant) => variant.id === variantId) ?? variants[0] ?? null;
   const price = selected ? selected.price : product.base_price;
   const inStock = selected ? selected.stock > 0 : true;
+  const stockLeft = selected?.stock ?? 0;
+  const maxQty = Math.max(1, stockLeft || 1);
+  const quantity = Math.min(Math.max(1, qty), maxQty);
+  const compareAt = Number(product.compare_at_price ?? 0);
+  const discountPct =
+    compareAt > Number(price) ? Math.round((1 - Number(price) / compareAt) * 100) : 0;
+  const crumb = { color: muted, textDecoration: "none" } as const;
+
   const variantImage = selected?.imageUrl
     ? { url: selected.imageUrl, alt: selected.title }
     : null;
@@ -212,19 +222,41 @@ function ProductPage() {
 
   function addToCart() {
     if (!selected || !inStock) return;
-    cart.add({
-      storeSlug: store.slug,
-      variantId: selected.id,
-      productSlug: product.slug,
-      title: product.title,
-      variantTitle: selected.title,
-      price: Number(selected.price ?? product.base_price),
-      currency: product.currency,
-      maxStock: selected.stock ?? 0,
-    });
-    toast.success("Ürün sepete eklendi");
+    cart.add(
+      {
+        storeSlug: store.slug,
+        variantId: selected.id,
+        productSlug: product.slug,
+        title: product.title,
+        variantTitle: selected.title,
+        price: Number(selected.price ?? product.base_price),
+        currency: product.currency,
+        maxStock: selected.stock ?? 0,
+      },
+      quantity,
+    );
+    toast.success(quantity > 1 ? `${quantity} adet sepete eklendi` : "Ürün sepete eklendi");
     storefrontUI.openCart();
   }
+
+  async function shareProduct() {
+    const url = typeof window === "undefined" ? "" : window.location.href;
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({ title: product.title, url });
+        return;
+      } catch {
+        /* kullanıcı vazgeçti */
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Ürün bağlantısı kopyalandı");
+    } catch {
+      toast.error("Bağlantı kopyalanamadı");
+    }
+  }
+
 
   const selectedOptions = (selected?.options ?? {}) as Record<string, string>;
   const pickOption = (name: string, value: string) => {
@@ -243,12 +275,29 @@ function ProductPage() {
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} commerce={commerce}>
-      <nav style={{ padding: "20px 0", fontSize: 13, color: muted }}>
-        <Link to="/s/$slug" params={{ slug: store.slug }} style={{ color: muted, textDecoration: "none" }}>
+      <nav
+        aria-label="Sayfa yolu"
+        style={{
+          padding: "20px 0",
+          fontSize: 13,
+          color: muted,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: 6,
+        }}
+      >
+        <Link to="/s/$slug" params={{ slug: store.slug }} style={crumb}>
+          Ana sayfa
+        </Link>
+        <span aria-hidden>/</span>
+        <Link to="/s/$slug/products" params={{ slug: store.slug }} style={crumb}>
           Ürünler
         </Link>
-        <span> / {product.title}</span>
+        <span aria-hidden>/</span>
+        <span style={{ color: "inherit" }}>{product.title}</span>
       </nav>
+
 
       <section className="sf-detail-grid">
         <div>
@@ -324,7 +373,33 @@ function ProductPage() {
           <div style={{ marginTop: 10 }}>
             <StorefrontAdminLink storeId={store.id} productId={product.id} border={border} muted={muted} />
           </div>
-          <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              marginTop: 10,
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 10,
+              fontSize: 13,
+              color: muted,
+            }}
+          >
+            <span aria-hidden style={{ color: "#f5a524", letterSpacing: 1 }}>
+              {"★★★★★".slice(0, Math.round(ratingAverage || 0))}
+              <span style={{ color: border }}>
+                {"★★★★★".slice(0, 5 - Math.round(ratingAverage || 0))}
+              </span>
+            </span>
+            {reviews.length ? (
+              <a href="#yorumlar" style={{ color: muted }}>
+                {ratingAverage ? `${ratingAverage.toFixed(1)} · ` : ""}
+                {reviews.length} değerlendirme
+              </a>
+            ) : (
+              <span>Henüz değerlendirme yok</span>
+            )}
+          </div>
+          <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
             <span className="sf-price" style={{ fontSize: 24, fontWeight: 700 }}>
               {formatMoney(price, product.currency)}
             </span>
@@ -333,7 +408,27 @@ function ProductPage() {
                 {formatMoney(product.compare_at_price, product.currency)}
               </span>
             ) : null}
+            {discountPct > 0 ? (
+              <span
+                style={{
+                  background: `${t.accent_color}22`,
+                  color: t.accent_color,
+                  borderRadius: 999,
+                  padding: "4px 10px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+              >
+                %{discountPct} indirim
+              </span>
+            ) : null}
           </div>
+          {discountPct > 0 ? (
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: muted }}>
+              {formatMoney(compareAt - Number(price), product.currency)} tasarruf ediyorsunuz.
+            </p>
+          ) : null}
+
 
           {optionGroups.length ? (
             optionGroups.map((group) => (
@@ -408,6 +503,12 @@ function ProductPage() {
             {inStock ? (selected ? `Stokta ${selected.stock} adet` : "Stokta var") : "Tükendi"}
             {selected?.sku ?? product.sku ? ` · SKU: ${selected?.sku ?? product.sku}` : ""}
           </div>
+          {inStock && stockLeft > 0 && stockLeft <= 5 ? (
+            <p style={{ margin: "6px 0 0", fontSize: 13, fontWeight: 600, color: "#d0342c" }}>
+              Son {stockLeft} adet — stoklar tükenmek üzere.
+            </p>
+          ) : null}
+
 
           <dl
             style={{
@@ -451,6 +552,71 @@ function ProductPage() {
             stock={selected?.stock ?? 0}
             commerce={commerce}
           />
+
+          {inStock ? (
+            <div
+              style={{
+                marginTop: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                border: `1px solid ${border}`,
+                borderRadius: radius,
+                padding: "10px 14px",
+                background: cardBg,
+              }}
+            >
+              <span style={{ fontSize: 13, color: muted }}>Adet</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button
+                  type="button"
+                  aria-label="Adet azalt"
+                  onClick={() => setQty((value) => Math.max(1, value - 1))}
+                  disabled={quantity <= 1}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: radius,
+                    border: `1px solid ${border}`,
+                    background: "transparent",
+                    color: "inherit",
+                    fontSize: 18,
+                    cursor: quantity <= 1 ? "not-allowed" : "pointer",
+                    opacity: quantity <= 1 ? 0.5 : 1,
+                  }}
+                >
+                  −
+                </button>
+                <span
+                  aria-live="polite"
+                  style={{ minWidth: 40, textAlign: "center", fontSize: 16, fontWeight: 700 }}
+                >
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Adet arttır"
+                  onClick={() => setQty((value) => Math.min(maxQty, value + 1))}
+                  disabled={quantity >= maxQty}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: radius,
+                    border: `1px solid ${border}`,
+                    background: "transparent",
+                    color: "inherit",
+                    fontSize: 18,
+                    cursor: quantity >= maxQty ? "not-allowed" : "pointer",
+                    opacity: quantity >= maxQty ? 0.5 : 1,
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          ) : null}
+
 
           <button
             type="button"
@@ -554,13 +720,36 @@ function ProductPage() {
               : "⇄ Karşılaştır"}
           </button>
 
-          {product.description ? (
-            <div className="mef-ultra-pdp-accordions" style={{ borderColor: border }}>
-              <details open><summary>Ürün açıklaması</summary><p style={{ color: muted, whiteSpace: "pre-line" }}>{product.description}</p></details>
-              <details><summary>Teslimat ve iade</summary><p style={{ color: muted }}>{commerce?.fastestEtaDays ? `Tahmini ${commerce.fastestEtaDays} iş gününde teslim.` : "Teslimat süresi seçtiğiniz kargo yöntemine göre ödeme adımında gösterilir."} İade koşulları mağaza politikalarına göre uygulanır.</p></details>
-              <details><summary>Güvenli ödeme</summary><p style={{ color: muted }}>{commerce?.payments.length ? commerce.payments.map((item) => item.displayName).join(", ") : "Aktif güvenli ödeme seçenekleri"} ile ödeme yapabilirsiniz.</p></details>
-            </div>
-          ) : null}
+          <button
+            type="button"
+            onClick={() => void shareProduct()}
+            style={{
+              marginTop: 10,
+              width: "100%",
+              background: "transparent",
+              color: "inherit",
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+              padding: "12px 20px",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            ↗ Ürünü paylaş
+          </button>
+
+          <div className="mef-ultra-pdp-accordions" style={{ borderColor: border }}>
+            {product.description ? (
+              <details open>
+                <summary>Ürün açıklaması</summary>
+                <p style={{ color: muted, whiteSpace: "pre-line" }}>{product.description}</p>
+              </details>
+            ) : null}
+            <details><summary>Teslimat ve iade</summary><p style={{ color: muted }}>{commerce?.fastestEtaDays ? `Tahmini ${commerce.fastestEtaDays} iş gününde teslim.` : "Teslimat süresi seçtiğiniz kargo yöntemine göre ödeme adımında gösterilir."} İade koşulları mağaza politikalarına göre uygulanır.</p></details>
+            <details><summary>Güvenli ödeme</summary><p style={{ color: muted }}>{commerce?.payments.length ? commerce.payments.map((item) => item.displayName).join(", ") : "Aktif güvenli ödeme seçenekleri"} ile ödeme yapabilirsiniz.</p></details>
+          </div>
+
         </div>
       </section>
 
@@ -576,20 +765,23 @@ function ProductPage() {
         </div>
       ) : null}
 
-      <StorefrontReviews
-        storeSlug={store.slug}
-        productId={product.id}
-        reviews={reviews}
-        ratingAverage={ratingAverage}
-        tokens={{
-          accent: t.accent_color,
-          muted,
-          border,
-          cardBg,
-          radius,
-          headingFont: fonts.heading,
-        }}
-      />
+      <div id="yorumlar" style={{ scrollMarginTop: 90 }}>
+        <StorefrontReviews
+          storeSlug={store.slug}
+          productId={product.id}
+          reviews={reviews}
+          ratingAverage={ratingAverage}
+          tokens={{
+            accent: t.accent_color,
+            muted,
+            border,
+            cardBg,
+            radius,
+            headingFont: fonts.heading,
+          }}
+        />
+      </div>
+
 
       <StorefrontQuestions
         storeSlug={store.slug}
