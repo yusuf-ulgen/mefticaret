@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Check, Menu, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Heart, Menu, PackagePlus, Smartphone, X } from "lucide-react";
 
 import gdprBadge from "@/assets/gdpr-badge.webp.asset.json";
 import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
@@ -368,6 +368,79 @@ function LandingPage() {
             </div>
           </section>
         ) : null}
+
+        <section className="border-y border-border bg-secondary/40 py-16 lg:py-20" aria-labelledby="evde-uretenler">
+          <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:px-8">
+            <div>
+              <span className="eyebrow">Evde Üretenlere Özel</span>
+              <h2 id="evde-uretenler" className="mt-5 max-w-2xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
+                Ürettiklerinizi kolayca internette satın
+              </h2>
+              <p className="mt-5 max-w-xl leading-relaxed text-muted-foreground">
+                Teknik bilgi gerekmeden ürün ekleyin, siparişlerinizi telefondan takip edin ve
+                müşterilerinizle tek ekrandan iletişim kurun.
+              </p>
+
+              <div className="mt-7 grid gap-3 sm:grid-cols-3">
+                {[
+                  { icon: Smartphone, label: "Telefona uygun Kolay Panel" },
+                  { icon: PackagePlus, label: "Hızlı ürün ve sipariş yönetimi" },
+                  { icon: Heart, label: "Evde üretime uygun sade kullanım" },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center gap-3 text-sm font-medium">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand">
+                      <item.icon className="size-4" />
+                    </span>
+                    <span>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <article className="showcase-card p-6 sm:p-8">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <span className="eyebrow">Kolay Başlangıç</span>
+                  <h3 className="mt-3 text-2xl font-extrabold">Ücretsiz başlayın</h3>
+                </div>
+                <span className="rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
+                  Kredi kartı gerekmez
+                </span>
+              </div>
+              <ul className="mt-6 space-y-3 text-sm">
+                {["Mağazanızı kurun", "Ürünlerinizi ekleyin", "Kolay Panel’den siparişleri yönetin"].map(
+                  (item) => (
+                    <li key={item} className="flex items-center gap-3">
+                      <Check className="size-4 shrink-0 text-success" />
+                      {item}
+                    </li>
+                  ),
+                )}
+              </ul>
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                <Button asChild size="lg" className="rounded-full">
+                  <Link to="/auth" search={{ mode: "register" }}>
+                    Ücretsiz başla <ArrowRight className="ml-2 size-4" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="rounded-full">
+                  <Link to="/auth" search={{ mode: "login", next: "/stores" }}>
+                    Kolay Panel girişi
+                  </Link>
+                </Button>
+              </div>
+              <div className="mt-4 border-t border-border pt-4 text-center">
+                <Link
+                  to="/auth"
+                  search={{ mode: "login" }}
+                  className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Standart mağaza paneline giriş
+                </Link>
+              </div>
+            </article>
+          </div>
+        </section>
 
         {modules ? (
           <section id="moduller" className="border-y border-border bg-secondary/40 py-20 lg:py-28">
