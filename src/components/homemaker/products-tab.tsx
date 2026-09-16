@@ -508,10 +508,83 @@ function AddProductSheet({
             placeholder="Ürününüzü birkaç cümleyle anlatın…"
           />
         </Field>
-        <BigButton tone="ghost" onClick={writeDescription} disabled={aiBusy}>
-          {aiBusy ? <Loader2 className="size-5 animate-spin" /> : <Wand2 className="size-5" />}
-          Açıklamayı bana yaz
+        <div className="flex gap-2">
+          <BigButton tone="ghost" onClick={writeDescription} disabled={aiBusy} className="flex-1">
+            {aiBusy ? <Loader2 className="size-5 animate-spin" /> : <Wand2 className="size-5" />}
+            Açıklamayı bana yaz
+          </BigButton>
+          {voice.supported ? (
+            <button
+              type="button"
+              aria-label="Konuşarak açıklama yaz"
+              onClick={() => listenFor("description")}
+              className={`grid size-12 shrink-0 place-items-center rounded-2xl ${
+                voice.listening && voiceTarget === "description"
+                  ? "bg-hm-rose text-white"
+                  : "bg-hm-sand text-hm-ink-soft"
+              }`}
+            >
+              {voice.listening && voiceTarget === "description" ? (
+                <MicOff className="size-5" />
+              ) : (
+                <Mic className="size-5" />
+              )}
+            </button>
+          ) : null}
+        </div>
+
+        <BigButton tone="ghost" onClick={() => setCalcOpen(true)} className="w-full">
+          <Calculator className="size-5" /> Maliyet hesapla
         </BigButton>
+
+        <SoftCard className="grid gap-3 bg-hm-sand">
+          <label className="flex min-h-14 items-center gap-3 rounded-2xl bg-white px-4">
+            <input
+              type="checkbox"
+              checked={madeToOrder}
+              onChange={(event) => setMadeToOrder(event.target.checked)}
+              className="size-5 accent-hm-rose"
+            />
+            <Clock className="size-5 text-hm-rose" />
+            <span className="text-sm font-semibold text-hm-ink">Sipariş üzerine üretilir</span>
+          </label>
+          {madeToOrder ? (
+            <Field label="Hazırlanma süresi (gün)">
+              <select
+                className={inputClass}
+                value={prepDays}
+                onChange={(event) => setPrepDays(event.target.value)}
+              >
+                {["1", "2", "3", "4", "5", "7", "10", "14"].map((day) => (
+                  <option key={day} value={day}>
+                    {day} gün
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : null}
+          <label className="flex min-h-14 items-center gap-3 rounded-2xl bg-white px-4">
+            <input
+              type="checkbox"
+              checked={noteEnabled}
+              onChange={(event) => setNoteEnabled(event.target.checked)}
+              className="size-5 accent-hm-teal"
+            />
+            <span className="text-sm font-semibold text-hm-ink">
+              Müşteri özel not yazabilsin
+            </span>
+          </label>
+          {noteEnabled ? (
+            <Field label="Not başlığı" hint="Örn. Nakışlanacak isim, pasta yazısı…">
+              <input
+                className={inputClass}
+                value={noteLabel}
+                onChange={(event) => setNoteLabel(event.target.value)}
+              />
+            </Field>
+          ) : null}
+        </SoftCard>
+
 
         <SoftCard className="grid gap-3 bg-hm-sand">
           <p className="text-sm font-semibold text-hm-ink">Seçenekler (isteğe bağlı)</p>
