@@ -20,6 +20,7 @@ import { toast } from "sonner";
 
 import { BigButton, Field, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
 import { ShopQrCard } from "@/components/homemaker/shop-qr-card";
+import { UpgradeCard } from "@/components/homemaker/upgrade-card";
 import { uploadStoreLogo } from "@/lib/media";
 import { updateStoreSettings, updateStore } from "@/lib/stores.functions";
 
