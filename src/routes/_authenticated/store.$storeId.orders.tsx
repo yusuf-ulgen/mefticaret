@@ -65,6 +65,13 @@ function statusVariant(status: string) {
   return "secondary" as const;
 }
 
+/** Sipariş akışında bir sonraki mantıklı adım; kapanmış durumlarda yok. */
+const NEXT_STATUS: Partial<Record<OrderStatus, { value: OrderStatus; label: string }>> = {
+  pending: { value: "processing", label: "Hazırlığa al" },
+  processing: { value: "shipped", label: "Kargoya ver" },
+  shipped: { value: "delivered", label: "Teslim edildi" },
+};
+
 function OrdersPage() {
   const { storeId } = Route.useParams();
   const { data: orders, isLoading } = useQuery(ordersQuery(storeId));
