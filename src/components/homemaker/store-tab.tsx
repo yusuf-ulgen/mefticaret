@@ -370,7 +370,7 @@ export function StoreTab({
         </Field>
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-badges" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Güven rozetleriniz</p>
         <p className="text-sm text-hm-ink-soft">
           Size uyanları seçin; mağaza sayfanızda müşterilere gösterilir.
