@@ -419,12 +419,12 @@ function LandingPage() {
               </ul>
               <div className="mt-7 grid gap-3 sm:grid-cols-2">
                 <Button asChild size="lg" className="rounded-full">
-                  <Link to="/auth" search={{ mode: "register" }}>
+                  <Link to="/ev-hanimlari">
                     Ücretsiz başla <ArrowRight className="ml-2 size-4" />
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="rounded-full">
-                  <Link to="/auth" search={{ mode: "login", next: "/stores" }}>
+                  <Link to="/ev-hanimlari">
                     Kolay Panel girişi
                   </Link>
                 </Button>
