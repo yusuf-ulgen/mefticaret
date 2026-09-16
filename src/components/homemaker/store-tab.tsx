@@ -317,7 +317,7 @@ export function StoreTab({
         </div>
       </SoftCard>
 
-      <SoftCard className="grid gap-4">
+      <SoftCard id="hm-basic" className="grid gap-4">
         <Field label="Mağaza adı">
           <input
             className={inputClass}
