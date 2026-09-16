@@ -82,9 +82,27 @@ function StorefrontHome() {
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
   const { store, theme, products, collections, footerPages } = data;
-  const sections = resolveSections(data.sections as ThemeSectionRow[]);
-  const bodySections = sections.filter((section) => section.isEnabled && section.definition.slot === "body");
   const { t, fonts, muted, cardBg, border, radius, dark } = storefrontTokens(theme);
+  // Mağaza yalnızca tek bir bileşen tanımladıysa vitrin boş kalmasın: hero,
+  // kategoriler ve ürün listesi tema metinleriyle otomatik tamamlanır.
+  const sections = resolveSections(
+    withEssentialSections(data.sections as ThemeSectionRow[], {
+      overrides: {
+        hero: {
+          title: t.hero_title,
+          subtitle: t.hero_subtitle,
+          ctaLabel: t.hero_cta_label,
+          ctaUrl: `/s/${store.slug}/products`,
+        },
+        product_grid: { title: "Ürünler", limit: 12 },
+      },
+      skip: [
+        ...(products.length === 0 ? (["product_grid"] as const) : []),
+        ...(collections.length === 0 ? (["category_grid"] as const) : []),
+      ],
+    }),
+  );
+  const bodySections = sections.filter((section) => section.isEnabled && section.definition.slot === "body");
   const split = t.layout === "split-screen";
   const columns = t.layout === "magazine" ? "repeat(auto-fill, minmax(320px, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))";
 
