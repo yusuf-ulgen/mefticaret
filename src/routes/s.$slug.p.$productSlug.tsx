@@ -184,6 +184,14 @@ function ProductPage() {
   const selected = variants.find((variant) => variant.id === variantId) ?? variants[0] ?? null;
   const price = selected ? selected.price : product.base_price;
   const inStock = selected ? selected.stock > 0 : true;
+  const stockLeft = selected?.stock ?? 0;
+  const maxQty = Math.max(1, stockLeft || 1);
+  const quantity = Math.min(Math.max(1, qty), maxQty);
+  const compareAt = Number(product.compare_at_price ?? 0);
+  const discountPct =
+    compareAt > Number(price) ? Math.round((1 - Number(price) / compareAt) * 100) : 0;
+  const crumb = { color: muted, textDecoration: "none" } as const;
+
   const variantImage = selected?.imageUrl
     ? { url: selected.imageUrl, alt: selected.title }
     : null;
