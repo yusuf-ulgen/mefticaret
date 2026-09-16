@@ -155,9 +155,17 @@ function KolayPanel() {
             <Share2 className="size-5" />
           </button>
         </div>
+        <EarningsBar storeId={storeId} />
       </header>
 
       <main className="mx-auto max-w-lg px-4 py-4">
+        {capacityFull ? (
+          <div className="mb-4 flex items-center gap-2 rounded-3xl bg-hm-rose-soft px-4 py-3 text-sm font-semibold text-hm-rose">
+            <AlertTriangle className="size-5 shrink-0" />
+            Günlük kapasite doldu — bugün {dailyLimit} sipariş aldınız, mağazanız yeni sipariş
+            almıyor.
+          </div>
+        ) : null}
         {tab === "store" && settingsPending ? (
           <div className="grid min-h-48 place-items-center rounded-3xl border border-hm-line bg-white text-sm text-hm-ink-soft">
             Mağaza bilgileriniz yükleniyor…
