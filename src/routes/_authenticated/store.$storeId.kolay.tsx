@@ -16,7 +16,9 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { CampaignSheet, type CampaignBanner } from "@/components/homemaker/campaign-sheet";
+import { CustomersTab } from "@/components/homemaker/customers-tab";
 import { EarningsBar } from "@/components/homemaker/earnings-bar";
+import { InsightsTab } from "@/components/homemaker/insights-tab";
 import { ShareSheet } from "@/components/homemaker/kolay-parts";
 import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
 import { OrdersTab } from "@/components/homemaker/orders-tab";
