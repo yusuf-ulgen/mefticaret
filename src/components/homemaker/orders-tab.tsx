@@ -55,6 +55,8 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<Bucket>("new");
   const [busy, setBusy] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
   const makeCode = useServerFn(createPickupCode);
   const patchOrder = useServerFn(updateOrder);
   const sendToAras = useServerFn(sendOrderToAras);
