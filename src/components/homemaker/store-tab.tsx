@@ -20,6 +20,7 @@ import { toast } from "sonner";
 
 import { BigButton, Field, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
 import { ShopQrCard } from "@/components/homemaker/shop-qr-card";
+import { UpgradeCard } from "@/components/homemaker/upgrade-card";
 import { uploadStoreLogo } from "@/lib/media";
 import { updateStoreSettings, updateStore } from "@/lib/stores.functions";
 
@@ -218,6 +219,7 @@ export function StoreTab({
 
   return (
     <div className="grid gap-4">
+      <UpgradeCard storeId={store.id} />
       <SoftCard>
         <div className="flex items-center gap-4">
           <div className="size-20 shrink-0 overflow-hidden rounded-3xl border border-hm-line bg-hm-sand">
