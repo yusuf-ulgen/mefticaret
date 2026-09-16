@@ -58,7 +58,19 @@ function addressText(order: SimpleOrder) {
 }
 
 /** "Siparişlerim" sekmesi: üç basit aşama, WhatsApp ve teslim kodu. */
-export function OrdersTab({ storeId, orders }: { storeId: string; orders: SimpleOrder[] }) {
+export function OrdersTab({
+  storeId,
+  storeSlug,
+  orders,
+  products = [],
+  currency = "TRY",
+}: {
+  storeId: string;
+  storeSlug?: string;
+  orders: SimpleOrder[];
+  products?: SimpleProduct[];
+  currency?: string;
+}) {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<Bucket>("new");
   const [busy, setBusy] = useState<string | null>(null);
@@ -68,10 +80,39 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
   const patchOrder = useServerFn(updateOrder);
   const sendToAras = useServerFn(sendOrderToAras);
   const refreshTracking = useServerFn(refreshArasTracking);
+  const payLink = useServerFn(startOrderPayment);
   const [syncing, setSyncing] = useState(false);
   const [delegate, setDelegate] = useState<SimpleOrder | null>(null);
   const [collecting, setCollecting] = useState<SimpleOrder | null>(null);
+  const [manualSource, setManualSource] = useState<"whatsapp" | "phone" | null>(null);
   const { data: delegations } = useQuery(delegationsQuery(storeId));
+
+  /** Müşteriye kartla ödeme bağlantısı üretir (tutar sunucuda siparişten okunur). */
+  const sendPaymentLink = async (order: SimpleOrder) => {
+    if (!storeSlug) return;
+    if (!order.customer_email) {
+      toast.error("Kart bağlantısı için siparişte e-posta adresi olmalı.");
+      return;
+    }
+    setBusy(order.id);
+    try {
+      const result = await payLink({
+        data: { slug: storeSlug, orderNumber: order.order_number, email: order.customer_email },
+      });
+      const digits = (order.customer_phone ?? "").replace(/\D/g, "");
+      const waPhone = digits.startsWith("90") ? digits : `90${digits.replace(/^0/, "")}`;
+      const text = `${order.order_number} numaralı siparişinizin ödemesini banka veya kredi kartıyla buradan yapabilirsiniz: ${result.link}`;
+      await navigator.clipboard.writeText(result.link).catch(() => {});
+      if (digits.length >= 10) {
+        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(text)}`, "_blank");
+      }
+      toast.success("Kartla ödeme bağlantısı hazır ve kopyalandı");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Ödeme bağlantısı oluşturulamadı");
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const delegationOf = (orderId: string) =>
     (delegations ?? []).find(
