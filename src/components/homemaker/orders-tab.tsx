@@ -4,10 +4,13 @@ import {
   Banknote,
   Check,
   Copy,
+  CreditCard,
   Handshake,
   Loader2,
   MessageCircle,
   PackageCheck,
+  Phone,
+  Plus,
   RefreshCw,
   Search,
   Truck,
@@ -17,11 +20,13 @@ import { toast } from "sonner";
 
 import { DelegateSheet } from "@/components/homemaker/delegate-sheet";
 import { BigButton, Sheet, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
+import { ManualOrderSheet } from "@/components/homemaker/manual-order-sheet";
 import { refreshArasTracking, sendOrderToAras } from "@/lib/aras.functions";
 import { createPickupCode } from "@/lib/homemaker.functions";
-import type { SimpleOrder } from "@/lib/homemaker-queries";
+import type { SimpleOrder, SimpleProduct } from "@/lib/homemaker-queries";
 import { delegationsQuery } from "@/lib/kolay-v4-queries";
 import { formatMoney } from "@/lib/mefti";
+import { startOrderPayment } from "@/lib/order-payment.functions";
 import { updateOrder } from "@/lib/sales.functions";
 
 type Bucket = "new" | "toShip" | "done";
