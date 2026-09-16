@@ -307,6 +307,36 @@ function CheckoutPage() {
       toast.error("Bu mağazada misafir ödeme kapalı. Lütfen giriş yapın.");
       return;
     }
+    // Sunucu doğrulaması ham hata metni döndürmesin: eksik alanları önce burada anlaşılır dille bildiriyoruz.
+    const digits = phone.replace(/\D/g, "");
+    if (fullName.trim().length < 2) {
+      toast.error("Lütfen ad soyad yazın.");
+      return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
+      toast.error("Lütfen geçerli bir e-posta adresi yazın.");
+      return;
+    }
+    if (digits.length < 10) {
+      toast.error("Lütfen telefon numaranızı yazın (örnek: 0555 111 22 33).");
+      return;
+    }
+    if (country.trim().length < 2) {
+      toast.error("Lütfen ülke yazın.");
+      return;
+    }
+    if (city.trim().length < 1) {
+      toast.error("Lütfen şehir yazın.");
+      return;
+    }
+    if (line1.trim().length < 5) {
+      toast.error("Lütfen açık adresinizi yazın (en az 5 karakter).");
+      return;
+    }
+    if (!billingSame && (billingCountry.trim().length < 2 || billingCity.trim().length < 1 || billingLine1.trim().length < 5)) {
+      toast.error("Fatura adresini eksiksiz doldurun.");
+      return;
+    }
     setSubmitting(true);
     try {
       const payload = {
@@ -371,7 +401,12 @@ function CheckoutPage() {
         search: { no: result.orderNumber, email },
       });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Sipariş oluşturulamadı");
+      const raw = error instanceof Error ? error.message : "";
+      // Teknik doğrulama çıktısı müşteriye gösterilmez.
+      const friendly = !raw || raw.trim().startsWith("[") || raw.trim().startsWith("{")
+        ? "Bilgilerde eksik var. Lütfen ad soyad, e-posta, telefon ve adresi kontrol edin."
+        : raw;
+      toast.error(friendly);
     } finally {
       setSubmitting(false);
     }
@@ -444,19 +479,19 @@ function CheckoutPage() {
                 </div>
               ) : null}
               <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-                <Field label="Ad soyad" muted={muted}>
+                <Field label="Ad soyad *" muted={muted}>
                   <input style={inputStyle} value={fullName} onChange={(e) => setFullName(e.target.value)} />
                 </Field>
-                <Field label="E-posta" muted={muted}>
+                <Field label="E-posta *" muted={muted}>
                   <input style={inputStyle} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
-                <Field label="Telefon" muted={muted}>
+                <Field label="Telefon *" muted={muted}>
                   <input style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </Field>
                 <Field label="Ülke" muted={muted}>
                   <input style={inputStyle} value={country} onChange={(e) => setCountry(e.target.value)} />
                 </Field>
-                <Field label="Şehir" muted={muted}>
+                <Field label="Şehir *" muted={muted}>
                   <input style={inputStyle} value={city} onChange={(e) => setCity(e.target.value)} />
                 </Field>
                 <Field label="İlçe" muted={muted}>
@@ -467,7 +502,7 @@ function CheckoutPage() {
                 </Field>
               </div>
               <div style={{ marginTop: 12 }}>
-                <Field label="Adres" muted={muted}>
+                <Field label="Adres *" muted={muted}>
                   <textarea
                     style={{ ...inputStyle, minHeight: 76, resize: "vertical" }}
                     value={line1}
@@ -498,7 +533,7 @@ function CheckoutPage() {
                     <Field label="Ülke" muted={muted}>
                       <input style={inputStyle} value={billingCountry} onChange={(e) => setBillingCountry(e.target.value)} />
                     </Field>
-                    <Field label="Şehir" muted={muted}>
+                    <Field label="Şehir *" muted={muted}>
                       <input style={inputStyle} value={billingCity} onChange={(e) => setBillingCity(e.target.value)} />
                     </Field>
                     <Field label="İlçe" muted={muted}>
