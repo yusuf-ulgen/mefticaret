@@ -130,6 +130,7 @@ export function WokieeProductCard({
         price: variant.price,
         currency: variant.currency,
         maxStock: variant.stock,
+        imageUrl: product.coverUrl ?? null,
       });
       storefrontUI.openCart();
     } catch {
