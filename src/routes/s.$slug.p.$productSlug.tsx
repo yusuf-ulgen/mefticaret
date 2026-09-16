@@ -765,20 +765,23 @@ function ProductPage() {
         </div>
       ) : null}
 
-      <StorefrontReviews
-        storeSlug={store.slug}
-        productId={product.id}
-        reviews={reviews}
-        ratingAverage={ratingAverage}
-        tokens={{
-          accent: t.accent_color,
-          muted,
-          border,
-          cardBg,
-          radius,
-          headingFont: fonts.heading,
-        }}
-      />
+      <div id="yorumlar" style={{ scrollMarginTop: 90 }}>
+        <StorefrontReviews
+          storeSlug={store.slug}
+          productId={product.id}
+          reviews={reviews}
+          ratingAverage={ratingAverage}
+          tokens={{
+            accent: t.accent_color,
+            muted,
+            border,
+            cardBg,
+            radius,
+            headingFont: fonts.heading,
+          }}
+        />
+      </div>
+
 
       <StorefrontQuestions
         storeSlug={store.slug}
