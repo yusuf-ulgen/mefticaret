@@ -15,9 +15,12 @@ export const manualOrderSchema = z.object({
   storeId: z.guid(),
   customer: z.object({
     fullName: z.string().trim().min(2).max(120),
-    email: z.string().trim().email().max(160),
+    // WhatsApp/telefon siparişlerinde e-posta olmayabilir; telefon yeterlidir.
+    email: z.string().trim().email().max(160).optional().nullable(),
     phone: z.string().trim().max(40).optional().nullable(),
   }),
+  /** Siparişin nereden geldiği: whatsapp, phone veya manual. */
+  source: z.enum(["manual", "whatsapp", "phone"]).default("manual"),
   address: z
     .object({
       city: z.string().trim().max(80).optional().nullable(),
