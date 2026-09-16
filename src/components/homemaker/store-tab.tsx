@@ -395,7 +395,7 @@ export function StoreTab({
         </div>
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-gallery" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Fotoğraf galerim</p>
         <p className="text-sm text-hm-ink-soft">
           Mutfağınızdan, atölyenizden veya ürünlerinizden kareler ekleyin.
