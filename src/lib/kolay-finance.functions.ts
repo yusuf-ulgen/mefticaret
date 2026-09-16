@@ -133,3 +133,79 @@ export const requestKolayPayout = createServerFn({ method: "POST" })
       balance: { amount: balance.withdrawable - amount, currency: balance.currency } as Money,
     };
   });
+
+/**
+ * Kazanç ayrıntısı: son 14 günün günlük ödenmiş cirosu, bu hafta/bu ay toplamları
+ * ve tahsil edilmeyi bekleyen tutar. Tüm sayılar veritabanındaki siparişlerden gelir.
+ */
+export const getKolayFinanceDetail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const supabase = context.supabase as unknown as { from: (table: string) => any };
+    const balance = await computeBalance(supabase as never, data.storeId);
+
+    const since = new Date();
+    since.setHours(0, 0, 0, 0);
+    since.setDate(since.getDate() - 13);
+
+    const { data: orders, error } = await supabase
+      .from("orders")
+      .select("grand_total, placed_at, payment_status, status")
+      .eq("store_id", data.storeId)
+      .gte("placed_at", since.toISOString())
+      .limit(3000);
+    if (error) throw new Error(error.message);
+
+    const dead = ["cancelled", "refunded", "returned"];
+    const days: { date: string; label: string; amount: number }[] = [];
+    const index = new Map<string, number>();
+    for (let i = 0; i < 14; i += 1) {
+      const day = new Date(since);
+      day.setDate(since.getDate() + i);
+      const key = day.toISOString().slice(0, 10);
+      index.set(key, days.length);
+      days.push({
+        date: key,
+        label: day.toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit" }),
+        amount: 0,
+      });
+    }
+
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setHours(0, 0, 0, 0);
+    weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    let week = 0;
+    let month = 0;
+    let awaiting = 0;
+    let awaitingCount = 0;
+
+    for (const order of orders ?? []) {
+      if (dead.includes(String(order.status))) continue;
+      const total = Number(order.grand_total ?? 0);
+      const placed = order.placed_at ? new Date(order.placed_at) : null;
+      if (String(order.payment_status) !== "paid") {
+        awaiting += total;
+        awaitingCount += 1;
+        continue;
+      }
+      if (placed) {
+        const slot = index.get(placed.toISOString().slice(0, 10));
+        if (slot !== undefined) days[slot]!.amount += total;
+        if (placed.getTime() >= weekStart.getTime()) week += total;
+        if (placed.getTime() >= monthStart.getTime()) month += total;
+      }
+    }
+
+    return {
+      ...balance,
+      days: days.map((day) => ({ ...day, amount: Number(day.amount.toFixed(2)) })),
+      week: Number(week.toFixed(2)),
+      month: Number(month.toFixed(2)),
+      awaiting: Number(awaiting.toFixed(2)),
+      awaitingCount,
+    };
+  });

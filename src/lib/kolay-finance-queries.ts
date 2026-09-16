@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
-import { getKolayFinance } from "@/lib/kolay-finance.functions";
+import { getKolayFinance, getKolayFinanceDetail } from "@/lib/kolay-finance.functions";
 
 /** Kolay Panel finans okuma katmanı: kazanç sunucuda, talep listesi RLS altında. */
 
@@ -40,4 +40,11 @@ export const kolayPayoutsQuery = (storeId: string) =>
         created_at: row.created_at,
       }));
     },
+  });
+
+export const kolayFinanceDetailQuery = (storeId: string) =>
+  queryOptions({
+    queryKey: ["kolay-finance-detail", storeId],
+    staleTime: 30_000,
+    queryFn: () => getKolayFinanceDetail({ data: { storeId } }),
   });
