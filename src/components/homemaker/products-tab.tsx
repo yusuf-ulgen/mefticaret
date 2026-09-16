@@ -9,7 +9,11 @@ import {
   Mic,
   MicOff,
   Plus,
+  Pencil,
   Printer,
+
+  Search,
+
   Sparkles,
   Trash2,
   Wand2,
@@ -68,7 +72,11 @@ export function ProductsTab({
   const [addOpen, setAddOpen] = useState(false);
   const [social, setSocial] = useState<SimpleProduct | null>(null);
   const [labelProduct, setLabelProduct] = useState<SimpleProduct | null>(null);
+  const [editProduct, setEditProduct] = useState<SimpleProduct | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "active" | "hidden" | "out">("all");
+
 
   const saveVariant = useServerFn(upsertVariant);
   const removeProduct = useServerFn(deleteProduct);
@@ -129,6 +137,28 @@ export function ProductsTab({
     }
   };
 
+  const counts = {
+    all: products.length,
+    active: products.filter((p) => p.status === "active").length,
+    hidden: products.filter((p) => p.status !== "active").length,
+    out: products.filter((p) => p.stock <= 0).length,
+  };
+  const term = search.trim().toLocaleLowerCase("tr");
+  const visible = products.filter((product) => {
+    if (filter === "active" && product.status !== "active") return false;
+    if (filter === "hidden" && product.status === "active") return false;
+    if (filter === "out" && product.stock > 0) return false;
+    if (term && !product.title.toLocaleLowerCase("tr").includes(term)) return false;
+    return true;
+  });
+
+  const FILTERS: { key: typeof filter; label: string; count: number }[] = [
+    { key: "all", label: "Tümü", count: counts.all },
+    { key: "active", label: "Yayında", count: counts.active },
+    { key: "hidden", label: "Gizli", count: counts.hidden },
+    { key: "out", label: "Stokta yok", count: counts.out },
+  ];
+
   return (
     <div className="grid gap-4">
       <BigButton onClick={() => setAddOpen(true)} className="w-full">
@@ -137,6 +167,36 @@ export function ProductsTab({
 
       <MaterialsPanel storeId={storeId} />
 
+      {products.length > 0 ? (
+        <div className="grid gap-2">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Ürün ara"
+              className={`${inputClass} pl-11`}
+            />
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {FILTERS.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => setFilter(item.key)}
+                className={`min-h-11 shrink-0 rounded-2xl px-4 text-sm font-semibold ${
+                  filter === item.key
+                    ? "bg-hm-rose text-white"
+                    : "border border-hm-line bg-white text-hm-ink-soft"
+                }`}
+              >
+                {item.label} ({item.count})
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {products.length === 0 ? (
         <SoftCard className="text-center">
           <p className="font-semibold text-hm-ink">Henüz ürün yok</p>
@@ -144,9 +204,15 @@ export function ProductsTab({
             İlk ürününüzü ekleyin; fotoğraf, isim ve fiyat yeterli.
           </p>
         </SoftCard>
+      ) : visible.length === 0 ? (
+        <SoftCard className="text-center">
+          <p className="font-semibold text-hm-ink">Aramanıza uygun ürün yok</p>
+          <p className="mt-1 text-sm text-hm-ink-soft">Başka bir kelime deneyin.</p>
+        </SoftCard>
       ) : (
         <div className="grid gap-3">
-          {products.map((product) => (
+          {visible.map((product) => (
+
             <SoftCard key={product.id} className="grid gap-3">
               <div className="flex gap-3">
                 <div className="size-20 shrink-0 overflow-hidden rounded-2xl bg-hm-sand">
@@ -203,11 +269,19 @@ export function ProductsTab({
                 </button>
                 <button
                   type="button"
+                  onClick={() => setEditProduct(product)}
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-2xl bg-hm-amber-soft px-4 text-sm font-semibold text-hm-amber"
+                >
+                  <Pencil className="size-4" /> Düzenle
+                </button>
+                <button
+                  type="button"
                   onClick={() => setSocial(product)}
                   className="min-h-11 rounded-2xl bg-hm-rose-soft px-4 text-sm font-semibold text-hm-rose"
                 >
                   Paylaşım görseli
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setLabelProduct(product)}
@@ -252,9 +326,112 @@ export function ProductsTab({
         storeUrl={storeUrl}
         currency={currency}
       />
+      <EditProductSheet
+        product={editProduct}
+        onClose={() => setEditProduct(null)}
+        storeId={storeId}
+        currency={currency}
+      />
     </div>
   );
 }
+
+function EditProductSheet({
+  product,
+  onClose,
+  storeId,
+  currency,
+}: {
+  product: SimpleProduct | null;
+  onClose: () => void;
+  storeId: string;
+  currency: string;
+}) {
+  const queryClient = useQueryClient();
+  const patchProduct = useServerFn(updateProduct);
+  const saveVariant = useServerFn(upsertVariant);
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+
+  if (product && loadedFor !== product.id) {
+    setLoadedFor(product.id);
+    setTitle(product.title);
+    setPrice(String(product.base_price ?? ""));
+    setStock(String(product.stock ?? 0));
+  }
+
+  const save = async () => {
+    if (!product) return;
+    const newPrice = Number(price.replace(",", "."));
+    if (!title.trim()) {
+      toast.error("Ürün adı gerekli");
+      return;
+    }
+    if (!Number.isFinite(newPrice) || newPrice < 0) {
+      toast.error("Geçerli bir fiyat yazın");
+      return;
+    }
+    setSaving(true);
+    try {
+      await patchProduct({
+        data: { productId: product.id, patch: { title: title.trim(), base_price: newPrice } },
+      });
+      const variant = product.variants[0];
+      if (variant) {
+        await saveVariant({
+          data: {
+            variantId: variant.id,
+            productId: product.id,
+            title: variant.title || "Standart",
+            price: newPrice,
+            stock: Math.max(0, Math.round(Number(stock.replace(",", ".")) || 0)),
+            options: variant.options ?? {},
+          },
+        });
+      }
+      await queryClient.invalidateQueries({ queryKey: ["kolay-products", storeId] });
+      toast.success("Ürün güncellendi");
+      onClose();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Güncellenemedi");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Sheet open={Boolean(product)} onClose={onClose} title="Ürünü düzenle">
+      <div className="grid gap-4">
+        <Field label="Ürün adı">
+          <input value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
+        </Field>
+        <Field label={`Fiyat (${currency})`}>
+          <input
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            inputMode="decimal"
+            className={inputClass}
+          />
+        </Field>
+        <Field label="Stok adedi">
+          <input
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            inputMode="numeric"
+            className={inputClass}
+          />
+        </Field>
+        <BigButton onClick={() => void save()} disabled={saving} className="w-full">
+          {saving ? <Loader2 className="size-4 animate-spin" /> : null} Kaydet
+        </BigButton>
+      </div>
+    </Sheet>
+  );
+}
+
 
 function AddProductSheet({
   open,

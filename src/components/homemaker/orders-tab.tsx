@@ -8,13 +8,14 @@ import {
   MessageCircle,
   PackageCheck,
   RefreshCw,
+  Search,
   Truck,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { DelegateSheet } from "@/components/homemaker/delegate-sheet";
-import { BigButton, SoftCard } from "@/components/homemaker/kolay-parts";
+import { BigButton, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
 import { refreshArasTracking, sendOrderToAras } from "@/lib/aras.functions";
 import { createPickupCode } from "@/lib/homemaker.functions";
 import type { SimpleOrder } from "@/lib/homemaker-queries";
@@ -55,6 +56,8 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<Bucket>("new");
   const [busy, setBusy] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
   const makeCode = useServerFn(createPickupCode);
   const patchOrder = useServerFn(updateOrder);
   const sendToAras = useServerFn(sendOrderToAras);
@@ -102,7 +105,26 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
     }
   };
 
-  const rows = orders.filter((order) => bucketOf(order) === tab);
+  const term = search.trim().toLocaleLowerCase("tr");
+  const rows = orders.filter((order) => {
+    if (bucketOf(order) !== tab) return false;
+    if (!term) return true;
+    const haystack = [order.customer_name, order.order_number, order.customer_phone]
+      .filter(Boolean)
+      .join(" ")
+      .toLocaleLowerCase("tr");
+    return haystack.includes(term);
+  });
+
+  const todayKey = new Date().toDateString();
+  const todayOrders = orders.filter(
+    (order) => order.placed_at && new Date(order.placed_at).toDateString() === todayKey,
+  );
+  const todayTotal = todayOrders.reduce((sum, order) => sum + (order.grand_total ?? 0), 0);
+  const unpaidCount = orders.filter(
+    (order) => bucketOf(order) !== "done" && order.payment_status !== "paid",
+  ).length;
+
 
   const createCode = async (order: SimpleOrder) => {
     setBusy(order.id);
@@ -132,7 +154,35 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
 
   return (
     <div className="grid gap-4">
+      <div className="grid grid-cols-3 gap-2">
+        <SoftCard className="text-center">
+          <p className="text-xs text-hm-ink-soft">Bugün</p>
+          <p className="text-lg font-bold text-hm-ink">{todayOrders.length}</p>
+        </SoftCard>
+        <SoftCard className="text-center">
+          <p className="text-xs text-hm-ink-soft">Bugünkü tutar</p>
+          <p className="text-lg font-bold text-hm-rose">
+            {formatMoney(todayTotal, orders[0]?.currency ?? "TRY")}
+          </p>
+        </SoftCard>
+        <SoftCard className="text-center">
+          <p className="text-xs text-hm-ink-soft">Ödeme bekliyor</p>
+          <p className="text-lg font-bold text-hm-amber">{unpaidCount}</p>
+        </SoftCard>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Müşteri adı, telefon veya sipariş no ara"
+          className={`${inputClass} pl-11`}
+        />
+      </div>
+
       <div className="grid grid-cols-3 gap-1 rounded-3xl border border-hm-line bg-white p-1.5">
+
         {(Object.keys(BUCKET_LABELS) as Bucket[]).map((key) => {
           const count = orders.filter((order) => bucketOf(order) === key).length;
           return (
