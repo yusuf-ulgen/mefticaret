@@ -68,7 +68,11 @@ export function ProductsTab({
   const [addOpen, setAddOpen] = useState(false);
   const [social, setSocial] = useState<SimpleProduct | null>(null);
   const [labelProduct, setLabelProduct] = useState<SimpleProduct | null>(null);
+  const [editProduct, setEditProduct] = useState<SimpleProduct | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "active" | "hidden" | "out">("all");
+
 
   const saveVariant = useServerFn(upsertVariant);
   const removeProduct = useServerFn(deleteProduct);
