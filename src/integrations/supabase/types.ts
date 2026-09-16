@@ -6327,6 +6327,64 @@ export type Database = {
           },
         ]
       }
+      order_delegations: {
+        Row: {
+          created_at: string
+          from_store_id: string
+          id: string
+          note: string | null
+          order_id: string
+          requested_by: string | null
+          status: string
+          to_store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          from_store_id: string
+          id?: string
+          note?: string | null
+          order_id: string
+          requested_by?: string | null
+          status?: string
+          to_store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          from_store_id?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          requested_by?: string | null
+          status?: string
+          to_store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_delegations_from_store_id_fkey"
+            columns: ["from_store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_delegations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_delegations_to_store_id_fkey"
+            columns: ["to_store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_events: {
         Row: {
           actor_id: string | null
@@ -8091,6 +8149,52 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_materials: {
+        Row: {
+          created_at: string
+          id: string
+          material_id: string
+          product_id: string
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_id: string
+          product_id: string
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_id?: string
+          product_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_materials_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "store_materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_materials_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_materials_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]
@@ -10673,6 +10777,50 @@ export type Database = {
           },
         ]
       }
+      store_materials: {
+        Row: {
+          created_at: string
+          expiry_date: string | null
+          id: string
+          name: string
+          note: string | null
+          quantity: number
+          store_id: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          name: string
+          note?: string | null
+          quantity?: number
+          store_id: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          name?: string
+          note?: string | null
+          quantity?: number
+          store_id?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_materials_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_menu_items: {
         Row: {
           created_at: string
@@ -11231,6 +11379,7 @@ export type Database = {
           bank_iban: string | null
           base_currency: string
           bio: string | null
+          campaign_banner: Json | null
           cold_pack_enabled: boolean
           cold_pack_fee: number
           contact_email: string | null
@@ -11266,6 +11415,7 @@ export type Database = {
           bank_iban?: string | null
           base_currency?: string
           bio?: string | null
+          campaign_banner?: Json | null
           cold_pack_enabled?: boolean
           cold_pack_fee?: number
           contact_email?: string | null
@@ -11301,6 +11451,7 @@ export type Database = {
           bank_iban?: string | null
           base_currency?: string
           bio?: string | null
+          campaign_banner?: Json | null
           cold_pack_enabled?: boolean
           cold_pack_fee?: number
           contact_email?: string | null
@@ -14021,6 +14172,15 @@ export type Database = {
       }
       fail_job: { Args: { _error: string; _id: string }; Returns: undefined }
       fts_simple: { Args: { _text: string }; Returns: unknown }
+      kolay_nearby_stores: {
+        Args: { _store_id: string }
+        Returns: {
+          city: string
+          id: string
+          name: string
+          slug: string
+        }[]
+      }
       ledger_account_balance: { Args: { _account_id: string }; Returns: number }
       ledger_store_balances: {
         Args: { _store_id: string }
@@ -14109,6 +14269,7 @@ export type Database = {
           variant_title: string
         }[]
       }
+      store_public_campaign: { Args: { _slug: string }; Returns: Json }
     }
     Enums: {
       app_category:

@@ -17,3 +17,12 @@
 - [x] Satır bazlı blok düzenleyici (sürükle-sırala, ekle, sil)
 - [x] Sürüm geçmişi çekmecesi (geri yükle/sil)
 - [x] Klavye kısayolları: Ctrl+S/Z/Shift+Z/D/H/Shift+A, Delete, Escape
+
+## Kolay Panel v4.0
+- [x] Özel gün kampanyası: indirim kodu + mağaza sayfasında duyuru
+- [x] Etiket tasarla & yazdır (logo, "Sevgiyle Yapıldı", içindekiler, QR — A4'te 8 etiket)
+- [x] Dükkan QR kodu indirme + canlı yayın satış linki (yayın etiketiyle)
+- [x] Malzeme & tazelik takibi (yeşil/sarı/kırmızı) ve ürüne bağlı içindekiler
+- [x] Siparişi komşuya devret (aynı şehirdeki aktif mağazalar, onay akışı)
+- [ ] Aras Kargo hesap bilgileri (kullanıcıdan bekleniyor)
+- [ ] QNBpay canlı bilgileriyle gerçek kart tahsilatı testi (kullanıcıdan bekleniyor)

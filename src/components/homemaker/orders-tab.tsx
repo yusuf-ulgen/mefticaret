@@ -1,13 +1,24 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Copy, Loader2, MessageCircle, PackageCheck, RefreshCw, Truck } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Handshake,
+  Loader2,
+  MessageCircle,
+  PackageCheck,
+  RefreshCw,
+  Truck,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { DelegateSheet } from "@/components/homemaker/delegate-sheet";
 import { BigButton, SoftCard } from "@/components/homemaker/kolay-parts";
 import { refreshArasTracking, sendOrderToAras } from "@/lib/aras.functions";
 import { createPickupCode } from "@/lib/homemaker.functions";
 import type { SimpleOrder } from "@/lib/homemaker-queries";
+import { delegationsQuery } from "@/lib/kolay-v4-queries";
 import { formatMoney } from "@/lib/mefti";
 import { updateOrder } from "@/lib/sales.functions";
 
@@ -49,6 +60,13 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
   const sendToAras = useServerFn(sendOrderToAras);
   const refreshTracking = useServerFn(refreshArasTracking);
   const [syncing, setSyncing] = useState(false);
+  const [delegate, setDelegate] = useState<SimpleOrder | null>(null);
+  const { data: delegations } = useQuery(delegationsQuery(storeId));
+
+  const delegationOf = (orderId: string) =>
+    (delegations ?? []).find(
+      (row) => row.order_id === orderId && (row.status === "pending" || row.status === "accepted"),
+    );
 
   const shipWithAras = async (order: SimpleOrder) => {
     setBusy(order.id);
@@ -139,15 +157,9 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
         disabled={syncing}
         className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-hm-line bg-white text-sm font-semibold text-hm-ink-soft"
       >
-        {syncing ? (
-          <Loader2 className="size-4 animate-spin" />
-        ) : (
-          <RefreshCw className="size-4" />
-        )}
+        {syncing ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
         Kargo durumlarını güncelle
       </button>
-
-
 
       {rows.length === 0 ? (
         <SoftCard className="text-center">
@@ -165,9 +177,7 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
             <SoftCard key={order.id} className="grid gap-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-semibold text-hm-ink">
-                    {order.customer_name ?? "Müşteri"}
-                  </p>
+                  <p className="font-semibold text-hm-ink">{order.customer_name ?? "Müşteri"}</p>
                   <p className="text-xs text-hm-ink-soft">
                     #{order.order_number}
                     {order.placed_at
@@ -188,7 +198,8 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
                   >
                     {order.payment_status === "paid"
                       ? "Ödeme alındı"
-                      : order.payment_status === "refunded" || order.payment_status === "partially_refunded"
+                      : order.payment_status === "refunded" ||
+                          order.payment_status === "partially_refunded"
                         ? "İade edildi"
                         : order.payment_status === "failed"
                           ? "Ödeme başarısız"
@@ -196,6 +207,15 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
                   </span>
                 </div>
               </div>
+
+              {delegationOf(order.id) ? (
+                <p className="flex items-center gap-2 rounded-2xl bg-hm-amber-soft px-3 py-2 text-sm font-semibold text-hm-amber">
+                  <Handshake className="size-4 shrink-0" />
+                  {delegationOf(order.id)?.status === "accepted"
+                    ? "Komşu mağaza bu siparişi üstlendi."
+                    : "Komşu mağazanın onayı bekleniyor."}
+                </p>
+              ) : null}
 
               <ul className="grid gap-1 rounded-2xl bg-hm-sand p-3 text-sm text-hm-ink">
                 {order.items.map((item) => (
@@ -295,11 +315,18 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
                     <Check className="size-4" /> Tamamlandı
                   </BigButton>
                 ) : null}
+                {tab !== "done" && !delegationOf(order.id) ? (
+                  <BigButton tone="ghost" onClick={() => setDelegate(order)}>
+                    <Handshake className="size-4" /> Siparişi komşuya devret
+                  </BigButton>
+                ) : null}
               </div>
             </SoftCard>
           );
         })
       )}
+
+      <DelegateSheet order={delegate} onClose={() => setDelegate(null)} storeId={storeId} />
     </div>
   );
 }

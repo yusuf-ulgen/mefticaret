@@ -99,6 +99,16 @@ function StorefrontHome() {
       customCss={theme?.custom_css ?? null}
       customJs={theme?.custom_js ?? null}
     >
+      {data.campaign?.message ? (
+        <div
+          role="status"
+          className="mb-6 rounded-2xl px-4 py-3 text-center text-sm font-semibold"
+          style={{ background: cardBg, border: `1px solid ${border}` }}
+        >
+          {data.campaign.message}
+        </div>
+      ) : null}
+
       {bodySections.length ? (
         <StorefrontSections
           sections={sections}

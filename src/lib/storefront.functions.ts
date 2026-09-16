@@ -179,7 +179,18 @@ export const getStorefront = createServerFn({ method: "GET" })
       payments: paymentsRes.data ?? [],
     });
 
+    // Özel gün kampanyası duyurusu (yalnızca yayında olan mağaza için, güvenli okuma).
+    const campaignRes = await supabase.rpc("store_public_campaign", { _slug: data.slug } as never);
+    const campaign = (campaignRes.data ?? null) as {
+      occasion?: string;
+      percent?: number;
+      code?: string;
+      ends_at?: string;
+      message?: string;
+    } | null;
+
     return {
+      campaign,
       commerce,
       store,
       theme: themeRes.data,
