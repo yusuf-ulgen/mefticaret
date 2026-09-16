@@ -81,6 +81,13 @@ function KolayPanel() {
     setOrigin(window.location.origin);
   }, []);
 
+  // Canlı sipariş geldiğinde Kolay Panel listelerini de tazele.
+  useEffect(() => {
+    if (liveEvents.length === 0) return;
+    void queryClient.invalidateQueries({ queryKey: ["kolay-orders", storeId] });
+    void queryClient.invalidateQueries({ queryKey: ["kolay-finance", storeId] });
+  }, [liveEvents.length, queryClient, storeId]);
+
   // Sesli sipariş bildirimi: yalnızca ayar açıkken ve gerçekten yeni sipariş geldiğinde okur.
   const seenOrders = useRef<Set<string> | null>(null);
   const voiceAlerts = Boolean((settings as { voice_alerts?: boolean | null } | null)?.voice_alerts);
