@@ -376,11 +376,31 @@ export async function createStorefrontOrder(
 
   const { data: checkoutSettings } = await supabase
     .from("store_settings")
-    .select("guest_checkout")
+    .select("guest_checkout, daily_order_limit")
     .eq("store_id", store.id)
     .maybeSingle();
   if (!auth && checkoutSettings && checkoutSettings.guest_checkout === false) {
     throw new Error("Bu mağazada misafir ödeme kapalı; lütfen giriş yapın.");
+  }
+
+  // Günlük sipariş kotası: satıcı kapasitesini aşan siparişler kabul edilmez.
+  const dailyLimit = Number(
+    (checkoutSettings as { daily_order_limit?: number | null } | null)?.daily_order_limit ?? 0,
+  );
+  if (dailyLimit > 0) {
+    const dayStart = new Date();
+    dayStart.setUTCHours(0, 0, 0, 0);
+    const { count, error: countError } = await supabase
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("store_id", store.id)
+      .gte("placed_at", dayStart.toISOString());
+    if (countError) throw countError;
+    if ((count ?? 0) >= dailyLimit) {
+      throw new Error(
+        "Bu mağaza bugünün sipariş kapasitesini doldurdu. Lütfen yarın tekrar deneyin.",
+      );
+    }
   }
   if (auth && auth.email.toLowerCase() !== input.customer.email.trim().toLowerCase()) {
     throw new Error("Sipariş e-postası hesabınızla eşleşmiyor.");
