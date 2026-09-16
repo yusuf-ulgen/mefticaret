@@ -10,6 +10,8 @@ import {
   MicOff,
   Plus,
   Printer,
+  Search,
+
   Sparkles,
   Trash2,
   Wand2,
