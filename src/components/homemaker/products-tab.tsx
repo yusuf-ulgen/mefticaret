@@ -616,6 +616,13 @@ function AddProductSheet({
           {saving ? <Loader2 className="size-5 animate-spin" /> : <Sparkles className="size-5" />}
           Ürünü yayınla
         </BigButton>
+
+        <CostCalculatorSheet
+          open={calcOpen}
+          onClose={() => setCalcOpen(false)}
+          currency={currency}
+          onApply={(value) => setPrice(String(value))}
+        />
       </div>
     </Sheet>
   );
