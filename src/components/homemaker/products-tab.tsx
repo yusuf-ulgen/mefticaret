@@ -326,9 +326,112 @@ export function ProductsTab({
         storeUrl={storeUrl}
         currency={currency}
       />
+      <EditProductSheet
+        product={editProduct}
+        onClose={() => setEditProduct(null)}
+        storeId={storeId}
+        currency={currency}
+      />
     </div>
   );
 }
+
+function EditProductSheet({
+  product,
+  onClose,
+  storeId,
+  currency,
+}: {
+  product: SimpleProduct | null;
+  onClose: () => void;
+  storeId: string;
+  currency: string;
+}) {
+  const queryClient = useQueryClient();
+  const patchProduct = useServerFn(updateProduct);
+  const saveVariant = useServerFn(upsertVariant);
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+
+  if (product && loadedFor !== product.id) {
+    setLoadedFor(product.id);
+    setTitle(product.title);
+    setPrice(String(product.base_price ?? ""));
+    setStock(String(product.stock ?? 0));
+  }
+
+  const save = async () => {
+    if (!product) return;
+    const newPrice = Number(price.replace(",", "."));
+    if (!title.trim()) {
+      toast.error("Ürün adı gerekli");
+      return;
+    }
+    if (!Number.isFinite(newPrice) || newPrice < 0) {
+      toast.error("Geçerli bir fiyat yazın");
+      return;
+    }
+    setSaving(true);
+    try {
+      await patchProduct({
+        data: { productId: product.id, patch: { title: title.trim(), base_price: newPrice } },
+      });
+      const variant = product.variants[0];
+      if (variant) {
+        await saveVariant({
+          data: {
+            variantId: variant.id,
+            productId: product.id,
+            title: variant.title || "Standart",
+            price: newPrice,
+            stock: Math.max(0, Math.round(Number(stock.replace(",", ".")) || 0)),
+            options: variant.options ?? {},
+          },
+        });
+      }
+      await queryClient.invalidateQueries({ queryKey: ["kolay-products", storeId] });
+      toast.success("Ürün güncellendi");
+      onClose();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Güncellenemedi");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Sheet open={Boolean(product)} onClose={onClose} title="Ürünü düzenle">
+      <div className="grid gap-4">
+        <Field label="Ürün adı">
+          <input value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
+        </Field>
+        <Field label={`Fiyat (${currency})`}>
+          <input
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            inputMode="decimal"
+            className={inputClass}
+          />
+        </Field>
+        <Field label="Stok adedi">
+          <input
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            inputMode="numeric"
+            className={inputClass}
+          />
+        </Field>
+        <BigButton onClick={() => void save()} disabled={saving} className="w-full">
+          {saving ? <Loader2 className="size-4 animate-spin" /> : null} Kaydet
+        </BigButton>
+      </div>
+    </Sheet>
+  );
+}
+
 
 function AddProductSheet({
   open,
