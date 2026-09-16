@@ -1,15 +1,17 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Package, Share2, ShoppingBag, Store } from "lucide-react";
-import { useEffect, useState } from "react";
+import { AlertTriangle, ArrowLeft, Package, Share2, ShoppingBag, Store } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { EarningsBar } from "@/components/homemaker/earnings-bar";
 import { ShareSheet } from "@/components/homemaker/kolay-parts";
 import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
 import { OrdersTab } from "@/components/homemaker/orders-tab";
 import { ProductsTab } from "@/components/homemaker/products-tab";
 import { StoreTab } from "@/components/homemaker/store-tab";
+import { speakTurkish } from "@/hooks/use-voice";
 import { simpleOrdersQuery, simpleProductsQuery } from "@/lib/homemaker-queries";
 import { storeQuery, storeSettingsQuery } from "@/lib/store-queries";
 import { updateStore } from "@/lib/stores.functions";
