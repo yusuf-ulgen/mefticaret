@@ -354,6 +354,34 @@ export function StorefrontChrome({
             <div style={{ color: muted, fontSize: 12, marginTop: 2 }}>{value(headerCfg, "tagline")}</div>
           ) : null}
         </div>
+        <button
+          type="button"
+          className="sf-burger"
+          onClick={() => setMenuOpen(true)}
+          aria-label="Menüyü aç"
+          aria-expanded={menuOpen}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            minHeight: 44,
+            minWidth: 44,
+            background: "transparent",
+            border: `1px solid ${border}`,
+            borderRadius: radius,
+            color: text,
+            cursor: "pointer",
+            fontFamily: "inherit",
+            fontSize: 13,
+            fontWeight: 600,
+            padding: "0 12px",
+          }}
+        >
+          <span aria-hidden style={{ fontSize: 16, lineHeight: 1 }}>
+            ☰
+          </span>
+          Menü
+        </button>
         <nav className="sf-header-nav" style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 13, color: muted }}>
           <MegaMenu theme={t} storeSlug={storeSlug} />
           {headerItems.length ? (
