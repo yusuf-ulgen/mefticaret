@@ -503,6 +503,12 @@ function ProductPage() {
             {inStock ? (selected ? `Stokta ${selected.stock} adet` : "Stokta var") : "Tükendi"}
             {selected?.sku ?? product.sku ? ` · SKU: ${selected?.sku ?? product.sku}` : ""}
           </div>
+          {inStock && stockLeft > 0 && stockLeft <= 5 ? (
+            <p style={{ margin: "6px 0 0", fontSize: 13, fontWeight: 600, color: "#d0342c" }}>
+              Son {stockLeft} adet — stoklar tükenmek üzere.
+            </p>
+          ) : null}
+
 
           <dl
             style={{
