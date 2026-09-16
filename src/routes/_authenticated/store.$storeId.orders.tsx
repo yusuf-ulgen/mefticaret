@@ -308,7 +308,13 @@ function OrdersPage() {
           <ul className="divide-y divide-border md:hidden">
             {shown.map((order) => (
               <li key={order.id} className="px-4 py-3">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-2">
+                  <Checkbox
+                    className="mt-1"
+                    checked={selected.includes(order.id)}
+                    onCheckedChange={(checked) => toggleOne(order.id, checked === true)}
+                    aria-label={`${order.order_number} seç`}
+                  />
                   <div className="min-w-0">
                     <Link
                       to="/store/$storeId/orders/$orderId"
@@ -336,6 +342,22 @@ function OrdersPage() {
                     {formatDateTime(order.placed_at)}
                   </span>
                 </div>
+                {NEXT_STATUS[order.status] ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-2 h-10 w-full"
+                    disabled={advance.isPending}
+                    onClick={() =>
+                      advance.mutate({
+                        orderId: order.id,
+                        status: NEXT_STATUS[order.status]!.value,
+                      })
+                    }
+                  >
+                    {NEXT_STATUS[order.status]!.label}
+                  </Button>
+                ) : null}
               </li>
             ))}
           </ul>
