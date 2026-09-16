@@ -64,6 +64,7 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
   const refreshTracking = useServerFn(refreshArasTracking);
   const [syncing, setSyncing] = useState(false);
   const [delegate, setDelegate] = useState<SimpleOrder | null>(null);
+  const [collecting, setCollecting] = useState<SimpleOrder | null>(null);
   const { data: delegations } = useQuery(delegationsQuery(storeId));
 
   const delegationOf = (orderId: string) =>
@@ -157,7 +158,7 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
         queryClient.invalidateQueries({ queryKey: ["kolay-finance", storeId] }),
         queryClient.invalidateQueries({ queryKey: ["kolay-finance-detail", storeId] }),
       ]);
-      setCollect(null);
+      setCollecting(null);
       toast.success(`${method} ile ödeme alındı olarak işaretlendi`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "İşaretlenemedi");

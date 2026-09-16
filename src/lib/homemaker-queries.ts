@@ -112,6 +112,7 @@ export type SimpleOrder = {
   shipping_address: Record<string, unknown> | null;
   tracking_number: string | null;
   shipping_carrier: string | null;
+  note: string | null;
   placed_at: string | null;
   items: { id: string; title: string; variant_title: string | null; quantity: number }[];
 };
@@ -125,7 +126,7 @@ export const simpleOrdersQuery = (storeId: string) =>
       const { data, error } = await supabase
         .from("orders")
         .select(
-          "id, order_number, status, payment_status, grand_total, currency, customer_name, customer_phone, customer_email, shipping_address, tracking_number, shipping_carrier, placed_at, order_items(id, title, variant_title, quantity)",
+          "id, order_number, status, payment_status, grand_total, currency, customer_name, customer_phone, customer_email, shipping_address, tracking_number, shipping_carrier, note, placed_at, order_items(id, title, variant_title, quantity)",
         )
         .eq("store_id", storeId)
         .order("placed_at", { ascending: false })
@@ -144,6 +145,7 @@ export const simpleOrdersQuery = (storeId: string) =>
         shipping_address: (row.shipping_address ?? null) as Record<string, unknown> | null,
         tracking_number: row.tracking_number,
         shipping_carrier: row.shipping_carrier,
+        note: row.note ?? null,
         placed_at: row.placed_at,
         items: (row.order_items ?? []).map((item) => ({
           id: item.id,
