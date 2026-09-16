@@ -246,6 +246,20 @@ export function OrdersTab({
         </SoftCard>
       </div>
 
+      <div className="grid grid-cols-2 gap-2">
+        <BigButton tone="emerald" onClick={() => setManualSource("whatsapp")}>
+          <MessageCircle className="size-4" /> WhatsApp siparişi
+        </BigButton>
+        <BigButton tone="teal" onClick={() => setManualSource("phone")}>
+          <Phone className="size-4" /> Telefon siparişi
+        </BigButton>
+      </div>
+      <p className="-mt-2 flex items-center gap-1.5 text-xs text-hm-ink-soft">
+        <Plus className="size-3.5" /> WhatsApp veya telefonla gelen siparişleri buradan ekleyin,
+        listeye ve kazancınıza otomatik işlenir.
+      </p>
+
+
       <div className="relative">
         <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
         <input
