@@ -60,6 +60,37 @@ function KolayPanel() {
     setOrigin(window.location.origin);
   }, []);
 
+  // Sesli sipariş bildirimi: yalnızca ayar açıkken ve gerçekten yeni sipariş geldiğinde okur.
+  const seenOrders = useRef<Set<string> | null>(null);
+  const voiceAlerts = Boolean(
+    (settings as { voice_alerts?: boolean | null } | null)?.voice_alerts,
+  );
+  useEffect(() => {
+    const list = orders ?? [];
+    if (seenOrders.current === null) {
+      seenOrders.current = new Set(list.map((order) => order.id));
+      return;
+    }
+    const fresh = list.filter((order) => !seenOrders.current?.has(order.id));
+    fresh.forEach((order) => seenOrders.current?.add(order.id));
+    if (!voiceAlerts || fresh.length === 0) return;
+    const order = fresh[0]!;
+    const first = order.items[0];
+    const detail = first ? `${first.quantity} adet ${first.title}` : "yeni bir";
+    speakTurkish(`Yeni sipariş: ${order.customer_name ?? "Bir müşteri"} ${detail} siparişi verdi.`);
+  }, [orders, voiceAlerts]);
+
+  const dailyLimit = Number(
+    (settings as { daily_order_limit?: number | null } | null)?.daily_order_limit ?? 0,
+  );
+  const todayCount = (orders ?? []).filter((order) => {
+    if (!order.placed_at) return false;
+    const placed = new Date(order.placed_at);
+    const now = new Date();
+    return placed.toDateString() === now.toDateString();
+  }).length;
+  const capacityFull = dailyLimit > 0 && todayCount >= dailyLimit;
+
   if (!store) {
     return (
       <div className="grid min-h-screen place-items-center bg-hm-sand text-hm-ink-soft">
