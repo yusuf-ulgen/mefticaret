@@ -248,12 +248,12 @@ function KolayPanel() {
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`grid min-h-16 place-items-center gap-1 py-2 text-xs font-semibold transition-colors ${
+              className={`grid min-h-16 place-items-center gap-1 px-0.5 py-2 text-[11px] font-semibold leading-tight transition-colors ${
                 tab === key ? "text-hm-rose" : "text-hm-ink-soft"
               }`}
             >
-              <Icon className="size-6" />
-              {label}
+              <Icon className="size-5" />
+              <span className="w-full truncate text-center">{label}</span>
             </button>
           ))}
         </div>
