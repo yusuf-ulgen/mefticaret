@@ -373,7 +373,33 @@ function ProductPage() {
           <div style={{ marginTop: 10 }}>
             <StorefrontAdminLink storeId={store.id} productId={product.id} border={border} muted={muted} />
           </div>
-          <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              marginTop: 10,
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 10,
+              fontSize: 13,
+              color: muted,
+            }}
+          >
+            <span aria-hidden style={{ color: "#f5a524", letterSpacing: 1 }}>
+              {"★★★★★".slice(0, Math.round(ratingAverage || 0))}
+              <span style={{ color: border }}>
+                {"★★★★★".slice(0, 5 - Math.round(ratingAverage || 0))}
+              </span>
+            </span>
+            {reviews.length ? (
+              <a href="#yorumlar" style={{ color: muted }}>
+                {ratingAverage ? `${ratingAverage.toFixed(1)} · ` : ""}
+                {reviews.length} değerlendirme
+              </a>
+            ) : (
+              <span>Henüz değerlendirme yok</span>
+            )}
+          </div>
+          <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
             <span className="sf-price" style={{ fontSize: 24, fontWeight: 700 }}>
               {formatMoney(price, product.currency)}
             </span>
@@ -382,7 +408,27 @@ function ProductPage() {
                 {formatMoney(product.compare_at_price, product.currency)}
               </span>
             ) : null}
+            {discountPct > 0 ? (
+              <span
+                style={{
+                  background: `${t.accent_color}22`,
+                  color: t.accent_color,
+                  borderRadius: 999,
+                  padding: "4px 10px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+              >
+                %{discountPct} indirim
+              </span>
+            ) : null}
           </div>
+          {discountPct > 0 ? (
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: muted }}>
+              {formatMoney(compareAt - Number(price), product.currency)} tasarruf ediyorsunuz.
+            </p>
+          ) : null}
+
 
           {optionGroups.length ? (
             optionGroups.map((group) => (
