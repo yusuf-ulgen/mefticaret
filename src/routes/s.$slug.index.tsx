@@ -6,7 +6,7 @@ import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chro
 import { WokieeProductCard } from "@/components/wokiee/product-card";
 import { formatMoney } from "@/lib/mefti";
 import { StorefrontSections } from "@/components/storefront-sections";
-import { resolveSections, type ThemeSectionRow } from "@/lib/theme-sections";
+import { resolveSections, withEssentialSections, type ThemeSectionRow } from "@/lib/theme-sections";
 import { storefrontQuery } from "@/lib/storefront-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
