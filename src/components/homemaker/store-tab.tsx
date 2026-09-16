@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   Banknote,
   Bell,
+  CircleDashed,
   Facebook,
   ImagePlus,
   Instagram,
@@ -110,6 +111,75 @@ export function StoreTab({
   const [coldFee, setColdFee] = useState(String(Number(settings?.cold_pack_fee ?? 50)));
   const [voiceAlerts, setVoiceAlerts] = useState(Boolean(settings?.voice_alerts));
   const [galleryBusy, setGalleryBusy] = useState(false);
+
+  // Kaydedilmemiş değişiklik takibi: alt şerit yalnızca gerçek fark varsa görünür.
+  const currentSnapshot = JSON.stringify({
+    name: name.trim(),
+    bio: bio.trim(),
+    whatsapp: whatsapp.trim(),
+    instagram: instagram.trim(),
+    facebook: facebook.trim(),
+    mode,
+    iban: iban.replace(/\s/g, "").toUpperCase(),
+    holder: holder.trim(),
+    dailyLimit: dailyLimit.trim(),
+    badges: [...badges].sort(),
+    delivery: [...delivery].sort(),
+    coldPack,
+    coldFee: Number(coldFee.replace(",", ".")) || 0,
+    voiceAlerts,
+  });
+  const savedSnapshot = JSON.stringify({
+    name: store.name.trim(),
+    bio: (settings?.bio ?? "").trim(),
+    whatsapp: (settings?.whatsapp_phone ?? "").trim(),
+    instagram: (settings?.instagram_url ?? "").trim(),
+    facebook: (settings?.facebook_url ?? "").trim(),
+    mode: settings?.payment_mode === "bank_transfer" ? "bank_transfer" : "mefpay",
+    iban: (settings?.bank_iban ?? "").replace(/\s/g, "").toUpperCase(),
+    holder: (settings?.bank_account_holder ?? "").trim(),
+    dailyLimit: settings?.daily_order_limit ? String(settings.daily_order_limit) : "",
+    badges: [...(settings?.trust_badges ?? [])].sort(),
+    delivery: [
+      ...((settings?.delivery_methods ?? ["shipping"]) as DeliveryMethod[]).filter((method) =>
+        ["shipping", "local_delivery", "pickup"].includes(method),
+      ),
+    ].sort(),
+    coldPack: Boolean(settings?.cold_pack_enabled),
+    coldFee: Number(settings?.cold_pack_fee ?? 50),
+    voiceAlerts: Boolean(settings?.voice_alerts),
+  });
+  const dirty = currentSnapshot !== savedSnapshot;
+
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+
+  // Mağazayı tamamlama listesi: eksik olan adıma tek dokunuşla gidilir.
+  const steps = [
+    { id: "hm-photo", label: "Mağaza fotoğrafı ekle", done: Boolean(store.logo_url) },
+    { id: "hm-basic", label: "Mağaza adını yaz", done: name.trim().length >= 2 },
+    { id: "hm-basic", label: "Kendini tanıt (hikayen)", done: bio.trim().length >= 20 },
+    { id: "hm-basic", label: "WhatsApp numarası ekle", done: whatsapp.replace(/\D/g, "").length >= 10 },
+    {
+      id: "hm-payment",
+      label: "Para alma yöntemini seç",
+      done: mode === "mefpay" || iban.replace(/\s/g, "").length >= 20,
+    },
+    { id: "hm-delivery", label: "Teslimat yöntemi seç", done: delivery.length > 0 },
+    { id: "hm-badges", label: "Güven rozeti seç", done: badges.length > 0 },
+    { id: "hm-gallery", label: "Galeriye fotoğraf ekle", done: gallery.length > 0 },
+  ];
+  const doneCount = steps.filter((step) => step.done).length;
+  const percent = Math.round((doneCount / steps.length) * 100);
+  const missing = steps.filter((step) => !step.done);
+
+  const goTo = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
 
   const toggleBadge = (badge: string) =>
     setBadges((current) =>
@@ -220,7 +290,44 @@ export function StoreTab({
   return (
     <div className="grid gap-4">
       <UpgradeCard storeId={store.id} />
-      <SoftCard>
+
+      <SoftCard className="grid gap-3">
+        <div className="flex items-center gap-3">
+          <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-hm-emerald-soft text-sm font-bold text-hm-emerald">
+            %{percent}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-hm-ink">Mağazam ne kadar hazır?</p>
+            <p className="text-xs text-hm-ink-soft">
+              {doneCount}/{steps.length} adım tamam
+              {missing.length ? " — eksiklere dokunup tamamlayın." : " — tebrikler, her şey hazır!"}
+            </p>
+          </div>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-hm-sand">
+          <div
+            className="h-full rounded-full bg-hm-emerald transition-all"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+        {missing.length ? (
+          <div className="flex flex-wrap gap-2">
+            {missing.map((step) => (
+              <button
+                key={step.label}
+                type="button"
+                onClick={() => goTo(step.id)}
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-2xl bg-hm-rose-soft px-3 text-sm font-semibold text-hm-rose"
+              >
+                <CircleDashed className="size-4" />
+                {step.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </SoftCard>
+
+      <SoftCard id="hm-photo">
         <div className="flex items-center gap-4">
           <div className="size-20 shrink-0 overflow-hidden rounded-3xl border border-hm-line bg-hm-sand">
             {store.logo_url ? (
@@ -248,7 +355,7 @@ export function StoreTab({
         </div>
       </SoftCard>
 
-      <SoftCard className="grid gap-4">
+      <SoftCard id="hm-basic" className="grid gap-4">
         <Field label="Mağaza adı">
           <input
             className={inputClass}
@@ -301,7 +408,7 @@ export function StoreTab({
         </Field>
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-badges" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Güven rozetleriniz</p>
         <p className="text-sm text-hm-ink-soft">
           Size uyanları seçin; mağaza sayfanızda müşterilere gösterilir.
@@ -326,7 +433,7 @@ export function StoreTab({
         </div>
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-gallery" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Fotoğraf galerim</p>
         <p className="text-sm text-hm-ink-soft">
           Mutfağınızdan, atölyenizden veya ürünlerinizden kareler ekleyin.
@@ -364,7 +471,7 @@ export function StoreTab({
         </label>
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-delivery" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Teslimat yöntemleriniz</p>
         <div className="grid gap-2">
           {(Object.keys(DELIVERY_LABELS) as DeliveryMethod[]).map((method) => {
@@ -406,7 +513,7 @@ export function StoreTab({
         ) : null}
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-quota" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Günlük sipariş kotanız</p>
         <Field
           label="Bir günde en fazla kaç sipariş alabilirsiniz?"
@@ -434,7 +541,7 @@ export function StoreTab({
         </label>
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-payment" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Paranızı nasıl almak istersiniz?</p>
         <div className="grid gap-2">
           <button
@@ -493,7 +600,7 @@ export function StoreTab({
         ) : null}
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-share" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Mağaza adresiniz</p>
         <p className="break-all text-sm text-hm-ink-soft">{storeUrl}</p>
         <p className="text-sm font-semibold text-hm-ink">Mağazanızı sosyal medyada paylaşın</p>
@@ -546,10 +653,24 @@ export function StoreTab({
         campaignCode={(settings?.campaign_banner as { code?: string } | null)?.code ?? null}
       />
 
-      <BigButton onClick={save} disabled={saving} className="w-full">
+      <BigButton onClick={save} disabled={saving || !dirty} className="w-full">
         {saving ? <Loader2 className="size-5 animate-spin" /> : <Save className="size-5" />}
-        Kaydet
+        {dirty ? "Kaydet" : "Her şey kayıtlı"}
       </BigButton>
+
+      {dirty ? (
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 px-4 pb-2">
+          <div className="mx-auto flex max-w-lg items-center gap-3 rounded-3xl border border-hm-line bg-white/95 p-3 shadow-lg backdrop-blur">
+            <p className="min-w-0 flex-1 text-sm font-semibold text-hm-ink">
+              Kaydedilmemiş değişiklikleriniz var
+            </p>
+            <BigButton onClick={save} disabled={saving} className="px-6">
+              {saving ? <Loader2 className="size-5 animate-spin" /> : <Save className="size-5" />}
+              Kaydet
+            </BigButton>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
