@@ -510,23 +510,33 @@ export function StorefrontChrome({
                 ✕
               </button>
             </div>
-            {mobileLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                params={{ slug: storeSlug }}
-                onClick={() => setMenuOpen(false)}
-                style={{
-                  color: text,
-                  textDecoration: "none",
-                  fontSize: 15,
-                  padding: "13px 4px",
-                  borderBottom: `1px solid ${border}`,
-                }}
-              >
-                {link.label}
-              </Link>
-            ))}
+            <Link to="/s/$slug" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Ana sayfa
+            </Link>
+            <Link to="/s/$slug/products" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Ürünler
+            </Link>
+            <Link to="/s/$slug/categories" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Kategoriler
+            </Link>
+            <Link to="/s/$slug/collections" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Koleksiyonlar
+            </Link>
+            <Link to="/s/$slug/blog" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Blog
+            </Link>
+            <Link to="/s/$slug/favorites" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
+            </Link>
+            <Link to="/s/$slug/gift-card" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Hediye kartı
+            </Link>
+            <Link to="/s/$slug/orders" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Siparişlerim
+            </Link>
+            <Link to="/s/$slug/account" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Hesabım
+            </Link>
             <button
               type="button"
               onClick={() => {
