@@ -65,6 +65,13 @@ function statusVariant(status: string) {
   return "secondary" as const;
 }
 
+/** Sipariş akışında bir sonraki mantıklı adım; kapanmış durumlarda yok. */
+const NEXT_STATUS: Partial<Record<OrderStatus, { value: OrderStatus; label: string }>> = {
+  pending: { value: "processing", label: "Hazırlığa al" },
+  processing: { value: "shipped", label: "Kargoya ver" },
+  shipped: { value: "delivered", label: "Teslim edildi" },
+};
+
 function OrdersPage() {
   const { storeId } = Route.useParams();
   const { data: orders, isLoading } = useQuery(ordersQuery(storeId));
@@ -139,6 +146,25 @@ function OrdersPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  /** Tek siparişi bir sonraki adıma taşır; liste yenilenir. */
+  const advance = useMutation({
+    mutationFn: async (vars: { orderId: string; status: OrderStatus }) =>
+      update({ data: { orderId: vars.orderId, patch: { status: vars.status as never } } }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["orders", storeId] });
+      toast.success("Sipariş durumu güncellendi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const counts = useMemo(() => {
+    const map: Record<string, number> = { all: (orders ?? []).length };
+    for (const order of orders ?? []) map[order.status] = (map[order.status] ?? 0) + 1;
+    return map;
+  }, [orders]);
+
+  const unpaidCount = (orders ?? []).filter((order) => order.payment_status !== "paid").length;
+
   const exportCsv = () => {
     const source = selectedVisible.length > 0 ? rows.filter((o) => selectedVisible.includes(o.id)) : rows;
     const csv = toCsv(
@@ -175,7 +201,7 @@ function OrdersPage() {
         </Button>
       }
     >
-      <div className="mb-4 grid grid-cols-3 gap-2 sm:mb-6 sm:gap-4">
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:grid-cols-4 sm:gap-4">
         <div className="surface-card p-3 sm:p-5">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">Sipariş</p>
           <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">{(orders ?? []).length}</p>
@@ -186,9 +212,13 @@ function OrdersPage() {
         </div>
         <div className="surface-card p-3 sm:p-5">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">Bekleyen</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">
-            {(orders ?? []).filter((order) => order.status === "pending").length}
+          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">{counts["pending"] ?? 0}</p>
+        </div>
+        <div className="surface-card p-3 sm:p-5">
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+            Ödeme bekleyen
           </p>
+          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">{unpaidCount}</p>
         </div>
       </div>
 
@@ -199,9 +229,10 @@ function OrdersPage() {
             size="sm"
             variant={filter === item.value ? "default" : "outline"}
             onClick={() => setFilter(item.value)}
-            className="shrink-0"
+            className="shrink-0 gap-1.5"
           >
             {item.label}
+            <span className="text-xs tabular-nums opacity-70">{counts[item.value] ?? 0}</span>
           </Button>
         ))}
       </div>
@@ -220,7 +251,7 @@ function OrdersPage() {
       </div>
 
       {selectedVisible.length > 0 ? (
-        <div className="surface-card mb-4 flex flex-wrap items-center gap-3 p-4">
+        <div className="surface-card sticky bottom-3 z-20 mb-4 flex flex-wrap items-center gap-3 p-4 shadow-lg sm:static sm:shadow-none">
           <p className="text-sm font-medium">{selectedVisible.length} sipariş seçildi</p>
           <Select value={bulkStatus} onValueChange={(value) => setBulkStatus(value as OrderStatus)}>
             <SelectTrigger className="w-44">
@@ -277,7 +308,13 @@ function OrdersPage() {
           <ul className="divide-y divide-border md:hidden">
             {shown.map((order) => (
               <li key={order.id} className="px-4 py-3">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-2">
+                  <Checkbox
+                    className="mt-1"
+                    checked={selected.includes(order.id)}
+                    onCheckedChange={(checked) => toggleOne(order.id, checked === true)}
+                    aria-label={`${order.order_number} seç`}
+                  />
                   <div className="min-w-0">
                     <Link
                       to="/store/$storeId/orders/$orderId"
@@ -305,6 +342,22 @@ function OrdersPage() {
                     {formatDateTime(order.placed_at)}
                   </span>
                 </div>
+                {NEXT_STATUS[order.status] ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-2 h-10 w-full"
+                    disabled={advance.isPending}
+                    onClick={() =>
+                      advance.mutate({
+                        orderId: order.id,
+                        status: NEXT_STATUS[order.status]!.value,
+                      })
+                    }
+                  >
+                    {NEXT_STATUS[order.status]!.label}
+                  </Button>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -328,6 +381,7 @@ function OrdersPage() {
                 <th className="px-4 py-3">Ürün</th>
                 <th className="px-4 py-3 text-right">Toplam</th>
                 <th className="px-4 py-3">Tarih</th>
+                <th className="px-4 py-3 text-right">İşlem</th>
               </tr>
             </thead>
             <tbody>
@@ -375,6 +429,25 @@ function OrdersPage() {
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">
                     {formatDateTime(order.placed_at)}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {NEXT_STATUS[order.status] ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={advance.isPending}
+                        onClick={() =>
+                          advance.mutate({
+                            orderId: order.id,
+                            status: NEXT_STATUS[order.status]!.value,
+                          })
+                        }
+                      >
+                        {NEXT_STATUS[order.status]!.label}
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
                   </td>
                 </tr>
               ))}
