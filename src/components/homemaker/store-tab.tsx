@@ -289,7 +289,44 @@ export function StoreTab({
   return (
     <div className="grid gap-4">
       <UpgradeCard storeId={store.id} />
-      <SoftCard>
+
+      <SoftCard className="grid gap-3">
+        <div className="flex items-center gap-3">
+          <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-hm-emerald-soft text-sm font-bold text-hm-emerald">
+            %{percent}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-hm-ink">Mağazam ne kadar hazır?</p>
+            <p className="text-xs text-hm-ink-soft">
+              {doneCount}/{steps.length} adım tamam
+              {missing.length ? " — eksiklere dokunup tamamlayın." : " — tebrikler, her şey hazır!"}
+            </p>
+          </div>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-hm-sand">
+          <div
+            className="h-full rounded-full bg-hm-emerald transition-all"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+        {missing.length ? (
+          <div className="flex flex-wrap gap-2">
+            {missing.map((step) => (
+              <button
+                key={step.label}
+                type="button"
+                onClick={() => goTo(step.id)}
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-2xl bg-hm-rose-soft px-3 text-sm font-semibold text-hm-rose"
+              >
+                <CircleDashed className="size-4" />
+                {step.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </SoftCard>
+
+      <SoftCard id="hm-photo">
         <div className="flex items-center gap-4">
           <div className="size-20 shrink-0 overflow-hidden rounded-3xl border border-hm-line bg-hm-sand">
             {store.logo_url ? (
