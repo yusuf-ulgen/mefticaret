@@ -161,6 +161,22 @@ function KolayPanel() {
           </div>
           <button
             type="button"
+            onClick={() => {
+              setBellOpen(true);
+              setSeenCount(liveEvents.length);
+            }}
+            aria-label="Yeni sipariş bildirimleri"
+            className="relative grid size-11 place-items-center rounded-2xl bg-hm-sand text-hm-ink"
+          >
+            <Bell className="size-5" />
+            {unread > 0 ? (
+              <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-hm-rose px-1 text-[11px] font-bold text-white">
+                {unread}
+              </span>
+            ) : null}
+          </button>
+          <button
+            type="button"
             onClick={() => setShareOpen(true)}
             aria-label="Mağazamı paylaş"
             className="grid size-11 place-items-center rounded-2xl bg-hm-rose text-white"
