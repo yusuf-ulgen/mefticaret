@@ -201,7 +201,7 @@ function OrdersPage() {
         </Button>
       }
     >
-      <div className="mb-4 grid grid-cols-3 gap-2 sm:mb-6 sm:gap-4">
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:grid-cols-4 sm:gap-4">
         <div className="surface-card p-3 sm:p-5">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">Sipariş</p>
           <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">{(orders ?? []).length}</p>
@@ -212,9 +212,13 @@ function OrdersPage() {
         </div>
         <div className="surface-card p-3 sm:p-5">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">Bekleyen</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">
-            {(orders ?? []).filter((order) => order.status === "pending").length}
+          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">{counts["pending"] ?? 0}</p>
+        </div>
+        <div className="surface-card p-3 sm:p-5">
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+            Ödeme bekleyen
           </p>
+          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">{unpaidCount}</p>
         </div>
       </div>
 
@@ -225,9 +229,10 @@ function OrdersPage() {
             size="sm"
             variant={filter === item.value ? "default" : "outline"}
             onClick={() => setFilter(item.value)}
-            className="shrink-0"
+            className="shrink-0 gap-1.5"
           >
             {item.label}
+            <span className="text-xs tabular-nums opacity-70">{counts[item.value] ?? 0}</span>
           </Button>
         ))}
       </div>
