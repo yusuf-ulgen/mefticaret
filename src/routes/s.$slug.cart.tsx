@@ -484,6 +484,50 @@ function CartPage() {
               Ödemeye geç
             </Link>
           </aside>
+
+          {/* Mobil: özet kartı ekranın altına inince görünen sabit ödeme şeridi */}
+          <div
+            className="sf-cart-bar"
+            style={{
+              position: "fixed",
+              left: 12,
+              right: 12,
+              bottom: 12,
+              zIndex: 65,
+              display: "none",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              padding: "10px 12px",
+              background: cardBg,
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+              boxShadow: "0 10px 30px rgba(0,0,0,.18)",
+            }}
+          >
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 11.5, color: muted }}>
+                {lines.reduce((sum, line) => sum + line.quantity, 0)} ürün · genel toplam
+              </div>
+              <div style={{ fontSize: 17, fontWeight: 700 }}>{formatMoney(grandTotal, currency)}</div>
+            </div>
+            <Link
+              to="/s/$slug/checkout"
+              params={{ slug }}
+              style={{
+                background: t.accent_color,
+                color: "#12181f",
+                padding: "12px 16px",
+                borderRadius: radius,
+                fontSize: 14,
+                fontWeight: 700,
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Ödemeye geç
+            </Link>
+          </div>
         </div>
       )}
       <RecentlyViewed
