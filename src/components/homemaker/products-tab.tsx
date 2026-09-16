@@ -9,7 +9,9 @@ import {
   Mic,
   MicOff,
   Plus,
+  Pencil,
   Printer,
+
   Search,
 
   Sparkles,
