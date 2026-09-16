@@ -431,6 +431,20 @@ export function OrdersTab({
                     <Banknote className="size-4" /> Ödemeyi aldım
                   </BigButton>
                 ) : null}
+                {order.payment_status !== "paid" && storeSlug ? (
+                  <BigButton
+                    tone="ghost"
+                    disabled={busy === order.id}
+                    onClick={() => void sendPaymentLink(order)}
+                  >
+                    {busy === order.id ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <CreditCard className="size-4" />
+                    )}
+                    Kartla ödeme bağlantısı
+                  </BigButton>
+                ) : null}
                 {tab !== "done" && !isAras && !order.tracking_number ? (
                   <BigButton
                     tone="teal"
