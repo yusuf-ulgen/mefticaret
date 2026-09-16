@@ -206,6 +206,17 @@ export function StorefrontChrome({
   const favoriteCount = favorites.countFor(storeSlug);
   const compareCount = compare.countFor(storeSlug);
 
+  // Telefonda uzun menü yerine tek dokunuşla açılan çekmece kullanılır.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
+  const drawerLink: CSSProperties = {
+    color: text,
+    textDecoration: "none",
+    fontSize: 15,
+    padding: "13px 4px",
+    borderBottom: `1px solid ${border}`,
+  };
+
   const chrome = (type: string) =>
     (sections ?? []).find((section) => section.type === type && section.isEnabled)?.settings ?? null;
   const headerCfg = chrome("header");
