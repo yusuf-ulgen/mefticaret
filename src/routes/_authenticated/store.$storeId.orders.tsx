@@ -381,6 +381,7 @@ function OrdersPage() {
                 <th className="px-4 py-3">Ürün</th>
                 <th className="px-4 py-3 text-right">Toplam</th>
                 <th className="px-4 py-3">Tarih</th>
+                <th className="px-4 py-3 text-right">İşlem</th>
               </tr>
             </thead>
             <tbody>
