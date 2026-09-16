@@ -401,7 +401,12 @@ function CheckoutPage() {
         search: { no: result.orderNumber, email },
       });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Sipariş oluşturulamadı");
+      const raw = error instanceof Error ? error.message : "";
+      // Teknik doğrulama çıktısı müşteriye gösterilmez.
+      const friendly = !raw || raw.trim().startsWith("[") || raw.trim().startsWith("{")
+        ? "Bilgilerde eksik var. Lütfen ad soyad, e-posta, telefon ve adresi kontrol edin."
+        : raw;
+      toast.error(friendly);
     } finally {
       setSubmitting(false);
     }
