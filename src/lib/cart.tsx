@@ -14,6 +14,7 @@ export type CartLine = {
   currency: string;
   quantity: number;
   maxStock: number;
+  imageUrl?: string | null;
 };
 
 type CartState = {
