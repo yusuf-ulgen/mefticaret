@@ -720,13 +720,36 @@ function ProductPage() {
               : "⇄ Karşılaştır"}
           </button>
 
-          {product.description ? (
-            <div className="mef-ultra-pdp-accordions" style={{ borderColor: border }}>
-              <details open><summary>Ürün açıklaması</summary><p style={{ color: muted, whiteSpace: "pre-line" }}>{product.description}</p></details>
-              <details><summary>Teslimat ve iade</summary><p style={{ color: muted }}>{commerce?.fastestEtaDays ? `Tahmini ${commerce.fastestEtaDays} iş gününde teslim.` : "Teslimat süresi seçtiğiniz kargo yöntemine göre ödeme adımında gösterilir."} İade koşulları mağaza politikalarına göre uygulanır.</p></details>
-              <details><summary>Güvenli ödeme</summary><p style={{ color: muted }}>{commerce?.payments.length ? commerce.payments.map((item) => item.displayName).join(", ") : "Aktif güvenli ödeme seçenekleri"} ile ödeme yapabilirsiniz.</p></details>
-            </div>
-          ) : null}
+          <button
+            type="button"
+            onClick={() => void shareProduct()}
+            style={{
+              marginTop: 10,
+              width: "100%",
+              background: "transparent",
+              color: "inherit",
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+              padding: "12px 20px",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            ↗ Ürünü paylaş
+          </button>
+
+          <div className="mef-ultra-pdp-accordions" style={{ borderColor: border }}>
+            {product.description ? (
+              <details open>
+                <summary>Ürün açıklaması</summary>
+                <p style={{ color: muted, whiteSpace: "pre-line" }}>{product.description}</p>
+              </details>
+            ) : null}
+            <details><summary>Teslimat ve iade</summary><p style={{ color: muted }}>{commerce?.fastestEtaDays ? `Tahmini ${commerce.fastestEtaDays} iş gününde teslim.` : "Teslimat süresi seçtiğiniz kargo yöntemine göre ödeme adımında gösterilir."} İade koşulları mağaza politikalarına göre uygulanır.</p></details>
+            <details><summary>Güvenli ödeme</summary><p style={{ color: muted }}>{commerce?.payments.length ? commerce.payments.map((item) => item.displayName).join(", ") : "Aktif güvenli ödeme seçenekleri"} ile ödeme yapabilirsiniz.</p></details>
+          </div>
+
         </div>
       </section>
 
