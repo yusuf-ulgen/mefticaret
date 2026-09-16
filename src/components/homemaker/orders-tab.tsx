@@ -102,7 +102,26 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
     }
   };
 
-  const rows = orders.filter((order) => bucketOf(order) === tab);
+  const term = search.trim().toLocaleLowerCase("tr");
+  const rows = orders.filter((order) => {
+    if (bucketOf(order) !== tab) return false;
+    if (!term) return true;
+    const haystack = [order.customer_name, order.order_number, order.customer_phone]
+      .filter(Boolean)
+      .join(" ")
+      .toLocaleLowerCase("tr");
+    return haystack.includes(term);
+  });
+
+  const todayKey = new Date().toDateString();
+  const todayOrders = orders.filter(
+    (order) => order.placed_at && new Date(order.placed_at).toDateString() === todayKey,
+  );
+  const todayTotal = todayOrders.reduce((sum, order) => sum + (order.grand_total ?? 0), 0);
+  const unpaidCount = orders.filter(
+    (order) => bucketOf(order) !== "done" && order.payment_status !== "paid",
+  ).length;
+
 
   const createCode = async (order: SimpleOrder) => {
     setBusy(order.id);
