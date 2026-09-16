@@ -433,13 +433,38 @@ function AddProductSheet({
         ) : null}
 
         <Field label="Ürün adı">
-          <input
-            className={inputClass}
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Örn. Lavantalı el sabunu"
-          />
+          <div className="flex gap-2">
+            <input
+              className={inputClass}
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Örn. Lavantalı el sabunu"
+            />
+            {voice.supported ? (
+              <button
+                type="button"
+                aria-label="Konuşarak ürün adı yaz"
+                onClick={() => listenFor("title")}
+                className={`grid size-12 shrink-0 place-items-center rounded-2xl ${
+                  voice.listening && voiceTarget === "title"
+                    ? "bg-hm-rose text-white"
+                    : "bg-hm-sand text-hm-ink-soft"
+                }`}
+              >
+                {voice.listening && voiceTarget === "title" ? (
+                  <MicOff className="size-5" />
+                ) : (
+                  <Mic className="size-5" />
+                )}
+              </button>
+            ) : null}
+          </div>
         </Field>
+        {voice.supported ? (
+          <p className="-mt-2 text-xs text-hm-ink-soft">
+            Mikrofona dokunup konuşarak ürün bilgisi girebilirsiniz.
+          </p>
+        ) : null}
 
         <div className="grid grid-cols-2 gap-3">
           <Field label={`Fiyat (${currency})`}>
