@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { SiteKitScripts } from "@/components/site-kit-scripts";
@@ -206,6 +206,17 @@ export function StorefrontChrome({
   const favoriteCount = favorites.countFor(storeSlug);
   const compareCount = compare.countFor(storeSlug);
 
+  // Telefonda uzun menü yerine tek dokunuşla açılan çekmece kullanılır.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
+  const drawerLink: CSSProperties = {
+    color: text,
+    textDecoration: "none",
+    fontSize: 15,
+    padding: "13px 4px",
+    borderBottom: `1px solid ${border}`,
+  };
+
   const chrome = (type: string) =>
     (sections ?? []).find((section) => section.type === type && section.isEnabled)?.settings ?? null;
   const headerCfg = chrome("header");
@@ -225,6 +236,7 @@ export function StorefrontChrome({
   // Analitik: her vitrin sayfası görüntülemesini ziyaretçi/oturum bazında kaydet.
   useEffect(() => {
     trackEvent(storeSlug, "page_view", { path: pathname });
+    setMenuOpen(false);
   }, [storeSlug, pathname]);
 
   // Özel JavaScript, mağaza sahibinin bilinçli tercihidir; yalnızca istemcide çalışır.
@@ -254,11 +266,19 @@ export function StorefrontChrome({
         dangerouslySetInnerHTML={{
           __html: `
 .sf-quickview { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+.sf-hero { padding: 56px 44px; }
+.sf-cat-card { transition: transform .18s ease, box-shadow .18s ease; }
+.sf-cat-card:hover { transform: translateY(-2px); box-shadow: 0 16px 34px -22px rgba(15,23,42,.5); }
+.sf-burger { display: none; }
 @media (max-width: 720px) {
   .sf-quickview { grid-template-columns: minmax(0,1fr); }
   .sf-mega { display: none; }
   .sf-bottom-nav { display: grid !important; }
   .sf-main { padding-bottom: 108px !important; }
+  .sf-header { padding: 12px 16px !important; }
+  .sf-header-nav { display: none !important; }
+  .sf-burger { display: inline-flex !important; }
+  .sf-hero { padding: 32px 22px; min-height: 320px !important; }
 }
 @media (max-width: 640px) {
   .sf-search { min-width: 0; width: 100%; }
@@ -335,6 +355,34 @@ export function StorefrontChrome({
             <div style={{ color: muted, fontSize: 12, marginTop: 2 }}>{value(headerCfg, "tagline")}</div>
           ) : null}
         </div>
+        <button
+          type="button"
+          className="sf-burger"
+          onClick={() => setMenuOpen(true)}
+          aria-label="Menüyü aç"
+          aria-expanded={menuOpen}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            minHeight: 44,
+            minWidth: 44,
+            background: "transparent",
+            border: `1px solid ${border}`,
+            borderRadius: radius,
+            color: text,
+            cursor: "pointer",
+            fontFamily: "inherit",
+            fontSize: 13,
+            fontWeight: 600,
+            padding: "0 12px",
+          }}
+        >
+          <span aria-hidden style={{ fontSize: 16, lineHeight: 1 }}>
+            ☰
+          </span>
+          Menü
+        </button>
         <nav className="sf-header-nav" style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 13, color: muted }}>
           <MegaMenu theme={t} storeSlug={storeSlug} />
           {headerItems.length ? (
@@ -453,6 +501,109 @@ export function StorefrontChrome({
         </nav>
 
       </header>
+
+      {menuOpen ? (
+        <div
+          role="dialog"
+          aria-label="Mağaza menüsü"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 60,
+            background: "rgba(6,10,16,.5)",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+          onClick={() => setMenuOpen(false)}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            style={{
+              width: "min(86vw, 340px)",
+              height: "100%",
+              overflowY: "auto",
+              background: t.background_color,
+              color: text,
+              padding: "18px 18px 32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <span style={{ fontFamily: fonts.heading, fontWeight: 700, fontSize: 16 }}>Menü</span>
+              <button
+                type="button"
+                onClick={() => setMenuOpen(false)}
+                aria-label="Menüyü kapat"
+                style={{
+                  background: "transparent",
+                  border: `1px solid ${border}`,
+                  borderRadius: radius,
+                  color: text,
+                  cursor: "pointer",
+                  fontSize: 16,
+                  lineHeight: 1,
+                  padding: "8px 12px",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            <Link to="/s/$slug" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Ana sayfa
+            </Link>
+            <Link to="/s/$slug/products" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Ürünler
+            </Link>
+            <Link to="/s/$slug/categories" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Kategoriler
+            </Link>
+            <Link to="/s/$slug/collections" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Koleksiyonlar
+            </Link>
+            <Link to="/s/$slug/blog" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Blog
+            </Link>
+            <Link to="/s/$slug/favorites" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
+            </Link>
+            <Link to="/s/$slug/gift-card" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Hediye kartı
+            </Link>
+            <Link to="/s/$slug/orders" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Siparişlerim
+            </Link>
+            <Link to="/s/$slug/account" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+              Hesabım
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                storefrontUI.openCart();
+              }}
+              style={{
+                marginTop: 14,
+                background: t.accent_color,
+                color: isDark(t.accent_color) ? "#fff" : "#12181f",
+                border: "1px solid transparent",
+                borderRadius: radius,
+                padding: "13px 16px",
+                fontSize: 14,
+                fontWeight: 600,
+                fontFamily: "inherit",
+                cursor: "pointer",
+              }}
+            >
+              Sepetim{cartCount ? ` (${cartCount})` : ""}
+            </button>
+            <div style={{ marginTop: 12 }}>
+              <LanguageSwitcher storeSlug={storeSlug} color={muted} />
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <main className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>
         {children}

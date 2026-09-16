@@ -205,14 +205,16 @@ function readableOn(background: string) {
 
 function HeroSection({ settings, context }: SectionProps) {
   const { t, fonts, radius } = storefrontTokens(context.theme);
-  const image = str(settings, "imageUrl");
+  // Görsel seçilmediyse mağazanın ilk ürün fotoğrafı arka plan olarak kullanılır;
+  // böylece tanıtım alanı boş bir renk bloğu gibi görünmez.
+  const image = str(settings, "imageUrl") || context.products.find((p) => p.coverUrl)?.coverUrl || "";
   const center = str(settings, "align") === "center";
   const height = num(settings, "height", 420);
-  // Hero zemini her zaman renkli veya görselli olduğundan yazı rengi zemine göre seçilir.
-  const ink = image ? { fg: "#f8fafc", soft: "rgba(248,250,252,.86)" } : readableOn(t.primary_color);
+  const ink = image ? { fg: "#f8fafc", soft: "rgba(248,250,252,.90)" } : readableOn(t.primary_color);
 
   return (
     <section
+      className="sf-hero"
       style={{
         position: "relative",
         overflow: "hidden",
@@ -222,28 +224,38 @@ function HeroSection({ settings, context }: SectionProps) {
         alignItems: "center",
         justifyContent: center ? "center" : "flex-start",
         textAlign: center ? "center" : "left",
-        padding: "48px 36px",
         margin: "28px 0",
         background: image
-          ? `linear-gradient(rgba(6,10,16,.55), rgba(6,10,16,.55)), url(${image}) center/cover no-repeat`
+          ? `linear-gradient(100deg, rgba(6,10,16,.82), rgba(6,10,16,.45) 62%, rgba(6,10,16,.25)), url(${image}) center/cover no-repeat`
           : `linear-gradient(140deg, ${t.primary_color}, ${t.accent_color})`,
         color: ink.fg,
       }}
     >
-      <div style={{ maxWidth: 640 }}>
+      <div style={{ maxWidth: 620, position: "relative", zIndex: 1 }}>
         <h1
           style={{
             fontFamily: fonts.heading,
-            fontSize: 42,
+            fontSize: "clamp(28px, 5.2vw, 44px)",
             lineHeight: 1.08,
             fontWeight: 700,
             margin: 0,
             color: ink.fg,
+            textWrap: "balance",
           }}
         >
           {str(settings, "title")}
         </h1>
-        <p style={{ color: ink.soft, marginTop: 14, fontSize: 16 }}>{str(settings, "subtitle")}</p>
+        <p
+          style={{
+            color: ink.soft,
+            marginTop: 14,
+            fontSize: "clamp(14px, 2.2vw, 17px)",
+            lineHeight: 1.6,
+            maxWidth: 520,
+          }}
+        >
+          {str(settings, "subtitle")}
+        </p>
         <Cta
           label={str(settings, "ctaLabel")}
           url={str(settings, "ctaUrl")}
@@ -520,36 +532,79 @@ function CategoryGridSection({ settings, context }: SectionProps) {
     <section style={{ paddingBottom: 40 }}>
       <SectionHeading title={str(settings, "title")} theme={context.theme} />
       <div
+        className="sf-cat-grid"
         style={{
           display: "grid",
-          gridTemplateColumns: `repeat(auto-fill, minmax(${Math.round(1100 / Math.max(2, columns))}px, 1fr))`,
+          // auto-fit: az sayıda kategori varsa kartlar satırı doldurur, boşluk kalmaz.
+          gridTemplateColumns: `repeat(auto-fit, minmax(${Math.round(1100 / Math.max(2, columns))}px, 1fr))`,
           gap: 16,
         }}
       >
         {cards.map((card) => {
           const inner = (
-            <>
-              <div style={{ fontFamily: fonts.heading, fontWeight: 600, fontSize: 16 }}>{card.title}</div>
-              {card.subtitle ? (
-                <div style={{ color: muted, fontSize: 13, marginTop: 6 }}>{card.subtitle}</div>
-              ) : null}
-            </>
+            <span style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <span
+                aria-hidden
+                style={{
+                  display: "grid",
+                  placeItems: "center",
+                  width: 44,
+                  height: 44,
+                  flexShrink: 0,
+                  borderRadius: radius,
+                  background: `${t.accent_color}22`,
+                  color: t.accent_color,
+                  fontFamily: fonts.heading,
+                  fontWeight: 700,
+                  fontSize: 18,
+                }}
+              >
+                {card.title.trim().slice(0, 1).toLocaleUpperCase("tr")}
+              </span>
+              <span style={{ minWidth: 0, flex: 1 }}>
+                <span
+                  style={{
+                    display: "block",
+                    fontFamily: fonts.heading,
+                    fontWeight: 600,
+                    fontSize: 16,
+                  }}
+                >
+                  {card.title}
+                </span>
+                <span
+                  style={{
+                    display: "block",
+                    color: muted,
+                    fontSize: 13,
+                    marginTop: 4,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {card.subtitle || "Ürünleri gör"}
+                </span>
+              </span>
+              <span aria-hidden style={{ color: muted, fontSize: 18, flexShrink: 0 }}>
+                →
+              </span>
+            </span>
           );
           const shell = {
             background: cardBg,
             border: `1px solid ${border}`,
             borderRadius: radius,
             padding: 18,
-            minHeight: 96,
+            minHeight: 88,
             textDecoration: "none",
             color: "inherit",
             display: "block",
-            borderTop: `3px solid ${t.accent_color}`,
           } as const;
 
           if (context.preview) {
             return (
-              <div key={card.key} style={shell}>
+              <div key={card.key} className="sf-cat-card" style={shell}>
                 {inner}
               </div>
             );
@@ -557,6 +612,7 @@ function CategoryGridSection({ settings, context }: SectionProps) {
           return card.to.kind === "collection" ? (
             <Link
               key={card.key}
+              className="sf-cat-card"
               to="/s/$slug/c/$collectionSlug"
               params={{ slug: context.storeSlug, collectionSlug: card.to.slug }}
               style={shell}
@@ -566,6 +622,7 @@ function CategoryGridSection({ settings, context }: SectionProps) {
           ) : (
             <Link
               key={card.key}
+              className="sf-cat-card"
               to="/s/$slug/categories"
               params={{ slug: context.storeSlug }}
               search={{ c: card.to.slug }}

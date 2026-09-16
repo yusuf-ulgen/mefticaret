@@ -47,7 +47,7 @@ export function CookieConsent({ storeSlug }: { storeSlug: string }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-3xl rounded-xl border border-border bg-background p-4 shadow-lg">
+    <div className="fixed inset-x-3 bottom-[104px] z-50 mx-auto max-w-3xl rounded-xl border border-border bg-background p-4 shadow-lg sm:bottom-3">
       <p className="text-sm font-semibold text-foreground">Çerez tercihleri</p>
       <p className="mt-1 text-xs text-muted-foreground">
         Zorunlu çerezler sepet ve oturum için gereklidir. Analitik ve pazarlama çerezleri yalnızca
