@@ -39,6 +39,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as EvHanimlariIndexRouteImport } from './routes/ev-hanimlari.index'
+import { Route as EvHanimlariKurulumRouteImport } from './routes/ev-hanimlari.kurulum'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -423,6 +424,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
 const EvHanimlariIndexRoute = EvHanimlariIndexRouteImport.update({
   id: '/ev-hanimlari/',
   path: '/ev-hanimlari/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvHanimlariKurulumRoute = EvHanimlariKurulumRouteImport.update({
+  id: '/ev-hanimlari/kurulum',
+  path: '/ev-hanimlari/kurulum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaturaTokenRoute = FaturaTokenRouteImport.update({
@@ -1801,6 +1807,7 @@ export interface FileRoutesByFullPath {
   '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -2065,6 +2072,7 @@ export interface FileRoutesByTo {
   '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/blog': typeof BlogIndexRoute
@@ -2331,6 +2339,7 @@ export interface FileRoutesById {
   '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -2598,6 +2607,7 @@ export interface FileRouteTypes {
     | '/supplier'
     | '/admin/login'
     | '/blog/$slug'
+    | '/ev-hanimlari/kurulum'
     | '/fatura/$token'
     | '/sayfa/$slug'
     | '/blog/'
@@ -2862,6 +2872,7 @@ export interface FileRouteTypes {
     | '/supplier'
     | '/admin/login'
     | '/blog/$slug'
+    | '/ev-hanimlari/kurulum'
     | '/fatura/$token'
     | '/sayfa/$slug'
     | '/blog'
@@ -3127,6 +3138,7 @@ export interface FileRouteTypes {
     | '/_authenticated/supplier'
     | '/admin/login'
     | '/blog/$slug'
+    | '/ev-hanimlari/kurulum'
     | '/fatura/$token'
     | '/sayfa/$slug'
     | '/blog/'
@@ -3389,6 +3401,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminLoginRoute: typeof AdminLoginRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -3662,6 +3675,13 @@ declare module '@tanstack/react-router' {
       path: '/ev-hanimlari'
       fullPath: '/ev-hanimlari/'
       preLoaderRoute: typeof EvHanimlariIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ev-hanimlari/kurulum': {
+      id: '/ev-hanimlari/kurulum'
+      path: '/ev-hanimlari/kurulum'
+      fullPath: '/ev-hanimlari/kurulum'
+      preLoaderRoute: typeof EvHanimlariKurulumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fatura/$token': {
@@ -5851,6 +5871,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminLoginRoute: AdminLoginRoute,
   BlogSlugRoute: BlogSlugRoute,
+  EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,
   FaturaTokenRoute: FaturaTokenRoute,
   SayfaSlugRoute: SayfaSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
