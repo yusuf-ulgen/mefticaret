@@ -307,6 +307,36 @@ function CheckoutPage() {
       toast.error("Bu mağazada misafir ödeme kapalı. Lütfen giriş yapın.");
       return;
     }
+    // Sunucu doğrulaması ham hata metni döndürmesin: eksik alanları önce burada anlaşılır dille bildiriyoruz.
+    const digits = phone.replace(/\D/g, "");
+    if (fullName.trim().length < 2) {
+      toast.error("Lütfen ad soyad yazın.");
+      return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
+      toast.error("Lütfen geçerli bir e-posta adresi yazın.");
+      return;
+    }
+    if (digits.length < 10) {
+      toast.error("Lütfen telefon numaranızı yazın (örnek: 0555 111 22 33).");
+      return;
+    }
+    if (country.trim().length < 2) {
+      toast.error("Lütfen ülke yazın.");
+      return;
+    }
+    if (city.trim().length < 1) {
+      toast.error("Lütfen şehir yazın.");
+      return;
+    }
+    if (line1.trim().length < 5) {
+      toast.error("Lütfen açık adresinizi yazın (en az 5 karakter).");
+      return;
+    }
+    if (!billingSame && (billingCountry.trim().length < 2 || billingCity.trim().length < 1 || billingLine1.trim().length < 5)) {
+      toast.error("Fatura adresini eksiksiz doldurun.");
+      return;
+    }
     setSubmitting(true);
     try {
       const payload = {
