@@ -232,6 +232,7 @@ function ProductPage() {
         price: Number(selected.price ?? product.base_price),
         currency: product.currency,
         maxStock: selected.stock ?? 0,
+        imageUrl: heroImage?.url ?? images[0]?.url ?? null,
       },
       quantity,
     );
