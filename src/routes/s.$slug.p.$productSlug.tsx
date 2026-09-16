@@ -222,19 +222,41 @@ function ProductPage() {
 
   function addToCart() {
     if (!selected || !inStock) return;
-    cart.add({
-      storeSlug: store.slug,
-      variantId: selected.id,
-      productSlug: product.slug,
-      title: product.title,
-      variantTitle: selected.title,
-      price: Number(selected.price ?? product.base_price),
-      currency: product.currency,
-      maxStock: selected.stock ?? 0,
-    });
-    toast.success("Ürün sepete eklendi");
+    cart.add(
+      {
+        storeSlug: store.slug,
+        variantId: selected.id,
+        productSlug: product.slug,
+        title: product.title,
+        variantTitle: selected.title,
+        price: Number(selected.price ?? product.base_price),
+        currency: product.currency,
+        maxStock: selected.stock ?? 0,
+      },
+      quantity,
+    );
+    toast.success(quantity > 1 ? `${quantity} adet sepete eklendi` : "Ürün sepete eklendi");
     storefrontUI.openCart();
   }
+
+  async function shareProduct() {
+    const url = typeof window === "undefined" ? "" : window.location.href;
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({ title: product.title, url });
+        return;
+      } catch {
+        /* kullanıcı vazgeçti */
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Ürün bağlantısı kopyalandı");
+    } catch {
+      toast.error("Bağlantı kopyalanamadı");
+    }
+  }
+
 
   const selectedOptions = (selected?.options ?? {}) as Record<string, string>;
   const pickOption = (name: string, value: string) => {
