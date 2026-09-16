@@ -205,14 +205,16 @@ function readableOn(background: string) {
 
 function HeroSection({ settings, context }: SectionProps) {
   const { t, fonts, radius } = storefrontTokens(context.theme);
-  const image = str(settings, "imageUrl");
+  // Görsel seçilmediyse mağazanın ilk ürün fotoğrafı arka plan olarak kullanılır;
+  // böylece tanıtım alanı boş bir renk bloğu gibi görünmez.
+  const image = str(settings, "imageUrl") || context.products.find((p) => p.coverUrl)?.coverUrl || "";
   const center = str(settings, "align") === "center";
   const height = num(settings, "height", 420);
-  // Hero zemini her zaman renkli veya görselli olduğundan yazı rengi zemine göre seçilir.
-  const ink = image ? { fg: "#f8fafc", soft: "rgba(248,250,252,.86)" } : readableOn(t.primary_color);
+  const ink = image ? { fg: "#f8fafc", soft: "rgba(248,250,252,.90)" } : readableOn(t.primary_color);
 
   return (
     <section
+      className="sf-hero"
       style={{
         position: "relative",
         overflow: "hidden",
@@ -222,28 +224,38 @@ function HeroSection({ settings, context }: SectionProps) {
         alignItems: "center",
         justifyContent: center ? "center" : "flex-start",
         textAlign: center ? "center" : "left",
-        padding: "48px 36px",
         margin: "28px 0",
         background: image
-          ? `linear-gradient(rgba(6,10,16,.55), rgba(6,10,16,.55)), url(${image}) center/cover no-repeat`
+          ? `linear-gradient(100deg, rgba(6,10,16,.82), rgba(6,10,16,.45) 62%, rgba(6,10,16,.25)), url(${image}) center/cover no-repeat`
           : `linear-gradient(140deg, ${t.primary_color}, ${t.accent_color})`,
         color: ink.fg,
       }}
     >
-      <div style={{ maxWidth: 640 }}>
+      <div style={{ maxWidth: 620, position: "relative", zIndex: 1 }}>
         <h1
           style={{
             fontFamily: fonts.heading,
-            fontSize: 42,
+            fontSize: "clamp(28px, 5.2vw, 44px)",
             lineHeight: 1.08,
             fontWeight: 700,
             margin: 0,
             color: ink.fg,
+            textWrap: "balance",
           }}
         >
           {str(settings, "title")}
         </h1>
-        <p style={{ color: ink.soft, marginTop: 14, fontSize: 16 }}>{str(settings, "subtitle")}</p>
+        <p
+          style={{
+            color: ink.soft,
+            marginTop: 14,
+            fontSize: "clamp(14px, 2.2vw, 17px)",
+            lineHeight: 1.6,
+            maxWidth: 520,
+          }}
+        >
+          {str(settings, "subtitle")}
+        </p>
         <Cta
           label={str(settings, "ctaLabel")}
           url={str(settings, "ctaUrl")}
