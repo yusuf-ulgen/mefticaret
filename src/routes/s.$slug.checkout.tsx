@@ -768,6 +768,53 @@ function CheckoutPage() {
               {submitting ? "Sipariş oluşturuluyor…" : "Siparişi tamamla"}
             </button>
           </aside>
+
+          {/* Mobil: ödenecek tutar + tamamla butonu her zaman erişilebilir kalsın */}
+          <div
+            className="sf-cart-bar"
+            style={{
+              position: "fixed",
+              left: 12,
+              right: 12,
+              bottom: 12,
+              zIndex: 65,
+              display: "none",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              padding: "10px 12px",
+              background: cardBg,
+              border: `1px solid ${border}`,
+              borderRadius: radius,
+              boxShadow: "0 10px 30px rgba(0,0,0,.18)",
+            }}
+          >
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 11.5, color: muted }}>{q ? "Ödenecek tutar" : "Tahmini toplam"}</div>
+              <div style={{ fontSize: 17, fontWeight: 700 }}>
+                {formatMoney(q?.grandTotal ?? estimatedTotal, store.currency)}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={submit}
+              disabled={submitting || (!memberMode && !guestAllowed) || quote.data?.ok === false}
+              style={{
+                background: t.accent_color,
+                color: "#12181f",
+                border: "none",
+                borderRadius: radius,
+                padding: "12px 16px",
+                fontSize: 14,
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+                cursor: submitting ? "wait" : "pointer",
+                opacity: submitting ? 0.7 : 1,
+              }}
+            >
+              {submitting ? "Gönderiliyor…" : "Siparişi tamamla"}
+            </button>
+          </div>
         </div>
       )}
     </StorefrontChrome>
