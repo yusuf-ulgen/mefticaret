@@ -111,6 +111,75 @@ export function StoreTab({
   const [voiceAlerts, setVoiceAlerts] = useState(Boolean(settings?.voice_alerts));
   const [galleryBusy, setGalleryBusy] = useState(false);
 
+  // Kaydedilmemiş değişiklik takibi: alt şerit yalnızca gerçek fark varsa görünür.
+  const currentSnapshot = JSON.stringify({
+    name: name.trim(),
+    bio: bio.trim(),
+    whatsapp: whatsapp.trim(),
+    instagram: instagram.trim(),
+    facebook: facebook.trim(),
+    mode,
+    iban: iban.replace(/\s/g, "").toUpperCase(),
+    holder: holder.trim(),
+    dailyLimit: dailyLimit.trim(),
+    badges: [...badges].sort(),
+    delivery: [...delivery].sort(),
+    coldPack,
+    coldFee: Number(coldFee.replace(",", ".")) || 0,
+    voiceAlerts,
+  });
+  const savedSnapshot = JSON.stringify({
+    name: store.name.trim(),
+    bio: (settings?.bio ?? "").trim(),
+    whatsapp: (settings?.whatsapp_phone ?? "").trim(),
+    instagram: (settings?.instagram_url ?? "").trim(),
+    facebook: (settings?.facebook_url ?? "").trim(),
+    mode: settings?.payment_mode === "bank_transfer" ? "bank_transfer" : "mefpay",
+    iban: (settings?.bank_iban ?? "").replace(/\s/g, "").toUpperCase(),
+    holder: (settings?.bank_account_holder ?? "").trim(),
+    dailyLimit: settings?.daily_order_limit ? String(settings.daily_order_limit) : "",
+    badges: [...(settings?.trust_badges ?? [])].sort(),
+    delivery: [
+      ...((settings?.delivery_methods ?? ["shipping"]) as DeliveryMethod[]).filter((method) =>
+        ["shipping", "local_delivery", "pickup"].includes(method),
+      ),
+    ].sort(),
+    coldPack: Boolean(settings?.cold_pack_enabled),
+    coldFee: Number(settings?.cold_pack_fee ?? 50),
+    voiceAlerts: Boolean(settings?.voice_alerts),
+  });
+  const dirty = currentSnapshot !== savedSnapshot;
+
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+
+  // Mağazayı tamamlama listesi: eksik olan adıma tek dokunuşla gidilir.
+  const steps = [
+    { id: "hm-photo", label: "Mağaza fotoğrafı ekle", done: Boolean(store.logo_url) },
+    { id: "hm-basic", label: "Mağaza adını yaz", done: name.trim().length >= 2 },
+    { id: "hm-basic", label: "Kendini tanıt (hikayen)", done: bio.trim().length >= 20 },
+    { id: "hm-basic", label: "WhatsApp numarası ekle", done: whatsapp.replace(/\D/g, "").length >= 10 },
+    {
+      id: "hm-payment",
+      label: "Para alma yöntemini seç",
+      done: mode === "mefpay" || iban.replace(/\s/g, "").length >= 20,
+    },
+    { id: "hm-delivery", label: "Teslimat yöntemi seç", done: delivery.length > 0 },
+    { id: "hm-badges", label: "Güven rozeti seç", done: badges.length > 0 },
+    { id: "hm-gallery", label: "Galeriye fotoğraf ekle", done: gallery.length > 0 },
+  ];
+  const doneCount = steps.filter((step) => step.done).length;
+  const percent = Math.round((doneCount / steps.length) * 100);
+  const missing = steps.filter((step) => !step.done);
+
+  const goTo = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+
   const toggleBadge = (badge: string) =>
     setBadges((current) =>
       current.includes(badge) ? current.filter((item) => item !== badge) : [...current, badge],
