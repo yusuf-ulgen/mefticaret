@@ -8,13 +8,16 @@ import { toast } from "sonner";
 export function SoftCard({
   children,
   className = "",
+  id,
 }: {
   children: ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
     <section
-      className={`rounded-3xl border border-hm-line bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] ${className}`}
+      id={id}
+      className={`scroll-mt-40 rounded-3xl border border-hm-line bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] ${className}`}
     >
       {children}
     </section>
