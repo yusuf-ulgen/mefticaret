@@ -604,7 +604,7 @@ function CategoryGridSection({ settings, context }: SectionProps) {
 
           if (context.preview) {
             return (
-              <div key={card.key} style={shell}>
+              <div key={card.key} className="sf-cat-card" style={shell}>
                 {inner}
               </div>
             );
@@ -612,6 +612,7 @@ function CategoryGridSection({ settings, context }: SectionProps) {
           return card.to.kind === "collection" ? (
             <Link
               key={card.key}
+              className="sf-cat-card"
               to="/s/$slug/c/$collectionSlug"
               params={{ slug: context.storeSlug, collectionSlug: card.to.slug }}
               style={shell}
@@ -621,6 +622,7 @@ function CategoryGridSection({ settings, context }: SectionProps) {
           ) : (
             <Link
               key={card.key}
+              className="sf-cat-card"
               to="/s/$slug/categories"
               params={{ slug: context.storeSlug }}
               search={{ c: card.to.slug }}
