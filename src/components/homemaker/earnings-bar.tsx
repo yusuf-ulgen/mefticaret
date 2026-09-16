@@ -40,18 +40,26 @@ export function EarningsBar({ storeId }: { storeId: string }) {
   return (
     <div className="grid gap-2 border-t border-hm-line bg-white px-4 py-2">
       <div className="mx-auto flex w-full max-w-lg items-center gap-2">
-        <div className="flex-1 rounded-2xl bg-hm-emerald-soft px-3 py-2">
+        <button
+          type="button"
+          onClick={() => setDetailOpen(true)}
+          className="flex-1 rounded-2xl bg-hm-emerald-soft px-3 py-2 text-left"
+        >
           <p className="text-[11px] font-semibold text-hm-emerald">Bugünün kazancı</p>
           <p className="text-sm font-bold text-hm-emerald">
             {formatMoney(data?.today ?? 0, currency)}
           </p>
-        </div>
-        <div className="flex-1 rounded-2xl bg-hm-teal-soft px-3 py-2">
+        </button>
+        <button
+          type="button"
+          onClick={() => setDetailOpen(true)}
+          className="flex-1 rounded-2xl bg-hm-teal-soft px-3 py-2 text-left"
+        >
           <p className="text-[11px] font-semibold text-hm-teal">Çekilebilir bakiye</p>
           <p className="text-sm font-bold text-hm-teal">
             {formatMoney(data?.withdrawable ?? 0, currency)}
           </p>
-        </div>
+        </button>
         <button
           type="button"
           onClick={() => void transfer()}
@@ -62,12 +70,24 @@ export function EarningsBar({ storeId }: { storeId: string }) {
           Hesabıma aktar
         </button>
       </div>
-      {pending.length ? (
-        <p className="mx-auto flex w-full max-w-lg items-center gap-1.5 text-xs text-hm-ink-soft">
-          <Banknote className="size-3.5" />
-          {formatMoney(pending[0]!.amount, pending[0]!.currency)} aktarım talebiniz sırada.
-        </p>
-      ) : null}
+      <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-2">
+        {pending.length ? (
+          <p className="flex items-center gap-1.5 text-xs text-hm-ink-soft">
+            <Banknote className="size-3.5" />
+            {formatMoney(pending[0]!.amount, pending[0]!.currency)} aktarım talebiniz sırada.
+          </p>
+        ) : (
+          <span />
+        )}
+        <button
+          type="button"
+          onClick={() => setDetailOpen(true)}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-hm-teal"
+        >
+          Kazanç ayrıntısı <ChevronRight className="size-3.5" />
+        </button>
+      </div>
+      <EarningsSheet open={detailOpen} onClose={() => setDetailOpen(false)} storeId={storeId} />
     </div>
   );
 }
