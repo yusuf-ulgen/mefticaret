@@ -146,6 +146,25 @@ function OrdersPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  /** Tek siparişi bir sonraki adıma taşır; liste yenilenir. */
+  const advance = useMutation({
+    mutationFn: async (vars: { orderId: string; status: OrderStatus }) =>
+      update({ data: { orderId: vars.orderId, patch: { status: vars.status as never } } }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["orders", storeId] });
+      toast.success("Sipariş durumu güncellendi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const counts = useMemo(() => {
+    const map: Record<string, number> = { all: (orders ?? []).length };
+    for (const order of orders ?? []) map[order.status] = (map[order.status] ?? 0) + 1;
+    return map;
+  }, [orders]);
+
+  const unpaidCount = (orders ?? []).filter((order) => order.payment_status !== "paid").length;
+
   const exportCsv = () => {
     const source = selectedVisible.length > 0 ? rows.filter((o) => selectedVisible.includes(o.id)) : rows;
     const csv = toCsv(
