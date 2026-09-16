@@ -26,6 +26,7 @@ import { OrdersTab } from "@/components/homemaker/orders-tab";
 import { ProductsTab } from "@/components/homemaker/products-tab";
 import { ShopPageCard } from "@/components/homemaker/shop-page-card";
 import { StoreTab } from "@/components/homemaker/store-tab";
+import { useStoreRealtime } from "@/hooks/use-store-realtime";
 import { speakTurkish } from "@/hooks/use-voice";
 import { simpleOrdersQuery, simpleProductsQuery } from "@/lib/homemaker-queries";
 import { storeQuery, storeSettingsQuery } from "@/lib/store-queries";
