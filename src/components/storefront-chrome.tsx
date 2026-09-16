@@ -254,11 +254,19 @@ export function StorefrontChrome({
         dangerouslySetInnerHTML={{
           __html: `
 .sf-quickview { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+.sf-hero { padding: 56px 44px; }
+.sf-cat-card { transition: transform .18s ease, box-shadow .18s ease; }
+.sf-cat-card:hover { transform: translateY(-2px); box-shadow: 0 16px 34px -22px rgba(15,23,42,.5); }
+.sf-burger { display: none; }
 @media (max-width: 720px) {
   .sf-quickview { grid-template-columns: minmax(0,1fr); }
   .sf-mega { display: none; }
   .sf-bottom-nav { display: grid !important; }
   .sf-main { padding-bottom: 108px !important; }
+  .sf-header { padding: 12px 16px !important; }
+  .sf-header-nav { display: none !important; }
+  .sf-burger { display: inline-flex !important; }
+  .sf-hero { padding: 32px 22px; min-height: 320px !important; }
 }
 @media (max-width: 640px) {
   .sf-search { min-width: 0; width: 100%; }
