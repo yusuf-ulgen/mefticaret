@@ -516,6 +516,15 @@ export function OrdersTab({
       </Sheet>
 
       <DelegateSheet order={delegate} onClose={() => setDelegate(null)} storeId={storeId} />
+
+      <ManualOrderSheet
+        open={manualSource !== null}
+        onClose={() => setManualSource(null)}
+        storeId={storeId}
+        products={products}
+        currency={currency}
+        source={manualSource ?? "whatsapp"}
+      />
     </div>
   );
 }
