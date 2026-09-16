@@ -38,6 +38,7 @@ import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticat
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as EvHanimlariIndexRouteImport } from './routes/ev-hanimlari.index'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -417,6 +418,11 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvHanimlariIndexRoute = EvHanimlariIndexRouteImport.update({
+  id: '/ev-hanimlari/',
+  path: '/ev-hanimlari/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaturaTokenRoute = FaturaTokenRouteImport.update({
@@ -1798,6 +1804,7 @@ export interface FileRoutesByFullPath {
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/blog/': typeof BlogIndexRoute
+  '/ev-hanimlari/': typeof EvHanimlariIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2061,6 +2068,7 @@ export interface FileRoutesByTo {
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/blog': typeof BlogIndexRoute
+  '/ev-hanimlari': typeof EvHanimlariIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2326,6 +2334,7 @@ export interface FileRoutesById {
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/blog/': typeof BlogIndexRoute
+  '/ev-hanimlari/': typeof EvHanimlariIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2592,6 +2601,7 @@ export interface FileRouteTypes {
     | '/fatura/$token'
     | '/sayfa/$slug'
     | '/blog/'
+    | '/ev-hanimlari/'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -2855,6 +2865,7 @@ export interface FileRouteTypes {
     | '/fatura/$token'
     | '/sayfa/$slug'
     | '/blog'
+    | '/ev-hanimlari'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -3119,6 +3130,7 @@ export interface FileRouteTypes {
     | '/fatura/$token'
     | '/sayfa/$slug'
     | '/blog/'
+    | '/ev-hanimlari/'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
@@ -3380,6 +3392,7 @@ export interface RootRouteChildren {
   FaturaTokenRoute: typeof FaturaTokenRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  EvHanimlariIndexRoute: typeof EvHanimlariIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
   ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
@@ -3642,6 +3655,13 @@ declare module '@tanstack/react-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ev-hanimlari/': {
+      id: '/ev-hanimlari/'
+      path: '/ev-hanimlari'
+      fullPath: '/ev-hanimlari/'
+      preLoaderRoute: typeof EvHanimlariIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fatura/$token': {
@@ -5834,6 +5854,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaturaTokenRoute: FaturaTokenRoute,
   SayfaSlugRoute: SayfaSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
+  EvHanimlariIndexRoute: EvHanimlariIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
   ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
