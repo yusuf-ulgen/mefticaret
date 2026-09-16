@@ -275,12 +275,29 @@ function ProductPage() {
 
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} commerce={commerce}>
-      <nav style={{ padding: "20px 0", fontSize: 13, color: muted }}>
-        <Link to="/s/$slug" params={{ slug: store.slug }} style={{ color: muted, textDecoration: "none" }}>
+      <nav
+        aria-label="Sayfa yolu"
+        style={{
+          padding: "20px 0",
+          fontSize: 13,
+          color: muted,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: 6,
+        }}
+      >
+        <Link to="/s/$slug" params={{ slug: store.slug }} style={crumb}>
+          Ana sayfa
+        </Link>
+        <span aria-hidden>/</span>
+        <Link to="/s/$slug/products" params={{ slug: store.slug }} style={crumb}>
           Ürünler
         </Link>
-        <span> / {product.title}</span>
+        <span aria-hidden>/</span>
+        <span style={{ color: "inherit" }}>{product.title}</span>
       </nav>
+
 
       <section className="sf-detail-grid">
         <div>
