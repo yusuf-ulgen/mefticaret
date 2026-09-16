@@ -202,12 +202,18 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
     });
   }
 
+  const sourceLabel =
+    input.source === "whatsapp"
+      ? "WhatsApp siparişi panele kaydedildi"
+      : input.source === "phone"
+        ? "Telefon siparişi panele kaydedildi"
+        : "Panelden manuel sipariş oluşturuldu";
   await supabase.from("order_events").insert({
     order_id: order.id,
     store_id: store.id,
     kind: "created",
-    message: "Panelden manuel sipariş oluşturuldu",
-    meta: { source: "manual" },
+    message: sourceLabel,
+    meta: { source: input.source },
   });
 
   if (existingCustomer) {
