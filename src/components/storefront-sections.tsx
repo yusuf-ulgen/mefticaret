@@ -532,31 +532,74 @@ function CategoryGridSection({ settings, context }: SectionProps) {
     <section style={{ paddingBottom: 40 }}>
       <SectionHeading title={str(settings, "title")} theme={context.theme} />
       <div
+        className="sf-cat-grid"
         style={{
           display: "grid",
-          gridTemplateColumns: `repeat(auto-fill, minmax(${Math.round(1100 / Math.max(2, columns))}px, 1fr))`,
+          // auto-fit: az sayıda kategori varsa kartlar satırı doldurur, boşluk kalmaz.
+          gridTemplateColumns: `repeat(auto-fit, minmax(${Math.round(1100 / Math.max(2, columns))}px, 1fr))`,
           gap: 16,
         }}
       >
         {cards.map((card) => {
           const inner = (
-            <>
-              <div style={{ fontFamily: fonts.heading, fontWeight: 600, fontSize: 16 }}>{card.title}</div>
-              {card.subtitle ? (
-                <div style={{ color: muted, fontSize: 13, marginTop: 6 }}>{card.subtitle}</div>
-              ) : null}
-            </>
+            <span style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <span
+                aria-hidden
+                style={{
+                  display: "grid",
+                  placeItems: "center",
+                  width: 44,
+                  height: 44,
+                  flexShrink: 0,
+                  borderRadius: radius,
+                  background: `${t.accent_color}22`,
+                  color: t.accent_color,
+                  fontFamily: fonts.heading,
+                  fontWeight: 700,
+                  fontSize: 18,
+                }}
+              >
+                {card.title.trim().slice(0, 1).toLocaleUpperCase("tr")}
+              </span>
+              <span style={{ minWidth: 0, flex: 1 }}>
+                <span
+                  style={{
+                    display: "block",
+                    fontFamily: fonts.heading,
+                    fontWeight: 600,
+                    fontSize: 16,
+                  }}
+                >
+                  {card.title}
+                </span>
+                <span
+                  style={{
+                    display: "block",
+                    color: muted,
+                    fontSize: 13,
+                    marginTop: 4,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {card.subtitle || "Ürünleri gör"}
+                </span>
+              </span>
+              <span aria-hidden style={{ color: muted, fontSize: 18, flexShrink: 0 }}>
+                →
+              </span>
+            </span>
           );
           const shell = {
             background: cardBg,
             border: `1px solid ${border}`,
             borderRadius: radius,
             padding: 18,
-            minHeight: 96,
+            minHeight: 88,
             textDecoration: "none",
             color: "inherit",
             display: "block",
-            borderTop: `3px solid ${t.accent_color}`,
           } as const;
 
           if (context.preview) {
