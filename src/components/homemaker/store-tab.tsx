@@ -615,10 +615,24 @@ export function StoreTab({
         campaignCode={(settings?.campaign_banner as { code?: string } | null)?.code ?? null}
       />
 
-      <BigButton onClick={save} disabled={saving} className="w-full">
+      <BigButton onClick={save} disabled={saving || !dirty} className="w-full">
         {saving ? <Loader2 className="size-5 animate-spin" /> : <Save className="size-5" />}
-        Kaydet
+        {dirty ? "Kaydet" : "Her şey kayıtlı"}
       </BigButton>
+
+      {dirty ? (
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 px-4 pb-2">
+          <div className="mx-auto flex max-w-lg items-center gap-3 rounded-3xl border border-hm-line bg-white/95 p-3 shadow-lg backdrop-blur">
+            <p className="min-w-0 flex-1 text-sm font-semibold text-hm-ink">
+              Kaydedilmemiş değişiklikleriniz var
+            </p>
+            <BigButton onClick={save} disabled={saving} className="px-6">
+              {saving ? <Loader2 className="size-5 animate-spin" /> : <Save className="size-5" />}
+              Kaydet
+            </BigButton>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
