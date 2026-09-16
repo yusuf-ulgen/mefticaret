@@ -1,12 +1,26 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Banknote, Facebook, ImagePlus, Instagram, Link2, Loader2, Save, Share2, ShieldCheck } from "lucide-react";
+import {
+  Banknote,
+  Bell,
+  Facebook,
+  ImagePlus,
+  Instagram,
+  Link2,
+  Loader2,
+  Save,
+  Share2,
+  ShieldCheck,
+  Snowflake,
+  Trash2,
+  Truck,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { BigButton, Field, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
 import { uploadStoreLogo } from "@/lib/media";
-import { updateStore, updateStoreSettings } from "@/lib/stores.functions";
+import { updateStoreSettings, updateStore } from "@/lib/stores.functions";
 
 type Store = { id: string; name: string; logo_url: string | null };
 type Settings = {
@@ -17,7 +31,31 @@ type Settings = {
   payment_mode: string | null;
   bank_iban: string | null;
   bank_account_holder: string | null;
+  daily_order_limit?: number | null;
+  trust_badges?: string[] | null;
+  gallery?: unknown;
+  delivery_methods?: string[] | null;
+  cold_pack_enabled?: boolean | null;
+  cold_pack_fee?: number | null;
+  voice_alerts?: boolean | null;
 } | null;
+
+const BADGES = [
+  "Katkısız / Doğal",
+  "Hijyen Sertifikalı",
+  "Özel El Yapımı",
+  "Günlük Üretim",
+  "Vegan",
+  "Hediye Paketi",
+];
+
+type DeliveryMethod = "shipping" | "local_delivery" | "pickup";
+
+const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
+  shipping: "Tüm Türkiye'ye kargo",
+  local_delivery: "Aynı şehir içi elden teslimat",
+  pickup: "Gel-al (mağazadan teslim)",
+};
 
 /** Kullanıcı yalnızca kullanıcı adı yazdıysa tam bağlantıya çevirir. */
 const toUrl = (value: string, base: string) => {
@@ -53,6 +91,65 @@ export function StoreTab({
   const [holder, setHolder] = useState(settings?.bank_account_holder ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [dailyLimit, setDailyLimit] = useState(
+    settings?.daily_order_limit ? String(settings.daily_order_limit) : "",
+  );
+  const [badges, setBadges] = useState<string[]>(settings?.trust_badges ?? []);
+  const [gallery, setGallery] = useState<string[]>(
+    Array.isArray(settings?.gallery) ? (settings?.gallery as string[]) : [],
+  );
+  const [delivery, setDelivery] = useState<DeliveryMethod[]>(
+    ((settings?.delivery_methods ?? ["shipping"]) as DeliveryMethod[]).filter((method) =>
+      ["shipping", "local_delivery", "pickup"].includes(method),
+    ),
+  );
+  const [coldPack, setColdPack] = useState(Boolean(settings?.cold_pack_enabled));
+  const [coldFee, setColdFee] = useState(String(Number(settings?.cold_pack_fee ?? 50)));
+  const [voiceAlerts, setVoiceAlerts] = useState(Boolean(settings?.voice_alerts));
+  const [galleryBusy, setGalleryBusy] = useState(false);
+
+  const toggleBadge = (badge: string) =>
+    setBadges((current) =>
+      current.includes(badge) ? current.filter((item) => item !== badge) : [...current, badge],
+    );
+
+  const toggleDelivery = (method: DeliveryMethod) =>
+    setDelivery((current) =>
+      current.includes(method) ? current.filter((item) => item !== method) : [...current, method],
+    );
+
+  const addGalleryPhoto = async (file: File | undefined) => {
+    if (!file) return;
+    if (gallery.length >= 12) {
+      toast.error("En fazla 12 fotoğraf ekleyebilirsiniz.");
+      return;
+    }
+    setGalleryBusy(true);
+    try {
+      const url = await uploadStoreLogo(store.id, file);
+      const next = [...gallery, url];
+      setGallery(next);
+      await saveSettings({ data: { storeId: store.id, patch: { gallery: next } } });
+      await queryClient.invalidateQueries({ queryKey: ["store-settings", store.id] });
+      toast.success("Fotoğraf galerinize eklendi");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Fotoğraf yüklenemedi");
+    } finally {
+      setGalleryBusy(false);
+    }
+  };
+
+  const removeGalleryPhoto = async (url: string) => {
+    const next = gallery.filter((item) => item !== url);
+    setGallery(next);
+    try {
+      await saveSettings({ data: { storeId: store.id, patch: { gallery: next } } });
+      await queryClient.invalidateQueries({ queryKey: ["store-settings", store.id] });
+      toast.success("Fotoğraf kaldırıldı");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kaldırılamadı");
+    }
+  };
 
   useEffect(() => {
     setName(store.name);
@@ -83,6 +180,13 @@ export function StoreTab({
             payment_mode: mode,
             bank_iban: iban.replace(/\s/g, "").toUpperCase(),
             bank_account_holder: holder.trim(),
+            daily_order_limit: dailyLimit.trim() ? Math.max(0, Number(dailyLimit) || 0) : null,
+            trust_badges: badges,
+            gallery,
+            delivery_methods: delivery.length > 0 ? delivery : ["shipping"],
+            cold_pack_enabled: coldPack,
+            cold_pack_fee: Math.max(0, Number(coldFee.replace(",", ".")) || 0),
+            voice_alerts: voiceAlerts,
           },
         },
       });
@@ -149,9 +253,9 @@ export function StoreTab({
             placeholder="Örn. Ayşe'nin El Emeği"
           />
         </Field>
-        <Field label="Kendinizi tanıtın" hint="Müşterileriniz mağaza sayfanızda görecek.">
+        <Field label="Hikayem / Biyografi" hint="Müşterileriniz mağaza sayfanızda görecek.">
           <textarea
-            className={`${inputClass} min-h-24 resize-y`}
+            className={`${inputClass} min-h-32 resize-y`}
             value={bio}
             maxLength={400}
             onChange={(event) => setBio(event.target.value)}
@@ -191,6 +295,139 @@ export function StoreTab({
             />
           </div>
         </Field>
+      </SoftCard>
+
+      <SoftCard className="grid gap-3">
+        <p className="text-sm font-semibold text-hm-ink">Güven rozetleriniz</p>
+        <p className="text-sm text-hm-ink-soft">
+          Size uyanları seçin; mağaza sayfanızda müşterilere gösterilir.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {BADGES.map((badge) => {
+            const active = badges.includes(badge);
+            return (
+              <button
+                key={badge}
+                type="button"
+                onClick={() => toggleBadge(badge)}
+                className={`inline-flex min-h-11 items-center gap-1.5 rounded-2xl px-3 text-sm font-semibold ${
+                  active ? "bg-hm-emerald text-white" : "bg-hm-sand text-hm-ink-soft"
+                }`}
+              >
+                <ShieldCheck className="size-4" />
+                {badge}
+              </button>
+            );
+          })}
+        </div>
+      </SoftCard>
+
+      <SoftCard className="grid gap-3">
+        <p className="text-sm font-semibold text-hm-ink">Fotoğraf galerim</p>
+        <p className="text-sm text-hm-ink-soft">
+          Mutfağınızdan, atölyenizden veya ürünlerinizden kareler ekleyin.
+        </p>
+        {gallery.length ? (
+          <div className="grid grid-cols-3 gap-2">
+            {gallery.map((url) => (
+              <div key={url} className="relative overflow-hidden rounded-2xl bg-hm-sand">
+                <img src={url} alt="" className="aspect-square w-full object-cover" />
+                <button
+                  type="button"
+                  aria-label="Fotoğrafı kaldır"
+                  onClick={() => void removeGalleryPhoto(url)}
+                  className="absolute right-1.5 top-1.5 grid size-9 place-items-center rounded-xl bg-white/90 text-hm-rose"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : null}
+        <label className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-hm-line bg-white text-sm font-semibold text-hm-ink-soft">
+          {galleryBusy ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <ImagePlus className="size-4" />
+          )}
+          Fotoğraf ekle
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(event) => void addGalleryPhoto(event.target.files?.[0])}
+          />
+        </label>
+      </SoftCard>
+
+      <SoftCard className="grid gap-3">
+        <p className="text-sm font-semibold text-hm-ink">Teslimat yöntemleriniz</p>
+        <div className="grid gap-2">
+          {(Object.keys(DELIVERY_LABELS) as DeliveryMethod[]).map((method) => {
+            const active = delivery.includes(method);
+            return (
+              <button
+                key={method}
+                type="button"
+                onClick={() => toggleDelivery(method)}
+                className={`flex min-h-14 items-center gap-3 rounded-2xl px-4 text-left text-sm font-semibold ${
+                  active ? "bg-hm-teal-soft text-hm-teal" : "bg-hm-sand text-hm-ink-soft"
+                }`}
+              >
+                <Truck className="size-5" />
+                {DELIVERY_LABELS[method]}
+              </button>
+            );
+          })}
+        </div>
+        <label className="flex min-h-14 items-center gap-3 rounded-2xl bg-hm-sand px-4">
+          <input
+            type="checkbox"
+            checked={coldPack}
+            onChange={(event) => setColdPack(event.target.checked)}
+            className="size-5 accent-hm-teal"
+          />
+          <Snowflake className="size-5 text-hm-teal" />
+          <span className="text-sm font-semibold text-hm-ink">Buz aküsü / soğuk paketleme</span>
+        </label>
+        {coldPack ? (
+          <Field label="Soğuk paketleme ücreti (₺)" hint="Sipariş tutarına eklenir.">
+            <input
+              className={inputClass}
+              inputMode="decimal"
+              value={coldFee}
+              onChange={(event) => setColdFee(event.target.value)}
+            />
+          </Field>
+        ) : null}
+      </SoftCard>
+
+      <SoftCard className="grid gap-3">
+        <p className="text-sm font-semibold text-hm-ink">Günlük sipariş kotanız</p>
+        <Field
+          label="Bir günde en fazla kaç sipariş alabilirsiniz?"
+          hint="Boş bırakırsanız sınır olmaz. Kota dolduğunda mağazanız sipariş almayı durdurur."
+        >
+          <input
+            className={inputClass}
+            inputMode="numeric"
+            value={dailyLimit}
+            onChange={(event) => setDailyLimit(event.target.value)}
+            placeholder="Örn. 10"
+          />
+        </Field>
+        <label className="flex min-h-14 items-center gap-3 rounded-2xl bg-hm-sand px-4">
+          <input
+            type="checkbox"
+            checked={voiceAlerts}
+            onChange={(event) => setVoiceAlerts(event.target.checked)}
+            className="size-5 accent-hm-rose"
+          />
+          <Bell className="size-5 text-hm-rose" />
+          <span className="text-sm font-semibold text-hm-ink">
+            Yeni sipariş geldiğinde sesli haber ver
+          </span>
+        </label>
       </SoftCard>
 
       <SoftCard className="grid gap-3">

@@ -1,15 +1,17 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Package, Share2, ShoppingBag, Store } from "lucide-react";
-import { useEffect, useState } from "react";
+import { AlertTriangle, ArrowLeft, Package, Share2, ShoppingBag, Store } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { EarningsBar } from "@/components/homemaker/earnings-bar";
 import { ShareSheet } from "@/components/homemaker/kolay-parts";
 import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
 import { OrdersTab } from "@/components/homemaker/orders-tab";
 import { ProductsTab } from "@/components/homemaker/products-tab";
 import { StoreTab } from "@/components/homemaker/store-tab";
+import { speakTurkish } from "@/hooks/use-voice";
 import { simpleOrdersQuery, simpleProductsQuery } from "@/lib/homemaker-queries";
 import { storeQuery, storeSettingsQuery } from "@/lib/store-queries";
 import { updateStore } from "@/lib/stores.functions";
@@ -57,6 +59,37 @@ function KolayPanel() {
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
+
+  // Sesli sipariş bildirimi: yalnızca ayar açıkken ve gerçekten yeni sipariş geldiğinde okur.
+  const seenOrders = useRef<Set<string> | null>(null);
+  const voiceAlerts = Boolean(
+    (settings as { voice_alerts?: boolean | null } | null)?.voice_alerts,
+  );
+  useEffect(() => {
+    const list = orders ?? [];
+    if (seenOrders.current === null) {
+      seenOrders.current = new Set(list.map((order) => order.id));
+      return;
+    }
+    const fresh = list.filter((order) => !seenOrders.current?.has(order.id));
+    fresh.forEach((order) => seenOrders.current?.add(order.id));
+    if (!voiceAlerts || fresh.length === 0) return;
+    const order = fresh[0]!;
+    const first = order.items[0];
+    const detail = first ? `${first.quantity} adet ${first.title}` : "yeni bir";
+    speakTurkish(`Yeni sipariş: ${order.customer_name ?? "Bir müşteri"} ${detail} siparişi verdi.`);
+  }, [orders, voiceAlerts]);
+
+  const dailyLimit = Number(
+    (settings as { daily_order_limit?: number | null } | null)?.daily_order_limit ?? 0,
+  );
+  const todayCount = (orders ?? []).filter((order) => {
+    if (!order.placed_at) return false;
+    const placed = new Date(order.placed_at);
+    const now = new Date();
+    return placed.toDateString() === now.toDateString();
+  }).length;
+  const capacityFull = dailyLimit > 0 && todayCount >= dailyLimit;
 
   if (!store) {
     return (
@@ -122,9 +155,17 @@ function KolayPanel() {
             <Share2 className="size-5" />
           </button>
         </div>
+        <EarningsBar storeId={storeId} />
       </header>
 
       <main className="mx-auto max-w-lg px-4 py-4">
+        {capacityFull ? (
+          <div className="mb-4 flex items-center gap-2 rounded-3xl bg-hm-rose-soft px-4 py-3 text-sm font-semibold text-hm-rose">
+            <AlertTriangle className="size-5 shrink-0" />
+            Günlük kapasite doldu — bugün {dailyLimit} sipariş aldınız, mağazanız yeni sipariş
+            almıyor.
+          </div>
+        ) : null}
         {tab === "store" && settingsPending ? (
           <div className="grid min-h-48 place-items-center rounded-3xl border border-hm-line bg-white text-sm text-hm-ink-soft">
             Mağaza bilgileriniz yükleniyor…

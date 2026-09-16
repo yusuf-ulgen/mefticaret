@@ -1,9 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
+  Calculator,
+  Clock,
   Download,
   ImagePlus,
   Loader2,
+  Mic,
+  MicOff,
   Plus,
   Sparkles,
   Trash2,
@@ -12,6 +16,7 @@ import {
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { CostCalculatorSheet } from "@/components/homemaker/cost-calculator";
 import {
   BigButton,
   Field,
@@ -19,6 +24,7 @@ import {
   SoftCard,
   inputClass,
 } from "@/components/homemaker/kolay-parts";
+import { useSpeechToText } from "@/hooks/use-voice";
 import { generateProductCopy } from "@/lib/ai.functions";
 import { createProduct, deleteProduct, generateVariants, setVariantOptions, updateProduct, upsertVariant } from "@/lib/catalog.functions";
 import type { SimpleProduct } from "@/lib/homemaker-queries";
@@ -155,6 +161,11 @@ export function ProductsTab({
                       : ""}
                     {product.stock > 0 ? `${product.stock} adet var` : "Şu an yok"}
                   </p>
+                  {product.made_to_order ? (
+                    <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-hm-rose-soft px-2 py-0.5 text-xs font-semibold text-hm-rose">
+                      <Clock className="size-3" /> Sipariş üzerine · {product.prep_days} gün
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
@@ -249,6 +260,23 @@ function AddProductSheet({
   const [optionOne, setOptionOne] = useState({ name: "Renk", values: "" });
   const [optionTwo, setOptionTwo] = useState({ name: "Boyut", values: "" });
   const [aiBusy, setAiBusy] = useState(false);
+  const [madeToOrder, setMadeToOrder] = useState(false);
+  const [prepDays, setPrepDays] = useState("2");
+  const [noteEnabled, setNoteEnabled] = useState(false);
+  const [noteLabel, setNoteLabel] = useState("Nakışlanacak isim");
+  const [calcOpen, setCalcOpen] = useState(false);
+  const [voiceTarget, setVoiceTarget] = useState<"title" | "description">("title");
+  const patchProduct = useServerFn(updateProduct);
+  const voice = useSpeechToText((text) => {
+    if (voiceTarget === "title") setTitle((current) => (current ? `${current} ${text}` : text));
+    else setDescription((current) => (current ? `${current} ${text}` : text));
+    toast.success("Söyledikleriniz yazıldı");
+  });
+  const listenFor = (target: "title" | "description") => {
+    setVoiceTarget(target);
+    if (voice.listening) voice.stop();
+    else voice.start();
+  };
   const cleanPhoto = useServerFn(cleanProductPhoto);
   const [cleanBusy, setCleanBusy] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -354,6 +382,20 @@ function AddProductSheet({
         await buildVariants({ data: { productId: product.id, options: groups } });
       }
 
+      if (madeToOrder || noteEnabled) {
+        await patchProduct({
+          data: {
+            productId: product.id,
+            patch: {
+              made_to_order: madeToOrder,
+              prep_days: madeToOrder ? Math.max(0, Math.min(90, Number(prepDays) || 0)) : 0,
+              custom_note_enabled: noteEnabled,
+              custom_note_label: noteEnabled ? noteLabel.trim().slice(0, 80) : null,
+            },
+          },
+        });
+      }
+
       await queryClient.invalidateQueries({ queryKey: ["kolay-products", storeId] });
       toast.success("Ürün eklendi ve yayında");
       reset();
@@ -396,13 +438,38 @@ function AddProductSheet({
         ) : null}
 
         <Field label="Ürün adı">
-          <input
-            className={inputClass}
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Örn. Lavantalı el sabunu"
-          />
+          <div className="flex gap-2">
+            <input
+              className={inputClass}
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Örn. Lavantalı el sabunu"
+            />
+            {voice.supported ? (
+              <button
+                type="button"
+                aria-label="Konuşarak ürün adı yaz"
+                onClick={() => listenFor("title")}
+                className={`grid size-12 shrink-0 place-items-center rounded-2xl ${
+                  voice.listening && voiceTarget === "title"
+                    ? "bg-hm-rose text-white"
+                    : "bg-hm-sand text-hm-ink-soft"
+                }`}
+              >
+                {voice.listening && voiceTarget === "title" ? (
+                  <MicOff className="size-5" />
+                ) : (
+                  <Mic className="size-5" />
+                )}
+              </button>
+            ) : null}
+          </div>
         </Field>
+        {voice.supported ? (
+          <p className="-mt-2 text-xs text-hm-ink-soft">
+            Mikrofona dokunup konuşarak ürün bilgisi girebilirsiniz.
+          </p>
+        ) : null}
 
         <div className="grid grid-cols-2 gap-3">
           <Field label={`Fiyat (${currency})`}>
@@ -446,10 +513,83 @@ function AddProductSheet({
             placeholder="Ürününüzü birkaç cümleyle anlatın…"
           />
         </Field>
-        <BigButton tone="ghost" onClick={writeDescription} disabled={aiBusy}>
-          {aiBusy ? <Loader2 className="size-5 animate-spin" /> : <Wand2 className="size-5" />}
-          Açıklamayı bana yaz
+        <div className="flex gap-2">
+          <BigButton tone="ghost" onClick={writeDescription} disabled={aiBusy} className="flex-1">
+            {aiBusy ? <Loader2 className="size-5 animate-spin" /> : <Wand2 className="size-5" />}
+            Açıklamayı bana yaz
+          </BigButton>
+          {voice.supported ? (
+            <button
+              type="button"
+              aria-label="Konuşarak açıklama yaz"
+              onClick={() => listenFor("description")}
+              className={`grid size-12 shrink-0 place-items-center rounded-2xl ${
+                voice.listening && voiceTarget === "description"
+                  ? "bg-hm-rose text-white"
+                  : "bg-hm-sand text-hm-ink-soft"
+              }`}
+            >
+              {voice.listening && voiceTarget === "description" ? (
+                <MicOff className="size-5" />
+              ) : (
+                <Mic className="size-5" />
+              )}
+            </button>
+          ) : null}
+        </div>
+
+        <BigButton tone="ghost" onClick={() => setCalcOpen(true)} className="w-full">
+          <Calculator className="size-5" /> Maliyet hesapla
         </BigButton>
+
+        <SoftCard className="grid gap-3 bg-hm-sand">
+          <label className="flex min-h-14 items-center gap-3 rounded-2xl bg-white px-4">
+            <input
+              type="checkbox"
+              checked={madeToOrder}
+              onChange={(event) => setMadeToOrder(event.target.checked)}
+              className="size-5 accent-hm-rose"
+            />
+            <Clock className="size-5 text-hm-rose" />
+            <span className="text-sm font-semibold text-hm-ink">Sipariş üzerine üretilir</span>
+          </label>
+          {madeToOrder ? (
+            <Field label="Hazırlanma süresi (gün)">
+              <select
+                className={inputClass}
+                value={prepDays}
+                onChange={(event) => setPrepDays(event.target.value)}
+              >
+                {["1", "2", "3", "4", "5", "7", "10", "14"].map((day) => (
+                  <option key={day} value={day}>
+                    {day} gün
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : null}
+          <label className="flex min-h-14 items-center gap-3 rounded-2xl bg-white px-4">
+            <input
+              type="checkbox"
+              checked={noteEnabled}
+              onChange={(event) => setNoteEnabled(event.target.checked)}
+              className="size-5 accent-hm-teal"
+            />
+            <span className="text-sm font-semibold text-hm-ink">
+              Müşteri özel not yazabilsin
+            </span>
+          </label>
+          {noteEnabled ? (
+            <Field label="Not başlığı" hint="Örn. Nakışlanacak isim, pasta yazısı…">
+              <input
+                className={inputClass}
+                value={noteLabel}
+                onChange={(event) => setNoteLabel(event.target.value)}
+              />
+            </Field>
+          ) : null}
+        </SoftCard>
+
 
         <SoftCard className="grid gap-3 bg-hm-sand">
           <p className="text-sm font-semibold text-hm-ink">Seçenekler (isteğe bağlı)</p>
@@ -481,6 +621,13 @@ function AddProductSheet({
           {saving ? <Loader2 className="size-5 animate-spin" /> : <Sparkles className="size-5" />}
           Ürünü yayınla
         </BigButton>
+
+        <CostCalculatorSheet
+          open={calcOpen}
+          onClose={() => setCalcOpen(false)}
+          currency={currency}
+          onApply={(value) => setPrice(String(value))}
+        />
       </div>
     </Sheet>
   );

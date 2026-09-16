@@ -150,6 +150,11 @@ export const updateProduct = createServerFn({ method: "POST" })
             compare_at_price: z.number().min(0).max(9_999_999).nullable().optional(),
             status: statusEnum.optional(),
             track_inventory: z.boolean().optional(),
+            // Kolay Panel: sipariş üzerine üretim ve müşteri notu
+            made_to_order: z.boolean().optional(),
+            prep_days: z.number().int().min(0).max(90).optional(),
+            custom_note_enabled: z.boolean().optional(),
+            custom_note_label: z.string().trim().max(80).nullable().optional(),
             sku: z.string().trim().max(60).nullable().optional(),
             barcode: z.string().trim().max(60).nullable().optional(),
             seller_name: z.string().trim().max(80).nullable().optional(),
