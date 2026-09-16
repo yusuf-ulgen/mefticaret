@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
+  Banknote,
   Check,
   Copy,
   Handshake,
@@ -15,7 +16,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { DelegateSheet } from "@/components/homemaker/delegate-sheet";
-import { BigButton, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
+import { BigButton, Sheet, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
 import { refreshArasTracking, sendOrderToAras } from "@/lib/aras.functions";
 import { createPickupCode } from "@/lib/homemaker.functions";
 import type { SimpleOrder } from "@/lib/homemaker-queries";
@@ -361,6 +362,15 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
                     <MessageCircle className="size-4" /> WhatsApp'tan yaz
                   </a>
                 ) : null}
+                {order.payment_status !== "paid" ? (
+                  <BigButton
+                    tone="emerald"
+                    disabled={busy === order.id}
+                    onClick={() => setCollecting(order)}
+                  >
+                    <Banknote className="size-4" /> Ödemeyi aldım
+                  </BigButton>
+                ) : null}
                 {tab !== "done" && !isAras && !order.tracking_number ? (
                   <BigButton
                     tone="teal"
@@ -403,6 +413,33 @@ export function OrdersTab({ storeId, orders }: { storeId: string; orders: Simple
           );
         })
       )}
+
+      <Sheet
+        open={Boolean(collecting)}
+        title="Ödemeyi nasıl aldınız?"
+        onClose={() => setCollecting(null)}
+      >
+        {collecting ? (
+          <div className="grid gap-3">
+            <p className="rounded-2xl bg-hm-sand px-4 py-3 text-sm text-hm-ink-soft">
+              #{collecting.order_number} · {formatMoney(collecting.grand_total, collecting.currency)}
+            </p>
+            {["Kapıda nakit", "Kapıda kart", "Havale / EFT", "WhatsApp dekontu"].map((method) => (
+              <BigButton
+                key={method}
+                tone="ghost"
+                disabled={busy === collecting.id}
+                onClick={() => void collect(collecting, method)}
+              >
+                <Banknote className="size-4" /> {method}
+              </BigButton>
+            ))}
+            <p className="text-xs text-hm-ink-soft">
+              İşaretlediğiniz tutar kazancınıza ve çekilebilir bakiyenize eklenir.
+            </p>
+          </div>
+        ) : null}
+      </Sheet>
 
       <DelegateSheet order={delegate} onClose={() => setDelegate(null)} storeId={storeId} />
     </div>
