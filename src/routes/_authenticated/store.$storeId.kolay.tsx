@@ -226,6 +226,8 @@ function KolayPanel() {
           />
         ) : null}
         {tab === "orders" ? <OrdersTab storeId={storeId} orders={orders ?? []} /> : null}
+        {tab === "customers" ? <CustomersTab storeId={storeId} /> : null}
+        {tab === "insights" ? <InsightsTab storeId={storeId} /> : null}
       </main>
 
       <nav
