@@ -267,11 +267,19 @@ export function ProductsTab({
                 </button>
                 <button
                   type="button"
+                  onClick={() => setEditProduct(product)}
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-2xl bg-hm-amber-soft px-4 text-sm font-semibold text-hm-amber"
+                >
+                  <Pencil className="size-4" /> Düzenle
+                </button>
+                <button
+                  type="button"
                   onClick={() => setSocial(product)}
                   className="min-h-11 rounded-2xl bg-hm-rose-soft px-4 text-sm font-semibold text-hm-rose"
                 >
                   Paylaşım görseli
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setLabelProduct(product)}
