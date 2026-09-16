@@ -479,19 +479,19 @@ function CheckoutPage() {
                 </div>
               ) : null}
               <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
-                <Field label="Ad soyad" muted={muted}>
+                <Field label="Ad soyad *" muted={muted}>
                   <input style={inputStyle} value={fullName} onChange={(e) => setFullName(e.target.value)} />
                 </Field>
-                <Field label="E-posta" muted={muted}>
+                <Field label="E-posta *" muted={muted}>
                   <input style={inputStyle} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
-                <Field label="Telefon" muted={muted}>
+                <Field label="Telefon *" muted={muted}>
                   <input style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </Field>
                 <Field label="Ülke" muted={muted}>
                   <input style={inputStyle} value={country} onChange={(e) => setCountry(e.target.value)} />
                 </Field>
-                <Field label="Şehir" muted={muted}>
+                <Field label="Şehir *" muted={muted}>
                   <input style={inputStyle} value={city} onChange={(e) => setCity(e.target.value)} />
                 </Field>
                 <Field label="İlçe" muted={muted}>
@@ -502,7 +502,7 @@ function CheckoutPage() {
                 </Field>
               </div>
               <div style={{ marginTop: 12 }}>
-                <Field label="Adres" muted={muted}>
+                <Field label="Adres *" muted={muted}>
                   <textarea
                     style={{ ...inputStyle, minHeight: 76, resize: "vertical" }}
                     value={line1}
@@ -533,7 +533,7 @@ function CheckoutPage() {
                     <Field label="Ülke" muted={muted}>
                       <input style={inputStyle} value={billingCountry} onChange={(e) => setBillingCountry(e.target.value)} />
                     </Field>
-                    <Field label="Şehir" muted={muted}>
+                    <Field label="Şehir *" muted={muted}>
                       <input style={inputStyle} value={billingCity} onChange={(e) => setBillingCity(e.target.value)} />
                     </Field>
                     <Field label="İlçe" muted={muted}>
