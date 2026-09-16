@@ -15,11 +15,11 @@ export async function syncKolayPaymentMethods(
   const { data: connectors } = await supabase
     .from("connectors")
     .select("id, code")
-    .in("code", ["mefpay", "havale-eft"]);
+    .in("code", ["mefpay", "bank_transfer"]);
 
   const byCode = new Map((connectors ?? []).map((row) => [row.code, row.id]));
   const mefpayId = byCode.get("mefpay");
-  const bankId = byCode.get("havale-eft");
+  const bankId = byCode.get("bank_transfer");
 
   const { data: existing } = await supabase
     .from("store_payment_methods")
