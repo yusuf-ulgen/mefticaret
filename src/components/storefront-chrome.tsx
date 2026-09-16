@@ -236,6 +236,7 @@ export function StorefrontChrome({
   // Analitik: her vitrin sayfası görüntülemesini ziyaretçi/oturum bazında kaydet.
   useEffect(() => {
     trackEvent(storeSlug, "page_view", { path: pathname });
+    setMenuOpen(false);
   }, [storeSlug, pathname]);
 
   // Özel JavaScript, mağaza sahibinin bilinçli tercihidir; yalnızca istemcide çalışır.
