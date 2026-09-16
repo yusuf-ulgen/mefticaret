@@ -49,7 +49,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/kolay")({
   component: KolayPanel,
 });
 
-type Tab = "store" | "products" | "orders";
+type Tab = "store" | "products" | "orders" | "customers" | "insights";
 
 function KolayPanel() {
   const { storeId } = Route.useParams();
