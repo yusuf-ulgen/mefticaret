@@ -389,7 +389,7 @@ function CheckoutPage() {
           </Link>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.4fr) minmax(280px,.9fr)", gap: 24 }}>
+        <div className="sf-cart-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.4fr) minmax(280px,.9fr)", gap: 24, paddingBottom: 8 }}>
           <div style={{ display: "grid", gap: 20 }}>
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
               <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>İletişim ve teslimat</h2>
