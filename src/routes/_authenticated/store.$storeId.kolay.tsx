@@ -60,6 +60,10 @@ function KolayPanel() {
   const [shareOpen, setShareOpen] = useState(false);
   const [campaignOpen, setCampaignOpen] = useState(false);
   const [origin, setOrigin] = useState("https://mefticaret.com");
+  const [bellOpen, setBellOpen] = useState(false);
+  const [seenCount, setSeenCount] = useState(0);
+  const liveEvents = useStoreRealtime(storeId, { notify: true });
+  const unread = Math.max(0, liveEvents.length - seenCount);
 
   const { data: store } = useQuery(storeQuery(storeId));
   const {
