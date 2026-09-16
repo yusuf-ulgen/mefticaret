@@ -23,6 +23,7 @@ import { ShareSheet } from "@/components/homemaker/kolay-parts";
 import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
 import { OrdersTab } from "@/components/homemaker/orders-tab";
 import { ProductsTab } from "@/components/homemaker/products-tab";
+import { ShopPageCard } from "@/components/homemaker/shop-page-card";
 import { StoreTab } from "@/components/homemaker/store-tab";
 import { speakTurkish } from "@/hooks/use-voice";
 import { simpleOrdersQuery, simpleProductsQuery } from "@/lib/homemaker-queries";
