@@ -308,6 +308,34 @@ function KolayPanel() {
         </div>
       </nav>
 
+      <Sheet open={bellOpen} title="Bildirimler" onClose={() => setBellOpen(false)}>
+        {liveEvents.length === 0 ? (
+          <p className="rounded-2xl bg-hm-sand p-4 text-sm text-hm-ink-soft">
+            Şu an yeni bildirim yok. Sipariş geldiğinde burada ışık yanar ve ekranda uyarı çıkar.
+          </p>
+        ) : (
+          <div className="grid gap-2">
+            {liveEvents.map((event) => (
+              <button
+                key={event.id}
+                type="button"
+                onClick={() => {
+                  setTab("orders");
+                  setBellOpen(false);
+                }}
+                className="rounded-2xl border border-hm-line bg-white p-3 text-left"
+              >
+                <p className="text-sm font-semibold text-hm-ink">{event.title}</p>
+                <p className="text-xs text-hm-ink-soft">{event.detail}</p>
+                <p className="mt-1 text-[11px] text-hm-ink-soft">
+                  {new Date(event.at).toLocaleString("tr-TR")}
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
+      </Sheet>
+
       <ShareSheet
         open={shareOpen}
         onClose={() => setShareOpen(false)}
