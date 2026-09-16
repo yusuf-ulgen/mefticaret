@@ -562,7 +562,7 @@ export function StoreTab({
         ) : null}
       </SoftCard>
 
-      <SoftCard className="grid gap-3">
+      <SoftCard id="hm-share" className="grid gap-3">
         <p className="text-sm font-semibold text-hm-ink">Mağaza adresiniz</p>
         <p className="break-all text-sm text-hm-ink-soft">{storeUrl}</p>
         <p className="text-sm font-semibold text-hm-ink">Mağazanızı sosyal medyada paylaşın</p>
