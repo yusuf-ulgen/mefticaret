@@ -251,7 +251,7 @@ function OrdersPage() {
       </div>
 
       {selectedVisible.length > 0 ? (
-        <div className="surface-card mb-4 flex flex-wrap items-center gap-3 p-4">
+        <div className="surface-card sticky bottom-3 z-20 mb-4 flex flex-wrap items-center gap-3 p-4 shadow-lg sm:static sm:shadow-none">
           <p className="text-sm font-medium">{selectedVisible.length} sipariş seçildi</p>
           <Select value={bulkStatus} onValueChange={(value) => setBulkStatus(value as OrderStatus)}>
             <SelectTrigger className="w-44">
