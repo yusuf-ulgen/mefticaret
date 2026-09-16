@@ -234,12 +234,14 @@ function KolayPanel() {
         aria-label="Panel bölümleri"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-hm-line bg-white pb-[env(safe-area-inset-bottom)]"
       >
-        <div className="mx-auto grid max-w-lg grid-cols-3">
+        <div className="mx-auto grid max-w-lg grid-cols-5">
           {(
             [
               ["store", "Mağazam", Store],
               ["products", "Ürünlerim", Package],
-              ["orders", "Siparişlerim", ShoppingBag],
+              ["orders", "Siparişler", ShoppingBag],
+              ["customers", "Müşteriler", Users],
+              ["insights", "Raporlar", BarChart3],
             ] as const
           ).map(([key, label, Icon]) => (
             <button
