@@ -3470,6 +3470,47 @@ export type Database = {
           },
         ]
       }
+      home_maker_profiles: {
+        Row: {
+          category: string
+          created_at: string
+          full_name: string
+          panel_mode: string
+          store_id: string | null
+          store_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          full_name: string
+          panel_mode?: string
+          store_id?: string | null
+          store_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          full_name?: string
+          panel_mode?: string
+          store_id?: string | null
+          store_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_maker_profiles_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       instagram_accounts: {
         Row: {
           ai_confidence_threshold: number
@@ -14292,7 +14333,12 @@ export type Database = {
         | "automation"
       app_install_status: "installed" | "paused" | "uninstalled"
       app_pricing_model: "free" | "monthly" | "one_time" | "usage"
-      app_role: "platform_admin" | "agency" | "seller" | "customer"
+      app_role:
+        | "platform_admin"
+        | "agency"
+        | "seller"
+        | "customer"
+        | "home_maker"
       automation_condition:
         | "order_placed"
         | "order_paid"
@@ -14682,7 +14728,13 @@ export const Constants = {
       ],
       app_install_status: ["installed", "paused", "uninstalled"],
       app_pricing_model: ["free", "monthly", "one_time", "usage"],
-      app_role: ["platform_admin", "agency", "seller", "customer"],
+      app_role: [
+        "platform_admin",
+        "agency",
+        "seller",
+        "customer",
+        "home_maker",
+      ],
       automation_condition: [
         "order_placed",
         "order_paid",
