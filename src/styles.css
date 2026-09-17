@@ -656,3 +656,19 @@
   .hm-storefront-main { padding: 0 16px; }
   .sp-paused { margin-top: 18px; }
 }
+
+/* Kolay Panel (ev üretimi paneli): telefon genişliğinde yatay taşmayı önler.
+   Tek kolonlu grid'ler varsayılan olarak içeriğe göre genişler; kolon
+   genişliğini minmax(0,1fr) yaparak uzun ürün adı/bağlantı gibi metinler
+   kartın içinde kalır ve kısaltılır. */
+.hm-app :where(.grid):not([class*="grid-cols"]) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.hm-app {
+  overflow-x: hidden;
+}
+.hm-app img,
+.hm-app svg,
+.hm-app canvas {
+  max-width: 100%;
+}

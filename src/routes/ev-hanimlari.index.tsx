@@ -140,7 +140,7 @@ function HomeMakerAuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-hm-sand px-5 py-10">
+    <div className="hm-app min-h-screen bg-hm-sand px-5 py-10">
       <div className="mx-auto w-full max-w-[420px]">
         <div className="mb-7 text-center">
           <span className="mx-auto grid size-14 place-items-center rounded-3xl bg-hm-rose/15 text-hm-rose">

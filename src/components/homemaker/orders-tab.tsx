@@ -284,7 +284,7 @@ export function OrdersTab({
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`min-h-12 rounded-2xl px-2 text-sm font-semibold transition-colors ${
+              className={`min-h-12 rounded-2xl px-1 text-[11px] font-semibold leading-tight transition-colors sm:px-2 sm:text-sm ${
                 tab === key ? "bg-hm-rose text-white" : "text-hm-ink-soft"
               }`}
             >
