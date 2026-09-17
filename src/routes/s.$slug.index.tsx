@@ -4,7 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { ShopierHome } from "@/components/storefront/shopier-home";
 import { StorefrontSections } from "@/components/storefront-sections";
-import { resolveSections, withEssentialSections, type ThemeSectionRow } from "@/lib/theme-sections";
+import { resolveSections, type ThemeSectionRow } from "@/lib/theme-sections";
 import { storefrontQuery } from "@/lib/storefront-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
