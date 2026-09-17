@@ -266,6 +266,8 @@ import { Route as ApiPublicTiktokStoreIdRouteImport } from './routes/api/public/
 import { Route as ApiPublicTrackSlugRouteImport } from './routes/api/public/track.$slug'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicWhatsappStoreIdRouteImport } from './routes/api/public/whatsapp.$storeId'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
@@ -1733,6 +1735,16 @@ const ApiPublicWhatsappStoreIdRoute =
     path: '/api/public/whatsapp/$storeId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SSlugCCollectionSlugRoute = SSlugCCollectionSlugRouteImport.update({
   id: '/s/$slug/c/$collectionSlug',
   path: '/s/$slug/c/$collectionSlug',
@@ -2047,6 +2059,8 @@ export interface FileRoutesByFullPath {
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -2313,6 +2327,8 @@ export interface FileRoutesByTo {
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -2583,6 +2599,8 @@ export interface FileRoutesById {
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -2853,6 +2871,8 @@ export interface FileRouteTypes {
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -3119,6 +3139,8 @@ export interface FileRouteTypes {
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -3388,6 +3410,8 @@ export interface FileRouteTypes {
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -3484,6 +3508,8 @@ export interface RootRouteChildren {
   ApiPublicTrackSlugRoute: typeof ApiPublicTrackSlugRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   ApiPublicWhatsappStoreIdRoute: typeof ApiPublicWhatsappStoreIdRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
@@ -5291,6 +5317,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWhatsappStoreIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/c/$collectionSlug': {
       id: '/s/$slug/c/$collectionSlug'
       path: '/s/$slug/c/$collectionSlug'
@@ -5971,6 +6011,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTrackSlugRoute: ApiPublicTrackSlugRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   ApiPublicWhatsappStoreIdRoute: ApiPublicWhatsappStoreIdRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
