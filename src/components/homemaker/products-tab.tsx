@@ -198,6 +198,38 @@ export function ProductsTab({
         <Plus className="size-5" /> Yeni ürün ekle
       </BigButton>
 
+      {counts.low + counts.out > 0 ? (
+        <SoftCard className="grid gap-2 border-hm-amber/40">
+          <p className="inline-flex items-center gap-2 font-semibold text-hm-ink">
+            <AlertTriangle className="size-4 text-hm-amber" /> Stok uyarısı
+          </p>
+          <p className="text-sm text-hm-ink-soft">
+            {counts.low > 0 ? `${counts.low} ürününüzde az stok kaldı. ` : ""}
+            {counts.out > 0 ? `${counts.out} ürün şu an satışta görünmüyor.` : ""}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {counts.low > 0 ? (
+              <button
+                type="button"
+                onClick={() => setFilter("low")}
+                className="min-h-11 rounded-2xl bg-hm-amber-soft px-4 text-sm font-semibold text-hm-amber"
+              >
+                Az kalanları gör
+              </button>
+            ) : null}
+            {counts.out > 0 ? (
+              <button
+                type="button"
+                onClick={() => setFilter("out")}
+                className="min-h-11 rounded-2xl bg-hm-sand px-4 text-sm font-semibold text-hm-ink"
+              >
+                Tükenenleri gör
+              </button>
+            ) : null}
+          </div>
+        </SoftCard>
+      ) : null}
+
       <MaterialsPanel storeId={storeId} />
 
       {products.length > 0 ? (
