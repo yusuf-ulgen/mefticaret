@@ -268,6 +268,7 @@ import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicWhatsappStoreIdRouteImport } from './routes/api/public/whatsapp.$storeId'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
@@ -1745,6 +1746,12 @@ const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
   path: '/lovable/email/auth/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SSlugCCollectionSlugRoute = SSlugCCollectionSlugRouteImport.update({
   id: '/s/$slug/c/$collectionSlug',
   path: '/s/$slug/c/$collectionSlug',
@@ -2061,6 +2068,7 @@ export interface FileRoutesByFullPath {
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -2329,6 +2337,7 @@ export interface FileRoutesByTo {
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -2601,6 +2610,7 @@ export interface FileRoutesById {
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
@@ -2873,6 +2883,7 @@ export interface FileRouteTypes {
     | '/api/public/whatsapp/$storeId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -3141,6 +3152,7 @@ export interface FileRouteTypes {
     | '/api/public/whatsapp/$storeId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -3412,6 +3424,7 @@ export interface FileRouteTypes {
     | '/api/public/whatsapp/$storeId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
     | '/s/$slug/c/$collectionSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
@@ -3510,6 +3523,7 @@ export interface RootRouteChildren {
   ApiPublicWhatsappStoreIdRoute: typeof ApiPublicWhatsappStoreIdRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
@@ -5331,6 +5345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/c/$collectionSlug': {
       id: '/s/$slug/c/$collectionSlug'
       path: '/s/$slug/c/$collectionSlug'
@@ -6013,6 +6034,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWhatsappStoreIdRoute: ApiPublicWhatsappStoreIdRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
