@@ -144,7 +144,7 @@ function KolayPanel() {
   };
 
   return (
-    <div className="min-h-screen bg-hm-sand pb-28 font-sans text-hm-ink">
+    <div className="hm-app min-h-screen bg-hm-sand pb-28 font-sans text-hm-ink">
       <header className="sticky top-0 z-40 border-b border-hm-line bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-lg items-center gap-3 px-4 py-3">
           <div className="size-10 shrink-0 overflow-hidden rounded-2xl bg-hm-sand">

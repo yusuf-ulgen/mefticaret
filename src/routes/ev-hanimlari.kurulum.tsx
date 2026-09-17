@@ -96,7 +96,7 @@ function HomeMakerSetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-hm-sand px-5 py-10">
+    <div className="hm-app min-h-screen bg-hm-sand px-5 py-10">
       <form onSubmit={submit} className="mx-auto grid w-full max-w-[420px] gap-5">
         <div>
           <h1 className="text-[24px] font-semibold leading-tight text-hm-ink">Mağazanızı açalım</h1>

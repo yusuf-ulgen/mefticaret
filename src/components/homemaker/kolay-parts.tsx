@@ -89,17 +89,45 @@ export function Sheet({
   onClose: () => void;
   children: ReactNode;
 }) {
+  // Telefonda alttan açılan panel: geri tuşu/Escape ile kapanır, arka plana
+  // dokununca kapanır ve panel açıkken arkadaki sayfa kaymaz.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [open, onClose]);
+
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-6">
-      <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 pb-8 sm:rounded-3xl">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-hm-ink">{title}</h2>
+    <div
+      role="presentation"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      className="hm-app fixed inset-0 z-[90] flex items-end justify-center overflow-x-hidden bg-black/40 p-0 sm:items-center sm:p-6"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="max-h-[88svh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-t-3xl bg-white p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:max-h-[92vh] sm:rounded-3xl sm:p-5"
+      >
+        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-hm-line sm:hidden" />
+        <div className="sticky -top-4 z-10 mb-4 flex items-center justify-between gap-3 bg-white pb-2 pt-1 sm:-top-5">
+          <h2 className="min-w-0 flex-1 truncate text-lg font-bold text-hm-ink">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Kapat"
-            className="grid size-11 place-items-center rounded-2xl bg-hm-sand text-hm-ink"
+            className="grid size-11 shrink-0 place-items-center rounded-2xl bg-hm-sand text-hm-ink"
           >
             <X className="size-5" />
           </button>
