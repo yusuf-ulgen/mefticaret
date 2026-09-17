@@ -695,6 +695,13 @@ const GUIDES = [
       "Trendyol, Hepsiburada, Amazon ve N11 stok, fiyat ve siparişlerini tek panelde yönetin.",
   },
   {
+    to: "/e-ticaret-paketleri",
+    eyebrow: "Fiyatlandırma",
+    title: "E-ticaret paketleri",
+    description:
+      "Paket fiyatlarını, ürün ve sipariş limitlerini, komisyon oranlarını tek tabloda karşılaştırın.",
+  },
+  {
     to: "/seo-ve-raporlama",
     eyebrow: "SEO & Rapor",
     title: "SEO ve raporlama",
