@@ -17,6 +17,7 @@ export type StoreRow = {
   is_demo: boolean;
   created_at: string;
   published_at: string | null;
+  store_kind: "corporate" | "micro";
 };
 
 export const plansQuery = () =>
@@ -33,9 +34,9 @@ export const plansQuery = () =>
     staleTime: 5 * 60 * 1000,
   });
 
-export const myStoresQuery = (userId: string | undefined) =>
+export const myStoresQuery = (userId: string | undefined, kind: "corporate" | "micro" = "corporate") =>
   queryOptions({
-    queryKey: ["my-stores", userId],
+    queryKey: ["my-stores", userId, kind],
     enabled: Boolean(userId),
     queryFn: async () => {
       const { data: memberships, error: membershipError } = await supabase
@@ -49,6 +50,7 @@ export const myStoresQuery = (userId: string | undefined) =>
         .from("stores")
         .select("*")
         .or(`owner_id.eq.${userId}${ids.length ? `,id.in.(${ids.join(",")})` : ""}`)
+        .eq("store_kind", kind)
         .order("created_at", { ascending: true });
       if (error) throw error;
 
@@ -148,14 +150,15 @@ export const storeAuditQuery = (storeId: string) =>
     },
   });
 
-export const adminStoresQuery = (enabled: boolean) =>
+export const adminStoresQuery = (enabled: boolean, kind: "corporate" | "micro" = "corporate") =>
   queryOptions({
-    queryKey: ["admin-stores"],
+    queryKey: ["admin-stores", kind],
     enabled,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("stores")
         .select("*, plans(name, code)")
+        .eq("store_kind", kind)
         .order("created_at", { ascending: false })
         .limit(200);
       if (error) throw error;

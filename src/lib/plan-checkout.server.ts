@@ -46,6 +46,16 @@ export async function startPlanCheckout(
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db = supabaseAdmin as unknown as Admin;
 
+  const { data: targetStore } = await db
+    .from("stores")
+    .select("store_kind")
+    .eq("id", input.storeId)
+    .maybeSingle();
+  if (!targetStore) throw new Error("Mağaza bulunamadı");
+  if (targetStore.store_kind === "micro") {
+    throw new Error("Kolay Panel kurumsal paketlere bağlı değildir");
+  }
+
   const { data: plan, error } = await db
     .from("plans")
     .select("id, code, name, currency, price_monthly, price_yearly, is_active")
@@ -115,6 +125,13 @@ export async function activatePlanFromTransaction(
   const meta = metaOf(transaction.request_summary);
   const storeId = transaction.store_id;
   if (!storeId || !meta.planId || !meta.interval) return { handled: false };
+
+  const { data: targetStore } = await db
+    .from("stores")
+    .select("store_kind")
+    .eq("id", storeId)
+    .maybeSingle();
+  if (!targetStore || targetStore.store_kind === "micro") return { handled: false };
 
   const { data: plan } = await db
     .from("plans")

@@ -24,11 +24,12 @@ export const changeStorePlan = createServerFn({ method: "POST" })
 
     const { data: store, error: storeError } = await supabase
       .from("stores")
-      .select("id, plan_id")
+      .select("id, plan_id, store_kind")
       .eq("id", data.storeId)
       .maybeSingle();
     if (storeError) throw new Error(storeError.message);
     if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
+    if (store.store_kind === "micro") throw new Error("Kolay Panel kurumsal paketlere bağlı değildir");
 
     const { error: updateError } = await supabase
       .from("stores")

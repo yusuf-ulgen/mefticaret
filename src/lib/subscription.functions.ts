@@ -92,6 +92,14 @@ export const upsertSubscription = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    const { data: store } = await supabase
+      .from("stores")
+      .select("store_kind")
+      .eq("id", data.storeId)
+      .maybeSingle();
+    if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
+    if (store.store_kind === "micro") throw new Error("Kolay Panel kurumsal aboneliklere bağlı değildir");
+
     const { data: plan, error: planError } = await supabase
       .from("plans")
       .select("id, code, name, price_monthly, price_yearly, currency, trial_days, is_active")

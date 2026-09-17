@@ -30,11 +30,14 @@ export async function loadEntitlements(
 ): Promise<PlanEntitlements> {
   const { data: store, error: storeError } = await supabase
     .from("stores")
-    .select("plan_id, plans(id, code, name)")
+    .select("store_kind, plan_id, plans(id, code, name)")
     .eq("id", storeId)
     .maybeSingle();
   if (storeError) throw new Error(storeError.message);
 
+  if (store?.store_kind === "micro") {
+    return { planId: null, planCode: null, planName: null, modules: {}, limits: {} };
+  }
   const plan = store?.plans as { id: string; code: string; name: string } | null | undefined;
   if (!plan) {
     return { planId: null, planCode: null, planName: null, modules: {}, limits: {} };
