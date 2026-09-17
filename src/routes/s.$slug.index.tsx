@@ -89,6 +89,7 @@ function StorefrontHome() {
       sections={sections}
       customCss={theme?.custom_css ?? null}
       customJs={theme?.custom_js ?? null}
+      simpleStorefront={data.isHomeMakerStorefront}
     >
       {data.campaign?.message ? (
         <div
@@ -110,6 +111,7 @@ function StorefrontHome() {
         collections={collections}
         contactEmail={data.profile?.contact_email ?? null}
         salesPaused={store.status !== "active"}
+        footerPages={footerPages}
         tokens={{ muted, border, cardBg, accent: t.accent_color }}
       />
 

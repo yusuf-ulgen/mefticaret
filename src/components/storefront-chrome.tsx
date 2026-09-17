@@ -1,8 +1,10 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Search, ShoppingBag, Truck, UserRound } from "lucide-react";
 import { SiteKitScripts } from "@/components/site-kit-scripts";
 import { CookieConsent } from "@/components/cookie-consent";
+import { Button } from "@/components/ui/button";
 
 import { useCart } from "@/lib/cart";
 import { useCompare } from "@/lib/compare";
@@ -178,6 +180,7 @@ export function StorefrontChrome({
   sections,
   customCss,
   customJs,
+  simpleStorefront = false,
   children,
 }: {
   theme: StoreTheme;
@@ -190,6 +193,7 @@ export function StorefrontChrome({
   sections?: ResolvedSection[] | undefined;
   customCss?: string | null | undefined;
   customJs?: string | null | undefined;
+  simpleStorefront?: boolean;
   children: ReactNode;
 }) {
   const { t, fonts, text, muted, border, radius, logoUrl, contentWidth, design } = storefrontTokens(theme);
@@ -250,6 +254,38 @@ export function StorefrontChrome({
       element.remove();
     };
   }, [customJs]);
+
+  if (simpleStorefront) {
+    return (
+      <div className="hm-storefront-shell">
+        <CookieConsent storeSlug={storeSlug} />
+        <SiteKitScripts storeSlug={storeSlug} />
+        <header className="hm-storefront-header">
+          <Link to="/s/$slug" params={{ slug: storeSlug }} className="hm-storefront-brand" aria-label={`${storeName} ana sayfa`}>
+            mefticaret
+          </Link>
+          <nav className="hm-storefront-actions" aria-label="Mağaza işlemleri">
+            <Button variant="ghost" size="icon" asChild aria-label="Ürün ara">
+              <Link to="/s/$slug/search" params={{ slug: storeSlug }}><Search /></Link>
+            </Button>
+            <Button variant="ghost" size="icon" asChild aria-label="Sipariş takibi">
+              <Link to="/s/$slug/orders" params={{ slug: storeSlug }}><Truck /></Link>
+            </Button>
+            <Button variant="ghost" size="icon" asChild aria-label="Hesabım">
+              <Link to="/s/$slug/account" params={{ slug: storeSlug }}><UserRound /></Link>
+            </Button>
+            <Button variant="ghost" size="icon" className="relative" aria-label={`Sepetim${cartCount ? `, ${cartCount} ürün` : ""}`} onClick={() => storefrontUI.openCart()}>
+              <ShoppingBag />
+              {cartCount ? <span className="hm-storefront-badge">{cartCount}</span> : null}
+            </Button>
+          </nav>
+        </header>
+        <main className="hm-storefront-main">{children}</main>
+        <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
+        <QuickViewModal theme={t} storeSlug={storeSlug} />
+      </div>
+    );
+  }
 
   return (
     <div

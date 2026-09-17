@@ -63,7 +63,7 @@ export const getStorefront = createServerFn({ method: "GET" })
     // Genel ayarlar tablosunu açmadan yalnızca vitrinde gösterilecek alanları sunucuda seç.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [themeRes, productsRes, collectionsRes, pagesRes, sectionsRes, blogRes, ratesRes, paymentsRes, profileRes] = await Promise.all([
+    const [themeRes, productsRes, collectionsRes, pagesRes, sectionsRes, blogRes, ratesRes, paymentsRes, profileRes, homeMakerRes] = await Promise.all([
       supabase.from("store_themes").select("*").eq("store_id", store.id).maybeSingle(),
       supabase
         .from("products")
@@ -114,6 +114,12 @@ export const getStorefront = createServerFn({ method: "GET" })
         .select("bio, contact_email, contact_phone")
         .eq("store_id", store.id)
         .maybeSingle(),
+      supabaseAdmin
+        .from("home_maker_profiles")
+        .select("panel_mode")
+        .eq("store_id", store.id)
+        .eq("panel_mode", "micro")
+        .maybeSingle(),
     ]);
     if (themeRes.error) throw new Error(themeRes.error.message);
     if (productsRes.error) throw new Error(productsRes.error.message);
@@ -122,6 +128,7 @@ export const getStorefront = createServerFn({ method: "GET" })
     if (sectionsRes.error) throw new Error(sectionsRes.error.message);
     if (blogRes.error) throw new Error(blogRes.error.message);
     if (profileRes.error) throw new Error(profileRes.error.message);
+    if (homeMakerRes.error) throw new Error(homeMakerRes.error.message);
 
     // Ürün kartları için kapak görselleri (imzalı adres).
     const products = productsRes.data ?? [];
@@ -200,6 +207,7 @@ export const getStorefront = createServerFn({ method: "GET" })
 
     return {
       campaign,
+      isHomeMakerStorefront: Boolean(homeMakerRes.data),
       profile: (profileRes.data ?? null) as {
         bio?: string | null;
         contact_email?: string | null;
