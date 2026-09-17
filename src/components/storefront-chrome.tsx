@@ -255,7 +255,10 @@ export function StorefrontChrome({
     };
   }, [customJs]);
 
-  if (simpleStorefront) {
+  // Home-maker teması ürün, sepet ve takip sayfalarında da kurumsal kabuğa dönmez.
+  const useSimpleStorefront = simpleStorefront || theme?.preset === "home-maker-shop";
+
+  if (useSimpleStorefront) {
     return (
       <div className="hm-storefront-shell">
         <CookieConsent storeSlug={storeSlug} />
