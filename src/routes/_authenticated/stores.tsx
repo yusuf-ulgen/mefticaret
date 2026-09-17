@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Plus, Smartphone, Store } from "lucide-react";
+import { ArrowRight, Plus, Store } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
@@ -108,15 +108,10 @@ function StoresPage() {
                 </div>
               ) : null}
 
-              <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                <Button asChild variant="outline">
+              <div className="mt-5">
+                <Button asChild className="w-full">
                   <Link to="/store/$storeId/dashboard" params={{ storeId: store.id }}>
-                    Normal panel
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link to="/store/$storeId/kolay" params={{ storeId: store.id }}>
-                    <Smartphone className="mr-2 size-4" /> Kolay Panel
+                    Kurumsal panele gir
                   </Link>
                 </Button>
               </div>

@@ -30,3 +30,5 @@
 ## Ev üreticisi vitrini
 - [x] Kolay Panel mağazalarını kurumsal görünümden ayır; bağımsız vitrini tüm mağaza alt sayfalarında koru
 - [x] Ev üreticisi kaydında Shopier tarzı gerçek vitrini otomatik yayınla; ürün/kategori/takip bağlantıları ve satışa ara verme durumu
+- [x] Kolay Panel mağazalarını kalıcı mikro mağaza türüyle kurumsal mağaza, paket, abonelik ve panel rotalarından ayır
+- [x] Mikro mağaza kurulumunu tek sunucu işlemiyle plansız ve bağımsız oluştur; kurumsal yükseltme köprüsünü kaldır

@@ -13,7 +13,11 @@ export const Route = createFileRoute("/_authenticated/store/$storeId")({
   beforeLoad: async ({ params, location }) => {
     try {
       const result = await checkStoreAccess({
-        data: { storeId: params.storeId, route: location.pathname },
+        data: {
+          storeId: params.storeId,
+          route: location.pathname,
+          expectedKind: location.pathname.includes("/kolay") ? "micro" : "corporate",
+        },
       });
 
       if (!result.allowed) throw redirect({ to: "/unauthorized" });

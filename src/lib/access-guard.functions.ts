@@ -46,7 +46,11 @@ export const checkPlatformAdminAccess = createServerFn({ method: "POST" })
 export const checkStoreAccess = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z
-      .object({ storeId: z.string().trim().max(100), route: z.string().trim().max(300).default("") })
+      .object({
+        storeId: z.string().trim().max(100),
+        route: z.string().trim().max(300).default(""),
+        expectedKind: z.enum(["corporate", "micro"]).optional(),
+      })
       .parse(input),
   )
   .handler(async ({ data }) => {
@@ -61,7 +65,7 @@ export const checkStoreAccess = createServerFn({ method: "POST" })
     if (!caller) return denied;
 
     const [{ data: store }, { data: membership }, { data: platformRole }] = await Promise.all([
-      caller.supabase.from("stores").select("id, owner_id").eq("id", data.storeId).maybeSingle(),
+      caller.supabase.from("stores").select("id, owner_id, store_kind").eq("id", data.storeId).maybeSingle(),
       caller.supabase
         .from("store_users")
         .select("role")
@@ -79,7 +83,8 @@ export const checkStoreAccess = createServerFn({ method: "POST" })
     const isOwner = Boolean(store && store.owner_id === caller.userId);
     const isPlatformAdmin = Boolean(platformRole);
     const role = isOwner ? "owner" : (membership?.role ?? null);
-    const allowed = isOwner || Boolean(membership) || isPlatformAdmin;
+    const kindMatches = !data.expectedKind || store?.store_kind === data.expectedKind;
+    const allowed = kindMatches && (isOwner || Boolean(membership) || isPlatformAdmin);
 
     if (!allowed) {
       await logSecurityEvent({
@@ -87,7 +92,7 @@ export const checkStoreAccess = createServerFn({ method: "POST" })
         storeId: data.storeId,
         kind: "store_access_denied",
         severity: "warning",
-        meta: { route: data.route },
+        meta: { route: data.route, expectedKind: data.expectedKind, actualKind: store?.store_kind ?? null },
       });
     }
 
@@ -95,6 +100,7 @@ export const checkStoreAccess = createServerFn({ method: "POST" })
       allowed,
       role,
       isPlatformAdmin,
-      canManage: isOwner || (role !== null && MANAGER_ROLES.has(role)) || isPlatformAdmin,
+      canManage: allowed && (isOwner || (role !== null && MANAGER_ROLES.has(role)) || isPlatformAdmin),
+      storeKind: store?.store_kind ?? null,
     };
   });

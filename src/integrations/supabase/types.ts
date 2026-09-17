@@ -11957,6 +11957,7 @@ export type Database = {
           published_at: string | null
           slug: string
           status: Database["public"]["Enums"]["store_status"]
+          store_kind: string
           timezone: string
           updated_at: string
         }
@@ -11977,6 +11978,7 @@ export type Database = {
           published_at?: string | null
           slug: string
           status?: Database["public"]["Enums"]["store_status"]
+          store_kind?: string
           timezone?: string
           updated_at?: string
         }
@@ -11997,6 +11999,7 @@ export type Database = {
           published_at?: string | null
           slug?: string
           status?: Database["public"]["Enums"]["store_status"]
+          store_kind?: string
           timezone?: string
           updated_at?: string
         }
@@ -14171,6 +14174,19 @@ export type Database = {
       consume_rate_limit: {
         Args: { _bucket_key: string; _limit: number; _window_seconds: number }
         Returns: Json
+      }
+      create_home_maker_store: {
+        Args: {
+          _category: string
+          _full_name: string
+          _slug_base: string
+          _store_name: string
+          _user_id: string
+        }
+        Returns: {
+          store_id: string
+          store_slug: string
+        }[]
       }
       customer_fts_text: {
         Args: { _email: string; _full_name: string; _phone: string }

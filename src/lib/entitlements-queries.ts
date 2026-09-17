@@ -18,11 +18,12 @@ export const storeEntitlementsQuery = (storeId: string) =>
     queryFn: async (): Promise<Entitlements> => {
       const { data: store, error: storeError } = await supabase
         .from("stores")
-        .select("plan_id, plans(id, code, name)")
+        .select("store_kind, plan_id, plans(id, code, name)")
         .eq("id", storeId)
         .maybeSingle();
       if (storeError) throw storeError;
 
+      if (store?.store_kind === "micro") return EMPTY_ENTITLEMENTS;
       const plan = (store as { plans?: { id: string; code: string; name: string } | null } | null)
         ?.plans;
       if (!plan) return EMPTY_ENTITLEMENTS;

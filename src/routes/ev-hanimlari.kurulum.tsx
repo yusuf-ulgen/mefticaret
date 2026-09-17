@@ -7,8 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { HOME_MAKER_CATEGORIES, getHomeMakerProfile, saveHomeMakerProfile } from "@/lib/home-maker.functions";
-import { createStore } from "@/lib/stores.functions";
+import { HOME_MAKER_CATEGORIES, createHomeMakerStore, getHomeMakerProfile } from "@/lib/home-maker.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/ev-hanimlari/kurulum")({
@@ -32,8 +31,7 @@ export const Route = createFileRoute("/ev-hanimlari/kurulum")({
 function HomeMakerSetupPage() {
   const navigate = useNavigate();
   const readProfile = useServerFn(getHomeMakerProfile);
-  const create = useServerFn(createStore);
-  const saveProfile = useServerFn(saveHomeMakerProfile);
+  const create = useServerFn(createHomeMakerStore);
 
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -79,14 +77,9 @@ function HomeMakerSetupPage() {
     }
     setBusy(true);
     try {
-      const store = await create({
-        data: { name: storeName.trim(), industry: category, currency: "TRY", locale: "tr" },
-      });
-      await saveProfile({
-        data: { fullName: fullName.trim(), storeName: storeName.trim(), category, storeId: store.id },
-      });
+      const store = await create({ data: { fullName: fullName.trim(), storeName: storeName.trim(), category } });
       toast.success("Mağazanız hazır!");
-      await navigate({ to: "/store/$storeId/kolay", params: { storeId: store.id }, replace: true });
+      await navigate({ to: "/store/$storeId/kolay", params: { storeId: store.storeId }, replace: true });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Mağaza kurulamadı, tekrar deneyin.");
     } finally {
