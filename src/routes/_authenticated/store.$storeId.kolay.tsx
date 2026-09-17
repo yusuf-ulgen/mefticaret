@@ -272,6 +272,7 @@ function KolayPanel() {
           <OrdersTab
             storeId={storeId}
             storeSlug={store.slug}
+            storeName={store.name}
             orders={orders ?? []}
             products={products ?? []}
             currency={store.currency ?? "TRY"}
