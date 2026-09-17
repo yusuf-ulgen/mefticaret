@@ -56,6 +56,7 @@ import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin.coupons'
 import { Route as AuthenticatedAdminEinvoiceRouteImport } from './routes/_authenticated/admin.einvoice'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
+import { Route as AuthenticatedAdminKolayRouteImport } from './routes/_authenticated/admin.kolay'
 import { Route as AuthenticatedAdminLanguagesRouteImport } from './routes/_authenticated/admin.languages'
 import { Route as AuthenticatedAdminLiveRouteImport } from './routes/_authenticated/admin.live'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
@@ -518,6 +519,11 @@ const AuthenticatedAdminFinanceRoute =
     path: '/finance',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminKolayRoute = AuthenticatedAdminKolayRouteImport.update({
+  id: '/kolay',
+  path: '/kolay',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminLanguagesRoute =
   AuthenticatedAdminLanguagesRouteImport.update({
     id: '/languages',
@@ -1825,6 +1831,7 @@ export interface FileRoutesByFullPath {
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
@@ -2090,6 +2097,7 @@ export interface FileRoutesByTo {
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
@@ -2357,6 +2365,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/_authenticated/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/_authenticated/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/_authenticated/admin/live': typeof AuthenticatedAdminLiveRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
@@ -2625,6 +2634,7 @@ export interface FileRouteTypes {
     | '/admin/coupons'
     | '/admin/einvoice'
     | '/admin/finance'
+    | '/admin/kolay'
     | '/admin/languages'
     | '/admin/live'
     | '/admin/logs'
@@ -2890,6 +2900,7 @@ export interface FileRouteTypes {
     | '/admin/coupons'
     | '/admin/einvoice'
     | '/admin/finance'
+    | '/admin/kolay'
     | '/admin/languages'
     | '/admin/live'
     | '/admin/logs'
@@ -3156,6 +3167,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/einvoice'
     | '/_authenticated/admin/finance'
+    | '/_authenticated/admin/kolay'
     | '/_authenticated/admin/languages'
     | '/_authenticated/admin/live'
     | '/_authenticated/admin/logs'
@@ -3794,6 +3806,13 @@ declare module '@tanstack/react-router' {
       path: '/finance'
       fullPath: '/admin/finance'
       preLoaderRoute: typeof AuthenticatedAdminFinanceRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/kolay': {
+      id: '/_authenticated/admin/kolay'
+      path: '/kolay'
+      fullPath: '/admin/kolay'
+      preLoaderRoute: typeof AuthenticatedAdminKolayRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/languages': {
@@ -5338,6 +5357,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
   AuthenticatedAdminEinvoiceRoute: typeof AuthenticatedAdminEinvoiceRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
+  AuthenticatedAdminKolayRoute: typeof AuthenticatedAdminKolayRoute
   AuthenticatedAdminLanguagesRoute: typeof AuthenticatedAdminLanguagesRoute
   AuthenticatedAdminLiveRoute: typeof AuthenticatedAdminLiveRoute
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
@@ -5388,6 +5408,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
   AuthenticatedAdminEinvoiceRoute: AuthenticatedAdminEinvoiceRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
+  AuthenticatedAdminKolayRoute: AuthenticatedAdminKolayRoute,
   AuthenticatedAdminLanguagesRoute: AuthenticatedAdminLanguagesRoute,
   AuthenticatedAdminLiveRoute: AuthenticatedAdminLiveRoute,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
