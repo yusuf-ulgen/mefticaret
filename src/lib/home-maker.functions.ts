@@ -31,7 +31,15 @@ export const getHomeMakerProfile = createServerFn({ method: "GET" })
       .eq("user_id", userId)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return data ?? null;
+    if (!data?.store_id) return null;
+
+    const { data: store, error: storeError } = await supabase
+      .from("stores")
+      .select("store_kind")
+      .eq("id", data.store_id)
+      .maybeSingle();
+    if (storeError) throw new Error(storeError.message);
+    return store?.store_kind === "micro" ? data : null;
   });
 
 export const createHomeMakerStore = createServerFn({ method: "POST" })
