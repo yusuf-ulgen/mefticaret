@@ -1,8 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
+  AlertTriangle,
   Calculator,
   Clock,
+  Minus,
   Download,
   ImagePlus,
   Loader2,
@@ -52,6 +54,9 @@ const CATEGORIES = [
   "Diğer",
 ];
 
+/** Bu adede kadar düşen stok "az kaldı" sayılır. */
+const LOW_STOCK = 3;
+
 /** "Ürünlerim" sekmesi: sade ürün listesi, ekleme, stok anahtarı ve sosyal medya görseli. */
 export function ProductsTab({
   storeId,
@@ -75,7 +80,7 @@ export function ProductsTab({
   const [editProduct, setEditProduct] = useState<SimpleProduct | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "active" | "hidden" | "out">("all");
+  const [filter, setFilter] = useState<"all" | "active" | "hidden" | "low" | "out">("all");
 
 
   const saveVariant = useServerFn(upsertVariant);
@@ -94,6 +99,31 @@ export function ProductsTab({
           title: variant.title || "Standart",
           price: variant.price ?? product.base_price,
           stock: inStock ? Math.max(variant.stock ?? 0, 1) : 0,
+          options: variant.options ?? {},
+        },
+      });
+      await queryClient.invalidateQueries({ queryKey: ["kolay-products", storeId] });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Güncellenemedi");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  /** Tek seçenekli ürünlerde stoğu hızlıca artırır/azaltır. */
+  const adjustStock = async (product: SimpleProduct, delta: number) => {
+    const variant = product.variants[0];
+    if (!variant) return;
+    const next = Math.max(0, (variant.stock ?? 0) + delta);
+    setBusyId(product.id);
+    try {
+      await saveVariant({
+        data: {
+          variantId: variant.id,
+          productId: product.id,
+          title: variant.title || "Standart",
+          price: variant.price ?? product.base_price,
+          stock: next,
           options: variant.options ?? {},
         },
       });
@@ -141,12 +171,14 @@ export function ProductsTab({
     all: products.length,
     active: products.filter((p) => p.status === "active").length,
     hidden: products.filter((p) => p.status !== "active").length,
+    low: products.filter((p) => p.stock > 0 && p.stock <= LOW_STOCK).length,
     out: products.filter((p) => p.stock <= 0).length,
   };
   const term = search.trim().toLocaleLowerCase("tr");
   const visible = products.filter((product) => {
     if (filter === "active" && product.status !== "active") return false;
     if (filter === "hidden" && product.status === "active") return false;
+    if (filter === "low" && !(product.stock > 0 && product.stock <= LOW_STOCK)) return false;
     if (filter === "out" && product.stock > 0) return false;
     if (term && !product.title.toLocaleLowerCase("tr").includes(term)) return false;
     return true;
@@ -156,6 +188,7 @@ export function ProductsTab({
     { key: "all", label: "Tümü", count: counts.all },
     { key: "active", label: "Yayında", count: counts.active },
     { key: "hidden", label: "Gizli", count: counts.hidden },
+    { key: "low", label: "Az kaldı", count: counts.low },
     { key: "out", label: "Stokta yok", count: counts.out },
   ];
 
@@ -234,6 +267,11 @@ export function ProductsTab({
                     {product.variants.length > 1 ? `${product.variants.length} seçenek · ` : ""}
                     {product.stock > 0 ? `${product.stock} adet var` : "Şu an yok"}
                   </p>
+                  {product.stock > 0 && product.stock <= LOW_STOCK ? (
+                    <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-hm-amber-soft px-2 py-0.5 text-xs font-semibold text-hm-amber">
+                      <AlertTriangle className="size-3" /> Az kaldı
+                    </p>
+                  ) : null}
                   {product.made_to_order ? (
                     <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-hm-rose-soft px-2 py-0.5 text-xs font-semibold text-hm-rose">
                       <Clock className="size-3" /> Sipariş üzerine · {product.prep_days} gün
@@ -241,6 +279,32 @@ export function ProductsTab({
                   ) : null}
                 </div>
               </div>
+
+              {product.variants.length === 1 ? (
+                <div className="flex items-center gap-2 rounded-2xl bg-hm-sand p-1.5">
+                  <button
+                    type="button"
+                    aria-label="Stoktan bir azalt"
+                    disabled={busyId === product.id || product.stock <= 0}
+                    onClick={() => void adjustStock(product, -1)}
+                    className="grid size-11 place-items-center rounded-2xl bg-white text-hm-ink disabled:opacity-40"
+                  >
+                    <Minus className="size-4" />
+                  </button>
+                  <span className="flex-1 text-center text-sm font-semibold text-hm-ink">
+                    Stok: {product.stock}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Stoğa bir ekle"
+                    disabled={busyId === product.id}
+                    onClick={() => void adjustStock(product, 1)}
+                    className="grid size-11 place-items-center rounded-2xl bg-white text-hm-ink disabled:opacity-40"
+                  >
+                    <Plus className="size-4" />
+                  </button>
+                </div>
+              ) : null}
 
               <div className="flex flex-wrap items-center gap-2">
                 <button
