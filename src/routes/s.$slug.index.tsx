@@ -9,7 +9,12 @@ import { storefrontQuery } from "@/lib/storefront-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { faqSchema } from "@/lib/seo";
-import { microStoreSeoText, missingHead, storefrontHead } from "@/lib/storefront-seo";
+import {
+  enrichShortDescription,
+  microStoreSeoText,
+  missingHead,
+  storefrontHead,
+} from "@/lib/storefront-seo";
 import { useStorefrontLive } from "@/hooks/use-storefront-live";
 
 export const Route = createFileRoute("/s/$slug/")({
