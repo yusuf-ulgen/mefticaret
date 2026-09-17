@@ -99,13 +99,18 @@ function HomeMakerAuthPage() {
     const { error } = await supabase.auth.signInWithOtp({ phone: e164 });
     setBusy(false);
     if (error) {
+      const blocked = /sms|phone_provider|provider|not enabled|disabled|unsupported/i.test(
+        error.message,
+      );
+      setSmsBlocked(blocked);
       toast.error(
-        /sms|provider|not enabled|disabled/i.test(error.message)
-          ? "SMS gönderimi henüz açık değil. Lütfen bizimle iletişime geçin."
+        blocked
+          ? "SMS ile kod gönderimi şu an kapalı. E-posta ile giriş yapabilirsiniz."
           : error.message,
       );
       return;
     }
+    setSmsBlocked(false);
     setStep("code");
     toast.success("Şifre kodunu SMS ile gönderdik.");
   }
