@@ -23,6 +23,7 @@ import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { missingHead, storefrontHead } from "@/lib/storefront-seo";
 import { absoluteUrl, plainText, productSchema, readSeo } from "@/lib/seo";
+import { useStorefrontLive } from "@/hooks/use-storefront-live";
 
 /** YouTube/Vimeo adreslerini gömme adresine çevirir. */
 function embedUrl(url: string) {
