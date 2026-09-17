@@ -28,6 +28,7 @@ import { ShopPageCard } from "@/components/homemaker/shop-page-card";
 import { StoreTab } from "@/components/homemaker/store-tab";
 import { useStoreRealtime } from "@/hooks/use-store-realtime";
 import { speakTurkish } from "@/hooks/use-voice";
+import { isStoreToday, QUOTA_EXCLUDED_STATUSES } from "@/lib/day-window";
 import { simpleOrdersQuery, simpleProductsQuery } from "@/lib/homemaker-queries";
 import { storeQuery, storeSettingsQuery } from "@/lib/store-queries";
 import { updateStore } from "@/lib/stores.functions";
