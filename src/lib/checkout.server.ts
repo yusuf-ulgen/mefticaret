@@ -384,16 +384,23 @@ export async function createStorefrontOrder(
   }
 
   // Günlük sipariş kotası: satıcı kapasitesini aşan siparişler kabul edilmez.
+  // Pencere mağazanın yerel gününe göre hesaplanır ve iptal/iade siparişler sayılmaz;
+  // böylece panel ile ödeme adımı aynı sayıyı gösterir.
   const dailyLimit = Number(
     (checkoutSettings as { daily_order_limit?: number | null } | null)?.daily_order_limit ?? 0,
   );
   if (dailyLimit > 0) {
-    const dayStart = new Date();
-    dayStart.setUTCHours(0, 0, 0, 0);
+    const { data: storeZone } = await supabase
+      .from("stores")
+      .select("timezone")
+      .eq("id", store.id)
+      .maybeSingle();
+    const dayStart = storeDayStart(storeZone?.timezone ?? DEFAULT_STORE_TIMEZONE);
     const { count, error: countError } = await supabase
       .from("orders")
       .select("id", { count: "exact", head: true })
       .eq("store_id", store.id)
+      .not("status", "in", `(${QUOTA_EXCLUDED_STATUSES.join(",")})`)
       .gte("placed_at", dayStart.toISOString());
     if (countError) throw countError;
     if ((count ?? 0) >= dailyLimit) {
