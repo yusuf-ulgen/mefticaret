@@ -64,6 +64,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     description: "Kiracılar, hesaplar ve satıcılar.",
     items: [
       { to: "/admin/stores", label: "Mağazalar", icon: Store, hint: "Oluştur, düzenle, sil", keywords: "tenant store crud" },
+      {
+        to: "/admin/kolay",
+        label: "Kolay Panel Satıcıları",
+        icon: Store,
+        hint: "Ev üreticisi mağazaları ve satışları",
+        keywords: "kolay panel ev hanımı hanimlari micro satıcı vitrin mikro paket",
+      },
       { to: "/admin/users", label: "Kullanıcılar", icon: Users, hint: "Hesaplar ve roller", keywords: "profil rol" },
       { to: "/admin/sellers", label: "Satıcılar", icon: BadgeCheck, hint: "Marketplace satıcıları", keywords: "seller onay" },
       {
