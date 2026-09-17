@@ -33,6 +33,7 @@ export function ShopierHome({
   products,
   collections,
   contactEmail,
+  tokens,
 }: {
   storeName: string;
   storeSlug: string;
@@ -42,6 +43,7 @@ export function ShopierHome({
   products: WokieeProduct[];
   collections: Collection[];
   contactEmail?: string | null;
+  tokens: { muted: string; border: string; cardBg: string; accent: string };
 }) {
   const [sort, setSort] = useState<Sort>("default");
   const [sortOpen, setSortOpen] = useState(false);
@@ -69,7 +71,17 @@ export function ShopierHome({
   const initial = storeName.trim().charAt(0).toLocaleUpperCase("tr") || "M";
 
   return (
-    <div className="sp-home">
+    <div
+      className="sp-home"
+      style={
+        {
+          "--sp-muted": tokens.muted,
+          "--sp-border": tokens.border,
+          "--sp-card": tokens.cardBg,
+          "--sp-accent": tokens.accent,
+        } as React.CSSProperties
+      }
+    >
       <header className="sp-id">
         <div className="sp-avatar" aria-hidden={logoUrl ? undefined : true}>
           {logoUrl ? <img src={logoUrl} alt={storeName} /> : <span>{initial}</span>}
