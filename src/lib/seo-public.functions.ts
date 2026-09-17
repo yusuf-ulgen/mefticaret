@@ -28,6 +28,8 @@ function publicClient() {
 export type StoreSeoContext = {
   storeName: string;
   storeSlug: string;
+  /** "micro" = Kolay Panel vitrini, "corporate" = kurumsal mağaza. */
+  storeKind: "micro" | "corporate";
   logoUrl: string | null;
   legalName: string | null;
   contactEmail: string | null;
