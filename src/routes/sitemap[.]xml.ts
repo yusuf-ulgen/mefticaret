@@ -20,6 +20,12 @@ const STORE_PATHS = [
   "/terms",
 ];
 
+/**
+ * Kolay Panel (micro) vitrinlerinde koleksiyon / blog / kurumsal sayfalar yok;
+ * yalnızca gerçekten içerik taşıyan adresler haritaya girer.
+ */
+const MICRO_STORE_PATHS = ["", "/products", "/privacy", "/terms"];
+
 type SitemapEntry = { path: string; changefreq?: string; priority?: string };
 
 export const Route = createFileRoute("/sitemap.xml")({
@@ -55,7 +61,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         for (let offset = 0; ; offset += pageSize) {
           const { data, error } = await supabase
             .from("stores")
-            .select("slug")
+            .select("slug, store_kind")
             .eq("status", "active")
             .order("slug")
             .range(offset, offset + pageSize - 1);
@@ -63,7 +69,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           const rows = data ?? [];
           for (const store of rows) {
             const slug = encodeURIComponent(String(store.slug));
-            for (const suffix of STORE_PATHS) {
+            const paths = store.store_kind === "micro" ? MICRO_STORE_PATHS : STORE_PATHS;
+            for (const suffix of paths) {
               entries.push({
                 path: `/s/${slug}${suffix}`,
                 changefreq: suffix === "" ? "daily" : "weekly",
