@@ -9,7 +9,12 @@ import { storefrontQuery } from "@/lib/storefront-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { faqSchema } from "@/lib/seo";
-import { microStoreSeoText, missingHead, storefrontHead } from "@/lib/storefront-seo";
+import {
+  enrichShortDescription,
+  microStoreSeoText,
+  missingHead,
+  storefrontHead,
+} from "@/lib/storefront-seo";
 import { useStorefrontLive } from "@/hooks/use-storefront-live";
 
 export const Route = createFileRoute("/s/$slug/")({
@@ -34,15 +39,21 @@ export const Route = createFileRoute("/s/$slug/")({
       slug: params.slug,
       path: `/s/${params.slug}`,
       fallbackTitle: micro ? microText.title : `${loaderData.name} — Online Mağaza`,
-      fallbackDescription:
-        loaderData.hero ||
-        (micro
-          ? microText.description
-          : `${loaderData.name} vitrininde yeni sezon ürünlerini keşfedin; hızlı kargo ve güvenli ödeme.`),
+      fallbackDescription: micro
+        ? enrichShortDescription(loaderData.hero, microText.description)
+        : loaderData.hero ||
+          `${loaderData.name} vitrininde yeni sezon ürünlerini keşfedin; hızlı kargo ve güvenli ödeme.`,
       seo: settings?.homeTitle || settings?.homeDescription
         ? {
             ...(settings.homeTitle ? { title: settings.homeTitle } : {}),
-            ...(settings.homeDescription ? { description: settings.homeDescription } : {}),
+            ...(settings.homeDescription
+              ? {
+                  // Kolay Panel mağazalarının çok kısa açıklaması arama sonuçları için tamamlanır.
+                  description: micro
+                    ? enrichShortDescription(settings.homeDescription, microText.description)
+                    : settings.homeDescription,
+                }
+              : {}),
           }
         : null,
       schemas: faq.length ? [faqSchema(faq)] : [],

@@ -246,6 +246,26 @@ function ProductPage() {
     storefrontUI.openCart();
   }
 
+  /** Ürünü sepete alır ve doğrudan ödeme sayfasına götürür (tek ürün kasası). */
+  function buyNow() {
+    if (!selected || !inStock) return;
+    cart.add(
+      {
+        storeSlug: store.slug,
+        variantId: selected.id,
+        productSlug: product.slug,
+        title: product.title,
+        variantTitle: selected.title,
+        price: Number(selected.price ?? product.base_price),
+        currency: product.currency,
+        maxStock: selected.stock ?? 0,
+        imageUrl: heroImage?.url ?? images[0]?.url ?? null,
+      },
+      quantity,
+    );
+    void navigate({ to: "/s/$slug/checkout", params: { slug: store.slug } });
+  }
+
   async function shareProduct() {
     const url = typeof window === "undefined" ? "" : window.location.href;
     if (typeof navigator !== "undefined" && "share" in navigator) {
@@ -651,6 +671,28 @@ function ProductPage() {
           >
             {inStock ? "Sepete ekle" : "Stokta yok"}
           </button>
+
+          {inStock ? (
+            <button
+              type="button"
+              onClick={buyNow}
+              style={{
+                marginTop: 10,
+                width: "100%",
+                background: "transparent",
+                color: "inherit",
+                border: `1px solid ${border}`,
+                borderRadius: radius,
+                padding: "14px 20px",
+                fontSize: 15,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Hemen satın al
+            </button>
+          ) : null}
+
 
           <StickyAddToCartBar
             theme={t}

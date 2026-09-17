@@ -141,10 +141,22 @@ export function storefrontHead(input: StorefrontHeadInput) {
 export function microStoreSeoText(ctx: StoreSeoContext | null, storeName: string) {
   const city = ctx?.address.city ?? null;
   const place = city ? `${city}'dan ` : "";
+  // Başlık soneki mağaza adını zaten ekler; burada tekrar etmiyoruz.
   return {
-    title: `${storeName} — El Yapımı Ürünler${city ? ` | ${city}` : ""}`,
+    title: `El Yapımı Ürünler${city ? ` | ${city}` : ""}`,
     description: `${place}${storeName} vitrini: el yapımı ve ev üretimi ürünler, güncel fiyat ve stok bilgisiyle. WhatsApp veya kartla güvenli sipariş verin.`,
   };
+}
+
+/**
+ * Mağazanın kendi girdiği kısa açıklamayı arama sonuçları için yeterli uzunluğa
+ * taşır: 70 karakterden kısaysa micro vitrin açıklamasıyla tamamlanır.
+ */
+export function enrichShortDescription(own: string | null | undefined, fallback: string) {
+  const text = (own ?? "").trim();
+  if (!text) return fallback;
+  if (text.length >= 70) return text;
+  return `${text.replace(/[.\s]+$/, "")}. ${fallback}`;
 }
 
 /** "Mağaza bulunamadı" gibi durumlar için indekslenmeyen head. */

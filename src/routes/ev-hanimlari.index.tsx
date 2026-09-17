@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Heart, Loader2, Phone, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Heart, Loader2, Lock, Mail, ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/ev-hanimlari/")({
       {
         name: "description",
         content:
-          "Telefon numaranızla giriş yapın, el emeği ürünlerinizi sade bir panelden satmaya hemen başlayın.",
+          "E-posta ve şifrenizle giriş yapın, el emeği ürünlerinizi sade bir panelden satmaya hemen başlayın.",
       },
       { property: "og:title", content: "Ev Hanımları Portalı — Mefticaret" },
       {
@@ -31,31 +31,24 @@ export const Route = createFileRoute("/ev-hanimlari/")({
   component: HomeMakerAuthPage,
 });
 
-/** 0555… veya +90555… girişlerini E.164 (+90…) biçimine çevirir. */
-function toE164(raw: string): string | null {
-  const digits = raw.replace(/[^\d]/g, "");
-  if (digits.length === 10 && digits[0] === "5") return `+90${digits}`;
-  if (digits.length === 11 && digits.startsWith("05")) return `+90${digits.slice(1)}`;
-  if (digits.length === 12 && digits.startsWith("905")) return `+${digits}`;
-  return null;
-}
-
 const PERKS = [
   "Tek ekranda mağaza, ürün ve sipariş",
   "Fotoğraf arka planını yapay zeka temizler",
   "Kargosuz teslimat için kod üretir",
 ];
 
+type Mode = "login" | "register";
+
 function HomeMakerAuthPage() {
   const navigate = useNavigate();
   const readProfile = useServerFn(getHomeMakerProfile);
-  const [step, setStep] = useState<"phone" | "code">("phone");
-  const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
+  const [mode, setMode] = useState<Mode>("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
-  /** SMS sağlayıcısı kapalıysa e-posta ile giriş seçeneği gösterilir. */
-  const [smsBlocked, setSmsBlocked] = useState(false);
+  const [confirmSent, setConfirmSent] = useState(false);
 
   /** Oturum varsa doğrudan panele; kaydı yoksa kuruluma. */
   const routeAfterLogin = async () => {
@@ -88,42 +81,53 @@ function HomeMakerAuthPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function sendCode(event: React.FormEvent) {
+  async function submit(event: React.FormEvent) {
     event.preventDefault();
-    const e164 = toE164(phone);
-    if (!e164) {
-      toast.error("Telefon numaranızı 05XX XXX XX XX biçiminde yazın.");
+    const mail = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
+      toast.error("Geçerli bir e-posta adresi yazın.");
       return;
     }
-    setBusy(true);
-    const { error } = await supabase.auth.signInWithOtp({ phone: e164 });
-    setBusy(false);
-    if (error) {
-      const blocked = /sms|phone_provider|provider|not enabled|disabled|unsupported/i.test(
-        error.message,
-      );
-      setSmsBlocked(blocked);
-      toast.error(
-        blocked
-          ? "SMS ile kod gönderimi şu an kapalı. E-posta ile giriş yapabilirsiniz."
-          : error.message,
-      );
+    if (password.length < 8) {
+      toast.error("Şifreniz en az 8 karakter olmalı.");
       return;
     }
-    setSmsBlocked(false);
-    setStep("code");
-    toast.success("Şifre kodunu SMS ile gönderdik.");
-  }
+    if (mode === "register" && fullName.trim().length < 2) {
+      toast.error("Adınızı yazın.");
+      return;
+    }
 
-  async function verify(event: React.FormEvent) {
-    event.preventDefault();
-    const e164 = toE164(phone);
-    if (!e164) return;
     setBusy(true);
-    const { error } = await supabase.auth.verifyOtp({ phone: e164, token: code.trim(), type: "sms" });
+    if (mode === "register") {
+      const { data, error } = await supabase.auth.signUp({
+        email: mail,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/ev-hanimlari`,
+          data: { full_name: fullName.trim() },
+        },
+      });
+      setBusy(false);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      if (!data.session) {
+        setConfirmSent(true);
+        toast.success("E-postanıza onay bağlantısı gönderdik.");
+        return;
+      }
+      toast.success("Hoş geldiniz!");
+      await routeAfterLogin();
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ email: mail, password });
     if (error) {
       setBusy(false);
-      toast.error("Kod doğrulanamadı, tekrar deneyin.");
+      toast.error(
+        /invalid/i.test(error.message) ? "E-posta veya şifre hatalı." : error.message,
+      );
       return;
     }
     toast.success("Hoş geldiniz!");
@@ -148,95 +152,132 @@ function HomeMakerAuthPage() {
           </span>
           <h1 className="mt-4 text-[26px] font-semibold leading-tight text-hm-ink">Evde Üretenler Portalı</h1>
           <p className="mt-2 text-sm text-hm-ink-soft">
-            Telefon numaranızla girin. Şifre, e-posta ya da form doldurmak yok.
+            E-posta ve şifrenizle girin. Onay kodu beklemek yok.
           </p>
         </div>
 
         <div className="rounded-[28px] border border-hm-line bg-white p-6 shadow-sm">
-          {step === "phone" ? (
-            <form onSubmit={sendCode} className="grid gap-4">
-              <label className="text-sm font-medium text-hm-ink" htmlFor="hm-phone">
-                Telefon numaranız
-              </label>
-              <div className="relative flex items-center">
-                <Phone className="pointer-events-none absolute left-4 size-5 text-hm-ink-soft" />
-                <Input
-                  id="hm-phone"
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  required
-                  placeholder="0555 123 45 67"
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  className="h-14 rounded-2xl border-hm-line pl-12 text-base"
-                />
+          <div className="mb-5 grid grid-cols-2 gap-1 rounded-2xl bg-hm-sand p-1">
+            {(["login", "register"] as Mode[]).map((value) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setMode(value);
+                  setConfirmSent(false);
+                }}
+                className={`h-11 rounded-xl text-sm font-semibold transition ${
+                  mode === value ? "bg-white text-hm-ink shadow-sm" : "text-hm-ink-soft"
+                }`}
+              >
+                {value === "login" ? "Giriş yap" : "Hesap oluştur"}
+              </button>
+            ))}
+          </div>
+
+          {confirmSent ? (
+            <div className="grid gap-3 rounded-2xl bg-hm-amber-soft p-4 text-sm text-hm-ink">
+              <p className="font-semibold">E-postanızı kontrol edin.</p>
+              <p className="text-hm-ink-soft">
+                Gönderdiğimiz onay bağlantısına dokunduktan sonra bu sayfadan giriş yapabilirsiniz.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmSent(false);
+                  setMode("login");
+                }}
+                className="text-left text-sm font-semibold text-hm-teal underline-offset-4 hover:underline"
+              >
+                Girişe dön
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={submit} className="grid gap-4">
+              {mode === "register" ? (
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-hm-ink" htmlFor="hm-name">
+                    Adınız
+                  </label>
+                  <Input
+                    id="hm-name"
+                    autoComplete="name"
+                    required
+                    maxLength={80}
+                    placeholder="Ayşe Yılmaz"
+                    value={fullName}
+                    onChange={(event) => setFullName(event.target.value)}
+                    className="h-14 rounded-2xl border-hm-line text-base"
+                  />
+                </div>
+              ) : null}
+
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-hm-ink" htmlFor="hm-email">
+                  E-posta adresiniz
+                </label>
+                <div className="relative flex items-center">
+                  <Mail className="pointer-events-none absolute left-4 size-5 text-hm-ink-soft" />
+                  <Input
+                    id="hm-email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    required
+                    maxLength={160}
+                    placeholder="ornek@eposta.com"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    className="h-14 rounded-2xl border-hm-line pl-12 text-base"
+                  />
+                </div>
               </div>
+
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-hm-ink" htmlFor="hm-password">
+                  Şifreniz
+                </label>
+                <div className="relative flex items-center">
+                  <Lock className="pointer-events-none absolute left-4 size-5 text-hm-ink-soft" />
+                  <Input
+                    id="hm-password"
+                    type="password"
+                    autoComplete={mode === "login" ? "current-password" : "new-password"}
+                    required
+                    minLength={8}
+                    maxLength={72}
+                    placeholder="En az 8 karakter"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    className="h-14 rounded-2xl border-hm-line pl-12 text-base"
+                  />
+                </div>
+              </div>
+
               <Button
                 type="submit"
                 disabled={busy}
                 className="h-14 rounded-2xl bg-hm-rose text-base font-semibold text-white hover:bg-hm-rose/90"
               >
-                {busy ? <Loader2 className="size-5 animate-spin" /> : "Kod gönder"}
+                {busy ? (
+                  <Loader2 className="size-5 animate-spin" />
+                ) : mode === "login" ? (
+                  "Giriş yap"
+                ) : (
+                  "Hesabımı oluştur"
+                )}
               </Button>
-            </form>
-          ) : (
-            <form onSubmit={verify} className="grid gap-4">
-              <label className="text-sm font-medium text-hm-ink" htmlFor="hm-code">
-                SMS ile gelen kod
-              </label>
-              <Input
-                id="hm-code"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                required
-                maxLength={8}
-                placeholder="1234"
-                value={code}
-                onChange={(event) => setCode(event.target.value.replace(/[^\d]/g, ""))}
-                className="h-16 rounded-2xl border-hm-line text-center text-2xl tracking-[0.4em]"
-              />
-              <Button
-                type="submit"
-                disabled={busy || code.length < 4}
-                className="h-14 rounded-2xl bg-hm-teal text-base font-semibold text-white hover:bg-hm-teal/90"
-              >
-                {busy ? <Loader2 className="size-5 animate-spin" /> : "Giriş yap"}
-              </Button>
-              <button
-                type="button"
-                onClick={() => {
-                  setStep("phone");
-                  setCode("");
-                }}
-                className="text-sm font-medium text-hm-ink-soft underline-offset-4 hover:underline"
-              >
-                Numarayı değiştir
-              </button>
+
+              {mode === "login" ? (
+                <a
+                  href="/forgot-password"
+                  className="text-center text-sm font-medium text-hm-ink-soft underline-offset-4 hover:underline"
+                >
+                  Şifremi unuttum
+                </a>
+              ) : null}
             </form>
           )}
-
-          {smsBlocked ? (
-            <div className="mt-5 grid gap-3 rounded-2xl bg-hm-amber-soft p-4 text-sm text-hm-ink">
-              <p className="font-semibold">SMS ile kod gönderimi şu an kapalı.</p>
-              <p className="text-hm-ink-soft">
-                E-posta ve şifrenizle giriş yapabilir ya da yeni kayıt oluşturabilirsiniz. Kolay
-                Panel'iniz aynı şekilde açılır.
-              </p>
-              <a
-                href="/auth?mode=login&next=/ev-hanimlari"
-                className="grid h-14 place-items-center rounded-2xl bg-hm-teal text-base font-semibold text-white"
-              >
-                E-posta ile giriş yap
-              </a>
-              <a
-                href="/auth?mode=register&next=/ev-hanimlari"
-                className="grid h-14 place-items-center rounded-2xl border border-hm-line bg-white text-base font-semibold text-hm-ink"
-              >
-                E-posta ile kayıt ol
-              </a>
-            </div>
-          ) : null}
         </div>
 
         <ul className="mt-6 grid gap-3">
