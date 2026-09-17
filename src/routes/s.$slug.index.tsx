@@ -42,7 +42,14 @@ export const Route = createFileRoute("/s/$slug/")({
       seo: settings?.homeTitle || settings?.homeDescription
         ? {
             ...(settings.homeTitle ? { title: settings.homeTitle } : {}),
-            ...(settings.homeDescription ? { description: settings.homeDescription } : {}),
+            ...(settings.homeDescription
+              ? {
+                  // Kolay Panel mağazalarının çok kısa açıklaması arama sonuçları için tamamlanır.
+                  description: micro
+                    ? enrichShortDescription(settings.homeDescription, microText.description)
+                    : settings.homeDescription,
+                }
+              : {}),
           }
         : null,
       schemas: faq.length ? [faqSchema(faq)] : [],
