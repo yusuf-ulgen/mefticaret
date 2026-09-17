@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Search, ShoppingBag, Truck, UserRound } from "lucide-react";
 import { SiteKitScripts } from "@/components/site-kit-scripts";
 import { CookieConsent } from "@/components/cookie-consent";
@@ -25,6 +25,7 @@ import { fontStack } from "@/lib/theme-presets";
 import { designCss, resolveDesignTokens } from "@/lib/theme-design";
 import { trackEvent } from "@/lib/track";
 import type { ResolvedSection } from "@/lib/theme-sections";
+import { storefrontQuery } from "@/lib/storefront-queries";
 
 
 /** Menü bağlantısını vitrin adresine çevirir. */
@@ -202,6 +203,7 @@ export function StorefrontChrome({
   const cart = useCart();
   const favorites = useFavorites();
   const compare = useCompare();
+  const { data: storefront } = useSuspenseQuery(storefrontQuery(storeSlug));
   const { data: menuItems } = useQuery(storefrontMenuQuery(storeSlug));
   const { data: platformPages } = useQuery(platformFooterPagesQuery());
   const headerItems = (menuItems ?? []).filter((item) => item.location === "header");
@@ -256,8 +258,9 @@ export function StorefrontChrome({
     };
   }, [customJs]);
 
-  // Home-maker teması ürün, sepet ve takip sayfalarında da kurumsal kabuğa dönmez.
-  const useSimpleStorefront = simpleStorefront || theme?.preset === "home-maker-shop";
+  // Görünüm ayrımı tema adına değil, gerçek Kolay Panel mağaza kaydına dayanır.
+  // Böylece ürün, sepet, kategori ve takip sayfaları da aynı bağımsız kabukta kalır.
+  const useSimpleStorefront = simpleStorefront || Boolean(storefront?.isHomeMakerStorefront);
 
   if (useSimpleStorefront) {
     return (

@@ -28,4 +28,5 @@
 - [ ] QNBpay canlı bilgileriyle gerçek kart tahsilatı testi (kullanıcıdan bekleniyor)
 
 ## Ev üreticisi vitrini
+- [x] Kolay Panel mağazalarını kurumsal görünümden ayır; bağımsız vitrini tüm mağaza alt sayfalarında koru
 - [x] Ev üreticisi kaydında Shopier tarzı gerçek vitrini otomatik yayınla; ürün/kategori/takip bağlantıları ve satışa ara verme durumu
