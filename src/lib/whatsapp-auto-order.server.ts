@@ -109,7 +109,7 @@ export async function tryCreateOrderFromWhatsApp(
       email: null,
       phone,
     },
-    items: items.map((item) => ({ variantId: item variantId, quantity: item.quantity })),
+    items: items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })),
     shippingTotal: 0,
     discountTotal: 0,
     paymentStatus: "pending",
