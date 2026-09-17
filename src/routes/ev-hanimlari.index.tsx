@@ -54,6 +54,8 @@ function HomeMakerAuthPage() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
+  /** SMS sağlayıcısı kapalıysa e-posta ile giriş seçeneği gösterilir. */
+  const [smsBlocked, setSmsBlocked] = useState(false);
 
   /** Oturum varsa doğrudan panele; kaydı yoksa kuruluma. */
   const routeAfterLogin = async () => {
