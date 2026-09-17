@@ -23,6 +23,7 @@ import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { missingHead, storefrontHead } from "@/lib/storefront-seo";
 import { absoluteUrl, plainText, productSchema, readSeo } from "@/lib/seo";
+import { useStorefrontLive } from "@/hooks/use-storefront-live";
 
 /** YouTube/Vimeo adreslerini gömme adresine çevirir. */
 function embedUrl(url: string) {
@@ -149,6 +150,7 @@ function ProductPage() {
   const { slug, productSlug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontProductQuery(slug, productSlug));
   const { data: storefrontData } = useQuery(storefrontQuery(slug));
+  useStorefrontLive(slug, storefrontData?.store?.id ?? data?.store?.id);
   const [variantId, setVariantId] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);

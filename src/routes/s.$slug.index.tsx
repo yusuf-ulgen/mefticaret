@@ -10,6 +10,7 @@ import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { faqSchema } from "@/lib/seo";
 import { missingHead, storefrontHead } from "@/lib/storefront-seo";
+import { useStorefrontLive } from "@/hooks/use-storefront-live";
 
 export const Route = createFileRoute("/s/$slug/")({
   loader: async ({ context, params }) => {
@@ -63,6 +64,7 @@ function StorefrontFallback({ text }: { text: string }) {
 function StorefrontHome() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
+  useStorefrontLive(slug, data?.store?.id);
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
   const { store, theme, products, collections, footerPages } = data;
