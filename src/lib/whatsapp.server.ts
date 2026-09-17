@@ -237,7 +237,7 @@ export async function handleInboundMessage(
     return text.includes(keyword);
   });
 
-  if (!match) return { conversation, autoReplied: false };
+  if (!match) return { conversation, autoReplied: false, autoOrderNumber };
 
   await sendWhatsAppMessage(supabase, {
     storeId,
@@ -246,7 +246,7 @@ export async function handleInboundMessage(
     contactName: input.contactName,
   });
 
-  return { conversation, autoReplied: true };
+  return { conversation, autoReplied: true, autoOrderNumber };
 }
 
 /** Meta durum güncellemelerini (sent/delivered/read/failed) işler. */
