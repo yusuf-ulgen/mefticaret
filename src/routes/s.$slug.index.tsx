@@ -104,10 +104,12 @@ function StorefrontHome() {
         storeName={store.name}
         storeSlug={store.slug}
         logoUrl={store.logo_url ?? null}
-        tagline={t.hero_subtitle}
+        tagline={data.profile?.bio || t.hero_subtitle}
         currency={store.currency}
         products={products}
         collections={collections}
+        contactEmail={data.profile?.contact_email ?? null}
+        salesPaused={store.status !== "active"}
         tokens={{ muted, border, cardBg, accent: t.accent_color }}
       />
 

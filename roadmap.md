@@ -26,3 +26,6 @@
 - [x] Siparişi komşuya devret (aynı şehirdeki aktif mağazalar, onay akışı)
 - [ ] Aras Kargo hesap bilgileri (kullanıcıdan bekleniyor)
 - [ ] QNBpay canlı bilgileriyle gerçek kart tahsilatı testi (kullanıcıdan bekleniyor)
+
+## Ev üreticisi vitrini
+- [x] Ev üreticisi kaydında Shopier tarzı gerçek vitrini otomatik yayınla; ürün/kategori/takip bağlantıları ve satışa ara verme durumu

@@ -72,6 +72,47 @@ export const saveHomeMakerProfile = createServerFn({ method: "POST" })
     );
     if (error) throw new Error(error.message);
 
+    // Kurulum tamamlanınca gerçek mağaza vitrini de kullanıma hazır olur.
+    const publishedAt = new Date().toISOString();
+    const { error: themeError } = await supabaseAdmin.from("store_themes").upsert(
+      {
+        store_id: store.id,
+        preset: "home-maker-shop",
+        primary_color: "#11162f",
+        accent_color: "#6d28d9",
+        background_color: "#ffffff",
+        font_pair: "sora-manrope",
+        radius: 0.75,
+        layout: "card-grid",
+        hero_title: data.storeName,
+        hero_subtitle: `${data.category} ürünleri`,
+        hero_cta_label: "Ürünleri incele",
+        announcement: null,
+        show_announcement: false,
+        button_style: "solid",
+        card_style: "flat",
+        content_width: 900,
+        section_spacing: 32,
+        is_published: true,
+        published_at: publishedAt,
+      },
+      { onConflict: "store_id" },
+    );
+    if (themeError) throw new Error(themeError.message);
+
+    const { error: settingsError } = await supabaseAdmin
+      .from("store_settings")
+      .update({ bio: `${data.category} ürünleri` })
+      .eq("store_id", store.id);
+    if (settingsError) throw new Error(settingsError.message);
+
+    const { error: publishError } = await supabaseAdmin
+      .from("stores")
+      .update({ status: "active", published_at: publishedAt, onboarding_completed: true })
+      .eq("id", store.id)
+      .eq("owner_id", userId);
+    if (publishError) throw new Error(publishError.message);
+
     await supabaseAdmin
       .from("user_roles")
       .upsert({ user_id: userId, role: "home_maker" }, { onConflict: "user_id,role" });

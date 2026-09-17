@@ -183,7 +183,8 @@ function ProductPage() {
 
   const selected = variants.find((variant) => variant.id === variantId) ?? variants[0] ?? null;
   const price = selected ? selected.price : product.base_price;
-  const inStock = selected ? selected.stock > 0 : true;
+  const salesPaused = store.status !== "active";
+  const inStock = !salesPaused && (selected ? selected.stock > 0 : true);
   const stockLeft = selected?.stock ?? 0;
   const maxQty = Math.max(1, stockLeft || 1);
   const quantity = Math.min(Math.max(1, qty), maxQty);
@@ -298,6 +299,12 @@ function ProductPage() {
         <span aria-hidden>/</span>
         <span style={{ color: "inherit" }}>{product.title}</span>
       </nav>
+
+      {salesPaused ? (
+        <div className="sp-paused" role="status">
+          Bu mağaza, satışlarına geçici bir süre ara vermiştir. Ürünleri inceleyebilirsiniz ancak şu anda sipariş verilemez.
+        </div>
+      ) : null}
 
 
       <section className="sf-detail-grid">
