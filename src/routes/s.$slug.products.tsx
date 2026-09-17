@@ -59,6 +59,7 @@ const normalize = (value: string) =>
 function StorefrontProductsPage() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
+  useStorefrontLive(slug, data?.store?.id);
 
   const [term, setTerm] = useState("");
   const [sort, setSort] = useState<SortKey>("newest");
