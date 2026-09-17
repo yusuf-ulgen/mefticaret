@@ -109,12 +109,13 @@ function KolayPanel() {
   const dailyLimit = Number(
     (settings as { daily_order_limit?: number | null } | null)?.daily_order_limit ?? 0,
   );
-  const todayCount = (orders ?? []).filter((order) => {
-    if (!order.placed_at) return false;
-    const placed = new Date(order.placed_at);
-    const now = new Date();
-    return placed.toDateString() === now.toDateString();
-  }).length;
+  // Kota sayısı ödeme adımıyla aynı kuralı kullanır: mağazanın yerel günü,
+  // iptal/iade siparişler hariç.
+  const todayCount = (orders ?? []).filter(
+    (order) =>
+      isStoreToday(order.placed_at) &&
+      !(QUOTA_EXCLUDED_STATUSES as readonly string[]).includes(order.status),
+  ).length;
   const capacityFull = dailyLimit > 0 && todayCount >= dailyLimit;
   const campaign = ((settings as { campaign_banner?: CampaignBanner } | null)?.campaign_banner ??
     null) as CampaignBanner;
