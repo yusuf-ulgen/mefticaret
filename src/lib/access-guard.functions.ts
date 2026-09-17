@@ -100,7 +100,7 @@ export const checkStoreAccess = createServerFn({ method: "POST" })
       allowed,
       role,
       isPlatformAdmin,
-      canManage: isOwner || (role !== null && MANAGER_ROLES.has(role)) || isPlatformAdmin,
+      canManage: allowed && (isOwner || (role !== null && MANAGER_ROLES.has(role)) || isPlatformAdmin),
       storeKind: store?.store_kind ?? null,
     };
   });
