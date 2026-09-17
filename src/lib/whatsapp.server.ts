@@ -195,8 +195,32 @@ export async function handleInboundMessage(
     })
     .eq("id", conversation.id);
 
+  // Sipariş niyeti taşıyan mesajlar doğrudan panele sipariş olarak düşer.
+  // Tutar/stok sunucuda üründen okunur; ödeme durumu "bekliyor" kalır.
+  let autoOrderNumber: string | null = null;
+  try {
+    const { tryCreateOrderFromWhatsApp } = await import("@/lib/whatsapp-auto-order.server");
+    const outcome = await tryCreateOrderFromWhatsApp(supabase, {
+      storeId,
+      waId: input.waId,
+      contactName: input.contactName,
+      body: input.body,
+    });
+    if (outcome.created) {
+      autoOrderNumber = outcome.orderNumber;
+      await sendWhatsAppMessage(supabase, {
+        storeId,
+        waId: input.waId,
+        body: `Siparişinizi aldık. Sipariş numaranız ${outcome.orderNumber}. En kısa sürede dönüş yapacağız.`,
+        contactName: input.contactName,
+      });
+    }
+  } catch {
+    // Sipariş oluşturulamazsa mesaj yine de kaydedilir; webhook başarısız olmaz.
+  }
+
   const account = await getAccount(supabase, storeId);
-  if (!account?.auto_reply_enabled) return { conversation, autoReplied: false };
+  if (!account?.auto_reply_enabled) return { conversation, autoReplied: false, autoOrderNumber };
 
   const { data: replies } = await supabase
     .from("whatsapp_auto_replies")
