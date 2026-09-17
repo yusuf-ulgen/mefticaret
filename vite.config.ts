@@ -11,6 +11,8 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import { suppressClientAbort } from "./vite-plugins/suppress-client-abort";
 
+const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
@@ -29,9 +31,9 @@ export default defineConfig({
     plugins: [suppressClientAbort(), mcpPlugin()],
     resolve: {
       alias: {
-        "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
-        "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
-        entities: path.resolve(__dirname, "node_modules/entities"),
+        "entities/lib/decode.js": path.resolve(ROOT_DIR, "node_modules/entities/lib/decode.js"),
+        "entities/lib/encode.js": path.resolve(ROOT_DIR, "node_modules/entities/lib/encode.js"),
+        entities: path.resolve(ROOT_DIR, "node_modules/entities"),
       },
     },
   },
