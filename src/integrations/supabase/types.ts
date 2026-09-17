@@ -14175,6 +14175,19 @@ export type Database = {
         Args: { _bucket_key: string; _limit: number; _window_seconds: number }
         Returns: Json
       }
+      create_home_maker_store: {
+        Args: {
+          _category: string
+          _full_name: string
+          _slug_base: string
+          _store_name: string
+          _user_id: string
+        }
+        Returns: {
+          store_id: string
+          store_slug: string
+        }[]
+      }
       customer_fts_text: {
         Args: { _email: string; _full_name: string; _phone: string }
         Returns: string
