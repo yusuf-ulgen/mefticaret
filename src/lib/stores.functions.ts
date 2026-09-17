@@ -63,6 +63,7 @@ export const createStore = createServerFn({ method: "POST" })
       currency: data.currency,
       locale: data.locale,
       plan_id: plan?.id ?? null,
+      store_kind: "corporate",
       onboarding_step: 4,
       status: "draft" as const,
       // RLS (stores_insert_own) demo mağaza açılmasına izin vermez; açıkça false yazıyoruz.

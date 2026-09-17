@@ -124,13 +124,43 @@ export const listNearbyStores = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase.rpc("kolay_nearby_stores", {
-      _store_id: data.storeId,
-    } as never);
+    const { supabase, userId } = context;
+    const { data: source, error: sourceError } = await supabase
+      .from("stores")
+      .select("id, store_kind, owner_id, store_settings(city)")
+      .eq("id", data.storeId)
+      .maybeSingle();
+    if (sourceError) throw new Error(sourceError.message);
+    if (!source || source.store_kind !== "micro") throw new Error("Kolay Panel mağazası bulunamadı");
+
+    const { data: membership } = await supabase
+      .from("store_users")
+      .select("role")
+      .eq("store_id", data.storeId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (source.owner_id !== userId && !membership) throw new Error("Bu mağazaya erişim yetkiniz yok");
+
+    const sourceSettings = Array.isArray(source.store_settings)
+      ? source.store_settings[0]
+      : source.store_settings;
+    const city = sourceSettings?.city?.trim();
+    if (!city) return [];
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("stores")
+      .select("id, name, slug, store_settings!inner(city)")
+      .eq("store_kind", "micro")
+      .eq("status", "active")
+      .neq("id", data.storeId)
+      .ilike("store_settings.city", city)
+      .limit(50);
     if (error) throw new Error(error.message);
-    return ((rows ?? []) as { id: string; name: string; slug: string; city: string | null }[]).map(
-      (row) => ({ id: row.id, name: row.name, slug: row.slug, city: row.city ?? "" }),
-    );
+    return (rows ?? []).map((row) => {
+      const settings = Array.isArray(row.store_settings) ? row.store_settings[0] : row.store_settings;
+      return { id: row.id, name: row.name, slug: row.slug, city: settings?.city ?? "" };
+    });
   });
 
 /** Siparişi güvendiğiniz komşu mağazaya devretmek için talep açar. */

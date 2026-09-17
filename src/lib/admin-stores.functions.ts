@@ -89,6 +89,7 @@ export const createPlatformStore = createServerFn({ method: "POST" })
         currency: data.currency,
         locale: data.locale,
         plan_id: data.planId ?? null,
+        store_kind: "corporate",
         onboarding_step: 4,
         status: data.status,
         ...(data.status === "active" ? { published_at: new Date().toISOString() } : {}),
