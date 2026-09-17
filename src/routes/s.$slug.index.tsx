@@ -66,27 +66,18 @@ function StorefrontHome() {
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
   const { store, theme, products, collections, footerPages } = data;
-  const { t, fonts, muted, cardBg, border, radius, dark } = storefrontTokens(theme);
+  const { t, muted, cardBg, border } = storefrontTokens(theme);
   // Mağaza yalnızca tek bir bileşen tanımladıysa vitrin boş kalmasın: hero,
   // kategoriler ve ürün listesi tema metinleriyle otomatik tamamlanır.
-  const sections = resolveSections(
-    withEssentialSections(data.sections as ThemeSectionRow[], {
-      overrides: {
-        hero: {
-          title: t.hero_title,
-          subtitle: t.hero_subtitle,
-          ctaLabel: t.hero_cta_label,
-          ctaUrl: `/s/${store.slug}/products`,
-        },
-        product_grid: { title: "Ürünler", limit: 12 },
-      },
-      skip: [
-        ...(products.length === 0 ? (["product_grid"] as const) : []),
-        ...(collections.length === 0 ? (["category_grid"] as const) : []),
-      ],
-    }),
+  // Vitrin gövdesi Shopier düzeniyle geldiği için otomatik hero/ürün/kategori
+  // blokları eklenmez; mağazanın kendi tanımladığı ek bölümler altta kalır.
+  const sections = resolveSections(data.sections as ThemeSectionRow[]);
+  const bodySections = sections.filter(
+    (section) =>
+      section.isEnabled &&
+      section.definition.slot === "body" &&
+      !["hero", "product_grid", "category_grid"].includes(section.definition.type),
   );
-  const bodySections = sections.filter((section) => section.isEnabled && section.definition.slot === "body");
 
   return (
     <StorefrontChrome
