@@ -19,7 +19,7 @@ export function AbandonedCard({
   storeName,
 }: {
   storeId: string;
-  storeSlug?: string;
+  storeSlug?: string | undefined;
   storeName: string;
 }) {
   const queryClient = useQueryClient();
