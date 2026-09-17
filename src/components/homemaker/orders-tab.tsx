@@ -18,6 +18,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { AbandonedCard } from "@/components/homemaker/abandoned-card";
 import { DelegateSheet } from "@/components/homemaker/delegate-sheet";
 import { BigButton, Sheet, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
 import { ManualOrderSheet } from "@/components/homemaker/manual-order-sheet";
@@ -61,12 +62,14 @@ function addressText(order: SimpleOrder) {
 export function OrdersTab({
   storeId,
   storeSlug,
+  storeName = "Mağazam",
   orders,
   products = [],
   currency = "TRY",
 }: {
   storeId: string;
   storeSlug?: string;
+  storeName?: string;
   orders: SimpleOrder[];
   products?: SimpleProduct[];
   currency?: string;
@@ -245,6 +248,8 @@ export function OrdersTab({
           <p className="text-lg font-bold text-hm-amber">{unpaidCount}</p>
         </SoftCard>
       </div>
+
+      <AbandonedCard storeId={storeId} storeSlug={storeSlug} storeName={storeName} />
 
       <div className="grid grid-cols-2 gap-2">
         <BigButton tone="emerald" onClick={() => setManualSource("whatsapp")}>
