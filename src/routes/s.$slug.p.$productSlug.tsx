@@ -246,6 +246,26 @@ function ProductPage() {
     storefrontUI.openCart();
   }
 
+  /** Ürünü sepete alır ve doğrudan ödeme sayfasına götürür (tek ürün kasası). */
+  function buyNow() {
+    if (!selected || !inStock) return;
+    cart.add(
+      {
+        storeSlug: store.slug,
+        variantId: selected.id,
+        productSlug: product.slug,
+        title: product.title,
+        variantTitle: selected.title,
+        price: Number(selected.price ?? product.base_price),
+        currency: product.currency,
+        maxStock: selected.stock ?? 0,
+        imageUrl: heroImage?.url ?? images[0]?.url ?? null,
+      },
+      quantity,
+    );
+    void navigate({ to: "/s/$slug/checkout", params: { slug: store.slug } });
+  }
+
   async function shareProduct() {
     const url = typeof window === "undefined" ? "" : window.location.href;
     if (typeof navigator !== "undefined" && "share" in navigator) {
