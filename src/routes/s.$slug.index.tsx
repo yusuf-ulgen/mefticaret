@@ -64,6 +64,7 @@ function StorefrontFallback({ text }: { text: string }) {
 function StorefrontHome() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
+  useStorefrontLive(slug, data?.store?.id);
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
   const { store, theme, products, collections, footerPages } = data;
