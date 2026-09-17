@@ -54,13 +54,16 @@ export const getStorefront = createServerFn({ method: "GET" })
     const supabase = publicClient();
     const { data: store, error } = await supabase
       .from("stores")
-      .select("id, name, slug, currency, locale, industry, logo_url")
+      .select("id, name, slug, currency, locale, industry, logo_url, status")
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!store) return null;
 
-    const [themeRes, productsRes, collectionsRes, pagesRes, sectionsRes, blogRes, ratesRes, paymentsRes] = await Promise.all([
+    // Genel ayarlar tablosunu açmadan yalnızca vitrinde gösterilecek alanları sunucuda seç.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [themeRes, productsRes, collectionsRes, pagesRes, sectionsRes, blogRes, ratesRes, paymentsRes, profileRes] = await Promise.all([
       supabase.from("store_themes").select("*").eq("store_id", store.id).maybeSingle(),
       supabase
         .from("products")
@@ -106,6 +109,11 @@ export const getStorefront = createServerFn({ method: "GET" })
         .eq("store_id", store.id)
         .eq("is_active", true)
         .order("sort_order"),
+      supabaseAdmin
+        .from("store_settings")
+        .select("bio, contact_email, contact_phone")
+        .eq("store_id", store.id)
+        .maybeSingle(),
     ]);
     if (themeRes.error) throw new Error(themeRes.error.message);
     if (productsRes.error) throw new Error(productsRes.error.message);
@@ -113,6 +121,7 @@ export const getStorefront = createServerFn({ method: "GET" })
     if (pagesRes.error) throw new Error(pagesRes.error.message);
     if (sectionsRes.error) throw new Error(sectionsRes.error.message);
     if (blogRes.error) throw new Error(blogRes.error.message);
+    if (profileRes.error) throw new Error(profileRes.error.message);
 
     // Ürün kartları için kapak görselleri (imzalı adres).
     const products = productsRes.data ?? [];
@@ -191,6 +200,11 @@ export const getStorefront = createServerFn({ method: "GET" })
 
     return {
       campaign,
+      profile: (profileRes.data ?? null) as {
+        bio?: string | null;
+        contact_email?: string | null;
+        contact_phone?: string | null;
+      } | null,
       commerce,
       store,
       theme: themeRes.data,
@@ -230,7 +244,7 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
     const supabase = publicClient();
     const { data: store, error } = await supabase
       .from("stores")
-      .select("id, name, slug, currency")
+      .select("id, name, slug, currency, status")
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpDown, SlidersHorizontal } from "lucide-react";
+import { AlertCircle, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 
 import type { WokieeProduct } from "@/components/wokiee/product-card";
 import { formatMoney } from "@/lib/mefti";
@@ -33,6 +33,7 @@ export function ShopierHome({
   products,
   collections,
   contactEmail,
+  salesPaused = false,
   tokens,
 }: {
   storeName: string;
@@ -43,6 +44,7 @@ export function ShopierHome({
   products: WokieeProduct[];
   collections: Collection[];
   contactEmail?: string | null;
+  salesPaused?: boolean;
   tokens: { muted: string; border: string; cardBg: string; accent: string };
 }) {
   const [sort, setSort] = useState<Sort>("default");
@@ -82,6 +84,12 @@ export function ShopierHome({
         } as React.CSSProperties
       }
     >
+      {salesPaused ? (
+        <div className="sp-paused" role="status">
+          <AlertCircle className="size-6 shrink-0" />
+          <p>Bu mağaza, satışlarına geçici bir süre ara vermiştir. Lütfen daha sonra tekrar deneyin.</p>
+        </div>
+      ) : null}
       <header className="sp-id">
         <div className="sp-avatar" aria-hidden={logoUrl ? undefined : true}>
           {logoUrl ? <img src={logoUrl} alt={storeName} /> : <span>{initial}</span>}

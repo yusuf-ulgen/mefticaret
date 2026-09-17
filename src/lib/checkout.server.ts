@@ -76,8 +76,7 @@ async function publishedStore(slug: string) {
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) return null;
-  const published = data.status === "active" || Boolean(data.published_at);
-  if (!published) return null;
+  if (data.status !== "active") return null;
   return data;
 }
 

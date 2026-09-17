@@ -1,0 +1,1 @@
+DROP FUNCTION public.store_public_profile(text);
