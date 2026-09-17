@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth-context";
-import { formatCurrency, formatDateTime, formatNumber, STORE_STATUS_LABELS } from "@/lib/mefti";
+import { formatDateTime, formatMoney, formatNumber, STORE_STATUS_LABELS } from "@/lib/mefti";
 import { listMicroStores, setMicroStoreStatus, type MicroStoreRow } from "@/lib/admin-kolay.functions";
 import { downloadCsv, toCsv } from "@/lib/csv";
 
@@ -91,19 +91,20 @@ function AdminKolayPage() {
 
   const exportCsv = () => {
     const csv = toCsv(
-      filtered.map((row) => ({
-        Mağaza: row.name,
-        Adres: row.slug,
-        Kategori: row.category ?? "",
-        Satıcı: row.ownerName ?? "",
-        Eposta: row.ownerEmail ?? "",
-        Telefon: row.ownerPhone ?? "",
-        Durum: STORE_STATUS_LABELS[row.status as keyof typeof STORE_STATUS_LABELS] ?? row.status,
-        Ürün: row.productCount,
-        Sipariş: row.orderCount,
-        Ciro: row.revenue,
-        Kayıt: row.createdAt,
-      })),
+      ["Mağaza", "Adres", "Kategori", "Satıcı", "E-posta", "Telefon", "Durum", "Ürün", "Sipariş", "Ciro", "Kayıt"],
+      filtered.map((row) => [
+        row.name,
+        row.slug,
+        row.category ?? "",
+        row.ownerName ?? "",
+        row.ownerEmail ?? "",
+        row.ownerPhone ?? "",
+        STORE_STATUS_LABELS[row.status as keyof typeof STORE_STATUS_LABELS] ?? row.status,
+        row.productCount,
+        row.orderCount,
+        row.revenue,
+        row.createdAt,
+      ]),
     );
     downloadCsv("kolay-panel-saticilar.csv", csv);
   };
@@ -122,7 +123,7 @@ function AdminKolayPage() {
         <StatCard icon={<Users className="size-4" />} label="Kayıtlı satıcı" value={formatNumber(totals.sellers)} hint={`${formatNumber(totals.active)} aktif vitrin`} />
         <StatCard icon={<Package className="size-4" />} label="Toplam ürün" value={formatNumber(totals.products)} />
         <StatCard icon={<ShoppingBag className="size-4" />} label="Toplam sipariş" value={formatNumber(totals.orders)} />
-        <StatCard icon={<Home className="size-4" />} label="Toplam ciro" value={formatCurrency(totals.revenue, "TRY")} />
+        <StatCard icon={<Home className="size-4" />} label="Toplam ciro" value={formatMoney(totals.revenue, "TRY")} />
       </div>
 
       <div className="surface-card mt-4 p-4">
@@ -182,7 +183,7 @@ function AdminKolayPage() {
                   <td className="px-3 py-3">{row.category ?? "—"}</td>
                   <td className="px-3 py-3 text-right">{formatNumber(row.productCount)}</td>
                   <td className="px-3 py-3 text-right">{formatNumber(row.orderCount)}</td>
-                  <td className="px-3 py-3 text-right">{formatCurrency(row.revenue, "TRY")}</td>
+                  <td className="px-3 py-3 text-right">{formatMoney(row.revenue, "TRY")}</td>
                   <td className="px-3 py-3 text-xs text-muted-foreground">
                     {row.lastOrderAt ? formatDateTime(row.lastOrderAt) : "—"}
                   </td>
