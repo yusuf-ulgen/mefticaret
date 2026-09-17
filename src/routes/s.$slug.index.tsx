@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { WokieeProductCard } from "@/components/wokiee/product-card";
 import { formatMoney } from "@/lib/mefti";
+import { ShopierHome } from "@/components/storefront/shopier-home";
 import { StorefrontSections } from "@/components/storefront-sections";
 import { resolveSections, withEssentialSections, type ThemeSectionRow } from "@/lib/theme-sections";
 import { storefrontQuery } from "@/lib/storefront-queries";
@@ -127,6 +128,17 @@ function StorefrontHome() {
         </div>
       ) : null}
 
+      <ShopierHome
+        storeName={store.name}
+        storeSlug={store.slug}
+        logoUrl={store.logo_url ?? null}
+        tagline={t.hero_subtitle}
+        currency={store.currency}
+        products={products}
+        collections={collections}
+        tokens={{ muted, border, cardBg, accent: t.accent_color }}
+      />
+
       {bodySections.length ? (
         <StorefrontSections
           sections={sections}
@@ -141,120 +153,8 @@ function StorefrontHome() {
             commerce: data.commerce,
           }}
         />
-      ) : (
-        <>
-      <section
-        style={{
-          display: split ? "grid" : "block",
-          gridTemplateColumns: split ? "1.1fr .9fr" : undefined,
-          gap: 28,
-          padding: "48px 0",
-          alignItems: "center",
-        }}
-      >
-        <div style={{ maxWidth: split ? undefined : 620 }}>
-          <h1 style={{ fontFamily: fonts.heading, fontSize: 42, lineHeight: 1.08, fontWeight: 700, margin: 0 }}>
-            {t.hero_title}
-          </h1>
-          <p style={{ color: muted, marginTop: 14, fontSize: 16 }}>{t.hero_subtitle}</p>
-          <a
-            href="#urunler"
-            style={{
-              display: "inline-block",
-              marginTop: 24,
-              background: t.accent_color,
-              color: "#12181f",
-              padding: "12px 22px",
-              borderRadius: radius,
-              fontSize: 14,
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
-            {t.hero_cta_label}
-          </a>
-        </div>
-        {split ? (
-          <div
-            style={{
-              background: `linear-gradient(140deg, ${t.primary_color}, ${t.accent_color})`,
-              borderRadius: radius,
-              minHeight: 240,
-            }}
-          />
-        ) : null}
-      </section>
-
-      {collections.length ? (
-        <section id="koleksiyonlar" style={{ paddingBottom: 32 }}>
-          <h2 style={{ fontFamily: fonts.heading, fontSize: 20, margin: "0 0 12px" }}>Koleksiyonlar</h2>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            {collections.map((collection) => (
-              <Link
-                key={collection.id}
-                to="/s/$slug/c/$collectionSlug"
-                params={{ slug: store.slug, collectionSlug: collection.slug }}
-                style={{
-                  border: `1px solid ${border}`,
-                  borderRadius: 999,
-                  padding: "6px 14px",
-                  fontSize: 13,
-                  color: muted,
-                  textDecoration: "none",
-                }}
-              >
-                {collection.title}
-              </Link>
-            ))}
-          </div>
-        </section>
       ) : null}
 
-      <section id="urunler">
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 12,
-            marginBottom: 18,
-          }}
-        >
-          <h2 style={{ fontFamily: fonts.heading, fontSize: 24, margin: 0 }}>Ürünler</h2>
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ürün ara…"
-            aria-label="Ürünlerde ara"
-            style={{
-              background: cardBg,
-              color: "inherit",
-              border: `1px solid ${border}`,
-              borderRadius: radius,
-              padding: "9px 14px",
-              fontSize: 14,
-              fontFamily: "inherit",
-              minWidth: 220,
-            }}
-          />
-        </div>
-        {products.length === 0 ? (
-          <p style={{ color: muted }}>Bu mağazada henüz yayınlanmış ürün yok.</p>
-        ) : filtered.length === 0 ? (
-          <p style={{ color: muted }}>“{query}” aramasıyla eşleşen ürün bulunamadı.</p>
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: columns, gap: 18 }}>
-            {filtered.map((product) => (
-              <WokieeProductCard key={product.id} theme={t} storeSlug={store.slug} product={product} />
-            ))}
-          </div>
-        )}
-      </section>
-
-        </>
-      )}
     </StorefrontChrome>
   );
 }
