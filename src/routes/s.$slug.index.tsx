@@ -67,6 +67,7 @@ function StorefrontHome() {
 
   const { store, theme, products, collections, footerPages } = data;
   const { t, muted, cardBg, border } = storefrontTokens(theme);
+  const isHomeMakerStorefront = data.isHomeMakerStorefront || theme?.preset === "home-maker-shop";
   // Mağaza yalnızca tek bir bileşen tanımladıysa vitrin boş kalmasın: hero,
   // kategoriler ve ürün listesi tema metinleriyle otomatik tamamlanır.
   // Vitrin gövdesi Shopier düzeniyle geldiği için otomatik hero/ürün/kategori
@@ -89,6 +90,7 @@ function StorefrontHome() {
       sections={sections}
       customCss={theme?.custom_css ?? null}
       customJs={theme?.custom_js ?? null}
+      simpleStorefront={isHomeMakerStorefront}
     >
       {data.campaign?.message ? (
         <div
@@ -100,22 +102,25 @@ function StorefrontHome() {
         </div>
       ) : null}
 
-      <ShopierHome
-        storeName={store.name}
-        storeSlug={store.slug}
-        logoUrl={store.logo_url ?? null}
-        tagline={data.profile?.bio || t.hero_subtitle}
-        currency={store.currency}
-        products={products}
-        collections={collections}
-        contactEmail={data.profile?.contact_email ?? null}
-        salesPaused={store.status !== "active"}
-        tokens={{ muted, border, cardBg, accent: t.accent_color }}
-      />
+      {isHomeMakerStorefront ? (
+        <ShopierHome
+          storeName={store.name}
+          storeSlug={store.slug}
+          logoUrl={store.logo_url ?? null}
+          tagline={data.profile?.bio || t.hero_subtitle}
+          currency={store.currency}
+          products={products}
+          collections={collections}
+          contactEmail={data.profile?.contact_email ?? null}
+          salesPaused={store.status !== "active"}
+          footerPages={footerPages}
+          tokens={{ muted, border, cardBg, accent: t.accent_color }}
+        />
+      ) : null}
 
-      {bodySections.length ? (
+      {(isHomeMakerStorefront ? bodySections : sections).length ? (
         <StorefrontSections
-          sections={sections}
+          sections={isHomeMakerStorefront ? bodySections : sections}
           context={{
             theme,
             storeSlug: store.slug,

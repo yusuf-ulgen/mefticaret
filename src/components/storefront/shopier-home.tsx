@@ -6,6 +6,7 @@ import type { WokieeProduct } from "@/components/wokiee/product-card";
 import { formatMoney } from "@/lib/mefti";
 
 type Collection = { id: string; title: string; slug: string };
+type FooterPage = { title: string; slug: string };
 
 type Sort = "default" | "price-asc" | "price-desc" | "title";
 
@@ -34,6 +35,7 @@ export function ShopierHome({
   collections,
   contactEmail,
   salesPaused = false,
+  footerPages = [],
   tokens,
 }: {
   storeName: string;
@@ -45,6 +47,7 @@ export function ShopierHome({
   collections: Collection[];
   contactEmail?: string | null;
   salesPaused?: boolean;
+  footerPages?: FooterPage[];
   tokens: { muted: string; border: string; cardBg: string; accent: string };
 }) {
   const [sort, setSort] = useState<Sort>("default");
@@ -246,6 +249,20 @@ export function ShopierHome({
             {contactEmail}
           </a>
         ) : null}
+        <div className="sp-legal">
+          <p>Koşullar</p>
+          {footerPages.map((page) => (
+            <Link
+              key={page.slug}
+              to="/s/$slug/page/$pageSlug"
+              params={{ slug: storeSlug, pageSlug: page.slug }}
+            >
+              {page.title}
+            </Link>
+          ))}
+          <Link to="/s/$slug/terms" params={{ slug: storeSlug }}>Mesafeli Satış Sözleşmesi</Link>
+          <Link to="/s/$slug/privacy" params={{ slug: storeSlug }}>Kişisel Verilerin Korunması</Link>
+        </div>
       </section>
     </div>
   );

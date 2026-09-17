@@ -595,6 +595,13 @@
 .mef-ultra-size-modal th,.mef-ultra-size-modal td { text-align:left; padding:9px; border-bottom:1px solid rgba(120,120,120,.2); }
 
 /* Shopier tarzı mağaza vitrini */
+.hm-storefront-shell { min-height: 100vh; background: var(--background); color: var(--foreground); }
+.hm-storefront-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 84px; padding: 16px max(20px, calc((100vw - 900px) / 2)); border-bottom: 1px solid var(--border); background: var(--background); }
+.hm-storefront-brand { min-width: 0; color: var(--primary); font-size: 1.65rem; font-weight: 800; line-height: 1; text-decoration: none; }
+.hm-storefront-actions { display: flex; align-items: center; gap: 4px; }
+.hm-storefront-actions svg { width: 24px; height: 24px; }
+.hm-storefront-badge { position: absolute; top: 1px; right: 1px; display: grid; min-width: 17px; height: 17px; place-items: center; border-radius: 999px; background: var(--primary); color: var(--primary-foreground); font-size: .65rem; font-weight: 700; }
+.hm-storefront-main { width: min(100%, 900px); margin: 0 auto; padding: 0 20px; }
 .sp-home { max-width: 900px; margin: 0 auto; padding-bottom: 40px; }
 .sp-paused { display: flex; align-items: flex-start; gap: 12px; margin: 16px 0 8px; padding: 18px 20px; border: 1px solid var(--sp-border, var(--border)); border-radius: 18px; background: var(--sp-card, var(--card)); box-shadow: var(--shadow-soft); font-size: 1rem; font-weight: 500; line-height: 1.45; }
 .sp-paused p { margin: 0; }
@@ -635,6 +642,17 @@
 .sp-about-name { font-weight: 700; margin: 0; }
 .sp-about-line { color: var(--sp-muted); margin: 0; font-size: .95rem; }
 .sp-about-mail { text-decoration: none; }
+.sp-legal { display: grid; justify-items: center; gap: 8px; margin-top: 16px; }
+.sp-legal p { margin: 0 0 2px; color: inherit; font-weight: 700; }
+.sp-legal a { color: var(--sp-muted); text-decoration: none; font-size: .95rem; }
 @media (min-width: 760px) {
   .sp-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .hm-storefront-header { min-height: 76px; padding: 12px 14px; }
+  .hm-storefront-brand { font-size: 1.35rem; }
+  .hm-storefront-actions { gap: 0; }
+  .hm-storefront-actions > * { width: 42px; height: 42px; }
+  .hm-storefront-main { padding: 0 16px; }
+  .sp-paused { margin-top: 18px; }
 }
