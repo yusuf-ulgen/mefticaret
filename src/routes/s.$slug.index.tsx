@@ -39,11 +39,10 @@ export const Route = createFileRoute("/s/$slug/")({
       slug: params.slug,
       path: `/s/${params.slug}`,
       fallbackTitle: micro ? microText.title : `${loaderData.name} — Online Mağaza`,
-      fallbackDescription:
-        loaderData.hero ||
-        (micro
-          ? microText.description
-          : `${loaderData.name} vitrininde yeni sezon ürünlerini keşfedin; hızlı kargo ve güvenli ödeme.`),
+      fallbackDescription: micro
+        ? enrichShortDescription(loaderData.hero, microText.description)
+        : loaderData.hero ||
+          `${loaderData.name} vitrininde yeni sezon ürünlerini keşfedin; hızlı kargo ve güvenli ödeme.`,
       seo: settings?.homeTitle || settings?.homeDescription
         ? {
             ...(settings.homeTitle ? { title: settings.homeTitle } : {}),
