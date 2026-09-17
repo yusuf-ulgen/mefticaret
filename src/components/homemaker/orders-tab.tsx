@@ -246,6 +246,8 @@ export function OrdersTab({
         </SoftCard>
       </div>
 
+      <AbandonedCard storeId={storeId} storeSlug={storeSlug} storeName={storeSlug ?? "Mağazam"} />
+
       <div className="grid grid-cols-2 gap-2">
         <BigButton tone="emerald" onClick={() => setManualSource("whatsapp")}>
           <MessageCircle className="size-4" /> WhatsApp siparişi
