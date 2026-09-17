@@ -672,6 +672,28 @@ function ProductPage() {
             {inStock ? "Sepete ekle" : "Stokta yok"}
           </button>
 
+          {inStock ? (
+            <button
+              type="button"
+              onClick={buyNow}
+              style={{
+                marginTop: 10,
+                width: "100%",
+                background: "transparent",
+                color: "inherit",
+                border: `1px solid ${border}`,
+                borderRadius: radius,
+                padding: "14px 20px",
+                fontSize: 15,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Hemen satın al
+            </button>
+          ) : null}
+
+
           <StickyAddToCartBar
             theme={t}
             title={product.title}
