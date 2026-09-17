@@ -1,10 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
   AlertTriangle,
   Bell,
-  ArrowLeft,
   BarChart3,
   Package,
   PartyPopper,
@@ -148,14 +147,6 @@ function KolayPanel() {
     <div className="min-h-screen bg-hm-sand pb-28 font-sans text-hm-ink">
       <header className="sticky top-0 z-40 border-b border-hm-line bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-lg items-center gap-3 px-4 py-3">
-          <Link
-            to="/store/$storeId"
-            params={{ storeId }}
-            aria-label="Tam panele dön"
-            className="grid size-10 shrink-0 place-items-center rounded-2xl bg-hm-sand text-hm-ink-soft"
-          >
-            <ArrowLeft className="size-4" />
-          </Link>
           <div className="size-10 shrink-0 overflow-hidden rounded-2xl bg-hm-sand">
             {store.logo_url ? (
               <img src={store.logo_url} alt="" className="size-full object-cover" />

@@ -67,7 +67,7 @@ function StorefrontHome() {
 
   const { store, theme, products, collections, footerPages } = data;
   const { t, muted, cardBg, border } = storefrontTokens(theme);
-  const isHomeMakerStorefront = data.isHomeMakerStorefront || theme?.preset === "home-maker-shop";
+  const isHomeMakerStorefront = data.isHomeMakerStorefront;
   // Mağaza yalnızca tek bir bileşen tanımladıysa vitrin boş kalmasın: hero,
   // kategoriler ve ürün listesi tema metinleriyle otomatik tamamlanır.
   // Vitrin gövdesi Shopier düzeniyle geldiği için otomatik hero/ürün/kategori
