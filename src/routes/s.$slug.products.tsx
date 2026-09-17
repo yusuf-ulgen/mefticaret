@@ -24,13 +24,16 @@ export const Route = createFileRoute("/s/$slug/products")({
   head: ({ loaderData, params }) => {
     if (!loaderData) return missingHead("Mağaza bulunamadı");
     const base = `/s/${params.slug}`;
+    const micro = loaderData.ctx?.storeKind === "micro";
     return storefrontHead({
       ctx: loaderData.ctx,
       origin: loaderData.origin,
       slug: params.slug,
       path: `${base}/products`,
-      fallbackTitle: "Tüm ürünler",
-      fallbackDescription: `${loaderData.storeName} mağazasındaki tüm ürünleri filtreleyerek keşfedin; fiyat ve türe göre sıralayın.`,
+      fallbackTitle: micro ? "El yapımı tüm ürünler" : "Tüm ürünler",
+      fallbackDescription: micro
+        ? `${loaderData.storeName} vitrinindeki el yapımı ürünlerin tamamı: güncel fiyat, stok ve hazırlık süresiyle listelenir.`
+        : `${loaderData.storeName} mağazasındaki tüm ürünleri filtreleyerek keşfedin; fiyat ve türe göre sıralayın.`,
       breadcrumbs: [
         { name: "Ana sayfa", path: base },
         { name: "Ürünler", path: `${base}/products` },

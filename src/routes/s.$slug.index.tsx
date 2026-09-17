@@ -9,7 +9,7 @@ import { storefrontQuery } from "@/lib/storefront-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { faqSchema } from "@/lib/seo";
-import { missingHead, storefrontHead } from "@/lib/storefront-seo";
+import { microStoreSeoText, missingHead, storefrontHead } from "@/lib/storefront-seo";
 import { useStorefrontLive } from "@/hooks/use-storefront-live";
 
 export const Route = createFileRoute("/s/$slug/")({
@@ -26,15 +26,19 @@ export const Route = createFileRoute("/s/$slug/")({
     if (!loaderData) return missingHead("Mağaza bulunamadı");
     const settings = loaderData.ctx?.settings;
     const faq = settings?.faq ?? [];
+    const micro = loaderData.ctx?.storeKind === "micro";
+    const microText = microStoreSeoText(loaderData.ctx, loaderData.name);
     return storefrontHead({
       ctx: loaderData.ctx,
       origin: loaderData.origin,
       slug: params.slug,
       path: `/s/${params.slug}`,
-      fallbackTitle: `${loaderData.name} — Online Mağaza`,
+      fallbackTitle: micro ? microText.title : `${loaderData.name} — Online Mağaza`,
       fallbackDescription:
         loaderData.hero ||
-        `${loaderData.name} vitrininde yeni sezon ürünlerini keşfedin; hızlı kargo ve güvenli ödeme.`,
+        (micro
+          ? microText.description
+          : `${loaderData.name} vitrininde yeni sezon ürünlerini keşfedin; hızlı kargo ve güvenli ödeme.`),
       seo: settings?.homeTitle || settings?.homeDescription
         ? {
             ...(settings.homeTitle ? { title: settings.homeTitle } : {}),

@@ -69,9 +69,12 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
 
     const base = `/s/${loaderData.slug}`;
     const path = `${base}/p/${loaderData.productSlug}`;
+    const micro = loaderData.ctx?.storeKind === "micro";
     const fallbackDescription =
       loaderData.description ||
-      `${loaderData.title} ürününü ${loaderData.storeName} vitrininde keşfedin.`;
+      (micro
+        ? `${loaderData.title} — ${loaderData.storeName} tarafından el yapımı olarak hazırlanır. Güncel fiyat, stok ve hazırlık süresi bu sayfada.`
+        : `${loaderData.title} ürününü ${loaderData.storeName} vitrininde keşfedin.`);
     const image = loaderData.images[0] ?? null;
 
     const breadcrumbs = [
