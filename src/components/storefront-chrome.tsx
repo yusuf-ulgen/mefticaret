@@ -51,6 +51,7 @@ export function menuHref(slug: string, item: Pick<MenuItem, "kind" | "target">) 
 
 
 export type StoreTheme = {
+  preset?: string | null;
   primary_color: string;
   accent_color: string;
   background_color: string;
