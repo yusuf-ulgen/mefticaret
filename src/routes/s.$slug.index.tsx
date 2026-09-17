@@ -1,10 +1,7 @@
-import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
-import { WokieeProductCard } from "@/components/wokiee/product-card";
-import { formatMoney } from "@/lib/mefti";
 import { ShopierHome } from "@/components/storefront/shopier-home";
 import { StorefrontSections } from "@/components/storefront-sections";
 import { resolveSections, withEssentialSections, type ThemeSectionRow } from "@/lib/theme-sections";
@@ -66,20 +63,6 @@ function StorefrontFallback({ text }: { text: string }) {
 function StorefrontHome() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
-  const [query, setQuery] = useState("");
-
-  const filtered = useMemo(() => {
-    if (!data) return [];
-    const q = query.trim().toLocaleLowerCase("tr");
-    if (!q) return data.products;
-    return data.products.filter((p) =>
-      [p.title, p.description ?? "", p.product_type ?? "", ...(p.tags ?? [])]
-        .join(" ")
-        .toLocaleLowerCase("tr")
-        .includes(q),
-    );
-  }, [data, query]);
-
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
   const { store, theme, products, collections, footerPages } = data;
@@ -104,8 +87,6 @@ function StorefrontHome() {
     }),
   );
   const bodySections = sections.filter((section) => section.isEnabled && section.definition.slot === "body");
-  const split = t.layout === "split-screen";
-  const columns = t.layout === "magazine" ? "repeat(auto-fill, minmax(320px, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))";
 
   return (
     <StorefrontChrome
