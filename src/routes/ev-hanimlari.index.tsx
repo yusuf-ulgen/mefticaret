@@ -215,6 +215,28 @@ function HomeMakerAuthPage() {
               </button>
             </form>
           )}
+
+          {smsBlocked ? (
+            <div className="mt-5 grid gap-3 rounded-2xl bg-hm-amber-soft p-4 text-sm text-hm-ink">
+              <p className="font-semibold">SMS ile kod gönderimi şu an kapalı.</p>
+              <p className="text-hm-ink-soft">
+                E-posta ve şifrenizle giriş yapabilir ya da yeni kayıt oluşturabilirsiniz. Kolay
+                Panel'iniz aynı şekilde açılır.
+              </p>
+              <a
+                href="/auth?mode=login&next=/ev-hanimlari"
+                className="grid h-14 place-items-center rounded-2xl bg-hm-teal text-base font-semibold text-white"
+              >
+                E-posta ile giriş yap
+              </a>
+              <a
+                href="/auth?mode=register&next=/ev-hanimlari"
+                className="grid h-14 place-items-center rounded-2xl border border-hm-line bg-white text-base font-semibold text-hm-ink"
+              >
+                E-posta ile kayıt ol
+              </a>
+            </div>
+          ) : null}
         </div>
 
         <ul className="mt-6 grid gap-3">
