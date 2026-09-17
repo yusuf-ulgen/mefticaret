@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { StorefrontAdminLink } from "@/components/storefront-admin-link";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { storefrontQuery } from "@/lib/storefront-queries";
+import { useStorefrontLive } from "@/hooks/use-storefront-live";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { missingHead, storefrontHead } from "@/lib/storefront-seo";
