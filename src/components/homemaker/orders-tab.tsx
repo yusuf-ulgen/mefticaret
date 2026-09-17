@@ -323,6 +323,11 @@ export function OrdersTab({
                       ? ` · ${new Date(order.placed_at).toLocaleDateString("tr-TR")}`
                       : ""}
                   </p>
+                  {order.note?.startsWith("WhatsApp mesajı:") ? (
+                    <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-hm-emerald-soft px-2 py-0.5 text-[11px] font-semibold text-hm-emerald">
+                      <MessageCircle className="size-3" /> WhatsApp'tan otomatik geldi
+                    </span>
+                  ) : null}
                 </div>
                 <div className="text-right">
                   <p className="text-base font-bold text-hm-rose">
