@@ -98,7 +98,7 @@ export function storefrontHead(input: StorefrontHeadInput) {
 
   const title = seo.title || templateTitle || buildTitle(input.fallbackTitle, storeName);
   const description = seo.description || templateDescription || input.fallbackDescription;
-  const image = seo.ogImage || input.image || ctx?.settings.defaultOgImage || null;
+  const image = seo.ogImage || input.image || ctx?.settings.defaultOgImage || ctx?.logoUrl || null;
   const noindex = Boolean(seo.noindex || ctx?.settings.noindexStore);
   const keywords = seo.keywords || ctx?.settings.keywords;
 
@@ -131,6 +131,19 @@ export function storefrontHead(input: StorefrontHeadInput) {
       },
     ],
     scripts: schemas.map((schema) => jsonLdScript(schema)),
+  };
+}
+
+/**
+ * Kolay Panel (micro) vitrinleri için başlık/açıklama yardımcıları: mağaza adı,
+ * şehir ve ürün kategorisi bilgisiyle arama sonuçlarında ayırt edici metin üretir.
+ */
+export function microStoreSeoText(ctx: StoreSeoContext | null, storeName: string) {
+  const city = ctx?.address.city ?? null;
+  const place = city ? `${city}'dan ` : "";
+  return {
+    title: `${storeName} — El Yapımı Ürünler${city ? ` | ${city}` : ""}`,
+    description: `${place}${storeName} vitrini: el yapımı ve ev üretimi ürünler, güncel fiyat ve stok bilgisiyle. WhatsApp veya kartla güvenli sipariş verin.`,
   };
 }
 
