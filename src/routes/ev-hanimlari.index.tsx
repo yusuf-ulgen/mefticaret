@@ -54,6 +54,8 @@ function HomeMakerAuthPage() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
+  /** SMS sağlayıcısı kapalıysa e-posta ile giriş seçeneği gösterilir. */
+  const [smsBlocked, setSmsBlocked] = useState(false);
 
   /** Oturum varsa doğrudan panele; kaydı yoksa kuruluma. */
   const routeAfterLogin = async () => {
@@ -97,13 +99,18 @@ function HomeMakerAuthPage() {
     const { error } = await supabase.auth.signInWithOtp({ phone: e164 });
     setBusy(false);
     if (error) {
+      const blocked = /sms|phone_provider|provider|not enabled|disabled|unsupported/i.test(
+        error.message,
+      );
+      setSmsBlocked(blocked);
       toast.error(
-        /sms|provider|not enabled|disabled/i.test(error.message)
-          ? "SMS gönderimi henüz açık değil. Lütfen bizimle iletişime geçin."
+        blocked
+          ? "SMS ile kod gönderimi şu an kapalı. E-posta ile giriş yapabilirsiniz."
           : error.message,
       );
       return;
     }
+    setSmsBlocked(false);
     setStep("code");
     toast.success("Şifre kodunu SMS ile gönderdik.");
   }
@@ -208,6 +215,28 @@ function HomeMakerAuthPage() {
               </button>
             </form>
           )}
+
+          {smsBlocked ? (
+            <div className="mt-5 grid gap-3 rounded-2xl bg-hm-amber-soft p-4 text-sm text-hm-ink">
+              <p className="font-semibold">SMS ile kod gönderimi şu an kapalı.</p>
+              <p className="text-hm-ink-soft">
+                E-posta ve şifrenizle giriş yapabilir ya da yeni kayıt oluşturabilirsiniz. Kolay
+                Panel'iniz aynı şekilde açılır.
+              </p>
+              <a
+                href="/auth?mode=login&next=/ev-hanimlari"
+                className="grid h-14 place-items-center rounded-2xl bg-hm-teal text-base font-semibold text-white"
+              >
+                E-posta ile giriş yap
+              </a>
+              <a
+                href="/auth?mode=register&next=/ev-hanimlari"
+                className="grid h-14 place-items-center rounded-2xl border border-hm-line bg-white text-base font-semibold text-hm-ink"
+              >
+                E-posta ile kayıt ol
+              </a>
+            </div>
+          ) : null}
         </div>
 
         <ul className="mt-6 grid gap-3">
