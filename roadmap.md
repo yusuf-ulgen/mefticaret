@@ -32,3 +32,10 @@
 - [x] Ev üreticisi kaydında Shopier tarzı gerçek vitrini otomatik yayınla; ürün/kategori/takip bağlantıları ve satışa ara verme durumu
 - [x] Kolay Panel mağazalarını kalıcı mikro mağaza türüyle kurumsal mağaza, paket, abonelik ve panel rotalarından ayır
 - [x] Mikro mağaza kurulumunu tek sunucu işlemiyle plansız ve bağımsız oluştur; kurumsal yükseltme köprüsünü kaldır
+
+## Kolay Panel v5 (giriş, arama, ödeme, e-posta)
+- [x] Girişte telefon/SMS doğrulaması kaldırıldı; e-posta + şifre girişi ve kayıt, şifremi unuttum bağlantısı
+- [x] Ürün listesi sayfasında ItemList/Product yapısal verisi (fiyat + stok), micro vitrin meta metinleri güçlendirildi
+- [x] Google Search Console: vitrin, ürün listesi ve örnek ürün adresleri tek tek incelendi (vitrin/ürün "URL is unknown", ürün listesi "Discovered - currently not indexed")
+- [x] Ürün sayfasında "Hemen satın al" → doğrudan ödeme sayfası, sipariş mevcut kasa akışında kaydediliyor
+- [ ] Stok/fiyat/sipariş e-postaları: gönderici alan adı kurulumu kullanıcıdan bekleniyor
