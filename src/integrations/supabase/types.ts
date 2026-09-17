@@ -11957,6 +11957,7 @@ export type Database = {
           published_at: string | null
           slug: string
           status: Database["public"]["Enums"]["store_status"]
+          store_kind: string
           timezone: string
           updated_at: string
         }
@@ -11977,6 +11978,7 @@ export type Database = {
           published_at?: string | null
           slug: string
           status?: Database["public"]["Enums"]["store_status"]
+          store_kind?: string
           timezone?: string
           updated_at?: string
         }
@@ -11997,6 +11999,7 @@ export type Database = {
           published_at?: string | null
           slug?: string
           status?: Database["public"]["Enums"]["store_status"]
+          store_kind?: string
           timezone?: string
           updated_at?: string
         }
