@@ -19,13 +19,55 @@ export const Route = createFileRoute("/s/$slug/products")({
       getRequestOrigin(),
     ]);
     if (!data) throw notFound();
-    return { storeName: data.store.name, ctx, origin };
+    return {
+      storeName: data.store.name,
+      currency: data.store.currency ?? "TRY",
+      // Yapısal veri için ilk 40 ürünün özeti (arama sonuçlarında fiyat/stok görünürlüğü).
+      items: (data.products ?? []).slice(0, 40).map((product) => ({
+        slug: product.slug,
+        title: product.title,
+        price: Number(product.base_price),
+        inStock: (product.stockTotal ?? 0) > 0,
+      })),
+      ctx,
+      origin,
+    };
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) return missingHead("Mağaza bulunamadı");
     const base = `/s/${params.slug}`;
     const micro = loaderData.ctx?.storeKind === "micro";
+    const origin = loaderData.origin || "https://mefticaret.com";
+    const itemList = loaderData.items.length
+      ? [
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: `${loaderData.storeName} ürünleri`,
+            numberOfItems: loaderData.items.length,
+            itemListElement: loaderData.items.map((item, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              item: {
+                "@type": "Product",
+                name: item.title,
+                url: `${origin}${base}/p/${item.slug}`,
+                offers: {
+                  "@type": "Offer",
+                  price: item.price,
+                  priceCurrency: loaderData.currency,
+                  url: `${origin}${base}/p/${item.slug}`,
+                  availability: item.inStock
+                    ? "https://schema.org/InStock"
+                    : "https://schema.org/OutOfStock",
+                },
+              },
+            })),
+          },
+        ]
+      : [];
     return storefrontHead({
+      schemas: itemList,
       ctx: loaderData.ctx,
       origin: loaderData.origin,
       slug: params.slug,
