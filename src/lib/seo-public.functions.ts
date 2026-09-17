@@ -60,7 +60,7 @@ export const getStoreSeoContext = createServerFn({ method: "GET" })
     const supabase = publicClient();
     const { data: store, error } = await supabase
       .from("stores")
-      .select("id, name, slug, logo_url")
+      .select("id, name, slug, logo_url, store_kind")
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -126,6 +126,7 @@ export const getStoreSeoContext = createServerFn({ method: "GET" })
     return {
       storeName: store.name,
       storeSlug: store.slug,
+      storeKind: store.store_kind === "micro" ? "micro" : "corporate",
       logoUrl: store.logo_url,
       legalName: settings?.legal_name ?? null,
       contactEmail: settings?.contact_email ?? null,
