@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { Bell, Check, CreditCard, LockKeyhole, ShoppingBag } from "lucide-react";
 
 const products = [
@@ -51,7 +52,7 @@ export function CommerceFlowAnimation() {
             <article
               className={`commerce-product commerce-product-${index + 1}`}
               key={product.title}
-              style={{ "--product-delay": product.delay } as React.CSSProperties}
+              style={{ "--product-delay": product.delay } as CSSProperties}
             >
               <span className="commerce-product-art">{product.emoji}</span>
               <p>{product.title}<strong>{product.price}</strong></p>

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ArrowUpRight, Check, Heart, Menu, PackagePlus, Smartphone, X } from "lucide-react";
 
 import gdprBadge from "@/assets/gdpr-badge.webp.asset.json";
+import { CommerceFlowAnimation } from "@/components/commerce-flow-animation";
 import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -229,16 +230,12 @@ function LandingPage() {
   const mega = get("header_mega");
   const [mobileOpen, setMobileOpen] = useState(false);
   const hero = get("hero");
-  const showcase = get("showcase");
   const modules = get("modules");
   const pricing = get("pricing");
   const [planInterval, setPlanInterval] = useState<"monthly" | "yearly">("monthly");
 
   const cta = get("cta");
   const footer = get("footer");
-
-  const showcaseItems = showcase?.items ?? [];
-  const half = Math.ceil(showcaseItems.length / 2);
 
   const footerGroups = (footer?.items ?? []).reduce<Record<string, Record<string, string>[]>>(
     (acc, item) => {
@@ -329,10 +326,8 @@ function LandingPage() {
       <main id="icerik" tabIndex={-1}>
         {hero ? (
           <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
-            <div className="mx-auto grid grid-cols-1 max-w-7xl items-center gap-8 px-4 py-16 lg:grid-cols-[minmax(180px,220px)_1fr_minmax(180px,220px)] lg:px-8 lg:py-24">
-              <ShowcaseColumn items={showcaseItems.slice(0, half)} className="hidden lg:block" />
-
-              <div className="mx-auto max-w-2xl text-center">
+            <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 md:grid-cols-[minmax(0,1fr)_minmax(320px,430px)] lg:gap-16 lg:px-8 lg:py-16">
+              <div className="mx-auto max-w-2xl text-center md:text-left">
                 {hero.eyebrow ? <span className="eyebrow">{hero.eyebrow}</span> : null}
                 <h1 className="mt-6 text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
                   {hero.title}
@@ -340,7 +335,7 @@ function LandingPage() {
                 <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
                   {hero.subtitle}
                 </p>
-                <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <div className="mt-8 flex flex-wrap justify-center gap-3 md:justify-start">
                   <LinkButton
                     href={hero.secondary_href}
                     label={hero.secondary_label}
@@ -351,7 +346,7 @@ function LandingPage() {
                     <ArrowRight className="ml-2 size-4" />
                   </LinkButton>
                 </div>
-                <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-sm text-muted-foreground">
+                <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-sm text-muted-foreground md:justify-start">
                   {hero.items.map((item, index) => {
                     const Icon = sectionIcon(item["icon"]);
                     return (
@@ -363,8 +358,7 @@ function LandingPage() {
                   })}
                 </ul>
               </div>
-
-              <ShowcaseColumn items={showcaseItems.slice(half)} slow className="hidden lg:block" />
+              <CommerceFlowAnimation />
             </div>
           </section>
         ) : null}
