@@ -84,7 +84,7 @@ export const Route = createFileRoute("/e-ticaret-nasil-yapilir")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Article",
-          headline: "E-Ticaret Nasıl Yapılır? 2026 Adım Adım Rehber",
+          headline: "E-Ticaret Nasıl Yapılır? 5 Adımda Başlangıç Rehberi",
           description: DESCRIPTION,
           inLanguage: "tr-TR",
           author: { "@type": "Organization", name: "Mefticaret" },
@@ -103,6 +103,24 @@ export const Route = createFileRoute("/e-ticaret-nasil-yapilir")({
             { "@type": "ListItem", position: 1, name: "Ana sayfa", item: "https://mefticaret.com/" },
             { "@type": "ListItem", position: 2, name: "E-ticaret nasıl yapılır", item: URL },
           ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          name: "E-ticaret nasıl yapılır?",
+          description: DESCRIPTION,
+          inLanguage: "tr-TR",
+          totalTime: "P7D",
+          step: STEPS.map((step, index) => ({
+            "@type": "HowToStep",
+            position: index + 1,
+            name: step.title.replace(/^\d+\.\s*/, ""),
+            text: step.body,
+            url: `${URL}#adimlar`,
+          })),
         }),
       },
       {
