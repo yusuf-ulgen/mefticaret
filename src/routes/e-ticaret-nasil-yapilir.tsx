@@ -289,7 +289,25 @@ function EcommerceHowToPage() {
             <Link to="/e-ticaret-paketleri">Paketleri karşılaştır</Link>
           </Button>
         </div>
+        <nav aria-label="Bu rehberde" className="mt-8 flex flex-wrap justify-center gap-2">
+          {TOC.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="rounded-full border px-4 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:bg-accent"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Prefer English?{" "}
+          <Link to="/en/how-to-start-an-online-store" className="underline">
+            How to start an online store
+          </Link>
+        </p>
       </header>
+
 
       <section aria-labelledby="adimlar" className="mt-20">
         <h2 id="adimlar" className="text-2xl font-extrabold sm:text-3xl">
@@ -417,6 +435,31 @@ function EcommerceHowToPage() {
             </div>
           ))}
         </dl>
+      </section>
+
+      <section aria-labelledby="devam" className="mt-20">
+        <h2 id="devam" className="text-2xl font-extrabold sm:text-3xl">
+          Sıradaki rehberler
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+          Bu adımların her biri için ayrıntılı rehberler:
+        </p>
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {RELATED.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="showcase-card block p-6 transition-colors hover:bg-accent"
+            >
+              <h3 className="font-semibold">{item.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{item.text}</p>
+              <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand">
+                Devam et
+                <ArrowRight className="size-4" aria-hidden />
+              </span>
+            </Link>
+          ))}
+        </div>
       </section>
 
       <section className="mt-20 showcase-card px-6 py-14 text-center">
