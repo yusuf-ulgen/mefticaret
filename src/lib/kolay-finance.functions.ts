@@ -92,6 +92,8 @@ export const requestKolayPayout = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(supabase, data.storeId, userId);
     const balance = await computeBalance(supabase as never, data.storeId);
 
     const amount = Number((data.amount ?? balance.withdrawable).toFixed(2));

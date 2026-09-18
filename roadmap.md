@@ -41,3 +41,5 @@
 - [ ] Stok/fiyat/sipariş e-postaları: gönderici alan adı kurulumu kullanıcıdan bekleniyor
 
 - [x] Ana sayfaya referans videodaki sipariş, ürün seçimi ve kartlı ödeme animasyonu eklendi; mobil/masaüstü doğrulandı.
+
+- [x] Sistem izolasyonu güçlendirildi: veritabanında 109 tabloya çapraz mağaza referans koruması (app_private.enforce_tenant_refs) + para çekme talebinde mağaza yöneticisi kontrolü.
