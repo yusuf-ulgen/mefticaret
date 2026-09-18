@@ -682,6 +682,13 @@ function LandingPage() {
 
 const GUIDES = [
   {
+    to: "/e-ticaret-nasil-yapilir",
+    eyebrow: "Başlangıç",
+    title: "E-ticaret nasıl yapılır?",
+    description:
+      "Ürün seçiminden ilk siparişe 5 adım, gerekli her şey, maliyetler ve kanal kararı.",
+  },
+  {
     to: "/en-iyi-e-ticaret-altyapisi",
     eyebrow: "Karşılaştırma",
     title: "En iyi e-ticaret altyapısı rehberi",
