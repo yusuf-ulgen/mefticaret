@@ -17,7 +17,18 @@ type AddressRow = Database["public"]["Tables"]["customer_addresses"]["Row"];
 
 export type MyCustomer = Pick<
   CustomerRow,
-  "id" | "store_id" | "full_name" | "email" | "phone" | "accepts_marketing" | "total_spent" | "orders_count" | "created_at"
+  | "id"
+  | "store_id"
+  | "full_name"
+  | "email"
+  | "phone"
+  | "accepts_marketing"
+  | "accepts_sms"
+  | "accepts_whatsapp"
+  | "date_of_birth"
+  | "total_spent"
+  | "orders_count"
+  | "created_at"
 >;
 
 export type MyOrder = Pick<
@@ -33,10 +44,12 @@ export type MyOrder = Pick<
   | "tracking_number"
   | "placed_at"
 > & {
-  order_items: Pick<
+  order_items: (Pick<
     Database["public"]["Tables"]["order_items"]["Row"],
     "id" | "title" | "variant_title" | "quantity" | "unit_price" | "line_total"
-  >[];
+  > & {
+    products: { slug: string; product_images: { url: string; position: number | null }[] } | null;
+  })[];
 };
 
 export type MyAddress = Pick<
@@ -70,11 +83,14 @@ export const updateProfileSchema = z.object({
   storeId: z.guid(),
   fullName: z.string().trim().min(2).max(120),
   phone: z.string().trim().max(40).optional(),
+  dateOfBirth: z.string().trim().max(10).optional(),
   acceptsMarketing: z.boolean(),
+  acceptsSms: z.boolean().default(false),
+  acceptsWhatsapp: z.boolean().default(false),
 });
 
 const CUSTOMER_SELECT =
-  "id, store_id, full_name, email, phone, accepts_marketing, total_spent, orders_count, created_at";
+  "id, store_id, full_name, email, phone, accepts_marketing, accepts_sms, accepts_whatsapp, date_of_birth, total_spent, orders_count, created_at";
 
 /** Oturum açmış kullanıcının bu mağazadaki müşteri kaydını döndürür (yoksa null). */
 export async function findMyCustomer(supabase: Client, userId: string, storeId: string): Promise<MyCustomer | null> {
@@ -154,7 +170,7 @@ export async function listMyOrders(
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id, order_number, status, payment_status, fulfillment_status, currency, grand_total, shipping_carrier, tracking_number, placed_at, order_items(id, title, variant_title, quantity, unit_price, line_total)",
+      "id, order_number, status, payment_status, fulfillment_status, currency, grand_total, shipping_carrier, tracking_number, placed_at, order_items(id, title, variant_title, quantity, unit_price, line_total, products(slug, product_images(url, position)))",
     )
     .eq("store_id", storeId)
     .eq("customer_id", customer.id)
@@ -233,7 +249,10 @@ export async function updateMyProfile(supabase: Client, userId: string, input: z
     .update({
       full_name: input.fullName,
       phone: input.phone ?? null,
+      date_of_birth: input.dateOfBirth ? input.dateOfBirth : null,
       accepts_marketing: input.acceptsMarketing,
+      accepts_sms: input.acceptsSms,
+      accepts_whatsapp: input.acceptsWhatsapp,
     })
     .eq("store_id", input.storeId)
     .eq("user_id", userId);

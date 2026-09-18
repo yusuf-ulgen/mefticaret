@@ -2330,7 +2330,10 @@ export type Database = {
       customers: {
         Row: {
           accepts_marketing: boolean
+          accepts_sms: boolean
+          accepts_whatsapp: boolean
           created_at: string
+          date_of_birth: string | null
           email: string | null
           first_name: string | null
           full_name: string
@@ -2348,7 +2351,10 @@ export type Database = {
         }
         Insert: {
           accepts_marketing?: boolean
+          accepts_sms?: boolean
+          accepts_whatsapp?: boolean
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           first_name?: string | null
           full_name: string
@@ -2366,7 +2372,10 @@ export type Database = {
         }
         Update: {
           accepts_marketing?: boolean
+          accepts_sms?: boolean
+          accepts_whatsapp?: boolean
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           first_name?: string | null
           full_name?: string
@@ -4416,6 +4425,109 @@ export type Database = {
           },
           {
             foreignKeyName: "ledger_entries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_accounts: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          lifetime_points: number
+          points_balance: number
+          store_id: string
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          lifetime_points?: number
+          points_balance?: number
+          store_id: string
+          tier?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          lifetime_points?: number
+          points_balance?: number
+          store_id?: string
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_accounts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_accounts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_transactions: {
+        Row: {
+          created_at: string
+          customer_id: string
+          description: string | null
+          id: string
+          kind: string
+          order_id: string | null
+          points: number
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          description?: string | null
+          id?: string
+          kind?: string
+          order_id?: string | null
+          points: number
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          order_id?: string | null
+          points?: number
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_transactions_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -14253,6 +14365,7 @@ export type Database = {
           seller_id: string
         }[]
       }
+      loyalty_tier_for: { Args: { _points: number }; Returns: string }
       order_fts_text: {
         Args: {
           _customer_email: string

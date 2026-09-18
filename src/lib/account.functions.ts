@@ -21,6 +21,12 @@ import {
   listMyReturns,
 } from "@/lib/account-returns.server";
 import { reorderMyOrder, reorderSchema } from "@/lib/account-reorder.server";
+import { listMyLoyalty } from "@/lib/account-loyalty.server";
+
+export const getMyStoreLoyalty = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => storeIdSchema.parse(data))
+  .handler(async ({ data, context }) => listMyLoyalty(context.supabase, context.userId, data.storeId));
 
 export const claimMyStoreAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
