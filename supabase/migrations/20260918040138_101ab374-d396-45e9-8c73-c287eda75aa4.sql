@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION app_private.can_manage_store(uuid, uuid) TO anon;

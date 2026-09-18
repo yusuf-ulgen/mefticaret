@@ -4,7 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { ShopierHome } from "@/components/storefront/shopier-home";
 import { StorefrontSections } from "@/components/storefront-sections";
-import { resolveSections, type ThemeSectionRow } from "@/lib/theme-sections";
+import { resolveSections, withEssentialSections, type ThemeSectionRow } from "@/lib/theme-sections";
 import { storefrontQuery } from "@/lib/storefront-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
@@ -89,7 +89,23 @@ function StorefrontHome() {
   // kategoriler ve ürün listesi tema metinleriyle otomatik tamamlanır.
   // Vitrin gövdesi Shopier düzeniyle geldiği için otomatik hero/ürün/kategori
   // blokları eklenmez; mağazanın kendi tanımladığı ek bölümler altta kalır.
-  const sections = resolveSections(data.sections as ThemeSectionRow[]);
+  const sectionRows = data.sections as ThemeSectionRow[];
+  const sections = resolveSections(
+    isHomeMakerStorefront
+      ? sectionRows
+      : withEssentialSections(sectionRows, {
+          overrides: {
+            hero: {
+              title: t.hero_title,
+              subtitle: t.hero_subtitle,
+            },
+          },
+          skip: [
+            ...(collections.length ? [] : (["category_grid"] as const)),
+            ...(products.length ? [] : (["product_grid"] as const)),
+          ],
+        }),
+  );
   const bodySections = sections.filter(
     (section) =>
       section.isEnabled &&
