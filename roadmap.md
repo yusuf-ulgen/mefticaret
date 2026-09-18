@@ -39,3 +39,5 @@
 - [x] Google Search Console: vitrin, ürün listesi ve örnek ürün adresleri tek tek incelendi (vitrin/ürün "URL is unknown", ürün listesi "Discovered - currently not indexed")
 - [x] Ürün sayfasında "Hemen satın al" → doğrudan ödeme sayfası, sipariş mevcut kasa akışında kaydediliyor
 - [ ] Stok/fiyat/sipariş e-postaları: gönderici alan adı kurulumu kullanıcıdan bekleniyor
+
+- [x] Ana sayfaya referans videodaki sipariş, ürün seçimi ve kartlı ödeme animasyonu eklendi; mobil/masaüstü doğrulandı.
