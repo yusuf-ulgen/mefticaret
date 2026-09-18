@@ -14,10 +14,52 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-const TITLE = "E-Ticaret Nasıl Yapılır? 2026 Adım Adım Rehber — Mefticaret";
+const TITLE = "E-Ticaret Nasıl Yapılır? 5 Adımda Başlangıç Rehberi (2026)";
 const DESCRIPTION =
-  "E-ticaret nasıl yapılır? Ürün seçiminden alan adı, ödeme ve kargo kurulumuna, maliyetler ve kendi siteniz mi pazaryeri mi kararına kadar adım adım Türkçe rehber.";
+  "E-ticaret nasıl yapılır? 5 adımda kurulum, e-ticaret için neler gerekli, gerçek maliyetler ve kendi sitem mi pazaryeri mi sorusunun cevabı tek Türkçe rehberde.";
 const URL = "https://mefticaret.com/e-ticaret-nasil-yapilir";
+const EN_URL = "https://mefticaret.com/en/how-to-start-an-online-store";
+
+const TOC = [
+  { href: "#adimlar", label: "5 adımda e-ticaret" },
+  { href: "#gerekli", label: "Neler gerekli?" },
+  { href: "#maliyet", label: "Maliyetler" },
+  { href: "#kanal-karari", label: "Kendi sitem mi, pazaryeri mi?" },
+  { href: "#sss", label: "Sık sorulan sorular" },
+];
+
+const RELATED: { to: string; title: string; text: string }[] = [
+  {
+    to: "/e-ticaret-sitesi-kurma",
+    title: "E-ticaret sitesi kurma",
+    text: "Vitrin, tema ve alan adı kurulumunun ekran ekran anlatımı.",
+  },
+  {
+    to: "/e-ticaret-paketleri",
+    title: "E-ticaret paketleri ve fiyatlar",
+    text: "Paket limitleri, komisyon oranları ve aylık/yıllık fiyat karşılaştırması.",
+  },
+  {
+    to: "/pazaryeri-entegrasyonu",
+    title: "Pazaryeri entegrasyonu",
+    text: "Trendyol, Hepsiburada ve diğer kanallarda stok-fiyat senkronizasyonu.",
+  },
+  {
+    to: "/dropshipping-nasil-yapilir",
+    title: "Dropshipping nasıl yapılır?",
+    text: "Stok tutmadan satış modelinin kurulumu, kâr marjı ve riskleri.",
+  },
+  {
+    to: "/en-iyi-e-ticaret-altyapisi",
+    title: "En iyi e-ticaret altyapısı",
+    text: "Altyapı seçerken bakılacak kriterler ve karşılaştırma.",
+  },
+  {
+    to: "/seo-ve-raporlama",
+    title: "SEO ve raporlama",
+    text: "Ürün sayfalarının Google'da görünmesi ve satış raporları.",
+  },
+];
 
 export const Route = createFileRoute("/e-ticaret-nasil-yapilir")({
   head: () => ({
@@ -30,7 +72,12 @@ export const Route = createFileRoute("/e-ticaret-nasil-yapilir")({
       { property: "og:url", content: URL },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: URL }],
+    links: [
+      { rel: "canonical", href: URL },
+      { rel: "alternate", hrefLang: "tr", href: URL },
+      { rel: "alternate", hrefLang: "en", href: EN_URL },
+      { rel: "alternate", hrefLang: "x-default", href: URL },
+    ],
     scripts: [
       {
         type: "application/ld+json",
