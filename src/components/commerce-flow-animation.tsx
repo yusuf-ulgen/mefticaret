@@ -1,13 +1,14 @@
 import type { CSSProperties } from "react";
-import { Bell, Check, CreditCard, LockKeyhole, ShoppingBag } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { Bell, Check, CreditCard, Gem, Gift, LockKeyhole, Package, Palette, ShoppingBag, Sparkles } from "lucide-react";
 
-const products = [
-  { emoji: "🧶", title: "El örgüsü çanta", price: "1.200 TL", delay: "0s" },
-  { emoji: "🫙", title: "Ev yapımı reçel", price: "2.800 TL", delay: "1.1s" },
-  { emoji: "🕯️", title: "Soya mum seti", price: "2.200 TL", delay: "2.2s" },
-  { emoji: "🧿", title: "Boncuk kolye", price: "1.500 TL", delay: "3.3s" },
-  { emoji: "🧺", title: "Hasır sepet", price: "1.000 TL", delay: "4.4s" },
-  { emoji: "🧼", title: "Doğal sabun", price: "900 TL", delay: "5.5s" },
+const products: { icon: LucideIcon; title: string; price: string; delay: string }[] = [
+  { icon: ShoppingBag, title: "El örgüsü çanta", price: "1.200 TL", delay: "0s" },
+  { icon: Gift, title: "Ev yapımı reçel", price: "2.800 TL", delay: "1.1s" },
+  { icon: Sparkles, title: "Soya mum seti", price: "2.200 TL", delay: "2.2s" },
+  { icon: Gem, title: "Boncuk kolye", price: "1.500 TL", delay: "3.3s" },
+  { icon: Package, title: "Hasır sepet", price: "1.000 TL", delay: "4.4s" },
+  { icon: Palette, title: "Doğal sabun", price: "900 TL", delay: "5.5s" },
 ];
 
 const cards = [
@@ -36,29 +37,35 @@ export function CommerceFlowAnimation() {
 
         <section className="commerce-order-card" aria-label="Sipariş özeti">
           <h3>Siparişler</h3>
-          {products.slice(0, 3).map((product) => (
+          {products.slice(0, 3).map((product) => {
+            const ProductIcon = product.icon;
+            return (
             <div className="commerce-order-line" key={product.title}>
-              <span>{product.emoji}</span>
+              <span><ProductIcon className="size-5" /></span>
               <p>{product.title}<strong>{product.price}</strong></p>
             </div>
-          ))}
+            );
+          })}
           <footer><span>Toplam</span><strong>6.200 TL</strong></footer>
         </section>
 
         <div className="commerce-lock"><LockKeyhole className="size-5" /></div>
 
         <section className="commerce-products" aria-label="Ürün seçimi">
-          {products.map((product, index) => (
+          {products.map((product, index) => {
+            const ProductIcon = product.icon;
+            return (
             <article
               className={`commerce-product commerce-product-${index + 1}`}
               key={product.title}
               style={{ "--product-delay": product.delay } as CSSProperties}
             >
-              <span className="commerce-product-art">{product.emoji}</span>
+              <span className="commerce-product-art"><ProductIcon className="size-8" strokeWidth={1.5} /></span>
               <p>{product.title}<strong>{product.price}</strong></p>
               <span className="commerce-check"><Check className="size-3" strokeWidth={3} /></span>
             </article>
-          ))}
+            );
+          })}
         </section>
 
         <section className="commerce-selection" aria-label="Seçilen siparişler">
@@ -66,11 +73,14 @@ export function CommerceFlowAnimation() {
           <div className="commerce-selection-line commerce-selection-all">
             <ShoppingBag className="size-5" /><span>3 ürün<strong>6.200 TL</strong></span><Check className="commerce-selection-check" />
           </div>
-          {products.slice(0, 2).map((product) => (
+          {products.slice(0, 2).map((product) => {
+            const ProductIcon = product.icon;
+            return (
             <div className="commerce-selection-line" key={product.title}>
-              <span className="text-2xl">{product.emoji}</span><span>{product.title}<strong>{product.price}</strong></span><Check className="commerce-selection-check" />
+              <ProductIcon className="size-6" /><span>{product.title}<strong>{product.price}</strong></span><Check className="commerce-selection-check" />
             </div>
-          ))}
+            );
+          })}
           <footer><span>Seçilen</span><strong>10.200 TL</strong></footer>
         </section>
 
