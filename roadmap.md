@@ -47,3 +47,6 @@
 - [x] İngilizce rehber /en/how-to-start-an-online-store eklendi; tr/en hreflang, site haritası ve hızlı indeksleme listesi güncellendi.
 - [x] Kolay Panel Mağazam sekmesine 4 adımlı "Yeni mağaza rehberi" kartı eklendi (gerçek veriye göre kendini tamamlar).
 - [x] Doğrulama: typecheck temiz; rehber sayfaları 200; panel rehber kartı 3/4 adım gösteriyor; micro vitrin ve ürün listesi 393px'de sorunsuz.
+
+- [x] Kolay Panel rehber sayfasi (/kolay-panel-rehberi) eklendi; site haritasi + IndexNow + rehber ic baglantilari guncellendi.
+- [x] E-ticaret rehberinde Turkce oncelik: tr/tr-TR hreflang, og:locale tr_TR, sitemap priority 1.0; Ingilizce sayfa priority 0.3.
