@@ -30,6 +30,11 @@ const TOC = [
 
 const RELATED: { to: string; title: string; text: string }[] = [
   {
+    to: "/kolay-panel-rehberi",
+    title: "Kolay Panel rehberi",
+    text: "Girişten ilk siparişe: mağaza açma, ürün yükleme ve ödeme ayarı adım adım.",
+  },
+  {
     to: "/e-ticaret-sitesi-kurma",
     title: "E-ticaret sitesi kurma",
     text: "Vitrin, tema ve alan adı kurulumunun ekran ekran anlatımı.",
