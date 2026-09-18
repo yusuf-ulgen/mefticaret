@@ -46,7 +46,7 @@ import {
   updateMyStoreProfile,
 } from "@/lib/account.functions";
 import { myAddressesQuery, myLoyaltyQuery, myOrdersQuery, myReturnsQuery } from "@/lib/account-queries";
-import { TIER_LABELS } from "@/lib/account-loyalty.server-types";
+import { TIER_LABELS } from "@/lib/loyalty-labels";
 import type { MyAddress, MyCustomer, MyOrder } from "@/lib/account.server";
 import type { MyReturn } from "@/lib/account-returns.server";
 import { RETURN_REASON_LABELS, RETURN_STATUS_LABELS, type ReturnReason, type ReturnStatus } from "@/lib/returns-queries";
