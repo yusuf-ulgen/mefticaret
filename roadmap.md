@@ -50,3 +50,5 @@
 
 - [x] Kolay Panel rehber sayfasi (/kolay-panel-rehberi) eklendi; site haritasi + IndexNow + rehber ic baglantilari guncellendi.
 - [x] E-ticaret rehberinde Turkce oncelik: tr/tr-TR hreflang, og:locale tr_TR, sitemap priority 1.0; Ingilizce sayfa priority 0.3.
+
+- [x] Müşteri hesap paneli v2 (genel bakış, siparişler, kargo takip, iade, adres defteri, favoriler, puan/kampanya, hesap ayarları + puan sistemi)
