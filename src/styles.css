@@ -444,7 +444,7 @@
 @keyframes commerce-sound { to { height: 100%; } }
 
 @media (max-width: 767px) {
-  .commerce-demo { order: -1; width: min(100%, 17rem); border-radius: 1.5rem; }
+  .commerce-demo { width: min(100%, 18rem); border-radius: 1.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

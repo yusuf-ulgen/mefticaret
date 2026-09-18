@@ -326,8 +326,8 @@ function LandingPage() {
       <main id="icerik" tabIndex={-1}>
         {hero ? (
           <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
-            <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 md:grid-cols-[minmax(0,1fr)_minmax(320px,430px)] lg:gap-16 lg:px-8 lg:py-16">
-              <div className="mx-auto max-w-2xl text-center md:text-left">
+            <div className="mx-auto max-w-7xl px-4 py-16 text-center lg:px-8 lg:py-24">
+              <div className="mx-auto max-w-3xl">
                 {hero.eyebrow ? <span className="eyebrow">{hero.eyebrow}</span> : null}
                 <h1 className="mt-6 text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
                   {hero.title}
@@ -335,7 +335,7 @@ function LandingPage() {
                 <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
                   {hero.subtitle}
                 </p>
-                <div className="mt-8 flex flex-wrap justify-center gap-3 md:justify-start">
+                <div className="mt-8 flex flex-wrap justify-center gap-3">
                   <LinkButton
                     href={hero.secondary_href}
                     label={hero.secondary_label}
@@ -346,7 +346,7 @@ function LandingPage() {
                     <ArrowRight className="ml-2 size-4" />
                   </LinkButton>
                 </div>
-                <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-sm text-muted-foreground md:justify-start">
+                <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-sm text-muted-foreground">
                   {hero.items.map((item, index) => {
                     const Icon = sectionIcon(item["icon"]);
                     return (
@@ -358,10 +358,24 @@ function LandingPage() {
                   })}
                 </ul>
               </div>
-              <CommerceFlowAnimation />
             </div>
           </section>
         ) : null}
+
+        <section className="border-y border-border py-16 lg:py-24" aria-labelledby="satis-akisi">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 md:grid-cols-[minmax(0,1fr)_minmax(300px,400px)] lg:gap-20 lg:px-8">
+            <div className="max-w-xl">
+              <span className="eyebrow">Canlı Satış Akışı</span>
+              <h2 id="satis-akisi" className="mt-5 text-3xl font-extrabold sm:text-4xl lg:text-5xl">
+                Siparişten ödemeye, her adım tek yerde
+              </h2>
+              <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+                Ürün seçimi, güvenli ödeme ve sipariş bildirimi kesintisiz bir akışta ilerler.
+              </p>
+            </div>
+            <CommerceFlowAnimation />
+          </div>
+        </section>
 
         <section className="border-y border-border bg-secondary/40 py-16 lg:py-20" aria-labelledby="evde-uretenler">
           <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:px-8">
