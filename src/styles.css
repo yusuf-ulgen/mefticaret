@@ -420,6 +420,7 @@
 .commerce-action span { position: absolute; left: 1.15rem; top: 50%; transform: translateY(-50%); font-size: .72rem; font-weight: 600; }
 .commerce-action strong { position: absolute; right: 1.15rem; top: 50%; transform: translateY(-50%); font-size: .72rem; }
 .commerce-action-pay, .commerce-action-sent { opacity: 0; animation: commerce-action-copy 45s linear infinite; }
+.commerce-action-products { animation: commerce-products-copy 45s linear infinite; }
 .commerce-action-sent { left: 50% !important; transform: translate(-50%,-50%) !important; white-space: nowrap; animation-name: commerce-sent-copy; }
 .commerce-sound-bars { position: absolute; left: 12%; right: 12%; bottom: 5%; display: flex; align-items: flex-end; justify-content: space-between; height: 1.3rem; opacity: .18; }
 .commerce-sound-bars i { width: .18rem; border-radius: 2px; background: var(--color-foreground); animation: commerce-sound .9s ease-in-out infinite alternate; }
@@ -438,11 +439,12 @@
 @keyframes commerce-selection { 0%,62%{opacity:0;transform:translateY(1rem)} 67%,80%{opacity:1;transform:translateY(0)} 85%,100%{opacity:0;transform:translateY(-1rem)} }
 @keyframes commerce-action { 0%,18%{opacity:0;transform:translateY(.5rem)} 23%,80%{opacity:1;transform:translateY(0)} 84%,100%{opacity:0;transform:translateY(.5rem)} }
 @keyframes commerce-action-copy { 0%,46%{opacity:0} 49%,64%{opacity:1} 67%,100%{opacity:0} }
+@keyframes commerce-products-copy { 0%,46%{opacity:1} 49%,100%{opacity:0} }
 @keyframes commerce-sent-copy { 0%,79%{opacity:0} 82%,88%{opacity:1} 91%,100%{opacity:0} }
 @keyframes commerce-sound { to { height: 100%; } }
 
 @media (max-width: 767px) {
-  .commerce-demo { width: min(100%, 22rem); }
+  .commerce-demo { order: -1; width: min(100%, 17rem); border-radius: 1.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
