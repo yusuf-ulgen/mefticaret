@@ -38,8 +38,9 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/dropshipping-nasil-yapilir", changefreq: "monthly", priority: "0.8" },
           { path: "/pazaryeri-entegrasyonu", changefreq: "monthly", priority: "0.8" },
           { path: "/e-ticaret-sitesi-kurma", changefreq: "monthly", priority: "0.8" },
-          { path: "/e-ticaret-nasil-yapilir", changefreq: "monthly", priority: "0.9" },
-          { path: "/en/how-to-start-an-online-store", changefreq: "monthly", priority: "0.8" },
+          { path: "/e-ticaret-nasil-yapilir", changefreq: "weekly", priority: "1.0" },
+          { path: "/kolay-panel-rehberi", changefreq: "monthly", priority: "0.9" },
+          { path: "/en/how-to-start-an-online-store", changefreq: "yearly", priority: "0.3" },
           { path: "/e-ticaret-paketleri", changefreq: "monthly", priority: "0.9" },
           { path: "/seo-ve-raporlama", changefreq: "monthly", priority: "0.8" },
         ];

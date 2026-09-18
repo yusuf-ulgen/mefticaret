@@ -30,6 +30,11 @@ const TOC = [
 
 const RELATED: { to: string; title: string; text: string }[] = [
   {
+    to: "/kolay-panel-rehberi",
+    title: "Kolay Panel rehberi",
+    text: "Girişten ilk siparişe: mağaza açma, ürün yükleme ve ödeme ayarı adım adım.",
+  },
+  {
     to: "/e-ticaret-sitesi-kurma",
     title: "E-ticaret sitesi kurma",
     text: "Vitrin, tema ve alan adı kurulumunun ekran ekran anlatımı.",
@@ -66,15 +71,21 @@ export const Route = createFileRoute("/e-ticaret-nasil-yapilir")({
     meta: [
       { title: TITLE },
       { name: "description", content: DESCRIPTION },
+      { name: "content-language", content: "tr" },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "article" },
       { property: "og:url", content: URL },
+      { property: "og:locale", content: "tr_TR" },
+      { property: "og:site_name", content: "Mefticaret" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESCRIPTION },
     ],
     links: [
       { rel: "canonical", href: URL },
       { rel: "alternate", hrefLang: "tr", href: URL },
+      { rel: "alternate", hrefLang: "tr-TR", href: URL },
       { rel: "alternate", hrefLang: "en", href: EN_URL },
       { rel: "alternate", hrefLang: "x-default", href: URL },
     ],

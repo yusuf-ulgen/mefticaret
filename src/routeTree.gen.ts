@@ -18,6 +18,7 @@ import { Route as ETicaretPaketleriRouteImport } from './routes/e-ticaret-paketl
 import { Route as ETicaretSitesiKurmaRouteImport } from './routes/e-ticaret-sitesi-kurma'
 import { Route as EnIyiETicaretAltyapisiRouteImport } from './routes/en-iyi-e-ticaret-altyapisi'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as KolayPanelRehberiRouteImport } from './routes/kolay-panel-rehberi'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as OdemeTamamRouteImport } from './routes/odeme-tamam'
@@ -325,6 +326,11 @@ const EnIyiETicaretAltyapisiRoute = EnIyiETicaretAltyapisiRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KolayPanelRehberiRoute = KolayPanelRehberiRouteImport.update({
+  id: '/kolay-panel-rehberi',
+  path: '/kolay-panel-rehberi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -1832,6 +1838,7 @@ export interface FileRoutesByFullPath {
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
   '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/kolay-panel-rehberi': typeof KolayPanelRehberiRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/odeme-tamam': typeof OdemeTamamRoute
@@ -2105,6 +2112,7 @@ export interface FileRoutesByTo {
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
   '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/kolay-panel-rehberi': typeof KolayPanelRehberiRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/odeme-tamam': typeof OdemeTamamRoute
@@ -2378,6 +2386,7 @@ export interface FileRoutesById {
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
   '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/kolay-panel-rehberi': typeof KolayPanelRehberiRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/odeme-tamam': typeof OdemeTamamRoute
@@ -2653,6 +2662,7 @@ export interface FileRouteTypes {
     | '/e-ticaret-sitesi-kurma'
     | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
+    | '/kolay-panel-rehberi'
     | '/login'
     | '/mcp'
     | '/odeme-tamam'
@@ -2926,6 +2936,7 @@ export interface FileRouteTypes {
     | '/e-ticaret-sitesi-kurma'
     | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
+    | '/kolay-panel-rehberi'
     | '/login'
     | '/mcp'
     | '/odeme-tamam'
@@ -3198,6 +3209,7 @@ export interface FileRouteTypes {
     | '/e-ticaret-sitesi-kurma'
     | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
+    | '/kolay-panel-rehberi'
     | '/login'
     | '/mcp'
     | '/odeme-tamam'
@@ -3473,6 +3485,7 @@ export interface RootRouteChildren {
   ETicaretSitesiKurmaRoute: typeof ETicaretSitesiKurmaRoute
   EnIyiETicaretAltyapisiRoute: typeof EnIyiETicaretAltyapisiRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  KolayPanelRehberiRoute: typeof KolayPanelRehberiRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
   OdemeTamamRoute: typeof OdemeTamamRoute
@@ -3620,6 +3633,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kolay-panel-rehberi': {
+      id: '/kolay-panel-rehberi'
+      path: '/kolay-panel-rehberi'
+      fullPath: '/kolay-panel-rehberi'
+      preLoaderRoute: typeof KolayPanelRehberiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -5999,6 +6019,7 @@ const rootRouteChildren: RootRouteChildren = {
   ETicaretSitesiKurmaRoute: ETicaretSitesiKurmaRoute,
   EnIyiETicaretAltyapisiRoute: EnIyiETicaretAltyapisiRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  KolayPanelRehberiRoute: KolayPanelRehberiRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
   OdemeTamamRoute: OdemeTamamRoute,

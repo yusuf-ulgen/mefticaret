@@ -15,6 +15,7 @@ const MARKETING_PATHS = [
   "/seo-ve-raporlama",
   "/e-ticaret-sitesi-kurma",
   "/e-ticaret-nasil-yapilir",
+  "/kolay-panel-rehberi",
   "/en/how-to-start-an-online-store",
   "/e-ticaret-paketleri",
   "/dropshipping-nasil-yapilir",
