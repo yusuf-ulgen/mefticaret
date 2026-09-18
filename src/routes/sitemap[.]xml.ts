@@ -39,6 +39,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/pazaryeri-entegrasyonu", changefreq: "monthly", priority: "0.8" },
           { path: "/e-ticaret-sitesi-kurma", changefreq: "monthly", priority: "0.8" },
           { path: "/e-ticaret-nasil-yapilir", changefreq: "monthly", priority: "0.9" },
+          { path: "/en/how-to-start-an-online-store", changefreq: "monthly", priority: "0.8" },
           { path: "/e-ticaret-paketleri", changefreq: "monthly", priority: "0.9" },
           { path: "/seo-ve-raporlama", changefreq: "monthly", priority: "0.8" },
         ];

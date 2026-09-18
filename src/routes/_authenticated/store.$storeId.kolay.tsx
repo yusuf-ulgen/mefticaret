@@ -24,6 +24,7 @@ import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
 import { OrdersTab } from "@/components/homemaker/orders-tab";
 import { ProductsTab } from "@/components/homemaker/products-tab";
 import { ShopPageCard } from "@/components/homemaker/shop-page-card";
+import { SetupGuide } from "@/components/homemaker/setup-guide";
 import { StoreTab } from "@/components/homemaker/store-tab";
 import { useStoreRealtime } from "@/hooks/use-store-realtime";
 import { speakTurkish } from "@/hooks/use-voice";
@@ -237,6 +238,16 @@ function KolayPanel() {
         ) : null}
         {tab === "store" && !settingsPending && !settingsError ? (
           <>
+            <div className="mb-4">
+              <SetupGuide
+                storeName={store.name}
+                logoUrl={store.logo_url ?? null}
+                settings={settings ?? null}
+                productCount={(products ?? []).length}
+                storeUrl={storeUrl}
+                onGoToProducts={() => setTab("products")}
+              />
+            </div>
             <StoreTab store={store} settings={settings ?? null} storeUrl={storeUrl} />
             <div className="mt-4">
               <ShopPageCard

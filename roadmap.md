@@ -43,3 +43,7 @@
 - [x] Ana sayfaya referans videodaki sipariş, ürün seçimi ve kartlı ödeme animasyonu eklendi; mobil/masaüstü doğrulandı.
 
 - [x] Sistem izolasyonu güçlendirildi: veritabanında 109 tabloya çapraz mağaza referans koruması (app_private.enforce_tenant_refs) + para çekme talebinde mağaza yöneticisi kontrolü.
+- [x] E-ticaret rehberi SEO güçlendirildi (başlık/açıklama, HowTo yapısal veri, içindekiler, karşılıklı iç bağlantılar).
+- [x] İngilizce rehber /en/how-to-start-an-online-store eklendi; tr/en hreflang, site haritası ve hızlı indeksleme listesi güncellendi.
+- [x] Kolay Panel Mağazam sekmesine 4 adımlı "Yeni mağaza rehberi" kartı eklendi (gerçek veriye göre kendini tamamlar).
+- [x] Doğrulama: typecheck temiz; rehber sayfaları 200; panel rehber kartı 3/4 adım gösteriyor; micro vitrin ve ürün listesi 393px'de sorunsuz.
