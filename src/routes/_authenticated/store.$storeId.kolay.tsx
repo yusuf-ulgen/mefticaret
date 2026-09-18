@@ -24,6 +24,7 @@ import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
 import { OrdersTab } from "@/components/homemaker/orders-tab";
 import { ProductsTab } from "@/components/homemaker/products-tab";
 import { ShopPageCard } from "@/components/homemaker/shop-page-card";
+import { SetupGuide } from "@/components/homemaker/setup-guide";
 import { StoreTab } from "@/components/homemaker/store-tab";
 import { useStoreRealtime } from "@/hooks/use-store-realtime";
 import { speakTurkish } from "@/hooks/use-voice";
