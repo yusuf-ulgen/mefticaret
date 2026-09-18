@@ -40,6 +40,7 @@ import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticat
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as EnHowToStartAnOnlineStoreRouteImport } from './routes/en.how-to-start-an-online-store'
 import { Route as EvHanimlariIndexRouteImport } from './routes/ev-hanimlari.index'
 import { Route as EvHanimlariKurulumRouteImport } from './routes/ev-hanimlari.kurulum'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
@@ -437,6 +438,12 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnHowToStartAnOnlineStoreRoute =
+  EnHowToStartAnOnlineStoreRouteImport.update({
+    id: '/en/how-to-start-an-online-store',
+    path: '/en/how-to-start-an-online-store',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const EvHanimlariIndexRoute = EvHanimlariIndexRouteImport.update({
   id: '/ev-hanimlari/',
   path: '/ev-hanimlari/',
@@ -1846,6 +1853,7 @@ export interface FileRoutesByFullPath {
   '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
@@ -2117,6 +2125,7 @@ export interface FileRoutesByTo {
   '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
@@ -2390,6 +2399,7 @@ export interface FileRoutesById {
   '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
@@ -2664,6 +2674,7 @@ export interface FileRouteTypes {
     | '/supplier'
     | '/admin/login'
     | '/blog/$slug'
+    | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
     | '/fatura/$token'
     | '/sayfa/$slug'
@@ -2935,6 +2946,7 @@ export interface FileRouteTypes {
     | '/supplier'
     | '/admin/login'
     | '/blog/$slug'
+    | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
     | '/fatura/$token'
     | '/sayfa/$slug'
@@ -3207,6 +3219,7 @@ export interface FileRouteTypes {
     | '/_authenticated/supplier'
     | '/admin/login'
     | '/blog/$slug'
+    | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
     | '/fatura/$token'
     | '/sayfa/$slug'
@@ -3476,6 +3489,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminLoginRoute: typeof AdminLoginRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  EnHowToStartAnOnlineStoreRoute: typeof EnHowToStartAnOnlineStoreRoute
   EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
@@ -3760,6 +3774,13 @@ declare module '@tanstack/react-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/how-to-start-an-online-store': {
+      id: '/en/how-to-start-an-online-store'
+      path: '/en/how-to-start-an-online-store'
+      fullPath: '/en/how-to-start-an-online-store'
+      preLoaderRoute: typeof EnHowToStartAnOnlineStoreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ev-hanimlari/': {
@@ -5995,6 +6016,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminLoginRoute: AdminLoginRoute,
   BlogSlugRoute: BlogSlugRoute,
+  EnHowToStartAnOnlineStoreRoute: EnHowToStartAnOnlineStoreRoute,
   EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,
   FaturaTokenRoute: FaturaTokenRoute,
   SayfaSlugRoute: SayfaSlugRoute,
