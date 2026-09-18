@@ -237,6 +237,16 @@ function KolayPanel() {
         ) : null}
         {tab === "store" && !settingsPending && !settingsError ? (
           <>
+            <div className="mb-4">
+              <SetupGuide
+                storeName={store.name}
+                logoUrl={store.logo_url ?? null}
+                settings={settings ?? null}
+                productCount={(products ?? []).length}
+                storeUrl={storeUrl}
+                onGoToProducts={() => setTab("products")}
+              />
+            </div>
             <StoreTab store={store} settings={settings ?? null} storeUrl={storeUrl} />
             <div className="mt-4">
               <ShopPageCard
