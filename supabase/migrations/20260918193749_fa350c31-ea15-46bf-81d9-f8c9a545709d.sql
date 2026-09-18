@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.award_loyalty_points_on_paid() FROM anon, authenticated, PUBLIC;

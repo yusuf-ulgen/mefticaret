@@ -1,6 +1,19 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { getMyStoreAddresses, getMyStoreOrders, getMyStoreReturns } from "@/lib/account.functions";
+import {
+  getMyStoreAddresses,
+  getMyStoreLoyalty,
+  getMyStoreOrders,
+  getMyStoreReturns,
+} from "@/lib/account.functions";
+
+export const myLoyaltyQuery = (storeId: string, enabled: boolean) =>
+  queryOptions({
+    queryKey: ["storefront", storeId, "my-loyalty"],
+    queryFn: () => getMyStoreLoyalty({ data: { storeId } }),
+    staleTime: 30_000,
+    enabled,
+  });
 
 export const myOrdersQuery = (storeId: string, enabled: boolean) =>
   queryOptions({
