@@ -920,6 +920,80 @@ function GlobalExportPage() {
           </Card>
 
           {openDoc ? <ExportDocumentPrint document={openDoc} /> : null}
+
+          <Card className="space-y-4">
+            <h3 className="text-sm font-semibold">Kargo etiketi oluştur</h3>
+            <p className="text-xs text-muted-foreground">
+              Etiket, seçilen siparişin alıcı bilgileri ve son ETGB beyannamesinden otomatik doldurulur.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="space-y-1">
+                <Label>Sipariş</Label>
+                <Select value={labelForm.orderId} onValueChange={(next) => setLabelForm((prev) => ({ ...prev, orderId: next }))}>
+                  <SelectTrigger><SelectValue placeholder="Sipariş seçin" /></SelectTrigger>
+                  <SelectContent>
+                    {(orders ?? []).slice(0, 50).map((order) => <SelectItem key={order.id} value={order.id}>#{order.order_number}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Taşıyıcı</Label>
+                <Select value={labelForm.carrierCode} onValueChange={(next) => setLabelForm((prev) => ({ ...prev, carrierCode: next }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CARRIER_CATALOG.map((carrier) => <SelectItem key={carrier.code} value={carrier.code}>{carrier.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Servis</Label>
+                <Input placeholder="Express Worldwide" value={labelForm.service} onChange={(event) => setLabelForm((prev) => ({ ...prev, service: event.target.value }))} />
+              </div>
+            </div>
+            <Button
+              size="sm"
+              disabled={!labelForm.orderId}
+              onClick={async () => {
+                try {
+                  const result = await createLabel({ data: {
+                    storeId,
+                    orderId: labelForm.orderId,
+                    carrierCode: labelForm.carrierCode as "dhl" | "fedex" | "ups" | "ptt" | "navlungo" | "shipentegra" | "aramex",
+                    service: labelForm.service || null,
+                    incoterm: settings?.default_incoterm ?? "DDP",
+                  } });
+                  toast.success("Kargo etiketi gerçek siparişten oluşturuldu");
+                  setOpenLabelId(result.id);
+                  await queryClient.invalidateQueries({ queryKey: ["global-shipments", storeId] });
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : "Etiket oluşturulamadı");
+                }
+              }}
+            >
+              Kargo etiketi oluştur
+            </Button>
+          </Card>
+
+          {(globalShipments ?? []).length > 0 ? (
+            <Card>
+              <h3 className="text-sm font-semibold">Kargo etiketleri</h3>
+              <ul className="mt-3 divide-y text-sm">
+                {(globalShipments ?? []).map((shipment) => (
+                  <li key={shipment.id} className="flex items-center justify-between gap-3 py-2">
+                    <div><p className="font-medium">{shipment.carrier_code.toUpperCase()} · {shipment.destination_country ?? "-"}</p><p className="text-xs text-muted-foreground">{shipment.tracking_number ?? "Taslak etiket"} · {shipment.weight_grams ? `${shipment.weight_grams} g` : "Ağırlık eksik"}</p></div>
+                    <Button size="sm" variant="outline" onClick={() => setOpenLabelId(shipment.id)}>Görüntüle / PDF</Button>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          ) : null}
+
+          {openLabelId ? (
+            (() => {
+              const shipment = (globalShipments ?? []).find((row) => row.id === openLabelId);
+              return shipment ? <GlobalShipmentLabelPrint shipment={shipment} /> : null;
+            })()
+          ) : null}
         </TabsContent>
 
         {/* --------------------------- Küresel Ödemeler --------------------------- */}
