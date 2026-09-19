@@ -41,6 +41,9 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/e-ticaret-nasil-yapilir", changefreq: "weekly", priority: "1.0" },
           { path: "/kolay-panel-rehberi", changefreq: "monthly", priority: "0.9" },
           { path: "/en/how-to-start-an-online-store", changefreq: "yearly", priority: "0.3" },
+          { path: "/en", changefreq: "monthly", priority: "0.7" },
+          { path: "/de", changefreq: "monthly", priority: "0.6" },
+          { path: "/ar", changefreq: "monthly", priority: "0.6" },
           { path: "/e-ticaret-paketleri", changefreq: "monthly", priority: "0.9" },
           { path: "/seo-ve-raporlama", changefreq: "monthly", priority: "0.8" },
         ];

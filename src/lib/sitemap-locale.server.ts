@@ -40,9 +40,9 @@ const PLATFORM_PATHS: Record<SitemapLocale, string[]> = {
     "/seo-ve-raporlama",
     "/blog",
   ],
-  en: ["/en/how-to-start-an-online-store"],
-  de: [],
-  ar: [],
+  en: ["/en", "/en/how-to-start-an-online-store"],
+  de: ["/de"],
+  ar: ["/ar"],
 };
 
 function escapeXml(value: string) {
@@ -54,8 +54,13 @@ function escapeXml(value: string) {
     .replace(/'/g, "&apos;");
 }
 
+/** Platform ana sayfalarının dil karşılıkları (ayrı adresler). */
+const HOME_PATHS: Record<SitemapLocale, string> = { tr: "/", en: "/en", de: "/de", ar: "/ar" };
+
 /** Bir yolu, verilen dil için tam adrese çevirir (tr varsayılan: parametresiz). */
 export function localeUrl(path: string, locale: SitemapLocale) {
+  // Ana sayfa her dilde kendi adresine sahip.
+  if (Object.values(HOME_PATHS).includes(path)) return `${BASE_URL}${HOME_PATHS[locale]}`;
   const url = `${BASE_URL}${path}`;
   // Dili yolunda taşıyan sayfalar (örn. /en/...) parametre almaz.
   if (locale === "tr" || /^\/(en|de|ar)\//.test(path)) return url;
@@ -131,12 +136,13 @@ export async function buildLocaleSitemap(locale: SitemapLocale): Promise<string>
 
   // Platform sayfaları: yalnızca o dilde gerçekten var olan içerik.
   for (const path of PLATFORM_PATHS[locale]) {
-    const isTurkishHome = path === "/";
+    // Ana sayfalar (/, /en, /de, /ar) birbirinin dil karşılığı; hreflang seti tam verilir.
+    const isHome = path === "/" || path === `/${locale}`;
     entries.push({
       path,
-      changefreq: isTurkishHome ? "weekly" : "monthly",
-      priority: isTurkishHome ? "1.0" : "0.8",
-      locales: path === "/en/how-to-start-an-online-store" ? ["en"] : ["tr"],
+      changefreq: isHome ? "weekly" : "monthly",
+      priority: isHome ? "1.0" : "0.8",
+      locales: isHome ? ["tr", "en", "de", "ar"] : [locale],
     });
   }
 

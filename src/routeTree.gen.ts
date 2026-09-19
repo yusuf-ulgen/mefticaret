@@ -43,8 +43,11 @@ import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticated/supplier'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as ArIndexRouteImport } from './routes/ar.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as DeIndexRouteImport } from './routes/de.index'
+import { Route as EnIndexRouteImport } from './routes/en.index'
 import { Route as EnHowToStartAnOnlineStoreRouteImport } from './routes/en.how-to-start-an-online-store'
 import { Route as EvHanimlariIndexRouteImport } from './routes/ev-hanimlari.index'
 import { Route as EvHanimlariKurulumRouteImport } from './routes/ev-hanimlari.kurulum'
@@ -459,6 +462,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArIndexRoute = ArIndexRouteImport.update({
+  id: '/ar/',
+  path: '/ar/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -467,6 +475,16 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeIndexRoute = DeIndexRouteImport.update({
+  id: '/de/',
+  path: '/de/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnIndexRoute = EnIndexRouteImport.update({
+  id: '/en/',
+  path: '/en/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EnHowToStartAnOnlineStoreRoute =
@@ -1899,7 +1917,10 @@ export interface FileRoutesByFullPath {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
+  '/ar/': typeof ArIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/de/': typeof DeIndexRoute
+  '/en/': typeof EnIndexRoute
   '/ev-hanimlari/': typeof EvHanimlariIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -2177,7 +2198,10 @@ export interface FileRoutesByTo {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
+  '/ar': typeof ArIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/de': typeof DeIndexRoute
+  '/en': typeof EnIndexRoute
   '/ev-hanimlari': typeof EvHanimlariIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -2457,7 +2481,10 @@ export interface FileRoutesById {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
+  '/ar/': typeof ArIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/de/': typeof DeIndexRoute
+  '/en/': typeof EnIndexRoute
   '/ev-hanimlari/': typeof EvHanimlariIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -2738,7 +2765,10 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/fatura/$token'
     | '/sayfa/$slug'
+    | '/ar/'
     | '/blog/'
+    | '/de/'
+    | '/en/'
     | '/ev-hanimlari/'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
@@ -3016,7 +3046,10 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/fatura/$token'
     | '/sayfa/$slug'
+    | '/ar'
     | '/blog'
+    | '/de'
+    | '/en'
     | '/ev-hanimlari'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
@@ -3295,7 +3328,10 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/fatura/$token'
     | '/sayfa/$slug'
+    | '/ar/'
     | '/blog/'
+    | '/de/'
+    | '/en/'
     | '/ev-hanimlari/'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
@@ -3571,7 +3607,10 @@ export interface RootRouteChildren {
   EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
+  ArIndexRoute: typeof ArIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  DeIndexRoute: typeof DeIndexRoute
+  EnIndexRoute: typeof EnIndexRoute
   EvHanimlariIndexRoute: typeof EvHanimlariIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
@@ -3875,6 +3914,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ar/': {
+      id: '/ar/'
+      path: '/ar'
+      fullPath: '/ar/'
+      preLoaderRoute: typeof ArIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -3887,6 +3933,20 @@ declare module '@tanstack/react-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/de/': {
+      id: '/de/'
+      path: '/de'
+      fullPath: '/de/'
+      preLoaderRoute: typeof DeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/': {
+      id: '/en/'
+      path: '/en'
+      fullPath: '/en/'
+      preLoaderRoute: typeof EnIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/en/how-to-start-an-online-store': {
@@ -6147,7 +6207,10 @@ const rootRouteChildren: RootRouteChildren = {
   EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,
   FaturaTokenRoute: FaturaTokenRoute,
   SayfaSlugRoute: SayfaSlugRoute,
+  ArIndexRoute: ArIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
+  DeIndexRoute: DeIndexRoute,
+  EnIndexRoute: EnIndexRoute,
   EvHanimlariIndexRoute: EvHanimlariIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,

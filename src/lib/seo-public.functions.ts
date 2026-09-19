@@ -48,6 +48,10 @@ export type StoreSeoContext = {
   locales?: string[];
   /** Mağazanın varsayılan dili (x-default). */
   defaultLocale?: string;
+  /** Ziyaretçinin seçtiği dil (`?lang=`), mağazada etkinse. */
+  activeLocale?: string | null;
+  /** İstenen anahtarların bu dildeki çevirileri (yalnız gerçekten çevrilmiş olanlar). */
+  translations?: Record<string, string>;
 };
 
 export const getStoreSeoContext = createServerFn({ method: "GET" })
@@ -57,6 +61,10 @@ export const getStoreSeoContext = createServerFn({ method: "GET" })
         slug: z.string().trim().min(1).max(120),
         collectionSlug: z.string().trim().max(160).optional(),
         pageSlug: z.string().trim().max(160).optional(),
+        /** Ziyaretçi dili (`?lang=en`). */
+        locale: z.string().trim().toLowerCase().regex(/^[a-z]{2}(-[a-z]{2})?$/i).optional(),
+        /** Çevirisi istenen içerik anahtarları. */
+        keys: z.array(z.string().trim().min(1).max(160)).max(40).optional(),
       })
       .parse(data),
   )
@@ -138,6 +146,30 @@ export const getStoreSeoContext = createServerFn({ method: "GET" })
     const defaultLocale =
       (localeRows ?? []).find((row) => row.is_default)?.locale ?? locales[0] ?? "tr-TR";
 
+    // Ziyaretçinin seçtiği dil yalnızca mağazada etkinse uygulanır; istenen
+    // anahtarların çevirisi yayınlanmış vitrinler için anon politikayla okunur.
+    const short = (value: string) => value.slice(0, 2).toLowerCase();
+    const wanted = data.locale ? short(data.locale) : null;
+    const activeLocale =
+      wanted && wanted !== short(String(defaultLocale))
+        ? (locales.find((locale) => short(locale) === wanted) ?? null)
+        : null;
+
+    const translations: Record<string, string> = {};
+    if (activeLocale && data.keys?.length) {
+      const { data: rows } = await supabase
+        .from("translation_entries")
+        .select("translation_key, translated_value")
+        .eq("store_id", store.id)
+        .eq("locale", activeLocale)
+        .neq("status", "missing")
+        .in("translation_key", data.keys);
+      for (const row of rows ?? []) {
+        const value = (row.translated_value ?? "").trim();
+        if (value) translations[row.translation_key] = value;
+      }
+    }
+
     return {
       storeName: store.name,
       storeSlug: store.slug,
@@ -152,5 +184,7 @@ export const getStoreSeoContext = createServerFn({ method: "GET" })
       entity,
       locales,
       defaultLocale: String(defaultLocale),
+      activeLocale,
+      translations,
     };
   });

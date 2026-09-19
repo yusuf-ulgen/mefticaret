@@ -1,0 +1,166 @@
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, BarChart3, CreditCard, Globe2, Languages, Package, Truck } from "lucide-react";
+
+import { PlatformLocaleSwitcher } from "@/components/platform-locale-switcher";
+import { Button } from "@/components/ui/button";
+
+/**
+ * mefticaret.com'un çok dilli tanıtım sayfası (İngilizce, Almanca, Arapça).
+ * Metinler sözlükten gelir; Arapça'da düzen sağdan sola çevrilir.
+ */
+
+export type LandingCopy = {
+  locale: "en" | "de" | "ar";
+  dir: "ltr" | "rtl";
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  primaryCta: string;
+  secondaryCta: string;
+  featuresTitle: string;
+  features: { title: string; body: string }[];
+  exportTitle: string;
+  exportBody: string;
+  exportPoints: string[];
+  faqTitle: string;
+  faq: { q: string; a: string }[];
+  closingTitle: string;
+  closingBody: string;
+  trLink: string;
+};
+
+const ICONS = [Package, CreditCard, Truck, BarChart3, Languages, Globe2];
+
+export function GlobalLanding({ copy }: { copy: LandingCopy }) {
+  return (
+    <div dir={copy.dir} className="min-h-screen bg-background">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
+        <div className="mx-auto flex min-h-18 max-w-7xl items-center gap-3 px-4 py-3 lg:px-8">
+          <Link to="/" className="font-display text-xl font-extrabold tracking-tighter sm:text-2xl">
+            Mefticaret
+          </Link>
+          <div className="ms-auto flex items-center gap-2">
+            <PlatformLocaleSwitcher active={copy.locale} />
+            <Button asChild className="rounded-full px-4">
+              <Link to="/auth" search={{ mode: "register" }}>
+                {copy.primaryCta}
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
+          <div className="mx-auto max-w-4xl px-4 py-16 text-center lg:px-8 lg:py-24">
+            <span className="eyebrow">{copy.eyebrow}</span>
+            <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
+              {copy.title}
+            </h1>
+            <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">{copy.subtitle}</p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg" className="rounded-full px-6">
+                <Link to="/auth" search={{ mode: "register" }}>
+                  {copy.primaryCta}
+                  <ArrowRight className="ms-2 size-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-full px-6">
+                <Link to="/e-ticaret-paketleri">{copy.secondaryCta}</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+          <h2 className="font-display text-3xl font-bold tracking-tight">{copy.featuresTitle}</h2>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {copy.features.map((feature, index) => {
+              const Icon = ICONS[index % ICONS.length]!;
+              return (
+                <article key={feature.title} className="rounded-2xl border border-border p-6">
+                  <Icon className="size-6 text-primary" aria-hidden="true" />
+                  <h3 className="mt-4 text-lg font-semibold">{feature.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{feature.body}</p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="border-y border-border bg-muted/30">
+          <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+            <h2 className="font-display text-3xl font-bold tracking-tight">{copy.exportTitle}</h2>
+            <p className="mt-3 max-w-3xl text-muted-foreground">{copy.exportBody}</p>
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              {copy.exportPoints.map((point) => (
+                <li key={point} className="rounded-xl border border-border bg-background p-4 text-sm">
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-4xl px-4 py-16 lg:px-8">
+          <h2 className="font-display text-3xl font-bold tracking-tight">{copy.faqTitle}</h2>
+          <div className="mt-6 space-y-4">
+            {copy.faq.map((item) => (
+              <details key={item.q} className="rounded-xl border border-border p-5">
+                <summary className="cursor-pointer font-semibold">{item.q}</summary>
+                <p className="mt-3 text-sm text-muted-foreground">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="border-t border-border">
+          <div className="mx-auto max-w-4xl px-4 py-16 text-center lg:px-8">
+            <h2 className="font-display text-3xl font-bold tracking-tight">{copy.closingTitle}</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">{copy.closingBody}</p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg" className="rounded-full px-6">
+                <Link to="/auth" search={{ mode: "register" }}>
+                  {copy.primaryCta}
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="ghost" className="rounded-full px-6">
+                <Link to="/" hrefLang="tr">
+                  {copy.trLink}
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+/** Dil bazlı head meta + hreflang alternatifleri. */
+export function globalLandingHead(copy: LandingCopy, path: string) {
+  const url = `https://mefticaret.com${path}`;
+  return {
+    meta: [
+      { title: copy.title },
+      { name: "description", content: copy.subtitle },
+      { name: "content-language", content: copy.locale },
+      { property: "og:title", content: copy.title },
+      { property: "og:description", content: copy.subtitle },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: url },
+      { property: "og:site_name", content: "Mefticaret" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: copy.title },
+      { name: "twitter:description", content: copy.subtitle },
+    ],
+    links: [
+      { rel: "canonical", href: url },
+      { rel: "alternate", hrefLang: "tr", href: "https://mefticaret.com/" },
+      { rel: "alternate", hrefLang: "en", href: "https://mefticaret.com/en" },
+      { rel: "alternate", hrefLang: "de", href: "https://mefticaret.com/de" },
+      { rel: "alternate", hrefLang: "ar", href: "https://mefticaret.com/ar" },
+      { rel: "alternate", hrefLang: "x-default", href: "https://mefticaret.com/" },
+    ],
+  };
+}

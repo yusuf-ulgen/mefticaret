@@ -35,23 +35,58 @@ function embedUrl(url: string) {
 }
 
 export const Route = createFileRoute("/s/$slug/p/$productSlug")({
-  loader: async ({ context, params }) => {
-    const [data, origin, ctx] = await Promise.all([
+  loader: async ({ context, params, location }) => {
+    const rawLang = (location.search as Record<string, unknown> | undefined)?.["lang"];
+    const lang = typeof rawLang === "string" && /^[a-z]{2}(-[a-z]{2})?$/i.test(rawLang) ? rawLang : null;
+    const [data, origin] = await Promise.all([
       context.queryClient.ensureQueryData(storefrontProductQuery(params.slug, params.productSlug)),
       getRequestOrigin(),
-      getStoreSeoContext({ data: { slug: params.slug } }),
     ]);
     if (!data) throw notFound();
-    const seo = readSeo(data.product.seo);
+    // Ziyaretçi dili seçtiyse başlık, açıklama ve SEO metinleri o dilin
+    // onaylanmış çevirilerinden okunur.
+    const productId = data.product.id;
+    const ctx = await getStoreSeoContext({
+      data: {
+        slug: params.slug,
+        ...(lang ? { locale: lang } : {}),
+        ...(lang
+          ? {
+              keys: [
+                `product.${productId}.title`,
+                `product.${productId}.description`,
+                `seo.${productId}.product.title`,
+                `seo.${productId}.product.description`,
+              ],
+            }
+          : {}),
+      },
+    });
+    const tr = ctx?.translations ?? {};
+    const baseSeo = readSeo(data.product.seo);
+    const seoTitle = tr[`seo.${productId}.product.title`];
+    const seoDescription = tr[`seo.${productId}.product.description`];
+    // Başka bir dil seçiliyse kaynak dildeki özel SEO metni kullanılmaz;
+    // çeviri yoksa ürünün çevrilmiş adı/açıklaması esas alınır.
+    const seo = ctx?.activeLocale
+      ? {
+          ...baseSeo,
+          title: seoTitle ?? "",
+          description: seoDescription ?? "",
+        }
+      : baseSeo;
+    const title = tr[`product.${productId}.title`] ?? data.product.title;
     return {
       origin,
       ctx,
       slug: params.slug,
       productSlug: params.productSlug,
-      title: data.product.title,
+      title,
       storeName: data.store.name,
       seo,
-      description: seo.description || plainText(data.product.description),
+      description:
+        seo.description ||
+        plainText(tr[`product.${productId}.description`] ?? data.product.description),
       price: data.product.base_price,
       currency: data.product.currency,
       images: data.images.map((image) => image.url).filter(Boolean).slice(0, 6),
