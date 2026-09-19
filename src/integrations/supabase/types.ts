@@ -154,6 +154,129 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_conversions: {
+        Row: {
+          commission_amount: number
+          commission_currency: string
+          created_at: string
+          id: string
+          order_currency: string
+          order_id: string | null
+          order_total: number
+          paid_at: string | null
+          partner_id: string
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          commission_amount?: number
+          commission_currency?: string
+          created_at?: string
+          id?: string
+          order_currency?: string
+          order_id?: string | null
+          order_total?: number
+          paid_at?: string | null
+          partner_id: string
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          commission_amount?: number
+          commission_currency?: string
+          created_at?: string
+          id?: string
+          order_currency?: string
+          order_id?: string | null
+          order_total?: number
+          paid_at?: string | null
+          partner_id?: string
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_conversions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_conversions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_conversions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_partners: {
+        Row: {
+          code: string
+          commission_percent: number
+          country_code: string
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          payout_currency: string
+          promo_code: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          commission_percent?: number
+          country_code?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          payout_currency?: string
+          promo_code?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          commission_percent?: number
+          country_code?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          payout_currency?: string
+          promo_code?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_partners_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_content_drafts: {
         Row: {
           applied_at: string | null
@@ -1362,6 +1485,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "cache_entries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      carrier_rate_quotes: {
+        Row: {
+          carrier_code: string
+          cost: number
+          created_at: string
+          currency: string
+          destination_country: string
+          fetched_at: string
+          id: string
+          service: string | null
+          source: string
+          store_id: string
+          transit_days: number | null
+          updated_at: string
+          weight_grams: number
+        }
+        Insert: {
+          carrier_code: string
+          cost?: number
+          created_at?: string
+          currency?: string
+          destination_country: string
+          fetched_at?: string
+          id?: string
+          service?: string | null
+          source?: string
+          store_id: string
+          transit_days?: number | null
+          updated_at?: string
+          weight_grams?: number
+        }
+        Update: {
+          carrier_code?: string
+          cost?: number
+          created_at?: string
+          currency?: string
+          destination_country?: string
+          fetched_at?: string
+          id?: string
+          service?: string | null
+          source?: string
+          store_id?: string
+          transit_days?: number | null
+          updated_at?: string
+          weight_grams?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carrier_rate_quotes_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -3777,6 +3956,100 @@ export type Database = {
           },
         ]
       }
+      global_dispatch_windows: {
+        Row: {
+          channel: string
+          country_code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          local_send_hour: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          channel?: string
+          country_code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          local_send_hour?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          country_code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          local_send_hour?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "global_dispatch_windows_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      global_marketplace_channels: {
+        Row: {
+          channel: string
+          created_at: string
+          credentials_ready: boolean
+          id: string
+          is_active: boolean
+          last_status: string | null
+          last_sync_at: string | null
+          notes: string | null
+          store_id: string
+          synced_products: number
+          target_currency: string
+          updated_at: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          credentials_ready?: boolean
+          id?: string
+          is_active?: boolean
+          last_status?: string | null
+          last_sync_at?: string | null
+          notes?: string | null
+          store_id: string
+          synced_products?: number
+          target_currency?: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          credentials_ready?: boolean
+          id?: string
+          is_active?: boolean
+          last_status?: string | null
+          last_sync_at?: string | null
+          notes?: string | null
+          store_id?: string
+          synced_products?: number
+          target_currency?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "global_marketplace_channels_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       global_payment_methods: {
         Row: {
           countries: string[]
@@ -3920,6 +4193,65 @@ export type Database = {
           },
           {
             foreignKeyName: "global_shipments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      holiday_campaigns: {
+        Row: {
+          banner_locale: string
+          banner_text: string | null
+          countries: string[]
+          created_at: string
+          discount_percent: number
+          ends_at: string
+          holiday_key: string
+          id: string
+          is_active: boolean
+          is_auto: boolean
+          name: string
+          starts_at: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          banner_locale?: string
+          banner_text?: string | null
+          countries?: string[]
+          created_at?: string
+          discount_percent?: number
+          ends_at: string
+          holiday_key: string
+          id?: string
+          is_active?: boolean
+          is_auto?: boolean
+          name: string
+          starts_at: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          banner_locale?: string
+          banner_text?: string | null
+          countries?: string[]
+          created_at?: string
+          discount_percent?: number
+          ends_at?: string
+          holiday_key?: string
+          id?: string
+          is_active?: boolean
+          is_auto?: boolean
+          name?: string
+          starts_at?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holiday_campaigns_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -4278,6 +4610,76 @@ export type Database = {
           },
           {
             foreignKeyName: "instagram_interactions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      international_return_labels: {
+        Row: {
+          carrier_code: string | null
+          created_at: string
+          destination_country: string
+          hub_id: string | null
+          id: string
+          label_payload: Json
+          order_id: string | null
+          origin_country: string
+          reference: string
+          status: string
+          store_id: string
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          carrier_code?: string | null
+          created_at?: string
+          destination_country?: string
+          hub_id?: string | null
+          id?: string
+          label_payload?: Json
+          order_id?: string | null
+          origin_country?: string
+          reference: string
+          status?: string
+          store_id: string
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          carrier_code?: string | null
+          created_at?: string
+          destination_country?: string
+          hub_id?: string | null
+          id?: string
+          label_payload?: Json
+          order_id?: string | null
+          origin_country?: string
+          reference?: string
+          status?: string
+          store_id?: string
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "international_return_labels_hub_id_fkey"
+            columns: ["hub_id"]
+            isOneToOne: false
+            referencedRelation: "return_hubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "international_return_labels_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "international_return_labels_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -9898,6 +10300,59 @@ export type Database = {
           },
         ]
       }
+      return_hubs: {
+        Row: {
+          address: string | null
+          carrier_code: string | null
+          city: string | null
+          country_code: string
+          created_at: string
+          hub_name: string
+          id: string
+          instructions: string | null
+          is_active: boolean
+          postal_code: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          carrier_code?: string | null
+          city?: string | null
+          country_code: string
+          created_at?: string
+          hub_name: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          postal_code?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          carrier_code?: string | null
+          city?: string | null
+          country_code?: string
+          created_at?: string
+          hub_name?: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          postal_code?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "return_hubs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       return_items: {
         Row: {
           created_at: string
@@ -10038,6 +10493,74 @@ export type Database = {
           },
           {
             foreignKeyName: "return_requests_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rfq_requests: {
+        Row: {
+          company_name: string
+          contact_name: string | null
+          country_code: string
+          created_at: string
+          currency: string
+          email: string | null
+          id: string
+          items: Json
+          notes: string | null
+          phone: string | null
+          quoted_total: number | null
+          reference: string
+          requested_total: number
+          status: string
+          store_id: string
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          company_name: string
+          contact_name?: string | null
+          country_code?: string
+          created_at?: string
+          currency?: string
+          email?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          phone?: string | null
+          quoted_total?: number | null
+          reference: string
+          requested_total?: number
+          status?: string
+          store_id: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          company_name?: string
+          contact_name?: string | null
+          country_code?: string
+          created_at?: string
+          currency?: string
+          email?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          phone?: string | null
+          quoted_total?: number | null
+          reference?: string
+          requested_total?: number
+          status?: string
+          store_id?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rfq_requests_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -11370,6 +11893,8 @@ export type Database = {
       store_global_settings: {
         Row: {
           auto_translate_locales: string[]
+          b2b_default_moq: number
+          b2b_enabled: boolean
           created_at: string
           default_hs_code: string | null
           default_incoterm: string
@@ -11394,6 +11919,8 @@ export type Database = {
         }
         Insert: {
           auto_translate_locales?: string[]
+          b2b_default_moq?: number
+          b2b_enabled?: boolean
           created_at?: string
           default_hs_code?: string | null
           default_incoterm?: string
@@ -11418,6 +11945,8 @@ export type Database = {
         }
         Update: {
           auto_translate_locales?: string[]
+          b2b_default_moq?: number
+          b2b_enabled?: boolean
           created_at?: string
           default_hs_code?: string | null
           default_incoterm?: string
@@ -14920,6 +15449,54 @@ export type Database = {
           },
           {
             foreignKeyName: "whatsapp_messages_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wholesale_tiers: {
+        Row: {
+          created_at: string
+          discount_percent: number
+          id: string
+          is_active: boolean
+          min_quantity: number
+          product_id: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          discount_percent?: number
+          id?: string
+          is_active?: boolean
+          min_quantity?: number
+          product_id?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          discount_percent?: number
+          id?: string
+          is_active?: boolean
+          min_quantity?: number
+          product_id?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wholesale_tiers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wholesale_tiers_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
