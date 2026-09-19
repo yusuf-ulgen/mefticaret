@@ -122,6 +122,75 @@ export function ProfitReportPanel({ storeId, baseCurrency }: { storeId: string; 
           </>
         )}
       </div>
+
+      <div className="rounded-xl border bg-card p-5">
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <Megaphone className="size-4" /> Kampanya tıklama cirosu
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Vitrinde yayınlanan kampanya bantlarının görüntülenme ve tıklamaları; ciro, kampanya
+          indirim kodu ile ödemesi tamamlanan gerçek siparişlerden hesaplanır.
+        </p>
+        {campaigns.isPending ? (
+          <p className="mt-4 text-sm text-muted-foreground">Kampanya verisi hesaplanıyor…</p>
+        ) : !campaigns.data || campaigns.data.campaigns.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            Vitrinde yayınlanmış kampanya yok. E-posta Pazarlama ekranından bir kampanyayı vitrine açın.
+          </p>
+        ) : (
+          <>
+            <div className="mt-4 grid gap-3 sm:grid-cols-4">
+              <div className="rounded-lg border p-3">
+                <p className="text-xs text-muted-foreground">Görüntülenme</p>
+                <p className="text-lg font-semibold">{campaigns.data.totals.views}</p>
+              </div>
+              <div className="rounded-lg border p-3">
+                <p className="text-xs text-muted-foreground">Tıklama</p>
+                <p className="text-lg font-semibold">{campaigns.data.totals.clicks}</p>
+              </div>
+              <div className="rounded-lg border p-3">
+                <p className="text-xs text-muted-foreground">Sipariş</p>
+                <p className="text-lg font-semibold">{campaigns.data.totals.orders}</p>
+              </div>
+              <div className="rounded-lg border p-3">
+                <p className="text-xs text-muted-foreground">Kampanya cirosu</p>
+                <p className="text-lg font-semibold">
+                  {formatMoney(campaigns.data.totals.revenue, baseCurrency)}
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-left text-xs text-muted-foreground">
+                    <th className="py-2">Kampanya</th>
+                    <th className="py-2">Kod</th>
+                    <th className="py-2">Görüntülenme</th>
+                    <th className="py-2">Tıklama</th>
+                    <th className="py-2">TO</th>
+                    <th className="py-2">Sipariş</th>
+                    <th className="py-2">Ciro</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {campaigns.data.campaigns.map((row) => (
+                    <tr key={row.id} className="border-b last:border-0">
+                      <td className="py-2 font-medium">{row.name}</td>
+                      <td className="py-2 font-mono text-xs uppercase">{row.discountCode || "—"}</td>
+                      <td className="py-2">{row.views}</td>
+                      <td className="py-2">{row.clicks}</td>
+                      <td className="py-2">{row.ctr.toFixed(1)}%</td>
+                      <td className="py-2">{row.orders}</td>
+                      <td className="py-2">{formatMoney(row.revenue, baseCurrency)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </div>
+
     </div>
   );
 }
