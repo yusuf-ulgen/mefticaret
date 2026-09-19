@@ -43,10 +43,14 @@ export const GLOBAL_CURRENCIES = ["TRY", "USD", "EUR", "GBP", "AED", "SAR", "CAD
 export const EXPORT_LOCALES = [
   { code: "en", label: "İngilizce" },
   { code: "de", label: "Almanca" },
-  { code: "ar", label: "Arapça" },
   { code: "fr", label: "Fransızca" },
+  { code: "es", label: "İspanyolca" },
+  { code: "it", label: "İtalyanca" },
+  { code: "nl", label: "Felemenkçe" },
   { code: "ru", label: "Rusça" },
+  { code: "ar", label: "Arapça" },
 ] as const;
+
 
 export const RTL_LOCALES = ["ar", "he", "fa", "ur"];
 
@@ -328,7 +332,21 @@ export function calculateLandedCost(input: {
 
 /* ============================ Sağlayıcı katalogları ============================ */
 
-export type GlobalPaymentProvider = "stripe" | "paypal" | "klarna" | "sepa" | "sofort";
+export type GlobalPaymentProvider =
+  | "stripe"
+  | "paypal"
+  | "checkout_com"
+  | "adyen"
+  | "klarna"
+  | "alma"
+  | "clearpay"
+  | "sezzle"
+  | "sepa"
+  | "sofort"
+  | "ideal"
+  | "bancontact"
+  | "giropay";
+
 
 export const PAYMENT_PROVIDER_CATALOG: {
   provider: GlobalPaymentProvider;
@@ -378,7 +396,72 @@ export const PAYMENT_PROVIDER_CATALOG: {
     countries: ["DE", "AT"],
     secretNames: ["STRIPE_SECRET_KEY"],
   },
+  {
+    provider: "checkout_com",
+    label: "Checkout.com",
+    description: "Kurumsal hacimler için global kart tahsilatı ve yerel yöntemler.",
+    currencies: ["USD", "EUR", "GBP", "AED", "SAR"],
+    countries: ["US", "GB", "DE", "FR", "NL", "AE", "SA"],
+    secretNames: ["CHECKOUT_COM_SECRET_KEY", "CHECKOUT_COM_PUBLIC_KEY"],
+  },
+  {
+    provider: "adyen",
+    label: "Adyen",
+    description: "Tek entegrasyonla kart + onlarca yerel ödeme yöntemi.",
+    currencies: ["USD", "EUR", "GBP", "CAD", "AED"],
+    countries: ["US", "GB", "DE", "FR", "NL", "BE", "IT", "ES", "CA", "AE"],
+    secretNames: ["ADYEN_API_KEY", "ADYEN_MERCHANT_ACCOUNT", "ADYEN_HMAC_KEY"],
+  },
+  {
+    provider: "alma",
+    label: "Alma (BNPL — Fransa)",
+    description: "Fransa'da 2–4 taksitle şimdi al sonra öde.",
+    currencies: ["EUR"],
+    countries: ["FR", "BE", "IT", "ES"],
+    secretNames: ["ALMA_API_KEY"],
+  },
+  {
+    provider: "clearpay",
+    label: "Clearpay (BNPL — UK)",
+    description: "Birleşik Krallık'ta 4 taksitte faizsiz ödeme.",
+    currencies: ["GBP"],
+    countries: ["GB"],
+    secretNames: ["CLEARPAY_MERCHANT_ID", "CLEARPAY_SECRET_KEY"],
+  },
+  {
+    provider: "sezzle",
+    label: "Sezzle (BNPL — ABD/Kanada)",
+    description: "ABD ve Kanada'da 4 taksitle şimdi al sonra öde.",
+    currencies: ["USD", "CAD"],
+    countries: ["US", "CA"],
+    secretNames: ["SEZZLE_PUBLIC_KEY", "SEZZLE_PRIVATE_KEY"],
+  },
+  {
+    provider: "ideal",
+    label: "iDEAL (Hollanda)",
+    description: "Hollanda'da banka hesabından anında ödeme.",
+    currencies: ["EUR"],
+    countries: ["NL"],
+    secretNames: ["STRIPE_SECRET_KEY"],
+  },
+  {
+    provider: "bancontact",
+    label: "Bancontact (Belçika)",
+    description: "Belçika'nın en yaygın yerel kart/banka ödeme yöntemi.",
+    currencies: ["EUR"],
+    countries: ["BE"],
+    secretNames: ["STRIPE_SECRET_KEY"],
+  },
+  {
+    provider: "giropay",
+    label: "Giropay (Almanya)",
+    description: "Almanya'da online banka havalesi ile ödeme.",
+    currencies: ["EUR"],
+    countries: ["DE"],
+    secretNames: ["STRIPE_SECRET_KEY"],
+  },
 ];
+
 
 export type GlobalCarrierCode =
   | "dhl"
@@ -387,7 +470,10 @@ export type GlobalCarrierCode =
   | "ptt"
   | "navlungo"
   | "shipentegra"
-  | "aramex";
+  | "aramex"
+  | "kargomkolay"
+  | "royalmail";
+
 
 export const CARRIER_CATALOG: {
   code: GlobalCarrierCode;
@@ -453,7 +539,24 @@ export const CARRIER_CATALOG: {
     trackingUrl: (t) => `https://www.aramex.com/tr/tr/track/results?ShipmentNumber=${t}`,
     secretNames: ["ARAMEX_USERNAME", "ARAMEX_PASSWORD", "ARAMEX_ACCOUNT_NUMBER"],
   },
+  {
+    code: "kargomkolay",
+    label: "KargomKolay",
+    description: "Mikro ihracatta çoklu taşıyıcı fiyatlandırma ve ETGB desteği.",
+    microExport: true,
+    trackingUrl: (t) => `https://kargomkolay.com/kargo-takip?code=${t}`,
+    secretNames: ["KARGOMKOLAY_API_KEY"],
+  },
+  {
+    code: "royalmail",
+    label: "Royal Mail",
+    description: "Birleşik Krallık içi ve UK'ye yerel teslimat.",
+    microExport: false,
+    trackingUrl: (t) => `https://www.royalmail.com/track-your-item#/tracking-results/${t}`,
+    secretNames: ["ROYALMAIL_CLIENT_ID", "ROYALMAIL_CLIENT_SECRET"],
+  },
 ];
+
 
 export function carrierMeta(code: string) {
   return CARRIER_CATALOG.find((row) => row.code === code) ?? null;
@@ -473,4 +576,238 @@ export const EXPORT_DOC_LABELS: Record<string, string> = {
 export function exportDocumentNumber(prefix: string, sequence: number, date = new Date()): string {
   const stamp = date.toISOString().slice(0, 10).replace(/-/g, "");
   return `${prefix}-${stamp}-${String(sequence).padStart(4, "0")}`;
+}
+
+/* ============================ Psikolojik fiyat yuvarlama ============================ */
+
+export type PriceRoundingRule = "none" | "end_99" | "end_90" | "nearest_integer" | "nearest_5";
+
+export const PRICE_ROUNDING_RULES: { rule: PriceRoundingRule; label: string; example: string }[] = [
+  { rule: "none", label: "Yuvarlama yok", example: "34,12 → 34,12" },
+  { rule: "end_99", label: "Küsuratı .99 yap", example: "34,12 → 34,99" },
+  { rule: "end_90", label: "Küsuratı .90 yap", example: "34,12 → 34,90" },
+  { rule: "nearest_integer", label: "En yakın tam sayı", example: "34,12 → 34" },
+  { rule: "nearest_5", label: "En yakın 5'e yuvarla", example: "34,12 → 35" },
+];
+
+/** Döviz çevriminden çıkan fiyatı mağazanın seçtiği psikolojik kurala göre yuvarlar. */
+export function applyPriceRounding(amount: number, rule: PriceRoundingRule | null | undefined): number {
+  const value = Number(amount);
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  switch (rule) {
+    case "end_99":
+      return Math.max(Math.floor(value), 0) + 0.99;
+    case "end_90":
+      return Math.max(Math.floor(value), 0) + 0.9;
+    case "nearest_integer":
+      return Math.round(value);
+    case "nearest_5":
+      return Math.max(Math.round(value / 5) * 5, 5);
+    default:
+      return round2(value);
+  }
+}
+
+/* ============================ Bölgesel katalog görünürlüğü ============================ */
+
+export type CountryVisibilityMode = "all" | "allow" | "block";
+
+/**
+ * Ürünün ziyaretçi ülkesinde gösterilip gösterilmeyeceğini belirler.
+ * `allow` → yalnız listelenen ülkeler; `block` → listelenen ülkeler hariç.
+ */
+export function isProductVisibleInCountry(input: {
+  mode: CountryVisibilityMode | null | undefined;
+  countries: string[] | null | undefined;
+  country: string | null | undefined;
+}): boolean {
+  const mode = input.mode ?? "all";
+  if (mode === "all") return true;
+  const list = (input.countries ?? []).map((row) => row.trim().toUpperCase()).filter(Boolean);
+  if (list.length === 0) return mode === "block";
+  const country = input.country?.trim().toUpperCase();
+  if (!country) return mode === "block";
+  return mode === "allow" ? list.includes(country) : !list.includes(country);
+}
+
+/* ============================ ABD posta kodu → eyalet ============================ */
+
+/** ZIP kodu ilk 3 hane aralıkları → eyalet (USPS aralıkları). */
+const ZIP_STATE_RANGES: { from: number; to: number; state: string }[] = [
+  { from: 5, to: 5, state: "NY" }, { from: 6, to: 9, state: "PR" },
+  { from: 10, to: 27, state: "MA" }, { from: 28, to: 29, state: "RI" },
+  { from: 30, to: 38, state: "NH" }, { from: 39, to: 49, state: "ME" },
+  { from: 50, to: 59, state: "VT" }, { from: 60, to: 69, state: "CT" },
+  { from: 70, to: 89, state: "NJ" }, { from: 90, to: 98, state: "AE" },
+  { from: 100, to: 149, state: "NY" }, { from: 150, to: 196, state: "PA" },
+  { from: 197, to: 199, state: "DE" }, { from: 200, to: 205, state: "DC" },
+  { from: 206, to: 219, state: "MD" }, { from: 220, to: 246, state: "VA" },
+  { from: 247, to: 268, state: "WV" }, { from: 270, to: 289, state: "NC" },
+  { from: 290, to: 299, state: "SC" }, { from: 300, to: 319, state: "GA" },
+  { from: 320, to: 349, state: "FL" }, { from: 350, to: 369, state: "AL" },
+  { from: 370, to: 385, state: "TN" }, { from: 386, to: 397, state: "MS" },
+  { from: 398, to: 399, state: "GA" }, { from: 400, to: 427, state: "KY" },
+  { from: 430, to: 458, state: "OH" }, { from: 460, to: 479, state: "IN" },
+  { from: 480, to: 499, state: "MI" }, { from: 500, to: 528, state: "IA" },
+  { from: 530, to: 549, state: "WI" }, { from: 550, to: 567, state: "MN" },
+  { from: 570, to: 577, state: "SD" }, { from: 580, to: 588, state: "ND" },
+  { from: 590, to: 599, state: "MT" }, { from: 600, to: 629, state: "IL" },
+  { from: 630, to: 658, state: "MO" }, { from: 660, to: 679, state: "KS" },
+  { from: 680, to: 693, state: "NE" }, { from: 700, to: 714, state: "LA" },
+  { from: 716, to: 729, state: "AR" }, { from: 730, to: 749, state: "OK" },
+  { from: 750, to: 799, state: "TX" }, { from: 800, to: 816, state: "CO" },
+  { from: 820, to: 831, state: "WY" }, { from: 832, to: 838, state: "ID" },
+  { from: 840, to: 847, state: "UT" }, { from: 850, to: 865, state: "AZ" },
+  { from: 870, to: 884, state: "NM" }, { from: 889, to: 898, state: "NV" },
+  { from: 900, to: 961, state: "CA" }, { from: 967, to: 968, state: "HI" },
+  { from: 970, to: 979, state: "OR" }, { from: 980, to: 994, state: "WA" },
+  { from: 995, to: 999, state: "AK" },
+];
+
+/** "90210" → "CA". Geçersiz kodda null döner. */
+export function usStateFromZip(zip: string | null | undefined): string | null {
+  const digits = (zip ?? "").replace(/\D/g, "");
+  if (digits.length < 3) return null;
+  const prefix = Number(digits.slice(0, 3));
+  const match = ZIP_STATE_RANGES.find((row) => prefix >= row.from && prefix <= row.to);
+  return match?.state ?? null;
+}
+
+/* ============================ Körfez (GCC) KDV oranları ============================ */
+
+/** Resmî standart KDV oranları (GCC birleşik KDV anlaşması uygulamaları). */
+export const GCC_VAT_RATES: Record<string, number> = {
+  AE: 5,
+  SA: 15,
+  BH: 10,
+  OM: 5,
+  QA: 0,
+  KW: 0,
+};
+
+export function resolveGccVat(country: string | null | undefined): {
+  applies: boolean;
+  ratePercent: number;
+  note: string;
+} {
+  const code = country?.trim().toUpperCase();
+  if (!code || !(code in GCC_VAT_RATES)) {
+    return { applies: false, ratePercent: 0, note: "Körfez ülkesi değil" };
+  }
+  const rate = GCC_VAT_RATES[code]!;
+  if (rate === 0) {
+    return { applies: false, ratePercent: 0, note: `${code}: KDV uygulanmıyor (%0)` };
+  }
+  return { applies: true, ratePercent: rate, note: `${code} ithalat KDV oranı %${rate}` };
+}
+
+/* ============================ Çoklu depo / fulfillment ============================ */
+
+export type FulfillmentProvider = "own" | "amazon_fba" | "shipbob" | "third_party";
+
+export const FULFILLMENT_PROVIDER_CATALOG: {
+  provider: FulfillmentProvider;
+  label: string;
+  description: string;
+  secretNames: string[];
+}[] = [
+  {
+    provider: "own",
+    label: "Kendi deposu (Türkiye)",
+    description: "Mikro ihracat: gönderi Türkiye'deki kendi deponuzdan çıkar.",
+    secretNames: [],
+  },
+  {
+    provider: "amazon_fba",
+    label: "Amazon FBA",
+    description: "Amazon deposundan yurt dışında yerel teslimat (local-to-local).",
+    secretNames: ["AMAZON_SP_API_CLIENT_ID", "AMAZON_SP_API_CLIENT_SECRET", "AMAZON_SP_API_REFRESH_TOKEN"],
+  },
+  {
+    provider: "shipbob",
+    label: "ShipBob",
+    description: "ABD/AB 3PL depolarından yerel gönderi.",
+    secretNames: ["SHIPBOB_API_TOKEN"],
+  },
+  {
+    provider: "third_party",
+    label: "Diğer 3PL deposu",
+    description: "Avrupa veya ABD'deki anlaşmalı 3PL deposu.",
+    secretNames: [],
+  },
+];
+
+/**
+ * Siparişi hangi depodan karşılamak gerektiğini seçer.
+ * Öncelik: alıcı ülkesiyle aynı ülkedeki stoklu depo → aynı bölge → en yüksek öncelikli stoklu depo.
+ */
+export function routeFulfillment(input: {
+  country: string | null | undefined;
+  quantity: number;
+  warehouses: {
+    id: string;
+    country_code: string;
+    priority?: number | null;
+    is_active?: boolean | null;
+    available?: number | null;
+  }[];
+}): { warehouseId: string | null; reason: string } {
+  const qty = Math.max(Number(input.quantity) || 1, 1);
+  const country = input.country?.trim().toUpperCase() ?? null;
+  const usable = (input.warehouses ?? [])
+    .filter((w) => w.is_active !== false && (w.available ?? 0) >= qty)
+    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+  if (usable.length === 0) return { warehouseId: null, reason: "Stoklu depo bulunamadı" };
+
+  const local = usable.find((w) => w.country_code.toUpperCase() === country);
+  if (local) return { warehouseId: local.id, reason: "Alıcı ülkesindeki depodan yerel teslimat" };
+
+  const buyerRegion = findCountry(country)?.region ?? null;
+  const regional = usable.find((w) => findCountry(w.country_code)?.region === buyerRegion);
+  if (buyerRegion && regional) {
+    return { warehouseId: regional.id, reason: "Aynı bölgedeki depodan gönderi" };
+  }
+  return { warehouseId: usable[0]!.id, reason: "Öncelikli depodan mikro ihracat" };
+}
+
+/* ============================ Döviz bazlı net kârlılık ============================ */
+
+export type NetProfitReport = {
+  revenue: number;
+  cogs: number;
+  shipping: number;
+  duty: number;
+  paymentFee: number;
+  netProfit: number;
+  marginPercent: number;
+  netProfitTry: number;
+};
+
+/** Döviz cinsinden ciro üzerinden net kâr; TL karşılığı verilen kurla hesaplanır. */
+export function calculateNetProfit(input: {
+  revenue: number;
+  cogs: number;
+  shippingCost?: number;
+  dutyCost?: number;
+  paymentFeePercent?: number;
+  currencyToTryRate?: number;
+}): NetProfitReport {
+  const revenue = Math.max(Number(input.revenue) || 0, 0);
+  const cogs = Math.max(Number(input.cogs) || 0, 0);
+  const shipping = Math.max(Number(input.shippingCost) || 0, 0);
+  const duty = Math.max(Number(input.dutyCost) || 0, 0);
+  const feePercent = Math.min(Math.max(Number(input.paymentFeePercent) || 0, 0), 25);
+  const paymentFee = round2(revenue * (feePercent / 100));
+  const netProfit = round2(revenue - cogs - shipping - duty - paymentFee);
+  const rate = Number(input.currencyToTryRate);
+  return {
+    revenue: round2(revenue),
+    cogs: round2(cogs),
+    shipping: round2(shipping),
+    duty: round2(duty),
+    paymentFee,
+    netProfit,
+    marginPercent: revenue > 0 ? round2((netProfit / revenue) * 100) : 0,
+    netProfitTry: Number.isFinite(rate) && rate > 0 ? round2(netProfit * rate) : netProfit,
+  };
 }

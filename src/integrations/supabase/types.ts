@@ -3545,6 +3545,62 @@ export type Database = {
           },
         ]
       }
+      fulfillment_warehouses: {
+        Row: {
+          city: string | null
+          code: string
+          country_code: string
+          created_at: string
+          credentials_ready: boolean
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          priority: number
+          provider: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          code: string
+          country_code?: string
+          created_at?: string
+          credentials_ready?: boolean
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          priority?: number
+          provider?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          code?: string
+          country_code?: string
+          created_at?: string
+          credentials_ready?: boolean
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          priority?: number
+          provider?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fulfillment_warehouses_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gift_card_transactions: {
         Row: {
           amount: number
@@ -8579,6 +8635,54 @@ export type Database = {
           },
         ]
       }
+      product_country_rules: {
+        Row: {
+          country_codes: string[]
+          created_at: string
+          id: string
+          mode: string
+          note: string | null
+          product_id: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          country_codes?: string[]
+          created_at?: string
+          id?: string
+          mode?: string
+          note?: string | null
+          product_id: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          country_codes?: string[]
+          created_at?: string
+          id?: string
+          mode?: string
+          note?: string | null
+          product_id?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_country_rules_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_country_rules_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_images: {
         Row: {
           alt: string | null
@@ -11281,7 +11385,9 @@ export type Database = {
           ioss_enabled: boolean
           ioss_number: string | null
           oss_enabled: boolean
+          price_rounding_rule: string
           rtl_auto: boolean
+          settlement_currencies: string[]
           store_id: string
           updated_at: string
           us_nexus_states: string[]
@@ -11303,7 +11409,9 @@ export type Database = {
           ioss_enabled?: boolean
           ioss_number?: string | null
           oss_enabled?: boolean
+          price_rounding_rule?: string
           rtl_auto?: boolean
+          settlement_currencies?: string[]
           store_id: string
           updated_at?: string
           us_nexus_states?: string[]
@@ -11325,7 +11433,9 @@ export type Database = {
           ioss_enabled?: boolean
           ioss_number?: string | null
           oss_enabled?: boolean
+          price_rounding_rule?: string
           rtl_auto?: boolean
+          settlement_currencies?: string[]
           store_id?: string
           updated_at?: string
           us_nexus_states?: string[]
@@ -14291,6 +14401,57 @@ export type Database = {
         }
         Relationships: []
       }
+      variant_customs_profiles: {
+        Row: {
+          created_at: string
+          description_en: string | null
+          hs_code: string | null
+          id: string
+          origin_country: string | null
+          store_id: string
+          updated_at: string
+          variant_id: string
+          weight_grams: number | null
+        }
+        Insert: {
+          created_at?: string
+          description_en?: string | null
+          hs_code?: string | null
+          id?: string
+          origin_country?: string | null
+          store_id: string
+          updated_at?: string
+          variant_id: string
+          weight_grams?: number | null
+        }
+        Update: {
+          created_at?: string
+          description_en?: string | null
+          hs_code?: string | null
+          id?: string
+          origin_country?: string | null
+          store_id?: string
+          updated_at?: string
+          variant_id?: string
+          weight_grams?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variant_customs_profiles_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "variant_customs_profiles_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: true
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendors: {
         Row: {
           created_at: string
@@ -14337,6 +14498,58 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      warehouse_inventory: {
+        Row: {
+          available: number
+          created_at: string
+          id: string
+          store_id: string
+          updated_at: string
+          variant_id: string
+          warehouse_id: string
+        }
+        Insert: {
+          available?: number
+          created_at?: string
+          id?: string
+          store_id: string
+          updated_at?: string
+          variant_id: string
+          warehouse_id: string
+        }
+        Update: {
+          available?: number
+          created_at?: string
+          id?: string
+          store_id?: string
+          updated_at?: string
+          variant_id?: string
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warehouse_inventory_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "warehouse_inventory_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "warehouse_inventory_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "fulfillment_warehouses"
             referencedColumns: ["id"]
           },
         ]
