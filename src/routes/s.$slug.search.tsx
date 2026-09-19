@@ -3,6 +3,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { VoiceSearchButton } from "@/components/storefront/voice-search-button";
 import { Breadcrumb, ProductGrid, StorefrontFallback } from "@/components/storefront-parts";
 import { storefrontQuery } from "@/lib/storefront-queries";
 import { trackEvent } from "@/lib/track";
