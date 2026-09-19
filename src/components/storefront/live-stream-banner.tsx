@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Radio } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { formatMoney } from "@/lib/mefti";
 
 type StreamRow = {
   id: string;
@@ -51,7 +52,15 @@ function embedUrl(url: string): string | null {
 }
 
 /** Canlı satış yayını kutusu — yayında gösterilen ürünler tıklanabilir. */
-export function LiveStreamBanner({ storeId, slug }: { storeId: string; slug: string }) {
+export function LiveStreamBanner({
+  storeId,
+  slug,
+  currency = "TRY",
+}: {
+  storeId: string;
+  slug: string;
+  currency?: string;
+}) {
   const { data } = useQuery(liveQuery(storeId));
   if (!data) return null;
 
@@ -99,7 +108,7 @@ export function LiveStreamBanner({ storeId, slug }: { storeId: string; slug: str
               className="w-40 shrink-0 rounded-lg border px-3 py-2 text-xs"
             >
               <p className="line-clamp-2 font-medium">{product.title}</p>
-              <p className="mt-1 text-muted-foreground">{product.base_price}</p>
+              <p className="mt-1 text-muted-foreground">{formatMoney(product.base_price, currency)}</p>
             </Link>
           ))}
         </div>
