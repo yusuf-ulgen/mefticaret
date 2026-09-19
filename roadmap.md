@@ -77,5 +77,5 @@
 - [ ] /en siparişinde ödeme sonrası otomatik kargo takip + fatura akışı (yukarıdaki anahtarlara bağlı)
 
 ## Ana sayfada yeni özellikler
-- [ ] Global e-ihracat, büyüme/lojistik ve e-posta pazarlama özelliklerini ana sayfada görünür ve mobil uyumlu sun
-- [ ] Ana sayfa masaüstü ve mobil görünümünü doğrula
+- [x] Global e-ihracat, büyüme/lojistik ve e-posta pazarlama özelliklerini ana sayfada görünür ve mobil uyumlu sun
+- [x] Ana sayfa masaüstü ve mobil görünümünü doğrula
