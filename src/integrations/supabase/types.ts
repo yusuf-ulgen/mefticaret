@@ -2113,6 +2113,60 @@ export type Database = {
           },
         ]
       }
+      country_prices: {
+        Row: {
+          compare_at_price: number | null
+          country_code: string
+          created_at: string
+          currency: string
+          id: string
+          is_active: boolean
+          price: number
+          product_id: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          compare_at_price?: number | null
+          country_code: string
+          created_at?: string
+          currency: string
+          id?: string
+          is_active?: boolean
+          price: number
+          product_id: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          compare_at_price?: number | null
+          country_code?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          price?: number
+          product_id?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "country_prices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "country_prices_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       currency_rates: {
         Row: {
           base_currency: string
@@ -2394,6 +2448,60 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "customers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customs_profiles: {
+        Row: {
+          created_at: string
+          description_en: string | null
+          hs_code: string | null
+          id: string
+          material: string | null
+          origin_country: string
+          product_id: string
+          store_id: string
+          updated_at: string
+          weight_grams: number | null
+        }
+        Insert: {
+          created_at?: string
+          description_en?: string | null
+          hs_code?: string | null
+          id?: string
+          material?: string | null
+          origin_country?: string
+          product_id: string
+          store_id: string
+          updated_at?: string
+          weight_grams?: number | null
+        }
+        Update: {
+          created_at?: string
+          description_en?: string | null
+          hs_code?: string | null
+          id?: string
+          material?: string | null
+          origin_country?: string
+          product_id?: string
+          store_id?: string
+          updated_at?: string
+          weight_grams?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customs_profiles_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customs_profiles_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -2987,6 +3095,24 @@ export type Database = {
         }
         Relationships: []
       }
+      eu_vat_rates: {
+        Row: {
+          country_code: string
+          name: string
+          standard_rate: number
+        }
+        Insert: {
+          country_code: string
+          name: string
+          standard_rate: number
+        }
+        Update: {
+          country_code?: string
+          name?: string
+          standard_rate?: number
+        }
+        Relationships: []
+      }
       exchange_rate_history: {
         Row: {
           base_currency: string
@@ -3084,6 +3210,63 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      export_documents: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          document_number: string
+          id: string
+          incoterm: string
+          kind: string
+          order_id: string
+          payload: Json
+          store_id: string
+          total_value: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          document_number: string
+          id?: string
+          incoterm?: string
+          kind: string
+          order_id: string
+          payload?: Json
+          store_id: string
+          total_value?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          document_number?: string
+          id?: string
+          incoterm?: string
+          kind?: string
+          order_id?: string
+          payload?: Json
+          store_id?: string
+          total_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "export_documents_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "export_documents_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fb_marketplace_accounts: {
         Row: {
@@ -3472,6 +3655,202 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "gift_cards_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      global_carriers: {
+        Row: {
+          account_number: string | null
+          carrier_code: string
+          created_at: string
+          credentials_ready: boolean
+          id: string
+          is_active: boolean
+          label: string
+          last_error: string | null
+          last_status: string | null
+          mode: string
+          settings: Json
+          store_id: string
+          supports_micro_export: boolean
+          updated_at: string
+        }
+        Insert: {
+          account_number?: string | null
+          carrier_code: string
+          created_at?: string
+          credentials_ready?: boolean
+          id?: string
+          is_active?: boolean
+          label: string
+          last_error?: string | null
+          last_status?: string | null
+          mode?: string
+          settings?: Json
+          store_id: string
+          supports_micro_export?: boolean
+          updated_at?: string
+        }
+        Update: {
+          account_number?: string | null
+          carrier_code?: string
+          created_at?: string
+          credentials_ready?: boolean
+          id?: string
+          is_active?: boolean
+          label?: string
+          last_error?: string | null
+          last_status?: string | null
+          mode?: string
+          settings?: Json
+          store_id?: string
+          supports_micro_export?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "global_carriers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      global_payment_methods: {
+        Row: {
+          countries: string[]
+          created_at: string
+          credentials_ready: boolean
+          currencies: string[]
+          id: string
+          is_active: boolean
+          label: string
+          last_error: string | null
+          last_status: string | null
+          mode: string
+          provider: string
+          settings: Json
+          sort_order: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          countries?: string[]
+          created_at?: string
+          credentials_ready?: boolean
+          currencies?: string[]
+          id?: string
+          is_active?: boolean
+          label: string
+          last_error?: string | null
+          last_status?: string | null
+          mode?: string
+          provider: string
+          settings?: Json
+          sort_order?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          countries?: string[]
+          created_at?: string
+          credentials_ready?: boolean
+          currencies?: string[]
+          id?: string
+          is_active?: boolean
+          label?: string
+          last_error?: string | null
+          last_status?: string | null
+          mode?: string
+          provider?: string
+          settings?: Json
+          sort_order?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "global_payment_methods_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      global_shipments: {
+        Row: {
+          carrier_code: string
+          cost: number | null
+          created_at: string
+          currency: string | null
+          destination_country: string | null
+          events: Json
+          id: string
+          incoterm: string
+          label_url: string | null
+          last_event: string | null
+          order_id: string
+          service: string | null
+          status: string
+          store_id: string
+          tracking_number: string | null
+          updated_at: string
+          weight_grams: number | null
+        }
+        Insert: {
+          carrier_code: string
+          cost?: number | null
+          created_at?: string
+          currency?: string | null
+          destination_country?: string | null
+          events?: Json
+          id?: string
+          incoterm?: string
+          label_url?: string | null
+          last_event?: string | null
+          order_id: string
+          service?: string | null
+          status?: string
+          store_id: string
+          tracking_number?: string | null
+          updated_at?: string
+          weight_grams?: number | null
+        }
+        Update: {
+          carrier_code?: string
+          cost?: number | null
+          created_at?: string
+          currency?: string | null
+          destination_country?: string | null
+          events?: Json
+          id?: string
+          incoterm?: string
+          label_url?: string | null
+          last_event?: string | null
+          order_id?: string
+          service?: string | null
+          status?: string
+          store_id?: string
+          tracking_number?: string | null
+          updated_at?: string
+          weight_grams?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "global_shipments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "global_shipments_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -10871,6 +11250,83 @@ export type Database = {
           },
         ]
       }
+      store_global_settings: {
+        Row: {
+          auto_translate_locales: string[]
+          created_at: string
+          default_hs_code: string | null
+          default_incoterm: string
+          exporter_address: string | null
+          exporter_city: string | null
+          exporter_country: string | null
+          exporter_email: string | null
+          exporter_name: string | null
+          exporter_phone: string | null
+          exporter_tax_id: string | null
+          fx_buffer_percent: number
+          geo_detect_enabled: boolean
+          ioss_enabled: boolean
+          ioss_number: string | null
+          oss_enabled: boolean
+          rtl_auto: boolean
+          store_id: string
+          updated_at: string
+          us_nexus_states: string[]
+        }
+        Insert: {
+          auto_translate_locales?: string[]
+          created_at?: string
+          default_hs_code?: string | null
+          default_incoterm?: string
+          exporter_address?: string | null
+          exporter_city?: string | null
+          exporter_country?: string | null
+          exporter_email?: string | null
+          exporter_name?: string | null
+          exporter_phone?: string | null
+          exporter_tax_id?: string | null
+          fx_buffer_percent?: number
+          geo_detect_enabled?: boolean
+          ioss_enabled?: boolean
+          ioss_number?: string | null
+          oss_enabled?: boolean
+          rtl_auto?: boolean
+          store_id: string
+          updated_at?: string
+          us_nexus_states?: string[]
+        }
+        Update: {
+          auto_translate_locales?: string[]
+          created_at?: string
+          default_hs_code?: string | null
+          default_incoterm?: string
+          exporter_address?: string | null
+          exporter_city?: string | null
+          exporter_country?: string | null
+          exporter_email?: string | null
+          exporter_name?: string | null
+          exporter_phone?: string | null
+          exporter_tax_id?: string | null
+          fx_buffer_percent?: number
+          geo_detect_enabled?: boolean
+          ioss_enabled?: boolean
+          ioss_number?: string | null
+          oss_enabled?: boolean
+          rtl_auto?: boolean
+          store_id?: string
+          updated_at?: string
+          us_nexus_states?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_global_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_locales: {
         Row: {
           code: string
@@ -13731,6 +14187,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      us_sales_tax_rates: {
+        Row: {
+          name: string
+          rate: number
+          state_code: string
+        }
+        Insert: {
+          name: string
+          rate: number
+          state_code: string
+        }
+        Update: {
+          name?: string
+          rate?: number
+          state_code?: string
+        }
+        Relationships: []
       }
       usage_records: {
         Row: {
