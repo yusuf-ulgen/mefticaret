@@ -52,6 +52,7 @@ import { Route as EnHowToStartAnOnlineStoreRouteImport } from './routes/en.how-t
 import { Route as EvHanimlariIndexRouteImport } from './routes/ev-hanimlari.index'
 import { Route as EvHanimlariKurulumRouteImport } from './routes/ev-hanimlari.kurulum'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
+import { Route as FrIndexRouteImport } from './routes/fr.index'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -511,6 +512,11 @@ const EvHanimlariKurulumRoute = EvHanimlariKurulumRouteImport.update({
 const FaturaTokenRoute = FaturaTokenRouteImport.update({
   id: '/fatura/$token',
   path: '/fatura/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FrIndexRoute = FrIndexRouteImport.update({
+  id: '/fr/',
+  path: '/fr/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SayfaSlugRoute = SayfaSlugRouteImport.update({
@@ -1956,6 +1962,7 @@ export interface FileRoutesByFullPath {
   '/de/': typeof DeIndexRoute
   '/en/': typeof EnIndexRoute
   '/ev-hanimlari/': typeof EvHanimlariIndexRoute
+  '/fr/': typeof FrIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2242,6 +2249,7 @@ export interface FileRoutesByTo {
   '/de': typeof DeIndexRoute
   '/en': typeof EnIndexRoute
   '/ev-hanimlari': typeof EvHanimlariIndexRoute
+  '/fr': typeof FrIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2530,6 +2538,7 @@ export interface FileRoutesById {
   '/de/': typeof DeIndexRoute
   '/en/': typeof EnIndexRoute
   '/ev-hanimlari/': typeof EvHanimlariIndexRoute
+  '/fr/': typeof FrIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2819,6 +2828,7 @@ export interface FileRouteTypes {
     | '/de/'
     | '/en/'
     | '/ev-hanimlari/'
+    | '/fr/'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -3105,6 +3115,7 @@ export interface FileRouteTypes {
     | '/de'
     | '/en'
     | '/ev-hanimlari'
+    | '/fr'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -3392,6 +3403,7 @@ export interface FileRouteTypes {
     | '/de/'
     | '/en/'
     | '/ev-hanimlari/'
+    | '/fr/'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
@@ -3676,6 +3688,7 @@ export interface RootRouteChildren {
   DeIndexRoute: typeof DeIndexRoute
   EnIndexRoute: typeof EnIndexRoute
   EvHanimlariIndexRoute: typeof EvHanimlariIndexRoute
+  FrIndexRoute: typeof FrIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
   ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
@@ -4042,6 +4055,13 @@ declare module '@tanstack/react-router' {
       path: '/fatura/$token'
       fullPath: '/fatura/$token'
       preLoaderRoute: typeof FaturaTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fr/': {
+      id: '/fr/'
+      path: '/fr'
+      fullPath: '/fr/'
+      preLoaderRoute: typeof FrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sayfa/$slug': {
@@ -6320,6 +6340,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeIndexRoute: DeIndexRoute,
   EnIndexRoute: EnIndexRoute,
   EvHanimlariIndexRoute: EvHanimlariIndexRoute,
+  FrIndexRoute: FrIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
   ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
