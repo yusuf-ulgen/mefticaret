@@ -272,6 +272,8 @@ export function StorefrontChrome({
       <div className="hm-storefront-shell">
         <CookieConsent storeSlug={storeSlug} />
         <SiteKitScripts storeSlug={storeSlug} />
+        <CampaignBanner slug={storeSlug} />
+
         <header className="hm-storefront-header">
           <Link to="/s/$slug" params={{ slug: storeSlug }} className="hm-storefront-brand" aria-label={`${storeName} ana sayfa`}>
             mefticaret
