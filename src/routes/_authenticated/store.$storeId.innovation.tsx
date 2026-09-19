@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -61,21 +60,17 @@ function InnovationPage() {
   });
 
   return (
-    <AppShell>
-      <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="flex items-center gap-2 text-2xl font-semibold">
-              <Sparkles className="size-5" /> Yenilik & Akıllı Ödeme
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Canlı satış, kısa video, müşteri içerikleri, 3B ürün, akıllı POS, yeşil kasa ve sahtecilik kalkanı.
-            </p>
-          </div>
-          <Button variant="outline" disabled={summaryMutation.isPending} onClick={() => summaryMutation.mutate()}>
-            Panoyu yenile
-          </Button>
-        </div>
+    <AppShell
+      storeId={storeId}
+      title="Yenilik & Akıllı Ödeme"
+      description="Canlı satış, kısa video, müşteri içerikleri, 3B ürün, akıllı POS, yeşil kasa ve sahtecilik kalkanı."
+      actions={
+        <Button variant="outline" disabled={summaryMutation.isPending} onClick={() => summaryMutation.mutate()}>
+          Panoyu yenile
+        </Button>
+      }
+    >
+      <div className="space-y-6">
 
         {summary ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
