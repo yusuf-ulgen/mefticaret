@@ -18,6 +18,8 @@ import { PredictiveSearch } from "@/components/wokiee/predictive-search";
 import { MegaMenu } from "@/components/wokiee/mega-menu";
 import { StorefrontSupportChat } from "@/components/storefront/support-chat";
 import { NewsletterSignup } from "@/components/storefront/newsletter-signup";
+import { CampaignBanner } from "@/components/storefront/campaign-banner";
+
 import { CartDrawer } from "@/components/wokiee/cart-drawer";
 import { QuickViewModal } from "@/components/wokiee/quick-view";
 import { MobileBottomNav } from "@/components/wokiee/mobile-bottom-nav";
