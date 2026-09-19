@@ -119,7 +119,7 @@ export const getStreamPerformance = createServerFn({ method: "POST" })
     if (productIds.length > 0 && stream.started_at) {
       const { data: items } = await context.supabase
         .from("order_items")
-        .select("order_id, total, orders!inner(created_at, payment_status, store_id)")
+        .select("order_id, line_total, orders!inner(created_at, payment_status, store_id)")
         .in("product_id", productIds)
         .gte("orders.created_at", stream.started_at as string)
         .eq("orders.store_id", data.storeId)
@@ -127,7 +127,7 @@ export const getStreamPerformance = createServerFn({ method: "POST" })
         .limit(2000);
       const seen = new Set<string>();
       for (const item of items ?? []) {
-        revenue += Number(item.total ?? 0);
+        revenue += Number(item.line_total ?? 0);
         const key = String(item.order_id);
         if (!seen.has(key)) seen.add(key);
       }
