@@ -3330,6 +3330,393 @@ export type Database = {
         }
         Relationships: []
       }
+      email_campaign_variants: {
+        Row: {
+          campaign_id: string
+          click_count: number
+          created_at: string
+          design_id: string | null
+          id: string
+          label: string
+          open_count: number
+          preview_text: string
+          revenue: number
+          sent_count: number
+          store_id: string
+          subject: string
+          unsubscribe_count: number
+          updated_at: string
+          weight: number
+        }
+        Insert: {
+          campaign_id: string
+          click_count?: number
+          created_at?: string
+          design_id?: string | null
+          id?: string
+          label?: string
+          open_count?: number
+          preview_text?: string
+          revenue?: number
+          sent_count?: number
+          store_id: string
+          subject?: string
+          unsubscribe_count?: number
+          updated_at?: string
+          weight?: number
+        }
+        Update: {
+          campaign_id?: string
+          click_count?: number
+          created_at?: string
+          design_id?: string | null
+          id?: string
+          label?: string
+          open_count?: number
+          preview_text?: string
+          revenue?: number
+          sent_count?: number
+          store_id?: string
+          subject?: string
+          unsubscribe_count?: number
+          updated_at?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaign_variants_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_campaign_variants_design_id_fkey"
+            columns: ["design_id"]
+            isOneToOne: false
+            referencedRelation: "email_designs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_campaign_variants_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_campaigns: {
+        Row: {
+          ab_enabled: boolean
+          audience: Json
+          created_at: string
+          design_id: string | null
+          id: string
+          name: string
+          preview_text: string
+          recipients_count: number
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          store_id: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          ab_enabled?: boolean
+          audience?: Json
+          created_at?: string
+          design_id?: string | null
+          id?: string
+          name: string
+          preview_text?: string
+          recipients_count?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          store_id: string
+          subject?: string
+          updated_at?: string
+        }
+        Update: {
+          ab_enabled?: boolean
+          audience?: Json
+          created_at?: string
+          design_id?: string | null
+          id?: string
+          name?: string
+          preview_text?: string
+          recipients_count?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          store_id?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaigns_design_id_fkey"
+            columns: ["design_id"]
+            isOneToOne: false
+            referencedRelation: "email_designs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_campaigns_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_designs: {
+        Row: {
+          accent_color: string
+          blocks: Json
+          campaign_tag: string | null
+          created_at: string
+          id: string
+          name: string
+          preview_text: string
+          sector: string | null
+          source_template: string | null
+          store_id: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          blocks?: Json
+          campaign_tag?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          preview_text?: string
+          sector?: string | null
+          source_template?: string | null
+          store_id: string
+          subject?: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          blocks?: Json
+          campaign_tag?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          preview_text?: string
+          sector?: string | null
+          source_template?: string | null
+          store_id?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_designs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_events: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          send_id: string | null
+          store_id: string
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          send_id?: string | null
+          store_id: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          send_id?: string | null
+          store_id?: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_events_send_id_fkey"
+            columns: ["send_id"]
+            isOneToOne: false
+            referencedRelation: "email_sends"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_events_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_sends: {
+        Row: {
+          campaign_id: string | null
+          clicked_at: string | null
+          created_at: string
+          customer_id: string | null
+          error: string | null
+          id: string
+          opened_at: string | null
+          recipient: string
+          revenue: number
+          sent_at: string | null
+          status: string
+          store_id: string
+          token: string
+          unsubscribed_at: string | null
+          variant_id: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          clicked_at?: string | null
+          created_at?: string
+          customer_id?: string | null
+          error?: string | null
+          id?: string
+          opened_at?: string | null
+          recipient: string
+          revenue?: number
+          sent_at?: string | null
+          status?: string
+          store_id: string
+          token: string
+          unsubscribed_at?: string | null
+          variant_id?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          clicked_at?: string | null
+          created_at?: string
+          customer_id?: string | null
+          error?: string | null
+          id?: string
+          opened_at?: string | null
+          recipient?: string
+          revenue?: number
+          sent_at?: string | null
+          status?: string
+          store_id?: string
+          token?: string
+          unsubscribed_at?: string | null
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sends_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_sends_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_sends_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_sends_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaign_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_subscribers: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          email: string
+          full_name: string | null
+          id: string
+          source: string
+          status: string
+          store_id: string
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          email: string
+          full_name?: string | null
+          id?: string
+          source?: string
+          status?: string
+          store_id: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          source?: string
+          status?: string
+          store_id?: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_subscribers_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_subscribers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       eu_vat_rates: {
         Row: {
           country_code: string
@@ -16357,6 +16744,10 @@ export type Database = {
         | "email_opened"
         | "has_tag"
         | "cart_still_active"
+        | "ltv_above"
+        | "order_count_above"
+        | "spent_above"
+        | "category_interest"
       automation_run_status:
         | "active"
         | "waiting"
@@ -16381,6 +16772,10 @@ export type Database = {
         | "back_in_stock"
         | "review_received"
         | "manual"
+        | "browse_abandoned"
+        | "customer_inactive"
+        | "ltv_threshold"
+        | "newsletter_subscribed"
       billing_cycle_status: "open" | "closed" | "invoiced"
       billing_interval: "monthly" | "yearly"
       channel_status: "disconnected" | "connected" | "error" | "paused"
@@ -16753,6 +17148,10 @@ export const Constants = {
         "email_opened",
         "has_tag",
         "cart_still_active",
+        "ltv_above",
+        "order_count_above",
+        "spent_above",
+        "category_interest",
       ],
       automation_run_status: [
         "active",
@@ -16780,6 +17179,10 @@ export const Constants = {
         "back_in_stock",
         "review_received",
         "manual",
+        "browse_abandoned",
+        "customer_inactive",
+        "ltv_threshold",
+        "newsletter_subscribed",
       ],
       billing_cycle_status: ["open", "closed", "invoiced"],
       billing_interval: ["monthly", "yearly"],

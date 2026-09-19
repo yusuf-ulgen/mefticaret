@@ -245,7 +245,56 @@ async function evaluateCondition(supabase: Client, run: Run, step: Step) {
     return (data?.tags ?? []).some((value) => value.toLowerCase() === tag);
   }
 
-  // email_opened: e-posta sağlayıcısı bağlanınca teslim kayıtlarından okunur.
+  if (kind === "ltv_above" || kind === "spent_above" || kind === "order_count_above") {
+    if (!run.customer_id) return false;
+    const threshold = Number((step.config as any)?.amount ?? (step.config as any)?.value ?? 0);
+    const { data } = await supabase
+      .from("customers")
+      .select("total_spent, orders_count")
+      .eq("id", run.customer_id)
+      .maybeSingle();
+    if (!data) return false;
+    if (kind === "order_count_above") return (data.orders_count ?? 0) >= threshold;
+    return Number(data.total_spent ?? 0) >= threshold;
+  }
+
+  if (kind === "category_interest") {
+    const category = String((step.config as any)?.category ?? "").toLowerCase();
+    if (!category || !run.customer_id) return false;
+    const { data } = await supabase
+      .from("orders")
+      .select("id, order_items(title, products(product_type, tags))")
+      .eq("store_id", run.store_id)
+      .eq("customer_id", run.customer_id)
+      .limit(20);
+    for (const order of data ?? []) {
+      for (const item of ((order as any).order_items ?? []) as any[]) {
+        const haystack = [
+          item?.title,
+          item?.products?.product_type,
+          ...((item?.products?.tags ?? []) as string[]),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (haystack.includes(category)) return true;
+      }
+    }
+    return false;
+  }
+
+  if (kind === "email_opened") {
+    if (!run.customer_id) return false;
+    const { data } = await supabase
+      .from("email_sends")
+      .select("id")
+      .eq("store_id", run.store_id)
+      .eq("customer_id", run.customer_id)
+      .not("opened_at", "is", null)
+      .limit(1);
+    return (data ?? []).length > 0;
+  }
+
   return false;
 }
 

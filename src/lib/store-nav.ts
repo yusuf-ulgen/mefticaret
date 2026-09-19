@@ -18,6 +18,7 @@ import {
   FileText,
   Gift,
   Globe,
+  Mail,
   Grid3x3,
   HelpCircle,
   History,
@@ -178,6 +179,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       items: [
         { label: "Pazarlama", to: p("marketing"), icon: Megaphone },
         { label: "Pazarlama Otomasyonu", to: p("automations"), icon: Zap },
+        { label: "E-posta Pazarlama", to: p("email-marketing"), icon: Mail, keywords: "kampanya bulten sablon a/b test acilma tiklama" },
         { label: "İndirimler", to: p("discounts"), icon: Tag, keywords: "kupon" },
         { label: "Hediye Kartları", to: p("gift-cards"), icon: Gift },
         { label: "WhatsApp", to: p("whatsapp"), icon: MessageCircle },
