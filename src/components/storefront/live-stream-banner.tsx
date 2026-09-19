@@ -11,7 +11,7 @@ type StreamRow = {
   stream_url: string | null;
   status: string;
   scheduled_at: string | null;
-  live_stream_products: { products: { slug: string; title: string; price: number } | null }[];
+  live_stream_products: { products: { slug: string; title: string; base_price: number } | null }[];
 };
 
 const liveQuery = (storeId: string) =>
@@ -22,7 +22,7 @@ const liveQuery = (storeId: string) =>
       const { data, error } = await supabase
         .from("live_streams")
         .select(
-          "id, title, description, stream_url, status, scheduled_at, live_stream_products(products(slug, title, price))",
+          "id, title, description, stream_url, status, scheduled_at, live_stream_products(products(slug, title, base_price))",
         )
         .eq("store_id", storeId)
         .in("status", ["live", "scheduled"])
@@ -59,7 +59,7 @@ export function LiveStreamBanner({ storeId, slug }: { storeId: string; slug: str
   const player = data.stream_url ? embedUrl(data.stream_url) : null;
   const products = data.live_stream_products
     .map((row) => row.products)
-    .filter((product): product is { slug: string; title: string; price: number } => Boolean(product));
+    .filter((product): product is { slug: string; title: string; base_price: number } => Boolean(product));
 
   return (
     <section className="overflow-hidden rounded-2xl border bg-card">
@@ -99,7 +99,7 @@ export function LiveStreamBanner({ storeId, slug }: { storeId: string; slug: str
               className="w-40 shrink-0 rounded-lg border px-3 py-2 text-xs"
             >
               <p className="line-clamp-2 font-medium">{product.title}</p>
-              <p className="mt-1 text-muted-foreground">{product.price}</p>
+              <p className="mt-1 text-muted-foreground">{product.base_price}</p>
             </Link>
           ))}
         </div>
