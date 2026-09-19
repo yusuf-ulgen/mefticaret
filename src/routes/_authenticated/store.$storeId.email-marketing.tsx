@@ -370,6 +370,98 @@ function EmailMarketingPage() {
                 ) : null}
 
                 <div className="space-y-2 rounded-lg border border-border p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Vitrinde göster</p>
+                      <p className="text-xs text-muted-foreground">
+                        Mağaza vitrininin üstünde kampanya bandı ve ayrı kampanya sayfası yayınlanır.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={campaignForm.storefrontEnabled}
+                      onCheckedChange={(checked) =>
+                        setCampaignForm((current) => ({ ...current, storefrontEnabled: checked }))
+                      }
+                    />
+                  </div>
+                  {campaignForm.storefrontEnabled ? (
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="campaign-slug">Kampanya adresi</Label>
+                        <Input
+                          id="campaign-slug"
+                          placeholder="yaz-indirimi"
+                          value={campaignForm.slug}
+                          onChange={(event) => setCampaignForm((current) => ({ ...current, slug: event.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="campaign-code">İndirim kodu</Label>
+                        <Input
+                          id="campaign-code"
+                          placeholder="YAZ20"
+                          value={campaignForm.discountCode}
+                          onChange={(event) => setCampaignForm((current) => ({ ...current, discountCode: event.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="campaign-banner-headline">Bant başlığı</Label>
+                        <Input
+                          id="campaign-banner-headline"
+                          value={campaignForm.bannerHeadline}
+                          onChange={(event) => setCampaignForm((current) => ({ ...current, bannerHeadline: event.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="campaign-banner-body">Bant açıklaması</Label>
+                        <Input
+                          id="campaign-banner-body"
+                          value={campaignForm.bannerBody}
+                          onChange={(event) => setCampaignForm((current) => ({ ...current, bannerBody: event.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="campaign-cta">Buton yazısı</Label>
+                        <Input
+                          id="campaign-cta"
+                          placeholder="Kampanyayı gör"
+                          value={campaignForm.bannerCtaLabel}
+                          onChange={(event) => setCampaignForm((current) => ({ ...current, bannerCtaLabel: event.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="campaign-ends">Bitiş tarihi</Label>
+                        <Input
+                          id="campaign-ends"
+                          type="datetime-local"
+                          value={campaignForm.endsAt}
+                          onChange={(event) => setCampaignForm((current) => ({ ...current, endsAt: event.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <Label htmlFor="campaign-landing-headline">Kampanya sayfası başlığı</Label>
+                        <Input
+                          id="campaign-landing-headline"
+                          value={campaignForm.landingHeadline}
+                          onChange={(event) => setCampaignForm((current) => ({ ...current, landingHeadline: event.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <Label htmlFor="campaign-landing-body">Kampanya sayfası metni</Label>
+                        <Textarea
+                          id="campaign-landing-body"
+                          rows={4}
+                          value={campaignForm.landingBody}
+                          onChange={(event) => setCampaignForm((current) => ({ ...current, landingBody: event.target.value }))}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+
+
+
+                <div className="space-y-2 rounded-lg border border-border p-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Hedef kitle</p>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1.5">
