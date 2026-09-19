@@ -30,6 +30,7 @@ import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]x
 import { Route as SitemapCategoriesDotxmlRouteImport } from './routes/sitemap-categories[.]xml'
 import { Route as SitemapDeDotxmlRouteImport } from './routes/sitemap-de[.]xml'
 import { Route as SitemapEnDotxmlRouteImport } from './routes/sitemap-en[.]xml'
+import { Route as SitemapFrDotxmlRouteImport } from './routes/sitemap-fr[.]xml'
 import { Route as SitemapIndexDotxmlRouteImport } from './routes/sitemap-index[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapProductsDotxmlRouteImport } from './routes/sitemap-products[.]xml'
@@ -400,6 +401,11 @@ const SitemapDeDotxmlRoute = SitemapDeDotxmlRouteImport.update({
 const SitemapEnDotxmlRoute = SitemapEnDotxmlRouteImport.update({
   id: '/sitemap-en.xml',
   path: '/sitemap-en.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapFrDotxmlRoute = SitemapFrDotxmlRouteImport.update({
+  id: '/sitemap-fr.xml',
+  path: '/sitemap-fr.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapIndexDotxmlRoute = SitemapIndexDotxmlRouteImport.update({
@@ -1939,6 +1945,7 @@ export interface FileRoutesByFullPath {
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
   '/sitemap-de.xml': typeof SitemapDeDotxmlRoute
   '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
+  '/sitemap-fr.xml': typeof SitemapFrDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
@@ -2227,6 +2234,7 @@ export interface FileRoutesByTo {
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
   '/sitemap-de.xml': typeof SitemapDeDotxmlRoute
   '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
+  '/sitemap-fr.xml': typeof SitemapFrDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
@@ -2515,6 +2523,7 @@ export interface FileRoutesById {
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
   '/sitemap-de.xml': typeof SitemapDeDotxmlRoute
   '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
+  '/sitemap-fr.xml': typeof SitemapFrDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
@@ -2805,6 +2814,7 @@ export interface FileRouteTypes {
     | '/sitemap-categories.xml'
     | '/sitemap-de.xml'
     | '/sitemap-en.xml'
+    | '/sitemap-fr.xml'
     | '/sitemap-index.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
@@ -3093,6 +3103,7 @@ export interface FileRouteTypes {
     | '/sitemap-categories.xml'
     | '/sitemap-de.xml'
     | '/sitemap-en.xml'
+    | '/sitemap-fr.xml'
     | '/sitemap-index.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
@@ -3380,6 +3391,7 @@ export interface FileRouteTypes {
     | '/sitemap-categories.xml'
     | '/sitemap-de.xml'
     | '/sitemap-en.xml'
+    | '/sitemap-fr.xml'
     | '/sitemap-index.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
@@ -3670,6 +3682,7 @@ export interface RootRouteChildren {
   SitemapCategoriesDotxmlRoute: typeof SitemapCategoriesDotxmlRoute
   SitemapDeDotxmlRoute: typeof SitemapDeDotxmlRoute
   SitemapEnDotxmlRoute: typeof SitemapEnDotxmlRoute
+  SitemapFrDotxmlRoute: typeof SitemapFrDotxmlRoute
   SitemapIndexDotxmlRoute: typeof SitemapIndexDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapProductsDotxmlRoute: typeof SitemapProductsDotxmlRoute
@@ -3901,6 +3914,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-en.xml'
       fullPath: '/sitemap-en.xml'
       preLoaderRoute: typeof SitemapEnDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-fr.xml': {
+      id: '/sitemap-fr.xml'
+      path: '/sitemap-fr.xml'
+      fullPath: '/sitemap-fr.xml'
+      preLoaderRoute: typeof SitemapFrDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-index.xml': {
@@ -6321,6 +6341,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapCategoriesDotxmlRoute: SitemapCategoriesDotxmlRoute,
   SitemapDeDotxmlRoute: SitemapDeDotxmlRoute,
   SitemapEnDotxmlRoute: SitemapEnDotxmlRoute,
+  SitemapFrDotxmlRoute: SitemapFrDotxmlRoute,
   SitemapIndexDotxmlRoute: SitemapIndexDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapProductsDotxmlRoute: SitemapProductsDotxmlRoute,
