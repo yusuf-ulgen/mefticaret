@@ -365,6 +365,8 @@ export function StorefrontChrome({
         </div>
       ) : null}
 
+      <CampaignBanner slug={storeSlug} />
+
 
       <header
         className="sf-header"
