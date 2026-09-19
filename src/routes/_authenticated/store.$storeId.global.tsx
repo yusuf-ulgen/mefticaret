@@ -30,7 +30,6 @@ import {
   INCOTERM_LABELS,
   PAYMENT_PROVIDER_CATALOG,
   calculateLandedCost,
-  carrierMeta,
   resolveEuVat,
   resolveUsSalesTax,
 } from "@/lib/global-commerce";
@@ -1170,5 +1169,3 @@ function CustomsForm({
     </div>
   );
 }
-
-export { carrierMeta };
