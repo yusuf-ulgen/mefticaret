@@ -380,8 +380,6 @@ function LandingPage() {
           </div>
         </section>
 
-        <LandingGrowthSuite />
-
         <section className="border-y border-border bg-secondary/40 py-16 lg:py-20" aria-labelledby="evde-uretenler">
           <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:px-8">
             <div>
@@ -488,6 +486,8 @@ function LandingPage() {
         <IntegrationsSection section={get("integrations")} />
 
         <PlatformCapabilitiesSection />
+
+        <LandingGrowthSuite />
 
         <AppShowcaseSection />
 
