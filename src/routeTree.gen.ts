@@ -290,6 +290,9 @@ import { Route as AuthenticatedStoreStoreIdOrdersNewRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdProductsIndexRouteImport } from './routes/_authenticated/store.$storeId.products.index'
 import { Route as AuthenticatedStoreStoreIdProductsProductIdRouteImport } from './routes/_authenticated/store.$storeId.products.$productId'
 import { Route as AuthenticatedStoreStoreIdProductsNewRouteImport } from './routes/_authenticated/store.$storeId.products.new'
+import { Route as ApiPublicEmailClickTokenRouteImport } from './routes/api/public/email.click.$token'
+import { Route as ApiPublicEmailOpenTokenRouteImport } from './routes/api/public/email.open.$token'
+import { Route as ApiPublicEmailUnsubscribeTokenRouteImport } from './routes/api/public/email.unsubscribe.$token'
 import { Route as ApiPublicFeedStoreSlugKindRouteImport } from './routes/api/public/feed.$storeSlug.$kind'
 
 const IndexRoute = IndexRouteImport.update({
@@ -1878,6 +1881,23 @@ const AuthenticatedStoreStoreIdProductsNewRoute =
     path: '/new',
     getParentRoute: () => AuthenticatedStoreStoreIdProductsRoute,
   } as any)
+const ApiPublicEmailClickTokenRoute =
+  ApiPublicEmailClickTokenRouteImport.update({
+    id: '/api/public/email/click/$token',
+    path: '/api/public/email/click/$token',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicEmailOpenTokenRoute = ApiPublicEmailOpenTokenRouteImport.update({
+  id: '/api/public/email/open/$token',
+  path: '/api/public/email/open/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicEmailUnsubscribeTokenRoute =
+  ApiPublicEmailUnsubscribeTokenRouteImport.update({
+    id: '/api/public/email/unsubscribe/$token',
+    path: '/api/public/email/unsubscribe/$token',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicFeedStoreSlugKindRoute =
   ApiPublicFeedStoreSlugKindRouteImport.update({
     id: '/api/public/feed/$storeSlug/$kind',
@@ -2165,6 +2185,9 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/api/public/email/click/$token': typeof ApiPublicEmailClickTokenRoute
+  '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
+  '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
   '/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
@@ -2446,6 +2469,9 @@ export interface FileRoutesByTo {
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/api/public/email/click/$token': typeof ApiPublicEmailClickTokenRoute
+  '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
+  '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
@@ -2731,6 +2757,9 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/_authenticated/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/_authenticated/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/api/public/email/click/$token': typeof ApiPublicEmailClickTokenRoute
+  '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
+  '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
   '/_authenticated/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
@@ -3016,6 +3045,9 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
     | '/store/$storeId/products/new'
+    | '/api/public/email/click/$token'
+    | '/api/public/email/open/$token'
+    | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
     | '/store/$storeId/products/'
   fileRoutesByTo: FileRoutesByTo
@@ -3297,6 +3329,9 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
     | '/store/$storeId/products/new'
+    | '/api/public/email/click/$token'
+    | '/api/public/email/open/$token'
+    | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
     | '/store/$storeId/products'
   id:
@@ -3581,6 +3616,9 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/orders/new'
     | '/_authenticated/store/$storeId/products/$productId'
     | '/_authenticated/store/$storeId/products/new'
+    | '/api/public/email/click/$token'
+    | '/api/public/email/open/$token'
+    | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
     | '/_authenticated/store/$storeId/products/'
   fileRoutesById: FileRoutesById
@@ -3684,6 +3722,9 @@ export interface RootRouteChildren {
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
+  ApiPublicEmailClickTokenRoute: typeof ApiPublicEmailClickTokenRoute
+  ApiPublicEmailOpenTokenRoute: typeof ApiPublicEmailOpenTokenRoute
+  ApiPublicEmailUnsubscribeTokenRoute: typeof ApiPublicEmailUnsubscribeTokenRoute
   ApiPublicFeedStoreSlugKindRoute: typeof ApiPublicFeedStoreSlugKindRoute
 }
 
@@ -5656,6 +5697,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdProductsNewRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdProductsRoute
     }
+    '/api/public/email/click/$token': {
+      id: '/api/public/email/click/$token'
+      path: '/api/public/email/click/$token'
+      fullPath: '/api/public/email/click/$token'
+      preLoaderRoute: typeof ApiPublicEmailClickTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/email/open/$token': {
+      id: '/api/public/email/open/$token'
+      path: '/api/public/email/open/$token'
+      fullPath: '/api/public/email/open/$token'
+      preLoaderRoute: typeof ApiPublicEmailOpenTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/email/unsubscribe/$token': {
+      id: '/api/public/email/unsubscribe/$token'
+      path: '/api/public/email/unsubscribe/$token'
+      fullPath: '/api/public/email/unsubscribe/$token'
+      preLoaderRoute: typeof ApiPublicEmailUnsubscribeTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/feed/$storeSlug/$kind': {
       id: '/api/public/feed/$storeSlug/$kind'
       path: '/api/public/feed/$storeSlug/$kind'
@@ -6294,6 +6356,9 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
+  ApiPublicEmailClickTokenRoute: ApiPublicEmailClickTokenRoute,
+  ApiPublicEmailOpenTokenRoute: ApiPublicEmailOpenTokenRoute,
+  ApiPublicEmailUnsubscribeTokenRoute: ApiPublicEmailUnsubscribeTokenRoute,
   ApiPublicFeedStoreSlugKindRoute: ApiPublicFeedStoreSlugKindRoute,
 }
 export const routeTree = rootRouteImport

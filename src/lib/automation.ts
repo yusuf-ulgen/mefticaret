@@ -13,6 +13,10 @@ export const AUTOMATION_TRIGGERS = [
   "back_in_stock",
   "review_received",
   "manual",
+  "browse_abandoned",
+  "customer_inactive",
+  "ltv_threshold",
+  "newsletter_subscribed",
 ] as const;
 
 export type AutomationTrigger = (typeof AUTOMATION_TRIGGERS)[number];
@@ -27,6 +31,10 @@ export const TRIGGER_LABELS: Record<AutomationTrigger, string> = {
   back_in_stock: "Ürün stoğa girdi",
   review_received: "Yorum geldi",
   manual: "Manuel başlatma",
+  browse_abandoned: "Ürünü inceledi, almadı",
+  customer_inactive: "Uzun süre sipariş yok",
+  ltv_threshold: "Harcama eşiği aşıldı",
+  newsletter_subscribed: "E-bültene abone oldu",
 };
 
 export const STEP_KINDS = [
@@ -67,6 +75,10 @@ export const CONDITIONS = [
   "email_opened",
   "has_tag",
   "cart_still_active",
+  "ltv_above",
+  "order_count_above",
+  "spent_above",
+  "category_interest",
 ] as const;
 
 export type AutomationCondition = (typeof CONDITIONS)[number];
@@ -77,6 +89,10 @@ export const CONDITION_LABELS: Record<AutomationCondition, string> = {
   email_opened: "E-posta açıldı mı?",
   has_tag: "Müşteri etikete sahip mi?",
   cart_still_active: "Sepet hâlâ dolu mu?",
+  ltv_above: "Yaşam boyu değer eşiğin üstünde mi?",
+  order_count_above: "Sipariş sayısı eşiğin üstünde mi?",
+  spent_above: "Toplam harcama eşiğin üstünde mi?",
+  category_interest: "Bu kategoriye ilgi var mı?",
 };
 
 export const BRANCH_OPTIONS = [
