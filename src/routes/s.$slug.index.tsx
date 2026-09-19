@@ -3,6 +3,9 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { ShopierHome } from "@/components/storefront/shopier-home";
+import { LiveStreamBanner } from "@/components/storefront/live-stream-banner";
+import { ShoppableVideoRail } from "@/components/storefront/shoppable-video-rail";
+import { UgcWall } from "@/components/storefront/ugc-wall";
 import { StorefrontSections } from "@/components/storefront-sections";
 import { resolveSections, withEssentialSections, type ThemeSectionRow } from "@/lib/theme-sections";
 import { storefrontQuery } from "@/lib/storefront-queries";

@@ -9,6 +9,9 @@ import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chro
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontQuestions } from "@/components/storefront-questions";
 import { SizeUnitConverter } from "@/components/storefront/size-unit-converter";
+import { ProductArViewer } from "@/components/storefront/product-ar-viewer";
+import { ShoppableVideoRail } from "@/components/storefront/shoppable-video-rail";
+import { UgcWall } from "@/components/storefront/ugc-wall";
 import { detectVisitorLocale } from "@/lib/global-export.functions";
 import { StorefrontReviews } from "@/components/storefront-reviews";
 import { StockAlertForm } from "@/components/stock-alert-form";
