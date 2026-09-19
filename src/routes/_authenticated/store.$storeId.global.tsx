@@ -1068,6 +1068,25 @@ function GlobalExportPage() {
           </Card>
         </TabsContent>
 
+        {/* --------------------------- Bölgesel katalog --------------------------- */}
+        <TabsContent value="catalog" className="space-y-4">
+          <RegionalCatalogPanel
+            storeId={storeId}
+            roundingRule={settings?.price_rounding_rule ?? "none"}
+            onRoundingRuleChange={(rule) => settingsMutation.mutate({ priceRoundingRule: rule })}
+          />
+        </TabsContent>
+
+        {/* ------------------------------ Çoklu depo ------------------------------ */}
+        <TabsContent value="warehouses" className="space-y-4">
+          <WarehousePanel storeId={storeId} />
+        </TabsContent>
+
+        {/* ------------------------------- Kârlılık ------------------------------- */}
+        <TabsContent value="profit" className="space-y-4">
+          <ProfitReportPanel storeId={storeId} baseCurrency={baseCurrency} />
+        </TabsContent>
+
         {/* ----------------------------- Yerelleştirme ----------------------------- */}
         <TabsContent value="localization" className="space-y-4">
           <Card className="space-y-4">
