@@ -97,11 +97,11 @@ export function AiTranslationStudio({ storeId }: { storeId: string }) {
                 {result.locale.toUpperCase()} · {dir === "rtl" ? "Sağdan sola (RTL)" : "Soldan sağa"}
               </Badge>
             </div>
-            {result.preview.length === 0 ? (
+            {preview.length === 0 ? (
               <p className="mt-3 text-sm text-muted-foreground">Önizlenecek çeviri bulunamadı.</p>
             ) : (
               <ul className="mt-3 divide-y">
-                {result.preview.map((row, index) => (
+                {preview.map((row, index) => (
                   <li key={`${row.field}-${index}`} className="grid gap-2 py-3 sm:grid-cols-2">
                     <div>
                       <p className="text-xs uppercase text-muted-foreground">
