@@ -397,7 +397,8 @@ export const runTranslationStudio = createServerFn({ method: "POST" })
       .eq("store_id", data.storeId)
       .eq("locale", locale)
       .in("content_type", ["product", "seo"])
-      .eq("status", "missing");
+      .eq("status", "missing")
+      .neq("field", "slug");
 
     return {
       locale,
