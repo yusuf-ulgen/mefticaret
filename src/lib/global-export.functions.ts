@@ -532,3 +532,39 @@ export const runGlobalAutoTranslate = createServerFn({ method: "POST" })
 
     return { jobId: job.jobId, locales: targets, total: job.total, processed, remaining };
   });
+
+/** Yayındaki ürünlerin vitrin ve SEO alanlarını hedef dillerde öncelikli tamamlar. */
+export const translatePublishedProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.string().uuid(), locales: z.array(z.enum(["en", "de", "ar"])).min(1).max(3) }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+    const { data: products, error: productError } = await context.supabase.from("products").select("id").eq("store_id", data.storeId).eq("status", "active").limit(100);
+    if (productError) throw new Error(productError.message);
+    const ids = (products ?? []).map((row) => row.id);
+    if (ids.length === 0) return { translated: 0, reused: 0, failed: 0 };
+
+    const { collectSourceItems, syncSourceEntries, translateEntries, ensureDefaultLocale, loadTranslationSettings } = await import("@/lib/translation.server");
+    const sourceLocale = await ensureDefaultLocale(context.supabase, data.storeId);
+    const settings = await loadTranslationSettings(context.supabase, data.storeId);
+    const sourceItems = (await collectSourceItems(context.supabase, data.storeId, ["product", "seo"])).filter((item) => item.entityId && ids.includes(item.entityId));
+    let translated = 0;
+    let reused = 0;
+    let failed = 0;
+    for (const locale of data.locales) {
+      await syncSourceEntries(context.supabase, data.storeId, locale, sourceItems);
+      const { data: entries, error } = await context.supabase.from("translation_entries")
+        .select("id, translation_key, source_value, field")
+        .eq("store_id", data.storeId).eq("locale", locale).in("entity_id", ids)
+        .in("content_type", ["product", "seo"]).in("status", ["missing", "needs_review"])
+        .limit(500);
+      if (error) throw new Error(error.message);
+      if (!entries?.length) continue;
+      const outcome = await translateEntries(context.supabase, { storeId: data.storeId, sourceLocale, targetLocale: locale, entries, settings, userId: context.userId });
+      translated += outcome.translated;
+      reused += outcome.reused;
+      failed += outcome.failed;
+    }
+    return { translated, reused, failed };
+  });

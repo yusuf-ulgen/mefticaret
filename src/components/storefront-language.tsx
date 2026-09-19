@@ -170,8 +170,13 @@ export function useStorefrontLocale(storeSlug: string): StorefrontLocale {
     (next: string) => {
       setLocaleState(next);
       persistLocale(storeSlug, next);
+      const url = new URL(window.location.href);
+      const isDefault = next === defaultLocale;
+      if (isDefault) url.searchParams.delete("lang");
+      else url.searchParams.set("lang", localeShortCode(next));
+      window.location.assign(url.toString());
     },
-    [storeSlug],
+    [defaultLocale, storeSlug],
   );
 
   const chain = useMemo(

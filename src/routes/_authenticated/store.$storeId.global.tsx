@@ -50,6 +50,7 @@ import {
   createExportDocument,
   createGlobalShipmentLabel,
   runGlobalAutoTranslate,
+  translatePublishedProducts,
   deleteCountryPrice,
   saveCustomsProfile,
   saveGlobalCarrier,
@@ -155,6 +156,7 @@ function GlobalExportPage() {
 
   /* --------------------------- otomatik çeviri --------------------------- */
   const autoTranslate = useServerFn(runGlobalAutoTranslate);
+  const translateProducts = useServerFn(translatePublishedProducts);
   const translateMutation = useMutation({
     mutationFn: () =>
       autoTranslate({
@@ -164,6 +166,11 @@ function GlobalExportPage() {
       toast.success(
         `${result.processed} metin çevrildi${result.remaining > 0 ? `, ${result.remaining} sırada` : ""}`,
       ),
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const productTranslateMutation = useMutation({
+    mutationFn: () => translateProducts({ data: { storeId, locales: ["en", "de", "ar"] } }),
+    onSuccess: (result) => toast.success(`${result.translated + result.reused} ürün ve SEO metni tamamlandı`),
     onError: (error: Error) => toast.error(error.message),
   });
 
@@ -1134,6 +1141,9 @@ function GlobalExportPage() {
                   {translateMutation.isPending
                     ? "Çeviriliyor..."
                     : "Seçili dillere otomatik çevir"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => productTranslateMutation.mutate()} disabled={productTranslateMutation.isPending}>
+                  {productTranslateMutation.isPending ? "Ürünler çevriliyor..." : "EN / DE / AR ürünlerini tamamla"}
                 </Button>
                 {translateMutation.data ? (
                   <p className="text-xs text-muted-foreground">
