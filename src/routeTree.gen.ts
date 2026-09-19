@@ -285,6 +285,7 @@ import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
+import { Route as SSlugKampanyaCampaignSlugRouteImport } from './routes/s.$slug.kampanya.$campaignSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
 import { Route as AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport } from './routes/_authenticated/store.$storeId.customers.$customerId'
@@ -1854,6 +1855,12 @@ const SSlugCCollectionSlugRoute = SSlugCCollectionSlugRouteImport.update({
   path: '/s/$slug/c/$collectionSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugKampanyaCampaignSlugRoute =
+  SSlugKampanyaCampaignSlugRouteImport.update({
+    id: '/s/$slug/kampanya/$campaignSlug',
+    path: '/s/$slug/kampanya/$campaignSlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SSlugPProductSlugRoute = SSlugPProductSlugRouteImport.update({
   id: '/s/$slug/p/$productSlug',
   path: '/s/$slug/p/$productSlug',
@@ -2199,6 +2206,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
+  '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
@@ -2486,6 +2494,7 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
+  '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/admin/frontend': typeof AuthenticatedAdminFrontendIndexRoute
@@ -2777,6 +2786,7 @@ export interface FileRoutesById {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
+  '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/_authenticated/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
@@ -3068,6 +3078,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/s/$slug/c/$collectionSlug'
+    | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
     | '/admin/frontend/'
@@ -3355,6 +3366,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/s/$slug/c/$collectionSlug'
+    | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
     | '/admin/frontend'
@@ -3645,6 +3657,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/s/$slug/c/$collectionSlug'
+    | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
     | '/_authenticated/admin/frontend/'
@@ -3759,6 +3772,7 @@ export interface RootRouteChildren {
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
+  SSlugKampanyaCampaignSlugRoute: typeof SSlugKampanyaCampaignSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
   ApiPublicEmailClickTokenRoute: typeof ApiPublicEmailClickTokenRoute
@@ -5701,6 +5715,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugCCollectionSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug/kampanya/$campaignSlug': {
+      id: '/s/$slug/kampanya/$campaignSlug'
+      path: '/s/$slug/kampanya/$campaignSlug'
+      fullPath: '/s/$slug/kampanya/$campaignSlug'
+      preLoaderRoute: typeof SSlugKampanyaCampaignSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/p/$productSlug': {
       id: '/s/$slug/p/$productSlug'
       path: '/s/$slug/p/$productSlug'
@@ -6419,6 +6440,7 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
+  SSlugKampanyaCampaignSlugRoute: SSlugKampanyaCampaignSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
   ApiPublicEmailClickTokenRoute: ApiPublicEmailClickTokenRoute,
