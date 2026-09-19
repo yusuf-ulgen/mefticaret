@@ -25,6 +25,8 @@ export type GlobalSettings = {
   auto_translate_locales: string[];
   price_rounding_rule: "none" | "end_99" | "end_90" | "nearest_integer" | "nearest_5";
   settlement_currencies: string[];
+  b2b_enabled: boolean;
+  b2b_default_moq: number;
 };
 
 export type CountryPrice = {
