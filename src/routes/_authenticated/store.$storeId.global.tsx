@@ -12,6 +12,11 @@ import { SalesHeatmapPanel } from "@/components/global-export/sales-heatmap";
 import { ProfitReportPanel } from "@/components/global-export/profit-report-panel";
 import { RegionalCatalogPanel } from "@/components/global-export/regional-catalog-panel";
 import { WarehousePanel } from "@/components/global-export/warehouse-panel";
+import { AffiliateHubPanel } from "@/components/global-export/affiliate-hub-panel";
+import { CampaignDispatchPanel } from "@/components/global-export/campaign-dispatch-panel";
+import { LogisticsReturnsPanel } from "@/components/global-export/logistics-returns-panel";
+import { B2bMarketplacePanel } from "@/components/global-export/b2b-marketplace-panel";
+import { GrowthWidgets } from "@/components/global-export/growth-widgets";
 import { GlobalShipmentLabelPrint } from "@/components/global-export/global-shipment-label-print";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -305,6 +310,11 @@ function GlobalExportPage() {
           <TabsTrigger value="catalog">Bölgesel Katalog</TabsTrigger>
           <TabsTrigger value="warehouses">Çoklu Depo</TabsTrigger>
           <TabsTrigger value="profit">Kârlılık</TabsTrigger>
+          <TabsTrigger value="affiliate">Affiliate Hub</TabsTrigger>
+          <TabsTrigger value="campaigns">Kampanya & Bildirim</TabsTrigger>
+          <TabsTrigger value="returns">İade & Rota</TabsTrigger>
+          <TabsTrigger value="b2b">B2B & Pazaryeri</TabsTrigger>
+          <TabsTrigger value="growth">Büyüme Panosu</TabsTrigger>
           <TabsTrigger value="heatmap">Satış Isı Haritası</TabsTrigger>
           <TabsTrigger value="studio">AI Çeviri Stüdyosu</TabsTrigger>
           <TabsTrigger value="localization">Yerelleştirme</TabsTrigger>
@@ -1089,6 +1099,35 @@ function GlobalExportPage() {
         {/* ------------------------------- Kârlılık ------------------------------- */}
         <TabsContent value="profit" className="space-y-4">
           <ProfitReportPanel storeId={storeId} baseCurrency={baseCurrency} />
+        </TabsContent>
+
+        {/* ------------------------------ Affiliate hub ---------------------------- */}
+        <TabsContent value="affiliate" className="space-y-4">
+          <AffiliateHubPanel storeId={storeId} storeSlug={store?.slug ?? ""} />
+        </TabsContent>
+
+        {/* --------------------------- Kampanya & bildirim -------------------------- */}
+        <TabsContent value="campaigns" className="space-y-4">
+          <CampaignDispatchPanel storeId={storeId} />
+        </TabsContent>
+
+        {/* ------------------------------ İade & rota ------------------------------ */}
+        <TabsContent value="returns" className="space-y-4">
+          <LogisticsReturnsPanel storeId={storeId} />
+        </TabsContent>
+
+        {/* ---------------------------- B2B & pazaryeri ---------------------------- */}
+        <TabsContent value="b2b" className="space-y-4">
+          <B2bMarketplacePanel
+            storeId={storeId}
+            b2bEnabled={settings?.b2b_enabled ?? false}
+            defaultMoq={Number(settings?.b2b_default_moq ?? 1)}
+          />
+        </TabsContent>
+
+        {/* ---------------------------- Büyüme panosu ----------------------------- */}
+        <TabsContent value="growth" className="space-y-4">
+          <GrowthWidgets storeId={storeId} />
         </TabsContent>
 
         {/* ------------------------------ Isı haritası ----------------------------- */}

@@ -8,6 +8,8 @@ import { StorefrontAdminLink } from "@/components/storefront-admin-link";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontQuestions } from "@/components/storefront-questions";
+import { SizeUnitConverter } from "@/components/storefront/size-unit-converter";
+import { detectVisitorLocale } from "@/lib/global-export.functions";
 import { StorefrontReviews } from "@/components/storefront-reviews";
 import { StockAlertForm } from "@/components/stock-alert-form";
 import { useCart } from "@/lib/cart";
@@ -191,6 +193,18 @@ function ProductPage() {
   const { data: storefrontData } = useQuery(storefrontQuery(slug));
   useStorefrontLive(slug, storefrontData?.store?.id ?? data?.store?.id);
   const [variantId, setVariantId] = useState<string | null>(null);
+  const [visitorCountry, setVisitorCountry] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    void detectVisitorLocale()
+      .then((result) => {
+        if (active) setVisitorCountry(result.detected ?? null);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
 
@@ -857,6 +871,10 @@ function ProductPage() {
           </div>
         </div>
       ) : null}
+
+      <div style={{ margin: "24px 0" }}>
+        <SizeUnitConverter country={visitorCountry} />
+      </div>
 
       <div id="yorumlar" style={{ scrollMarginTop: 90 }}>
         <StorefrontReviews
