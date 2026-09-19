@@ -130,6 +130,18 @@ export function useStorefrontLocale(storeSlug: string): StorefrontLocale {
 
   useEffect(() => {
     if (available.length === 0) return;
+    // Arama motorlarına verilen `?lang=en` gibi adresler her zaman önce gelir.
+    const requested = new URLSearchParams(window.location.search).get("lang");
+    if (requested) {
+      const short = requested.slice(0, 2).toLowerCase();
+      const match =
+        available.find((row) => row.locale === requested) ??
+        available.find((row) => row.locale.slice(0, 2).toLowerCase() === short);
+      if (match) {
+        setLocaleState(match.locale);
+        return;
+      }
+    }
     const stored = readStoredLocale(storeSlug);
     if (stored && available.some((row) => row.locale === stored)) {
       setLocaleState(stored);

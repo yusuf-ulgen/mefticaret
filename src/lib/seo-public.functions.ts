@@ -44,6 +44,10 @@ export type StoreSeoContext = {
   social: string[];
   settings: StoreSeoSettings;
   entity: (SeoFields & { kind?: string; author?: string | null; publishedAt?: string | null; updatedAt?: string | null }) | null;
+  /** Vitrinin etkin dilleri (hreflang üretimi için). */
+  locales?: string[];
+  /** Mağazanın varsayılan dili (x-default). */
+  defaultLocale?: string;
 };
 
 export const getStoreSeoContext = createServerFn({ method: "GET" })
@@ -123,6 +127,17 @@ export const getStoreSeoContext = createServerFn({ method: "GET" })
     if (postalCode) address.postalCode = postalCode;
     if (country) address.country = country;
 
+    // Vitrinin yayında olduğu diller: hreflang etiketleri bunlardan üretilir.
+    const { data: localeRows } = await supabase
+      .from("store_locales")
+      .select("locale, is_default, is_active")
+      .eq("store_id", store.id)
+      .eq("is_active", true)
+      .order("sort_order");
+    const locales = (localeRows ?? []).map((row) => String(row.locale));
+    const defaultLocale =
+      (localeRows ?? []).find((row) => row.is_default)?.locale ?? locales[0] ?? "tr-TR";
+
     return {
       storeName: store.name,
       storeSlug: store.slug,
@@ -135,5 +150,7 @@ export const getStoreSeoContext = createServerFn({ method: "GET" })
       social: socialRaw.filter((item): item is string => typeof item === "string" && /^https?:\/\//.test(item)),
       settings: readStoreSeo(settings?.seo),
       entity,
+      locales,
+      defaultLocale: String(defaultLocale),
     };
   });

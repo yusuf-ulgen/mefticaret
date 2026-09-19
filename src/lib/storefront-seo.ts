@@ -124,6 +124,7 @@ export function storefrontHead(input: StorefrontHeadInput) {
     meta: head.meta,
     links: [
       ...head.links,
+      ...alternateLinks(ctx, path, input.origin),
       {
         rel: "sitemap",
         type: "application/xml",
@@ -132,6 +133,29 @@ export function storefrontHead(input: StorefrontHeadInput) {
     ],
     scripts: schemas.map((schema) => jsonLdScript(schema)),
   };
+}
+
+/**
+ * Mağazanın etkin dilleri için hreflang alternatifleri.
+ * Varsayılan dil parametresiz adres ve `x-default`, diğer diller `?lang=<kod>`.
+ */
+export function alternateLinks(
+  ctx: StoreSeoContext | null,
+  path: string,
+  origin?: string | null,
+): { rel: string; hreflang: string; href: string }[] {
+  const locales = ctx?.locales ?? [];
+  if (locales.length < 2) return [];
+  const defaultLocale = ctx?.defaultLocale ?? locales[0]!;
+  const base = absoluteUrl(path, origin);
+  const links = locales.map((locale) => {
+    const short = locale.slice(0, 2).toLowerCase();
+    const href =
+      locale === defaultLocale ? base : `${base}${base.includes("?") ? "&" : "?"}lang=${short}`;
+    return { rel: "alternate", hreflang: short, href };
+  });
+  links.push({ rel: "alternate", hreflang: "x-default", href: base });
+  return links;
 }
 
 /**
