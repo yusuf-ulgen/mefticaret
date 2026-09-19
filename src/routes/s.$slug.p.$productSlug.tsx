@@ -8,6 +8,8 @@ import { StorefrontAdminLink } from "@/components/storefront-admin-link";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontQuestions } from "@/components/storefront-questions";
+import { SizeUnitConverter } from "@/components/storefront/size-unit-converter";
+import { detectVisitorLocale } from "@/lib/global-export.functions";
 import { StorefrontReviews } from "@/components/storefront-reviews";
 import { StockAlertForm } from "@/components/stock-alert-form";
 import { useCart } from "@/lib/cart";
@@ -857,6 +859,10 @@ function ProductPage() {
           </div>
         </div>
       ) : null}
+
+      <div style={{ margin: "24px 0" }}>
+        <SizeUnitConverter country={visitorCountry} />
+      </div>
 
       <div id="yorumlar" style={{ scrollMarginTop: 90 }}>
         <StorefrontReviews
