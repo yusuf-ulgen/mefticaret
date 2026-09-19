@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight, Check, Heart, Menu, PackagePlus, Smartphone, 
 
 import gdprBadge from "@/assets/gdpr-badge.webp.asset.json";
 import { CommerceFlowAnimation } from "@/components/commerce-flow-animation";
+import { LandingGrowthSuite } from "@/components/landing-growth-suite";
 import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
 import { PlatformLocaleSwitcher } from "@/components/platform-locale-switcher";
 import { supabase } from "@/integrations/supabase/client";
@@ -378,6 +379,8 @@ function LandingPage() {
             <CommerceFlowAnimation />
           </div>
         </section>
+
+        <LandingGrowthSuite />
 
         <section className="border-y border-border bg-secondary/40 py-16 lg:py-20" aria-labelledby="evde-uretenler">
           <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:px-8">
