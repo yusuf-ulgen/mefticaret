@@ -23,6 +23,13 @@ export function ProfitReportPanel({ storeId, baseCurrency }: { storeId: string; 
       } as never),
   });
 
+  const campaigns = useQuery({
+    queryKey: ["campaign-storefront-report", storeId, days],
+    queryFn: () => getCampaignStorefrontReport({ data: { storeId, days } } as never),
+  });
+
+
+
   return (
     <div className="space-y-4">
       <div className="rounded-xl border bg-card p-5">
