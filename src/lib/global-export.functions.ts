@@ -278,7 +278,7 @@ export const createExportDocument = createServerFn({ method: "POST" })
 
     const { data: items, error: itemsError } = await supabase
       .from("order_items")
-      .select("id, product_id, title, quantity, unit_price, total")
+      .select("id, product_id, title, quantity, unit_price, line_total")
       .eq("order_id", data.orderId);
     if (itemsError) throw new Error(itemsError.message);
 
@@ -323,7 +323,7 @@ export const createExportDocument = createServerFn({ method: "POST" })
         originCountry: (profile?.["origin_country"] as string | undefined) || "TR",
         quantity: Number(item.quantity ?? 0),
         unitPrice: Number(item.unit_price ?? 0),
-        total: Number(item.total ?? 0),
+        total: Number(item.line_total ?? 0),
         weightGrams: (profile?.["weight_grams"] as number | undefined) ?? null,
         material: (profile?.["material"] as string | undefined) ?? null,
       };
