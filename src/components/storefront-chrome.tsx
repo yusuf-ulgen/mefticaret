@@ -16,6 +16,7 @@ import { LanguageSwitcher } from "@/components/storefront-language";
 import { storefrontUI } from "@/lib/storefront-ui";
 import { PredictiveSearch } from "@/components/wokiee/predictive-search";
 import { MegaMenu } from "@/components/wokiee/mega-menu";
+import { StorefrontSupportChat } from "@/components/storefront/support-chat";
 import { CartDrawer } from "@/components/wokiee/cart-drawer";
 import { QuickViewModal } from "@/components/wokiee/quick-view";
 import { MobileBottomNav } from "@/components/wokiee/mobile-bottom-nav";
@@ -200,6 +201,9 @@ export function StorefrontChrome({
 }) {
   const { t, fonts, text, muted, border, radius, logoUrl, contentWidth, design } = storefrontTokens(theme);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const supportLocale = useRouterState({
+    select: (state) => String((state.location.search as Record<string, unknown>)?.["lang"] ?? "tr"),
+  });
   const cart = useCart();
   const favorites = useFavorites();
   const compare = useCompare();
@@ -290,6 +294,7 @@ export function StorefrontChrome({
         <main className="hm-storefront-main">{children}</main>
         <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
         <QuickViewModal theme={t} storeSlug={storeSlug} />
+        <StorefrontSupportChat slug={storeSlug} locale={supportLocale} />
       </div>
     );
   }
@@ -655,6 +660,7 @@ export function StorefrontChrome({
       <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
       <QuickViewModal theme={t} storeSlug={storeSlug} />
       <MobileBottomNav theme={t} storeSlug={storeSlug} />
+      <StorefrontSupportChat slug={storeSlug} locale={supportLocale} />
 
 
 
