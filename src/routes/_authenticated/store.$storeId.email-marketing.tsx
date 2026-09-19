@@ -207,8 +207,18 @@ function EmailMarketingPage() {
                 { label: "B", subject: campaignForm.variantBSubject || campaignForm.subject, previewText: campaignForm.previewText, weight: 50 },
               ]
             : [],
+          storefrontEnabled: campaignForm.storefrontEnabled,
+          slug: campaignForm.slug.trim().toLowerCase(),
+          bannerHeadline: campaignForm.bannerHeadline,
+          bannerBody: campaignForm.bannerBody,
+          bannerCtaLabel: campaignForm.bannerCtaLabel,
+          landingHeadline: campaignForm.landingHeadline,
+          landingBody: campaignForm.landingBody,
+          discountCode: campaignForm.discountCode.trim().toUpperCase(),
+          endsAt: campaignForm.endsAt ? new Date(campaignForm.endsAt).toISOString() : null,
         },
       }),
+
     onSuccess: async () => {
       toast.success("Kampanya kaydedildi");
       setCampaignForm((current) => ({ ...current, name: "" }));
