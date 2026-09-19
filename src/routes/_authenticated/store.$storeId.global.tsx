@@ -300,25 +300,31 @@ function GlobalExportPage() {
 
   return (
     <AppShell storeId={storeId} title="E-İhracat & Global">
-      <Tabs defaultValue="overview" className="space-y-5">
-        <TabsList className="flex w-full flex-wrap justify-start gap-1">
-          <TabsTrigger value="overview">Genel Bakış</TabsTrigger>
-          <TabsTrigger value="prices">Ülke Bazlı Fiyatlar</TabsTrigger>
-          <TabsTrigger value="tax">Gümrük & Vergi</TabsTrigger>
-          <TabsTrigger value="shipping">Mikro İhracat Kargo</TabsTrigger>
-          <TabsTrigger value="payments">Küresel Ödemeler</TabsTrigger>
-          <TabsTrigger value="catalog">Bölgesel Katalog</TabsTrigger>
-          <TabsTrigger value="warehouses">Çoklu Depo</TabsTrigger>
-          <TabsTrigger value="profit">Kârlılık</TabsTrigger>
-          <TabsTrigger value="affiliate">Affiliate Hub</TabsTrigger>
-          <TabsTrigger value="campaigns">Kampanya & Bildirim</TabsTrigger>
-          <TabsTrigger value="returns">İade & Rota</TabsTrigger>
-          <TabsTrigger value="b2b">B2B & Pazaryeri</TabsTrigger>
-          <TabsTrigger value="growth">Büyüme Panosu</TabsTrigger>
-          <TabsTrigger value="heatmap">Satış Isı Haritası</TabsTrigger>
-          <TabsTrigger value="studio">AI Çeviri Stüdyosu</TabsTrigger>
-          <TabsTrigger value="localization">Yerelleştirme</TabsTrigger>
+      <Tabs value={tab} onValueChange={setTab} className="space-y-5">
+        {/* Mobil: tek açılır menü — 16 sekmeyi kaydırmaya gerek kalmaz. */}
+        <div className="md:hidden">
+          <Select value={tab} onValueChange={setTab}>
+            <SelectTrigger className="h-11 w-full" aria-label="Bölüm seçin">
+              <SelectValue placeholder="Bölüm seçin" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[60vh]">
+              {GLOBAL_TABS.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <TabsList className="hidden w-full flex-wrap justify-start gap-1 md:flex">
+          {GLOBAL_TABS.map((item) => (
+            <TabsTrigger key={item.value} value={item.value}>
+              {item.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
+
 
         {/* ------------------------------ Genel Bakış ------------------------------ */}
         <TabsContent value="overview" className="space-y-4">
