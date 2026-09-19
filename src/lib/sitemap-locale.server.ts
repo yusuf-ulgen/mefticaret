@@ -16,7 +16,7 @@ import { readSeo } from "@/lib/seo";
 const BASE_URL = "https://mefticaret.com";
 const PAGE_SIZE = 1000;
 
-export const SITEMAP_LOCALES = ["tr", "en", "de", "ar"] as const;
+export const SITEMAP_LOCALES = ["tr", "en", "de", "ar", "fr"] as const;
 export type SitemapLocale = (typeof SITEMAP_LOCALES)[number];
 
 const HREFLANG: Record<SitemapLocale, string> = {
@@ -24,6 +24,7 @@ const HREFLANG: Record<SitemapLocale, string> = {
   en: "en",
   de: "de",
   ar: "ar",
+  fr: "fr",
 };
 
 /** Platformun kendi (Türkçe) pazarlama sayfaları ve İngilizce karşılıkları. */
@@ -43,6 +44,7 @@ const PLATFORM_PATHS: Record<SitemapLocale, string[]> = {
   en: ["/en", "/en/how-to-start-an-online-store"],
   de: ["/de"],
   ar: ["/ar"],
+  fr: ["/fr"],
 };
 
 function escapeXml(value: string) {
@@ -55,7 +57,13 @@ function escapeXml(value: string) {
 }
 
 /** Platform ana sayfalarının dil karşılıkları (ayrı adresler). */
-const HOME_PATHS: Record<SitemapLocale, string> = { tr: "/", en: "/en", de: "/de", ar: "/ar" };
+const HOME_PATHS: Record<SitemapLocale, string> = {
+  tr: "/",
+  en: "/en",
+  de: "/de",
+  ar: "/ar",
+  fr: "/fr",
+};
 
 /** Bir yolu, verilen dil için tam adrese çevirir (tr varsayılan: parametresiz). */
 export function localeUrl(path: string, locale: SitemapLocale) {
@@ -63,7 +71,7 @@ export function localeUrl(path: string, locale: SitemapLocale) {
   if (Object.values(HOME_PATHS).includes(path)) return `${BASE_URL}${HOME_PATHS[locale]}`;
   const url = `${BASE_URL}${path}`;
   // Dili yolunda taşıyan sayfalar (örn. /en/...) parametre almaz.
-  if (locale === "tr" || /^\/(en|de|ar)\//.test(path)) return url;
+  if (locale === "tr" || /^\/(en|de|ar|fr)\//.test(path)) return url;
   return `${url}${path.includes("?") ? "&" : "?"}lang=${locale}`;
 }
 
@@ -142,7 +150,7 @@ export async function buildLocaleSitemap(locale: SitemapLocale): Promise<string>
       path,
       changefreq: isHome ? "weekly" : "monthly",
       priority: isHome ? "1.0" : "0.8",
-      locales: isHome ? ["tr", "en", "de", "ar"] : [locale],
+      locales: isHome ? [...SITEMAP_LOCALES] : [locale],
     });
   }
 

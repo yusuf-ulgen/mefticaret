@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
  */
 
 export type LandingCopy = {
-  locale: "en" | "de" | "ar";
+  locale: "en" | "de" | "ar" | "fr";
   dir: "ltr" | "rtl";
   eyebrow: string;
   title: string;
@@ -138,6 +138,15 @@ export function GlobalLanding({ copy }: { copy: LandingCopy }) {
 }
 
 /** Dil bazlı head meta + hreflang alternatifleri. */
+/** Dil karşılıkları tek yerde tutulur; yeni dil eklenince hreflang otomatik güncellenir. */
+const LANDING_ALTERNATES = [
+  { hrefLang: "tr", href: "https://mefticaret.com/" },
+  { hrefLang: "en", href: "https://mefticaret.com/en" },
+  { hrefLang: "de", href: "https://mefticaret.com/de" },
+  { hrefLang: "fr", href: "https://mefticaret.com/fr" },
+  { hrefLang: "ar", href: "https://mefticaret.com/ar" },
+];
+
 export function globalLandingHead(copy: LandingCopy, path: string) {
   const url = `https://mefticaret.com${path}`;
   return {
@@ -156,10 +165,11 @@ export function globalLandingHead(copy: LandingCopy, path: string) {
     ],
     links: [
       { rel: "canonical", href: url },
-      { rel: "alternate", hrefLang: "tr", href: "https://mefticaret.com/" },
-      { rel: "alternate", hrefLang: "en", href: "https://mefticaret.com/en" },
-      { rel: "alternate", hrefLang: "de", href: "https://mefticaret.com/de" },
-      { rel: "alternate", hrefLang: "ar", href: "https://mefticaret.com/ar" },
+      ...LANDING_ALTERNATES.map((alt) => ({
+        rel: "alternate",
+        hrefLang: alt.hrefLang,
+        href: alt.href,
+      })),
       { rel: "alternate", hrefLang: "x-default", href: "https://mefticaret.com/" },
     ],
   };

@@ -23,6 +23,7 @@ export const Route = createFileRoute("/sitemap-index.xml")({
           `${BASE_URL}/sitemap-en.xml`,
           `${BASE_URL}/sitemap-de.xml`,
           `${BASE_URL}/sitemap-ar.xml`,
+          `${BASE_URL}/sitemap-fr.xml`,
         ];
 
         try {
