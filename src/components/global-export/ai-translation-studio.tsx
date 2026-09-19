@@ -35,6 +35,11 @@ export function AiTranslationStudio({ storeId }: { storeId: string }) {
   });
 
   const dir = result?.dir ?? "ltr";
+  // Aynı metin birden çok üründe geçebilir; önizlemede tekrarları gizle.
+  const preview = (result?.preview ?? []).filter(
+    (row, index, list) =>
+      list.findIndex((other) => other.source === row.source && other.target === row.target) === index,
+  );
 
   return (
     <div className="space-y-4">
