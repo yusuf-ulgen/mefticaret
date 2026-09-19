@@ -184,8 +184,8 @@ export function AffiliateHubPanel({ storeId, storeSlug }: Props) {
               </SelectTrigger>
               <SelectContent>
                 {GLOBAL_CURRENCIES.map((item) => (
-                  <SelectItem key={item.code} value={item.code}>
-                    {item.code}
+                  <SelectItem key={item} value={item}>
+                    {item}
                   </SelectItem>
                 ))}
               </SelectContent>
