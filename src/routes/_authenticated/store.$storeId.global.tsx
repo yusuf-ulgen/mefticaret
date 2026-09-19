@@ -44,6 +44,27 @@ import {
   resolveEuVat,
   resolveUsSalesTax,
 } from "@/lib/global-commerce";
+
+/** Sekme listesi: masaüstünde şerit, mobilde açılır menü olarak kullanılır. */
+const GLOBAL_TABS: { value: string; label: string }[] = [
+  { value: "overview", label: "Genel Bakış" },
+  { value: "prices", label: "Ülke Bazlı Fiyatlar" },
+  { value: "tax", label: "Gümrük & Vergi" },
+  { value: "shipping", label: "Mikro İhracat Kargo" },
+  { value: "payments", label: "Küresel Ödemeler" },
+  { value: "catalog", label: "Bölgesel Katalog" },
+  { value: "warehouses", label: "Çoklu Depo" },
+  { value: "profit", label: "Kârlılık" },
+  { value: "affiliate", label: "Affiliate Hub" },
+  { value: "campaigns", label: "Kampanya & Bildirim" },
+  { value: "returns", label: "İade & Rota" },
+  { value: "b2b", label: "B2B & Pazaryeri" },
+  { value: "growth", label: "Büyüme Panosu" },
+  { value: "heatmap", label: "Satış Isı Haritası" },
+  { value: "studio", label: "AI Çeviri Stüdyosu" },
+  { value: "localization", label: "Yerelleştirme" },
+];
+
 import {
   countryPricesQuery,
   customsProfilesQuery,
