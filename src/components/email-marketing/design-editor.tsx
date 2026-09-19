@@ -244,7 +244,7 @@ export function DesignEditor({
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="block-align">Hizalama</Label>
-                <Select value={selected.align ?? "center"} onValueChange={(next) => patchBlock({ align: next as EmailBlock["align"] })}>
+                <Select value={selected.align ?? "center"} onValueChange={(next) => patchBlock({ align: next as "left" | "center" | "right" })}>
                   <SelectTrigger id="block-align" className="h-9">
                     <SelectValue />
                   </SelectTrigger>
