@@ -54,10 +54,10 @@ export function PlatformLocaleSwitcher({ active }: { active: string }) {
             <Button
               variant="outline"
               className="h-10 gap-1 rounded-full px-3"
-              aria-label={`Dil seçimi: ${activeLocale.label}`}
+              aria-label={`Dil seçimi: ${activeLocale?.label ?? "Türkçe"}`}
             >
               <Globe className="size-4" aria-hidden="true" />
-              <span className="text-xs font-semibold">{activeLocale.short}</span>
+              <span className="text-xs font-semibold">{activeLocale?.short ?? "TR"}</span>
               <ChevronDown className="size-3.5 text-muted-foreground" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
