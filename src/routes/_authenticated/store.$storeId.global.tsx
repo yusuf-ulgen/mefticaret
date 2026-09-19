@@ -7,6 +7,9 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { ExportDocumentPrint } from "@/components/global-export/export-document-print";
+import { ProfitReportPanel } from "@/components/global-export/profit-report-panel";
+import { RegionalCatalogPanel } from "@/components/global-export/regional-catalog-panel";
+import { WarehousePanel } from "@/components/global-export/warehouse-panel";
 import { GlobalShipmentLabelPrint } from "@/components/global-export/global-shipment-label-print";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -144,6 +147,8 @@ function GlobalExportPage() {
           exporterEmail: settings?.exporter_email ?? null,
           defaultHsCode: settings?.default_hs_code ?? null,
           autoTranslateLocales: settings?.auto_translate_locales ?? ["en"],
+          priceRoundingRule: settings?.price_rounding_rule ?? "none",
+          settlementCurrencies: settings?.settlement_currencies ?? [],
           ...patch,
         } as never,
       }),
@@ -295,6 +300,9 @@ function GlobalExportPage() {
           <TabsTrigger value="tax">Gümrük & Vergi</TabsTrigger>
           <TabsTrigger value="shipping">Mikro İhracat Kargo</TabsTrigger>
           <TabsTrigger value="payments">Küresel Ödemeler</TabsTrigger>
+          <TabsTrigger value="catalog">Bölgesel Katalog</TabsTrigger>
+          <TabsTrigger value="warehouses">Çoklu Depo</TabsTrigger>
+          <TabsTrigger value="profit">Kârlılık</TabsTrigger>
           <TabsTrigger value="localization">Yerelleştirme</TabsTrigger>
         </TabsList>
 
@@ -1058,6 +1066,25 @@ function GlobalExportPage() {
               })}
             </div>
           </Card>
+        </TabsContent>
+
+        {/* --------------------------- Bölgesel katalog --------------------------- */}
+        <TabsContent value="catalog" className="space-y-4">
+          <RegionalCatalogPanel
+            storeId={storeId}
+            roundingRule={settings?.price_rounding_rule ?? "none"}
+            onRoundingRuleChange={(rule) => settingsMutation.mutate({ priceRoundingRule: rule })}
+          />
+        </TabsContent>
+
+        {/* ------------------------------ Çoklu depo ------------------------------ */}
+        <TabsContent value="warehouses" className="space-y-4">
+          <WarehousePanel storeId={storeId} />
+        </TabsContent>
+
+        {/* ------------------------------- Kârlılık ------------------------------- */}
+        <TabsContent value="profit" className="space-y-4">
+          <ProfitReportPanel storeId={storeId} baseCurrency={baseCurrency} />
         </TabsContent>
 
         {/* ----------------------------- Yerelleştirme ----------------------------- */}

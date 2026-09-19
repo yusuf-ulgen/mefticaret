@@ -23,6 +23,8 @@ export type GlobalSettings = {
   exporter_email: string | null;
   default_hs_code: string | null;
   auto_translate_locales: string[];
+  price_rounding_rule: "none" | "end_99" | "end_90" | "nearest_integer" | "nearest_5";
+  settlement_currencies: string[];
 };
 
 export type CountryPrice = {
