@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { calculateNetProfit } from "@/lib/global-commerce";
+import { calculateNetProfit, normalizeCountryCode } from "@/lib/global-commerce";
 
 /**
  * Ultra-zengin e-ihracat suite sunucu uçları:
@@ -241,8 +241,9 @@ export const getGlobalProfitReport = createServerFn({ method: "GET" })
       string,
       { country: string; orders: number; revenue: number; cogs: number; shipping: number; revenueTry: number }
     >();
+    const byCurrency = new Map<string, { currency: string; orders: number; revenue: number; revenueTry: number }>();
     for (const row of rows) {
-      const country = (row.shipping_address?.country ?? "TR").toString().toUpperCase().slice(0, 2);
+      const country = normalizeCountryCode(row.shipping_address?.country);
       const entry =
         byCountry.get(country) ??
         { country, orders: 0, revenue: 0, cogs: 0, shipping: 0, revenueTry: 0 };
@@ -254,6 +255,14 @@ export const getGlobalProfitReport = createServerFn({ method: "GET" })
       entry.cogs += costByOrder.get(row.id) ?? 0;
       entry.shipping += shipByOrder.get(row.id) ?? Number(row.shipping_total ?? 0);
       byCountry.set(country, entry);
+
+      // Döviz bazlı gelir: siparişin gösterim para birimi esas alınır.
+      const currency = String(row.display_currency ?? row.currency ?? "TRY").toUpperCase().slice(0, 3);
+      const fx = byCurrency.get(currency) ?? { currency, orders: 0, revenue: 0, revenueTry: 0 };
+      fx.orders += 1;
+      fx.revenue += revenue;
+      fx.revenueTry += rate > 0 ? revenue * rate : revenue;
+      byCurrency.set(currency, fx);
     }
 
     const countries = [...byCountry.values()]
@@ -269,14 +278,137 @@ export const getGlobalProfitReport = createServerFn({ method: "GET" })
       })
       .sort((a, b) => b.revenue - a.revenue);
 
+    const currencies = [...byCurrency.values()].sort((a, b) => b.revenueTry - a.revenueTry);
+
     return {
       days: data.days,
       totalOrders: rows.length,
       countries,
+      currencies,
       totals: {
         revenue: countries.reduce((sum, row) => sum + row.revenue, 0),
         netProfit: countries.reduce((sum, row) => sum + row.netProfit, 0),
         netProfitTry: countries.reduce((sum, row) => sum + row.netProfitTry, 0),
+        revenueTry: currencies.reduce((sum, row) => sum + row.revenueTry, 0),
       },
+    };
+  });
+
+/* ---------------------------- AI Çeviri Stüdyosu ---------------------------- */
+
+/**
+ * Seçili dile ürün başlığı, açıklaması ve SEO metalarını çevirir.
+ * Mevcut çeviri motoru (`translation.server`) kullanılır; sonuç önizlemesi
+ * gerçek `translation_entries` kayıtlarından okunur, uydurma metin dönmez.
+ */
+export const runTranslationStudio = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        storeId: z.string().uuid(),
+        locale: z.string().trim().min(2).max(5),
+        limit: z.number().int().min(1).max(300).default(120),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const locale = data.locale.slice(0, 2).toLowerCase();
+    const {
+      collectSourceItems,
+      syncSourceEntries,
+      translateEntries,
+      ensureDefaultLocale,
+      loadTranslationSettings,
+    } = await import("@/lib/translation.server");
+    const { isRtlLanguage, languageNative } = await import("@/lib/languages");
+
+    const sourceLocale = await ensureDefaultLocale(context.supabase, data.storeId);
+    if (locale === sourceLocale.slice(0, 2).toLowerCase()) {
+      throw new Error("Hedef dil, mağazanın kaynak diliyle aynı olamaz");
+    }
+
+    const { error: localeError } = await context.supabase.from("store_locales").upsert(
+      {
+        store_id: data.storeId,
+        code: locale,
+        locale,
+        label: locale.toUpperCase(),
+        native_label: languageNative(locale),
+        dir: isRtlLanguage(locale) ? "rtl" : "ltr",
+        is_active: true,
+        is_default: false,
+      } as never,
+      { onConflict: "store_id,locale" },
+    );
+    if (localeError) throw new Error(localeError.message);
+
+    const settings = await loadTranslationSettings(context.supabase, data.storeId);
+    const sourceItems = await collectSourceItems(context.supabase, data.storeId, ["product", "seo"]);
+    await syncSourceEntries(context.supabase, data.storeId, locale, sourceItems);
+
+    const { data: pending, error: pendingError } = await context.supabase
+      .from("translation_entries")
+      .select("id, translation_key, source_value, field")
+      .eq("store_id", data.storeId)
+      .eq("locale", locale)
+      .in("content_type", ["product", "seo"])
+      .in("status", ["missing", "needs_review"])
+      .limit(data.limit);
+    if (pendingError) throw new Error(pendingError.message);
+
+    let translated = 0;
+    let reused = 0;
+    let failed = 0;
+    if (pending?.length) {
+      const outcome = await translateEntries(context.supabase, {
+        storeId: data.storeId,
+        sourceLocale,
+        targetLocale: locale,
+        entries: pending,
+        settings,
+        userId: context.userId,
+      });
+      translated = outcome.translated;
+      reused = outcome.reused;
+      failed = outcome.failed;
+    }
+
+    const { data: preview, error: previewError } = await context.supabase
+      .from("translation_entries")
+      .select("field, content_type, source_value, translated_value, status, updated_at")
+      .eq("store_id", data.storeId)
+      .eq("locale", locale)
+      .in("content_type", ["product", "seo"])
+      .not("translated_value", "is", null)
+      .order("updated_at", { ascending: false })
+      .limit(20);
+    if (previewError) throw new Error(previewError.message);
+
+    const { count: remaining } = await context.supabase
+      .from("translation_entries")
+      .select("id", { count: "exact", head: true })
+      .eq("store_id", data.storeId)
+      .eq("locale", locale)
+      .in("content_type", ["product", "seo"])
+      .eq("status", "missing");
+
+    return {
+      locale,
+      dir: isRtlLanguage(locale) ? ("rtl" as const) : ("ltr" as const),
+      translated,
+      reused,
+      failed,
+      remaining: remaining ?? 0,
+      preview: (preview ?? []).map((row) => ({
+        field: String((row as { field: string }).field),
+        contentType: String((row as { content_type: string }).content_type),
+        source: String((row as { source_value: string | null }).source_value ?? ""),
+        target: String((row as { translated_value: string | null }).translated_value ?? ""),
+        status: String((row as { status: string }).status),
+      })),
     };
   });

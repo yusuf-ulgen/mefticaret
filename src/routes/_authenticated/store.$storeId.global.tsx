@@ -6,7 +6,9 @@ import { Globe2, Plus, Trash2, Truck, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { AiTranslationStudio } from "@/components/global-export/ai-translation-studio";
 import { ExportDocumentPrint } from "@/components/global-export/export-document-print";
+import { SalesHeatmapPanel } from "@/components/global-export/sales-heatmap";
 import { ProfitReportPanel } from "@/components/global-export/profit-report-panel";
 import { RegionalCatalogPanel } from "@/components/global-export/regional-catalog-panel";
 import { WarehousePanel } from "@/components/global-export/warehouse-panel";
@@ -303,6 +305,8 @@ function GlobalExportPage() {
           <TabsTrigger value="catalog">Bölgesel Katalog</TabsTrigger>
           <TabsTrigger value="warehouses">Çoklu Depo</TabsTrigger>
           <TabsTrigger value="profit">Kârlılık</TabsTrigger>
+          <TabsTrigger value="heatmap">Satış Isı Haritası</TabsTrigger>
+          <TabsTrigger value="studio">AI Çeviri Stüdyosu</TabsTrigger>
           <TabsTrigger value="localization">Yerelleştirme</TabsTrigger>
         </TabsList>
 
@@ -1085,6 +1089,16 @@ function GlobalExportPage() {
         {/* ------------------------------- Kârlılık ------------------------------- */}
         <TabsContent value="profit" className="space-y-4">
           <ProfitReportPanel storeId={storeId} baseCurrency={baseCurrency} />
+        </TabsContent>
+
+        {/* ------------------------------ Isı haritası ----------------------------- */}
+        <TabsContent value="heatmap" className="space-y-4">
+          <SalesHeatmapPanel storeId={storeId} baseCurrency={baseCurrency} />
+        </TabsContent>
+
+        {/* --------------------------- AI Çeviri Stüdyosu -------------------------- */}
+        <TabsContent value="studio" className="space-y-4">
+          <AiTranslationStudio storeId={storeId} />
         </TabsContent>
 
         {/* ----------------------------- Yerelleştirme ----------------------------- */}
