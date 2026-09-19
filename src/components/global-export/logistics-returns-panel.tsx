@@ -192,7 +192,7 @@ export function LogisticsReturnsPanel({ storeId }: Props) {
               <SelectContent>
                 {CARRIER_CATALOG.map((carrier) => (
                   <SelectItem key={carrier.code} value={carrier.code}>
-                    {carrier.name}
+                    {carrier.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -351,7 +351,7 @@ export function LogisticsReturnsPanel({ storeId }: Props) {
               <SelectContent>
                 {CARRIER_CATALOG.map((carrier) => (
                   <SelectItem key={carrier.code} value={carrier.code}>
-                    {carrier.name}
+                    {carrier.label}
                   </SelectItem>
                 ))}
               </SelectContent>
