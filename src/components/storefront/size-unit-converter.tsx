@@ -53,10 +53,10 @@ export function SizeUnitConverter({ country, locale = "tr" }: Props) {
           <p className="text-xs font-medium text-muted-foreground">{text.apparel}</p>
           <ul className="mt-1 space-y-1">
             {apparel.map((row) => (
-              <li key={row.eu} className="flex justify-between border-b py-1 last:border-0">
-                <span>EU {row.eu}</span>
+              <li key={row.EU} className="flex justify-between border-b py-1 last:border-0">
+                <span>EU {row.EU}</span>
                 <span className="text-muted-foreground">
-                  US {row.us} · UK {row.uk}
+                  US {row.US} · UK {row.UK}
                 </span>
               </li>
             ))}
@@ -66,10 +66,10 @@ export function SizeUnitConverter({ country, locale = "tr" }: Props) {
           <p className="text-xs font-medium text-muted-foreground">{text.shoe}</p>
           <ul className="mt-1 space-y-1">
             {shoes.map((row) => (
-              <li key={row.eu} className="flex justify-between border-b py-1 last:border-0">
-                <span>EU {row.eu}</span>
+              <li key={row.EU} className="flex justify-between border-b py-1 last:border-0">
+                <span>EU {row.EU}</span>
                 <span className="text-muted-foreground">
-                  US {row.us} · UK {row.uk}
+                  US {row.US} · UK {row.UK}
                 </span>
               </li>
             ))}
