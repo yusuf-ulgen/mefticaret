@@ -17,6 +17,7 @@ import { storefrontUI } from "@/lib/storefront-ui";
 import { PredictiveSearch } from "@/components/wokiee/predictive-search";
 import { MegaMenu } from "@/components/wokiee/mega-menu";
 import { StorefrontSupportChat } from "@/components/storefront/support-chat";
+import { NewsletterSignup } from "@/components/storefront/newsletter-signup";
 import { CartDrawer } from "@/components/wokiee/cart-drawer";
 import { QuickViewModal } from "@/components/wokiee/quick-view";
 import { MobileBottomNav } from "@/components/wokiee/mobile-bottom-nav";
@@ -673,6 +674,8 @@ export function StorefrontChrome({
           color: muted,
         }}
       >
+        <NewsletterSignup slug={storeSlug} muted={muted} />
+
         {value(footerCfg, "about") ? (
           <p style={{ maxWidth: 620, margin: "0 auto 14px", fontSize: 13, lineHeight: 1.7 }}>
             {value(footerCfg, "about")}
