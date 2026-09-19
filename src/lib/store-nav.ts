@@ -293,6 +293,13 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
           keywords:
             "ihracat global yurt dışı gümrük etgb ticari fatura ioss oss dhl fedex ups stripe paypal klarna ülke fiyat",
         },
+        {
+          label: "Yenilik & Akıllı Ödeme",
+          to: p("innovation"),
+          icon: Sparkles,
+          keywords:
+            "canlı yayın satış kısa video ugc müşteri içeriği 3b ar artırılmış gerçeklik akıllı pos bin yönlendirme karbon yeşil kasa garanti sigorta sahtecilik dolandırıcılık risk sesli arama",
+        },
         { label: "Ekip & Yetkiler", to: p("team"), icon: ShieldCheck },
         { label: "Güvenlik & KVKK", to: p("security"), icon: ShieldCheck },
         { label: "Denetim Kaydı", to: p("activity"), icon: History },
