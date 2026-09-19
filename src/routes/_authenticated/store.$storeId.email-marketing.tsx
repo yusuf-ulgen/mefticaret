@@ -118,7 +118,17 @@ function EmailMarketingPage() {
     inactiveOverDays: "",
     tag: "",
     includeSubscribers: true,
+    storefrontEnabled: false,
+    slug: "",
+    bannerHeadline: "",
+    bannerBody: "",
+    bannerCtaLabel: "",
+    landingHeadline: "",
+    landingBody: "",
+    discountCode: "",
+    endsAt: "",
   });
+
   const [testEmail, setTestEmail] = useState("");
   const [audienceInfo, setAudienceInfo] = useState<{ total: number; customers: number; subscribers: number } | null>(null);
   const [importRaw, setImportRaw] = useState("");
