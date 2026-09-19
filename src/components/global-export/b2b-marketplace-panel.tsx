@@ -359,8 +359,8 @@ export function B2bMarketplacePanel({ storeId, b2bEnabled, defaultMoq }: Props) 
               </SelectTrigger>
               <SelectContent>
                 {GLOBAL_MARKETPLACES.map((item) => (
-                  <SelectItem key={item} value={item}>
-                    {marketplaceLabel(item)}
+                  <SelectItem key={item.code} value={item.code}>
+                    {item.name}
                   </SelectItem>
                 ))}
               </SelectContent>
