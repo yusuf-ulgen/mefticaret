@@ -18,6 +18,7 @@ import {
   FileText,
   Gift,
   Globe,
+  Mail,
   Grid3x3,
   HelpCircle,
   History,
