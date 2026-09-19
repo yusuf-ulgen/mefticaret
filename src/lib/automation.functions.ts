@@ -329,11 +329,13 @@ export const enrollAbandonedCarts = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { enrollTrigger } = await import("@/lib/automation-engine.server");
 
+    // E-posta bırakılmamış sepetlere gönderim yapılamaz; kuyruğa alınmaz.
     const { data: carts } = await supabase
       .from("abandoned_carts")
       .select("id, customer_email, customer_name, total, cart_token")
       .eq("store_id", data.storeId)
       .is("recovered_order_id", null)
+      .not("customer_email", "is", null)
       .order("last_seen_at", { ascending: false })
       .limit(25);
 
