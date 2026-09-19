@@ -60,3 +60,10 @@
 - [x] sitemap-tr/en/de/ar.xml Google Search Console'a gonderildi (mefticaret.com, hatasiz)
 - [x] E-Ihracat paneli gercek magazada test edildi: Almanya vergi simulatoru (%19 → 22.80), ETGB-20260919-0001 belgesi olusturuldu
 - [ ] Global modül bekleyen: Stripe/PayPal/Klarna ve DHL/FedEx/UPS/PTT/Navlungo/ShipEntegra/Aramex hesap anahtarları (satıcıdan gelmeli)
+
+## Global dil ve sipariş doğrulaması
+- [ ] Google Search Console'da /en ilk 10 sonucu ve Türkçe görünürlük karşılaştırması
+- [ ] EN/DE/AR ürün görünümü, fiyat, açıklama ve SEO çevirilerini doğrula ve eksikleri tamamla
+- [ ] Gerçek siparişten otomatik mikro ihracat beyannamesi PDF'i ve kargo etiketi üret
+- [ ] İngilizce vitrinde sipariş, ödeme, kargo takibi ve kapanış akışını uçtan uca doğrula
+- [ ] Almanya ve Arap ülkesi vergi hesaplarını gerçek mağazada doğrula
