@@ -786,3 +786,103 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/**
+ * Kampanyaların vitrin performansı: gerçek banner görüntülenme/tıklama sayıları ve
+ * kampanya indirim kodu ile ödemesi tamamlanan siparişlerden gelen ciro.
+ */
+export const getCampaignStorefrontReport = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({ storeId: z.guid(), days: z.number().int().min(1).max(365).default(90) })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const since = new Date(Date.now() - data.days * 86400000).toISOString();
+
+    const { data: campaigns, error } = await supabase
+      .from("email_campaigns")
+      .select("id, name, slug, storefront_enabled, discount_code, starts_at, ends_at")
+      .eq("store_id", data.storeId)
+      .eq("storefront_enabled", true);
+    if (error) throw new Error(error.message);
+
+    const rows = (campaigns ?? []) as unknown as {
+      id: string;
+      name: string;
+      slug: string | null;
+      discount_code: string | null;
+      starts_at: string | null;
+      ends_at: string | null;
+    }[];
+    if (rows.length === 0) return { days: data.days, campaigns: [], totals: { views: 0, clicks: 0, orders: 0, revenue: 0 } };
+
+    const { data: events, error: eventsError } = await supabase
+      .from("campaign_storefront_events")
+      .select("campaign_id, kind")
+      .eq("store_id", data.storeId)
+      .gte("created_at", since)
+      .limit(50_000);
+    if (eventsError) throw new Error(eventsError.message);
+
+    const views = new Map<string, number>();
+    const clicks = new Map<string, number>();
+    for (const event of (events ?? []) as unknown as { campaign_id: string; kind: string }[]) {
+      const target = event.kind === "click" ? clicks : views;
+      target.set(event.campaign_id, (target.get(event.campaign_id) ?? 0) + 1);
+    }
+
+    const codes = rows.map((row) => (row.discount_code ?? "").trim()).filter(Boolean);
+    const revenueByCode = new Map<string, { orders: number; revenue: number }>();
+    if (codes.length > 0) {
+      const { data: orders, error: ordersError } = await supabase
+        .from("orders")
+        .select("discount_code, grand_total")
+        .eq("store_id", data.storeId)
+        .gte("created_at", since)
+        .in("payment_status", ["paid", "partially_refunded"])
+        .in("discount_code", codes)
+        .limit(5000);
+      if (ordersError) throw new Error(ordersError.message);
+      for (const order of (orders ?? []) as unknown as { discount_code: string | null; grand_total: number | string | null }[]) {
+        const code = (order.discount_code ?? "").trim().toUpperCase();
+        const entry = revenueByCode.get(code) ?? { orders: 0, revenue: 0 };
+        entry.orders += 1;
+        entry.revenue += Number(order.grand_total ?? 0);
+        revenueByCode.set(code, entry);
+      }
+    }
+
+    const result = rows
+      .map((row) => {
+        const code = (row.discount_code ?? "").trim();
+        const attributed = revenueByCode.get(code.toUpperCase()) ?? { orders: 0, revenue: 0 };
+        const viewCount = views.get(row.id) ?? 0;
+        const clickCount = clicks.get(row.id) ?? 0;
+        return {
+          id: row.id,
+          name: row.name,
+          slug: row.slug ?? "",
+          discountCode: code,
+          views: viewCount,
+          clicks: clickCount,
+          ctr: viewCount > 0 ? (clickCount / viewCount) * 100 : 0,
+          orders: attributed.orders,
+          revenue: attributed.revenue,
+        };
+      })
+      .sort((a, b) => b.revenue - a.revenue || b.clicks - a.clicks);
+
+    return {
+      days: data.days,
+      campaigns: result,
+      totals: {
+        views: result.reduce((sum, row) => sum + row.views, 0),
+        clicks: result.reduce((sum, row) => sum + row.clicks, 0),
+        orders: result.reduce((sum, row) => sum + row.orders, 0),
+        revenue: result.reduce((sum, row) => sum + row.revenue, 0),
+      },
+    };
+  });
