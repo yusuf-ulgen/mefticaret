@@ -75,7 +75,7 @@ const localeBundleQuery = (storeId: string | null, locale: string) =>
         .select("translation_key, translated_value")
         .eq("store_id", storeId)
         .eq("locale", locale)
-        .in("content_type", ["system", "theme", "menu", "email"])
+        .in("content_type", ["system", "theme", "menu", "email", "product", "variant", "category", "collection", "brand", "seo"])
         .not("translated_value", "is", null)
         .limit(3000);
       const bundle: Record<string, string> = {};

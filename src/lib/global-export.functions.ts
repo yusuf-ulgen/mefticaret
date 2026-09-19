@@ -390,6 +390,65 @@ export const createExportDocument = createServerFn({ method: "POST" })
     return { id: inserted?.id ?? null, documentNumber };
   });
 
+const shipmentLabelSchema = z.object({
+  storeId: z.string().uuid(),
+  orderId: z.string().uuid(),
+  carrierCode: z.enum(["dhl", "fedex", "ups", "ptt", "navlungo", "shipentegra", "aramex"]),
+  service: z.string().trim().max(120).nullable().optional(),
+  incoterm: z.enum(["DDP", "DDU"]),
+});
+
+/** Gerçek sipariş ve ETGB kaydından yazdırılabilir taslak kargo etiketi oluşturur. */
+export const createGlobalShipmentLabel = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => shipmentLabelSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .select("id, order_number, customer_name, customer_email, customer_phone, shipping_address, currency")
+      .eq("store_id", data.storeId)
+      .eq("id", data.orderId)
+      .maybeSingle();
+    if (orderError) throw new Error(orderError.message);
+    if (!order) throw new Error("Sipariş bulunamadı veya yetkiniz yok");
+
+    const [{ data: settings }, { data: items }, { data: declaration }] = await Promise.all([
+      supabase.from("store_global_settings").select("exporter_name, exporter_address, exporter_city, exporter_country, exporter_phone").eq("store_id", data.storeId).maybeSingle(),
+      supabase.from("order_items").select("product_id, quantity").eq("order_id", data.orderId),
+      supabase.from("export_documents").select("id, document_number").eq("store_id", data.storeId).eq("order_id", data.orderId).eq("kind", "etgb").order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    ]);
+    if (!declaration) throw new Error("Önce bu sipariş için mikro ihracat beyannamesi oluşturun");
+
+    const productIds = (items ?? []).map((item) => item.product_id).filter(Boolean) as string[];
+    const { data: customs } = productIds.length
+      ? await supabase.from("customs_profiles").select("product_id, weight_grams").eq("store_id", data.storeId).in("product_id", productIds)
+      : { data: [] as { product_id: string; weight_grams: number | null }[] };
+    const weights = new Map((customs ?? []).map((row) => [row.product_id, Number(row.weight_grams ?? 0)]));
+    const pieces = (items ?? []).reduce((sum, item) => sum + Number(item.quantity ?? 0), 0);
+    const weightGrams = (items ?? []).reduce((sum, item) => sum + (weights.get(String(item.product_id)) ?? 0) * Number(item.quantity ?? 0), 0);
+    const address = (order.shipping_address ?? {}) as Record<string, unknown>;
+    const rawCountry = String(address["country_code"] ?? address["country"] ?? "").toUpperCase();
+    const destinationCountry = rawCountry === "TÜRKİYE" ? "TR" : rawCountry.slice(0, 2) || null;
+    const labelPayload = {
+      orderNumber: order.order_number,
+      exporter: { name: settings?.exporter_name ?? null, address: settings?.exporter_address ?? null, city: settings?.exporter_city ?? null, country: settings?.exporter_country ?? "TR", phone: settings?.exporter_phone ?? null },
+      consignee: { name: order.customer_name, email: order.customer_email, phone: order.customer_phone, address: order.shipping_address },
+      pieces,
+      documentNumber: declaration.document_number,
+    };
+
+    const { data: shipment, error } = await supabase.from("global_shipments").insert({
+      store_id: data.storeId, order_id: data.orderId, carrier_code: data.carrierCode,
+      service: data.service || null, tracking_number: null, label_url: null,
+      export_document_id: declaration.id, label_payload: labelPayload, incoterm: data.incoterm,
+      destination_country: destinationCountry, weight_grams: weightGrams || null,
+      currency: order.currency, status: "draft", last_event: "Sipariş ve ETGB verilerinden taslak etiket oluşturuldu",
+    }).select("id").single();
+    if (error) throw new Error(error.message);
+    return { id: shipment.id };
+  });
+
 /* ------------------------------------------------- otomatik ihracat çevirisi */
 
 /**
