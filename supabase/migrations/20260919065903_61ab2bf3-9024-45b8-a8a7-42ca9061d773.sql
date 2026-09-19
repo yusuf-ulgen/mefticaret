@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.enqueue_job(public.job_kind, jsonb, uuid, integer, timestamptz, integer, text) TO authenticated;

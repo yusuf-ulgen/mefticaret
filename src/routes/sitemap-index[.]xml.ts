@@ -18,6 +18,11 @@ export const Route = createFileRoute("/sitemap-index.xml")({
           `${BASE_URL}/sitemap-categories.xml`,
           `${BASE_URL}/sitemap-pages.xml`,
           `${BASE_URL}/sitemap-blog.xml`,
+          // Dil bazlı haritalar (hreflang etiketleri içinde)
+          `${BASE_URL}/sitemap-tr.xml`,
+          `${BASE_URL}/sitemap-en.xml`,
+          `${BASE_URL}/sitemap-de.xml`,
+          `${BASE_URL}/sitemap-ar.xml`,
         ];
 
         try {

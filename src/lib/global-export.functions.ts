@@ -3,7 +3,7 @@ import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { exportDocumentNumber, localizeForCountry } from "@/lib/global-commerce";
+import { EXPORT_LOCALES, exportDocumentNumber, isRtlLocale, localizeForCountry } from "@/lib/global-commerce";
 
 /**
  * Global & e-ihracat sunucu uçları.
@@ -388,4 +388,88 @@ export const createExportDocument = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     return { id: inserted?.id ?? null, documentNumber };
+  });
+
+/* ------------------------------------------------- otomatik ihracat çevirisi */
+
+/**
+ * Mağazayı ihracat dillerine hazırlar: seçili dilleri vitrine ekler,
+ * çevrilecek içerikleri (ürün, kategori, sayfa, blog, SEO, sistem metinleri)
+ * tarar ve toplu AI çeviri işini başlatıp ilk turlarını çalıştırır.
+ */
+export const runGlobalAutoTranslate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.string().uuid(),
+        locales: z.array(z.string().trim().min(2).max(5)).min(1).max(10).optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(supabase, data.storeId, userId);
+
+    const { data: settings } = await supabase
+      .from("store_global_settings")
+      .select("auto_translate_locales")
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+
+    const chosen = data.locales?.length ? data.locales : (settings?.auto_translate_locales ?? []);
+    const requested = (chosen.length ? chosen : ["en"])
+      .map((code) => String(code).slice(0, 2).toLowerCase())
+      .filter((code) => EXPORT_LOCALES.some((entry) => entry.code === code));
+    const targets = [...new Set(requested)];
+    if (targets.length === 0) throw new Error("Çevrilecek dil seçilmedi");
+
+    const { ensureDefaultLocale, createTranslationJob, runTranslationJob } = await import(
+      "@/lib/translation.server"
+    );
+    // Kaynak dil hedeflerden önce sabitlenir; aksi hâlde ilk eklenen dil
+    // yanlışlıkla varsayılan olur ve çeviri yönü ters döner.
+    const sourceLocale = await ensureDefaultLocale(supabase, data.storeId);
+
+    const { languageNative } = await import("@/lib/languages");
+    for (const code of targets.filter((code) => code !== sourceLocale.slice(0, 2).toLowerCase())) {
+      const label = EXPORT_LOCALES.find((entry) => entry.code === code)?.label ?? code;
+      const { error } = await supabase.from("store_locales").upsert(
+        {
+          store_id: data.storeId,
+          code,
+          locale: code,
+          label,
+          native_label: languageNative(code),
+          dir: isRtlLocale(code) ? "rtl" : "ltr",
+          is_active: true,
+          is_default: false,
+        },
+        { onConflict: "store_id,locale" },
+      );
+      if (error) throw new Error(error.message);
+    }
+
+    const job = await createTranslationJob(supabase, {
+      storeId: data.storeId,
+      sourceLocale,
+      targetLocales: targets,
+      // Vitrin ve siparişlerde görünen tüm metinler.
+      contentTypes: ["product", "variant", "category", "collection", "page", "blog", "seo", "system", "email"],
+      userId,
+      onlyMissing: true,
+    });
+
+    // İlk turları hemen çalıştır; kalanı kuyruk worker'ı tamamlar.
+    let processed = 0;
+    let remaining = job.total;
+    for (let round = 0; round < 3 && remaining > 0; round += 1) {
+      const outcome = await runTranslationJob(supabase, job.jobId, 50);
+      processed += outcome.processed;
+      remaining = outcome.remaining;
+      if (outcome.processed === 0) break;
+    }
+
+    return { jobId: job.jobId, locales: targets, total: job.total, processed, remaining };
   });

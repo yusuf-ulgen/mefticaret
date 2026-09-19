@@ -54,4 +54,6 @@
 - [x] Müşteri hesap paneli v2 (genel bakış, siparişler, kargo takip, iade, adres defteri, favoriler, puan/kampanya, hesap ayarları + puan sistemi)
 
 - [x] Global & E-İhracat modülü: ülke bazlı fiyatlar, kur risk marjı, IOSS/OSS + ABD satış vergisi, DDP/DDU teslim maliyeti simülatörü, küresel ödeme sağlayıcıları, mikro ihracat taşıyıcıları, İngilizce ticari fatura / paket listesi / ETGB belgeleri
-- [ ] Global modül bekleyen: Stripe/PayPal/Klarna ve DHL/FedEx/UPS/PTT/Navlungo/ShipEntegra/Aramex hesap anahtarları (satıcıdan gelmeli), dil bazlı URL + hreflang yayılımı, AI otomatik çeviri işleri
+- [x] Dil bazli sitemap (tr/en/de/ar) + sitemap-index/robots/IndexNow, vitrin hreflang alternatifleri, ?lang= dil secimi
+- [x] E-ihracat otomatik AI cevirisi: panelden secili dillere toplu ceviri (store_locales + translation_jobs), kalan satirlar kuyruk worker'inda
+- [ ] Global modül bekleyen: Stripe/PayPal/Klarna ve DHL/FedEx/UPS/PTT/Navlungo/ShipEntegra/Aramex hesap anahtarları (satıcıdan gelmeli)

@@ -318,20 +318,32 @@ export async function syncSourceEntries(
 ): Promise<{ created: number; stale: number }> {
   if (items.length === 0) return { created: 0, stale: 0 };
 
-  const { data: existing, error } = await supabase
-    .from("translation_entries")
-    .select("id, translation_key, source_value, status")
-    .eq("store_id", storeId)
-    .eq("locale", locale);
-  if (error) throw new Error(error.message);
+  // Tüm mevcut kayıtlar sayfalanarak okunur; tek sorgu 1000 satırla sınırlıdır ve
+  // eksik okunan kayıtlar yeniden eklenmeye çalışılınca tekil anahtar hatası verir.
+  const existing: { id: string; translation_key: string; source_value: string | null; status: string }[] = [];
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await supabase
+      .from("translation_entries")
+      .select("id, translation_key, source_value, status")
+      .eq("store_id", storeId)
+      .eq("locale", locale)
+      .range(offset, offset + 999);
+    if (error) throw new Error(error.message);
+    const rows = data ?? [];
+    existing.push(...rows);
+    if (rows.length < 1000) break;
+  }
 
-  const byKey = new Map((existing ?? []).map((row) => [row.translation_key, row]));
+  const byKey = new Map(existing.map((row) => [row.translation_key, row]));
   const inserts: Database["public"]["Tables"]["translation_entries"]["Insert"][] = [];
   let stale = 0;
 
+  const queued = new Set<string>();
   for (const item of items) {
     const row = byKey.get(item.key);
     if (!row) {
+      if (queued.has(item.key)) continue;
+      queued.add(item.key);
       inserts.push({
         store_id: storeId,
         locale,
@@ -359,7 +371,9 @@ export async function syncSourceEntries(
 
   for (let index = 0; index < inserts.length; index += 500) {
     const chunk = inserts.slice(index, index + 500);
-    const { error: insertError } = await supabase.from("translation_entries").insert(chunk);
+    const { error: insertError } = await supabase
+      .from("translation_entries")
+      .upsert(chunk, { onConflict: "store_id,locale,translation_key", ignoreDuplicates: true });
     if (insertError) throw new Error(insertError.message);
   }
 
@@ -723,8 +737,12 @@ export async function createTranslationJob(
 
   await supabase.from("translation_jobs").update({ total_items: total }).eq("id", job.id);
 
+  // Kuyruğa alma yetki kontrolü bu fonksiyonda yapıldı; kuyruk kaydı sunucu
+  // tarafındaki yönetici bağlantısıyla yazılır (tarayıcı oturumu kuyruk
+  // fonksiyonunu doğrudan çağıramaz).
   const { enqueueJob } = await import("@/lib/queue.server");
-  await enqueueJob(supabase, {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await enqueueJob(supabaseAdmin, {
     kind: "ai",
     storeId: input.storeId,
     payload: { translationJobId: job.id },
@@ -821,7 +839,8 @@ export async function runTranslationJob(
 
   if (remaining && remaining > 0) {
     const { enqueueJob } = await import("@/lib/queue.server");
-    await enqueueJob(supabase, {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await enqueueJob(supabaseAdmin, {
       kind: "ai",
       storeId: job.store_id,
       payload: { translationJobId: jobId },

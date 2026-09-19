@@ -25,11 +25,15 @@ import { Route as OdemeTamamRouteImport } from './routes/odeme-tamam'
 import { Route as PazaryeriEntegrasyonuRouteImport } from './routes/pazaryeri-entegrasyonu'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SeoVeRaporlamaRouteImport } from './routes/seo-ve-raporlama'
+import { Route as SitemapArDotxmlRouteImport } from './routes/sitemap-ar[.]xml'
 import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
 import { Route as SitemapCategoriesDotxmlRouteImport } from './routes/sitemap-categories[.]xml'
+import { Route as SitemapDeDotxmlRouteImport } from './routes/sitemap-de[.]xml'
+import { Route as SitemapEnDotxmlRouteImport } from './routes/sitemap-en[.]xml'
 import { Route as SitemapIndexDotxmlRouteImport } from './routes/sitemap-index[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapProductsDotxmlRouteImport } from './routes/sitemap-products[.]xml'
+import { Route as SitemapTrDotxmlRouteImport } from './routes/sitemap-tr[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -364,6 +368,11 @@ const SeoVeRaporlamaRoute = SeoVeRaporlamaRouteImport.update({
   path: '/seo-ve-raporlama',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapArDotxmlRoute = SitemapArDotxmlRouteImport.update({
+  id: '/sitemap-ar.xml',
+  path: '/sitemap-ar.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapBlogDotxmlRoute = SitemapBlogDotxmlRouteImport.update({
   id: '/sitemap-blog.xml',
   path: '/sitemap-blog.xml',
@@ -372,6 +381,16 @@ const SitemapBlogDotxmlRoute = SitemapBlogDotxmlRouteImport.update({
 const SitemapCategoriesDotxmlRoute = SitemapCategoriesDotxmlRouteImport.update({
   id: '/sitemap-categories.xml',
   path: '/sitemap-categories.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDeDotxmlRoute = SitemapDeDotxmlRouteImport.update({
+  id: '/sitemap-de.xml',
+  path: '/sitemap-de.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapEnDotxmlRoute = SitemapEnDotxmlRouteImport.update({
+  id: '/sitemap-en.xml',
+  path: '/sitemap-en.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapIndexDotxmlRoute = SitemapIndexDotxmlRouteImport.update({
@@ -387,6 +406,11 @@ const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
 const SitemapProductsDotxmlRoute = SitemapProductsDotxmlRouteImport.update({
   id: '/sitemap-products.xml',
   path: '/sitemap-products.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapTrDotxmlRoute = SitemapTrDotxmlRouteImport.update({
+  id: '/sitemap-tr.xml',
+  path: '/sitemap-tr.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -1852,11 +1876,15 @@ export interface FileRoutesByFullPath {
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/seo-ve-raporlama': typeof SeoVeRaporlamaRoute
+  '/sitemap-ar.xml': typeof SitemapArDotxmlRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
+  '/sitemap-de.xml': typeof SitemapDeDotxmlRoute
+  '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
+  '/sitemap-tr.xml': typeof SitemapTrDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -2127,11 +2155,15 @@ export interface FileRoutesByTo {
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/seo-ve-raporlama': typeof SeoVeRaporlamaRoute
+  '/sitemap-ar.xml': typeof SitemapArDotxmlRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
+  '/sitemap-de.xml': typeof SitemapDeDotxmlRoute
+  '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
+  '/sitemap-tr.xml': typeof SitemapTrDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -2402,11 +2434,15 @@ export interface FileRoutesById {
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
   '/seo-ve-raporlama': typeof SeoVeRaporlamaRoute
+  '/sitemap-ar.xml': typeof SitemapArDotxmlRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
+  '/sitemap-de.xml': typeof SitemapDeDotxmlRoute
+  '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
+  '/sitemap-tr.xml': typeof SitemapTrDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -2679,11 +2715,15 @@ export interface FileRouteTypes {
     | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/seo-ve-raporlama'
+    | '/sitemap-ar.xml'
     | '/sitemap-blog.xml'
     | '/sitemap-categories.xml'
+    | '/sitemap-de.xml'
+    | '/sitemap-en.xml'
     | '/sitemap-index.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
+    | '/sitemap-tr.xml'
     | '/sitemap.xml'
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
@@ -2954,11 +2994,15 @@ export interface FileRouteTypes {
     | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/seo-ve-raporlama'
+    | '/sitemap-ar.xml'
     | '/sitemap-blog.xml'
     | '/sitemap-categories.xml'
+    | '/sitemap-de.xml'
+    | '/sitemap-en.xml'
     | '/sitemap-index.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
+    | '/sitemap-tr.xml'
     | '/sitemap.xml'
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
@@ -3228,11 +3272,15 @@ export interface FileRouteTypes {
     | '/pazaryeri-entegrasyonu'
     | '/register'
     | '/seo-ve-raporlama'
+    | '/sitemap-ar.xml'
     | '/sitemap-blog.xml'
     | '/sitemap-categories.xml'
+    | '/sitemap-de.xml'
+    | '/sitemap-en.xml'
     | '/sitemap-index.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
+    | '/sitemap-tr.xml'
     | '/sitemap.xml'
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
@@ -3505,11 +3553,15 @@ export interface RootRouteChildren {
   PazaryeriEntegrasyonuRoute: typeof PazaryeriEntegrasyonuRoute
   RegisterRoute: typeof RegisterRoute
   SeoVeRaporlamaRoute: typeof SeoVeRaporlamaRoute
+  SitemapArDotxmlRoute: typeof SitemapArDotxmlRoute
   SitemapBlogDotxmlRoute: typeof SitemapBlogDotxmlRoute
   SitemapCategoriesDotxmlRoute: typeof SitemapCategoriesDotxmlRoute
+  SitemapDeDotxmlRoute: typeof SitemapDeDotxmlRoute
+  SitemapEnDotxmlRoute: typeof SitemapEnDotxmlRoute
   SitemapIndexDotxmlRoute: typeof SitemapIndexDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapProductsDotxmlRoute: typeof SitemapProductsDotxmlRoute
+  SitemapTrDotxmlRoute: typeof SitemapTrDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UnauthorizedRoute: typeof UnauthorizedRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -3697,6 +3749,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SeoVeRaporlamaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap-ar.xml': {
+      id: '/sitemap-ar.xml'
+      path: '/sitemap-ar.xml'
+      fullPath: '/sitemap-ar.xml'
+      preLoaderRoute: typeof SitemapArDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap-blog.xml': {
       id: '/sitemap-blog.xml'
       path: '/sitemap-blog.xml'
@@ -3709,6 +3768,20 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-categories.xml'
       fullPath: '/sitemap-categories.xml'
       preLoaderRoute: typeof SitemapCategoriesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-de.xml': {
+      id: '/sitemap-de.xml'
+      path: '/sitemap-de.xml'
+      fullPath: '/sitemap-de.xml'
+      preLoaderRoute: typeof SitemapDeDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-en.xml': {
+      id: '/sitemap-en.xml'
+      path: '/sitemap-en.xml'
+      fullPath: '/sitemap-en.xml'
+      preLoaderRoute: typeof SitemapEnDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-index.xml': {
@@ -3730,6 +3803,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-products.xml'
       fullPath: '/sitemap-products.xml'
       preLoaderRoute: typeof SitemapProductsDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-tr.xml': {
+      id: '/sitemap-tr.xml'
+      path: '/sitemap-tr.xml'
+      fullPath: '/sitemap-tr.xml'
+      preLoaderRoute: typeof SitemapTrDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -6048,11 +6128,15 @@ const rootRouteChildren: RootRouteChildren = {
   PazaryeriEntegrasyonuRoute: PazaryeriEntegrasyonuRoute,
   RegisterRoute: RegisterRoute,
   SeoVeRaporlamaRoute: SeoVeRaporlamaRoute,
+  SitemapArDotxmlRoute: SitemapArDotxmlRoute,
   SitemapBlogDotxmlRoute: SitemapBlogDotxmlRoute,
   SitemapCategoriesDotxmlRoute: SitemapCategoriesDotxmlRoute,
+  SitemapDeDotxmlRoute: SitemapDeDotxmlRoute,
+  SitemapEnDotxmlRoute: SitemapEnDotxmlRoute,
   SitemapIndexDotxmlRoute: SitemapIndexDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapProductsDotxmlRoute: SitemapProductsDotxmlRoute,
+  SitemapTrDotxmlRoute: SitemapTrDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UnauthorizedRoute: UnauthorizedRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:

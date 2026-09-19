@@ -46,6 +46,7 @@ import {
 } from "@/lib/global-export-queries";
 import {
   createExportDocument,
+  runGlobalAutoTranslate,
   deleteCountryPrice,
   saveCustomsProfile,
   saveGlobalCarrier,
@@ -144,6 +145,20 @@ function GlobalExportPage() {
       toast.success("Ayarlar kaydedildi");
       void invalidate("global-settings");
     },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  /* --------------------------- otomatik çeviri --------------------------- */
+  const autoTranslate = useServerFn(runGlobalAutoTranslate);
+  const translateMutation = useMutation({
+    mutationFn: () =>
+      autoTranslate({
+        data: { storeId, locales: settings?.auto_translate_locales ?? [] },
+      }),
+    onSuccess: (result) =>
+      toast.success(
+        `${result.processed} metin çevrildi${result.remaining > 0 ? `, ${result.remaining} sırada` : ""}`,
+      ),
     onError: (error: Error) => toast.error(error.message),
   });
 
@@ -1025,6 +1040,35 @@ function GlobalExportPage() {
                     </Button>
                   );
                 })}
+              </div>
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <Button
+                  size="sm"
+                  onClick={() => translateMutation.mutate()}
+                  disabled={
+                    translateMutation.isPending ||
+                    (settings?.auto_translate_locales ?? []).length === 0
+                  }
+                >
+                  {translateMutation.isPending
+                    ? "Çeviriliyor..."
+                    : "Seçili dillere otomatik çevir"}
+                </Button>
+                {translateMutation.data ? (
+                  <p className="text-xs text-muted-foreground">
+                    {translateMutation.data.locales.join(", ").toUpperCase()} · toplam{" "}
+                    {translateMutation.data.total} metin · {translateMutation.data.processed} çevrildi
+                    {translateMutation.data.remaining > 0
+                      ? ` · ${translateMutation.data.remaining} sırada`
+                      : " · tamamlandı"}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    {(settings?.auto_translate_locales ?? []).length === 0
+                      ? "Önce yukarıdan en az bir dil seçin."
+                      : "Ürün, kategori, sayfa, blog ve sipariş/e-posta metinleri seçili dillere çevrilir."}
+                  </p>
+                )}
               </div>
             </div>
           </Card>

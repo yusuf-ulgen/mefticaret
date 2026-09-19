@@ -33,7 +33,16 @@ const ENDPOINTS = [
 export async function collectIndexableUrls(origin: string): Promise<string[]> {
   const base = origin.replace(/\/$/, "");
   const urls = new Set<string>(MARKETING_PATHS.map((path) => `${base}${path}`));
-  urls.add(`${base}/sitemap.xml`);
+  for (const map of [
+    "/sitemap.xml",
+    "/sitemap-index.xml",
+    "/sitemap-tr.xml",
+    "/sitemap-en.xml",
+    "/sitemap-de.xml",
+    "/sitemap-ar.xml",
+  ]) {
+    urls.add(`${base}${map}`);
+  }
 
   const supabase = publicSupabase();
   const { data } = await supabase.from("stores").select("slug").eq("status", "active").limit(500);

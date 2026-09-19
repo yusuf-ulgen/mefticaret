@@ -19,4 +19,7 @@ Sitemap: https://mefticaret.com/sitemap-products.xml
 Sitemap: https://mefticaret.com/sitemap-categories.xml
 Sitemap: https://mefticaret.com/sitemap-pages.xml
 Sitemap: https://mefticaret.com/sitemap-blog.xml
-
+Sitemap: https://mefticaret.com/sitemap-tr.xml
+Sitemap: https://mefticaret.com/sitemap-en.xml
+Sitemap: https://mefticaret.com/sitemap-de.xml
+Sitemap: https://mefticaret.com/sitemap-ar.xml
