@@ -170,6 +170,7 @@ import { Route as AuthenticatedStoreStoreIdGlobalRouteImport } from './routes/_a
 import { Route as AuthenticatedStoreStoreIdHealthRouteImport } from './routes/_authenticated/store.$storeId.health'
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
 import { Route as AuthenticatedStoreStoreIdInboxRouteImport } from './routes/_authenticated/store.$storeId.inbox'
+import { Route as AuthenticatedStoreStoreIdInnovationRouteImport } from './routes/_authenticated/store.$storeId.innovation'
 import { Route as AuthenticatedStoreStoreIdInstagramRouteImport } from './routes/_authenticated/store.$storeId.instagram'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
 import { Route as AuthenticatedStoreStoreIdJobsRouteImport } from './routes/_authenticated/store.$storeId.jobs'
@@ -1173,6 +1174,12 @@ const AuthenticatedStoreStoreIdInboxRoute =
     path: '/inbox',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdInnovationRoute =
+  AuthenticatedStoreStoreIdInnovationRouteImport.update({
+    id: '/innovation',
+    path: '/innovation',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdInstagramRoute =
   AuthenticatedStoreStoreIdInstagramRouteImport.update({
     id: '/instagram',
@@ -2038,6 +2045,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
+  '/store/$storeId/innovation': typeof AuthenticatedStoreStoreIdInnovationRoute
   '/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
@@ -2319,6 +2327,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
+  '/store/$storeId/innovation': typeof AuthenticatedStoreStoreIdInnovationRoute
   '/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
@@ -2602,6 +2611,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/_authenticated/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
+  '/_authenticated/store/$storeId/innovation': typeof AuthenticatedStoreStoreIdInnovationRoute
   '/_authenticated/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/_authenticated/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
@@ -2886,6 +2896,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inbox'
+    | '/store/$storeId/innovation'
     | '/store/$storeId/instagram'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
@@ -3167,6 +3178,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inbox'
+    | '/store/$storeId/innovation'
     | '/store/$storeId/instagram'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
@@ -3449,6 +3461,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/health'
     | '/_authenticated/store/$storeId/import-export'
     | '/_authenticated/store/$storeId/inbox'
+    | '/_authenticated/store/$storeId/innovation'
     | '/_authenticated/store/$storeId/instagram'
     | '/_authenticated/store/$storeId/inventory'
     | '/_authenticated/store/$storeId/jobs'
@@ -4803,6 +4816,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdInboxRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/innovation': {
+      id: '/_authenticated/store/$storeId/innovation'
+      path: '/innovation'
+      fullPath: '/store/$storeId/innovation'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdInnovationRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/instagram': {
       id: '/_authenticated/store/$storeId/instagram'
       path: '/instagram'
@@ -5848,6 +5868,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdHealthRoute: typeof AuthenticatedStoreStoreIdHealthRoute
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
   AuthenticatedStoreStoreIdInboxRoute: typeof AuthenticatedStoreStoreIdInboxRoute
+  AuthenticatedStoreStoreIdInnovationRoute: typeof AuthenticatedStoreStoreIdInnovationRoute
   AuthenticatedStoreStoreIdInstagramRoute: typeof AuthenticatedStoreStoreIdInstagramRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
   AuthenticatedStoreStoreIdJobsRoute: typeof AuthenticatedStoreStoreIdJobsRoute
@@ -5997,6 +6018,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdImportExportRoute:
       AuthenticatedStoreStoreIdImportExportRoute,
     AuthenticatedStoreStoreIdInboxRoute: AuthenticatedStoreStoreIdInboxRoute,
+    AuthenticatedStoreStoreIdInnovationRoute:
+      AuthenticatedStoreStoreIdInnovationRoute,
     AuthenticatedStoreStoreIdInstagramRoute:
       AuthenticatedStoreStoreIdInstagramRoute,
     AuthenticatedStoreStoreIdInventoryRoute:
