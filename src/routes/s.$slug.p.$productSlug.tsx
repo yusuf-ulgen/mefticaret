@@ -872,9 +872,18 @@ function ProductPage() {
         </div>
       ) : null}
 
-      <div style={{ margin: "24px 0" }}>
+      <div style={{ margin: "24px 0", display: "grid", gap: 24 }}>
+        <ProductArViewer productId={product.id} title={product.title} />
         <SizeUnitConverter country={visitorCountry} />
+        <ShoppableVideoRail
+          storeId={store.id}
+          slug={store.slug}
+          placement="pdp"
+          heading="Bu üründen videolar"
+        />
+        <UgcWall storeId={store.id} productId={product.id} />
       </div>
+
 
       <div id="yorumlar" style={{ scrollMarginTop: 90 }}>
         <StorefrontReviews
