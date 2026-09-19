@@ -78,4 +78,4 @@
 
 ## Ana sayfada yeni özellikler
 - [x] Global e-ihracat, büyüme/lojistik ve e-posta pazarlama özelliklerini ana sayfada görünür ve mobil uyumlu sun
-- [ ] Ana sayfa masaüstü ve mobil görünümünü doğrula
+- [x] Ana sayfa masaüstü ve mobil görünümünü doğrula
