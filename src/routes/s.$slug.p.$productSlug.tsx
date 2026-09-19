@@ -9,6 +9,9 @@ import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chro
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontQuestions } from "@/components/storefront-questions";
 import { SizeUnitConverter } from "@/components/storefront/size-unit-converter";
+import { ProductArViewer } from "@/components/storefront/product-ar-viewer";
+import { ShoppableVideoRail } from "@/components/storefront/shoppable-video-rail";
+import { UgcWall } from "@/components/storefront/ugc-wall";
 import { detectVisitorLocale } from "@/lib/global-export.functions";
 import { StorefrontReviews } from "@/components/storefront-reviews";
 import { StockAlertForm } from "@/components/stock-alert-form";
@@ -872,9 +875,18 @@ function ProductPage() {
         </div>
       ) : null}
 
-      <div style={{ margin: "24px 0" }}>
+      <div style={{ margin: "24px 0", display: "grid", gap: 24 }}>
+        <ProductArViewer productId={product.id} title={product.title} />
         <SizeUnitConverter country={visitorCountry} />
+        <ShoppableVideoRail
+          storeId={store.id}
+          slug={store.slug}
+          placement="pdp"
+          heading="Bu üründen videolar"
+        />
+        <UgcWall storeId={store.id} productId={product.id} />
       </div>
+
 
       <div id="yorumlar" style={{ scrollMarginTop: 90 }}>
         <StorefrontReviews

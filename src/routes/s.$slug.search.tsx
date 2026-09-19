@@ -3,6 +3,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
+import { VoiceSearchButton } from "@/components/storefront/voice-search-button";
 import { Breadcrumb, ProductGrid, StorefrontFallback } from "@/components/storefront-parts";
 import { storefrontQuery } from "@/lib/storefront-queries";
 import { trackEvent } from "@/lib/track";
@@ -123,6 +124,16 @@ function SearchPage() {
             fontFamily: "inherit",
           }}
         />
+        <VoiceSearchButton
+          onResult={(result) => {
+            setTerm(result.term);
+            void navigate({
+              to: "/s/$slug/search",
+              params: { slug },
+              search: result.term.trim() ? { q: result.term.trim() } : {},
+            });
+          }}
+        />
         <button
           type="submit"
           style={{
@@ -139,6 +150,7 @@ function SearchPage() {
           Ara
         </button>
       </form>
+
 
       {suggestions.length ? (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
