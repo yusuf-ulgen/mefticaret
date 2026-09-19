@@ -65,6 +65,53 @@ export function findCountry(code: string | null | undefined): GlobalCountry | nu
   return GLOBAL_COUNTRIES.find((row) => row.code === upper) ?? null;
 }
 
+/**
+ * Sipariş adreslerinde ülke bazen iki harfli kod ("TR"), bazen tam ad
+ * ("Türkiye", "Germany") olarak saklanır. Raporlarda tutarlı olsun diye
+ * her iki biçim de ISO kodlarına çevrilir.
+ */
+const COUNTRY_NAME_ALIASES: Record<string, string> = {
+  TURKIYE: "TR",
+  TURKEY: "TR",
+  GERMANY: "DE",
+  DEUTSCHLAND: "DE",
+  NETHERLANDS: "NL",
+  "UNITED KINGDOM": "GB",
+  ENGLAND: "GB",
+  "UNITED STATES": "US",
+  USA: "US",
+  "UNITED ARAB EMIRATES": "AE",
+  "SAUDI ARABIA": "SA",
+};
+
+export function normalizeCountryCode(value: string | null | undefined, fallback = "TR"): string {
+  const raw = (value ?? "").toString().trim();
+  if (!raw) return fallback;
+  const upper = raw
+    .toUpperCase()
+    .replace(/İ/g, "I")
+    .replace(/Ü/g, "U")
+    .replace(/Ö/g, "O")
+    .replace(/Ş/g, "S")
+    .replace(/Ç/g, "C")
+    .replace(/Ğ/g, "G");
+  if (upper.length === 2 && GLOBAL_COUNTRIES.some((row) => row.code === upper)) return upper;
+  if (COUNTRY_NAME_ALIASES[upper]) return COUNTRY_NAME_ALIASES[upper];
+  const byName = GLOBAL_COUNTRIES.find(
+    (row) =>
+      row.name
+        .toUpperCase()
+        .replace(/İ/g, "I")
+        .replace(/Ü/g, "U")
+        .replace(/Ö/g, "O")
+        .replace(/Ş/g, "S")
+        .replace(/Ç/g, "C")
+        .replace(/Ğ/g, "G") === upper,
+  );
+  if (byName) return byName.code;
+  return upper.length === 2 ? upper : fallback;
+}
+
 /** Ziyaretçi ülkesinden pazar tercihleri (dil + para birimi). Bilinmeyen ülke varsayılana düşer. */
 export function localizeForCountry(
   countryCode: string | null | undefined,

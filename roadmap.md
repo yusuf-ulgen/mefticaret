@@ -67,3 +67,11 @@
 - [x] Gerçek siparişten otomatik mikro ihracat beyannamesi PDF'i ve taslak kargo etiketi üret
 - [ ] İngilizce vitrinde sipariş, ödeme, kargo takibi ve kapanış akışını uçtan uca doğrula
 - [x] Almanya vergi hesaplamasını gerçek mağaza bağlamında doğrula; Arap pazarı vergisini yapılandırılmış oran yokken uydurma
+
+## Global & E-İhracat (19 Eyl 2026)
+- [x] Yönetici oturumuyla E-İhracat Suite, Bölgesel Katalog, Kârlılık sekmeleri tarayıcıda doğrulandı
+- [x] Küresel satış ısı haritası + döviz bazlı gelir raporu (gerçek ödenmiş siparişlerden)
+- [x] AI Çeviri Stüdyosu (ürün başlığı/açıklama/SEO, Arapça RTL doğrulandı, slug çevrilmiyor)
+- [ ] Stripe / PayPal / Klarna canlı entegrasyonu — mağaza sahibinin API anahtarları bekleniyor
+- [ ] DHL Express / FedEx API — hesap numarası + API kimlik bilgileri bekleniyor (gerçek takip kodu bunlar olmadan üretilemez)
+- [ ] /en siparişinde ödeme sonrası otomatik kargo takip + fatura akışı (yukarıdaki anahtarlara bağlı)
