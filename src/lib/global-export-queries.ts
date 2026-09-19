@@ -92,6 +92,9 @@ export type GlobalShipmentRow = {
   carrier_code: string;
   service: string | null;
   tracking_number: string | null;
+  label_url: string | null;
+  export_document_id: string | null;
+  label_payload: Record<string, unknown>;
   incoterm: "DDP" | "DDU";
   destination_country: string | null;
   weight_grams: number | null;
@@ -203,7 +206,7 @@ export const globalShipmentsQuery = (storeId: string) =>
       const { data, error } = await supabase
         .from("global_shipments")
         .select(
-          "id, order_id, carrier_code, service, tracking_number, incoterm, destination_country, weight_grams, cost, currency, status, last_event, created_at",
+          "id, order_id, carrier_code, service, tracking_number, label_url, export_document_id, label_payload, incoterm, destination_country, weight_grams, cost, currency, status, last_event, created_at",
         )
         .eq("store_id", storeId)
         .order("created_at", { ascending: false })

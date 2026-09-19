@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { ExportDocumentPrint } from "@/components/global-export/export-document-print";
+import { GlobalShipmentLabelPrint } from "@/components/global-export/global-shipment-label-print";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,7 @@ import {
   customsProfilesQuery,
   euVatRatesQuery,
   exportDocumentsQuery,
+  globalShipmentsQuery,
   globalCarriersQuery,
   globalPaymentMethodsQuery,
   globalSettingsQuery,
@@ -46,7 +48,9 @@ import {
 } from "@/lib/global-export-queries";
 import {
   createExportDocument,
+  createGlobalShipmentLabel,
   runGlobalAutoTranslate,
+  translatePublishedProducts,
   deleteCountryPrice,
   saveCustomsProfile,
   saveGlobalCarrier,
@@ -94,6 +98,7 @@ function GlobalExportPage() {
   const { data: carriers } = useQuery(globalCarriersQuery(storeId));
   const { data: customs } = useQuery(customsProfilesQuery(storeId));
   const { data: documents } = useQuery(exportDocumentsQuery(storeId));
+  const { data: globalShipments } = useQuery(globalShipmentsQuery(storeId));
   const { data: orders } = useQuery(ordersQuery(storeId));
   const { data: products } = useQuery(productsQuery(storeId));
   const { data: euRates } = useQuery(euVatRatesQuery());
@@ -106,6 +111,7 @@ function GlobalExportPage() {
   const saveCarrier = useServerFn(saveGlobalCarrier);
   const saveCustoms = useServerFn(saveCustomsProfile);
   const createDoc = useServerFn(createExportDocument);
+  const createLabel = useServerFn(createGlobalShipmentLabel);
 
   const invalidate = (key: string) => queryClient.invalidateQueries({ queryKey: [key, storeId] });
 
@@ -150,6 +156,7 @@ function GlobalExportPage() {
 
   /* --------------------------- otomatik çeviri --------------------------- */
   const autoTranslate = useServerFn(runGlobalAutoTranslate);
+  const translateProducts = useServerFn(translatePublishedProducts);
   const translateMutation = useMutation({
     mutationFn: () =>
       autoTranslate({
@@ -159,6 +166,11 @@ function GlobalExportPage() {
       toast.success(
         `${result.processed} metin çevrildi${result.remaining > 0 ? `, ${result.remaining} sırada` : ""}`,
       ),
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const productTranslateMutation = useMutation({
+    mutationFn: () => translateProducts({ data: { storeId, locales: ["en", "de", "ar"] } }),
+    onSuccess: (result) => toast.success(`${result.translated + result.reused} ürün ve SEO metni tamamlandı`),
     onError: (error: Error) => toast.error(error.message),
   });
 
@@ -268,6 +280,8 @@ function GlobalExportPage() {
     kind: "commercial_invoice" as "commercial_invoice" | "packing_list" | "etgb",
   });
   const [openDoc, setOpenDoc] = useState<ExportDocumentRow | null>(null);
+  const [labelForm, setLabelForm] = useState({ orderId: "", carrierCode: "dhl", service: "" });
+  const [openLabelId, setOpenLabelId] = useState<string | null>(null);
 
   const productName = (id: string) =>
     (products ?? []).find((row) => row.id === id)?.title ?? id.slice(0, 8);
@@ -913,6 +927,80 @@ function GlobalExportPage() {
           </Card>
 
           {openDoc ? <ExportDocumentPrint document={openDoc} /> : null}
+
+          <Card className="space-y-4">
+            <h3 className="text-sm font-semibold">Kargo etiketi oluştur</h3>
+            <p className="text-xs text-muted-foreground">
+              Etiket, seçilen siparişin alıcı bilgileri ve son ETGB beyannamesinden otomatik doldurulur.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="space-y-1">
+                <Label>Sipariş</Label>
+                <Select value={labelForm.orderId} onValueChange={(next) => setLabelForm((prev) => ({ ...prev, orderId: next }))}>
+                  <SelectTrigger><SelectValue placeholder="Sipariş seçin" /></SelectTrigger>
+                  <SelectContent>
+                    {(orders ?? []).slice(0, 50).map((order) => <SelectItem key={order.id} value={order.id}>#{order.order_number}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Taşıyıcı</Label>
+                <Select value={labelForm.carrierCode} onValueChange={(next) => setLabelForm((prev) => ({ ...prev, carrierCode: next }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CARRIER_CATALOG.map((carrier) => <SelectItem key={carrier.code} value={carrier.code}>{carrier.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Servis</Label>
+                <Input placeholder="Express Worldwide" value={labelForm.service} onChange={(event) => setLabelForm((prev) => ({ ...prev, service: event.target.value }))} />
+              </div>
+            </div>
+            <Button
+              size="sm"
+              disabled={!labelForm.orderId}
+              onClick={async () => {
+                try {
+                  const result = await createLabel({ data: {
+                    storeId,
+                    orderId: labelForm.orderId,
+                    carrierCode: labelForm.carrierCode as "dhl" | "fedex" | "ups" | "ptt" | "navlungo" | "shipentegra" | "aramex",
+                    service: labelForm.service || null,
+                    incoterm: settings?.default_incoterm ?? "DDP",
+                  } });
+                  toast.success("Kargo etiketi gerçek siparişten oluşturuldu");
+                  setOpenLabelId(result.id);
+                  await queryClient.invalidateQueries({ queryKey: ["global-shipments", storeId] });
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : "Etiket oluşturulamadı");
+                }
+              }}
+            >
+              Kargo etiketi oluştur
+            </Button>
+          </Card>
+
+          {(globalShipments ?? []).length > 0 ? (
+            <Card>
+              <h3 className="text-sm font-semibold">Kargo etiketleri</h3>
+              <ul className="mt-3 divide-y text-sm">
+                {(globalShipments ?? []).map((shipment) => (
+                  <li key={shipment.id} className="flex items-center justify-between gap-3 py-2">
+                    <div><p className="font-medium">{shipment.carrier_code.toUpperCase()} · {shipment.destination_country ?? "-"}</p><p className="text-xs text-muted-foreground">{shipment.tracking_number ?? "Taslak etiket"} · {shipment.weight_grams ? `${shipment.weight_grams} g` : "Ağırlık eksik"}</p></div>
+                    <Button size="sm" variant="outline" onClick={() => setOpenLabelId(shipment.id)}>Görüntüle / PDF</Button>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          ) : null}
+
+          {openLabelId ? (
+            (() => {
+              const shipment = (globalShipments ?? []).find((row) => row.id === openLabelId);
+              return shipment ? <GlobalShipmentLabelPrint shipment={shipment} /> : null;
+            })()
+          ) : null}
         </TabsContent>
 
         {/* --------------------------- Küresel Ödemeler --------------------------- */}
@@ -1053,6 +1141,9 @@ function GlobalExportPage() {
                   {translateMutation.isPending
                     ? "Çeviriliyor..."
                     : "Seçili dillere otomatik çevir"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => productTranslateMutation.mutate()} disabled={productTranslateMutation.isPending}>
+                  {productTranslateMutation.isPending ? "Ürünler çevriliyor..." : "EN / DE / AR ürünlerini tamamla"}
                 </Button>
                 {translateMutation.data ? (
                   <p className="text-xs text-muted-foreground">

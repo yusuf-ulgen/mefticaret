@@ -186,6 +186,7 @@ function Fallback({ text }: { text: string }) {
 
 function ProductPage() {
   const { slug, productSlug } = Route.useParams();
+  const localized = Route.useLoaderData();
   const { data } = useSuspenseQuery(storefrontProductQuery(slug, productSlug));
   const { data: storefrontData } = useQuery(storefrontQuery(slug));
   useStorefrontLive(slug, storefrontData?.store?.id ?? data?.store?.id);
@@ -205,7 +206,7 @@ function ProductPage() {
     recordRecentProduct({
       storeSlug: data.store.slug,
       productSlug: data.product.slug,
-      title: data.product.title,
+      title: localized.title || data.product.title,
       price: Number(data.product.base_price),
       currency: data.product.currency,
       image: data.images[0]?.url ?? null,
@@ -219,6 +220,8 @@ function ProductPage() {
 
   if (!data) return <Fallback text="Bu ürün bulunamadı." />;
   const { store, theme, product, variants, images, reviews, ratingAverage, related } = data;
+  const displayTitle = localized.title || product.title;
+  const displayDescription = localized.description || product.description;
   const { t, fonts, muted, cardBg, border, radius, dark } = storefrontTokens(theme);
 
   const selected = variants.find((variant) => variant.id === variantId) ?? variants[0] ?? null;
@@ -268,7 +271,7 @@ function ProductPage() {
         storeSlug: store.slug,
         variantId: selected.id,
         productSlug: product.slug,
-        title: product.title,
+        title: displayTitle,
         variantTitle: selected.title,
         price: Number(selected.price ?? product.base_price),
         currency: product.currency,
@@ -289,7 +292,7 @@ function ProductPage() {
         storeSlug: store.slug,
         variantId: selected.id,
         productSlug: product.slug,
-        title: product.title,
+        title: displayTitle,
         variantTitle: selected.title,
         price: Number(selected.price ?? product.base_price),
         currency: product.currency,
@@ -305,7 +308,7 @@ function ProductPage() {
     const url = typeof window === "undefined" ? "" : window.location.href;
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
-        await navigator.share({ title: product.title, url });
+        await navigator.share({ title: displayTitle, url });
         return;
       } catch {
         /* kullanıcı vazgeçti */
@@ -357,7 +360,7 @@ function ProductPage() {
           Ürünler
         </Link>
         <span aria-hidden>/</span>
-        <span style={{ color: "inherit" }}>{product.title}</span>
+          <span style={{ color: "inherit" }}>{displayTitle}</span>
       </nav>
 
       {salesPaused ? (
@@ -436,7 +439,7 @@ function ProductPage() {
 
         <div>
           <h1 className="sf-title" style={{ fontFamily: fonts.heading, fontSize: 30, margin: 0, fontWeight: 700 }}>
-            {product.title}
+            {displayTitle}
           </h1>
           <div style={{ marginTop: 10 }}>
             <StorefrontAdminLink storeId={store.id} productId={product.id} border={border} muted={muted} />
@@ -731,7 +734,7 @@ function ProductPage() {
 
           <StickyAddToCartBar
             theme={t}
-            title={product.title}
+            title={displayTitle}
             price={Number(price)}
             currency={product.currency}
             disabled={!inStock}
@@ -757,7 +760,7 @@ function ProductPage() {
               const added = favorites.toggle({
                 storeSlug: store.slug,
                 productSlug: product.slug,
-                title: product.title,
+                title: displayTitle,
                 price: Number(price),
                 currency: product.currency,
                 image: images[0]?.url ?? null,
@@ -830,10 +833,10 @@ function ProductPage() {
           </button>
 
           <div className="mef-ultra-pdp-accordions" style={{ borderColor: border }}>
-            {product.description ? (
+            {displayDescription ? (
               <details open>
                 <summary>Ürün açıklaması</summary>
-                <p style={{ color: muted, whiteSpace: "pre-line" }}>{product.description}</p>
+                <p style={{ color: muted, whiteSpace: "pre-line" }}>{displayDescription}</p>
               </details>
             ) : null}
             <details><summary>Teslimat ve iade</summary><p style={{ color: muted }}>{commerce?.fastestEtaDays ? `Tahmini ${commerce.fastestEtaDays} iş gününde teslim.` : "Teslimat süresi seçtiğiniz kargo yöntemine göre ödeme adımında gösterilir."} İade koşulları mağaza politikalarına göre uygulanır.</p></details>
