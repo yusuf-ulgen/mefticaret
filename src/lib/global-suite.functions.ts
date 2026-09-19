@@ -357,6 +357,8 @@ export const runTranslationStudio = createServerFn({ method: "POST" })
       .eq("locale", locale)
       .in("content_type", ["product", "seo"])
       .in("status", ["missing", "needs_review"])
+      // URL parçaları çevrilmez; aksi hâlde mevcut ürün bağlantıları bozulur.
+      .neq("field", "slug")
       .limit(data.limit);
     if (pendingError) throw new Error(pendingError.message);
 
@@ -384,6 +386,7 @@ export const runTranslationStudio = createServerFn({ method: "POST" })
       .eq("locale", locale)
       .in("content_type", ["product", "seo"])
       .not("translated_value", "is", null)
+      .neq("field", "slug")
       .order("updated_at", { ascending: false })
       .limit(20);
     if (previewError) throw new Error(previewError.message);
