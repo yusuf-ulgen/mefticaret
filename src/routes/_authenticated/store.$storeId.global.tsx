@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { ExportDocumentPrint } from "@/components/global-export/export-document-print";
+import { GlobalShipmentLabelPrint } from "@/components/global-export/global-shipment-label-print";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,7 @@ import {
   customsProfilesQuery,
   euVatRatesQuery,
   exportDocumentsQuery,
+  globalShipmentsQuery,
   globalCarriersQuery,
   globalPaymentMethodsQuery,
   globalSettingsQuery,
@@ -46,6 +48,7 @@ import {
 } from "@/lib/global-export-queries";
 import {
   createExportDocument,
+  createGlobalShipmentLabel,
   runGlobalAutoTranslate,
   deleteCountryPrice,
   saveCustomsProfile,
@@ -94,6 +97,7 @@ function GlobalExportPage() {
   const { data: carriers } = useQuery(globalCarriersQuery(storeId));
   const { data: customs } = useQuery(customsProfilesQuery(storeId));
   const { data: documents } = useQuery(exportDocumentsQuery(storeId));
+  const { data: globalShipments } = useQuery(globalShipmentsQuery(storeId));
   const { data: orders } = useQuery(ordersQuery(storeId));
   const { data: products } = useQuery(productsQuery(storeId));
   const { data: euRates } = useQuery(euVatRatesQuery());
@@ -106,6 +110,7 @@ function GlobalExportPage() {
   const saveCarrier = useServerFn(saveGlobalCarrier);
   const saveCustoms = useServerFn(saveCustomsProfile);
   const createDoc = useServerFn(createExportDocument);
+  const createLabel = useServerFn(createGlobalShipmentLabel);
 
   const invalidate = (key: string) => queryClient.invalidateQueries({ queryKey: [key, storeId] });
 
@@ -268,6 +273,8 @@ function GlobalExportPage() {
     kind: "commercial_invoice" as "commercial_invoice" | "packing_list" | "etgb",
   });
   const [openDoc, setOpenDoc] = useState<ExportDocumentRow | null>(null);
+  const [labelForm, setLabelForm] = useState({ orderId: "", carrierCode: "dhl", service: "" });
+  const [openLabelId, setOpenLabelId] = useState<string | null>(null);
 
   const productName = (id: string) =>
     (products ?? []).find((row) => row.id === id)?.title ?? id.slice(0, 8);
