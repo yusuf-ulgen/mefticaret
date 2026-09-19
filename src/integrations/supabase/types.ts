@@ -1836,6 +1836,62 @@ export type Database = {
           },
         ]
       }
+      checkout_addons: {
+        Row: {
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          is_active: boolean
+          kind: string
+          min_order_total: number
+          months: number | null
+          name: string
+          price_type: string
+          price_value: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind: string
+          min_order_total?: number
+          months?: number | null
+          name: string
+          price_type?: string
+          price_value?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          min_order_total?: number
+          months?: number | null
+          name?: string
+          price_type?: string
+          price_value?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkout_addons_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collections: {
         Row: {
           created_at: string
@@ -3724,6 +3780,63 @@ export type Database = {
           },
         ]
       }
+      fraud_assessments: {
+        Row: {
+          created_at: string
+          id: string
+          level: string
+          order_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          score: number
+          signals: Json
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          level?: string
+          order_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score?: number
+          signals?: Json
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          level?: string
+          order_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score?: number
+          signals?: Json
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fraud_assessments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fraud_assessments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fulfillment_warehouses: {
         Row: {
           city: string | null
@@ -5275,6 +5388,126 @@ export type Database = {
           },
           {
             foreignKeyName: "ledger_entries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_stream_products: {
+        Row: {
+          created_at: string
+          highlight_label: string | null
+          id: string
+          product_id: string
+          sort_order: number
+          store_id: string
+          stream_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          highlight_label?: string | null
+          id?: string
+          product_id: string
+          sort_order?: number
+          store_id: string
+          stream_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          highlight_label?: string | null
+          id?: string
+          product_id?: string
+          sort_order?: number
+          store_id?: string
+          stream_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_stream_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_stream_products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_stream_products_stream_id_fkey"
+            columns: ["stream_id"]
+            isOneToOne: false
+            referencedRelation: "live_streams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_streams: {
+        Row: {
+          chat_enabled: boolean
+          created_at: string
+          description: string | null
+          ended_at: string | null
+          id: string
+          peak_viewers: number
+          product_clicks: number
+          provider: string
+          scheduled_at: string | null
+          started_at: string | null
+          status: string
+          store_id: string
+          stream_url: string | null
+          title: string
+          total_views: number
+          updated_at: string
+        }
+        Insert: {
+          chat_enabled?: boolean
+          created_at?: string
+          description?: string | null
+          ended_at?: string | null
+          id?: string
+          peak_viewers?: number
+          product_clicks?: number
+          provider?: string
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          store_id: string
+          stream_url?: string | null
+          title: string
+          total_views?: number
+          updated_at?: string
+        }
+        Update: {
+          chat_enabled?: boolean
+          created_at?: string
+          description?: string | null
+          ended_at?: string | null
+          id?: string
+          peak_viewers?: number
+          product_clicks?: number
+          provider?: string
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          store_id?: string
+          stream_url?: string | null
+          title?: string
+          total_views?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_streams_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -7255,6 +7488,64 @@ export type Database = {
           },
         ]
       }
+      order_addon_selections: {
+        Row: {
+          addon_id: string | null
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          kind: string
+          label: string
+          order_id: string
+          store_id: string
+        }
+        Insert: {
+          addon_id?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          kind: string
+          label: string
+          order_id: string
+          store_id: string
+        }
+        Update: {
+          addon_id?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          kind?: string
+          label?: string
+          order_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_addon_selections_addon_id_fkey"
+            columns: ["addon_id"]
+            isOneToOne: false
+            referencedRelation: "checkout_addons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_addon_selections_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_addon_selections_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_addresses: {
         Row: {
           city: string
@@ -7774,6 +8065,126 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      payment_route_decisions: {
+        Row: {
+          amount: number
+          baseline_fee: number
+          bin_prefix: string | null
+          chosen_fee: number
+          created_at: string
+          currency: string
+          id: string
+          order_id: string | null
+          route_id: string | null
+          saved_amount: number
+          store_id: string
+        }
+        Insert: {
+          amount?: number
+          baseline_fee?: number
+          bin_prefix?: string | null
+          chosen_fee?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id?: string | null
+          route_id?: string | null
+          saved_amount?: number
+          store_id: string
+        }
+        Update: {
+          amount?: number
+          baseline_fee?: number
+          bin_prefix?: string | null
+          chosen_fee?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          order_id?: string | null
+          route_id?: string | null
+          saved_amount?: number
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_route_decisions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_route_decisions_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "payment_routes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_route_decisions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_routes: {
+        Row: {
+          approval_rate: number
+          bin_prefixes: string[]
+          card_networks: string[]
+          created_at: string
+          fee_fixed: number
+          fee_percent: number
+          id: string
+          is_active: boolean
+          label: string
+          priority: number
+          provider: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          approval_rate?: number
+          bin_prefixes?: string[]
+          card_networks?: string[]
+          created_at?: string
+          fee_fixed?: number
+          fee_percent?: number
+          id?: string
+          is_active?: boolean
+          label: string
+          priority?: number
+          provider: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          approval_rate?: number
+          bin_prefixes?: string[]
+          card_networks?: string[]
+          created_at?: string
+          fee_fixed?: number
+          fee_percent?: number
+          id?: string
+          is_active?: boolean
+          label?: string
+          priority?: number
+          provider?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_routes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_transactions: {
         Row: {
@@ -9000,6 +9411,60 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "pricing_rules_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_ar_assets: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          model_url: string | null
+          poster_url: string | null
+          product_id: string
+          scale_hint: string | null
+          store_id: string
+          updated_at: string
+          usdz_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          model_url?: string | null
+          poster_url?: string | null
+          product_id: string
+          scale_hint?: string | null
+          store_id: string
+          updated_at?: string
+          usdz_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          model_url?: string | null
+          poster_url?: string | null
+          product_id?: string
+          scale_hint?: string | null
+          store_id?: string
+          updated_at?: string
+          usdz_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_ar_assets_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_ar_assets_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -11375,6 +11840,72 @@ export type Database = {
           },
         ]
       }
+      shoppable_videos: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          placement: string
+          product_clicks: number
+          product_id: string | null
+          sort_order: number
+          source: string
+          store_id: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string
+          views: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          placement?: string
+          product_clicks?: number
+          product_id?: string | null
+          sort_order?: number
+          source?: string
+          store_id: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+          views?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          placement?: string
+          product_clicks?: number
+          product_id?: string | null
+          sort_order?: number
+          source?: string
+          store_id?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shoppable_videos_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shoppable_videos_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_sections: {
         Row: {
           badge: string | null
@@ -11895,6 +12426,8 @@ export type Database = {
           auto_translate_locales: string[]
           b2b_default_moq: number
           b2b_enabled: boolean
+          carbon_offset_amount: number
+          carbon_offset_enabled: boolean
           created_at: string
           default_hs_code: string | null
           default_incoterm: string
@@ -11905,10 +12438,12 @@ export type Database = {
           exporter_name: string | null
           exporter_phone: string | null
           exporter_tax_id: string | null
+          fraud_block_threshold: number
           fx_buffer_percent: number
           geo_detect_enabled: boolean
           ioss_enabled: boolean
           ioss_number: string | null
+          live_commerce_enabled: boolean
           oss_enabled: boolean
           price_rounding_rule: string
           rtl_auto: boolean
@@ -11916,11 +12451,14 @@ export type Database = {
           store_id: string
           updated_at: string
           us_nexus_states: string[]
+          voice_search_enabled: boolean
         }
         Insert: {
           auto_translate_locales?: string[]
           b2b_default_moq?: number
           b2b_enabled?: boolean
+          carbon_offset_amount?: number
+          carbon_offset_enabled?: boolean
           created_at?: string
           default_hs_code?: string | null
           default_incoterm?: string
@@ -11931,10 +12469,12 @@ export type Database = {
           exporter_name?: string | null
           exporter_phone?: string | null
           exporter_tax_id?: string | null
+          fraud_block_threshold?: number
           fx_buffer_percent?: number
           geo_detect_enabled?: boolean
           ioss_enabled?: boolean
           ioss_number?: string | null
+          live_commerce_enabled?: boolean
           oss_enabled?: boolean
           price_rounding_rule?: string
           rtl_auto?: boolean
@@ -11942,11 +12482,14 @@ export type Database = {
           store_id: string
           updated_at?: string
           us_nexus_states?: string[]
+          voice_search_enabled?: boolean
         }
         Update: {
           auto_translate_locales?: string[]
           b2b_default_moq?: number
           b2b_enabled?: boolean
+          carbon_offset_amount?: number
+          carbon_offset_enabled?: boolean
           created_at?: string
           default_hs_code?: string | null
           default_incoterm?: string
@@ -11957,10 +12500,12 @@ export type Database = {
           exporter_name?: string | null
           exporter_phone?: string | null
           exporter_tax_id?: string | null
+          fraud_block_threshold?: number
           fx_buffer_percent?: number
           geo_detect_enabled?: boolean
           ioss_enabled?: boolean
           ioss_number?: string | null
+          live_commerce_enabled?: boolean
           oss_enabled?: boolean
           price_rounding_rule?: string
           rtl_auto?: boolean
@@ -11968,6 +12513,7 @@ export type Database = {
           store_id?: string
           updated_at?: string
           us_nexus_states?: string[]
+          voice_search_enabled?: boolean
         }
         Relationships: [
           {
@@ -14833,6 +15379,66 @@ export type Database = {
           },
           {
             foreignKeyName: "translation_versions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ugc_posts: {
+        Row: {
+          author_handle: string | null
+          caption: string | null
+          created_at: string
+          id: string
+          likes: number
+          media_url: string
+          permalink: string | null
+          product_id: string | null
+          source: string
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_handle?: string | null
+          caption?: string | null
+          created_at?: string
+          id?: string
+          likes?: number
+          media_url: string
+          permalink?: string | null
+          product_id?: string | null
+          source?: string
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_handle?: string | null
+          caption?: string | null
+          created_at?: string
+          id?: string
+          likes?: number
+          media_url?: string
+          permalink?: string | null
+          product_id?: string | null
+          source?: string
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ugc_posts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ugc_posts_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
