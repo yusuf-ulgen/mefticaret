@@ -33,7 +33,11 @@ const settingsSchema = z.object({
   exporterPhone: z.string().trim().max(40).nullable().optional(),
   exporterEmail: z.string().trim().max(200).nullable().optional(),
   defaultHsCode: z.string().trim().max(20).nullable().optional(),
-  autoTranslateLocales: z.array(z.string().trim().max(5)).max(10),
+  autoTranslateLocales: z.array(z.string().trim().max(5)).max(12),
+  priceRoundingRule: z
+    .enum(["none", "end_99", "end_90", "nearest_integer", "nearest_5"])
+    .default("none"),
+  settlementCurrencies: z.array(z.string().trim().length(3)).max(10).default([]),
 });
 
 /** Ziyaretçinin ülkesini kenar sunucu başlığından okur (sahte veri üretmez). */
@@ -83,6 +87,8 @@ export const saveGlobalSettings = createServerFn({ method: "POST" })
       exporter_email: data.exporterEmail || null,
       default_hs_code: data.defaultHsCode || null,
       auto_translate_locales: data.autoTranslateLocales,
+      price_rounding_rule: data.priceRoundingRule,
+      settlement_currencies: data.settlementCurrencies.map((code) => code.toUpperCase()),
     };
     const { error } = await context.supabase
       .from("store_global_settings")
