@@ -52,3 +52,6 @@
 - [x] E-ticaret rehberinde Turkce oncelik: tr/tr-TR hreflang, og:locale tr_TR, sitemap priority 1.0; Ingilizce sayfa priority 0.3.
 
 - [x] Müşteri hesap paneli v2 (genel bakış, siparişler, kargo takip, iade, adres defteri, favoriler, puan/kampanya, hesap ayarları + puan sistemi)
+
+- [x] Global & E-İhracat modülü: ülke bazlı fiyatlar, kur risk marjı, IOSS/OSS + ABD satış vergisi, DDP/DDU teslim maliyeti simülatörü, küresel ödeme sağlayıcıları, mikro ihracat taşıyıcıları, İngilizce ticari fatura / paket listesi / ETGB belgeleri
+- [ ] Global modül bekleyen: Stripe/PayPal/Klarna ve DHL/FedEx/UPS/PTT/Navlungo/ShipEntegra/Aramex hesap anahtarları (satıcıdan gelmeli), dil bazlı URL + hreflang yayılımı, AI otomatik çeviri işleri
