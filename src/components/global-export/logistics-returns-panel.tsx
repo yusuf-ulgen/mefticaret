@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { GLOBAL_CARRIERS, GLOBAL_COUNTRIES, GLOBAL_CURRENCIES } from "@/lib/global-commerce";
+import { CARRIER_CATALOG, GLOBAL_COUNTRIES, GLOBAL_CURRENCIES } from "@/lib/global-commerce";
 import { carrierQuotesQuery, returnHubsQuery, returnLabelsQuery } from "@/lib/growth-export-queries";
 import {
   compareCarriers,
@@ -190,7 +190,7 @@ export function LogisticsReturnsPanel({ storeId }: Props) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {GLOBAL_CARRIERS.map((carrier) => (
+                {CARRIER_CATALOG.map((carrier) => (
                   <SelectItem key={carrier.code} value={carrier.code}>
                     {carrier.name}
                   </SelectItem>
@@ -349,7 +349,7 @@ export function LogisticsReturnsPanel({ storeId }: Props) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {GLOBAL_CARRIERS.map((carrier) => (
+                {CARRIER_CATALOG.map((carrier) => (
                   <SelectItem key={carrier.code} value={carrier.code}>
                     {carrier.name}
                   </SelectItem>
