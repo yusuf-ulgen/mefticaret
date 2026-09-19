@@ -136,12 +136,31 @@ export const saveEmailCampaign = createServerFn({ method: "POST" })
         abEnabled: z.boolean().default(false),
         scheduledAt: z.string().max(40).nullable().optional(),
         variants: z.array(variantSchema).max(4).default([]),
+        storefrontEnabled: z.boolean().default(false),
+        slug: z
+          .string()
+          .trim()
+          .regex(/^[a-z0-9-]*$/, "Adres yalnızca küçük harf, rakam ve tire içerebilir")
+          .max(80)
+          .default(""),
+        bannerHeadline: z.string().trim().max(120).default(""),
+        bannerBody: z.string().trim().max(200).default(""),
+        bannerCtaLabel: z.string().trim().max(60).default(""),
+        landingHeadline: z.string().trim().max(160).default(""),
+        landingBody: z.string().trim().max(4000).default(""),
+        discountCode: z.string().trim().max(40).default(""),
+        startsAt: z.string().max(40).nullable().optional(),
+        endsAt: z.string().max(40).nullable().optional(),
       })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await guard(supabase, data.storeId, userId);
+
+    if (data.storefrontEnabled && !data.slug) {
+      throw new Error("Vitrinde göstermek için kampanya adresi (slug) gerekir");
+    }
 
     const payload = {
       store_id: data.storeId,
@@ -152,7 +171,18 @@ export const saveEmailCampaign = createServerFn({ method: "POST" })
       audience: data.audience as never,
       ab_enabled: data.abEnabled,
       scheduled_at: data.scheduledAt ?? null,
+      storefront_enabled: data.storefrontEnabled,
+      slug: data.slug || null,
+      banner_headline: data.bannerHeadline,
+      banner_body: data.bannerBody,
+      banner_cta_label: data.bannerCtaLabel,
+      landing_headline: data.landingHeadline,
+      landing_body: data.landingBody,
+      discount_code: data.discountCode,
+      starts_at: data.startsAt ?? null,
+      ends_at: data.endsAt ?? null,
     };
+
 
     const { data: campaign, error } = await (data.campaignId
       ? supabase.from("email_campaigns").update(payload).eq("id", data.campaignId).eq("store_id", data.storeId)
