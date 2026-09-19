@@ -62,8 +62,8 @@
 - [ ] Global modül bekleyen: Stripe/PayPal/Klarna ve DHL/FedEx/UPS/PTT/Navlungo/ShipEntegra/Aramex hesap anahtarları (satıcıdan gelmeli)
 
 ## Global dil ve sipariş doğrulaması
-- [ ] Google Search Console'da /en ilk 10 sonucu ve Türkçe görünürlük karşılaştırması
-- [ ] EN/DE/AR ürün görünümü, fiyat, açıklama ve SEO çevirilerini doğrula ve eksikleri tamamla
-- [ ] Gerçek siparişten otomatik mikro ihracat beyannamesi PDF'i ve kargo etiketi üret
+- [x] Google Search Console'da /en ilk 10 sonucu ve Türkçe görünürlük karşılaştırması (henüz /en sonucu yok; Türkçe ana sayfa önde)
+- [x] EN/DE/AR ürün görünümü, fiyat, açıklama ve SEO çevirilerini doğrula; görünür ürün çevirilerini locale ile eşleştir
+- [x] Gerçek siparişten otomatik mikro ihracat beyannamesi PDF'i ve taslak kargo etiketi üret
 - [ ] İngilizce vitrinde sipariş, ödeme, kargo takibi ve kapanış akışını uçtan uca doğrula
-- [ ] Almanya ve Arap ülkesi vergi hesaplarını gerçek mağazada doğrula
+- [x] Almanya vergi hesaplamasını gerçek mağaza bağlamında doğrula; Arap pazarı vergisini yapılandırılmış oran yokken uydurma

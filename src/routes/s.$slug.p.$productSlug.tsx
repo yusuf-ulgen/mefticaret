@@ -206,7 +206,7 @@ function ProductPage() {
     recordRecentProduct({
       storeSlug: data.store.slug,
       productSlug: data.product.slug,
-      title: data.product.title,
+      title: localized.title || data.product.title,
       price: Number(data.product.base_price),
       currency: data.product.currency,
       image: data.images[0]?.url ?? null,
@@ -271,7 +271,7 @@ function ProductPage() {
         storeSlug: store.slug,
         variantId: selected.id,
         productSlug: product.slug,
-        title: product.title,
+        title: displayTitle,
         variantTitle: selected.title,
         price: Number(selected.price ?? product.base_price),
         currency: product.currency,
@@ -292,7 +292,7 @@ function ProductPage() {
         storeSlug: store.slug,
         variantId: selected.id,
         productSlug: product.slug,
-        title: product.title,
+        title: displayTitle,
         variantTitle: selected.title,
         price: Number(selected.price ?? product.base_price),
         currency: product.currency,
@@ -308,7 +308,7 @@ function ProductPage() {
     const url = typeof window === "undefined" ? "" : window.location.href;
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
-        await navigator.share({ title: product.title, url });
+        await navigator.share({ title: displayTitle, url });
         return;
       } catch {
         /* kullanıcı vazgeçti */
@@ -734,7 +734,7 @@ function ProductPage() {
 
           <StickyAddToCartBar
             theme={t}
-            title={product.title}
+            title={displayTitle}
             price={Number(price)}
             currency={product.currency}
             disabled={!inStock}
@@ -760,7 +760,7 @@ function ProductPage() {
               const added = favorites.toggle({
                 storeSlug: store.slug,
                 productSlug: product.slug,
-                title: product.title,
+                title: displayTitle,
                 price: Number(price),
                 currency: product.currency,
                 image: images[0]?.url ?? null,
