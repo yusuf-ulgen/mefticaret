@@ -169,6 +169,11 @@ function StorefrontHome() {
         />
       ) : null}
 
+      <div style={{ display: "grid", gap: 28, margin: "28px 0" }}>
+        <LiveStreamBanner storeId={store.id} slug={store.slug} />
+        <ShoppableVideoRail storeId={store.id} slug={store.slug} placement="home" />
+        <UgcWall storeId={store.id} />
+      </div>
     </StorefrontChrome>
   );
 }
