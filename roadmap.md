@@ -75,3 +75,7 @@
 - [ ] Stripe / PayPal / Klarna canlı entegrasyonu — mağaza sahibinin API anahtarları bekleniyor
 - [ ] DHL Express / FedEx API — hesap numarası + API kimlik bilgileri bekleniyor (gerçek takip kodu bunlar olmadan üretilemez)
 - [ ] /en siparişinde ödeme sonrası otomatik kargo takip + fatura akışı (yukarıdaki anahtarlara bağlı)
+
+## Ana sayfada yeni özellikler
+- [ ] Global e-ihracat, büyüme/lojistik ve e-posta pazarlama özelliklerini ana sayfada görünür ve mobil uyumlu sun
+- [ ] Ana sayfa masaüstü ve mobil görünümünü doğrula
