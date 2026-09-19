@@ -35,7 +35,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/innovation"
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: InnovationPage;
+  component: InnovationPage,
 });
 
 type Dashboard = {
