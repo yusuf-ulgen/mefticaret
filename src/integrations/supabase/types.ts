@@ -1492,6 +1492,48 @@ export type Database = {
           },
         ]
       }
+      campaign_storefront_events: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          id: string
+          kind: string
+          session_id: string
+          store_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          session_id?: string
+          store_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          session_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_storefront_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_storefront_events_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carrier_rate_quotes: {
         Row: {
           carrier_code: string
@@ -3410,48 +3452,78 @@ export type Database = {
         Row: {
           ab_enabled: boolean
           audience: Json
+          banner_body: string
+          banner_cta_label: string
+          banner_headline: string
           created_at: string
           design_id: string | null
+          discount_code: string
+          ends_at: string | null
           id: string
+          landing_body: string
+          landing_headline: string
           name: string
           preview_text: string
           recipients_count: number
           scheduled_at: string | null
           sent_at: string | null
+          slug: string | null
+          starts_at: string | null
           status: string
           store_id: string
+          storefront_enabled: boolean
           subject: string
           updated_at: string
         }
         Insert: {
           ab_enabled?: boolean
           audience?: Json
+          banner_body?: string
+          banner_cta_label?: string
+          banner_headline?: string
           created_at?: string
           design_id?: string | null
+          discount_code?: string
+          ends_at?: string | null
           id?: string
+          landing_body?: string
+          landing_headline?: string
           name: string
           preview_text?: string
           recipients_count?: number
           scheduled_at?: string | null
           sent_at?: string | null
+          slug?: string | null
+          starts_at?: string | null
           status?: string
           store_id: string
+          storefront_enabled?: boolean
           subject?: string
           updated_at?: string
         }
         Update: {
           ab_enabled?: boolean
           audience?: Json
+          banner_body?: string
+          banner_cta_label?: string
+          banner_headline?: string
           created_at?: string
           design_id?: string | null
+          discount_code?: string
+          ends_at?: string | null
           id?: string
+          landing_body?: string
+          landing_headline?: string
           name?: string
           preview_text?: string
           recipients_count?: number
           scheduled_at?: string | null
           sent_at?: string | null
+          slug?: string | null
+          starts_at?: string | null
           status?: string
           store_id?: string
+          storefront_enabled?: boolean
           subject?: string
           updated_at?: string
         }
