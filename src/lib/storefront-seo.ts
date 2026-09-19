@@ -38,6 +38,26 @@ export type StorefrontHeadInput = {
   includeStoreSchema?: boolean;
 };
 
+/** Dil kodunu Open Graph biçimine çevirir: `en` → `en_US`. */
+const OG_LOCALES: Record<string, string> = {
+  tr: "tr_TR",
+  en: "en_US",
+  de: "de_DE",
+  fr: "fr_FR",
+  es: "es_ES",
+  ar: "ar_AE",
+  ru: "ru_RU",
+};
+
+export function ogLocaleFor(locale: string | null | undefined) {
+  if (!locale) return "tr_TR";
+  const short = locale.slice(0, 2).toLowerCase();
+  if (OG_LOCALES[short]) return OG_LOCALES[short];
+  return locale.includes("-")
+    ? `${short}_${locale.slice(3, 5).toUpperCase()}`
+    : `${short}_${short.toUpperCase()}`;
+}
+
 /** Mağaza düzeyinde Organization / LocalBusiness / WebSite şemaları. */
 export function storeSchemas(ctx: StoreSeoContext, origin?: string | null) {
   const base = absoluteUrl(`/s/${ctx.storeSlug}`, origin);
@@ -102,14 +122,20 @@ export function storefrontHead(input: StorefrontHeadInput) {
   const noindex = Boolean(seo.noindex || ctx?.settings.noindexStore);
   const keywords = seo.keywords || ctx?.settings.keywords;
 
+  // Ziyaretçi dili seçtiyse canonical kendi dil adresini işaret eder.
+  const activeShort = ctx?.activeLocale ? ctx.activeLocale.slice(0, 2).toLowerCase() : null;
+  const canonicalPath = activeShort
+    ? `${path}${path.includes("?") ? "&" : "?"}lang=${activeShort}`
+    : path;
+
   const head = buildSeoHead({
     title,
     description,
-    canonicalPath: path,
+    canonicalPath,
     origin: input.origin,
     image,
     ogType: input.ogType ?? "website",
-    locale: "tr_TR",
+    locale: ogLocaleFor(ctx?.activeLocale ?? ctx?.defaultLocale ?? "tr"),
     ...(storeName ? { siteName: storeName } : {}),
     ...(keywords ? { keywords } : {}),
     ...(noindex ? { noindex: true } : {}),

@@ -18,10 +18,12 @@ import {
 import { useStorefrontLive } from "@/hooks/use-storefront-live";
 
 export const Route = createFileRoute("/s/$slug/")({
-  loader: async ({ context, params }) => {
+  loader: async ({ context, params, location }) => {
+    const rawLang = (location.search as Record<string, unknown> | undefined)?.["lang"];
+    const lang = typeof rawLang === "string" && /^[a-z]{2}(-[a-z]{2})?$/i.test(rawLang) ? rawLang : null;
     const [data, ctx, origin] = await Promise.all([
       context.queryClient.ensureQueryData(storefrontQuery(params.slug)),
-      getStoreSeoContext({ data: { slug: params.slug } }),
+      getStoreSeoContext({ data: { slug: params.slug, ...(lang ? { locale: lang } : {}) } }),
       getRequestOrigin(),
     ]);
     if (!data) throw notFound();

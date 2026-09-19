@@ -6,6 +6,7 @@ import { ArrowRight, ArrowUpRight, Check, Heart, Menu, PackagePlus, Smartphone, 
 import gdprBadge from "@/assets/gdpr-badge.webp.asset.json";
 import { CommerceFlowAnimation } from "@/components/commerce-flow-animation";
 import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
+import { PlatformLocaleSwitcher } from "@/components/platform-locale-switcher";
 import { supabase } from "@/integrations/supabase/client";
 
 
@@ -281,6 +282,7 @@ function LandingPage() {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
+              <PlatformLocaleSwitcher active="tr" />
               {loading ? null : session ? (
                 <Button asChild className="rounded-full px-5">
                   <Link to="/stores">Panele git</Link>
