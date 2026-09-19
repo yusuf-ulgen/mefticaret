@@ -720,3 +720,39 @@ export const setSubscriberStatus = createServerFn({ method: "POST" })
   });
 
 export type { SupabaseClient };
+
+/** Vitrin bülten formu: giriş gerektirmez, yalnız aktif mağazaya abone ekler. */
+export const subscribeToNewsletter = createServerFn({ method: "POST" })
+  .inputValidator((data) =>
+    z
+      .object({
+        storeSlug: z.string().trim().min(1).max(120),
+        email: z.string().trim().email().max(180),
+        fullName: z.string().trim().max(120).optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: store, error: storeError } = await supabaseAdmin
+      .from("stores")
+      .select("id, status")
+      .eq("slug", data.storeSlug)
+      .maybeSingle();
+    if (storeError) throw new Error(storeError.message);
+    if (!store || store.status !== "active") throw new Error("Mağaza bulunamadı");
+
+    const { error } = await supabaseAdmin.from("email_subscribers").upsert(
+      {
+        store_id: store.id,
+        email: data.email.toLowerCase(),
+        full_name: data.fullName?.trim() ? data.fullName.trim() : null,
+        source: "storefront",
+        status: "subscribed",
+      },
+      { onConflict: "store_id,email" },
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
