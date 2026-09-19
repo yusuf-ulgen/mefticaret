@@ -1,12 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { TrendingUp } from "lucide-react";
+import { Megaphone, TrendingUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getCampaignStorefrontReport } from "@/lib/email-marketing.functions";
 import { getGlobalProfitReport } from "@/lib/global-suite.functions";
 import { formatMoney } from "@/lib/mefti";
+
 
 /** Döviz bazlı gelir ve net kârlılık raporu — gerçek ödenmiş siparişlerden hesaplanır. */
 export function ProfitReportPanel({ storeId, baseCurrency }: { storeId: string; baseCurrency: string }) {
