@@ -286,6 +286,13 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
           icon: Coins,
           keywords: "kur döviz market ülke fiyat listesi kampanya marj",
         },
+        {
+          label: "E-İhracat & Global",
+          to: p("global"),
+          icon: Globe,
+          keywords:
+            "ihracat global yurt dışı gümrük etgb ticari fatura ioss oss dhl fedex ups stripe paypal klarna ülke fiyat",
+        },
         { label: "Ekip & Yetkiler", to: p("team"), icon: ShieldCheck },
         { label: "Güvenlik & KVKK", to: p("security"), icon: ShieldCheck },
         { label: "Denetim Kaydı", to: p("activity"), icon: History },
