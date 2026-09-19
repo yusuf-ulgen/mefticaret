@@ -3791,8 +3791,10 @@ export type Database = {
           currency: string | null
           destination_country: string | null
           events: Json
+          export_document_id: string | null
           id: string
           incoterm: string
+          label_payload: Json
           label_url: string | null
           last_event: string | null
           order_id: string
@@ -3810,8 +3812,10 @@ export type Database = {
           currency?: string | null
           destination_country?: string | null
           events?: Json
+          export_document_id?: string | null
           id?: string
           incoterm?: string
+          label_payload?: Json
           label_url?: string | null
           last_event?: string | null
           order_id: string
@@ -3829,8 +3833,10 @@ export type Database = {
           currency?: string | null
           destination_country?: string | null
           events?: Json
+          export_document_id?: string | null
           id?: string
           incoterm?: string
+          label_payload?: Json
           label_url?: string | null
           last_event?: string | null
           order_id?: string
@@ -3842,6 +3848,13 @@ export type Database = {
           weight_grams?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "global_shipments_export_document_id_fkey"
+            columns: ["export_document_id"]
+            isOneToOne: false
+            referencedRelation: "export_documents"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "global_shipments_order_id_fkey"
             columns: ["order_id"]
