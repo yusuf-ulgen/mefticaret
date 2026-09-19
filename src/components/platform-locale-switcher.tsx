@@ -17,6 +17,7 @@ export const PLATFORM_LOCALES = [
   { code: "tr", label: "Türkçe", short: "TR", to: "/" as const },
   { code: "en", label: "English", short: "EN", to: "/en" as const },
   { code: "de", label: "Deutsch", short: "DE", to: "/de" as const },
+  { code: "fr", label: "Français", short: "FR", to: "/fr" as const },
   { code: "ar", label: "العربية", short: "AR", to: "/ar" as const },
 ];
 

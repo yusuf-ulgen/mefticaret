@@ -30,6 +30,7 @@ import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]x
 import { Route as SitemapCategoriesDotxmlRouteImport } from './routes/sitemap-categories[.]xml'
 import { Route as SitemapDeDotxmlRouteImport } from './routes/sitemap-de[.]xml'
 import { Route as SitemapEnDotxmlRouteImport } from './routes/sitemap-en[.]xml'
+import { Route as SitemapFrDotxmlRouteImport } from './routes/sitemap-fr[.]xml'
 import { Route as SitemapIndexDotxmlRouteImport } from './routes/sitemap-index[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapProductsDotxmlRouteImport } from './routes/sitemap-products[.]xml'
@@ -52,6 +53,7 @@ import { Route as EnHowToStartAnOnlineStoreRouteImport } from './routes/en.how-t
 import { Route as EvHanimlariIndexRouteImport } from './routes/ev-hanimlari.index'
 import { Route as EvHanimlariKurulumRouteImport } from './routes/ev-hanimlari.kurulum'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
+import { Route as FrIndexRouteImport } from './routes/fr.index'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -283,6 +285,7 @@ import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$collectionSlug'
+import { Route as SSlugKampanyaCampaignSlugRouteImport } from './routes/s.$slug.kampanya.$campaignSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
 import { Route as AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport } from './routes/_authenticated/store.$storeId.customers.$customerId'
@@ -401,6 +404,11 @@ const SitemapEnDotxmlRoute = SitemapEnDotxmlRouteImport.update({
   path: '/sitemap-en.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapFrDotxmlRoute = SitemapFrDotxmlRouteImport.update({
+  id: '/sitemap-fr.xml',
+  path: '/sitemap-fr.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapIndexDotxmlRoute = SitemapIndexDotxmlRouteImport.update({
   id: '/sitemap-index.xml',
   path: '/sitemap-index.xml',
@@ -511,6 +519,11 @@ const EvHanimlariKurulumRoute = EvHanimlariKurulumRouteImport.update({
 const FaturaTokenRoute = FaturaTokenRouteImport.update({
   id: '/fatura/$token',
   path: '/fatura/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FrIndexRoute = FrIndexRouteImport.update({
+  id: '/fr/',
+  path: '/fr/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SayfaSlugRoute = SayfaSlugRouteImport.update({
@@ -1842,6 +1855,12 @@ const SSlugCCollectionSlugRoute = SSlugCCollectionSlugRouteImport.update({
   path: '/s/$slug/c/$collectionSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugKampanyaCampaignSlugRoute =
+  SSlugKampanyaCampaignSlugRouteImport.update({
+    id: '/s/$slug/kampanya/$campaignSlug',
+    path: '/s/$slug/kampanya/$campaignSlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SSlugPProductSlugRoute = SSlugPProductSlugRouteImport.update({
   id: '/s/$slug/p/$productSlug',
   path: '/s/$slug/p/$productSlug',
@@ -1933,6 +1952,7 @@ export interface FileRoutesByFullPath {
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
   '/sitemap-de.xml': typeof SitemapDeDotxmlRoute
   '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
+  '/sitemap-fr.xml': typeof SitemapFrDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
@@ -1956,6 +1976,7 @@ export interface FileRoutesByFullPath {
   '/de/': typeof DeIndexRoute
   '/en/': typeof EnIndexRoute
   '/ev-hanimlari/': typeof EvHanimlariIndexRoute
+  '/fr/': typeof FrIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2185,6 +2206,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
+  '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
@@ -2220,6 +2242,7 @@ export interface FileRoutesByTo {
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
   '/sitemap-de.xml': typeof SitemapDeDotxmlRoute
   '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
+  '/sitemap-fr.xml': typeof SitemapFrDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
@@ -2242,6 +2265,7 @@ export interface FileRoutesByTo {
   '/de': typeof DeIndexRoute
   '/en': typeof EnIndexRoute
   '/ev-hanimlari': typeof EvHanimlariIndexRoute
+  '/fr': typeof FrIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2470,6 +2494,7 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
+  '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/admin/frontend': typeof AuthenticatedAdminFrontendIndexRoute
@@ -2507,6 +2532,7 @@ export interface FileRoutesById {
   '/sitemap-categories.xml': typeof SitemapCategoriesDotxmlRoute
   '/sitemap-de.xml': typeof SitemapDeDotxmlRoute
   '/sitemap-en.xml': typeof SitemapEnDotxmlRoute
+  '/sitemap-fr.xml': typeof SitemapFrDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
@@ -2530,6 +2556,7 @@ export interface FileRoutesById {
   '/de/': typeof DeIndexRoute
   '/en/': typeof EnIndexRoute
   '/ev-hanimlari/': typeof EvHanimlariIndexRoute
+  '/fr/': typeof FrIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2759,6 +2786,7 @@ export interface FileRoutesById {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/s/$slug/c/$collectionSlug': typeof SSlugCCollectionSlugRoute
+  '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/_authenticated/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
@@ -2796,6 +2824,7 @@ export interface FileRouteTypes {
     | '/sitemap-categories.xml'
     | '/sitemap-de.xml'
     | '/sitemap-en.xml'
+    | '/sitemap-fr.xml'
     | '/sitemap-index.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
@@ -2819,6 +2848,7 @@ export interface FileRouteTypes {
     | '/de/'
     | '/en/'
     | '/ev-hanimlari/'
+    | '/fr/'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -3048,6 +3078,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/s/$slug/c/$collectionSlug'
+    | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
     | '/admin/frontend/'
@@ -3083,6 +3114,7 @@ export interface FileRouteTypes {
     | '/sitemap-categories.xml'
     | '/sitemap-de.xml'
     | '/sitemap-en.xml'
+    | '/sitemap-fr.xml'
     | '/sitemap-index.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
@@ -3105,6 +3137,7 @@ export interface FileRouteTypes {
     | '/de'
     | '/en'
     | '/ev-hanimlari'
+    | '/fr'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -3333,6 +3366,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/s/$slug/c/$collectionSlug'
+    | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
     | '/admin/frontend'
@@ -3369,6 +3403,7 @@ export interface FileRouteTypes {
     | '/sitemap-categories.xml'
     | '/sitemap-de.xml'
     | '/sitemap-en.xml'
+    | '/sitemap-fr.xml'
     | '/sitemap-index.xml'
     | '/sitemap-pages.xml'
     | '/sitemap-products.xml'
@@ -3392,6 +3427,7 @@ export interface FileRouteTypes {
     | '/de/'
     | '/en/'
     | '/ev-hanimlari/'
+    | '/fr/'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
@@ -3621,6 +3657,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/s/$slug/c/$collectionSlug'
+    | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
     | '/_authenticated/admin/frontend/'
@@ -3658,6 +3695,7 @@ export interface RootRouteChildren {
   SitemapCategoriesDotxmlRoute: typeof SitemapCategoriesDotxmlRoute
   SitemapDeDotxmlRoute: typeof SitemapDeDotxmlRoute
   SitemapEnDotxmlRoute: typeof SitemapEnDotxmlRoute
+  SitemapFrDotxmlRoute: typeof SitemapFrDotxmlRoute
   SitemapIndexDotxmlRoute: typeof SitemapIndexDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapProductsDotxmlRoute: typeof SitemapProductsDotxmlRoute
@@ -3676,6 +3714,7 @@ export interface RootRouteChildren {
   DeIndexRoute: typeof DeIndexRoute
   EnIndexRoute: typeof EnIndexRoute
   EvHanimlariIndexRoute: typeof EvHanimlariIndexRoute
+  FrIndexRoute: typeof FrIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
   ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
@@ -3733,6 +3772,7 @@ export interface RootRouteChildren {
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   SSlugCCollectionSlugRoute: typeof SSlugCCollectionSlugRoute
+  SSlugKampanyaCampaignSlugRoute: typeof SSlugKampanyaCampaignSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
   ApiPublicEmailClickTokenRoute: typeof ApiPublicEmailClickTokenRoute
@@ -3890,6 +3930,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapEnDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap-fr.xml': {
+      id: '/sitemap-fr.xml'
+      path: '/sitemap-fr.xml'
+      fullPath: '/sitemap-fr.xml'
+      preLoaderRoute: typeof SitemapFrDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap-index.xml': {
       id: '/sitemap-index.xml'
       path: '/sitemap-index.xml'
@@ -4042,6 +4089,13 @@ declare module '@tanstack/react-router' {
       path: '/fatura/$token'
       fullPath: '/fatura/$token'
       preLoaderRoute: typeof FaturaTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fr/': {
+      id: '/fr/'
+      path: '/fr'
+      fullPath: '/fr/'
+      preLoaderRoute: typeof FrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sayfa/$slug': {
@@ -5661,6 +5715,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugCCollectionSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug/kampanya/$campaignSlug': {
+      id: '/s/$slug/kampanya/$campaignSlug'
+      path: '/s/$slug/kampanya/$campaignSlug'
+      fullPath: '/s/$slug/kampanya/$campaignSlug'
+      preLoaderRoute: typeof SSlugKampanyaCampaignSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$slug/p/$productSlug': {
       id: '/s/$slug/p/$productSlug'
       path: '/s/$slug/p/$productSlug'
@@ -6301,6 +6362,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapCategoriesDotxmlRoute: SitemapCategoriesDotxmlRoute,
   SitemapDeDotxmlRoute: SitemapDeDotxmlRoute,
   SitemapEnDotxmlRoute: SitemapEnDotxmlRoute,
+  SitemapFrDotxmlRoute: SitemapFrDotxmlRoute,
   SitemapIndexDotxmlRoute: SitemapIndexDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapProductsDotxmlRoute: SitemapProductsDotxmlRoute,
@@ -6320,6 +6382,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeIndexRoute: DeIndexRoute,
   EnIndexRoute: EnIndexRoute,
   EvHanimlariIndexRoute: EvHanimlariIndexRoute,
+  FrIndexRoute: FrIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
   ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
@@ -6377,6 +6440,7 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   SSlugCCollectionSlugRoute: SSlugCCollectionSlugRoute,
+  SSlugKampanyaCampaignSlugRoute: SSlugKampanyaCampaignSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
   ApiPublicEmailClickTokenRoute: ApiPublicEmailClickTokenRoute,

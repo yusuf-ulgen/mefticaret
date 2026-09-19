@@ -18,6 +18,8 @@ import { PredictiveSearch } from "@/components/wokiee/predictive-search";
 import { MegaMenu } from "@/components/wokiee/mega-menu";
 import { StorefrontSupportChat } from "@/components/storefront/support-chat";
 import { NewsletterSignup } from "@/components/storefront/newsletter-signup";
+import { CampaignBanner } from "@/components/storefront/campaign-banner";
+
 import { CartDrawer } from "@/components/wokiee/cart-drawer";
 import { QuickViewModal } from "@/components/wokiee/quick-view";
 import { MobileBottomNav } from "@/components/wokiee/mobile-bottom-nav";
@@ -272,6 +274,8 @@ export function StorefrontChrome({
       <div className="hm-storefront-shell">
         <CookieConsent storeSlug={storeSlug} />
         <SiteKitScripts storeSlug={storeSlug} />
+        <CampaignBanner slug={storeSlug} />
+
         <header className="hm-storefront-header">
           <Link to="/s/$slug" params={{ slug: storeSlug }} className="hm-storefront-brand" aria-label={`${storeName} ana sayfa`}>
             mefticaret
@@ -362,6 +366,8 @@ export function StorefrontChrome({
           ) : null}
         </div>
       ) : null}
+
+      <CampaignBanner slug={storeSlug} />
 
 
       <header
