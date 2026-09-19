@@ -298,6 +298,10 @@ function GlobalExportPage() {
   const productName = (id: string) =>
     (products ?? []).find((row) => row.id === id)?.title ?? id.slice(0, 8);
 
+  const [tab, setTab] = useState("overview");
+
+
+
   return (
     <AppShell storeId={storeId} title="E-İhracat & Global">
       <Tabs value={tab} onValueChange={setTab} className="space-y-5">
