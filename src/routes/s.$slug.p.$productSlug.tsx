@@ -193,6 +193,18 @@ function ProductPage() {
   const { data: storefrontData } = useQuery(storefrontQuery(slug));
   useStorefrontLive(slug, storefrontData?.store?.id ?? data?.store?.id);
   const [variantId, setVariantId] = useState<string | null>(null);
+  const [visitorCountry, setVisitorCountry] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    void detectVisitorLocale()
+      .then((result) => {
+        if (active) setVisitorCountry(result.detected ?? null);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
 
