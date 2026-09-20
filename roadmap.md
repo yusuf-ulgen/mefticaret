@@ -79,3 +79,17 @@
 ## Ana sayfada yeni özellikler
 - [x] Global e-ihracat, büyüme/lojistik ve e-posta pazarlama özelliklerini ana sayfada görünür ve mobil uyumlu sun
 - [x] Ana sayfa masaüstü ve mobil görünümünü doğrula
+
+## Tedarikçi portalı & otomasyon genişletmesi (talep listesi)
+- [x] Tedarikçi giriş ekranı: /tedarikci-giris — e-posta kayıt + doğrulama, şifre sıfırlama, sunucu tarafı tedarikçi rol kontrolü
+- [ ] Senkron paneli: mağaza ürününe yansıyan senkron durumu/hata detayları (portal + mağaza tarafı)
+- [ ] Tedarikçi portalı için anon/tedarikçi rol taraması ve komisyon doğrulaması
+- [ ] Çark/kazı-kazan indirim kodlarının kasa akışına ve net satış/komisyon dışına alınması
+- [ ] Çark kodlarının e-posta bültenine yönlendirilmesi ve kampanya tıklama cirosu
+- [ ] Otomasyon akış diyagramında tetikleyici-koşul-aksiyon bağlantı görünümü
+- [ ] B2B Cari Hesap + RFQ masası uçtan uca test (teklif → onay → sipariş)
+- [ ] Gerçek sepet siparişlerine göre stok düşümü, tükenme tahmini ve teslim noktası
+- [ ] Otomasyon düğümü tetikleme testi (sepet tutarı / teslimat ülkesi)
+- [ ] Saatlik XML + stok senkron görevinin portalda gösterilmesi
+- [ ] Vitrinde tedarikçi bilgisi ve senkron durumu
+- [ ] Gerçek tedarikçi hesabı ile uçtan uca test (dosya yükleme → sipariş → komisyon defteri)

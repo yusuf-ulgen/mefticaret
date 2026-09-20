@@ -36,6 +36,7 @@ import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.
 import { Route as SitemapProductsDotxmlRouteImport } from './routes/sitemap-products[.]xml'
 import { Route as SitemapTrDotxmlRouteImport } from './routes/sitemap-tr[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TedarikciGirisRouteImport } from './routes/tedarikci-giris'
 import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -435,6 +436,11 @@ const SitemapTrDotxmlRoute = SitemapTrDotxmlRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TedarikciGirisRoute = TedarikciGirisRouteImport.update({
+  id: '/tedarikci-giris',
+  path: '/tedarikci-giris',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
@@ -1979,6 +1985,7 @@ export interface FileRoutesByFullPath {
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
   '/sitemap-tr.xml': typeof SitemapTrDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tedarikci-giris': typeof TedarikciGirisRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -2272,6 +2279,7 @@ export interface FileRoutesByTo {
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
   '/sitemap-tr.xml': typeof SitemapTrDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tedarikci-giris': typeof TedarikciGirisRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -2565,6 +2573,7 @@ export interface FileRoutesById {
   '/sitemap-products.xml': typeof SitemapProductsDotxmlRoute
   '/sitemap-tr.xml': typeof SitemapTrDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tedarikci-giris': typeof TedarikciGirisRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -2860,6 +2869,7 @@ export interface FileRouteTypes {
     | '/sitemap-products.xml'
     | '/sitemap-tr.xml'
     | '/sitemap.xml'
+    | '/tedarikci-giris'
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
@@ -3153,6 +3163,7 @@ export interface FileRouteTypes {
     | '/sitemap-products.xml'
     | '/sitemap-tr.xml'
     | '/sitemap.xml'
+    | '/tedarikci-giris'
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
     | '/onboarding'
@@ -3445,6 +3456,7 @@ export interface FileRouteTypes {
     | '/sitemap-products.xml'
     | '/sitemap-tr.xml'
     | '/sitemap.xml'
+    | '/tedarikci-giris'
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
@@ -3740,6 +3752,7 @@ export interface RootRouteChildren {
   SitemapProductsDotxmlRoute: typeof SitemapProductsDotxmlRoute
   SitemapTrDotxmlRoute: typeof SitemapTrDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TedarikciGirisRoute: typeof TedarikciGirisRoute
   UnauthorizedRoute: typeof UnauthorizedRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -4009,6 +4022,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tedarikci-giris': {
+      id: '/tedarikci-giris'
+      path: '/tedarikci-giris'
+      fullPath: '/tedarikci-giris'
+      preLoaderRoute: typeof TedarikciGirisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/unauthorized': {
@@ -6436,6 +6456,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapProductsDotxmlRoute: SitemapProductsDotxmlRoute,
   SitemapTrDotxmlRoute: SitemapTrDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TedarikciGirisRoute: TedarikciGirisRoute,
   UnauthorizedRoute: UnauthorizedRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
