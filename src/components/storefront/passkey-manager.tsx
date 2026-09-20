@@ -34,7 +34,7 @@ export function PasskeyManager() {
       const { optionsJson } = await begin({ data: {} as never });
       const attestation = await startRegistration({ optionsJSON: JSON.parse(optionsJson) });
       return finish({
-        data: { responseJson: JSON.stringify(attestation), label: label.trim() || "Bu cihaz" } as never,
+        data: { response: attestation, label: label.trim() || "Bu cihaz" } as never,
       });
     },
     onSuccess: () => {
