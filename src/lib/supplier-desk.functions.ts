@@ -85,6 +85,7 @@ export const supplierDeskOverview = createServerFn({ method: "POST" })
     ]);
 
     return {
+      hasAccess: true as boolean,
       suppliers: suppliers.map((supplier) => ({
         id: supplier.id,
         name: supplier.name,
