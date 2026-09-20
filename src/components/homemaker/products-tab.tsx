@@ -727,10 +727,33 @@ function AddProductSheet({
         </label>
 
         {file ? (
-          <BigButton tone="ghost" disabled={cleanBusy} onClick={() => void clearBackground()}>
-            {cleanBusy ? <Loader2 className="size-5 animate-spin" /> : <Wand2 className="size-5" />}
-            Arka Planı Temizle (AI)
-          </BigButton>
+          <div className="grid gap-2">
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  ["background", "Arka planı temizle"],
+                  ["studio", "Stüdyo çekimi"],
+                  ["lifestyle", "Yaşam alanı"],
+                  ["model", "Mankende göster"],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setPhotoMode(value)}
+                  className={`rounded-full border px-3 py-1.5 text-sm ${
+                    photoMode === value ? "border-primary bg-primary/10 font-medium" : "border-border"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <BigButton tone="ghost" disabled={cleanBusy} onClick={() => void clearBackground()}>
+              {cleanBusy ? <Loader2 className="size-5 animate-spin" /> : <Wand2 className="size-5" />}
+              Fotoğrafı AI ile hazırla
+            </BigButton>
+          </div>
         ) : null}
 
         <Field label="Ürün adı">
