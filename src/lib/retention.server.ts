@@ -280,7 +280,7 @@ export async function simulateOrderSplit(args: {
   if (warehouses.error) throw new Error(warehouses.error.message);
   if (inventory.error) throw new Error(inventory.error.message);
 
-  const titleById = new Map((products.data ?? []).map((row: Any) => [row.id as string, row.title as string]));
+  const titleById = new Map<string, string>((products.data ?? []).map((row: Any) => [String(row.id), String(row.title)]));
 
   const mapped = (warehouses.data ?? []).map((row: Any) => ({
     id: row.id as string,
