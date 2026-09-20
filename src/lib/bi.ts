@@ -344,3 +344,64 @@ export function toCsv(rows: Array<Record<string, string | number | null>>): stri
   for (const row of rows) lines.push(headers.map((header) => escape(row[header] ?? "")).join(";"));
   return `\uFEFF${lines.join("\n")}`;
 }
+
+/* ------------------------- panel görünüm tipleri -------------------------- */
+
+export type BiReportView = {
+  storeName: string;
+  currency: string;
+  range: { fromIso: string; toIso: string; days: number; label: string };
+  settings: CostSettings;
+  profit: ProfitBreakdown;
+  daily: Array<{ date: string; grossSales: number; netSales: number; netProfit: number; orders: number; spend: number }>;
+  currencyBreakdown: Array<{ currency: string; orders: number; revenue: number; baseRevenue: number }>;
+  funnel: FunnelStage[];
+  metrics: {
+    orders: number;
+    paidOrders: number;
+    revenue: number;
+    aov: number;
+    ltv: number;
+    repeatRate: number;
+    conversionRate: number;
+    newCustomers: number;
+    uniqueBuyers: number;
+    cac: number;
+    roas: number;
+    poas: number;
+  };
+  cohorts: CohortRow[];
+  live: {
+    activeUsers: number;
+    activeCarts: number;
+    activeCartValue: number;
+    liveRevenue: number;
+    eventsLast15Min: number;
+  };
+  geo: Array<{ country: string; city: string; sessions: number; revenue: number }>;
+  devices: Array<{ device: string; label: string; sessions: number; share: number }>;
+  landingPages: Array<{ path: string; sessions: number }>;
+  channels: Array<{ channel: string; label: string; sessions: number; orders: number; revenue: number; conversion: number }>;
+  marketplaces: Array<{ name: string; gross: number; commission: number; shipping: number; net: number }>;
+  vendorScorecard: Array<{
+    name: string;
+    revenue: number;
+    units: number;
+    orders: number;
+    returnRate: number;
+    avgFulfillHours: number | null;
+    marginPercent: number;
+  }>;
+  depletion: DepletionRow[];
+  stockLossTotal: number;
+  spend: Array<{
+    id: string;
+    spendDate: string;
+    channel: string;
+    amount: number;
+    currency: string;
+    impressions: number;
+    clicks: number;
+    note: string | null;
+  }>;
+};
