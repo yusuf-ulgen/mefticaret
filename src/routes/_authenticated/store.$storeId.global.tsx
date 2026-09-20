@@ -16,6 +16,7 @@ import { AffiliateHubPanel } from "@/components/global-export/affiliate-hub-pane
 import { CampaignDispatchPanel } from "@/components/global-export/campaign-dispatch-panel";
 import { LogisticsReturnsPanel } from "@/components/global-export/logistics-returns-panel";
 import { B2bMarketplacePanel } from "@/components/global-export/b2b-marketplace-panel";
+import { B2bCreditPanel } from "@/components/global-export/b2b-credit-panel";
 import { GrowthWidgets } from "@/components/global-export/growth-widgets";
 import { GlobalShipmentLabelPrint } from "@/components/global-export/global-shipment-label-print";
 import { Badge } from "@/components/ui/badge";
