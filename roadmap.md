@@ -94,3 +94,12 @@
 - [ ] Saatlik XML + stok senkron görevinin portalda gösterilmesi
 - [ ] Vitrinde tedarikçi bilgisi ve senkron durumu
 - [ ] Gerçek tedarikçi hesabı ile uçtan uca test (dosya yükleme → sipariş → komisyon defteri)
+
+## Mobil B2B Tedarikçi Uygulaması
+- [ ] Trend_Molli referansındaki 20 ekranı teslim al ve ekran sırasını eşleştir (kullanıcı yüklemesi bekleniyor)
+- [ ] Mobil kabuk ve alt menü: Profil, Siparişler, Ürünler, Değişimler, Analiz
+- [ ] Gerçek cüzdan, sipariş ayrıntısı, kargo, ödeme ve teslimat başarı görünümü
+- [ ] Akıllı XML/CSV/Excel alan eşleştirme: varyant, galeri, vergi ve GTİP dahil
+- [ ] Rol kontrollü Mağazama Aktar ve çift yönlü stok eşlemesi
+- [ ] İade/değişim ile stok/fiyat hareketleri görünümü
+- [ ] Gerçek verili Recharts analiz ekranları ve mobil/masaüstü doğrulama
