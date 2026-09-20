@@ -1175,6 +1175,123 @@ export type Database = {
           },
         ]
       }
+      b2b_credit_accounts: {
+        Row: {
+          balance: number
+          company_name: string
+          contact_email: string
+          created_at: string
+          credit_limit: number
+          currency: string
+          id: string
+          notes: string
+          status: string
+          store_id: string
+          tax_id: string
+          term_days: number
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          company_name: string
+          contact_email?: string
+          created_at?: string
+          credit_limit?: number
+          currency?: string
+          id?: string
+          notes?: string
+          status?: string
+          store_id: string
+          tax_id?: string
+          term_days?: number
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          company_name?: string
+          contact_email?: string
+          created_at?: string
+          credit_limit?: number
+          currency?: string
+          id?: string
+          notes?: string
+          status?: string
+          store_id?: string
+          tax_id?: string
+          term_days?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "b2b_credit_accounts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      b2b_credit_transactions: {
+        Row: {
+          account_id: string
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          kind: string
+          note: string
+          order_id: string | null
+          store_id: string
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          kind: string
+          note?: string
+          order_id?: string | null
+          store_id: string
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          kind?: string
+          note?: string
+          order_id?: string | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "b2b_credit_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "b2b_credit_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "b2b_credit_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "b2b_credit_transactions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_cycles: {
         Row: {
           amount_due: number
@@ -11224,6 +11341,149 @@ export type Database = {
           },
         ]
       }
+      repricing_events: {
+        Row: {
+          applied: boolean
+          competitor_id: string | null
+          competitor_price: number | null
+          created_at: string
+          currency: string
+          id: string
+          old_price: number
+          product_id: string
+          reason: string
+          rule_id: string | null
+          store_id: string
+          suggested_price: number
+        }
+        Insert: {
+          applied?: boolean
+          competitor_id?: string | null
+          competitor_price?: number | null
+          created_at?: string
+          currency?: string
+          id?: string
+          old_price: number
+          product_id: string
+          reason?: string
+          rule_id?: string | null
+          store_id: string
+          suggested_price: number
+        }
+        Update: {
+          applied?: boolean
+          competitor_id?: string | null
+          competitor_price?: number | null
+          created_at?: string
+          currency?: string
+          id?: string
+          old_price?: number
+          product_id?: string
+          reason?: string
+          rule_id?: string | null
+          store_id?: string
+          suggested_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repricing_events_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitor_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repricing_events_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repricing_events_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "repricing_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repricing_events_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      repricing_rules: {
+        Row: {
+          auto_apply: boolean
+          ceiling_price: number | null
+          created_at: string
+          floor_price: number | null
+          id: string
+          is_active: boolean
+          max_change_pct: number
+          min_margin_pct: number
+          name: string
+          product_id: string | null
+          rounding: string
+          store_id: string
+          strategy: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          auto_apply?: boolean
+          ceiling_price?: number | null
+          created_at?: string
+          floor_price?: number | null
+          id?: string
+          is_active?: boolean
+          max_change_pct?: number
+          min_margin_pct?: number
+          name?: string
+          product_id?: string | null
+          rounding?: string
+          store_id: string
+          strategy?: string
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          auto_apply?: boolean
+          ceiling_price?: number | null
+          created_at?: string
+          floor_price?: number | null
+          id?: string
+          is_active?: boolean
+          max_change_pct?: number
+          min_margin_pct?: number
+          name?: string
+          product_id?: string | null
+          rounding?: string
+          store_id?: string
+          strategy?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repricing_rules_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repricing_rules_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       return_hubs: {
         Row: {
           address: string | null
@@ -16240,6 +16500,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      webauthn_challenges: {
+        Row: {
+          challenge: string
+          created_at: string
+          expires_at: string
+          id: string
+          kind: string
+          user_id: string
+        }
+        Insert: {
+          challenge: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          kind: string
+          user_id: string
+        }
+        Update: {
+          challenge?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          kind?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      webauthn_credentials: {
+        Row: {
+          counter: number
+          created_at: string
+          credential_id: string
+          id: string
+          label: string
+          last_used_at: string | null
+          public_key: string
+          transports: string
+          user_id: string
+        }
+        Insert: {
+          counter?: number
+          created_at?: string
+          credential_id: string
+          id?: string
+          label?: string
+          last_used_at?: string | null
+          public_key: string
+          transports?: string
+          user_id: string
+        }
+        Update: {
+          counter?: number
+          created_at?: string
+          credential_id?: string
+          id?: string
+          label?: string
+          last_used_at?: string | null
+          public_key?: string
+          transports?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       webhook_deliveries: {
         Row: {

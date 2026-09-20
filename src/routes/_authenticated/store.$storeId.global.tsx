@@ -16,6 +16,7 @@ import { AffiliateHubPanel } from "@/components/global-export/affiliate-hub-pane
 import { CampaignDispatchPanel } from "@/components/global-export/campaign-dispatch-panel";
 import { LogisticsReturnsPanel } from "@/components/global-export/logistics-returns-panel";
 import { B2bMarketplacePanel } from "@/components/global-export/b2b-marketplace-panel";
+import { B2bCreditPanel } from "@/components/global-export/b2b-credit-panel";
 import { GrowthWidgets } from "@/components/global-export/growth-widgets";
 import { GlobalShipmentLabelPrint } from "@/components/global-export/global-shipment-label-print";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +60,7 @@ const GLOBAL_TABS: { value: string; label: string }[] = [
   { value: "campaigns", label: "Kampanya & Bildirim" },
   { value: "returns", label: "İade & Rota" },
   { value: "b2b", label: "B2B & Pazaryeri" },
+  { value: "credit", label: "B2B Cari Hesap" },
   { value: "growth", label: "Büyüme Panosu" },
   { value: "heatmap", label: "Satış Isı Haritası" },
   { value: "studio", label: "AI Çeviri Stüdyosu" },
@@ -1154,6 +1156,11 @@ function GlobalExportPage() {
             b2bEnabled={settings?.b2b_enabled ?? false}
             defaultMoq={Number(settings?.b2b_default_moq ?? 1)}
           />
+        </TabsContent>
+
+        {/* ---------------------------- B2B cari hesap ---------------------------- */}
+        <TabsContent value="credit" className="space-y-4">
+          <B2bCreditPanel storeId={storeId} />
         </TabsContent>
 
         {/* ---------------------------- Büyüme panosu ----------------------------- */}

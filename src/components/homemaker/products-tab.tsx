@@ -575,6 +575,7 @@ function AddProductSheet({
   };
   const cleanPhoto = useServerFn(cleanProductPhoto);
   const [cleanBusy, setCleanBusy] = useState(false);
+  const [photoMode, setPhotoMode] = useState<"background" | "studio" | "lifestyle" | "model">("background");
   const [saving, setSaving] = useState(false);
   const previewUrl = useRef<string>("");
 
@@ -612,11 +613,11 @@ function AddProductSheet({
         reader.onerror = () => reject(new Error("Fotoğraf okunamadı"));
         reader.readAsDataURL(file);
       });
-      const result = await cleanPhoto({ data: { storeId, dataUrl } });
+      const result = await cleanPhoto({ data: { storeId, dataUrl, mode: photoMode } });
       const response = await fetch(result.dataUrl);
       const blob = await response.blob();
       setFile(new File([blob], `temiz-${Date.now()}.png`, { type: blob.type || "image/png" }));
-      toast.success("Arka plan temizlendi");
+      toast.success("Fotoğraf hazırlandı");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Fotoğraf temizlenemedi");
     } finally {
@@ -727,10 +728,33 @@ function AddProductSheet({
         </label>
 
         {file ? (
-          <BigButton tone="ghost" disabled={cleanBusy} onClick={() => void clearBackground()}>
-            {cleanBusy ? <Loader2 className="size-5 animate-spin" /> : <Wand2 className="size-5" />}
-            Arka Planı Temizle (AI)
-          </BigButton>
+          <div className="grid gap-2">
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  ["background", "Arka planı temizle"],
+                  ["studio", "Stüdyo çekimi"],
+                  ["lifestyle", "Yaşam alanı"],
+                  ["model", "Mankende göster"],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setPhotoMode(value)}
+                  className={`rounded-full border px-3 py-1.5 text-sm ${
+                    photoMode === value ? "border-primary bg-primary/10 font-medium" : "border-border"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <BigButton tone="ghost" disabled={cleanBusy} onClick={() => void clearBackground()}>
+              {cleanBusy ? <Loader2 className="size-5 animate-spin" /> : <Wand2 className="size-5" />}
+              Fotoğrafı AI ile hazırla
+            </BigButton>
+          </div>
         ) : null}
 
         <Field label="Ürün adı">
