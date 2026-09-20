@@ -6,14 +6,15 @@
  * güncellenir. Passkey yalnızca oturumu açık kullanıcının kendi kaydına bağlanır.
  */
 
-import "reflect-metadata";
-
-import {
-  generateAuthenticationOptions,
-  generateRegistrationOptions,
-  verifyAuthenticationResponse,
-  verifyRegistrationResponse,
-} from "@simplewebauthn/server";
+/**
+ * `@simplewebauthn/server` bağımlılık ağacı (peculiar/x509 + tsyringe) modül
+ * yüklenirken Reflect.metadata ister. Statik import edge worker'da tüm sayfaları
+ * çökertiyordu; bu yüzden polyfill ile birlikte yalnızca çağrı anında yüklenir.
+ */
+async function webauthn() {
+  await import("reflect-metadata");
+  return await import("@simplewebauthn/server");
+}
 
 type Any = any;
 
