@@ -499,7 +499,10 @@ function AccountDashboard({ storeId, slug, storeName }: { storeId: string; slug:
 
         {tab === "settings" ? (
           customer ? (
-            <SettingsTab storeId={storeId} customer={customer} />
+            <div className="space-y-6">
+              <SettingsTab storeId={storeId} customer={customer} />
+              <PasskeyManager />
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground">Hesabınız hazırlanıyor…</p>
           )
