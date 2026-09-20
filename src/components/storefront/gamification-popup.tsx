@@ -60,8 +60,6 @@ export function GamificationPopup({ storeSlug }: { storeSlug: string }) {
     onError: () => setSpinning(false),
   });
 
-  console.log("[game]", { campaign, dismissed, open, storageKey });
-
   const segments = useMemo(() => campaign?.prizeLabels ?? [], [campaign]);
 
   if (!campaign || dismissed || !open) return null;
