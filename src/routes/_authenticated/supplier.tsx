@@ -4,12 +4,16 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   BadgeCheck,
   Banknote,
+  BarChart3,
   Boxes,
   Gauge,
   PackageCheck,
   Printer,
   RefreshCw,
+  Repeat2,
+  ShoppingBag,
   Truck,
+  UserRound,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -105,85 +109,103 @@ function SupplierPortalPage() {
   });
 
   const supplierId = data?.suppliers[0]?.id ?? "";
+  const [activeTab, setActiveTab] = useState("profile");
+  const [orderFilter, setOrderFilter] = useState("pending");
   const openOrders = useMemo(
     () => (data?.orders ?? []).filter((order) => !["shipped", "delivered", "cancelled"].includes(order.status)),
     [data?.orders],
   );
+  const filteredOrders = useMemo(() => {
+    const orders = data?.orders ?? [];
+    if (orderFilter === "shipping") return orders.filter((order) => order.status === "shipped");
+    if (orderFilter === "delivered") return orders.filter((order) => order.status === "delivered");
+    if (orderFilter === "return") {
+      return orders.filter((order) => ["cancelled", "failed", "returned"].includes(order.status));
+    }
+    return orders.filter((order) => !["shipped", "delivered", "cancelled", "failed", "returned"].includes(order.status));
+  }, [data?.orders, orderFilter]);
+
+  const navigation = [
+    { value: "profile", label: "Profil", icon: UserRound },
+    { value: "orders", label: "Siparişler", icon: ShoppingBag },
+    { value: "products", label: "Ürünler", icon: Boxes },
+    { value: "changes", label: "Değişimler", icon: Repeat2 },
+    { value: "analytics", label: "Analiz", icon: BarChart3 },
+  ];
 
   return (
     <AppShell title="Tedarikçi paneli">
-      <div className="space-y-6">
-        <header className="rounded-xl border bg-card p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <PackageCheck className="size-5 text-primary" aria-hidden />
-              <div>
-                <h1 className="text-lg font-medium">Tedarikçi masası</h1>
-                <p className="text-sm text-muted-foreground">
-                  Size düşen sipariş kalemleri, kargo etiketleri, ürün aktarımı ve ödeme bakiyeniz.
-                </p>
-              </div>
+      <div className="mx-auto min-h-[calc(100vh-5rem)] max-w-6xl bg-supplier-surface pb-24 sm:rounded-lg sm:border sm:pb-6">
+        <header className="flex min-h-16 items-center justify-between bg-supplier-brand px-4 text-supplier-brand-foreground sm:rounded-t-lg sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <PackageCheck className="size-6 shrink-0" aria-hidden />
+            <div className="min-w-0">
+              <h1 className="truncate text-base font-semibold">{data?.suppliers[0]?.name ?? "Tedarikçi Paneli"}</h1>
+              <p className="truncate text-xs opacity-80">MEFTİCARET TEDARİKÇİ</p>
             </div>
-            <Button variant="outline" size="sm" onClick={refresh}>
-              <RefreshCw className="mr-1 size-4" aria-hidden />
-              Yenile
-            </Button>
           </div>
-          {data?.suppliers.length ? (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {data.suppliers.map((supplier) => (
-                <Badge key={supplier.id} variant="secondary">
-                  {supplier.name} · {supplier.leadTimeDays} gün tedarik
-                </Badge>
-              ))}
-              <Badge variant="outline">{openOrders.length} bekleyen sipariş</Badge>
-            </div>
-          ) : null}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-supplier-brand-foreground hover:bg-supplier-brand-foreground/15 hover:text-supplier-brand-foreground"
+            onClick={refresh}
+            aria-label="Paneli yenile"
+          >
+            <RefreshCw className="size-5" aria-hidden />
+          </Button>
         </header>
 
         {isLoading ? (
-          <div className="space-y-3">
+          <div className="space-y-3 p-4 sm:p-6">
             {[0, 1, 2].map((index) => (
               <div key={index} className="h-24 animate-pulse rounded-xl border bg-muted/40" />
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">
+          <div className="m-4 rounded-lg border bg-card p-6 text-sm text-muted-foreground sm:m-6">
             {(error as Error).message}
           </div>
         ) : !data ? null : (
-          <Tabs defaultValue="orders">
-            <TabsList className="flex w-full flex-wrap justify-start">
-              <TabsTrigger value="orders">
-                <Truck className="mr-1 size-4" aria-hidden />
-                Siparişler
-              </TabsTrigger>
-              <TabsTrigger value="import">
-                <Boxes className="mr-1 size-4" aria-hidden />
-                Ürün yükleme
-              </TabsTrigger>
-              <TabsTrigger value="sync">
-                <RefreshCw className="mr-1 size-4" aria-hidden />
-                Otomatik senkron
-              </TabsTrigger>
-              <TabsTrigger value="finance">
-                <Banknote className="mr-1 size-4" aria-hidden />
-                Finans
-              </TabsTrigger>
-              <TabsTrigger value="performance">
-                <Gauge className="mr-1 size-4" aria-hidden />
-                Performans
-              </TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="p-4 sm:p-6">
+            <TabsList className="mb-4 hidden w-full grid-cols-5 bg-card sm:grid">
+              {navigation.map((item) => (
+                <TabsTrigger key={item.value} value={item.value} className="gap-2">
+                  <item.icon className="size-4" aria-hidden />
+                  {item.label}
+                </TabsTrigger>
+              ))}
             </TabsList>
 
-            <TabsContent value="orders" className="space-y-4 pt-4">
-              {!data.orders.length ? (
-                <div className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">
-                  Henüz size iletilmiş sipariş bulunmuyor. Sipariş ödemesi tamamlandığında kalemler otomatik
-                  olarak burada listelenir.
+            <TabsContent value="profile" className="mt-0 space-y-4">
+              <ProfileSummary data={data} openOrders={openOrders.length} />
+              <FinancePanel data={data} onSaved={refresh} />
+            </TabsContent>
+
+            <TabsContent value="orders" className="mt-0 space-y-4">
+              <div className="grid grid-cols-4 gap-1 rounded-lg bg-card p-1 shadow-sm">
+                {[
+                  ["pending", "Bekleyen"],
+                  ["shipping", "Kargoda"],
+                  ["delivered", "Ulaştı"],
+                  ["return", "İade"],
+                ].map(([value, label]) => (
+                  <Button
+                    key={value}
+                    size="sm"
+                    variant={orderFilter === value ? "default" : "ghost"}
+                    className={orderFilter === value ? "bg-supplier-brand text-supplier-brand-foreground hover:bg-supplier-brand/90" : ""}
+                    onClick={() => setOrderFilter(value)}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
+              {!filteredOrders.length ? (
+                <div className="rounded-lg border bg-card p-6 text-center text-sm text-muted-foreground">
+                  Bu durumda sipariş bulunmuyor.
                 </div>
               ) : (
-                data.orders.map((order) => (
+                filteredOrders.map((order) => (
                   <SupplierOrderCard
                     key={order.dropshipOrderId}
                     order={order}
@@ -196,7 +218,7 @@ function SupplierPortalPage() {
               )}
             </TabsContent>
 
-            <TabsContent value="import" className="space-y-4 pt-4">
+            <TabsContent value="products" className="mt-0 space-y-4">
               {supplierId ? (
                 <SupplierImportWizard supplierId={supplierId} onImported={refresh} />
               ) : null}
@@ -233,17 +255,26 @@ function SupplierPortalPage() {
               ) : null}
             </TabsContent>
 
-            <TabsContent value="sync" className="pt-4">
               {supplierId ? <FeedPanel supplierId={supplierId} feeds={data.feeds} onSaved={refresh} /> : null}
             </TabsContent>
 
-            <TabsContent value="finance" className="pt-4">
-              <FinancePanel data={data} onSaved={refresh} />
+            <TabsContent value="changes" className="mt-0 space-y-4">
+              <div className="rounded-lg border bg-card p-5">
+                <h2 className="font-medium">İade & değişim</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Siparişlerinize bağlı iade ve değişim hareketleri burada gösterilir.
+                </p>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <Metric label="İade" value={String(data.ledger.reduce((total, row) => total + row.scorecard.returned, 0))} />
+                  <Metric label="İptal" value={String(data.ledger.reduce((total, row) => total + row.scorecard.cancelled, 0))} />
+                </div>
+              </div>
+              {supplierId ? <FeedPanel supplierId={supplierId} feeds={data.feeds} onSaved={refresh} /> : null}
             </TabsContent>
 
-            <TabsContent value="performance" className="space-y-4 pt-4">
+            <TabsContent value="analytics" className="mt-0 space-y-4">
               {data.ledger.map((row) => (
-                <div key={row.supplierId} className="rounded-xl border bg-card p-5">
+                <div key={row.supplierId} className="rounded-lg border bg-card p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h2 className="font-medium">{row.supplierName}</h2>
                     <Badge variant="outline">Komisyon %{row.commissionRate}</Badge>
@@ -276,10 +307,62 @@ function SupplierPortalPage() {
                 </div>
               ))}
             </TabsContent>
+
+            <nav
+              aria-label="Tedarikçi paneli"
+              className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card px-1 pb-[max(.35rem,env(safe-area-inset-bottom))] pt-1 shadow-elevated sm:hidden"
+            >
+              {navigation.map((item) => (
+                <Button
+                  key={item.value}
+                  variant="ghost"
+                  className={`h-14 min-w-0 flex-col gap-1 px-1 text-[10px] ${activeTab === item.value ? "text-supplier-brand" : "text-muted-foreground"}`}
+                  onClick={() => setActiveTab(item.value)}
+                  aria-current={activeTab === item.value ? "page" : undefined}
+                >
+                  <item.icon className="size-5" aria-hidden />
+                  <span className="truncate">{item.label}</span>
+                </Button>
+              ))}
+            </nav>
           </Tabs>
         )}
       </div>
     </AppShell>
+  );
+}
+
+function ProfileSummary({ data, openOrders }: { data: Overview; openOrders: number }) {
+  const primary = data.ledger[0];
+  const orders = data.ledger.reduce((total, row) => total + row.scorecard.orders, 0);
+  const delivered = data.orders.filter((order) => order.status === "delivered").length;
+  const shipped = data.orders.filter((order) => order.status === "shipped").length;
+  const returned = data.ledger.reduce((total, row) => total + row.scorecard.returned, 0);
+  const deliveryRate = orders ? Math.round((delivered / orders) * 100) : 0;
+
+  return (
+    <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+        <div className="rounded-lg border bg-card p-5">
+          <p className="text-xs text-muted-foreground">Net bakiye</p>
+          <p className="mt-1 text-3xl font-semibold">{formatMoney(primary?.net ?? 0, primary?.currency ?? "TRY")}</p>
+          <p className="mt-2 text-xs text-muted-foreground">Net = Hakediş − Ödenen − Kesilen</p>
+        </div>
+        <div className="flex min-w-40 items-center justify-between rounded-lg border bg-card p-5 sm:flex-col sm:justify-center">
+          <div>
+            <p className="text-xs text-muted-foreground">Teslimat başarısı</p>
+            <p className="mt-1 text-2xl font-semibold">%{deliveryRate}</p>
+          </div>
+          <Progress className="ml-4 w-28 sm:ml-0 sm:mt-3" value={deliveryRate} />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Metric label="Bekleyen" value={String(openOrders)} />
+        <Metric label="Yolda" value={String(shipped)} />
+        <Metric label="Ulaşan" value={String(delivered)} />
+        <Metric label="İade" value={String(returned)} />
+      </div>
+    </div>
   );
 }
 
