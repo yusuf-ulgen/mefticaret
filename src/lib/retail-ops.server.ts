@@ -29,13 +29,13 @@ export async function forecastStockDepletion(client: Client, storeId: string, wi
   const [products, items] = await Promise.all([
     db
       .from("products")
-      .select("id, name, stock_quantity, track_inventory")
+      .select("id, title, track_inventory, product_variants(stock)")
       .eq("store_id", storeId)
-      .order("name", { ascending: true })
+      .order("title", { ascending: true })
       .limit(500),
     db
       .from("order_items")
-      .select("product_id, quantity, orders!inner(store_id, created_at, status)")
+      .select("product_id, quantity, created_at, orders!inner(status)")
       .eq("store_id", storeId)
       .gte("created_at", since)
       .limit(5000),
@@ -54,7 +54,8 @@ export async function forecastStockDepletion(client: Client, storeId: string, wi
   }
 
   const rows: StockForecastRow[] = ((products.data ?? []) as Any[]).map((product) => {
-    const available = Number(product.stock_quantity ?? 0);
+    const variants = (product.product_variants ?? []) as Any[];
+    const available = variants.reduce((sum, variant) => sum + Number(variant.stock ?? 0), 0);
     const dailyUsage = (sold.get(String(product.id)) ?? 0) / windowDays;
     const daysLeft = dailyUsage > 0 ? Math.floor(available / dailyUsage) : null;
     let status: StockForecastRow["status"] = "idle";
@@ -63,7 +64,7 @@ export async function forecastStockDepletion(client: Client, storeId: string, wi
     }
     return {
       productId: String(product.id),
-      name: String(product.name ?? ""),
+      name: String(product.title ?? ""),
       available,
       dailyUsage: Math.round(dailyUsage * 100) / 100,
       daysLeft,
