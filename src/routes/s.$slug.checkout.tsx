@@ -15,6 +15,7 @@ import { getCheckoutQuote, placeMemberOrder, placeOrder, previewCheckoutDiscount
 import { startOrderPayment } from "@/lib/order-payment.functions";
 import { checkGiftCardBalance } from "@/lib/gift-cards-public.functions";
 import { formatMoney } from "@/lib/mefti";
+import { fetchStorefrontPickupLocations } from "@/lib/retail-ops.functions";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 
 export const Route = createFileRoute("/s/$slug/checkout")({
@@ -74,6 +75,7 @@ function CheckoutPage() {
   } | null>(null);
   const [checkingDiscount, setCheckingDiscount] = useState(false);
   const [shippingRateId, setShippingRateId] = useState<string>("");
+  const [pickupLocationId, setPickupLocationId] = useState<string>("");
   const [paymentMethodId, setPaymentMethodId] = useState<string>("");
   const [billingSame, setBillingSame] = useState(true);
   const [billingRecipient, setBillingRecipient] = useState("");
@@ -134,17 +136,26 @@ function CheckoutPage() {
     return () => clearTimeout(timer);
   }, [email, fullName, lines, slug]);
 
+  // Mağazadan teslim (Click & Collect) noktaları
+  const pickupQuery = useQuery({
+    queryKey: ["storefront", slug, "pickup-locations"],
+    queryFn: () => fetchStorefrontPickupLocations({ data: { storeSlug: slug } }),
+    staleTime: 5 * 60 * 1000,
+  });
+  const pickupLocations = pickupQuery.data ?? [];
+  const selectedPickup = pickupLocations.find((location) => location.id === pickupLocationId) ?? null;
+
   const rates = options.data?.shippingRates ?? [];
   const methods = options.data?.paymentMethods ?? [];
   const selectedRate = useMemo(() => rates.find((rate) => rate.id === shippingRateId) ?? null, [rates, shippingRateId]);
 
   // Kargo seçilmeden sipariş verilmesini engelle: ilk uygun yöntemi ön seç.
   useEffect(() => {
-    if (rates.length === 0) return;
+    if (rates.length === 0 || pickupLocationId) return;
     if (shippingRateId && rates.some((rate) => rate.id === shippingRateId)) return;
     const first = rates[0];
     if (first) setShippingRateId(first.id);
-  }, [rates, shippingRateId]);
+  }, [rates, shippingRateId, pickupLocationId]);
 
   // Ödeme yöntemi de ön seçilir; kullanıcı isterse değiştirir.
   useEffect(() => {
@@ -154,7 +165,9 @@ function CheckoutPage() {
     if (first) setPaymentMethodId(first.id);
   }, [methods, paymentMethodId]);
   const discountTotal = appliedDiscount?.discountTotal ?? 0;
-  const baseShipping = selectedRate
+  const baseShipping = pickupLocationId
+    ? 0
+    : selectedRate
     ? selectedRate.free_over !== null && subtotal - discountTotal >= selectedRate.free_over
       ? 0
       : selectedRate.price
@@ -250,7 +263,7 @@ function CheckoutPage() {
         data: {
           slug,
           items: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
-          shippingRateId: shippingRateId || undefined,
+          shippingRateId: pickupLocationId ? undefined : shippingRateId || undefined,
           paymentMethodId: paymentMethodId || undefined,
           discountCode: appliedDiscount?.code || undefined,
           giftCardCode: appliedGiftCard?.code || undefined,
@@ -362,11 +375,18 @@ function CheckoutPage() {
               line1: billingLine1,
               postalCode: billingPostalCode || undefined,
             },
-        shippingRateId: shippingRateId || undefined,
+        shippingRateId: pickupLocationId ? undefined : shippingRateId || undefined,
         paymentMethodId: paymentMethodId || undefined,
         discountCode: appliedDiscount?.code ?? (discountCode.trim() ? discountCode.trim() : undefined),
         giftCardCode: appliedGiftCard?.code ?? (giftCardCode.trim() ? giftCardCode.trim() : undefined),
-        note: note.trim() ? note.trim() : undefined,
+        note: [
+          selectedPickup
+            ? `Mağazadan teslim: ${selectedPickup.name} — ${selectedPickup.addressLine}, ${selectedPickup.city}`
+            : null,
+          note.trim() || null,
+        ]
+          .filter(Boolean)
+          .join("\n") || undefined,
       };
       const result = memberMode ? await placeMemberOrder({ data: payload }) : await placeOrder({ data: payload });
       void markCartRecovered({
@@ -585,6 +605,43 @@ function CheckoutPage() {
                 </div>
               )}
             </section>
+
+            {pickupLocations.length > 0 ? (
+              <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
+                <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 6px" }}>Mağazadan teslim al</h2>
+                <p style={{ margin: "0 0 12px", fontSize: 13, color: muted }}>
+                  Kargo yerine mağazadan teslim alırsanız kargo ücreti alınmaz.
+                </p>
+                <div style={{ display: "grid", gap: 8 }}>
+                  <Option
+                    active={pickupLocationId === ""}
+                    onClick={() => setPickupLocationId("")}
+                    border={border}
+                    radius={radius}
+                    accent={t.accent_color}
+                    title="Adresime kargo ile gelsin"
+                    subtitle="Seçili kargo tarifesi uygulanır"
+                    muted={muted}
+                  />
+                  {pickupLocations.map((location) => (
+                    <Option
+                      key={location.id}
+                      active={pickupLocationId === location.id}
+                      onClick={() => setPickupLocationId(location.id)}
+                      border={border}
+                      radius={radius}
+                      accent={t.accent_color}
+                      title={location.name}
+                      subtitle={[location.addressLine, location.city, location.openingHours]
+                        .filter(Boolean)
+                        .join(" · ")}
+                      right="Ücretsiz"
+                      muted={muted}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
 
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
               <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>Ödeme yöntemi</h2>

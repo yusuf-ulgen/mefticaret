@@ -17,6 +17,7 @@ import { storefrontUI } from "@/lib/storefront-ui";
 import { PredictiveSearch } from "@/components/wokiee/predictive-search";
 import { MegaMenu } from "@/components/wokiee/mega-menu";
 import { StorefrontSupportChat } from "@/components/storefront/support-chat";
+import { GamificationPopup } from "@/components/storefront/gamification-popup";
 import { NewsletterSignup } from "@/components/storefront/newsletter-signup";
 import { CampaignBanner } from "@/components/storefront/campaign-banner";
 
@@ -300,6 +301,7 @@ export function StorefrontChrome({
         <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
         <QuickViewModal theme={t} storeSlug={storeSlug} />
         <StorefrontSupportChat slug={storeSlug} locale={supportLocale} />
+        <GamificationPopup storeSlug={storeSlug} />
       </div>
     );
   }
@@ -668,6 +670,7 @@ export function StorefrontChrome({
       <QuickViewModal theme={t} storeSlug={storeSlug} />
       <MobileBottomNav theme={t} storeSlug={storeSlug} />
       <StorefrontSupportChat slug={storeSlug} locale={supportLocale} />
+      <GamificationPopup storeSlug={storeSlug} />
 
 
 
