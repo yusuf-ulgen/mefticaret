@@ -148,9 +148,9 @@ export function B2bCreditPanel({ storeId }: Props) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {GLOBAL_CURRENCIES.map((item) => (
-                  <SelectItem key={item.code} value={item.code}>
-                    {item.code}
+                {GLOBAL_CURRENCIES.map((code) => (
+                  <SelectItem key={code} value={code}>
+                    {code}
                   </SelectItem>
                 ))}
               </SelectContent>
