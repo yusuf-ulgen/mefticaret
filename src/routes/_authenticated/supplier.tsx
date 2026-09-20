@@ -1,21 +1,39 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { PackageCheck, Truck } from "lucide-react";
-import { useState } from "react";
+import {
+  BadgeCheck,
+  Banknote,
+  Boxes,
+  Gauge,
+  PackageCheck,
+  Printer,
+  RefreshCw,
+  Truck,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { SupplierImportWizard } from "@/components/supplier/import-wizard";
+import { printCargoLabels } from "@/components/supplier/cargo-label";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DROPSHIP_STATUS_LABEL } from "@/lib/dropshipping";
 import { formatDate, formatMoney } from "@/lib/mefti";
+import { LEDGER_STATUS_LABELS, PAYOUT_STATUS_LABELS } from "@/lib/supplier-import";
 import {
-  supplierPortalOverview,
-  supplierPortalUpdateOrder,
-} from "@/lib/supplier-portal.functions";
+  supplierDeskOverview,
+  supplierDeskRequestPayout,
+  supplierDeskRunFeed,
+  supplierDeskSaveBank,
+  supplierDeskSaveFeed,
+} from "@/lib/supplier-desk.functions";
+import { supplierPortalUpdateOrder } from "@/lib/supplier-portal.functions";
 
 export const Route = createFileRoute("/_authenticated/supplier")({
   head: () => ({
@@ -24,12 +42,12 @@ export const Route = createFileRoute("/_authenticated/supplier")({
       {
         name: "description",
         content:
-          "Tedarikçi paneli: gelen siparişleri ürün adı, açıklama, ürün kodu, stok kodu ve kargo firması ile görüntüleyin.",
+          "Tedarikçi paneli: gelen siparişleri hazırlayın, kargo etiketi yazdırın, toplu ürün yükleyin, komisyon ve ödeme bakiyenizi takip edin.",
       },
       { property: "og:title", content: "Tedarikçi Paneli — Mefticaret" },
       {
         property: "og:description",
-        content: "Gelen dropshipping siparişlerini görüntüle, kargo firması ve takip numarası bildir.",
+        content: "Sipariş karşılama masası, toplu ürün aktarımı, komisyon defteri ve performans karnesi.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -46,19 +64,31 @@ const CARRIERS = [
   "Sürat Kargo",
   "UPS Kargo",
   "DHL",
+  "FedEx",
   "Trendyol Express",
 ];
 
+const SCHEDULES = [
+  { value: "manual", label: "Elle" },
+  { value: "hourly", label: "Saatlik" },
+  { value: "daily", label: "Günlük" },
+];
+
+type Overview = Awaited<ReturnType<typeof supplierDeskOverview>>;
+type DeskOrderView = Overview["orders"][number];
+
 function SupplierPortalPage() {
   const client = useQueryClient();
-  const load = useServerFn(supplierPortalOverview);
+  const load = useServerFn(supplierDeskOverview);
   const update = useServerFn(supplierPortalUpdateOrder);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["supplier-portal"],
+    queryKey: ["supplier-desk"],
     queryFn: () => load({}),
     retry: false,
   });
+
+  const refresh = () => void client.invalidateQueries({ queryKey: ["supplier-desk"] });
 
   const mutation = useMutation({
     mutationFn: (input: {
@@ -69,32 +99,44 @@ function SupplierPortalPage() {
     }) => update({ data: input }),
     onSuccess: () => {
       toast.success("Sipariş güncellendi");
-      void client.invalidateQueries({ queryKey: ["supplier-portal"] });
+      refresh();
     },
     onError: (mutationError: Error) => toast.error(mutationError.message),
   });
+
+  const supplierId = data?.suppliers[0]?.id ?? "";
+  const openOrders = useMemo(
+    () => (data?.orders ?? []).filter((order) => !["shipped", "delivered", "cancelled"].includes(order.status)),
+    [data?.orders],
+  );
 
   return (
     <AppShell title="Tedarikçi paneli">
       <div className="space-y-6">
         <header className="rounded-xl border bg-card p-5">
-          <div className="flex items-center gap-3">
-            <PackageCheck className="size-5 text-primary" aria-hidden />
-            <div>
-              <h1 className="text-lg font-medium">Gelen siparişler</h1>
-              <p className="text-sm text-muted-foreground">
-                Ürün adı, açıklama, ürün kodu, stok kodu ve kargo firması bilgileriyle sipariş
-                hazırlığı yapın.
-              </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <PackageCheck className="size-5 text-primary" aria-hidden />
+              <div>
+                <h1 className="text-lg font-medium">Tedarikçi masası</h1>
+                <p className="text-sm text-muted-foreground">
+                  Size düşen sipariş kalemleri, kargo etiketleri, ürün aktarımı ve ödeme bakiyeniz.
+                </p>
+              </div>
             </div>
+            <Button variant="outline" size="sm" onClick={refresh}>
+              <RefreshCw className="mr-1 size-4" aria-hidden />
+              Yenile
+            </Button>
           </div>
-          {data?.suppliers?.length ? (
+          {data?.suppliers.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {data.suppliers.map((supplier) => (
                 <Badge key={supplier.id} variant="secondary">
                   {supplier.name} · {supplier.leadTimeDays} gün tedarik
                 </Badge>
               ))}
+              <Badge variant="outline">{openOrders.length} bekleyen sipariş</Badge>
             </div>
           ) : null}
         </header>
@@ -109,35 +151,153 @@ function SupplierPortalPage() {
           <div className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">
             {(error as Error).message}
           </div>
-        ) : !data?.orders.length ? (
-          <div className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">
-            Henüz size iletilmiş sipariş bulunmuyor.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {data.orders.map((order) => (
-              <SupplierOrderCard
-                key={order.dropshipOrderId}
-                order={order}
-                pending={mutation.isPending}
-                onSubmit={(input) => mutation.mutate({ dropshipOrderId: order.dropshipOrderId, ...input })}
-              />
-            ))}
-          </div>
+        ) : !data ? null : (
+          <Tabs defaultValue="orders">
+            <TabsList className="flex w-full flex-wrap justify-start">
+              <TabsTrigger value="orders">
+                <Truck className="mr-1 size-4" aria-hidden />
+                Siparişler
+              </TabsTrigger>
+              <TabsTrigger value="import">
+                <Boxes className="mr-1 size-4" aria-hidden />
+                Ürün yükleme
+              </TabsTrigger>
+              <TabsTrigger value="sync">
+                <RefreshCw className="mr-1 size-4" aria-hidden />
+                Otomatik senkron
+              </TabsTrigger>
+              <TabsTrigger value="finance">
+                <Banknote className="mr-1 size-4" aria-hidden />
+                Finans
+              </TabsTrigger>
+              <TabsTrigger value="performance">
+                <Gauge className="mr-1 size-4" aria-hidden />
+                Performans
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="orders" className="space-y-4 pt-4">
+              {!data.orders.length ? (
+                <div className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">
+                  Henüz size iletilmiş sipariş bulunmuyor. Sipariş ödemesi tamamlandığında kalemler otomatik
+                  olarak burada listelenir.
+                </div>
+              ) : (
+                data.orders.map((order) => (
+                  <SupplierOrderCard
+                    key={order.dropshipOrderId}
+                    order={order}
+                    pending={mutation.isPending}
+                    onSubmit={(input) =>
+                      mutation.mutate({ dropshipOrderId: order.dropshipOrderId, ...input })
+                    }
+                  />
+                ))
+              )}
+            </TabsContent>
+
+            <TabsContent value="import" className="space-y-4 pt-4">
+              {supplierId ? (
+                <SupplierImportWizard supplierId={supplierId} onImported={refresh} />
+              ) : null}
+              {data.importJobs.length ? (
+                <div className="rounded-xl border bg-card p-4">
+                  <h2 className="text-sm font-medium">Yükleme geçmişi</h2>
+                  <div className="mt-2 overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead className="text-left uppercase text-muted-foreground">
+                        <tr>
+                          <th className="py-1">Tarih</th>
+                          <th className="py-1">Kaynak</th>
+                          <th className="py-1">Satır</th>
+                          <th className="py-1">Yeni</th>
+                          <th className="py-1">Güncel</th>
+                          <th className="py-1">Hatalı</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.importJobs.map((job) => (
+                          <tr key={job.id} className="border-t">
+                            <td className="py-1">{formatDate(job.createdAt)}</td>
+                            <td className="py-1">{job.fileName ?? job.sourceUrl ?? job.source}</td>
+                            <td className="py-1">{job.rowCount}</td>
+                            <td className="py-1">{job.createdCount}</td>
+                            <td className="py-1">{job.updatedCount}</td>
+                            <td className="py-1">{job.errorCount}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : null}
+            </TabsContent>
+
+            <TabsContent value="sync" className="pt-4">
+              {supplierId ? <FeedPanel supplierId={supplierId} feeds={data.feeds} onSaved={refresh} /> : null}
+            </TabsContent>
+
+            <TabsContent value="finance" className="pt-4">
+              <FinancePanel data={data} onSaved={refresh} />
+            </TabsContent>
+
+            <TabsContent value="performance" className="space-y-4 pt-4">
+              {data.ledger.map((row) => (
+                <div key={row.supplierId} className="rounded-xl border bg-card p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="font-medium">{row.supplierName}</h2>
+                    <Badge variant="outline">Komisyon %{row.commissionRate}</Badge>
+                  </div>
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <Metric label="Sipariş" value={String(row.scorecard.orders)} />
+                    <Metric
+                      label="Ortalama kargoya verme"
+                      value={row.scorecard.avgShipHours === null ? "—" : `${row.scorecard.avgShipHours} saat`}
+                    />
+                    <Metric label="İptal oranı" value={`%${row.scorecard.cancellationRate}`} />
+                    <Metric label="İade oranı" value={`%${row.scorecard.returnRate}`} />
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Kargoya verilen</span>
+                      <span>
+                        {row.scorecard.shipped}/{row.scorecard.orders}
+                      </span>
+                    </div>
+                    <Progress
+                      value={row.scorecard.orders ? (row.scorecard.shipped / row.scorecard.orders) * 100 : 0}
+                    />
+                  </div>
+                  <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                    <Metric label="Ciro" value={formatMoney(row.scorecard.revenue, row.currency)} />
+                    <Metric label="Platform komisyonu" value={formatMoney(row.scorecard.commission, row.currency)} />
+                    <Metric label="Net" value={formatMoney(row.scorecard.net, row.currency)} />
+                  </div>
+                </div>
+              ))}
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </AppShell>
   );
 }
 
-type PortalOrder = Awaited<ReturnType<typeof supplierPortalOverview>>["orders"][number];
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border bg-muted/20 p-3">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 text-lg font-medium">{value}</p>
+    </div>
+  );
+}
 
 function SupplierOrderCard({
   order,
   pending,
   onSubmit,
 }: {
-  order: PortalOrder;
+  order: DeskOrderView;
   pending: boolean;
   onSubmit: (input: {
     status?: "accepted" | "shipped" | "cancelled";
@@ -157,22 +317,61 @@ function SupplierOrderCard({
             {formatDate(order.orderCreatedAt)} · {order.supplierName}
           </p>
         </div>
-        <Badge variant="outline">
-          {DROPSHIP_STATUS_LABEL[order.dropshipStatus as keyof typeof DROPSHIP_STATUS_LABEL] ??
-            order.dropshipStatus}
-        </Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline">
+            {DROPSHIP_STATUS_LABEL[order.status as keyof typeof DROPSHIP_STATUS_LABEL] ?? order.status}
+          </Badge>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              const ok = printCargoLabels([
+                {
+                  orderNumber: order.orderNumber,
+                  supplierName: order.supplierName,
+                  carrier: carrier || order.carrier || "—",
+                  trackingNumber: trackingNumber || order.trackingNumber || null,
+                  customerName: order.customerName ?? "—",
+                  customerPhone: order.customerPhone ?? null,
+                  addressLines: order.addressLines,
+                  items: order.items.map((item) => ({
+                    title: item.title + (item.variantTitle ? ` · ${item.variantTitle}` : ""),
+                    code: item.productCode ?? item.barcode ?? "—",
+                    quantity: item.quantity,
+                  })),
+                  createdAt: order.orderCreatedAt,
+                },
+              ]);
+              if (!ok) toast.error("Yazdırma penceresi açılamadı; açılır pencere izni verin");
+            }}
+          >
+            <Printer className="mr-1 size-4" aria-hidden />
+            Kargo etiketi
+          </Button>
+        </div>
       </div>
+
+      {order.addressLines.length ? (
+        <div className="rounded-lg border bg-muted/20 p-3 text-sm">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Teslimat adresi</p>
+          <p className="mt-1 font-medium">{order.customerName ?? "—"}</p>
+          {order.addressLines.map((line) => (
+            <p key={line} className="text-muted-foreground">
+              {line}
+            </p>
+          ))}
+        </div>
+      ) : null}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase text-muted-foreground">
             <tr>
               <th className="py-2">Ürün</th>
-              <th className="py-2">Açıklama</th>
               <th className="py-2">Ürün kodu</th>
-              <th className="py-2">Stok kodu</th>
+              <th className="py-2">Barkod</th>
               <th className="py-2">Adet</th>
-              <th className="py-2">Birim</th>
+              <th className="py-2">Tutar</th>
             </tr>
           </thead>
           <tbody>
@@ -180,21 +379,28 @@ function SupplierOrderCard({
               <tr key={item.id} className="border-t align-top">
                 <td className="py-2">
                   {item.title}
-                  {item.variantTitle ? (
-                    <span className="text-muted-foreground"> · {item.variantTitle}</span>
-                  ) : null}
-                </td>
-                <td className="max-w-[320px] py-2 text-muted-foreground">
-                  {item.description ? item.description.slice(0, 220) : "—"}
+                  {item.variantTitle ? <span className="text-muted-foreground"> · {item.variantTitle}</span> : null}
                 </td>
                 <td className="py-2">{item.productCode ?? "—"}</td>
-                <td className="py-2">{item.stockCode ?? "—"}</td>
+                <td className="py-2">{item.barcode ?? "—"}</td>
                 <td className="py-2">{item.quantity}</td>
-                <td className="py-2">{formatMoney(item.unitPrice, order.currency)}</td>
+                <td className="py-2">{formatMoney(item.lineTotal, order.currency)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex flex-wrap gap-4 text-sm">
+        <span>
+          Kalem tutarı: <strong>{formatMoney(order.itemsTotal, order.currency)}</strong>
+        </span>
+        <span className="text-muted-foreground">
+          Platform komisyonu: {formatMoney(order.commissionTotal, order.currency)}
+        </span>
+        <span>
+          Hak edilen: <strong>{formatMoney(order.netTotal, order.currency)}</strong>
+        </span>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
@@ -245,5 +451,279 @@ function SupplierOrderCard({
         ))}
       </datalist>
     </section>
+  );
+}
+
+function FeedPanel({
+  supplierId,
+  feeds,
+  onSaved,
+}: {
+  supplierId: string;
+  feeds: Overview["feeds"];
+  onSaved: () => void;
+}) {
+  const saveFeed = useServerFn(supplierDeskSaveFeed);
+  const runFeed = useServerFn(supplierDeskRunFeed);
+  const existing = feeds[0];
+
+  const [name, setName] = useState(existing?.name ?? "Fiyat & stok beslemesi");
+  const [kind, setKind] = useState<"xml" | "csv" | "json">((existing?.kind as "xml") ?? "xml");
+  const [sourceUrl, setSourceUrl] = useState(existing?.sourceUrl ?? "");
+  const [schedule, setSchedule] = useState(existing?.schedule ?? "daily");
+
+  const save = useMutation({
+    mutationFn: () =>
+      saveFeed({
+        data: {
+          supplierId,
+          feedId: existing?.id,
+          name,
+          kind,
+          sourceUrl: sourceUrl.trim(),
+          schedule: schedule as "manual" | "hourly" | "daily",
+          isActive: true,
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Otomatik senkron kaydedildi");
+      onSaved();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const run = useMutation({
+    mutationFn: (feedId: string) => runFeed({ data: { supplierId, feedId } }),
+    onSuccess: () => {
+      toast.success("Senkron tamamlandı");
+      onSaved();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border bg-card p-5 space-y-3">
+        <div>
+          <h2 className="font-medium">Otomatik fiyat & stok senkronu</h2>
+          <p className="text-sm text-muted-foreground">
+            Bağlantınızı verin; sistem seçtiğiniz sıklıkta fiyat ve stokları günceller.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="feed-name">
+              Besleme adı
+            </Label>
+            <Input id="feed-name" value={name} onChange={(event) => setName(event.target.value)} />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="feed-kind">
+              Dosya türü
+            </Label>
+            <select
+              id="feed-kind"
+              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+              value={kind}
+              onChange={(event) => setKind(event.target.value as "xml" | "csv" | "json")}
+            >
+              <option value="xml">XML</option>
+              <option value="csv">CSV</option>
+              <option value="json">JSON</option>
+            </select>
+          </div>
+          <div className="space-y-1 sm:col-span-2">
+            <Label className="text-xs" htmlFor="feed-url">
+              Kaynak bağlantısı
+            </Label>
+            <Input
+              id="feed-url"
+              value={sourceUrl}
+              onChange={(event) => setSourceUrl(event.target.value)}
+              placeholder="https://tedarikci.com/urunler.xml"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="feed-schedule">
+              Sıklık
+            </Label>
+            <select
+              id="feed-schedule"
+              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+              value={schedule}
+              onChange={(event) => setSchedule(event.target.value)}
+            >
+              {SCHEDULES.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button disabled={!sourceUrl.trim() || save.isPending} onClick={() => save.mutate()}>
+            Kaydet
+          </Button>
+          {existing ? (
+            <Button variant="outline" disabled={run.isPending} onClick={() => run.mutate(existing.id)}>
+              <RefreshCw className="mr-1 size-4" aria-hidden />
+              Şimdi çalıştır
+            </Button>
+          ) : null}
+        </div>
+      </div>
+
+      {feeds.length ? (
+        <div className="rounded-xl border bg-card p-4">
+          <h3 className="text-sm font-medium">Beslemeler</h3>
+          <div className="mt-2 space-y-2 text-sm">
+            {feeds.map((feed) => (
+              <div key={feed.id} className="flex flex-wrap items-center justify-between gap-2 border-t pt-2">
+                <div>
+                  <p className="font-medium">{feed.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {feed.kind.toUpperCase()} · {SCHEDULES.find((item) => item.value === feed.schedule)?.label}
+                    {feed.lastRunAt ? ` · son çalışma ${formatDate(feed.lastRunAt)}` : ""}
+                  </p>
+                  {feed.lastError ? <p className="text-xs text-destructive">{feed.lastError}</p> : null}
+                </div>
+                <Badge variant={feed.isActive ? "secondary" : "outline"}>
+                  {feed.isActive ? "Aktif" : "Kapalı"}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }) {
+  const saveBank = useServerFn(supplierDeskSaveBank);
+  const requestPayout = useServerFn(supplierDeskRequestPayout);
+  const primary = data.ledger[0];
+
+  const [iban, setIban] = useState(primary?.iban ?? "");
+  const [accountName, setAccountName] = useState(primary?.accountName ?? "");
+  const [amount, setAmount] = useState("");
+
+  const bank = useMutation({
+    mutationFn: () =>
+      saveBank({
+        data: { supplierId: primary!.supplierId, iban: iban.trim(), accountName: accountName.trim() || undefined },
+      }),
+    onSuccess: () => {
+      toast.success("Banka bilgisi kaydedildi");
+      onSaved();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const payout = useMutation({
+    mutationFn: () =>
+      requestPayout({
+        data: { supplierId: primary!.supplierId, amount: Number(amount.replace(",", ".")) },
+      }),
+    onSuccess: () => {
+      toast.success("Ödeme talebiniz iletildi");
+      setAmount("");
+      onSaved();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  if (!primary) return null;
+
+  return (
+    <div className="space-y-4">
+      {data.ledger.map((row) => (
+        <div key={row.supplierId} className="rounded-xl border bg-card p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-medium">{row.supplierName} — komisyon defteri</h2>
+            <Badge variant="outline">Platform komisyonu %{row.commissionRate}</Badge>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <Metric label="Toplam ciro" value={formatMoney(row.revenue, row.currency)} />
+            <Metric label="Komisyon kesintisi" value={formatMoney(row.commission, row.currency)} />
+            <Metric label={LEDGER_STATUS_LABELS["pending"]!} value={formatMoney(row.pending, row.currency)} />
+            <Metric label={LEDGER_STATUS_LABELS["payable"]!} value={formatMoney(row.payable, row.currency)} />
+            <Metric label={LEDGER_STATUS_LABELS["paid"]!} value={formatMoney(row.paid, row.currency)} />
+          </div>
+        </div>
+      ))}
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-xl border bg-card p-5 space-y-3">
+          <h3 className="font-medium">Banka bilgisi</h3>
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="supplier-iban">
+              IBAN
+            </Label>
+            <Input
+              id="supplier-iban"
+              value={iban}
+              onChange={(event) => setIban(event.target.value)}
+              placeholder="TR00 0000 0000 0000 0000 0000 00"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="supplier-account">
+              Hesap sahibi
+            </Label>
+            <Input
+              id="supplier-account"
+              value={accountName}
+              onChange={(event) => setAccountName(event.target.value)}
+            />
+          </div>
+          <Button disabled={iban.trim().length < 15 || bank.isPending} onClick={() => bank.mutate()}>
+            <BadgeCheck className="mr-1 size-4" aria-hidden />
+            Kaydet
+          </Button>
+        </div>
+
+        <div className="rounded-xl border bg-card p-5 space-y-3">
+          <h3 className="font-medium">Ödeme talebi</h3>
+          <p className="text-sm text-muted-foreground">
+            Ödenebilir bakiyeniz: {formatMoney(primary.pending + primary.payable, primary.currency)}
+          </p>
+          <div className="space-y-1">
+            <Label className="text-xs" htmlFor="payout-amount">
+              Tutar
+            </Label>
+            <Input
+              id="payout-amount"
+              value={amount}
+              onChange={(event) => setAmount(event.target.value)}
+              inputMode="decimal"
+              placeholder="0,00"
+            />
+          </div>
+          <Button
+            disabled={!Number(amount.replace(",", ".")) || payout.isPending}
+            onClick={() => payout.mutate()}
+          >
+            <Banknote className="mr-1 size-4" aria-hidden />
+            Havale talep et
+          </Button>
+
+          {data.payouts.length ? (
+            <div className="space-y-2 pt-2 text-sm">
+              {data.payouts.map((request) => (
+                <div key={request.id} className="flex items-center justify-between border-t pt-2">
+                  <div>
+                    <p className="font-medium">{formatMoney(request.amount, request.currency)}</p>
+                    <p className="text-xs text-muted-foreground">{formatDate(request.createdAt)}</p>
+                  </div>
+                  <Badge variant="outline">{PAYOUT_STATUS_LABELS[request.status] ?? request.status}</Badge>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
   );
 }
