@@ -45,6 +45,7 @@ import {
   ShoppingBag,
   ShoppingCart,
   Smartphone,
+  Repeat,
   Sparkles,
 
   Star,
