@@ -1156,6 +1156,11 @@ function GlobalExportPage() {
           />
         </TabsContent>
 
+        {/* ---------------------------- B2B cari hesap ---------------------------- */}
+        <TabsContent value="credit" className="space-y-4">
+          <B2bCreditPanel storeId={storeId} />
+        </TabsContent>
+
         {/* ---------------------------- Büyüme panosu ----------------------------- */}
         <TabsContent value="growth" className="space-y-4">
           <GrowthWidgets storeId={storeId} />
