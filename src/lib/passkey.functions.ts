@@ -64,7 +64,11 @@ export const startPasskeyCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { beginPasskeyAuthentication } = await import("@/lib/passkey.server");
-    return beginPasskeyAuthentication({ request: await currentRequest(), userId: context.userId });
+    const options = await beginPasskeyAuthentication({
+      request: await currentRequest(),
+      userId: context.userId,
+    });
+    return { optionsJson: JSON.stringify(options) };
   });
 
 /**
