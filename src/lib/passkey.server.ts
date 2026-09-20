@@ -96,7 +96,7 @@ export async function beginPasskeyRegistration(options: {
     .select("credential_id, transports")
     .eq("user_id", options.userId);
 
-  const result = await generateRegistrationOptions({
+  const result = await (await webauthn()).generateRegistrationOptions({
     rpName: RP_NAME,
     rpID,
     userID: new TextEncoder().encode(options.userId),
@@ -119,7 +119,7 @@ export async function finishPasskeyRegistration(options: {
   const { origin, rpID } = originFrom(options.request);
   const expectedChallenge = await takeChallenge(options.userId, "register");
 
-  const verification = await verifyRegistrationResponse({
+  const verification = await (await webauthn()).verifyRegistrationResponse({
     response: options.response as Any,
     expectedChallenge,
     expectedOrigin: origin,
@@ -154,7 +154,7 @@ export async function beginPasskeyAuthentication(options: { request: Request; us
   const rows = (credentials ?? []) as Any[];
   if (rows.length === 0) throw new Error("Bu hesapta kayıtlı passkey yok.");
 
-  const result = await generateAuthenticationOptions({
+  const result = await (await webauthn()).generateAuthenticationOptions({
     rpID,
     userVerification: "preferred",
     allowCredentials: rows.map((row) => ({ id: String(row.credential_id) })),
@@ -184,7 +184,7 @@ export async function verifyPasskeyAssertion(options: {
   if (error) throw new Error(error.message);
   if (!row) throw new Error("Bu passkey hesabınıza kayıtlı değil.");
 
-  const verification = await verifyAuthenticationResponse({
+  const verification = await (await webauthn()).verifyAuthenticationResponse({
     response: options.response as Any,
     expectedChallenge,
     expectedOrigin: origin,
