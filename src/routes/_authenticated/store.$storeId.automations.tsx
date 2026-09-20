@@ -342,7 +342,13 @@ function AutomationsPage() {
   const saveMutation = useMutation({
     mutationFn: () => save({ data: {
       storeId, workflowId: editingId ?? undefined, name: form.name, description: form.description || undefined, trigger: form.trigger, isActive: form.isActive,
-      steps: steps.map((step) => ({ kind: step.kind, title: step.title || undefined, waitMinutes: step.kind === "wait" ? step.waitMinutes : 0, templateId: step.templateId, conditionKind: step.kind === "condition" ? step.conditionKind : null, onTrue: step.onTrue, onFalse: step.onFalse, config: step.tag ? { tag: step.tag } : {} })),
+      steps: steps.map((step) => ({ kind: step.kind, title: step.title || undefined, waitMinutes: step.kind === "wait" ? step.waitMinutes : 0, templateId: step.templateId, conditionKind: step.kind === "condition" ? step.conditionKind : null, onTrue: step.onTrue, onFalse: step.onFalse, config: {
+        ...(step.tag ? { tag: step.tag } : {}),
+        ...(step.amount ? { amount: Number(step.amount) } : {}),
+        ...(step.country ? { country: step.country } : {}),
+        ...(step.supplierEmail ? { supplierEmail: step.supplierEmail } : {}),
+        ...(step.campaign ? { campaign: step.campaign } : {}),
+      } })),
       canvas: { nodes: canvasNodes.map((node) => ({ id: node.id, position: node.position })), edges: canvasEdges.map((edge) => ({ id: edge.id, source: edge.source, target: edge.target, sourceHandle: edge.sourceHandle ?? null })) },
     }}),
     onSuccess: async (workflow) => { if (workflow?.id) setEditingId(workflow.id); await invalidate(); setLastSaved(new Date()); toast.success("Akış kaydedildi"); },
