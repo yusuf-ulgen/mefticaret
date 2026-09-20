@@ -115,6 +115,10 @@ type DraftStep = {
   onTrue: "continue" | "end";
   onFalse: "continue" | "end";
   tag: string;
+  amount: string;
+  country: string;
+  supplierEmail: string;
+  campaign: string;
 };
 
 type CanvasNodeData = { stepIndex: number; step: DraftStep; trigger?: boolean };
