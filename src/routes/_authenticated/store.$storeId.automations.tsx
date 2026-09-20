@@ -134,6 +134,10 @@ const EMPTY_STEP: DraftStep = {
   onTrue: "end",
   onFalse: "continue",
   tag: "",
+  amount: "",
+  country: "",
+  supplierEmail: "",
+  campaign: "",
 };
 
 const STEP_ICONS: Record<StepKind, string> = {
