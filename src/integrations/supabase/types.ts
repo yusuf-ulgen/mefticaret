@@ -4468,6 +4468,47 @@ export type Database = {
           },
         ]
       }
+      finance_cost_settings: {
+        Row: {
+          created_at: string
+          currency: string
+          overhead_rate: number
+          packaging_cost_per_order: number
+          payment_commission_rate: number
+          shipping_cost_per_order: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          overhead_rate?: number
+          packaging_cost_per_order?: number
+          payment_commission_rate?: number
+          shipping_cost_per_order?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          overhead_rate?: number
+          packaging_cost_per_order?: number
+          payment_commission_rate?: number
+          shipping_cost_per_order?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_cost_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fraud_assessments: {
         Row: {
           created_at: string
@@ -6454,6 +6495,56 @@ export type Database = {
           },
           {
             foreignKeyName: "market_countries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_spend: {
+        Row: {
+          amount: number
+          channel: string
+          clicks: number
+          created_at: string
+          currency: string
+          id: string
+          impressions: number
+          note: string | null
+          spend_date: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          channel: string
+          clicks?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          impressions?: number
+          note?: string | null
+          spend_date?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          channel?: string
+          clicks?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          impressions?: number
+          note?: string | null
+          spend_date?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_spend_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
