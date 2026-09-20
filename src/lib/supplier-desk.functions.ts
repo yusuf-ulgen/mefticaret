@@ -118,6 +118,11 @@ export const supplierDeskImport = createServerFn({ method: "POST" })
         sourceUrl: z.string().trim().max(2000).optional(),
         fieldMap: z.record(z.string(), z.string()).default({}),
         rows: z.array(rowSchema).max(5000),
+        invalidCount: z.number().int().min(0).default(0),
+        errorRows: z
+          .array(z.object({ line: z.number(), sku: z.string(), errors: z.array(z.string()) }))
+          .max(200)
+          .default([]),
       })
       .parse(data),
   )
@@ -143,6 +148,7 @@ export const supplierDeskImport = createServerFn({ method: "POST" })
           supplier_id: supplier.id,
           name: `${supplier.name} portal yüklemesi`,
           kind: data.format === "xml" ? "xml" : "csv",
+          source_url: data.sourceUrl || "portal://upload",
           schedule: "manual",
           is_active: true,
           match_key: "sku",
@@ -153,8 +159,9 @@ export const supplierDeskImport = createServerFn({ method: "POST" })
       feedId = (created as { id: string }).id;
     }
 
-    const rows = data.rows;
-    const invalid = rows.filter((row) => row.errors.length > 0);
+    const rows = data.rows.filter((row) => row.errors.length === 0);
+    const invalidCount = data.invalidCount;
+    const totalRows = rows.length + invalidCount;
     const result = await applySupplierImport(supabaseAdmin as never, {
       storeId: supplier.store_id,
       supplierId: supplier.id,
@@ -170,19 +177,19 @@ export const supplierDeskImport = createServerFn({ method: "POST" })
       file_name: data.fileName ?? null,
       source_url: data.sourceUrl ?? null,
       format: data.format,
-      row_count: rows.length,
-      valid_count: rows.length - invalid.length,
-      error_count: invalid.length,
+      row_count: totalRows,
+      valid_count: rows.length,
+      error_count: invalidCount,
       created_count: result.created,
       updated_count: result.updated,
       field_map: data.fieldMap as never,
-      errors: invalid.slice(0, 100).map((row) => ({ line: row.index + 2, sku: row.sku, errors: row.errors })) as never,
-      status: invalid.length === 0 ? "completed" : rows.length === invalid.length ? "failed" : "partial",
+      errors: data.errorRows as never,
+      status: invalidCount === 0 ? "completed" : rows.length === 0 ? "failed" : "partial",
       created_by: userId,
     } as never);
     if (jobError) throw new Error(jobError.message);
 
-    return { ...result, invalid: invalid.length, total: rows.length };
+    return { ...result, invalid: invalidCount, total: totalRows };
   });
 
 /** Otomatik senkron ayarı: uzak XML/CSV bağlantısı ve saatlik/günlük plan. */

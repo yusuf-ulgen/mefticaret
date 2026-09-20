@@ -93,7 +93,9 @@ export function SupplierImportWizard({
           fileName: loaded!.fileName ?? undefined,
           sourceUrl: loaded!.sourceUrl ?? undefined,
           fieldMap: mapping as Record<string, string>,
-          rows: validated.slice(0, 5000),
+          rows: validated.filter((row) => row.errors.length === 0).slice(0, 5000),
+          invalidCount: summary.invalid,
+          errorRows: summary.errorRows,
         },
       }),
     onSuccess: (result) => {
