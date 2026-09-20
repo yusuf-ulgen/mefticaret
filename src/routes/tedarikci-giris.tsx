@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Boxes, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { supplierPortalAccess } from "@/lib/supplier-portal.functions";
 
 /** Tedarikçilerin kendi paneline doğrudan giriş yaptığı bağımsız ekran. */
+const searchSchema = z.object({ mode: z.enum(["login", "register"]).optional() });
+
 export const Route = createFileRoute("/tedarikci-giris")({
+  validateSearch: searchSchema,
   head: () => ({
     meta: [
       { title: "Tedarikçi Girişi — Mefticaret" },
@@ -36,6 +40,7 @@ export const Route = createFileRoute("/tedarikci-giris")({
 });
 
 function SupplierLoginPage() {
+  const { mode } = Route.useSearch();
   const navigate = useNavigate();
   const checkAccess = useServerFn(supplierPortalAccess);
   const [email, setEmail] = useState("");
@@ -122,7 +127,7 @@ function SupplierLoginPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="login">
+      <Tabs defaultValue={mode === "register" ? "register" : "login"}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Giriş yap</TabsTrigger>
           <TabsTrigger value="register">Kayıt ol</TabsTrigger>

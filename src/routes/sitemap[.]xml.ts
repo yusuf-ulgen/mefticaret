@@ -46,6 +46,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/ar", changefreq: "monthly", priority: "0.6" },
           { path: "/e-ticaret-paketleri", changefreq: "monthly", priority: "0.9" },
           { path: "/seo-ve-raporlama", changefreq: "monthly", priority: "0.8" },
+          { path: "/tedarikci-giris", changefreq: "monthly", priority: "0.6" },
         ];
 
         const { createClient } = await import("@supabase/supabase-js");

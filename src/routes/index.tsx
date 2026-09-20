@@ -616,10 +616,10 @@ function LandingPage() {
             </div>
             <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
               <Button asChild className="rounded-full px-5">
-                <Link to="/tedarikci-giris">Tedarikçi girişi</Link>
+                <Link to="/tedarikci-giris" search={{ mode: "login" }}>Tedarikçi girişi</Link>
               </Button>
               <Button asChild variant="outline" className="rounded-full px-5">
-                <Link to="/tedarikci-giris">Yeni kayıt</Link>
+                <Link to="/tedarikci-giris" search={{ mode: "register" }}>Yeni kayıt</Link>
               </Button>
             </div>
           </div>
