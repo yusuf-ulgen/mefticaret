@@ -148,6 +148,7 @@ export const supplierDeskImport = createServerFn({ method: "POST" })
           supplier_id: supplier.id,
           name: `${supplier.name} portal yüklemesi`,
           kind: data.format === "xml" ? "xml" : "csv",
+          source_url: data.sourceUrl || "portal://upload",
           schedule: "manual",
           is_active: true,
           match_key: "sku",
