@@ -165,6 +165,16 @@ function SupplierPortalPage() {
           <div className="m-4 rounded-lg border bg-card p-6 text-sm text-muted-foreground sm:m-6">
             {(error as Error).message}
           </div>
+        ) : data && !data.hasAccess ? (
+          <div className="m-4 space-y-3 rounded-lg border bg-card p-6 sm:m-6">
+            <p className="text-sm font-medium">Bu hesap bir tedarikçi hesabına bağlı değil.</p>
+            <p className="text-sm text-muted-foreground">
+              Tedarikçi paneline girmek için tedarikçi hesabınızla oturum açın veya yeni tedarikçi kaydı oluşturun.
+            </p>
+            <Button asChild>
+              <Link to="/tedarikci-giris">Tedarikçi girişi</Link>
+            </Button>
+          </div>
         ) : !data ? null : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="p-4 sm:p-6">
             <TabsList className="mb-4 hidden w-full grid-cols-5 bg-card sm:grid">
