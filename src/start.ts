@@ -1,6 +1,3 @@
-// WebAuthn/x509 bağımlılıkları Reflect.metadata gerektirir; polyfill en başta yüklenir.
-import "reflect-metadata";
-
 import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
 
 import { applyCacheHeaders } from "./lib/cache-headers";

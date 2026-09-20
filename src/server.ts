@@ -1,3 +1,4 @@
+import "./lib/reflect-shim";
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
