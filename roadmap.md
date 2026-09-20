@@ -95,9 +95,11 @@
 - [ ] Vitrinde tedarikçi bilgisi ve senkron durumu
 - [ ] Gerçek tedarikçi hesabı ile uçtan uca test (dosya yükleme → sipariş → komisyon defteri)
 
-## Mobil B2B Tedarikçi Uygulaması
-- [ ] Trend_Molli referansındaki 20 ekranı teslim al ve ekran sırasını eşleştir (kullanıcı yüklemesi bekleniyor)
-- [ ] Mobil kabuk ve alt menü: Profil, Siparişler, Ürünler, Değişimler, Analiz
+## Mobil uyumlu B2B Tedarikçi Paneli
+- [x] Trend_Molli referansındaki 20 ekranı PDF olarak teslim al
+- [ ] 20 ekranın sırasını mevcut tedarikçi panelindeki işlevlerle eşleştir
+- [ ] Mevcut tedarikçi panelini yenile; ayrı mobil uygulama veya ikinci bağımsız panel oluşturma
+- [ ] Mobil uyumlu panel kabuğu ve alt menü: Profil, Siparişler, Ürünler, Değişimler, Analiz
 - [ ] Gerçek cüzdan, sipariş ayrıntısı, kargo, ödeme ve teslimat başarı görünümü
 - [ ] Akıllı XML/CSV/Excel alan eşleştirme: varyant, galeri, vergi ve GTİP dahil
 - [ ] Rol kontrollü Mağazama Aktar ve çift yönlü stok eşlemesi
