@@ -257,7 +257,8 @@ export async function playGamification(options: {
       const { error: couponError } = await db.from("discounts").insert({
         store_id: store.id,
         code: candidate,
-        kind: campaign.discount_type === "amount" ? "fixed" : "percentage",
+        title: prize.label,
+        type: campaign.discount_type === "amount" ? "fixed_amount" : "percentage",
         value: prize.value,
         is_active: true,
         usage_limit: 1,
