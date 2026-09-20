@@ -275,6 +275,10 @@ function AutomationsPage() {
       onTrue: (step.on_true === "continue" ? "continue" : "end") as "continue" | "end",
       onFalse: (step.on_false === "end" ? "end" : "continue") as "continue" | "end",
       tag: String((step.config as Record<string, unknown>)?.["tag"] ?? ""),
+      amount: String((step.config as Record<string, unknown>)?.["amount"] ?? ""),
+      country: String((step.config as Record<string, unknown>)?.["country"] ?? ""),
+      supplierEmail: String((step.config as Record<string, unknown>)?.["supplierEmail"] ?? ""),
+      campaign: String((step.config as Record<string, unknown>)?.["campaign"] ?? ""),
     }));
     const nextSteps = flowSteps.length > 0 ? flowSteps : [{ ...EMPTY_STEP }];
     setEditingId(workflow.id);
