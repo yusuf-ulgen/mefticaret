@@ -613,11 +613,11 @@ function AddProductSheet({
         reader.onerror = () => reject(new Error("Fotoğraf okunamadı"));
         reader.readAsDataURL(file);
       });
-      const result = await cleanPhoto({ data: { storeId, dataUrl } });
+      const result = await cleanPhoto({ data: { storeId, dataUrl, mode: photoMode } });
       const response = await fetch(result.dataUrl);
       const blob = await response.blob();
       setFile(new File([blob], `temiz-${Date.now()}.png`, { type: blob.type || "image/png" }));
-      toast.success("Arka plan temizlendi");
+      toast.success("Fotoğraf hazırlandı");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Fotoğraf temizlenemedi");
     } finally {
