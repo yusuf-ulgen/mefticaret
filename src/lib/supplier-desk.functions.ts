@@ -41,7 +41,36 @@ export const supplierDeskOverview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { suppliers } = await assertSupplier(supabase, userId);
+    const { listPortalSuppliers } = await import("@/lib/supplier-portal.server");
+    const suppliers = await listPortalSuppliers(supabase, userId);
+    if (!suppliers.length) {
+      // Erişim yoksa hata fırlatmak yerine boş panel durumu döndürülür.
+      return {
+        hasAccess: false as boolean,
+        suppliers: [] as {
+          id: string;
+          name: string;
+          storeId: string;
+          currency: string;
+          leadTimeDays: number | null;
+        }[],
+        orders: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierDeskOrders>
+        >,
+        ledger: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierLedger>
+        >["ledger"],
+        payouts: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierLedger>
+        >["payouts"],
+        feeds: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierFeeds>
+        >["feeds"],
+        importJobs: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierFeeds>
+        >["jobs"],
+      };
+    }
     const supplierIds = suppliers.map((supplier) => supplier.id);
 
     const { loadSupplierDeskOrders, loadSupplierLedger, loadSupplierFeeds } = await import(
@@ -56,6 +85,7 @@ export const supplierDeskOverview = createServerFn({ method: "POST" })
     ]);
 
     return {
+      hasAccess: true as boolean,
       suppliers: suppliers.map((supplier) => ({
         id: supplier.id,
         name: supplier.name,
