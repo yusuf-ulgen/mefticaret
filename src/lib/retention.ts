@@ -102,6 +102,61 @@ export type SplitResult = {
   reason: string;
 };
 
+/* ------------------------- panel görünüm tipleri -------------------------- */
+
+export type SubscriptionPlanView = {
+  id: string;
+  productId: string | null;
+  name: string;
+  intervalDays: number;
+  discountPercent: number;
+  minCycles: number;
+  isActive: boolean;
+};
+
+export type SubscriptionProductView = { id: string; title: string; basePrice: number };
+
+export type CustomerSubscriptionView = {
+  id: string;
+  planId: string;
+  customerId: string;
+  customerName: string;
+  quantity: number;
+  status: string;
+  nextOrderAt: string;
+  lastOrderAt: string | null;
+  cyclesCompleted: number;
+  note: string | null;
+};
+
+export type SubscriptionCommerceData = {
+  plans: SubscriptionPlanView[];
+  products: SubscriptionProductView[];
+  subscriptions: CustomerSubscriptionView[];
+};
+
+export type WalletTransactionView = {
+  id: string;
+  kind: string;
+  amount: number;
+  note: string | null;
+  createdAt: string;
+};
+
+export type WalletView = {
+  id: string;
+  customerId: string;
+  customerName: string;
+  balance: number;
+  currency: string;
+  transactions: WalletTransactionView[];
+};
+
+export type WalletsData = {
+  wallets: WalletView[];
+  customers: Array<{ id: string; name: string }>;
+};
+
 function distance(warehouseCountry: string, destination: string): number {
   const a = (warehouseCountry || "").trim().toUpperCase().slice(0, 2);
   const b = (destination || "").trim().toUpperCase().slice(0, 2);
