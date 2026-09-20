@@ -66,13 +66,15 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/retention")
 const subscriptionsQuery = (storeId: string) =>
   queryOptions({
     queryKey: ["subscription-commerce", storeId],
-    queryFn: () => fetchSubscriptionPlans({ data: { storeId } }),
+    queryFn: async (): Promise<SubscriptionCommerceData> =>
+      (await fetchSubscriptionPlans({ data: { storeId } })) as SubscriptionCommerceData,
   });
 
 const walletsQuery = (storeId: string) =>
   queryOptions({
     queryKey: ["customer-wallets", storeId],
-    queryFn: () => fetchWallets({ data: { storeId } }),
+    queryFn: async (): Promise<WalletsData> =>
+      (await fetchWallets({ data: { storeId } })) as WalletsData,
   });
 
 function RetentionPage() {
