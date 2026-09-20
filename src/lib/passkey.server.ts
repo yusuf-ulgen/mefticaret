@@ -11,8 +11,35 @@
  * yüklenirken Reflect.metadata ister. Statik import edge worker'da tüm sayfaları
  * çökertiyordu; bu yüzden polyfill ile birlikte yalnızca çağrı anında yüklenir.
  */
+function ensureReflectMetadata() {
+  const target = Reflect as unknown as Record<string, unknown>;
+  if (typeof target["getMetadata"] === "function") return;
+  const store = new WeakMap<object, Map<unknown, unknown>>();
+  const bag = (obj: object) => {
+    let map = store.get(obj);
+    if (!map) {
+      map = new Map();
+      store.set(obj, map);
+    }
+    return map;
+  };
+  target["defineMetadata"] = (key: unknown, value: unknown, obj: object) => {
+    bag(obj).set(key, value);
+  };
+  target["getMetadata"] = (key: unknown, obj: object) => bag(obj).get(key);
+  target["getOwnMetadata"] = target["getMetadata"];
+  target["hasMetadata"] = (key: unknown, obj: object) => bag(obj).has(key);
+  target["hasOwnMetadata"] = target["hasMetadata"];
+  target["deleteMetadata"] = (key: unknown, obj: object) => bag(obj).delete(key);
+  target["metadata"] =
+    (key: unknown, value: unknown) =>
+    (obj: object) => {
+      bag(obj).set(key, value);
+    };
+}
+
 async function webauthn() {
-  await import("reflect-metadata");
+  ensureReflectMetadata();
   return await import("@simplewebauthn/server");
 }
 
