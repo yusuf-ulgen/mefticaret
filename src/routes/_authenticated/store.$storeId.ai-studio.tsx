@@ -128,6 +128,9 @@ function AiStudioPage() {
           <TabsTrigger value="competitor">
             <LineChart className="mr-2 size-4" /> Rakip analizi
           </TabsTrigger>
+          <TabsTrigger value="repricing">
+            <Gauge className="mr-2 size-4" /> Otomatik fiyat
+          </TabsTrigger>
           <TabsTrigger value="product">
             <Sparkles className="mr-2 size-4" /> Ürün açıklaması
           </TabsTrigger>
@@ -149,6 +152,13 @@ function AiStudioPage() {
             loading={competitors.isLoading}
             rows={competitors.data ?? []}
             onChanged={() => queryClient.invalidateQueries({ queryKey: ["ai-studio-competitors", storeId] })}
+          />
+        </TabsContent>
+
+        <TabsContent value="repricing">
+          <AutoRepricingPanel
+            storeId={storeId}
+            products={products.map((product) => ({ id: product.id, title: product.title }))}
           />
         </TabsContent>
 
