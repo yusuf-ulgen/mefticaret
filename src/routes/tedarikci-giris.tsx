@@ -28,7 +28,9 @@ export const Route = createFileRoute("/tedarikci-giris")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
     ],
+    links: [{ rel: "canonical", href: "https://mefticaret.com/tedarikci-giris" }],
   }),
   component: SupplierLoginPage,
 });

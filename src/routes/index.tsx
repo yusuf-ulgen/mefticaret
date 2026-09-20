@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Check, Heart, Menu, PackagePlus, Smartphone, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Boxes, Check, Heart, Menu, PackagePlus, Smartphone, X } from "lucide-react";
 
 import gdprBadge from "@/assets/gdpr-badge.webp.asset.json";
 import { CommerceFlowAnimation } from "@/components/commerce-flow-animation";
@@ -597,6 +597,33 @@ function LandingPage() {
 
 
         <FaqSection section={get("faq")} />
+
+        <section className="border-y border-border bg-secondary/30 py-12" aria-labelledby="tedarikci-portali">
+          <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+            <div className="flex max-w-2xl items-start gap-4">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border bg-background text-brand">
+                <Boxes className="size-5" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="eyebrow">İş ortakları</p>
+                <h2 id="tedarikci-portali" className="mt-2 text-2xl font-bold sm:text-3xl">
+                  Mefticaret tedarikçisi misiniz?
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  Siparişlerinizi, ürün aktarımlarınızı, stok senkronunu ve hakedişlerinizi tedarikçi panelinden yönetin.
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
+              <Button asChild className="rounded-full px-5">
+                <Link to="/tedarikci-giris">Tedarikçi girişi</Link>
+              </Button>
+              <Button asChild variant="outline" className="rounded-full px-5">
+                <Link to="/tedarikci-giris">Yeni kayıt</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
 
         {cta ? (
           <section className="mx-auto max-w-7xl px-4 pb-24 lg:px-8">

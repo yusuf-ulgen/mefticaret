@@ -82,6 +82,7 @@
 
 ## Tedarikçi portalı & otomasyon genişletmesi (talep listesi)
 - [x] Tedarikçi giriş ekranı: /tedarikci-giris — e-posta kayıt + doğrulama, şifre sıfırlama, sunucu tarafı tedarikçi rol kontrolü
+- [x] Ana sayfanın alt bölümüne tedarikçi giriş ve yeni kayıt bağlantıları eklendi
 - [ ] Senkron paneli: mağaza ürününe yansıyan senkron durumu/hata detayları (portal + mağaza tarafı)
 - [ ] Tedarikçi portalı için anon/tedarikçi rol taraması ve komisyon doğrulaması
 - [ ] Çark/kazı-kazan indirim kodlarının kasa akışına ve net satış/komisyon dışına alınması
