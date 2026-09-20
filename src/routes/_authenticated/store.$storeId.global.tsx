@@ -60,6 +60,7 @@ const GLOBAL_TABS: { value: string; label: string }[] = [
   { value: "campaigns", label: "Kampanya & Bildirim" },
   { value: "returns", label: "İade & Rota" },
   { value: "b2b", label: "B2B & Pazaryeri" },
+  { value: "credit", label: "B2B Cari Hesap" },
   { value: "growth", label: "Büyüme Panosu" },
   { value: "heatmap", label: "Satış Isı Haritası" },
   { value: "studio", label: "AI Çeviri Stüdyosu" },
