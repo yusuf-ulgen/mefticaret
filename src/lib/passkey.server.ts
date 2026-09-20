@@ -6,6 +6,8 @@
  * güncellenir. Passkey yalnızca oturumu açık kullanıcının kendi kaydına bağlanır.
  */
 
+import "reflect-metadata";
+
 import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
