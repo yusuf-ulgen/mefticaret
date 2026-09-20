@@ -679,7 +679,7 @@ function SplitTab({ storeId }: { storeId: string }) {
     <div className="grid gap-5 lg:grid-cols-[minmax(0,360px)_1fr]">
       <section className="rounded-2xl border bg-card p-5">
         <h2 className="flex items-center gap-2 text-sm font-semibold">
-          <PackageSplit className="size-4 text-brand" />
+          <Boxes className="size-4 text-brand" />
           Sipariş bölme simülasyonu
         </h2>
         <div className="mt-4 space-y-3">
