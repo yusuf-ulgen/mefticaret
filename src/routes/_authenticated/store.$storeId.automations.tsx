@@ -139,6 +139,9 @@ const STEP_ICONS: Record<StepKind, string> = {
   whatsapp: "◌",
   push: "◈",
   condition: "◇",
+  vip_badge: "★",
+  supplier_reorder: "⇄",
+  pause_ads: "⏸",
   end: "■",
 };
 
@@ -149,6 +152,9 @@ const STEP_TONES: Record<StepKind, string> = {
   whatsapp: "border-l-success",
   push: "border-l-chart-5",
   condition: "border-l-warning",
+  vip_badge: "border-l-chart-2",
+  supplier_reorder: "border-l-chart-3",
+  pause_ads: "border-l-destructive",
   end: "border-l-muted-foreground",
 };
 

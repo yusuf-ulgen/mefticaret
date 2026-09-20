@@ -4469,6 +4469,122 @@ export type Database = {
           },
         ]
       }
+      gamification_campaigns: {
+        Row: {
+          body: string | null
+          code_prefix: string
+          code_valid_days: number
+          created_at: string
+          cta_label: string
+          discount_type: string
+          headline: string
+          id: string
+          is_active: boolean
+          kind: string
+          max_plays_per_email: number
+          name: string
+          plays_count: number
+          prizes: Json
+          show_delay_seconds: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          code_prefix?: string
+          code_valid_days?: number
+          created_at?: string
+          cta_label?: string
+          discount_type?: string
+          headline?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          max_plays_per_email?: number
+          name: string
+          plays_count?: number
+          prizes?: Json
+          show_delay_seconds?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          code_prefix?: string
+          code_valid_days?: number
+          created_at?: string
+          cta_label?: string
+          discount_type?: string
+          headline?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          max_plays_per_email?: number
+          name?: string
+          plays_count?: number
+          prizes?: Json
+          show_delay_seconds?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gamification_campaigns_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gamification_plays: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          discount_code: string | null
+          email: string
+          id: string
+          prize_label: string
+          prize_value: number
+          store_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          discount_code?: string | null
+          email: string
+          id?: string
+          prize_label: string
+          prize_value?: number
+          store_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          discount_code?: string | null
+          email?: string
+          id?: string
+          prize_label?: string
+          prize_value?: number
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gamification_plays_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "gamification_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gamification_plays_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gift_card_transactions: {
         Row: {
           amount: number
@@ -9046,6 +9162,56 @@ export type Database = {
         }
         Relationships: []
       }
+      pickup_locations: {
+        Row: {
+          address_line: string
+          city: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          opening_hours: string | null
+          phone: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          address_line?: string
+          city?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          opening_hours?: string | null
+          phone?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          address_line?: string
+          city?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          opening_hours?: string | null
+          phone?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pickup_locations_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_features: {
         Row: {
           created_at: string
@@ -11677,6 +11843,54 @@ export type Database = {
           },
           {
             foreignKeyName: "return_requests_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rfq_messages: {
+        Row: {
+          author_id: string | null
+          author_kind: string
+          body: string
+          created_at: string
+          id: string
+          quoted_total: number | null
+          rfq_id: string
+          store_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_kind?: string
+          body: string
+          created_at?: string
+          id?: string
+          quoted_total?: number | null
+          rfq_id: string
+          store_id: string
+        }
+        Update: {
+          author_id?: string | null
+          author_kind?: string
+          body?: string
+          created_at?: string
+          id?: string
+          quoted_total?: number | null
+          rfq_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rfq_messages_rfq_id_fkey"
+            columns: ["rfq_id"]
+            isOneToOne: false
+            referencedRelation: "rfq_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfq_messages_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -17143,6 +17357,8 @@ export type Database = {
         | "order_count_above"
         | "spent_above"
         | "category_interest"
+        | "cart_subtotal_above"
+        | "shipping_country_is"
       automation_run_status:
         | "active"
         | "waiting"
@@ -17157,6 +17373,9 @@ export type Database = {
         | "push"
         | "condition"
         | "end"
+        | "vip_badge"
+        | "supplier_reorder"
+        | "pause_ads"
       automation_trigger:
         | "cart_abandoned"
         | "order_placed"
@@ -17171,6 +17390,8 @@ export type Database = {
         | "customer_inactive"
         | "ltv_threshold"
         | "newsletter_subscribed"
+        | "stock_low"
+        | "customer_tagged"
       billing_cycle_status: "open" | "closed" | "invoiced"
       billing_interval: "monthly" | "yearly"
       channel_status: "disconnected" | "connected" | "error" | "paused"
@@ -17547,6 +17768,8 @@ export const Constants = {
         "order_count_above",
         "spent_above",
         "category_interest",
+        "cart_subtotal_above",
+        "shipping_country_is",
       ],
       automation_run_status: [
         "active",
@@ -17563,6 +17786,9 @@ export const Constants = {
         "push",
         "condition",
         "end",
+        "vip_badge",
+        "supplier_reorder",
+        "pause_ads",
       ],
       automation_trigger: [
         "cart_abandoned",
@@ -17578,6 +17804,8 @@ export const Constants = {
         "customer_inactive",
         "ltv_threshold",
         "newsletter_subscribed",
+        "stock_low",
+        "customer_tagged",
       ],
       billing_cycle_status: ["open", "closed", "invoiced"],
       billing_interval: ["monthly", "yearly"],

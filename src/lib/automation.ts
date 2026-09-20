@@ -17,6 +17,8 @@ export const AUTOMATION_TRIGGERS = [
   "customer_inactive",
   "ltv_threshold",
   "newsletter_subscribed",
+  "stock_low",
+  "customer_tagged",
 ] as const;
 
 export type AutomationTrigger = (typeof AUTOMATION_TRIGGERS)[number];
@@ -35,6 +37,8 @@ export const TRIGGER_LABELS: Record<AutomationTrigger, string> = {
   customer_inactive: "Uzun süre sipariş yok",
   ltv_threshold: "Harcama eşiği aşıldı",
   newsletter_subscribed: "E-bültene abone oldu",
+  stock_low: "Stok azaldı",
+  customer_tagged: "Müşteriye etiket eklendi",
 };
 
 export const STEP_KINDS = [
@@ -44,6 +48,9 @@ export const STEP_KINDS = [
   "whatsapp",
   "push",
   "condition",
+  "vip_badge",
+  "supplier_reorder",
+  "pause_ads",
   "end",
 ] as const;
 
@@ -56,8 +63,15 @@ export const STEP_LABELS: Record<StepKind, string> = {
   whatsapp: "WhatsApp gönder",
   push: "Push bildirimi",
   condition: "Koşul",
+  vip_badge: "VIP rozeti ver",
+  supplier_reorder: "Tedarikçiye sipariş e-postası",
+  pause_ads: "Kampanyayı durdur",
   end: "Otomasyonu bitir",
 };
+
+/** Mesaj göndermeyen, mağaza verisinde işlem yapan adımlar. */
+export const ACTION_STEP_KINDS = ["vip_badge", "supplier_reorder", "pause_ads"] as const;
+export type ActionStepKind = (typeof ACTION_STEP_KINDS)[number];
 
 export const MESSAGE_CHANNELS = ["email", "sms", "whatsapp", "push"] as const;
 export type MessageChannel = (typeof MESSAGE_CHANNELS)[number];
@@ -79,6 +93,8 @@ export const CONDITIONS = [
   "order_count_above",
   "spent_above",
   "category_interest",
+  "cart_subtotal_above",
+  "shipping_country_is",
 ] as const;
 
 export type AutomationCondition = (typeof CONDITIONS)[number];
@@ -93,6 +109,8 @@ export const CONDITION_LABELS: Record<AutomationCondition, string> = {
   order_count_above: "Sipariş sayısı eşiğin üstünde mi?",
   spent_above: "Toplam harcama eşiğin üstünde mi?",
   category_interest: "Bu kategoriye ilgi var mı?",
+  cart_subtotal_above: "Sepet tutarı eşiğin üstünde mi?",
+  shipping_country_is: "Teslimat ülkesi eşleşiyor mu?",
 };
 
 export const BRANCH_OPTIONS = [

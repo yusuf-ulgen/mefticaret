@@ -295,8 +295,126 @@ async function evaluateCondition(supabase: Client, run: Run, step: Step) {
     return (data ?? []).length > 0;
   }
 
+  if (kind === "cart_subtotal_above") {
+    const threshold = Number((step.config as any)?.amount ?? (step.config as any)?.value ?? 0);
+    if (run.cart_id) {
+      const { data } = await supabase.from("abandoned_carts").select("total").eq("id", run.cart_id).maybeSingle();
+      return Number(data?.total ?? 0) >= threshold;
+    }
+    if (run.order_id) {
+      const { data } = await supabase.from("orders").select("subtotal").eq("id", run.order_id).maybeSingle();
+      return Number(data?.subtotal ?? 0) >= threshold;
+    }
+    return false;
+  }
+
+  if (kind === "shipping_country_is") {
+    const expected = String((step.config as any)?.country ?? "").trim().toLowerCase();
+    if (!expected || !run.order_id) return false;
+    const { data } = await supabase.from("orders").select("shipping_address").eq("id", run.order_id).maybeSingle();
+    const address = (data?.shipping_address ?? {}) as Record<string, unknown>;
+    const country = String(address["country"] ?? address["country_code"] ?? "").trim().toLowerCase();
+    return country === expected || country.startsWith(expected);
+  }
+
   return false;
 }
+
+/**
+ * Mesaj göndermeyen aksiyon adımlarını çalıştırır: VIP rozeti, tedarikçiye
+ * yeniden sipariş e-postası ve kampanya durdurma. Hepsi gerçek veri üzerinde
+ * çalışır; sağlayıcı bağlı değilse adım "skipped" olarak loglanır.
+ */
+async function runAction(supabase: Client, run: Run, step: Step) {
+  const config = (step.config ?? {}) as Record<string, unknown>;
+
+  if (step.kind === "vip_badge") {
+    const badge = String(config["tag"] ?? "vip").trim() || "vip";
+    if (!run.customer_id) {
+      await log(supabase, run, step, step.kind, "skipped", "Müşteri bilgisi yok");
+      return;
+    }
+    const { data: customer } = await supabase
+      .from("customers")
+      .select("tags")
+      .eq("id", run.customer_id)
+      .maybeSingle();
+    const tags = customer?.tags ?? [];
+    if (tags.some((value) => value.toLowerCase() === badge.toLowerCase())) {
+      await log(supabase, run, step, step.kind, "ok", `${badge} rozeti zaten var`);
+      return;
+    }
+    const { error } = await supabase
+      .from("customers")
+      .update({ tags: [...tags, badge] })
+      .eq("id", run.customer_id)
+      .eq("store_id", run.store_id);
+    await log(supabase, run, step, step.kind, error ? "failed" : "ok", error?.message ?? `${badge} rozeti eklendi`);
+    return;
+  }
+
+  if (step.kind === "supplier_reorder") {
+    const recipient = String(config["supplierEmail"] ?? "").trim();
+    if (!recipient) {
+      await log(supabase, run, step, step.kind, "skipped", "Tedarikçi e-postası tanımlı değil");
+      return;
+    }
+    const { vars } = await buildVariables(supabase, run);
+    let template: Template | null = null;
+    if (step.template_id) {
+      const { data } = await supabase.from("message_templates").select("*").eq("id", step.template_id).maybeSingle();
+      template = data;
+    }
+    const body = renderTemplate(
+      template?.body ?? String(config["body"] ?? "Stok azaldı, yeniden sipariş gerekiyor."),
+      vars,
+    );
+    const { error } = await supabase.from("message_deliveries").insert({
+      store_id: run.store_id,
+      channel: "email",
+      run_id: run.id,
+      template_id: template?.id ?? null,
+      recipient,
+      subject: template?.subject ? renderTemplate(template.subject, vars) : "Yeniden sipariş talebi",
+      body,
+      status: "queued",
+      error: "E-posta sağlayıcısı bağlanana kadar kuyrukta bekliyor",
+    });
+    await log(supabase, run, step, step.kind, error ? "failed" : "sent", error?.message ?? `${recipient} için kuyruğa alındı`);
+    return;
+  }
+
+  // pause_ads: adı verilen indirim/tatil kampanyasını durdurur.
+  const campaignName = String(config["campaign"] ?? "").trim();
+  if (!campaignName) {
+    await log(supabase, run, step, step.kind, "skipped", "Kampanya adı tanımlı değil");
+    return;
+  }
+  const [pricing, holiday] = await Promise.all([
+    supabase
+      .from("pricing_campaigns")
+      .update({ is_active: false })
+      .eq("store_id", run.store_id)
+      .ilike("name", campaignName)
+      .select("id"),
+    supabase
+      .from("holiday_campaigns")
+      .update({ is_active: false })
+      .eq("store_id", run.store_id)
+      .ilike("name", campaignName)
+      .select("id"),
+  ]);
+  const paused = (pricing.data?.length ?? 0) + (holiday.data?.length ?? 0);
+  await log(
+    supabase,
+    run,
+    step,
+    step.kind,
+    paused > 0 ? "ok" : "skipped",
+    paused > 0 ? `${paused} kampanya durduruldu` : `${campaignName} adında aktif kampanya bulunamadı`,
+  );
+}
+
 
 async function completeRun(supabase: Client, run: Run, status: Run["status"], error?: string) {
   await supabase
@@ -392,6 +510,11 @@ export async function advanceRun(supabase: Client, run: Run, options?: { skipWai
         target === null ? "end" : `adım ${target + 1}`,
       );
       return goTo(target, "active", nowIso());
+    }
+
+    if (step.kind === "vip_badge" || step.kind === "supplier_reorder" || step.kind === "pause_ads") {
+      await runAction(supabase, run, step);
+      return goTo(nextPosition(edges, run.current_position), "active", nowIso());
     }
 
     await dispatchMessage(supabase, run, step, step.kind);
