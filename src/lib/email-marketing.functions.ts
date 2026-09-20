@@ -763,6 +763,26 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
+    const { consumeRateLimit, clientIp, RATE_LIMITS, recordSecurityEvent } = await import(
+      "@/lib/rate-limit.server"
+    );
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const request = getRequest();
+    const ip = clientIp(request);
+    const limit = await consumeRateLimit(
+      `newsletter:${data.storeSlug}:${ip}`,
+      RATE_LIMITS.public_form,
+    );
+    if (!limit.allowed) {
+      await recordSecurityEvent({
+        kind: "newsletter_signup_rate_limited",
+        severity: "warning",
+        request,
+        meta: { slug: data.storeSlug },
+      });
+      throw new Error("Çok fazla deneme yapıldı. Lütfen bir süre sonra tekrar deneyin.");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: store, error: storeError } = await supabaseAdmin
