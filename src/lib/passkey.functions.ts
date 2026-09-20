@@ -39,8 +39,8 @@ export const startPasskeyRegistration = createServerFn({ method: "POST" })
       userId: context.userId,
       userName,
     });
-    // Tarayıcıya düz JSON gönderilir (WebAuthn seçenek tipi doğrudan serileştirilemez).
-    return JSON.parse(JSON.stringify(options)) as Record<string, unknown>;
+    // Tarayıcıya metin olarak gönderilir (WebAuthn seçenek tipi doğrudan serileştirilemez).
+    return { optionsJson: JSON.stringify(options) };
   });
 
 export const completePasskeyRegistration = createServerFn({ method: "POST" })
