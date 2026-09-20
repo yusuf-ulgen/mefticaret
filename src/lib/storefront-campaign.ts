@@ -109,18 +109,16 @@ function sessionId() {
   return value;
 }
 
-/** Banner görüntülenme/tıklama kaydı — gerçek olay, uydurma sayaç yok. */
+/** Banner görüntülenme/tıklama kaydı — sunucu tarafında doğrulanır ve hız sınırına tabidir. */
 export async function trackCampaignEvent(
   campaign: Pick<StorefrontCampaign, "id" | "storeId">,
   kind: "view" | "click",
 ) {
   try {
-    await supabase.from("campaign_storefront_events").insert({
-      store_id: campaign.storeId,
-      campaign_id: campaign.id,
-      kind,
-      session_id: sessionId(),
-    } as never);
+    const { trackStorefrontCampaignEvent } = await import("./storefront-campaign.functions");
+    await trackStorefrontCampaignEvent({
+      data: { storeId: campaign.storeId, campaignId: campaign.id, kind, sessionId: sessionId() },
+    });
   } catch {
     // Ölçüm hatası vitrini etkilemez.
   }
