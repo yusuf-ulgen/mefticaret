@@ -39,6 +39,7 @@ const PLATFORM_PATHS: Record<SitemapLocale, string[]> = {
     "/dropshipping-nasil-yapilir",
     "/pazaryeri-entegrasyonu",
     "/seo-ve-raporlama",
+    "/tedarikci-giris",
     "/blog",
   ],
   en: ["/en", "/en/how-to-start-an-online-store"],
