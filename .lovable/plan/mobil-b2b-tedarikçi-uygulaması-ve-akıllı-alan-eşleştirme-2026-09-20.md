@@ -1,12 +1,12 @@
-# Mobil B2B Tedarikçi Uygulaması ve Akıllı Alan Eşleştirme
+# Mobil Uyumlu B2B Tedarikçi Paneli ve Akıllı Alan Eşleştirme
 
 ## Amaç
 Mevcut gerçek tedarikçi verilerini ve güvenli erişim modelini koruyarak, Trend_Molli referanslarındaki mobil deneyimi Mefticaret’e uyarlamak. Uygulama; tedarikçi ve yetkili satıcı rollerine göre gerçek sipariş, ürün, stok, komisyon, ödeme ve analiz verileriyle çalışacak.
 
 ## Uygulama kapsamı
 
-### 1. Mobil uygulama iskeleti
-- Mevcut masaüstü mağaza panelini etkilemeyen ayrı bir tedarikçi uygulama kabuğu oluşturulacak.
+### 1. Mevcut tedarikçi panelinin yenilenmesi
+- Ayrı bir mobil uygulama veya ikinci bir bağımsız panel oluşturulmayacak; mevcut tedarikçi paneli referans tasarımla yenilenecek.
 - Turuncu üst alan, açık zemin, kompakt kartlar ve sabit alt menü referans ekranların ölçü ve hiyerarşisine göre uygulanacak.
 - Alt menü: **Profil, Siparişler, Ürünler, Değişimler, Analiz**.
 - Masaüstünde aynı içerik genişletilmiş iki sütunlu yerleşime dönüşecek; mobilde tek elle kullanıma öncelik verilecek.
