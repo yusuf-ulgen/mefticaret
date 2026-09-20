@@ -183,6 +183,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "İndirimler", to: p("discounts"), icon: Tag, keywords: "kupon" },
         { label: "Hediye Kartları", to: p("gift-cards"), icon: Gift },
         { label: "Oyunlaştırma & Operasyon", to: p("engagement"), icon: Sparkles, keywords: "çark kazı kazan stok tahmini mağazadan teslim click collect toptan teklif rfq" },
+        { label: "Abonelik & Cüzdan", to: p("retention"), icon: Repeat, keywords: "abonelik tekrarlayan satış cüzdan bakiye hediye kartı sipariş bölme depo" },
         { label: "WhatsApp", to: p("whatsapp"), icon: MessageCircle },
         { label: "SEO Denetimi", to: p("seo"), icon: Search },
         { label: "SEO Editörü", to: p("seo-editor"), icon: Search },
