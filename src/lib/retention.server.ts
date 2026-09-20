@@ -62,8 +62,8 @@ export async function listSubscriptionPlans(client: Client, storeId: string) {
 }
 
 export type SubscriptionPlanInput = {
-  id?: string | null;
-  productId?: string | null;
+  id?: string | null | undefined;
+  productId?: string | null | undefined;
   name: string;
   intervalDays: number;
   discountPercent: number;
