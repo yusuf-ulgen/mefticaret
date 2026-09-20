@@ -1,13 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Download, Factory } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Banknote, Download, Factory } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
 import { downloadCsv, toCsv } from "@/lib/csv";
+import { PAYOUT_STATUS_LABELS } from "@/lib/supplier-import";
+import { storeProcessSupplierPayout } from "@/lib/supplier-desk.functions";
 import { supplierPerformanceQuery } from "@/lib/logistics-queries";
 import { formatMoney, formatNumber } from "@/lib/mefti";
 
@@ -139,8 +144,167 @@ function SupplierPerformancePage() {
             </div>
           )}
         </section>
+        <SupplierSettlementSection storeId={storeId} />
       </div>
     </AppShell>
+  );
+}
+
+function SupplierSettlementSection({ storeId }: { storeId: string }) {
+  const client = useQueryClient();
+  const process = useServerFn(storeProcessSupplierPayout);
+
+  const { data } = useQuery({
+    queryKey: ["supplier-settlement", storeId],
+    queryFn: async () => {
+      const [payouts, entries] = await Promise.all([
+        supabase
+          .from("supplier_payout_requests")
+          .select("id, supplier_id, amount, currency, iban, status, note, created_at, suppliers(name)")
+          .eq("store_id", storeId)
+          .order("created_at", { ascending: false })
+          .limit(50),
+        supabase
+          .from("supplier_commission_entries")
+          .select("supplier_id, gross_amount, commission_amount, net_amount, status, currency, suppliers(name)")
+          .eq("store_id", storeId)
+          .limit(5000),
+      ]);
+      if (payouts.error) throw new Error(payouts.error.message);
+      if (entries.error) throw new Error(entries.error.message);
+      return { payouts: payouts.data ?? [], entries: entries.data ?? [] };
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (input: { payoutId: string; status: "approved" | "paid" | "rejected" }) =>
+      process({ data: { storeId, ...input } }),
+    onSuccess: () => {
+      toast.success("Ödeme talebi güncellendi");
+      void client.invalidateQueries({ queryKey: ["supplier-settlement", storeId] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const summary = new Map<
+    string,
+    { name: string; currency: string; revenue: number; commission: number; net: number; unpaid: number }
+  >();
+  for (const entry of (data?.entries ?? []) as any[]) {
+    const key = entry.supplier_id as string;
+    const current =
+      summary.get(key) ??
+      {
+        name: entry.suppliers?.name ?? "Tedarikçi",
+        currency: (entry.currency as string) ?? "TRY",
+        revenue: 0,
+        commission: 0,
+        net: 0,
+        unpaid: 0,
+      };
+    current.revenue += Number(entry.gross_amount) || 0;
+    current.commission += Number(entry.commission_amount) || 0;
+    current.net += Number(entry.net_amount) || 0;
+    if (entry.status !== "paid" && entry.status !== "cancelled") current.unpaid += Number(entry.net_amount) || 0;
+    summary.set(key, current);
+  }
+  const rows = Array.from(summary.values());
+  const payouts = (data?.payouts ?? []) as any[];
+
+  return (
+    <section className="space-y-4">
+      <div className="rounded-xl border bg-card">
+        <div className="border-b p-5">
+          <h2 className="flex items-center gap-2 text-sm font-semibold">
+            <Banknote className="size-4 text-primary" /> Tedarikçi komisyon defteri (%0,50 platform payı)
+          </h2>
+        </div>
+        {rows.length === 0 ? (
+          <p className="p-5 text-sm text-muted-foreground">
+            Henüz tedarikçi ürünü satılmadı. Sipariş ödemesi tamamlandığında komisyon kayıtları otomatik oluşur.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left text-xs uppercase text-muted-foreground">
+                <tr>
+                  <th className="p-3">Tedarikçi</th>
+                  <th className="p-3 text-right">Ciro</th>
+                  <th className="p-3 text-right">Komisyon</th>
+                  <th className="p-3 text-right">Net</th>
+                  <th className="p-3 text-right">Ödenmeyi bekleyen</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.name} className="border-t">
+                    <td className="p-3 font-medium">{row.name}</td>
+                    <td className="p-3 text-right">{formatMoney(row.revenue, row.currency)}</td>
+                    <td className="p-3 text-right">{formatMoney(row.commission, row.currency)}</td>
+                    <td className="p-3 text-right">{formatMoney(row.net, row.currency)}</td>
+                    <td className="p-3 text-right">{formatMoney(row.unpaid, row.currency)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-xl border bg-card">
+        <div className="border-b p-5">
+          <h2 className="text-sm font-semibold">Havale talepleri</h2>
+        </div>
+        {payouts.length === 0 ? (
+          <p className="p-5 text-sm text-muted-foreground">Bekleyen ödeme talebi yok.</p>
+        ) : (
+          <div className="divide-y">
+            {payouts.map((request) => (
+              <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+                <div>
+                  <p className="font-medium">
+                    {request.suppliers?.name ?? "Tedarikçi"} · {formatMoney(Number(request.amount), request.currency)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {request.iban} · {PAYOUT_STATUS_LABELS[request.status as string] ?? request.status}
+                  </p>
+                  {request.note ? <p className="text-xs text-muted-foreground">{request.note}</p> : null}
+                </div>
+                {request.status === "requested" || request.status === "approved" ? (
+                  <div className="flex gap-2">
+                    {request.status === "requested" ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={mutation.isPending}
+                        onClick={() => mutation.mutate({ payoutId: request.id, status: "approved" })}
+                      >
+                        Onayla
+                      </Button>
+                    ) : null}
+                    <Button
+                      size="sm"
+                      disabled={mutation.isPending}
+                      onClick={() => mutation.mutate({ payoutId: request.id, status: "paid" })}
+                    >
+                      Ödendi işaretle
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={mutation.isPending}
+                      onClick={() => mutation.mutate({ payoutId: request.id, status: "rejected" })}
+                    >
+                      Reddet
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 

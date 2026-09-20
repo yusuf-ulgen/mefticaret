@@ -15158,6 +15158,89 @@ export type Database = {
           },
         ]
       }
+      supplier_commission_entries: {
+        Row: {
+          commission_amount: number
+          commission_rate: number
+          created_at: string
+          currency: string
+          gross_amount: number
+          id: string
+          net_amount: number
+          order_id: string
+          order_item_id: string
+          payout_request_id: string | null
+          quantity: number
+          status: string
+          store_id: string
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          commission_amount?: number
+          commission_rate?: number
+          created_at?: string
+          currency?: string
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          order_id: string
+          order_item_id: string
+          payout_request_id?: string | null
+          quantity?: number
+          status?: string
+          store_id: string
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          commission_amount?: number
+          commission_rate?: number
+          created_at?: string
+          currency?: string
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          order_id?: string
+          order_item_id?: string
+          payout_request_id?: string | null
+          quantity?: number
+          status?: string
+          store_id?: string
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_commission_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_commission_entries_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_commission_entries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_commission_entries_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_feed_runs: {
         Row: {
           created_at: string
@@ -15323,6 +15406,147 @@ export type Database = {
           },
         ]
       }
+      supplier_import_jobs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          created_count: number
+          error_count: number
+          errors: Json
+          field_map: Json
+          file_name: string | null
+          format: string
+          id: string
+          row_count: number
+          source: string
+          source_url: string | null
+          status: string
+          store_id: string
+          supplier_id: string
+          updated_at: string
+          updated_count: number
+          valid_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          created_count?: number
+          error_count?: number
+          errors?: Json
+          field_map?: Json
+          file_name?: string | null
+          format?: string
+          id?: string
+          row_count?: number
+          source?: string
+          source_url?: string | null
+          status?: string
+          store_id: string
+          supplier_id: string
+          updated_at?: string
+          updated_count?: number
+          valid_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          created_count?: number
+          error_count?: number
+          errors?: Json
+          field_map?: Json
+          file_name?: string | null
+          format?: string
+          id?: string
+          row_count?: number
+          source?: string
+          source_url?: string | null
+          status?: string
+          store_id?: string
+          supplier_id?: string
+          updated_at?: string
+          updated_count?: number
+          valid_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_import_jobs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_import_jobs_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_payout_requests: {
+        Row: {
+          account_name: string | null
+          admin_note: string | null
+          amount: number
+          created_at: string
+          currency: string
+          iban: string
+          id: string
+          note: string | null
+          processed_at: string | null
+          status: string
+          store_id: string
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          account_name?: string | null
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          iban: string
+          id?: string
+          note?: string | null
+          processed_at?: string | null
+          status?: string
+          store_id: string
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string | null
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          iban?: string
+          id?: string
+          note?: string | null
+          processed_at?: string | null
+          status?: string
+          store_id?: string
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_payout_requests_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_payout_requests_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_products: {
         Row: {
           barcode: string | null
@@ -15438,10 +15662,13 @@ export type Database = {
         Row: {
           address: string | null
           auto_send_orders: boolean
+          bank_account_name: string | null
+          commission_rate: number
           contact_name: string | null
           created_at: string
           currency: string
           email: string | null
+          iban: string | null
           id: string
           is_active: boolean
           is_dropship: boolean
@@ -15459,10 +15686,13 @@ export type Database = {
         Insert: {
           address?: string | null
           auto_send_orders?: boolean
+          bank_account_name?: string | null
+          commission_rate?: number
           contact_name?: string | null
           created_at?: string
           currency?: string
           email?: string | null
+          iban?: string | null
           id?: string
           is_active?: boolean
           is_dropship?: boolean
@@ -15480,10 +15710,13 @@ export type Database = {
         Update: {
           address?: string | null
           auto_send_orders?: boolean
+          bank_account_name?: string | null
+          commission_rate?: number
           contact_name?: string | null
           created_at?: string
           currency?: string
           email?: string | null
+          iban?: string | null
           id?: string
           is_active?: boolean
           is_dropship?: boolean
