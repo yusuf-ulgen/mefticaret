@@ -241,6 +241,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       group: "Analitik & Raporlar",
       icon: ChartNoAxesColumn,
       items: [
+        { label: "Süper Analitik (BI)", to: p("bi"), icon: ChartNoAxesColumn, keywords: "iş zekası kârlılık huni kohort canlı kanal tedarikçi stok tahmini" },
         { label: "İstatistikler", to: p("statistics"), icon: ChartNoAxesColumn, keywords: "rapor trafik satış ürün dönüşüm müşteri arama" },
         { label: "Analitik", to: p("analytics"), icon: ChartNoAxesColumn },
         { label: "Ciro Tahmini", to: p("forecast"), icon: TrendingUp },
