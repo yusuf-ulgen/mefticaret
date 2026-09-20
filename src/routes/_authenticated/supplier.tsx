@@ -194,7 +194,7 @@ function SupplierPortalPage() {
                     size="sm"
                     variant={orderFilter === value ? "default" : "ghost"}
                     className={orderFilter === value ? "bg-supplier-brand text-supplier-brand-foreground hover:bg-supplier-brand/90" : ""}
-                    onClick={() => setOrderFilter(value)}
+                    onClick={() => value && setOrderFilter(value)}
                   >
                     {label}
                   </Button>
