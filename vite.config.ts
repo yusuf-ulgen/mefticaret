@@ -28,6 +28,20 @@ export default defineConfig({
     prerender: { enabled: true, autoStaticPathsDiscovery: false },
   },
   vite: {
+    // WebAuthn zinciri (@simplewebauthn/server → @peculiar/x509 → tsyringe) modül
+    // yüklenirken Reflect.metadata arar; bu polyfill her sunucu parçasının başına
+    // eklenir, aksi halde edge worker tüm sayfalarda 500 döner.
+    environments: {
+      ssr: {
+        build: {
+          rollupOptions: {
+            output: {
+              banner: REFLECT_METADATA_BANNER,
+            },
+          },
+        },
+      },
+    },
     plugins: [suppressClientAbort(), mcpPlugin()],
     resolve: {
       alias: {
