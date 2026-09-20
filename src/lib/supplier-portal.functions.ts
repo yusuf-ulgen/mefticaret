@@ -16,6 +16,23 @@ const assertSuppliers = async (supabase: any, userId: string) => {
   return suppliers;
 };
 
+/**
+ * Portal erişim kontrolü: çağıranın tedarikçi kaydı var mı?
+ * Giriş ekranı, rol doğrulamasını sunucuda yapmak için bunu kullanır.
+ */
+export const supplierPortalAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { listPortalSuppliers } = await import("@/lib/supplier-portal.server");
+    const suppliers = await listPortalSuppliers(supabase, userId);
+    return {
+      hasAccess: suppliers.length > 0,
+      suppliers: suppliers.map((supplier) => ({ id: supplier.id, name: supplier.name })),
+    };
+  });
+
+
 export const supplierPortalOverview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
