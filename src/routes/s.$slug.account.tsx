@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 import { StorefrontChrome } from "@/components/storefront-chrome";
+import { PasskeyManager } from "@/components/storefront/passkey-manager";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -499,7 +500,10 @@ function AccountDashboard({ storeId, slug, storeName }: { storeId: string; slug:
 
         {tab === "settings" ? (
           customer ? (
-            <SettingsTab storeId={storeId} customer={customer} />
+            <div className="space-y-6">
+              <SettingsTab storeId={storeId} customer={customer} />
+              <PasskeyManager />
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground">Hesabınız hazırlanıyor…</p>
           )
