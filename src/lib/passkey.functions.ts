@@ -34,11 +34,13 @@ export const startPasskeyRegistration = createServerFn({ method: "POST" })
     const { beginPasskeyRegistration } = await import("@/lib/passkey.server");
     const { data } = await context.supabase.auth.getUser();
     const userName = data.user?.email ?? context.userId;
-    return beginPasskeyRegistration({
+    const options = await beginPasskeyRegistration({
       request: await currentRequest(),
       userId: context.userId,
       userName,
     });
+    // Tarayıcıya düz JSON gönderilir (WebAuthn seçenek tipi doğrudan serileştirilemez).
+    return JSON.parse(JSON.stringify(options)) as Record<string, unknown>;
   });
 
 export const completePasskeyRegistration = createServerFn({ method: "POST" })
