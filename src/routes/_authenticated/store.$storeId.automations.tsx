@@ -115,6 +115,10 @@ type DraftStep = {
   onTrue: "continue" | "end";
   onFalse: "continue" | "end";
   tag: string;
+  amount: string;
+  country: string;
+  supplierEmail: string;
+  campaign: string;
 };
 
 type CanvasNodeData = { stepIndex: number; step: DraftStep; trigger?: boolean };
@@ -130,6 +134,10 @@ const EMPTY_STEP: DraftStep = {
   onTrue: "end",
   onFalse: "continue",
   tag: "",
+  amount: "",
+  country: "",
+  supplierEmail: "",
+  campaign: "",
 };
 
 const STEP_ICONS: Record<StepKind, string> = {
@@ -139,6 +147,9 @@ const STEP_ICONS: Record<StepKind, string> = {
   whatsapp: "◌",
   push: "◈",
   condition: "◇",
+  vip_badge: "★",
+  supplier_reorder: "⇄",
+  pause_ads: "⏸",
   end: "■",
 };
 
@@ -149,6 +160,9 @@ const STEP_TONES: Record<StepKind, string> = {
   whatsapp: "border-l-success",
   push: "border-l-chart-5",
   condition: "border-l-warning",
+  vip_badge: "border-l-chart-2",
+  supplier_reorder: "border-l-chart-3",
+  pause_ads: "border-l-destructive",
   end: "border-l-muted-foreground",
 };
 
@@ -261,6 +275,10 @@ function AutomationsPage() {
       onTrue: (step.on_true === "continue" ? "continue" : "end") as "continue" | "end",
       onFalse: (step.on_false === "end" ? "end" : "continue") as "continue" | "end",
       tag: String((step.config as Record<string, unknown>)?.["tag"] ?? ""),
+      amount: String((step.config as Record<string, unknown>)?.["amount"] ?? ""),
+      country: String((step.config as Record<string, unknown>)?.["country"] ?? ""),
+      supplierEmail: String((step.config as Record<string, unknown>)?.["supplierEmail"] ?? ""),
+      campaign: String((step.config as Record<string, unknown>)?.["campaign"] ?? ""),
     }));
     const nextSteps = flowSteps.length > 0 ? flowSteps : [{ ...EMPTY_STEP }];
     setEditingId(workflow.id);
@@ -324,7 +342,13 @@ function AutomationsPage() {
   const saveMutation = useMutation({
     mutationFn: () => save({ data: {
       storeId, workflowId: editingId ?? undefined, name: form.name, description: form.description || undefined, trigger: form.trigger, isActive: form.isActive,
-      steps: steps.map((step) => ({ kind: step.kind, title: step.title || undefined, waitMinutes: step.kind === "wait" ? step.waitMinutes : 0, templateId: step.templateId, conditionKind: step.kind === "condition" ? step.conditionKind : null, onTrue: step.onTrue, onFalse: step.onFalse, config: step.tag ? { tag: step.tag } : {} })),
+      steps: steps.map((step) => ({ kind: step.kind, title: step.title || undefined, waitMinutes: step.kind === "wait" ? step.waitMinutes : 0, templateId: step.templateId, conditionKind: step.kind === "condition" ? step.conditionKind : null, onTrue: step.onTrue, onFalse: step.onFalse, config: {
+        ...(step.tag ? { tag: step.tag } : {}),
+        ...(step.amount ? { amount: Number(step.amount) } : {}),
+        ...(step.country ? { country: step.country } : {}),
+        ...(step.supplierEmail ? { supplierEmail: step.supplierEmail } : {}),
+        ...(step.campaign ? { campaign: step.campaign } : {}),
+      } })),
       canvas: { nodes: canvasNodes.map((node) => ({ id: node.id, position: node.position })), edges: canvasEdges.map((edge) => ({ id: edge.id, source: edge.source, target: edge.target, sourceHandle: edge.sourceHandle ?? null })) },
     }}),
     onSuccess: async (workflow) => { if (workflow?.id) setEditingId(workflow.id); await invalidate(); setLastSaved(new Date()); toast.success("Akış kaydedildi"); },
@@ -392,7 +416,7 @@ function BuilderView({ form, setForm, steps, selectedStep, selectedNode, setSele
 }
 
 function NodeInspector({ step, index, updateStep, removeStep, templates }: { step: DraftStep; index: number; updateStep: (index: number, patch: Partial<DraftStep>) => void; removeStep: (index: number) => void; templates: Array<{ id: string; channel: string; name: string }> }) {
-  return <div className="space-y-4"><div className="flex items-start justify-between gap-2"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">Node {index + 1}</p><h3 className="mt-1 font-semibold">{STEP_LABELS[step.kind]}</h3></div><Button size="icon" variant="ghost" aria-label="Düğümü sil" onClick={() => removeStep(index)}><Trash2 className="size-4 text-destructive" /></Button></div><div className="space-y-2"><Label htmlFor="node-title">Düğüm adı</Label><Input id="node-title" value={step.title} onChange={(event) => updateStep(index, { title: event.target.value })} placeholder={STEP_LABELS[step.kind]} /></div>{step.kind === "wait" ? <div className="space-y-2"><Label>Bekleme süresi</Label><Select value={String(step.waitMinutes)} onValueChange={(value) => updateStep(index, { waitMinutes: Number(value) })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{WAIT_PRESETS.map((preset) => <SelectItem key={preset.value} value={String(preset.value)}>{preset.label}</SelectItem>)}</SelectContent></Select></div> : null}{["email", "sms", "whatsapp", "push"].includes(step.kind) ? <div className="space-y-2"><Label>Mesaj şablonu</Label><Select value={step.templateId ?? "none"} onValueChange={(value) => updateStep(index, { templateId: value === "none" ? null : value })}><SelectTrigger><SelectValue placeholder="Şablon seç" /></SelectTrigger><SelectContent><SelectItem value="none">Şablon yok</SelectItem>{templates.filter((item) => item.channel === step.kind).map((item) => <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent></Select></div> : null}{step.kind === "condition" ? <><div className="space-y-2"><Label>Koşul</Label><Select value={step.conditionKind ?? "order_placed"} onValueChange={(value) => updateStep(index, { conditionKind: value as AutomationCondition })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CONDITIONS.map((condition) => <SelectItem key={condition} value={condition}>{CONDITION_LABELS[condition]}</SelectItem>)}</SelectContent></Select></div>{step.conditionKind === "has_tag" ? <div className="space-y-2"><Label htmlFor="node-tag">Etiket</Label><Input id="node-tag" value={step.tag} onChange={(event) => updateStep(index, { tag: event.target.value })} placeholder="vip" /></div> : null}<div className="grid grid-cols-2 gap-2"><div className="space-y-2"><Label className="text-xs">EVET</Label><Select value={step.onTrue} onValueChange={(value) => updateStep(index, { onTrue: value as "continue" | "end" })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{BRANCH_OPTIONS.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}</SelectContent></Select></div><div className="space-y-2"><Label className="text-xs">HAYIR</Label><Select value={step.onFalse} onValueChange={(value) => updateStep(index, { onFalse: value as "continue" | "end" })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{BRANCH_OPTIONS.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}</SelectContent></Select></div></div></> : null}<div className="border-t border-border pt-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Expression</p><p className="mt-1 text-xs text-muted-foreground">Mesajlarda dinamik değerler için</p><div className="mt-2 flex flex-wrap gap-1">{TEMPLATE_VARIABLES.slice(0, 4).map((variable) => <Badge key={variable} variant="outline" className="font-mono text-[10px]">{`{{${variable}}}`}</Badge>)}</div></div><Button variant="outline" className="w-full" onClick={() => toast.success("Düğüm örnek veriyle test edildi")}><Play className="mr-2 size-4" /> Düğümü test et</Button></div>;
+  return <div className="space-y-4"><div className="flex items-start justify-between gap-2"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">Node {index + 1}</p><h3 className="mt-1 font-semibold">{STEP_LABELS[step.kind]}</h3></div><Button size="icon" variant="ghost" aria-label="Düğümü sil" onClick={() => removeStep(index)}><Trash2 className="size-4 text-destructive" /></Button></div><div className="space-y-2"><Label htmlFor="node-title">Düğüm adı</Label><Input id="node-title" value={step.title} onChange={(event) => updateStep(index, { title: event.target.value })} placeholder={STEP_LABELS[step.kind]} /></div>{step.kind === "wait" ? <div className="space-y-2"><Label>Bekleme süresi</Label><Select value={String(step.waitMinutes)} onValueChange={(value) => updateStep(index, { waitMinutes: Number(value) })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{WAIT_PRESETS.map((preset) => <SelectItem key={preset.value} value={String(preset.value)}>{preset.label}</SelectItem>)}</SelectContent></Select></div> : null}{["email", "sms", "whatsapp", "push"].includes(step.kind) ? <div className="space-y-2"><Label>Mesaj şablonu</Label><Select value={step.templateId ?? "none"} onValueChange={(value) => updateStep(index, { templateId: value === "none" ? null : value })}><SelectTrigger><SelectValue placeholder="Şablon seç" /></SelectTrigger><SelectContent><SelectItem value="none">Şablon yok</SelectItem>{templates.filter((item) => item.channel === step.kind).map((item) => <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent></Select></div> : null}{step.kind === "condition" ? <><div className="space-y-2"><Label>Koşul</Label><Select value={step.conditionKind ?? "order_placed"} onValueChange={(value) => updateStep(index, { conditionKind: value as AutomationCondition })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{CONDITIONS.map((condition) => <SelectItem key={condition} value={condition}>{CONDITION_LABELS[condition]}</SelectItem>)}</SelectContent></Select></div>{step.conditionKind === "has_tag" ? <div className="space-y-2"><Label htmlFor="node-tag">Etiket</Label><Input id="node-tag" value={step.tag} onChange={(event) => updateStep(index, { tag: event.target.value })} placeholder="vip" /></div> : null}{step.conditionKind === "cart_subtotal_above" ? <div className="space-y-2"><Label htmlFor="node-amount">Eşik tutar</Label><Input id="node-amount" type="number" min="0" value={step.amount} onChange={(event) => updateStep(index, { amount: event.target.value })} placeholder="500" /></div> : null}{step.conditionKind === "shipping_country_is" ? <div className="space-y-2"><Label htmlFor="node-country">Teslimat ülkesi</Label><Input id="node-country" value={step.country} onChange={(event) => updateStep(index, { country: event.target.value })} placeholder="Almanya veya DE" /></div> : null}<div className="grid grid-cols-2 gap-2"><div className="space-y-2"><Label className="text-xs">EVET</Label><Select value={step.onTrue} onValueChange={(value) => updateStep(index, { onTrue: value as "continue" | "end" })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{BRANCH_OPTIONS.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}</SelectContent></Select></div><div className="space-y-2"><Label className="text-xs">HAYIR</Label><Select value={step.onFalse} onValueChange={(value) => updateStep(index, { onFalse: value as "continue" | "end" })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{BRANCH_OPTIONS.map((item) => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}</SelectContent></Select></div></div></> : null}{step.kind === "vip_badge" ? <div className="space-y-2"><Label htmlFor="node-badge">Rozet etiketi</Label><Input id="node-badge" value={step.tag} onChange={(event) => updateStep(index, { tag: event.target.value })} placeholder="vip" /><p className="text-xs text-muted-foreground">Müşteri kartına bu etiket eklenir.</p></div> : null}{step.kind === "supplier_reorder" ? <><div className="space-y-2"><Label htmlFor="node-supplier">Tedarikçi e-postası</Label><Input id="node-supplier" type="email" value={step.supplierEmail} onChange={(event) => updateStep(index, { supplierEmail: event.target.value })} placeholder="tedarikci@ornek.com" /></div><div className="space-y-2"><Label>E-posta şablonu</Label><Select value={step.templateId ?? "none"} onValueChange={(value) => updateStep(index, { templateId: value === "none" ? null : value })}><SelectTrigger><SelectValue placeholder="Şablon seç" /></SelectTrigger><SelectContent><SelectItem value="none">Şablon yok</SelectItem>{templates.filter((item) => item.channel === "email").map((item) => <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent></Select></div></> : null}{step.kind === "pause_ads" ? <div className="space-y-2"><Label htmlFor="node-campaign">Durdurulacak kampanya adı</Label><Input id="node-campaign" value={step.campaign} onChange={(event) => updateStep(index, { campaign: event.target.value })} placeholder="Black Friday" /><p className="text-xs text-muted-foreground">İndirim ve tatil kampanyaları adına göre durdurulur.</p></div> : null}<div className="border-t border-border pt-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Expression</p><p className="mt-1 text-xs text-muted-foreground">Mesajlarda dinamik değerler için</p><div className="mt-2 flex flex-wrap gap-1">{TEMPLATE_VARIABLES.slice(0, 4).map((variable) => <Badge key={variable} variant="outline" className="font-mono text-[10px]">{`{{${variable}}}`}</Badge>)}</div></div><Button variant="outline" className="w-full" onClick={() => toast.success("Düğüm örnek veriyle test edildi")}><Play className="mr-2 size-4" /> Düğümü test et</Button></div>;
 }
 
 function WorkflowCard({ workflow, stepCount, onEdit, onToggle, onDelete }: { workflow: Workflow; stepCount: number; onEdit: () => void; onToggle: (checked: boolean) => void; onDelete: () => void }) {
