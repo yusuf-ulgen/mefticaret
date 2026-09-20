@@ -15,6 +15,7 @@ export const cleanProductPhoto = createServerFn({ method: "POST" })
         storeId: z.guid(),
         // data:image/...;base64,... — ~6 MB dosya sınırı
         dataUrl: z.string().min(64).max(11_000_000),
+        mode: z.enum(["background", "studio", "lifestyle", "model"]).default("background"),
       })
       .parse(data),
   )
@@ -28,9 +29,9 @@ export const cleanProductPhoto = createServerFn({ method: "POST" })
       windowSeconds: 600,
     });
     if (!limit.allowed) {
-      throw new Error("Kısa sürede çok fotoğraf temizlediniz. Birkaç dakika sonra tekrar deneyin.");
+      throw new Error("Kısa sürede çok fotoğraf işlediniz. Birkaç dakika sonra tekrar deneyin.");
     }
 
     const { cleanPhotoBackground } = await import("@/lib/photo-ai.server");
-    return cleanPhotoBackground(data.dataUrl);
+    return cleanPhotoBackground(data.dataUrl, data.mode);
   });
