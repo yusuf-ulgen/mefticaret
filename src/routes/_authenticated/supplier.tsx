@@ -255,9 +255,6 @@ function SupplierPortalPage() {
               ) : null}
             </TabsContent>
 
-              {supplierId ? <FeedPanel supplierId={supplierId} feeds={data.feeds} onSaved={refresh} /> : null}
-            </TabsContent>
-
             <TabsContent value="changes" className="mt-0 space-y-4">
               <div className="rounded-lg border bg-card p-5">
                 <h2 className="font-medium">İade & değişim</h2>
