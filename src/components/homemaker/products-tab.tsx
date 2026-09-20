@@ -575,6 +575,7 @@ function AddProductSheet({
   };
   const cleanPhoto = useServerFn(cleanProductPhoto);
   const [cleanBusy, setCleanBusy] = useState(false);
+  const [photoMode, setPhotoMode] = useState<"background" | "studio" | "lifestyle" | "model">("background");
   const [saving, setSaving] = useState(false);
   const previewUrl = useRef<string>("");
 
