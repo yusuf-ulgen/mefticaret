@@ -115,7 +115,7 @@ export function validateHashKey(hashKey: string, appSecret: string): ValidatedHa
       decipher.final(),
     ]).toString("utf8");
     const fields = decrypted.split("|");
-    if (fields.length < 5) return null;
+    if (fields.length < 3) return null;
     return {
       status: fields[0] ?? "",
       total: fields[1] ?? "",
@@ -242,8 +242,8 @@ export async function getPos(
       amount: input.amount,
       currency_code: input.currencyCode,
       merchant_key: credentials.merchantKey,
-      is_2d: 0,
       is_comission_from_user: input.commissionFromUser ? "1" : "0",
+      is_single_payment_allowed: true,
     },
     token,
   );
@@ -534,7 +534,7 @@ export async function payByToken(
 /* Tamamlama, durum, ön provizyon ve iade                              */
 /* ------------------------------------------------------------------ */
 
-/** /api/complete — ödemeyi üye işyeri tarafında tamamlar veya iptal eder. */
+/** /payment/complete — 3D ödemeyi üye işyeri tarafında tamamlar veya iptal eder. */
 export async function completePayment(
   credentials: QnbpayCredentials,
   input: { invoiceId: string; orderId: string; status: "complete" | "cancel" },
@@ -543,7 +543,7 @@ export async function completePayment(
   const hashData = `${credentials.merchantKey}|${input.invoiceId}|${input.orderId}|${input.status}`;
   return request<Record<string, unknown>>(
     credentials,
-    "/api/complete",
+    "/payment/complete",
     {
       merchant_key: credentials.merchantKey,
       invoice_id: input.invoiceId,
@@ -561,14 +561,15 @@ export async function confirmPayment(
   input: { invoiceId: string; status: 1 | 2; total?: number },
 ): Promise<Record<string, unknown>> {
   const token = await getToken(credentials);
-  const hashData = `${input.invoiceId}|${credentials.merchantKey}`;
+  // Dokümandaki sıra: merchant_key|invoice_id|status
+  const hashData = `${credentials.merchantKey}|${input.invoiceId}|${input.status}`;
   const body: Record<string, unknown> = {
     invoice_id: input.invoiceId,
     merchant_key: credentials.merchantKey,
     status: input.status,
+    total: input.total ?? 0,
     hash_key: generateHashKey(hashData, credentials.appSecret),
   };
-  if (input.total != null) body["total"] = input.total;
   return request<Record<string, unknown>>(credentials, "/api/confirmPayment", body, token);
 }
 
