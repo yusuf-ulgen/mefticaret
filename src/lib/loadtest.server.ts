@@ -236,7 +236,7 @@ async function seedStores(db: Admin, run: LoadTestRun, target: number, deadline:
         is_test: true,
         onboarding_completed: true,
         published_at: new Date().toISOString(),
-      };
+      });
     }
     const { error } = await db.from("stores").upsert(rows as never, { onConflict: "slug" });
     if (error) throw new Error(`Mağaza tohumlama hatası: ${error.message}`);
