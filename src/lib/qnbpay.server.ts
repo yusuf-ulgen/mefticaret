@@ -161,9 +161,22 @@ async function request<T>(
     throw new Error(`QNBpay yanıtı okunamadı (${response.status}): ${text.slice(0, 300)}`);
   }
   if (!response.ok) {
+    const problem = parsed as {
+      status_description?: string;
+      message?: string;
+      title?: string;
+      errors?: Record<string, string[]>;
+    };
+    const validation = problem?.errors
+      ? Object.entries(problem.errors)
+          .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
+          .join(" | ")
+      : null;
     const message =
-      (parsed as { status_description?: string; message?: string })?.status_description ??
-      (parsed as { message?: string })?.message ??
+      problem?.status_description ??
+      validation ??
+      problem?.message ??
+      problem?.title ??
       `HTTP ${response.status}`;
     throw new Error(`QNBpay hata: ${message}`);
   }
