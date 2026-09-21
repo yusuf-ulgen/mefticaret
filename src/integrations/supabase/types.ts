@@ -1187,6 +1187,7 @@ export type Database = {
           notes: string
           status: string
           store_id: string
+          supplier_id: string | null
           tax_id: string
           term_days: number
           updated_at: string
@@ -1202,6 +1203,7 @@ export type Database = {
           notes?: string
           status?: string
           store_id: string
+          supplier_id?: string | null
           tax_id?: string
           term_days?: number
           updated_at?: string
@@ -1217,6 +1219,7 @@ export type Database = {
           notes?: string
           status?: string
           store_id?: string
+          supplier_id?: string | null
           tax_id?: string
           term_days?: number
           updated_at?: string
@@ -1227,6 +1230,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "b2b_credit_accounts_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
         ]
@@ -12177,11 +12187,13 @@ export type Database = {
           items: Json
           notes: string | null
           phone: string | null
+          purchase_order_id: string | null
           quoted_total: number | null
           reference: string
           requested_total: number
           status: string
           store_id: string
+          supplier_id: string | null
           updated_at: string
           valid_until: string | null
         }
@@ -12196,11 +12208,13 @@ export type Database = {
           items?: Json
           notes?: string | null
           phone?: string | null
+          purchase_order_id?: string | null
           quoted_total?: number | null
           reference: string
           requested_total?: number
           status?: string
           store_id: string
+          supplier_id?: string | null
           updated_at?: string
           valid_until?: string | null
         }
@@ -12215,20 +12229,36 @@ export type Database = {
           items?: Json
           notes?: string | null
           phone?: string | null
+          purchase_order_id?: string | null
           quoted_total?: number | null
           reference?: string
           requested_total?: number
           status?: string
           store_id?: string
+          supplier_id?: string | null
           updated_at?: string
           valid_until?: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "rfq_requests_purchase_order_id_fkey"
+            columns: ["purchase_order_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "rfq_requests_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfq_requests_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
         ]
