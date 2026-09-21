@@ -278,8 +278,8 @@ export function SupplierImportWizard({
               </p>
               <ul className="mt-2 space-y-1 text-xs text-amber-700/90">
                 {summary.warningRows.slice(0, 10).map((row) => (
-                  <li key={`w-${row.index}`}>
-                    Satır {row.index + 2} {row.sku ? `(${row.sku})` : ""}: {row.warnings.join(", ")}
+                  <li key={`w-${row.line}`}>
+                    Satır {row.line} {row.sku ? `(${row.sku})` : ""}: {row.warnings.join(", ")}
                   </li>
                 ))}
               </ul>
