@@ -59,7 +59,7 @@ export function SupplierImportWizard({
   const runImport = useServerFn(supplierDeskImport);
 
   const validated: ImportRow[] = useMemo(
-    () => (loaded ? validateRows(loaded.rows, mapping) : []),
+    () => (loaded ? validateRows(loaded.rows, mapping, loaded.sourceUrl) : []),
     [loaded, mapping],
   );
   const summary = useMemo(() => importSummary(validated), [validated]);
@@ -302,44 +302,24 @@ export function SupplierImportWizard({
       ) : null}
 
       <Dialog open={mapOpen} onOpenChange={setMapOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
           <DialogHeader>
-            <DialogTitle>Alan eşleştirme</DialogTitle>
+            <DialogTitle>Mapping Studio</DialogTitle>
             <DialogDescription>
-              Dosyanızdaki sütunları Mefticaret alanlarıyla eşleştirin. Zorunlu alanlar işaretlidir.
+              Soldaki besleme düğümlerini sağdaki Mefticaret alanlarına sürükleyin veya düğümü seçip alana dokunun.
+              Hazır tedarikçi şablonlarıyla eşleştirme tek tıkla dolar.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            {MEFTI_FIELDS.map((field) => (
-              <div key={field.key} className="grid grid-cols-1 gap-1 sm:grid-cols-[180px_1fr] sm:items-center">
-                <Label className="text-xs" htmlFor={`map-${field.key}`}>
-                  {field.label}
-                  {field.required ? <span className="ml-1 text-destructive">*</span> : null}
-                </Label>
-                <select
-                  id={`map-${field.key}`}
-                  className="h-9 rounded-md border bg-background px-2 text-sm"
-                  value={mapping[field.key] ?? ""}
-                  onChange={(event) =>
-                    setMapping((previous) => {
-                      const next = { ...previous };
-                      const value = event.target.value;
-                      if (!value) delete next[field.key as MeftiField];
-                      else next[field.key as MeftiField] = value;
-                      return next;
-                    })
-                  }
-                >
-                  <option value="">— eşleştirilmedi —</option>
-                  {(loaded?.columns ?? []).map((column) => (
-                    <option key={column} value={column}>
-                      {column}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
-          </div>
+          <MappingStudio
+            columns={loaded?.columns ?? []}
+            rows={loaded?.rows ?? []}
+            mapping={mapping}
+            onChange={setMapping}
+            onPreset={(preset) => {
+              setItemPath(preset.itemPath);
+              toast.success(`${preset.label} şablonu uygulandı`);
+            }}
+          />
           <DialogFooter>
             <Button variant="outline" onClick={() => setMapping(suggestMapping(loaded?.columns ?? []))}>
               Otomatik eşleştir
