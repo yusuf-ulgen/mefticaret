@@ -373,6 +373,7 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
   let orders = Number(summary["orders"] ?? 0);
   let blocked = Number(summary["stockBlocked"] ?? 0);
   let returns = Number(summary["returns"] ?? 0);
+  let loggedOrderError = false;
 
   while (orders < target && Date.now() < deadline) {
     const testStoreIdsForQuery = await testStoreIdSet(db);
@@ -446,6 +447,12 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
         .single();
       if (orderError || !orderRow) {
         await db.rpc("release_variant_stock", { _variant_id: variant.id, _qty: quantity } as never);
+        if (!loggedOrderError) {
+          loggedOrderError = true;
+          await logEvent(db, run.id, "traffic", "Sipariş oluşturulamadı", {
+            error: orderError?.message ?? "bilinmeyen",
+          }, "CRITICAL");
+        }
         continue;
       }
       const orderId = (orderRow as { id: string }).id;
