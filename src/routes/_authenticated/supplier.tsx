@@ -137,8 +137,8 @@ function SupplierPortalPage() {
 
   return (
     <AppShell title="Tedarikçi paneli">
-      <div className="mx-auto min-h-[calc(100vh-5rem)] max-w-6xl bg-supplier-surface pb-24 sm:rounded-lg sm:border sm:pb-6">
-        <header className="flex min-h-16 items-center justify-between bg-supplier-brand px-4 text-supplier-brand-foreground sm:rounded-t-lg sm:px-6">
+      <div className="-mx-3 min-h-[calc(100vh-5rem)] max-w-6xl overflow-x-clip bg-supplier-surface pb-24 sm:mx-auto sm:rounded-lg sm:border sm:pb-6">
+        <header className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-supplier-brand px-4 text-supplier-brand-foreground sm:rounded-t-lg sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <PackageCheck className="size-6 shrink-0" aria-hidden />
             <div className="min-w-0">
@@ -178,7 +178,7 @@ function SupplierPortalPage() {
             </Button>
           </div>
         ) : !data ? null : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="p-4 sm:p-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0 px-3 py-4 sm:p-6">
             <TabsList className="mb-4 hidden w-full grid-cols-5 bg-card sm:grid">
               {navigation.map((item) => (
                 <TabsTrigger key={item.value} value={item.value} className="gap-2">
@@ -206,7 +206,7 @@ function SupplierPortalPage() {
                     key={value}
                     size="sm"
                     variant={orderFilter === value ? "default" : "ghost"}
-                    className={orderFilter === value ? "bg-supplier-brand text-supplier-brand-foreground hover:bg-supplier-brand/90" : ""}
+                    className={`min-w-0 px-1 text-[11px] sm:px-3 sm:text-sm ${orderFilter === value ? "bg-supplier-brand text-supplier-brand-foreground hover:bg-supplier-brand/90" : ""}`}
                     onClick={() => value && setOrderFilter(value)}
                   >
                     {label}
@@ -239,7 +239,27 @@ function SupplierPortalPage() {
               {data.importJobs.length ? (
                 <div className="rounded-xl border bg-card p-4">
                   <h2 className="text-sm font-medium">Yükleme geçmişi</h2>
-                  <div className="mt-2 overflow-x-auto">
+                  <div className="mt-3 space-y-2 sm:hidden">
+                    {data.importJobs.map((job) => (
+                      <article key={job.id} className="rounded-lg border bg-muted/20 p-3 text-xs">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                          <div className="min-w-0">
+                            <p className="truncate font-medium">{job.fileName ?? job.sourceUrl ?? job.source}</p>
+                            <p className="mt-1 text-muted-foreground">{formatDate(job.createdAt)}</p>
+                          </div>
+                          <Badge variant={job.errorCount ? "destructive" : "secondary"}>
+                            {job.errorCount ? `${job.errorCount} hata` : "Tamamlandı"}
+                          </Badge>
+                        </div>
+                        <dl className="mt-3 grid grid-cols-3 gap-2 border-t pt-3 text-center">
+                          <div><dt className="text-muted-foreground">Satır</dt><dd className="font-semibold">{job.rowCount}</dd></div>
+                          <div><dt className="text-muted-foreground">Yeni</dt><dd className="font-semibold">{job.createdCount}</dd></div>
+                          <div><dt className="text-muted-foreground">Güncel</dt><dd className="font-semibold">{job.updatedCount}</dd></div>
+                        </dl>
+                      </article>
+                    ))}
+                  </div>
+                  <div className="mt-2 hidden overflow-x-auto sm:block">
                     <table className="w-full text-xs">
                       <thead className="text-left uppercase text-muted-foreground">
                         <tr>
@@ -276,9 +296,9 @@ function SupplierPortalPage() {
             <TabsContent value="analytics" className="mt-0 space-y-4">
               <SupplierAnalytics orders={data.orders} currency={data.suppliers[0]?.currency ?? "TRY"} />
               {data.ledger.map((row) => (
-                <div key={row.supplierId} className="rounded-lg border bg-card p-5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="font-medium">{row.supplierName}</h2>
+                <div key={row.supplierId} className="rounded-lg border bg-card p-4 sm:p-5">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                    <h2 className="min-w-0 truncate font-medium">{row.supplierName}</h2>
                     <Badge variant="outline">Komisyon %{row.commissionRate}</Badge>
                   </div>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
