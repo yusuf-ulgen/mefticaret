@@ -245,6 +245,15 @@ export async function publishSupplierProducts(
       ? await ensureCategory(supabase, input.storeId, item.category, categoryCache)
       : null;
 
+    const raw = (item.raw ?? {}) as Record<string, unknown>;
+    const feedVariants = Array.isArray(raw["variants"])
+      ? (raw["variants"] as Array<Record<string, unknown>>).filter((entry) => entry && String(entry["value"] ?? "").trim())
+      : [];
+    const feedVideos = Array.isArray(raw["videos"])
+      ? (raw["videos"] as Array<Record<string, unknown>>).filter((entry) => entry && String(entry["embedUrl"] ?? "").trim())
+      : [];
+    const taxRate = typeof raw["tax_rate"] === "number" ? (raw["tax_rate"] as number) : null;
+
     if (!productId) {
       const { data: created, error: productError } = await supabase
         .from("products")
@@ -252,7 +261,7 @@ export async function publishSupplierProducts(
           store_id: input.storeId,
           title: item.title,
           slug: `${slugify(item.title)}-${Math.random().toString(36).slice(2, 6)}`,
-          description: typeof item.raw?.["description"] === "string" ? item.raw["description"] : null,
+          description: typeof raw["description"] === "string" ? raw["description"] : null,
           vendor: item.brand,
           product_type: item.category ? leafOf(item.category) : null,
           category_id: categoryId,
@@ -260,6 +269,11 @@ export async function publishSupplierProducts(
           cost_price: item.supplier_price,
           sku: item.sku,
           barcode: item.barcode,
+          ...(taxRate !== null ? { tax_rate: taxRate } : {}),
+          ...(feedVideos.length ? { video_url: String(feedVideos[0]!["embedUrl"]) } : {}),
+          ...(feedVariants.length
+            ? { variant_options: [{ name: String(feedVariants[0]!["name"] ?? "Beden"), values: Array.from(new Set(feedVariants.map((entry) => String(entry["value"])))) }] }
+            : {}),
           status: input.activate ? "active" : "draft",
         })
         .select("id")
@@ -272,24 +286,39 @@ export async function publishSupplierProducts(
       totals.productsCreated += 1;
       if (categoryId) totals.categoriesAssigned += 1;
 
-      const { data: variant } = await supabase
-        .from("product_variants")
-        .insert({
-          store_id: input.storeId,
-          product_id: productId,
-          title: "Standart",
-          sku: item.sku,
-          barcode: item.barcode,
-          price,
-          stock: item.stock,
-          position: 1,
-        })
-        .select("id")
-        .maybeSingle();
+      // İç içe varyant düğümü varsa her beden/renk ayrı varyant olur.
+      const variantRows = feedVariants.length
+        ? feedVariants.slice(0, 60).map((entry, index) => ({
+            store_id: input.storeId,
+            product_id: productId,
+            title: String(entry["value"]),
+            options: { [String(entry["name"] ?? "Beden")]: String(entry["value"]) },
+            sku: item.sku ? `${item.sku}-${String(entry["value"]).toUpperCase().replace(/\s+/g, "")}` : null,
+            barcode: entry["barcode"] ? String(entry["barcode"]) : null,
+            price: typeof entry["price"] === "number" && entry["price"] ? (entry["price"] as number) : price,
+            cost_price: item.supplier_price,
+            stock: typeof entry["stock"] === "number" ? (entry["stock"] as number) : 0,
+            position: index + 1,
+          }))
+        : [
+            {
+              store_id: input.storeId,
+              product_id: productId,
+              title: "Standart",
+              sku: item.sku,
+              barcode: item.barcode,
+              price,
+              cost_price: item.supplier_price,
+              stock: item.stock,
+              position: 1,
+            },
+          ];
+
+      const { data: variant } = await supabase.from("product_variants").insert(variantRows).select("id");
 
       if ((item.images ?? []).length) {
         await supabase.from("product_images").insert(
-          (item.images ?? []).slice(0, 6).map((url, index) => ({
+          (item.images ?? []).slice(0, 8).map((url, index) => ({
             store_id: input.storeId,
             product_id: productId,
             url,
@@ -298,11 +327,29 @@ export async function publishSupplierProducts(
         );
       }
 
+      // Videolar mağazanın "Ürün Videosu / Shoppable Reels" galerisine düşer.
+      if (feedVideos.length) {
+        await supabase.from("shoppable_videos").insert(
+          feedVideos.slice(0, 4).map((entry, index) => ({
+            store_id: input.storeId,
+            product_id: productId,
+            title: item.title.slice(0, 160),
+            video_url: String(entry["embedUrl"]),
+            thumbnail_url: entry["thumbnailUrl"] ? String(entry["thumbnailUrl"]) : null,
+            source: String(entry["source"] ?? "file"),
+            placement: "product",
+            sort_order: index + 1,
+            is_active: true,
+          })),
+        );
+      }
+
+      const firstVariantId = Array.isArray(variant) && variant.length ? (variant[0] as { id: string }).id : null;
       await supabase
         .from("supplier_products")
         .update({
           product_id: productId,
-          variant_id: variant ? (variant as { id: string }).id : null,
+          variant_id: firstVariantId,
           matched_at: new Date().toISOString(),
         })
         .eq("id", item.id);
