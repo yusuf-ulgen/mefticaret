@@ -374,9 +374,6 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
   let blocked = Number(summary["stockBlocked"] ?? 0);
   let returns = Number(summary["returns"] ?? 0);
   let loggedOrderError = false;
-  await logEvent(db, run.id, "traffic", "Sipariş simülasyonu başladı", {
-    orders, target, msLeft: deadline - Date.now(),
-  });
 
   while (orders < target && Date.now() < deadline) {
     const testStoreIdsForQuery = await testStoreIdSet(db);
