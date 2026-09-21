@@ -18479,7 +18479,13 @@ export type Database = {
         | "expired"
       supplier_feed_kind: "xml" | "csv" | "api"
       supplier_feed_run_status: "running" | "success" | "failed"
-      supplier_feed_schedule: "manual" | "hourly" | "six_hourly" | "daily"
+      supplier_feed_schedule:
+        | "manual"
+        | "hourly"
+        | "six_hourly"
+        | "daily"
+        | "three_hourly"
+        | "twelve_hourly"
       supplier_match_key: "sku" | "barcode" | "external_id"
       support_author_role: "customer" | "store" | "platform" | "system"
       support_channel: "ticket" | "chat" | "email"
@@ -18911,7 +18917,14 @@ export const Constants = {
       ],
       supplier_feed_kind: ["xml", "csv", "api"],
       supplier_feed_run_status: ["running", "success", "failed"],
-      supplier_feed_schedule: ["manual", "hourly", "six_hourly", "daily"],
+      supplier_feed_schedule: [
+        "manual",
+        "hourly",
+        "six_hourly",
+        "daily",
+        "three_hourly",
+        "twelve_hourly",
+      ],
       supplier_match_key: ["sku", "barcode", "external_id"],
       support_author_role: ["customer", "store", "platform", "system"],
       support_channel: ["ticket", "chat", "email"],
