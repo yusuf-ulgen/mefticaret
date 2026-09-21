@@ -10,6 +10,7 @@ const COPY: LandingCopy = {
   subtitle:
     "Ouvrez votre boutique en ligne en quelques minutes et gérez produits, stocks, commandes, expéditions, marketplaces et export depuis un seul panneau. Prix multidevises, règles de TVA européennes et taxes américaines, documents d'export inclus.",
   primaryCta: "Commencer gratuitement",
+  headerCta: "S'inscrire",
   secondaryCta: "Appelez-nous",
   menuLabel: "Navigation principale",
   closeMenuLabel: "Fermer le menu",

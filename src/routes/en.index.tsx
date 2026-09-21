@@ -10,6 +10,7 @@ const COPY: LandingCopy = {
   subtitle:
     "Open an online store in minutes and run products, stock, orders, shipping, marketplaces and cross-border sales from a single panel. Multi-currency pricing, EU and US tax rules and export documents are built in.",
   primaryCta: "Start free",
+  headerCta: "Sign up",
   secondaryCta: "Call us",
   menuLabel: "Main navigation",
   closeMenuLabel: "Close menu",

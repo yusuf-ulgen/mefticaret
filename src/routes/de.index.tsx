@@ -10,6 +10,7 @@ const COPY: LandingCopy = {
   subtitle:
     "Eröffnen Sie Ihren Onlineshop in Minuten und steuern Sie Produkte, Lager, Bestellungen, Versand, Marktplätze und den Export aus einem Panel. Mehrwährungspreise, EU- und US-Steuerregeln sowie Exportdokumente sind enthalten.",
   primaryCta: "Kostenlos starten",
+  headerCta: "Registrieren",
   secondaryCta: "Rufen Sie uns an",
   menuLabel: "Hauptnavigation",
   closeMenuLabel: "Menü schließen",

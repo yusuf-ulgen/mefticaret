@@ -17,6 +17,7 @@ export type LandingCopy = {
   title: string;
   subtitle: string;
   primaryCta: string;
+  headerCta: string;
   secondaryCta: string;
   menuLabel: string;
   closeMenuLabel: string;
@@ -54,9 +55,9 @@ export function GlobalLanding({ copy }: { copy: LandingCopy }) {
           </nav>
           <div className="ms-auto flex min-w-0 items-center gap-2">
             <PlatformLocaleSwitcher active={copy.locale} />
-            <Button asChild className="hidden max-w-44 rounded-full px-4 min-[360px]:inline-flex">
+            <Button asChild className="hidden max-w-32 rounded-full px-4 min-[360px]:inline-flex sm:max-w-44">
               <Link to="/auth" search={{ mode: "register" }}>
-                <span className="truncate">{copy.primaryCta}</span>
+                <span className="truncate">{copy.headerCta}</span>
               </Link>
             </Button>
             <Button
