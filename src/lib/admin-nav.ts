@@ -24,6 +24,7 @@ import {
   Search,
   ShieldAlert,
   ShieldCheck,
+  Sparkles,
   Store,
   Tag,
   Terminal,
