@@ -137,3 +137,11 @@
 - [x] Tetikleyici düzeltmeleri: tedarikçi bölme (`payment_status`), test mağazası finans defteri temizliği
 - [ ] Gerçek 20.000 eşzamanlı kullanıcı: k6 Cloud senaryoları hazır (`loadtest/k6/cloud-run.sh`); Grafana Cloud hesabı + API token kullanıcı sağlamalı; kasa senaryosu için korumalı `/api/public/loadtest/*` uç noktaları eksik
 
+
+## XML/Excel Alan Eşleştirme Motoru — boş ekran düzeltmesi
+- [ ] Yetkili ve SSRF korumalı `/api/xml-parser` uzak besleme proxy'si
+- [ ] XML/Excel/CSV/TSV içerik türü algılama ve boyut/zaman aşımı sınırları
+- [ ] Tekrarlayan ürün düğümünü bulan uyarlanabilir XML kök ayrıştırıcısı
+- [ ] Boş veya hatalı içerikte tanı kartı, proxy yeniden yükleme ve manuel kök seçimi
+- [ ] Kaynak düğüm ağacı, örnek değerler, akıllı eşleştirme ve toplu aktarım çağrısı
+- [ ] Medya düğümleri ile protokol/karakter onarımının uçtan uca doğrulanması
