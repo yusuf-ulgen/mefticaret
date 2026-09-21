@@ -678,6 +678,66 @@ export type Database = {
           },
         ]
       }
+      app_error_logs: {
+        Row: {
+          created_at: string
+          fingerprint: string
+          first_seen_at: string
+          id: string
+          last_seen_at: string
+          message: string
+          meta: Json
+          occurrences: number
+          resolved_at: string | null
+          resolved_by: string | null
+          route: string | null
+          severity: string
+          source: string
+          stack: string | null
+          store_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          fingerprint: string
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          message: string
+          meta?: Json
+          occurrences?: number
+          resolved_at?: string | null
+          resolved_by?: string | null
+          route?: string | null
+          severity?: string
+          source?: string
+          stack?: string | null
+          store_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          fingerprint?: string
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          message?: string
+          meta?: Json
+          occurrences?: number
+          resolved_at?: string | null
+          resolved_by?: string | null
+          route?: string | null
+          severity?: string
+          source?: string
+          stack?: string | null
+          store_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       app_installations: {
         Row: {
           app_id: string
@@ -1618,6 +1678,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cache_metrics: {
+        Row: {
+          bucket: string
+          hits: number
+          misses: number
+        }
+        Insert: {
+          bucket: string
+          hits?: number
+          misses?: number
+        }
+        Update: {
+          bucket?: string
+          hits?: number
+          misses?: number
+        }
+        Relationships: []
       }
       campaign_storefront_events: {
         Row: {
@@ -7795,6 +7873,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      monitoring_alerts: {
+        Row: {
+          alert_key: string
+          detail: string | null
+          last_sent_at: string
+          send_count: number
+          severity: string
+          title: string
+        }
+        Insert: {
+          alert_key: string
+          detail?: string | null
+          last_sent_at?: string
+          send_count?: number
+          severity?: string
+          title: string
+        }
+        Update: {
+          alert_key?: string
+          detail?: string | null
+          last_sent_at?: string
+          send_count?: number
+          severity?: string
+          title?: string
+        }
+        Relationships: []
       }
       notification_settings: {
         Row: {
@@ -17717,6 +17822,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      cache_track: {
+        Args: { _hits: number; _misses: number }
+        Returns: undefined
+      }
       claim_jobs: {
         Args: {
           _kinds?: Database["public"]["Enums"]["job_kind"][]
@@ -17749,6 +17858,16 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      claim_monitoring_alert: {
+        Args: {
+          _alert_key: string
+          _detail?: string
+          _mute_seconds?: number
+          _severity: string
+          _title: string
+        }
+        Returns: boolean
+      }
       complete_job: {
         Args: { _id: string; _result?: Json }
         Returns: undefined
@@ -17774,6 +17893,7 @@ export type Database = {
         Args: { _email: string; _full_name: string; _phone: string }
         Returns: string
       }
+      db_ping: { Args: never; Returns: string }
       emit_notification: {
         Args: {
           _entity?: string
@@ -17866,6 +17986,38 @@ export type Database = {
       publish_theme_version: {
         Args: { _label?: string; _store_id: string }
         Returns: string
+      }
+      record_app_error: {
+        Args: {
+          _fingerprint: string
+          _message: string
+          _meta?: Json
+          _route?: string
+          _severity: string
+          _source: string
+          _stack?: string
+          _store_id?: string
+          _user_id?: string
+        }
+        Returns: {
+          id: string
+          is_new: boolean
+          occurrences: number
+        }[]
+      }
+      release_variant_stock: {
+        Args: { _qty: number; _variant_id: string }
+        Returns: {
+          stock_after: number
+          stock_before: number
+        }[]
+      }
+      reserve_variant_stock: {
+        Args: { _qty: number; _variant_id: string }
+        Returns: {
+          stock_after: number
+          stock_before: number
+        }[]
       }
       restore_theme_version: {
         Args: { _version_id: string }

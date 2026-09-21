@@ -112,3 +112,13 @@
 - [x] Excel okuyucusunu güvenlik açıkları giderilmiş sürüme yükselt
 - [x] Ana sayfa, yönetici analizleri ve indirim akışındaki güvensiz veri varsayımlarını kaldır
 - [x] Ana sayfa, tedarikçi ve yönetici giriş adreslerinde sağlık kontrolü
+
+## Dayanıklılık, yük testi ve hata izleme (tamamlandı)
+- Stok yarış durumu: `reserve_variant_stock` / `release_variant_stock` (satır kilidi) ile kasa akışı; yetersiz stokta sipariş geri alınır.
+- Hata masası: `app_error_logs` + `record_app_error`; tarayıcı (`client-error-reporter`), React hata sınırı, sunucu `start.ts` ve kuyruk hataları kaydediliyor; `/api/public/telemetry/error` hız sınırlı.
+- İzleme paneli: `/admin/system` koyu tema canlı metrikler (DB gecikmesi, önbellek isabet oranı, API p50/p95 + hata oranı, kuyruk birikimi, kritik hata sayısı) 15 sn'de yenilenir; `/admin/logs` "Hata Kayıtları" sekmesi (arama, seviye, stack, çözüldü).
+- Uyarılar: eşik aşımı ve kritik/yeni hatalarda Slack/webhook (`monitoring_webhook_url` platform ayarı veya `MONITORING_WEBHOOK_URL`), `claim_monitoring_alert` ile 15 dk susturma; cron her turda eşikleri değerlendirir.
+- Kuyruk: varsayılan 3 deneme + üstel geri çekilme; tedarikçi XML/CSV/Excel içe aktarma arka plan işine taşındı (`supplier-import-job.server.ts`).
+- Hız sınırları: genel API 100/dk, yazma 60/dk, içe aktarma tetikleyicileri 10/dk.
+- Doğrulama: Zod şemaları + `sanitize.ts` (XSS/kontrol karakteri temizliği, yalnız http(s) görsel bağlantıları); CSRF middleware korunuyor.
+- Yük testi: `loadtest/` (vitrin profili, hız sınırı doğrulaması, tek adet stokta 50 eşzamanlı kasa yarış testi) + eşik tablosu.

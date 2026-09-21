@@ -99,7 +99,9 @@ export function SupplierImportWizard({
         },
       }),
     onSuccess: (result) => {
-      toast.success(`${result.created} yeni, ${result.updated} güncellenen ürün aktarıldı`);
+      toast.success(
+        `${result.total} satır arka planda işlenmek üzere sıraya alındı${result.invalid ? ` (${result.invalid} hatalı satır atlandı)` : ""}`,
+      );
       setLoaded(null);
       setMapping({});
       onImported();

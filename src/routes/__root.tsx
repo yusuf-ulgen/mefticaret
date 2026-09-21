@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { installClientErrorReporting, reportClientError } from "../lib/client-error-reporter";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart";
 import { CompareProvider } from "@/lib/compare";
@@ -45,6 +46,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportClientError({
+      message: error.message,
+      stack: error.stack,
+      severity: "CRITICAL",
+      source: "react_error_boundary",
+    });
   }, [error]);
 
   return (
@@ -155,6 +162,10 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
+  useEffect(() => {
+    installClientErrorReporting();
+  }, []);
+
   const { queryClient } = Route.useRouteContext();
 
   return (

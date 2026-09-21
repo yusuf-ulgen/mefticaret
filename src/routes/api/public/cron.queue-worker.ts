@@ -21,7 +21,10 @@ export const Route = createFileRoute("/api/public/cron/queue-worker")({
 
         try {
           const result = await processQueue(supabaseAdmin, { limit: 20 });
-          return Response.json({ ok: true, ...result });
+          // Her turda altyapı eşikleri kontrol edilir; aşan metrikler uyarı gönderir.
+          const { evaluateHealthAlerts } = await import("@/lib/monitoring.server");
+          const health = await evaluateHealthAlerts();
+          return Response.json({ ok: true, ...result, health });
         } catch (cause) {
           return Response.json(
             { error: cause instanceof Error ? cause.message : "unknown_error" },

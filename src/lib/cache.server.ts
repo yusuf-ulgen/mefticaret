@@ -68,8 +68,45 @@ async function redisCommand<T>(command: (string | number)[]): Promise<T | null> 
   }
 }
 
+// Her okumada veritabanına yazmamak için sayaçlar biriktirilip toplu gönderilir.
+let pendingHits = 0;
+let pendingMisses = 0;
+let lastFlushAt = 0;
+const FLUSH_EVERY_MS = 30_000;
+const FLUSH_AT_COUNT = 25;
+
+async function flushCacheMetrics(force = false) {
+  const total = pendingHits + pendingMisses;
+  if (total === 0) return;
+  if (!force && total < FLUSH_AT_COUNT && Date.now() - lastFlushAt < FLUSH_EVERY_MS) return;
+  const hits = pendingHits;
+  const misses = pendingMisses;
+  pendingHits = 0;
+  pendingMisses = 0;
+  lastFlushAt = Date.now();
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.rpc("cache_track", { _hits: hits, _misses: misses });
+  } catch {
+    /* ölçüm yazımı akışı bozmaz */
+  }
+}
+
+/** Önbellek isabet oranı ölçümünü kaydeder (izleme paneli bu veriyi kullanır). */
+export function trackCacheOutcome(hit: boolean) {
+  if (hit) pendingHits += 1;
+  else pendingMisses += 1;
+  void flushCacheMetrics();
+}
+
 /** Önbellekten okur; anahtar yok ya da süresi geçmişse `null`. */
 export async function cacheGet<T>(key: string): Promise<T | null> {
+  const value = await readCache<T>(key);
+  trackCacheOutcome(value !== null);
+  return value;
+}
+
+async function readCache<T>(key: string): Promise<T | null> {
   if (cacheDriver() === "redis") {
     const raw = await redisCommand<string>(["GET", key]);
     if (!raw) return null;

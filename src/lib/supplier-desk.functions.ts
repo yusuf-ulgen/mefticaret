@@ -19,6 +19,15 @@ const assertSupplier = async (supabase: any, userId: string, supplierId?: string
   return { suppliers, supplier };
 };
 
+/** İçe aktarma tetikleyicileri: kullanıcı başına 10 istek/dakika. */
+const assertImportRate = async (userId: string) => {
+  const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+  const result = await consumeRateLimit(`supplier_import:${userId}`, RATE_LIMITS.import_trigger);
+  if (!result.allowed) {
+    throw new Error("Çok fazla içe aktarma denemesi. Lütfen bir dakika sonra tekrar deneyin.");
+  }
+};
+
 const rowSchema = z.object({
   index: z.number(),
   sku: z.string().trim().min(1),
@@ -238,6 +247,7 @@ export const supplierDeskFetchRemote = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await assertSupplier(supabase, userId, data.supplierId);
+    await assertImportRate(userId);
 
     const response = await fetch(data.url, { headers: { "user-agent": "MefticaretSupplierPortal/1.0" } });
     if (!response.ok) throw new Error(`Kaynak yanıtı ${response.status}`);
@@ -281,8 +291,8 @@ export const supplierDeskImport = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { supplier } = await assertSupplier(supabase, userId, data.supplierId);
+    await assertImportRate(userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { applySupplierImport } = await import("@/lib/supplier-desk.server");
 
     // Portal yüklemeleri için tedarikçiye ait bir besleme kaydı kullanılır.
     const { data: feeds } = await supabaseAdmin
@@ -314,34 +324,51 @@ export const supplierDeskImport = createServerFn({ method: "POST" })
     const rows = data.rows.filter((row) => row.errors.length === 0);
     const invalidCount = data.invalidCount;
     const totalRows = rows.length + invalidCount;
-    const result = await applySupplierImport(supabaseAdmin as never, {
+
+    // Ağır işleme (binlerce satır) istek içinde yapılmaz: kayıt "kuyrukta" açılır,
+    // satırlar arka plan worker'ı tarafından işlenir (en fazla 3 deneme).
+    const { data: job, error: jobError } = await supabaseAdmin
+      .from("supplier_import_jobs")
+      .insert({
+        store_id: supplier.store_id,
+        supplier_id: supplier.id,
+        source: data.source,
+        file_name: data.fileName ?? null,
+        source_url: data.sourceUrl ?? null,
+        format: data.format,
+        row_count: totalRows,
+        valid_count: 0,
+        error_count: invalidCount,
+        created_count: 0,
+        updated_count: 0,
+        field_map: data.fieldMap as never,
+        errors: data.errorRows as never,
+        status: "queued",
+        created_by: userId,
+      } as never)
+      .select("id")
+      .single();
+    if (jobError) throw new Error(jobError.message);
+    const importJobId = (job as { id: string }).id;
+
+    const { enqueueJob } = await import("@/lib/queue.server");
+    await enqueueJob(supabaseAdmin as never, {
+      kind: "feed_sync",
       storeId: supplier.store_id,
-      supplierId: supplier.id,
-      feedId,
-      rows: rows as never,
-      currency: supplier.currency || "TRY",
+      priority: 5,
+      maxAttempts: 3,
+      payload: {
+        importJobId,
+        storeId: supplier.store_id,
+        supplierId: supplier.id,
+        feedId,
+        currency: supplier.currency || "TRY",
+        rows,
+        invalidCount,
+      },
     });
 
-    const { error: jobError } = await supabaseAdmin.from("supplier_import_jobs").insert({
-      store_id: supplier.store_id,
-      supplier_id: supplier.id,
-      source: data.source,
-      file_name: data.fileName ?? null,
-      source_url: data.sourceUrl ?? null,
-      format: data.format,
-      row_count: totalRows,
-      valid_count: rows.length,
-      error_count: invalidCount,
-      created_count: result.created,
-      updated_count: result.updated,
-      field_map: data.fieldMap as never,
-      errors: data.errorRows as never,
-      status: invalidCount === 0 ? "completed" : rows.length === 0 ? "failed" : "partial",
-      created_by: userId,
-    } as never);
-    if (jobError) throw new Error(jobError.message);
-
-    return { ...result, invalid: invalidCount, total: totalRows };
+    return { queued: true as boolean, importJobId, invalid: invalidCount, total: totalRows };
   });
 
 /** Otomatik senkron ayarı: uzak XML/CSV bağlantısı ve saatlik/günlük plan. */

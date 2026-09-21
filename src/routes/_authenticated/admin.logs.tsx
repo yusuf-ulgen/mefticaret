@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AdminShell } from "@/components/admin-shell";
 import { PlatformDataTable } from "@/components/platform-data-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ErrorLogDesk } from "@/components/monitoring/error-log-desk";
 
 export const Route = createFileRoute("/_authenticated/admin/logs")({
   head: () => ({
@@ -35,16 +36,20 @@ function AdminLogsPage() {
   return (
     <AdminShell
       title="Log Merkezi"
-      description="Denetim kayıtları, güvenlik olayları ve bildirim geçmişi kategorilere ayrılmış halde."
+      description="Hata kayıtları, denetim kayıtları, güvenlik olayları ve bildirim geçmişi tek ekranda."
     >
-      <Tabs defaultValue="audit">
+      <Tabs defaultValue="errors">
         <TabsList>
+          <TabsTrigger value="errors">Hata Kayıtları</TabsTrigger>
           {TABS.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>
               {tab.label}
             </TabsTrigger>
           ))}
         </TabsList>
+        <TabsContent value="errors" className="mt-6">
+          <ErrorLogDesk />
+        </TabsContent>
         {TABS.map((tab) => (
           <TabsContent key={tab.value} value={tab.value} className="mt-6">
             <PlatformDataTable dataset={tab.dataset} />
