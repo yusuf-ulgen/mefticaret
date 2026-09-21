@@ -6448,6 +6448,175 @@ export type Database = {
           },
         ]
       }
+      load_test_config: {
+        Row: {
+          created_at: string
+          cycle_minutes: number
+          enabled: boolean
+          id: number
+          orders_target: number
+          paused: boolean
+          products_target: number
+          stores_target: number
+          updated_at: string
+          vusers_target: number
+        }
+        Insert: {
+          created_at?: string
+          cycle_minutes?: number
+          enabled?: boolean
+          id?: number
+          orders_target?: number
+          paused?: boolean
+          products_target?: number
+          stores_target?: number
+          updated_at?: string
+          vusers_target?: number
+        }
+        Update: {
+          created_at?: string
+          cycle_minutes?: number
+          enabled?: boolean
+          id?: number
+          orders_target?: number
+          paused?: boolean
+          products_target?: number
+          stores_target?: number
+          updated_at?: string
+          vusers_target?: number
+        }
+        Relationships: []
+      }
+      load_test_events: {
+        Row: {
+          created_at: string
+          id: string
+          level: string
+          message: string
+          meta: Json
+          phase: string
+          run_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          level?: string
+          message: string
+          meta?: Json
+          phase: string
+          run_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          level?: string
+          message?: string
+          meta?: Json
+          phase?: string
+          run_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "load_test_events_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "load_test_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      load_test_findings: {
+        Row: {
+          created_at: string
+          detail: string
+          id: string
+          kind: string
+          meta: Json
+          run_id: string
+          severity: string
+        }
+        Insert: {
+          created_at?: string
+          detail: string
+          id?: string
+          kind: string
+          meta?: Json
+          run_id: string
+          severity?: string
+        }
+        Update: {
+          created_at?: string
+          detail?: string
+          id?: string
+          kind?: string
+          meta?: Json
+          run_id?: string
+          severity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "load_test_findings_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "load_test_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      load_test_runs: {
+        Row: {
+          created_at: string
+          cycle_no: number
+          error: string | null
+          findings_count: number
+          finished_at: string | null
+          id: string
+          metrics: Json
+          next_cycle_at: string | null
+          phase: string
+          phase_started_at: string
+          scale: Json
+          started_at: string
+          status: string
+          summary: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_no?: number
+          error?: string | null
+          findings_count?: number
+          finished_at?: string | null
+          id?: string
+          metrics?: Json
+          next_cycle_at?: string | null
+          phase?: string
+          phase_started_at?: string
+          scale?: Json
+          started_at?: string
+          status?: string
+          summary?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cycle_no?: number
+          error?: string | null
+          findings_count?: number
+          finished_at?: string | null
+          id?: string
+          metrics?: Json
+          next_cycle_at?: string | null
+          phase?: string
+          phase_started_at?: string
+          scale?: Json
+          started_at?: string
+          status?: string
+          summary?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       loyalty_accounts: {
         Row: {
           created_at: string
@@ -15047,6 +15216,7 @@ export type Database = {
           id: string
           industry: string | null
           is_demo: boolean
+          is_test: boolean
           locale: string
           logo_url: string | null
           name: string
@@ -15068,6 +15238,7 @@ export type Database = {
           id?: string
           industry?: string | null
           is_demo?: boolean
+          is_test?: boolean
           locale?: string
           logo_url?: string | null
           name: string
@@ -15089,6 +15260,7 @@ export type Database = {
           id?: string
           industry?: string | null
           is_demo?: boolean
+          is_test?: boolean
           locale?: string
           logo_url?: string | null
           name?: string
@@ -17987,6 +18159,7 @@ export type Database = {
         Args: { _label?: string; _store_id: string }
         Returns: string
       }
+      purge_load_test_data: { Args: { _drop_stores?: boolean }; Returns: Json }
       record_app_error: {
         Args: {
           _fingerprint: string

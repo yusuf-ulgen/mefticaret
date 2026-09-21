@@ -122,3 +122,14 @@
 - Hız sınırları: genel API 100/dk, yazma 60/dk, içe aktarma tetikleyicileri 10/dk.
 - Doğrulama: Zod şemaları + `sanitize.ts` (XSS/kontrol karakteri temizliği, yalnız http(s) görsel bağlantıları); CSRF middleware korunuyor.
 - Yük testi: `loadtest/` (vitrin profili, hız sınırı doğrulaması, tek adet stokta 50 eşzamanlı kasa yarış testi) + eşik tablosu.
+
+## 3 saatlik otomatik stres testi (tamamlandı)
+- [x] `load_test_config/runs/events/findings` tabloları + `purge_load_test_data` (yalnız service_role)
+- [x] `src/lib/loadtest.server.ts` faz makinesi: purge → seed → traffic → verify → report
+- [x] Stok rezervasyonu `reserve_variant_stock` ile — aşırı satış engeli doğrulanıyor
+- [x] Komisyon mutabakatı: %0,1 platform, %0,70 Mefpay, %0,50 tedarikçi (kuruş hassasiyeti)
+- [x] Kargo yaşam döngüsü + iade talepleri simülasyonu
+- [x] `/api/public/cron/loadtest` cron uç noktası (5 dk tick, 180 dk tur)
+- [x] `/admin/load-test` monitörü: geri sayım, göstergeler, ölçek ayarı, acil durdurma
+- [x] `loadtest/k6/storefront.js` + `checkout.js` senaryoları
+- [ ] Gerçek 20.000 eşzamanlı kullanıcı: harici k6 Cloud hesabı gerekiyor (kullanıcı sağlamalı)

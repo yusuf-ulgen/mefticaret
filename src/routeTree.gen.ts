@@ -73,6 +73,7 @@ import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminKolayRouteImport } from './routes/_authenticated/admin.kolay'
 import { Route as AuthenticatedAdminLanguagesRouteImport } from './routes/_authenticated/admin.languages'
 import { Route as AuthenticatedAdminLiveRouteImport } from './routes/_authenticated/admin.live'
+import { Route as AuthenticatedAdminLoadTestRouteImport } from './routes/_authenticated/admin.load-test'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
 import { Route as AuthenticatedAdminMarketplaceRouteImport } from './routes/_authenticated/admin.marketplace'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
@@ -267,6 +268,7 @@ import { Route as ApiPublicCronExchangeRatesRouteImport } from './routes/api/pub
 import { Route as ApiPublicCronFbMarketplaceSyncRouteImport } from './routes/api/public/cron.fb-marketplace-sync'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
 import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
+import { Route as ApiPublicCronLoadtestRouteImport } from './routes/api/public/cron.loadtest'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
 import { Route as ApiPublicCronSeoAiRouteImport } from './routes/api/public/cron.seo-ai'
 import { Route as ApiPublicCronSubscriptionRenewalRouteImport } from './routes/api/public/cron.subscription-renewal'
@@ -634,6 +636,12 @@ const AuthenticatedAdminLiveRoute = AuthenticatedAdminLiveRouteImport.update({
   path: '/live',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminLoadTestRoute =
+  AuthenticatedAdminLoadTestRouteImport.update({
+    id: '/load-test',
+    path: '/load-test',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
@@ -1763,6 +1771,11 @@ const ApiPublicCronInstagramEventsRoute =
     path: '/api/public/cron/instagram-events',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronLoadtestRoute = ApiPublicCronLoadtestRouteImport.update({
+  id: '/api/public/cron/loadtest',
+  path: '/api/public/cron/loadtest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronQueueWorkerRoute =
   ApiPublicCronQueueWorkerRouteImport.update({
     id: '/api/public/cron/queue-worker',
@@ -2027,6 +2040,7 @@ export interface FileRoutesByFullPath {
   '/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
+  '/admin/load-test': typeof AuthenticatedAdminLoadTestRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -2221,6 +2235,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
+  '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/subscription-renewal': typeof ApiPublicCronSubscriptionRenewalRoute
@@ -2321,6 +2336,7 @@ export interface FileRoutesByTo {
   '/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
+  '/admin/load-test': typeof AuthenticatedAdminLoadTestRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -2514,6 +2530,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
+  '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/subscription-renewal': typeof ApiPublicCronSubscriptionRenewalRoute
@@ -2617,6 +2634,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/_authenticated/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/_authenticated/admin/live': typeof AuthenticatedAdminLiveRoute
+  '/_authenticated/admin/load-test': typeof AuthenticatedAdminLoadTestRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -2811,6 +2829,7 @@ export interface FileRoutesById {
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
+  '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/subscription-renewal': typeof ApiPublicCronSubscriptionRenewalRoute
@@ -2914,6 +2933,7 @@ export interface FileRouteTypes {
     | '/admin/kolay'
     | '/admin/languages'
     | '/admin/live'
+    | '/admin/load-test'
     | '/admin/logs'
     | '/admin/marketplace'
     | '/admin/messages'
@@ -3108,6 +3128,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
+    | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/subscription-renewal'
@@ -3208,6 +3229,7 @@ export interface FileRouteTypes {
     | '/admin/kolay'
     | '/admin/languages'
     | '/admin/live'
+    | '/admin/load-test'
     | '/admin/logs'
     | '/admin/marketplace'
     | '/admin/messages'
@@ -3401,6 +3423,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
+    | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/subscription-renewal'
@@ -3503,6 +3526,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/kolay'
     | '/_authenticated/admin/languages'
     | '/_authenticated/admin/live'
+    | '/_authenticated/admin/load-test'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/marketplace'
     | '/_authenticated/admin/messages'
@@ -3697,6 +3721,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
+    | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/subscription-renewal'
@@ -3814,6 +3839,7 @@ export interface RootRouteChildren {
   ApiPublicCronFbMarketplaceSyncRoute: typeof ApiPublicCronFbMarketplaceSyncRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
   ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
+  ApiPublicCronLoadtestRoute: typeof ApiPublicCronLoadtestRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
   ApiPublicCronSeoAiRoute: typeof ApiPublicCronSeoAiRoute
   ApiPublicCronSubscriptionRenewalRoute: typeof ApiPublicCronSubscriptionRenewalRoute
@@ -4294,6 +4320,13 @@ declare module '@tanstack/react-router' {
       path: '/live'
       fullPath: '/admin/live'
       preLoaderRoute: typeof AuthenticatedAdminLiveRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/load-test': {
+      id: '/_authenticated/admin/load-test'
+      path: '/load-test'
+      fullPath: '/admin/load-test'
+      preLoaderRoute: typeof AuthenticatedAdminLoadTestRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/logs': {
@@ -5654,6 +5687,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronInstagramEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/loadtest': {
+      id: '/api/public/cron/loadtest'
+      path: '/api/public/cron/loadtest'
+      fullPath: '/api/public/cron/loadtest'
+      preLoaderRoute: typeof ApiPublicCronLoadtestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/queue-worker': {
       id: '/api/public/cron/queue-worker'
       path: '/api/public/cron/queue-worker'
@@ -5925,6 +5965,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminKolayRoute: typeof AuthenticatedAdminKolayRoute
   AuthenticatedAdminLanguagesRoute: typeof AuthenticatedAdminLanguagesRoute
   AuthenticatedAdminLiveRoute: typeof AuthenticatedAdminLiveRoute
+  AuthenticatedAdminLoadTestRoute: typeof AuthenticatedAdminLoadTestRoute
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminMarketplaceRoute: typeof AuthenticatedAdminMarketplaceRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
@@ -5976,6 +6017,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminKolayRoute: AuthenticatedAdminKolayRoute,
   AuthenticatedAdminLanguagesRoute: AuthenticatedAdminLanguagesRoute,
   AuthenticatedAdminLiveRoute: AuthenticatedAdminLiveRoute,
+  AuthenticatedAdminLoadTestRoute: AuthenticatedAdminLoadTestRoute,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
   AuthenticatedAdminMarketplaceRoute: AuthenticatedAdminMarketplaceRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
@@ -6527,6 +6569,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronFbMarketplaceSyncRoute: ApiPublicCronFbMarketplaceSyncRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
   ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
+  ApiPublicCronLoadtestRoute: ApiPublicCronLoadtestRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
   ApiPublicCronSeoAiRoute: ApiPublicCronSeoAiRoute,
   ApiPublicCronSubscriptionRenewalRoute: ApiPublicCronSubscriptionRenewalRoute,
