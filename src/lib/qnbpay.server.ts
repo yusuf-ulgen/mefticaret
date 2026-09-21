@@ -605,7 +605,6 @@ export async function checkStatus(
   input: { invoiceId: string; includePending?: boolean },
 ): Promise<StatusResult> {
   const token = await getToken(credentials);
-  const hashData = `${input.invoiceId}|${credentials.merchantKey}`;
   const result = await request<{
     status_code?: number;
     status_description?: string;
@@ -617,7 +616,6 @@ export async function checkStatus(
       invoice_id: input.invoiceId,
       merchant_key: credentials.merchantKey,
       include_pending_status: input.includePending ? "true" : "false",
-      hash_key: generateHashKey(hashData, credentials.appSecret),
     },
     token,
   );
