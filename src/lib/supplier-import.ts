@@ -7,7 +7,7 @@
 import Papa from "papaparse";
 import * as XLSX from "@e965/xlsx";
 
-import { parseXmlItems } from "@/lib/dropshipping";
+import { parseAdaptiveXml, type XmlRootCandidate } from "@/lib/adaptive-xml-parser";
 import { splitFeedMedia, splitMediaField } from "@/lib/feed-media";
 
 export type ImportFormat = "csv" | "xlsx" | "xml" | "json";
@@ -156,11 +156,15 @@ export type ParsedFeed = {
   format: ImportFormat;
   columns: string[];
   rows: Array<Record<string, string>>;
+  selectedRoot?: string | null;
+  rootCandidates?: XmlRootCandidate[];
 };
 
 /** Metin içeriğini (CSV / XML / JSON) satır nesnelerine çevirir. */
 export function parseTextFeed(content: string, format: ImportFormat, itemPath?: string): ParsedFeed {
   let rows: Array<Record<string, unknown>> = [];
+  let selectedRoot: string | null = null;
+  let rootCandidates: XmlRootCandidate[] = [];
 
   if (format === "csv") {
     const result = Papa.parse<Record<string, unknown>>(content.replace(/^\uFEFF/, ""), {
@@ -170,7 +174,10 @@ export function parseTextFeed(content: string, format: ImportFormat, itemPath?: 
     });
     rows = (result.data ?? []) as Array<Record<string, unknown>>;
   } else if (format === "xml") {
-    rows = parseXmlItems(content, itemPath ?? null);
+    const parsed = parseAdaptiveXml(content, itemPath ?? null);
+    rows = parsed.rows;
+    selectedRoot = parsed.selectedRoot;
+    rootCandidates = parsed.rootCandidates;
   } else if (format === "json") {
     const parsed = JSON.parse(content) as unknown;
     const list = Array.isArray(parsed)
@@ -181,7 +188,7 @@ export function parseTextFeed(content: string, format: ImportFormat, itemPath?: 
     rows = (list as Array<Record<string, unknown>>) ?? [];
   }
 
-  return normalizeRows(rows, format);
+  return { ...normalizeRows(rows, format), selectedRoot, rootCandidates };
 }
 
 /** Excel dosyasını (ArrayBuffer) satır nesnelerine çevirir. */
