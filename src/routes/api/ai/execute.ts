@@ -19,7 +19,10 @@ export const Route = createFileRoute("/api/ai/execute")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
+        const token = request.headers
+          .get("authorization")
+          ?.replace(/^Bearer\s+/i, "")
+          .trim();
         if (!token) return Response.json({ error: "Oturum gerekli" }, { status: 401 });
 
         let input: z.infer<typeof bodySchema>;
@@ -32,7 +35,8 @@ export const Route = createFileRoute("/api/ai/execute")({
         const { createClient } = await import("@supabase/supabase-js");
         const url = process.env["SUPABASE_URL"];
         const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
-        if (!url || !key) return Response.json({ error: "Sunucu yapılandırılmamış" }, { status: 500 });
+        if (!url || !key)
+          return Response.json({ error: "Sunucu yapılandırılmamış" }, { status: 500 });
 
         const client = createClient(url, key, {
           auth: { persistSession: false },

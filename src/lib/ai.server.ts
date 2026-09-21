@@ -65,7 +65,8 @@ function gatewayError(status: number, detail: string): AiError {
   if (status === 401) return new AiError("OpenAI anahtarı geçersiz veya tanımlı değil.", false);
   if (status === 402) return new AiError("OpenAI hesabında bakiye kalmadı.", false);
   if (status === 403) return new AiError("OpenAI bu isteği reddetti.", false);
-  if (status === 429) return new AiError("OpenAI istek limiti aşıldı, kısa süre sonra tekrar deneyin.", true);
+  if (status === 429)
+    return new AiError("OpenAI istek limiti aşıldı, kısa süre sonra tekrar deneyin.", true);
   if (status >= 500) return new AiError("OpenAI geçici olarak yanıt vermiyor.", true);
   return new AiError(`AI isteği başarısız (${status}): ${detail.slice(0, 200)}`, false);
 }
@@ -77,7 +78,8 @@ async function callOpenAi(
   maxTokens: number,
 ): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
   const apiKey = process.env["OPENAI_API_KEY"];
-  if (!apiKey) throw new AiError("OpenAI anahtarı tanımlı değil. Süper admin panelinden ekleyin.", false);
+  if (!apiKey)
+    throw new AiError("OpenAI anahtarı tanımlı değil. Süper admin panelinden ekleyin.", false);
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -127,7 +129,12 @@ export async function callProvider(options: {
   }
 
   const result = await callOpenAi(model, options.messages, temperature, maxTokens);
-  const costUsd = usdCost(engine, PURPOSE_MODEL_CLASS[purpose], result.inputTokens, result.outputTokens);
+  const costUsd = usdCost(
+    engine,
+    PURPOSE_MODEL_CLASS[purpose],
+    result.inputTokens,
+    result.outputTokens,
+  );
 
   if (options.charge && credits > 0) {
     await consumeAiCredits({
@@ -142,11 +149,16 @@ export async function callProvider(options: {
   return { ...result, model, creditsUsed: credits, costUsd };
 }
 
-export async function loadStoreAiSettings(client: Client, storeId: string): Promise<StoreAiSettings> {
+export async function loadStoreAiSettings(
+  client: Client,
+  storeId: string,
+): Promise<StoreAiSettings> {
   const engine = await loadAiEngineSettings();
   const { data, error } = await client
     .from("store_ai_settings")
-    .select("provider_code, model, creativity, brand_tone, language, monthly_token_limit, is_enabled")
+    .select(
+      "provider_code, model, creativity, brand_tone, language, monthly_token_limit, is_enabled",
+    )
     .eq("store_id", storeId)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -245,7 +257,9 @@ export async function runAiTask(options: {
 
   const used = await monthlyTokenUsage(options.client, options.storeId);
   if (settings.monthlyTokenLimit > 0 && used >= settings.monthlyTokenLimit) {
-    throw new Error("Bu ay için AI token limitiniz doldu. Limiti AI ayarlarından yükseltebilirsiniz.");
+    throw new Error(
+      "Bu ay için AI token limitiniz doldu. Limiti AI ayarlarından yükseltebilirsiniz.",
+    );
   }
 
   const lines = [

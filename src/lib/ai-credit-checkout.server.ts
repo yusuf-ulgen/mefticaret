@@ -24,7 +24,13 @@ export async function startAiCreditCheckout(
   supabase: SupabaseClient<Database>,
   input: { storeId: string; packageId: string },
   userId: string,
-): Promise<{ link: string; amount: number; currency: string; credits: number; packageName: string }> {
+): Promise<{
+  link: string;
+  amount: number;
+  currency: string;
+  credits: number;
+  packageName: string;
+}> {
   const { assertStoreManager } = await import("@/lib/store-access.server");
   await assertStoreManager(supabase, input.storeId, userId);
 
@@ -45,7 +51,11 @@ export async function startAiCreditCheckout(
     ? ((pack.currency ?? "TRY") as "TRY" | "USD" | "EUR")
     : "TRY";
 
-  const { data: store } = await db.from("stores").select("name").eq("id", input.storeId).maybeSingle();
+  const { data: store } = await db
+    .from("stores")
+    .select("name")
+    .eq("id", input.storeId)
+    .maybeSingle();
   const buyer = (store?.name ?? "Mefticaret").trim().split(" ");
 
   const { createChargeLink } = await import("@/lib/qnbpay-admin.server");

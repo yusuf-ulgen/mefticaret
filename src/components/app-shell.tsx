@@ -144,19 +144,19 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
   }, [groups, term]);
 
   const pinnedItems = useMemo(
-    () =>
-      groups
-        .flatMap((group) => group.items)
-        .filter((item) => pinned.includes(item.label)),
+    () => groups.flatMap((group) => group.items).filter((item) => pinned.includes(item.label)),
     [groups, pinned],
   );
 
   const [openGroups, setOpenGroups] = useState<string[]>([]);
-  const activeGroup = groups.find((group) => group.items.some((item) => pathname.startsWith(item.to)))
-    ?.group;
+  const activeGroup = groups.find((group) =>
+    group.items.some((item) => pathname.startsWith(item.to)),
+  )?.group;
 
   const isOpen = (group: string) =>
-    Boolean(term) || openGroups.includes(group) || (openGroups.length === 0 && group === activeGroup);
+    Boolean(term) ||
+    openGroups.includes(group) ||
+    (openGroups.length === 0 && group === activeGroup);
 
   function toggleGroup(group: string) {
     setOpenGroups((prev) => {
@@ -259,7 +259,6 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
     </div>
   );
 }
-
 
 function StoreSwitcher({ storeId }: { storeId: string }) {
   const { user } = useAuth();
@@ -390,7 +389,6 @@ function QuickLinks({ storeId }: { storeId: string }) {
 }
 
 export function AppShell({
-
   storeId,
   title,
   description,
@@ -487,7 +485,9 @@ export function AppShell({
             <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:px-6 lg:py-5">
               <div className="min-w-0">
                 <p className="eyebrow mb-1">Mağaza paneli</p>
-                <h1 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">{title}</h1>
+                <h1 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+                  {title}
+                </h1>
                 {description ? (
                   <p className="mt-1 text-sm text-muted-foreground">{description}</p>
                 ) : null}
@@ -498,7 +498,6 @@ export function AppShell({
           </div>
         </main>
       </div>
-
     </div>
   );
 }

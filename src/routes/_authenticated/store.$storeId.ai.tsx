@@ -11,7 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -79,7 +85,10 @@ function AiPage() {
 
   const [taskKey, setTaskKey] = useState(AI_TASKS[0]!.key);
   const [values, setValues] = useState<Record<string, string>>({});
-  const task = useMemo<AiTask>(() => AI_TASKS.find((item) => item.key === taskKey) ?? AI_TASKS[0]!, [taskKey]);
+  const task = useMemo<AiTask>(
+    () => AI_TASKS.find((item) => item.key === taskKey) ?? AI_TASKS[0]!,
+    [taskKey],
+  );
 
   const [form, setForm] = useState({
     providerCode: settings?.provider_code ?? "lovable",
@@ -92,7 +101,8 @@ function AiPage() {
   });
 
   const limit = settings?.monthly_token_limit ?? 500000;
-  const usedPercent = limit > 0 ? Math.min(100, Math.round(((usage?.monthTokens ?? 0) / limit) * 100)) : 0;
+  const usedPercent =
+    limit > 0 ? Math.min(100, Math.round(((usage?.monthTokens ?? 0) / limit) * 100)) : 0;
 
   const generate = useMutation({
     mutationFn: () => run({ data: { storeId, task: taskKey, values } }),
@@ -216,7 +226,9 @@ function AiPage() {
                   {field.type === "select" ? (
                     <Select
                       value={values[field.name] ?? field.options?.[0]?.value ?? ""}
-                      onValueChange={(value) => setValues((prev) => ({ ...prev, [field.name]: value }))}
+                      onValueChange={(value) =>
+                        setValues((prev) => ({ ...prev, [field.name]: value }))
+                      }
                     >
                       <SelectTrigger id={`ai-${field.name}`}>
                         <SelectValue />
@@ -234,7 +246,11 @@ function AiPage() {
               ))}
             </div>
 
-            <Button className="mt-4" disabled={generate.isPending} onClick={() => generate.mutate()}>
+            <Button
+              className="mt-4"
+              disabled={generate.isPending}
+              onClick={() => generate.mutate()}
+            >
               <Wand2 className="mr-2 size-4" />
               {generate.isPending ? "Üretiliyor…" : "Üret"}
             </Button>
@@ -255,7 +271,9 @@ function AiPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <article className="surface-card p-4">
               <p className="text-sm text-muted-foreground">Bu ay kullanılan token</p>
-              <p className="font-display text-2xl font-semibold">{formatNumber(usage?.monthTokens ?? 0)}</p>
+              <p className="font-display text-2xl font-semibold">
+                {formatNumber(usage?.monthTokens ?? 0)}
+              </p>
               <Progress className="mt-3" value={usedPercent} />
               <p className="mt-1 text-xs text-muted-foreground">
                 Limit: {limit > 0 ? formatNumber(limit) : "Sınırsız"} · %{usedPercent}
@@ -263,11 +281,15 @@ function AiPage() {
             </article>
             <article className="surface-card p-4">
               <p className="text-sm text-muted-foreground">Bu ay istek</p>
-              <p className="font-display text-2xl font-semibold">{formatNumber(usage?.monthRequests ?? 0)}</p>
+              <p className="font-display text-2xl font-semibold">
+                {formatNumber(usage?.monthRequests ?? 0)}
+              </p>
             </article>
             <article className="surface-card p-4">
               <p className="text-sm text-muted-foreground">Toplam token</p>
-              <p className="font-display text-2xl font-semibold">{formatNumber(usage?.totalTokens ?? 0)}</p>
+              <p className="font-display text-2xl font-semibold">
+                {formatNumber(usage?.totalTokens ?? 0)}
+              </p>
             </article>
           </div>
 
@@ -322,8 +344,8 @@ function AiPage() {
               <div className="space-y-2 sm:col-span-2">
                 <Label>Yapay zekâ motoru</Label>
                 <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
-                  Model seçimi platform tarafından yönetilir: hızlı metin işleri, strateji işleri ve görsel
-                  üretimi otomatik olarak en uygun motora yönlendirilir.
+                  Model seçimi platform tarafından yönetilir: hızlı metin işleri, strateji işleri ve
+                  görsel üretimi otomatik olarak en uygun motora yönlendirilir.
                 </div>
               </div>
               <div className="space-y-2">
@@ -335,7 +357,9 @@ function AiPage() {
                   max={1}
                   step={0.1}
                   value={form.creativity}
-                  onChange={(event) => setForm((prev) => ({ ...prev, creativity: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, creativity: event.target.value }))
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -401,15 +425,15 @@ function AiPage() {
           <aside className="surface-card space-y-3 p-6">
             <h3 className="font-semibold">Kredi kullanımı</h3>
             <p className="text-sm text-muted-foreground">
-              Her yapay zekâ işlemi kredi düşer: ürün açıklaması ve SEO metni 1 kredi; görsel üretimi,
-              kampanya taslağı ve CoPilot işlemi 2 kredi. Bakiyenizi üst çubuktaki kredi rozetinden takip
-              edebilir, tek tıkla yükleme yapabilirsiniz.
+              Her yapay zekâ işlemi kredi düşer: ürün açıklaması ve SEO metni 1 kredi; görsel
+              üretimi, kampanya taslağı ve CoPilot işlemi 2 kredi. Bakiyenizi üst çubuktaki kredi
+              rozetinden takip edebilir, tek tıkla yükleme yapabilirsiniz.
             </p>
             <div className="rounded-lg border border-border p-3 text-sm">
               <p className="font-medium">Motor</p>
               <p className="pt-1 text-xs text-muted-foreground">
-                Metin ve strateji işleri ile görsel üretimi platform tarafından yönetilir; ayrı anahtar veya
-                sağlayıcı seçimi gerekmez.
+                Metin ve strateji işleri ile görsel üretimi platform tarafından yönetilir; ayrı
+                anahtar veya sağlayıcı seçimi gerekmez.
               </p>
             </div>
           </aside>

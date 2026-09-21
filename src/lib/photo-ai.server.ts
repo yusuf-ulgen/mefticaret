@@ -63,7 +63,8 @@ function dataUrlToBlob(dataUrl: string): { blob: Blob; filename: string } {
   const mime = match[1]!.toLowerCase();
   const base64 = match[3]!;
   // 8 MB'lık base64 ≈ 6 MB dosya; daha büyüğü reddedilir.
-  if (base64.length > 8_000_000) throw new Error("Fotoğraf çok büyük. Daha küçük bir fotoğraf seçin.");
+  if (base64.length > 8_000_000)
+    throw new Error("Fotoğraf çok büyük. Daha küçük bir fotoğraf seçin.");
   const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
   const ext = mime.includes("png") ? "png" : mime.includes("webp") ? "webp" : "jpg";
   return { blob: new Blob([bytes], { type: mime }), filename: `product.${ext}` };

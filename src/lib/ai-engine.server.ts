@@ -14,7 +14,14 @@ async function db() {
 export type AiEngineDesk = {
   keyConfigured: boolean;
   engine: Awaited<ReturnType<typeof loadAiEngineSettings>>;
-  packages: { id: string; code: string; name: string; credits: number; price: number; currency: string }[];
+  packages: {
+    id: string;
+    code: string;
+    name: string;
+    credits: number;
+    price: number;
+    currency: string;
+  }[];
   finance: {
     monthCostUsd: number;
     monthRequests: number;
@@ -47,7 +54,10 @@ export async function aiEngineDesk(): Promise<AiEngineDesk> {
       .select("model, cost_usd, credits_used, created_at")
       .order("created_at", { ascending: false })
       .limit(5000),
-    client.from("ai_credit_orders").select("amount, currency, status, created_at").eq("status", "paid"),
+    client
+      .from("ai_credit_orders")
+      .select("amount, currency, status, created_at")
+      .eq("status", "paid"),
   ]);
 
   const modelMap = new Map<string, { requests: number; costUsd: number }>();
@@ -68,7 +78,10 @@ export async function aiEngineDesk(): Promise<AiEngineDesk> {
       monthCreditsUsed += row.credits_used ?? 0;
       const day = row.created_at.slice(0, 10);
       const bucket = dayMap.get(day) ?? { costUsd: 0, credits: 0 };
-      dayMap.set(day, { costUsd: bucket.costUsd + cost, credits: bucket.credits + (row.credits_used ?? 0) });
+      dayMap.set(day, {
+        costUsd: bucket.costUsd + cost,
+        credits: bucket.credits + (row.credits_used ?? 0),
+      });
     }
   }
 
@@ -122,7 +135,10 @@ export async function saveAiEngineConfig(
     imageUnitUsd: "image_unit_usd",
   };
 
-  const patch: Record<string, unknown> = { updated_at: new Date().toISOString(), updated_by: userId };
+  const patch: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+    updated_by: userId,
+  };
   for (const [key, column] of Object.entries(map)) {
     if (input[key] !== undefined) patch[column] = input[key];
   }

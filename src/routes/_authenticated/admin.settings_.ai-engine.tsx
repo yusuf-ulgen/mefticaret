@@ -62,7 +62,8 @@ function AiEngineDeskPage() {
 
   const test = useMutation({
     mutationFn: () => testOpenAiConnection({}),
-    onSuccess: (result) => (result.ok ? toast.success(result.message) : toast.error(result.message)),
+    onSuccess: (result) =>
+      result.ok ? toast.success(result.message) : toast.error(result.message),
     onError: (error: Error) => toast.error(error.message),
   });
 
@@ -175,7 +176,9 @@ function AiEngineDeskPage() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">Finansal denge (bu ay)</CardTitle>
-            <CardDescription>OpenAI kullanım maliyeti (USD) ile kredi satış cirosu (TRY).</CardDescription>
+            <CardDescription>
+              OpenAI kullanım maliyeti (USD) ile kredi satış cirosu (TRY).
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-4">
             <Metric label="Maliyet (USD)" value={usd(finance?.monthCostUsd ?? 0)} />
@@ -192,8 +195,8 @@ function AiEngineDeskPage() {
         <CardHeader>
           <CardTitle className="text-base">Motor yönlendirmesi</CardTitle>
           <CardDescription>
-            Hızlı metin işleri (ürün açıklaması, SEO, destek) hızlı modele; strateji işleri (e-posta akışı,
-            CoPilot, pazarlama) güçlü modele; görsel işleri görsel modeline gider.
+            Hızlı metin işleri (ürün açıklaması, SEO, destek) hızlı modele; strateji işleri (e-posta
+            akışı, CoPilot, pazarlama) güçlü modele; görsel işleri görsel modeline gider.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-3">
@@ -212,8 +215,18 @@ function AiEngineDeskPage() {
           <CardContent className="grid gap-3 sm:grid-cols-2">
             {numberField("creditCostText", "Metin / SEO", engine?.creditCosts.text ?? 1, "1")}
             {numberField("creditCostImage", "Görsel üretimi", engine?.creditCosts.image ?? 2, "1")}
-            {numberField("creditCostCampaign", "Kampanya taslağı", engine?.creditCosts.campaign ?? 2, "1")}
-            {numberField("creditCostCopilot", "CoPilot işlemi", engine?.creditCosts.copilot ?? 2, "1")}
+            {numberField(
+              "creditCostCampaign",
+              "Kampanya taslağı",
+              engine?.creditCosts.campaign ?? 2,
+              "1",
+            )}
+            {numberField(
+              "creditCostCopilot",
+              "CoPilot işlemi",
+              engine?.creditCosts.copilot ?? 2,
+              "1",
+            )}
           </CardContent>
         </Card>
 

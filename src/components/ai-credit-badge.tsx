@@ -56,13 +56,16 @@ export function AiCreditBadge({ storeId }: { storeId: string }) {
         <DialogHeader>
           <DialogTitle>Yapay zekâ kredisi yükle</DialogTitle>
           <DialogDescription>
-            Mevcut bakiyeniz <strong className="tabular-nums">{balance}</strong> kredi. Ürün açıklaması ve
-            SEO metni 1 kredi; görsel üretimi, kampanya taslağı ve CoPilot işlemi 2 kredidir.
+            Mevcut bakiyeniz <strong className="tabular-nums">{balance}</strong> kredi. Ürün
+            açıklaması ve SEO metni 1 kredi; görsel üretimi, kampanya taslağı ve CoPilot işlemi 2
+            kredidir.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2">
-          {packages.isLoading ? <p className="text-sm text-muted-foreground">Paketler yükleniyor…</p> : null}
+          {packages.isLoading ? (
+            <p className="text-sm text-muted-foreground">Paketler yükleniyor…</p>
+          ) : null}
           {(packages.data ?? []).map((pack) => (
             <div
               key={pack.id}
