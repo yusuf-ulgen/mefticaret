@@ -267,6 +267,7 @@ import { Route as ApiPublicCronExchangeRatesRouteImport } from './routes/api/pub
 import { Route as ApiPublicCronFbMarketplaceSyncRouteImport } from './routes/api/public/cron.fb-marketplace-sync'
 import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
 import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
+import { Route as ApiPublicCronLoadtestRouteImport } from './routes/api/public/cron.loadtest'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
 import { Route as ApiPublicCronSeoAiRouteImport } from './routes/api/public/cron.seo-ai'
 import { Route as ApiPublicCronSubscriptionRenewalRouteImport } from './routes/api/public/cron.subscription-renewal'
@@ -1763,6 +1764,11 @@ const ApiPublicCronInstagramEventsRoute =
     path: '/api/public/cron/instagram-events',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronLoadtestRoute = ApiPublicCronLoadtestRouteImport.update({
+  id: '/api/public/cron/loadtest',
+  path: '/api/public/cron/loadtest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronQueueWorkerRoute =
   ApiPublicCronQueueWorkerRouteImport.update({
     id: '/api/public/cron/queue-worker',
@@ -2221,6 +2227,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
+  '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/subscription-renewal': typeof ApiPublicCronSubscriptionRenewalRoute
@@ -2514,6 +2521,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
+  '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/subscription-renewal': typeof ApiPublicCronSubscriptionRenewalRoute
@@ -2811,6 +2819,7 @@ export interface FileRoutesById {
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
   '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
+  '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
   '/api/public/cron/seo-ai': typeof ApiPublicCronSeoAiRoute
   '/api/public/cron/subscription-renewal': typeof ApiPublicCronSubscriptionRenewalRoute
@@ -3108,6 +3117,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
+    | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/subscription-renewal'
@@ -3401,6 +3411,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
+    | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/subscription-renewal'
@@ -3697,6 +3708,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/fb-marketplace-sync'
     | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
+    | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
     | '/api/public/cron/seo-ai'
     | '/api/public/cron/subscription-renewal'
@@ -3814,6 +3826,7 @@ export interface RootRouteChildren {
   ApiPublicCronFbMarketplaceSyncRoute: typeof ApiPublicCronFbMarketplaceSyncRoute
   ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
   ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
+  ApiPublicCronLoadtestRoute: typeof ApiPublicCronLoadtestRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
   ApiPublicCronSeoAiRoute: typeof ApiPublicCronSeoAiRoute
   ApiPublicCronSubscriptionRenewalRoute: typeof ApiPublicCronSubscriptionRenewalRoute
@@ -5654,6 +5667,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronInstagramEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/loadtest': {
+      id: '/api/public/cron/loadtest'
+      path: '/api/public/cron/loadtest'
+      fullPath: '/api/public/cron/loadtest'
+      preLoaderRoute: typeof ApiPublicCronLoadtestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/queue-worker': {
       id: '/api/public/cron/queue-worker'
       path: '/api/public/cron/queue-worker'
@@ -6527,6 +6547,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronFbMarketplaceSyncRoute: ApiPublicCronFbMarketplaceSyncRoute,
   ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
   ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
+  ApiPublicCronLoadtestRoute: ApiPublicCronLoadtestRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
   ApiPublicCronSeoAiRoute: ApiPublicCronSeoAiRoute,
   ApiPublicCronSubscriptionRenewalRoute: ApiPublicCronSubscriptionRenewalRoute,
