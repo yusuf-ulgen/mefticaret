@@ -260,6 +260,7 @@ async function seedStores(db: Admin, run: LoadTestRun, target: number, deadline:
       if (themeError) throw new Error(`Tema tohumlama hatası: ${themeError.message}`);
     }
     existing += rows.length;
+    resetTestStoreCache();
   }
   return existing;
 }
@@ -527,8 +528,14 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
 
 let testStoreCache: { ids: Set<string>; at: number } | undefined;
 
+function resetTestStoreCache() {
+  testStoreCache = undefined;
+}
+
 async function testStoreIdSet(db: Admin): Promise<Set<string>> {
-  if (testStoreCache && Date.now() - testStoreCache.at < 60_000) return testStoreCache.ids;
+  if (testStoreCache && testStoreCache.ids.size > 0 && Date.now() - testStoreCache.at < 60_000) {
+    return testStoreCache.ids;
+  }
   const { data } = await db.from("stores").select("id").eq("is_test", true).limit(5000);
   const ids = new Set(((data ?? []) as { id: string }[]).map((row) => row.id));
   testStoreCache = { ids, at: Date.now() };
