@@ -1,0 +1,2 @@
+ALTER TABLE public.supplier_import_jobs DROP CONSTRAINT IF EXISTS supplier_import_jobs_status_check;
+ALTER TABLE public.supplier_import_jobs ADD CONSTRAINT supplier_import_jobs_status_check CHECK (status = ANY (ARRAY['queued'::text, 'running'::text, 'completed'::text, 'failed'::text, 'partial'::text]));
