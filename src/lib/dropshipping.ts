@@ -5,7 +5,7 @@
  */
 
 export type SupplierFeedKind = "xml" | "csv" | "api";
-export type SupplierFeedSchedule = "manual" | "hourly" | "six_hourly" | "daily";
+export type SupplierFeedSchedule = "manual" | "hourly" | "three_hourly" | "six_hourly" | "twelve_hourly" | "daily";
 export type SupplierFeedRunStatus = "running" | "success" | "failed";
 export type SupplierMatchKey = "sku" | "barcode" | "external_id";
 export type DropshipOrderStatus =
@@ -25,14 +25,18 @@ export const FEED_KIND_LABEL: Record<SupplierFeedKind, string> = {
 export const FEED_SCHEDULE_LABEL: Record<SupplierFeedSchedule, string> = {
   manual: "Manuel",
   hourly: "Saatlik",
+  three_hourly: "3 saatte bir",
   six_hourly: "6 saatte bir",
-  daily: "Günlük",
+  twelve_hourly: "12 saatte bir",
+  daily: "Günlük (24 saat)",
 };
 
 export const FEED_SCHEDULE_MINUTES: Record<SupplierFeedSchedule, number | null> = {
   manual: null,
   hourly: 60,
+  three_hourly: 180,
   six_hourly: 360,
+  twelve_hourly: 720,
   daily: 1440,
 };
 
