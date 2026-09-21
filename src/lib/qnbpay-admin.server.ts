@@ -377,6 +377,13 @@ export async function settleTransaction(db: Admin, transactionId: string) {
     if (handled.handled) return;
   }
 
+  // AI kredi paketi ödemesi: krediler mağaza cüzdanına yüklenir.
+  if (summary["purpose"] === "ai_credit") {
+    const { fulfillAiCreditOrder } = await import("@/lib/ai-credit-checkout.server");
+    const handled = await fulfillAiCreditOrder(db as never, transaction as never);
+    if (handled.handled) return;
+  }
+
   if (transaction.purpose === "plan") {
     const { activatePlanFromTransaction } = await import("@/lib/plan-checkout.server");
     await activatePlanFromTransaction(db as never, transaction as never);

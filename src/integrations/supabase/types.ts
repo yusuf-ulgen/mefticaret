@@ -336,9 +336,217 @@ export type Database = {
           },
         ]
       }
+      ai_credit_ledger: {
+        Row: {
+          balance_after: number
+          created_at: string
+          delta: number
+          id: string
+          meta: Json
+          reason: string
+          store_id: string
+          task: string | null
+          user_id: string | null
+        }
+        Insert: {
+          balance_after: number
+          created_at?: string
+          delta: number
+          id?: string
+          meta?: Json
+          reason: string
+          store_id: string
+          task?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          balance_after?: number
+          created_at?: string
+          delta?: number
+          id?: string
+          meta?: Json
+          reason?: string
+          store_id?: string
+          task?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_credit_ledger_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_credit_orders: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          credits: number
+          currency: string
+          fulfilled_at: string | null
+          id: string
+          package_code: string
+          package_id: string | null
+          status: string
+          store_id: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          credits: number
+          currency?: string
+          fulfilled_at?: string | null
+          id?: string
+          package_code: string
+          package_id?: string | null
+          status?: string
+          store_id: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          credits?: number
+          currency?: string
+          fulfilled_at?: string | null
+          id?: string
+          package_code?: string
+          package_id?: string | null
+          status?: string
+          store_id?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_credit_orders_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "ai_credit_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_credit_orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_credit_packages: {
+        Row: {
+          code: string
+          created_at: string
+          credits: number
+          currency: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          credits: number
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          credits?: number
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_engine_settings: {
+        Row: {
+          credit_cost_campaign: number
+          credit_cost_copilot: number
+          credit_cost_image: number
+          credit_cost_text: number
+          fast_input_usd_per_mtok: number
+          fast_output_usd_per_mtok: number
+          free_monthly_credits: number
+          id: boolean
+          image_unit_usd: number
+          is_enabled: boolean
+          model_fast: string
+          model_image: string
+          model_smart: string
+          smart_input_usd_per_mtok: number
+          smart_output_usd_per_mtok: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          credit_cost_campaign?: number
+          credit_cost_copilot?: number
+          credit_cost_image?: number
+          credit_cost_text?: number
+          fast_input_usd_per_mtok?: number
+          fast_output_usd_per_mtok?: number
+          free_monthly_credits?: number
+          id?: boolean
+          image_unit_usd?: number
+          is_enabled?: boolean
+          model_fast?: string
+          model_image?: string
+          model_smart?: string
+          smart_input_usd_per_mtok?: number
+          smart_output_usd_per_mtok?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          credit_cost_campaign?: number
+          credit_cost_copilot?: number
+          credit_cost_image?: number
+          credit_cost_text?: number
+          fast_input_usd_per_mtok?: number
+          fast_output_usd_per_mtok?: number
+          free_monthly_credits?: number
+          id?: boolean
+          image_unit_usd?: number
+          is_enabled?: boolean
+          model_fast?: string
+          model_image?: string
+          model_smart?: string
+          smart_input_usd_per_mtok?: number
+          smart_output_usd_per_mtok?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       ai_generations: {
         Row: {
+          cost_usd: number
           created_at: string
+          credits_used: number
           duration_ms: number
           entity: string | null
           entity_id: string | null
@@ -358,7 +566,9 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          cost_usd?: number
           created_at?: string
+          credits_used?: number
           duration_ms?: number
           entity?: string | null
           entity_id?: string | null
@@ -378,7 +588,9 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          cost_usd?: number
           created_at?: string
+          credits_used?: number
           duration_ms?: number
           entity?: string | null
           entity_id?: string | null
@@ -13692,6 +13904,38 @@ export type Database = {
           },
         ]
       }
+      store_ai_credits: {
+        Row: {
+          balance: number
+          lifetime_purchased: number
+          lifetime_used: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          lifetime_purchased?: number
+          lifetime_used?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          lifetime_purchased?: number
+          lifetime_used?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_ai_credits_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_ai_settings: {
         Row: {
           brand_tone: string
@@ -18044,6 +18288,16 @@ export type Database = {
         Args: { _id: string; _result?: Json }
         Returns: undefined
       }
+      consume_ai_credits: {
+        Args: {
+          _credits: number
+          _reason: string
+          _store_id: string
+          _task: string
+          _user_id: string
+        }
+        Returns: number
+      }
       consume_rate_limit: {
         Args: { _bucket_key: string; _limit: number; _window_seconds: number }
         Returns: Json
@@ -18103,6 +18357,16 @@ export type Database = {
       }
       fail_job: { Args: { _error: string; _id: string }; Returns: undefined }
       fts_simple: { Args: { _text: string }; Returns: unknown }
+      grant_ai_credits: {
+        Args: {
+          _credits: number
+          _meta: Json
+          _reason: string
+          _store_id: string
+          _user_id: string
+        }
+        Returns: number
+      }
       kolay_nearby_stores: {
         Args: { _store_id: string }
         Returns: {

@@ -4,3 +4,6 @@ export * from "@/lib/ai.functions";
 export * from "@/lib/ai-tasks";
 export * from "@/lib/copilot-queries";
 export * from "@/lib/copilot.functions";
+export * from "@/lib/ai-credits";
+export * from "@/lib/ai-credits-queries";
+export * from "@/lib/ai-credits.functions";

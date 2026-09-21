@@ -110,8 +110,8 @@ async function ask(options: {
     { role: "user", content: options.user },
   ];
   const result = await callProvider({
-    providerCode: settings.providerCode,
-    model: settings.model,
+    purpose: "text",
+    charge: { storeId: options.storeId, userId: options.userId, task: "ai_studio" },
     messages,
     temperature: settings.creativity,
     maxTokens: options.maxTokens ?? 1800,

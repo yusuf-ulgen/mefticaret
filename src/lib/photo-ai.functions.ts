@@ -33,5 +33,8 @@ export const cleanProductPhoto = createServerFn({ method: "POST" })
     }
 
     const { cleanPhotoBackground } = await import("@/lib/photo-ai.server");
-    return cleanPhotoBackground(data.dataUrl, data.mode);
+    return cleanPhotoBackground(data.dataUrl, data.mode, {
+      storeId: data.storeId,
+      userId: context.userId,
+    });
   });

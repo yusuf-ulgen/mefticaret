@@ -105,6 +105,7 @@ import { Route as AuthenticatedAdminWebhooksRouteImport } from './routes/_authen
 import { Route as AuthenticatedOauthAuthorizeRouteImport } from './routes/_authenticated/oauth.authorize'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
 import { Route as AuthenticatedStoreStoreIdRouteImport } from './routes/_authenticated/store.$storeId'
+import { Route as ApiAiExecuteRouteImport } from './routes/api/ai/execute'
 import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
 import { Route as ApiPublicOdealCallbackRouteImport } from './routes/api/public/odeal-callback'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
@@ -134,6 +135,7 @@ import { Route as SSlugTermsRouteImport } from './routes/s.$slug.terms'
 import { Route as AuthenticatedAdminFrontendIndexRouteImport } from './routes/_authenticated/admin.frontend.index'
 import { Route as AuthenticatedAdminFrontendStoreIdRouteImport } from './routes/_authenticated/admin.frontend.$storeId'
 import { Route as AuthenticatedAdminFrontendLandingRouteImport } from './routes/_authenticated/admin.frontend.landing'
+import { Route as AuthenticatedAdminSettingsAiEngineRouteImport } from './routes/_authenticated/admin.settings_.ai-engine'
 import { Route as AuthenticatedAdminStoreStoreIdRouteImport } from './routes/_authenticated/admin.store.$storeId'
 import { Route as AuthenticatedAdminThemeStudioStoreIdRouteImport } from './routes/_authenticated/admin.theme-studio.$storeId'
 import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_authenticated/store.$storeId.abc'
@@ -821,6 +823,11 @@ const AuthenticatedStoreStoreIdRoute =
     path: '/store/$storeId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiAiExecuteRoute = ApiAiExecuteRouteImport.update({
+  id: '/api/ai/execute',
+  path: '/api/ai/execute',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicIndexnowRoute = ApiPublicIndexnowRouteImport.update({
   id: '/api/public/indexnow',
   path: '/api/public/indexnow',
@@ -967,6 +974,12 @@ const AuthenticatedAdminFrontendLandingRoute =
   AuthenticatedAdminFrontendLandingRouteImport.update({
     id: '/frontend/landing',
     path: '/frontend/landing',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSettingsAiEngineRoute =
+  AuthenticatedAdminSettingsAiEngineRouteImport.update({
+    id: '/settings_/ai-engine',
+    path: '/settings/ai-engine',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminStoreStoreIdRoute =
@@ -2078,6 +2091,7 @@ export interface FileRoutesByFullPath {
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
+  '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
@@ -2107,6 +2121,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/': typeof SSlugIndexRoute
   '/admin/frontend/$storeId': typeof AuthenticatedAdminFrontendStoreIdRoute
   '/admin/frontend/landing': typeof AuthenticatedAdminFrontendLandingRoute
+  '/admin/settings/ai-engine': typeof AuthenticatedAdminSettingsAiEngineRoute
   '/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
   '/admin/theme-studio/$storeId': typeof AuthenticatedAdminThemeStudioStoreIdRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
@@ -2375,6 +2390,7 @@ export interface FileRoutesByTo {
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
+  '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
@@ -2404,6 +2420,7 @@ export interface FileRoutesByTo {
   '/s/$slug': typeof SSlugIndexRoute
   '/admin/frontend/$storeId': typeof AuthenticatedAdminFrontendStoreIdRoute
   '/admin/frontend/landing': typeof AuthenticatedAdminFrontendLandingRoute
+  '/admin/settings/ai-engine': typeof AuthenticatedAdminSettingsAiEngineRoute
   '/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
   '/admin/theme-studio/$storeId': typeof AuthenticatedAdminThemeStudioStoreIdRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
@@ -2674,6 +2691,7 @@ export interface FileRoutesById {
   '/_authenticated/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/_authenticated/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
+  '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
@@ -2703,6 +2721,7 @@ export interface FileRoutesById {
   '/s/$slug/': typeof SSlugIndexRoute
   '/_authenticated/admin/frontend/$storeId': typeof AuthenticatedAdminFrontendStoreIdRoute
   '/_authenticated/admin/frontend/landing': typeof AuthenticatedAdminFrontendLandingRoute
+  '/_authenticated/admin/settings_/ai-engine': typeof AuthenticatedAdminSettingsAiEngineRoute
   '/_authenticated/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
   '/_authenticated/admin/theme-studio/$storeId': typeof AuthenticatedAdminThemeStudioStoreIdRoute
   '/_authenticated/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
@@ -2974,6 +2993,7 @@ export interface FileRouteTypes {
     | '/oauth/authorize'
     | '/seller/$sellerId'
     | '/store/$storeId'
+    | '/api/ai/execute'
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
     | '/api/v1/$'
@@ -3003,6 +3023,7 @@ export interface FileRouteTypes {
     | '/s/$slug/'
     | '/admin/frontend/$storeId'
     | '/admin/frontend/landing'
+    | '/admin/settings/ai-engine'
     | '/admin/store/$storeId'
     | '/admin/theme-studio/$storeId'
     | '/store/$storeId/abc'
@@ -3271,6 +3292,7 @@ export interface FileRouteTypes {
     | '/oauth/authorize'
     | '/seller/$sellerId'
     | '/store/$storeId'
+    | '/api/ai/execute'
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
     | '/api/v1/$'
@@ -3300,6 +3322,7 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/admin/frontend/$storeId'
     | '/admin/frontend/landing'
+    | '/admin/settings/ai-engine'
     | '/admin/store/$storeId'
     | '/admin/theme-studio/$storeId'
     | '/store/$storeId/abc'
@@ -3569,6 +3592,7 @@ export interface FileRouteTypes {
     | '/_authenticated/oauth/authorize'
     | '/_authenticated/seller/$sellerId'
     | '/_authenticated/store/$storeId'
+    | '/api/ai/execute'
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
     | '/api/v1/$'
@@ -3598,6 +3622,7 @@ export interface FileRouteTypes {
     | '/s/$slug/'
     | '/_authenticated/admin/frontend/$storeId'
     | '/_authenticated/admin/frontend/landing'
+    | '/_authenticated/admin/settings_/ai-engine'
     | '/_authenticated/admin/store/$storeId'
     | '/_authenticated/admin/theme-studio/$storeId'
     | '/_authenticated/store/$storeId/abc'
@@ -3818,6 +3843,7 @@ export interface RootRouteChildren {
   EvHanimlariIndexRoute: typeof EvHanimlariIndexRoute
   FrIndexRoute: typeof FrIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  ApiAiExecuteRoute: typeof ApiAiExecuteRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
   ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
   ApiV1SplatRoute: typeof ApiV1SplatRoute
@@ -4559,6 +4585,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/ai/execute': {
+      id: '/api/ai/execute'
+      path: '/api/ai/execute'
+      fullPath: '/api/ai/execute'
+      preLoaderRoute: typeof ApiAiExecuteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/indexnow': {
       id: '/api/public/indexnow'
       path: '/api/public/indexnow'
@@ -4760,6 +4793,13 @@ declare module '@tanstack/react-router' {
       path: '/frontend/landing'
       fullPath: '/admin/frontend/landing'
       preLoaderRoute: typeof AuthenticatedAdminFrontendLandingRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/settings_/ai-engine': {
+      id: '/_authenticated/admin/settings_/ai-engine'
+      path: '/settings/ai-engine'
+      fullPath: '/admin/settings/ai-engine'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsAiEngineRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/store/$storeId': {
@@ -6016,6 +6056,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminFrontendStoreIdRoute: typeof AuthenticatedAdminFrontendStoreIdRoute
   AuthenticatedAdminFrontendLandingRoute: typeof AuthenticatedAdminFrontendLandingRoute
+  AuthenticatedAdminSettingsAiEngineRoute: typeof AuthenticatedAdminSettingsAiEngineRoute
   AuthenticatedAdminStoreStoreIdRoute: typeof AuthenticatedAdminStoreStoreIdRoute
   AuthenticatedAdminThemeStudioStoreIdRoute: typeof AuthenticatedAdminThemeStudioStoreIdRoute
   AuthenticatedAdminFrontendIndexRoute: typeof AuthenticatedAdminFrontendIndexRoute
@@ -6070,6 +6111,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminFrontendStoreIdRoute,
   AuthenticatedAdminFrontendLandingRoute:
     AuthenticatedAdminFrontendLandingRoute,
+  AuthenticatedAdminSettingsAiEngineRoute:
+    AuthenticatedAdminSettingsAiEngineRoute,
   AuthenticatedAdminStoreStoreIdRoute: AuthenticatedAdminStoreStoreIdRoute,
   AuthenticatedAdminThemeStudioStoreIdRoute:
     AuthenticatedAdminThemeStudioStoreIdRoute,
@@ -6556,6 +6599,7 @@ const rootRouteChildren: RootRouteChildren = {
   EvHanimlariIndexRoute: EvHanimlariIndexRoute,
   FrIndexRoute: FrIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  ApiAiExecuteRoute: ApiAiExecuteRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
   ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
   ApiV1SplatRoute: ApiV1SplatRoute,

@@ -194,8 +194,8 @@ export async function generateBlogDraftContent(options: {
 
   const started = Date.now();
   const result = await callProvider({
-    providerCode: settings.providerCode,
-    model: settings.model,
+    purpose: "text",
+    charge: { storeId: options.storeId, userId: options.userId, task: "blog_post" },
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
       { role: "user", content: userPrompt },

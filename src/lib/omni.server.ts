@@ -238,8 +238,8 @@ export async function suggestAiReplyForConversation(
   ];
 
   const result = await callProvider({
-    providerCode: settings.providerCode,
-    model: settings.model,
+    purpose: "text",
+    charge: { storeId: options.storeId, userId: options.userId, task: "omni_reply" },
     messages,
     temperature: settings.creativity,
     maxTokens: 500,
