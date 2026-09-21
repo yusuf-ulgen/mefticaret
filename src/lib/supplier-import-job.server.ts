@@ -63,7 +63,7 @@ export async function runSupplierImportJob(
       currency: parsed.currency,
     });
 
-    await supabase
+    const { error: finishError } = await supabase
       .from("supplier_import_jobs")
       .update({
         status: parsed.invalidCount === 0 ? "completed" : rows.length === 0 ? "failed" : "partial",
@@ -71,16 +71,16 @@ export async function runSupplierImportJob(
         updated_count: result.updated,
         valid_count: rows.length,
         error_count: parsed.invalidCount,
-        finished_at: new Date().toISOString(),
       } as never)
       .eq("id", importJobId);
+    if (finishError) throw new Error(finishError.message);
 
     return { importJobId, ...result, invalid: parsed.invalidCount };
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : "İçe aktarma başarısız";
     await supabase
       .from("supplier_import_jobs")
-      .update({ status: "failed", finished_at: new Date().toISOString() } as never)
+      .update({ status: "failed" } as never)
       .eq("id", importJobId);
     throw new Error(message);
   }
