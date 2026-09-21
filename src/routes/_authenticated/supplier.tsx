@@ -414,15 +414,15 @@ function SupplierOrderCard({
   const [trackingNumber, setTrackingNumber] = useState(order.trackingNumber ?? "");
 
   return (
-    <section className="rounded-xl border bg-card p-5 space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
+    <section className="space-y-4 rounded-xl border bg-card p-4 sm:p-5">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+        <div className="min-w-0">
           <p className="font-medium">{order.orderNumber}</p>
           <p className="text-xs text-muted-foreground">
             {formatDate(order.orderCreatedAt)} · {order.supplierName}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
           <Badge variant="outline">
             {DROPSHIP_STATUS_LABEL[order.status as keyof typeof DROPSHIP_STATUS_LABEL] ?? order.status}
           </Badge>
@@ -450,8 +450,8 @@ function SupplierOrderCard({
               if (!ok) toast.error("Yazdırma penceresi açılamadı; açılır pencere izni verin");
             }}
           >
-            <Printer className="mr-1 size-4" aria-hidden />
-            Kargo etiketi
+            <Printer className="size-4 sm:mr-1" aria-hidden />
+            <span className="hidden sm:inline">Kargo etiketi</span>
           </Button>
         </div>
       </div>
@@ -470,7 +470,25 @@ function SupplierOrderCard({
 
       {order.note || order.paymentStatus ? <div className="grid gap-2 text-sm sm:grid-cols-2">{order.paymentStatus ? <div className="border-l-2 border-supplier-brand bg-muted/20 p-3"><p className="text-xs text-muted-foreground">Ödeme</p><p className="font-medium">{order.paymentStatus}</p></div> : null}{order.note ? <div className="border-l-2 border-supplier-brand bg-muted/20 p-3"><p className="text-xs text-muted-foreground">Sipariş notu</p><p>{order.note}</p></div> : null}</div> : null}
 
-      <div className="overflow-x-auto">
+      <div className="space-y-2 sm:hidden">
+        {order.items.map((item) => (
+          <article key={item.id} className="grid grid-cols-[3rem_minmax(0,1fr)_auto] gap-3 border-t py-3 first:border-t-0">
+            <div className="size-12 overflow-hidden rounded bg-muted/30">
+              {item.imageUrl ? <SmartImage src={item.imageUrl} alt={item.title} width={48} height={48} className="h-full w-full object-cover" /> : null}
+            </div>
+            <div className="min-w-0">
+              <p className="line-clamp-2 text-sm font-medium">{item.title}</p>
+              {item.variantTitle ? <p className="truncate text-xs text-muted-foreground">{item.variantTitle}</p> : null}
+              <p className="mt-1 truncate text-[11px] text-muted-foreground">{item.productCode ?? "Kod yok"} · {item.barcode ?? "Barkod yok"}</p>
+            </div>
+            <div className="shrink-0 text-right text-sm">
+              <p className="font-semibold">{formatMoney(item.lineTotal, order.currency)}</p>
+              <p className="text-xs text-muted-foreground">{item.quantity} adet</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto sm:block">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase text-muted-foreground">
             <tr>
@@ -497,14 +515,14 @@ function SupplierOrderCard({
         </table>
       </div>
 
-      <div className="flex flex-wrap gap-4 text-sm">
-        <span>
+      <div className="grid grid-cols-2 gap-3 border-y py-3 text-sm sm:flex sm:flex-wrap sm:border-0 sm:py-0">
+        <span className="min-w-0">
           Kalem tutarı: <strong>{formatMoney(order.itemsTotal, order.currency)}</strong>
         </span>
-        <span className="text-muted-foreground">
+        <span className="min-w-0 text-muted-foreground">
           Platform komisyonu: {formatMoney(order.commissionTotal, order.currency)}
         </span>
-        <span>
+        <span className="col-span-2 min-w-0 sm:col-span-1">
           Hak edilen: <strong>{formatMoney(order.netTotal, order.currency)}</strong>
         </span>
       </div>
@@ -532,7 +550,7 @@ function SupplierOrderCard({
             onChange={(event) => setTrackingNumber(event.target.value)}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex">
           <Button
             variant="outline"
             size="sm"
@@ -609,7 +627,7 @@ function FeedPanel({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border bg-card p-5 space-y-3">
+      <div className="space-y-3 rounded-xl border bg-card p-4 sm:p-5">
         <div>
           <h2 className="font-medium">Otomatik fiyat & stok senkronu</h2>
           <p className="text-sm text-muted-foreground">
@@ -668,11 +686,11 @@ function FeedPanel({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button disabled={!sourceUrl.trim() || save.isPending} onClick={() => save.mutate()}>
+          <Button className="flex-1 sm:flex-none" disabled={!sourceUrl.trim() || save.isPending} onClick={() => save.mutate()}>
             Kaydet
           </Button>
           {existing ? (
-            <Button variant="outline" disabled={run.isPending} onClick={() => run.mutate(existing.id)}>
+            <Button className="flex-1 sm:flex-none" variant="outline" disabled={run.isPending} onClick={() => run.mutate(existing.id)}>
               <RefreshCw className="mr-1 size-4" aria-hidden />
               Şimdi çalıştır
             </Button>
@@ -685,8 +703,8 @@ function FeedPanel({
           <h3 className="text-sm font-medium">Beslemeler</h3>
           <div className="mt-2 space-y-2 text-sm">
             {feeds.map((feed) => (
-              <div key={feed.id} className="flex flex-wrap items-center justify-between gap-2 border-t pt-2">
-                <div>
+              <div key={feed.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 border-t pt-2">
+                <div className="min-w-0">
                   <p className="font-medium">{feed.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {feed.kind.toUpperCase()} · {SCHEDULES.find((item) => item.value === feed.schedule)?.label}
@@ -745,9 +763,9 @@ function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }
   return (
     <div className="space-y-4">
       {data.ledger.map((row) => (
-        <div key={row.supplierId} className="rounded-xl border bg-card p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-medium">{row.supplierName} — komisyon defteri</h2>
+        <div key={row.supplierId} className="rounded-xl border bg-card p-4 sm:p-5">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+            <h2 className="min-w-0 font-medium">{row.supplierName} — komisyon defteri</h2>
             <Badge variant="outline">Platform komisyonu %{row.commissionRate}</Badge>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -761,7 +779,7 @@ function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }
       ))}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card p-5 space-y-3">
+        <div className="space-y-3 rounded-xl border bg-card p-4 sm:p-5">
           <h3 className="font-medium">Banka bilgisi</h3>
           <div className="space-y-1">
             <Label className="text-xs" htmlFor="supplier-iban">
@@ -784,13 +802,13 @@ function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }
               onChange={(event) => setAccountName(event.target.value)}
             />
           </div>
-          <Button disabled={iban.trim().length < 15 || bank.isPending} onClick={() => bank.mutate()}>
+          <Button className="w-full sm:w-auto" disabled={iban.trim().length < 15 || bank.isPending} onClick={() => bank.mutate()}>
             <BadgeCheck className="mr-1 size-4" aria-hidden />
             Kaydet
           </Button>
         </div>
 
-        <div className="rounded-xl border bg-card p-5 space-y-3">
+        <div className="space-y-3 rounded-xl border bg-card p-4 sm:p-5">
           <h3 className="font-medium">Ödeme talebi</h3>
           <p className="text-sm text-muted-foreground">
             Ödenebilir bakiyeniz: {formatMoney(primary.pending + primary.payable, primary.currency)}
@@ -808,6 +826,7 @@ function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }
             />
           </div>
           <Button
+            className="w-full sm:w-auto"
             disabled={!Number(amount.replace(",", ".")) || payout.isPending}
             onClick={() => payout.mutate()}
           >
