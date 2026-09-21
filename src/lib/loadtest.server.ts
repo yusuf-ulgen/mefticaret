@@ -377,7 +377,7 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
   while (orders < target && Date.now() < deadline) {
     const testStoreIdsForQuery = await testStoreIdSet(db);
     if (testStoreIdsForQuery.size === 0) break;
-    const { data: variantRows } = await db
+    const { data: variantRows, error: variantError } = await db
       .from("product_variants")
       .select("id, product_id, store_id, price, stock, title, sku, products!inner(title, tax_rate, store_id)")
       .in("store_id", [...testStoreIdsForQuery])
@@ -394,7 +394,14 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
       products: { title: string; tax_rate: number };
     }[];
     const usable = variants.filter((v) => testStoreIdsForQuery.has(v.store_id));
-    if (usable.length === 0) break;
+    if (usable.length === 0) {
+      await logEvent(db, run.id, "traffic", "Sipariş için uygun stoklu varyant bulunamadı", {
+        testStores: testStoreIdsForQuery.size,
+        fetched: variants.length,
+        error: variantError?.message ?? null,
+      });
+      break;
+    }
 
     for (const variant of usable) {
       if (Date.now() > deadline || orders >= target) break;
