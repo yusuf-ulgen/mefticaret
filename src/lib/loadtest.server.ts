@@ -240,8 +240,25 @@ async function seedStores(db: Admin, run: LoadTestRun, target: number, deadline:
         published_at: new Date().toISOString(),
       });
     }
-    const { error } = await db.from("stores").upsert(rows as never, { onConflict: "slug" });
+    const { data: upserted, error } = await db
+      .from("stores")
+      .upsert(rows as never, { onConflict: "slug" })
+      .select("id");
     if (error) throw new Error(`Mağaza tohumlama hatası: ${error.message}`);
+    // Vitrinin yayında sayılması için yayınlanmış tema gerekir.
+    const themeRows = ((upserted ?? []) as { id: string }[]).map((store) => ({
+      store_id: store.id,
+      is_published: true,
+      published_at: new Date().toISOString(),
+      hero_title: "TEST vitrini",
+      hero_subtitle: "Otomatik yük testi mağazası",
+    }));
+    if (themeRows.length > 0) {
+      const { error: themeError } = await db
+        .from("store_themes")
+        .upsert(themeRows as never, { onConflict: "store_id" });
+      if (themeError) throw new Error(`Tema tohumlama hatası: ${themeError.message}`);
+    }
     existing += rows.length;
   }
   return existing;
