@@ -277,7 +277,7 @@ async function seedProducts(db: Admin, run: LoadTestRun, target: number, deadlin
       title: row.title ?? `TEST Ürün ${cursor + index}`,
       slug: `test-${cursor + index}-${Math.random().toString(36).slice(2, 7)}`,
       status: "active",
-      base_price: money(row.price ?? 99),
+      base_price: money(row.retailPrice ?? row.costPrice ?? 99),
       currency: store.currency ?? "TRY",
       sku: row.sku ?? `TEST-${cursor + index}`,
       vendor: row.brand ?? "MefTest",
