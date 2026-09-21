@@ -580,8 +580,8 @@ export async function generateIgReply(
   ];
 
   const result = await callProvider({
-    providerCode: settings.providerCode,
-    model: settings.model,
+    purpose: "text",
+    charge: { storeId: options.storeId, userId: null, task: "instagram_reply" },
     messages,
     temperature: settings.creativity,
     maxTokens: 400,

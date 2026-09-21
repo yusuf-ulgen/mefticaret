@@ -1,9 +1,23 @@
-/** Modüler AI sağlayıcı katmanı ve kullanım takibi — yalnızca sunucu tarafında çalışır. */
+/**
+ * Mefticaret AI motoru — tüm çağrılar yalnızca OpenAI'ye gider.
+ *
+ * Model seçimi süper admin panelindeki motor ayarlarından okunur; mağaza
+ * bağlamı verildiğinde çağrıdan önce kredi kontrolü, başarılı yanıttan sonra
+ * kredi düşümü yapılır. Yalnızca sunucu tarafında çalışır.
+ */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { AI_TASK_MAP, type AiTask } from "@/lib/ai-tasks";
+import { PURPOSE_MODEL_CLASS, purposeForTask, type AiCreditPurpose } from "@/lib/ai-credits";
+import {
+  assertAiCredits,
+  consumeAiCredits,
+  loadAiEngineSettings,
+  modelForPurpose,
+  usdCost,
+} from "@/lib/ai-credits.server";
 
 type Client = SupabaseClient<Database>;
 
@@ -13,6 +27,9 @@ export type ProviderResult = {
   text: string;
   inputTokens: number;
   outputTokens: number;
+  model: string;
+  creditsUsed: number;
+  costUsd: number;
 };
 
 export type StoreAiSettings = {
@@ -26,16 +43,14 @@ export type StoreAiSettings = {
 };
 
 export const DEFAULT_AI_SETTINGS: StoreAiSettings = {
-  providerCode: "lovable",
-  model: "google/gemini-3.7-flash",
+  providerCode: "openai",
+  model: "gpt-4o-mini",
   creativity: 0.7,
   brandTone: "premium",
   language: "tr",
   monthlyTokenLimit: 500_000,
   isEnabled: true,
 };
-
-const LOVABLE_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 class AiError extends Error {
   constructor(
@@ -47,24 +62,24 @@ class AiError extends Error {
 }
 
 function gatewayError(status: number, detail: string): AiError {
-  if (status === 401) return new AiError("AI servisi yapılandırılmamış (geçersiz anahtar)", false);
-  if (status === 402) return new AiError("AI kredisi tükendi. Çalışma alanına kredi ekleyin.", false);
-  if (status === 403) return new AiError("AI kullanımı kapalı veya limit dolu. Yönetici onayı gerekiyor.", false);
-  if (status === 429) return new AiError("AI istek limiti aşıldı, kısa süre sonra tekrar deneyin.", true);
-  if (status >= 500) return new AiError("AI sağlayıcısı geçici olarak yanıt vermiyor.", true);
+  if (status === 401) return new AiError("OpenAI anahtarı geçersiz veya tanımlı değil.", false);
+  if (status === 402) return new AiError("OpenAI hesabında bakiye kalmadı.", false);
+  if (status === 403) return new AiError("OpenAI bu isteği reddetti.", false);
+  if (status === 429) return new AiError("OpenAI istek limiti aşıldı, kısa süre sonra tekrar deneyin.", true);
+  if (status >= 500) return new AiError("OpenAI geçici olarak yanıt vermiyor.", true);
   return new AiError(`AI isteği başarısız (${status}): ${detail.slice(0, 200)}`, false);
 }
 
-async function callLovable(
+async function callOpenAi(
   model: string,
   messages: ChatMessage[],
   temperature: number,
   maxTokens: number,
-): Promise<ProviderResult> {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) throw new AiError("AI servisi yapılandırılmamış", false);
+): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
+  const apiKey = process.env["OPENAI_API_KEY"];
+  if (!apiKey) throw new AiError("OpenAI anahtarı tanımlı değil. Süper admin panelinden ekleyin.", false);
 
-  const response = await fetch(LOVABLE_URL, {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens }),
@@ -84,147 +99,62 @@ async function callLovable(
   };
 }
 
-async function callOpenAi(
-  model: string,
-  messages: ChatMessage[],
-  temperature: number,
-  maxTokens: number,
-): Promise<ProviderResult> {
-  const apiKey = process.env["OPENAI_API_KEY"];
-  if (!apiKey) throw new AiError("OpenAI anahtarı (OPENAI_API_KEY) tanımlı değil", false);
-
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model, messages, temperature, max_completion_tokens: maxTokens }),
-  });
-  if (!response.ok) throw gatewayError(response.status, await response.text());
-
-  const payload = (await response.json()) as {
-    choices?: { message?: { content?: string } }[];
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
-  };
-  const text = payload.choices?.[0]?.message?.content?.trim();
-  if (!text) throw new AiError("AI boş yanıt döndü", true);
-  return {
-    text,
-    inputTokens: payload.usage?.prompt_tokens ?? 0,
-    outputTokens: payload.usage?.completion_tokens ?? 0,
-  };
-}
-
-async function callAnthropic(
-  model: string,
-  messages: ChatMessage[],
-  temperature: number,
-  maxTokens: number,
-): Promise<ProviderResult> {
-  const apiKey = process.env["ANTHROPIC_API_KEY"];
-  if (!apiKey) throw new AiError("Anthropic anahtarı (ANTHROPIC_API_KEY) tanımlı değil", false);
-
-  const system = messages.filter((item) => item.role === "system").map((item) => item.content).join("\n");
-  const rest = messages.filter((item) => item.role !== "system");
-
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ model, system, messages: rest, temperature, max_tokens: maxTokens }),
-  });
-  if (!response.ok) throw gatewayError(response.status, await response.text());
-
-  const payload = (await response.json()) as {
-    content?: { text?: string }[];
-    usage?: { input_tokens?: number; output_tokens?: number };
-  };
-  const text = payload.content?.map((part) => part.text ?? "").join("").trim();
-  if (!text) throw new AiError("AI boş yanıt döndü", true);
-  return {
-    text,
-    inputTokens: payload.usage?.input_tokens ?? 0,
-    outputTokens: payload.usage?.output_tokens ?? 0,
-  };
-}
-
-async function callGemini(
-  model: string,
-  messages: ChatMessage[],
-  temperature: number,
-  maxTokens: number,
-): Promise<ProviderResult> {
-  const apiKey = process.env["GEMINI_API_KEY"];
-  if (!apiKey) throw new AiError("Gemini anahtarı (GEMINI_API_KEY) tanımlı değil", false);
-
-  const system = messages.filter((item) => item.role === "system").map((item) => item.content).join("\n");
-  const contents = messages
-    .filter((item) => item.role !== "system")
-    .map((item) => ({ role: item.role === "assistant" ? "model" : "user", parts: [{ text: item.content }] }));
-
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents,
-        systemInstruction: system ? { parts: [{ text: system }] } : undefined,
-        generationConfig: { temperature, maxOutputTokens: maxTokens },
-      }),
-    },
-  );
-  if (!response.ok) throw gatewayError(response.status, await response.text());
-
-  const payload = (await response.json()) as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
-    usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
-  };
-  const text = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim();
-  if (!text) throw new AiError("AI boş yanıt döndü", true);
-  return {
-    text,
-    inputTokens: payload.usageMetadata?.promptTokenCount ?? 0,
-    outputTokens: payload.usageMetadata?.candidatesTokenCount ?? 0,
-  };
-}
-
-/** Sağlayıcı bağımsız çağrı — yeni sağlayıcılar buraya eklenir. */
+/**
+ * Merkezî AI çalıştırıcı: model yönlendirmesi + kredi kapısı + OpenAI çağrısı.
+ * `charge` verildiğinde kredi yetersizse OpenAI'ye istek gönderilmez.
+ */
 export async function callProvider(options: {
-  providerCode: string;
-  model: string;
+  providerCode?: string;
+  model?: string;
   messages: ChatMessage[];
   temperature?: number;
   maxTokens?: number;
+  purpose?: AiCreditPurpose;
+  charge?: { storeId: string; userId?: string | null; task?: string | null };
 }): Promise<ProviderResult> {
   const temperature = Math.min(Math.max(options.temperature ?? 0.7, 0), 1);
-  // Düşünme adımı olan modeller çıktı öncesi token harcadığı için taban değer yüksek tutulur.
   const maxTokens = Math.max(options.maxTokens ?? 900, 1500);
-  switch (options.providerCode) {
-    case "openai":
-      return callOpenAi(options.model, options.messages, temperature, maxTokens);
-    case "anthropic":
-      return callAnthropic(options.model, options.messages, temperature, maxTokens);
-    case "gemini":
-      return callGemini(options.model, options.messages, temperature, maxTokens);
-    case "lovable":
-    default:
-      return callLovable(options.model, options.messages, temperature, maxTokens);
+  const purpose: AiCreditPurpose = options.purpose ?? "text";
+
+  const engine = await loadAiEngineSettings();
+  if (!engine.isEnabled) throw new AiError("Yapay zekâ motoru şu anda kapalı.", false);
+  const model = modelForPurpose(engine, purpose);
+
+  let credits = 0;
+  if (options.charge) {
+    const gate = await assertAiCredits(options.charge.storeId, purpose);
+    credits = gate.credits;
   }
+
+  const result = await callOpenAi(model, options.messages, temperature, maxTokens);
+  const costUsd = usdCost(engine, PURPOSE_MODEL_CLASS[purpose], result.inputTokens, result.outputTokens);
+
+  if (options.charge && credits > 0) {
+    await consumeAiCredits({
+      storeId: options.charge.storeId,
+      credits,
+      purpose,
+      task: options.charge.task ?? null,
+      userId: options.charge.userId ?? null,
+    });
+  }
+
+  return { ...result, model, creditsUsed: credits, costUsd };
 }
 
 export async function loadStoreAiSettings(client: Client, storeId: string): Promise<StoreAiSettings> {
+  const engine = await loadAiEngineSettings();
   const { data, error } = await client
     .from("store_ai_settings")
     .select("provider_code, model, creativity, brand_tone, language, monthly_token_limit, is_enabled")
     .eq("store_id", storeId)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data) return DEFAULT_AI_SETTINGS;
+  // Sağlayıcı ve model artık yalnızca platform motor ayarlarından gelir.
+  if (!data) return { ...DEFAULT_AI_SETTINGS, model: engine.modelFast };
   return {
-    providerCode: data.provider_code,
-    model: data.model,
+    providerCode: "openai",
+    model: engine.modelFast,
     creativity: Number(data.creativity),
     brandTone: data.brand_tone,
     language: data.language,
@@ -261,6 +191,8 @@ async function logGeneration(entry: {
   durationMs: number;
   status: "success" | "error";
   error?: string | null;
+  creditsUsed?: number;
+  costUsd?: number;
 }) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   await supabaseAdmin.from("ai_generations").insert({
@@ -277,6 +209,8 @@ async function logGeneration(entry: {
     duration_ms: entry.durationMs,
     status: entry.status,
     error: entry.error ?? null,
+    credits_used: entry.creditsUsed ?? 0,
+    cost_usd: entry.costUsd ?? 0,
   });
 }
 
@@ -287,7 +221,14 @@ export async function runAiTask(options: {
   userId: string;
   taskKey: string;
   values: Record<string, string>;
-}): Promise<{ text: string; task: AiTask; totalTokens: number; model: string; providerCode: string }> {
+}): Promise<{
+  text: string;
+  task: AiTask;
+  totalTokens: number;
+  model: string;
+  providerCode: string;
+  creditsUsed: number;
+}> {
   const task = AI_TASK_MAP.get(options.taskKey);
   if (!task) throw new Error("Bilinmeyen AI görevi");
 
@@ -329,38 +270,43 @@ export async function runAiTask(options: {
   const prompt = lines.join("\n");
   const started = Date.now();
 
+  const purpose = purposeForTask(task.key);
+
   try {
     const result = await callProvider({
-      providerCode: settings.providerCode,
-      model: settings.model,
       messages: [
         { role: "system", content: task.system },
         { role: "user", content: prompt },
       ],
       temperature: settings.creativity,
       maxTokens: task.maxTokens,
+      purpose,
+      charge: { storeId: options.storeId, userId: options.userId, task: task.key },
     });
 
     await logGeneration({
       storeId: options.storeId,
       userId: options.userId,
       task: task.key,
-      providerCode: settings.providerCode,
-      model: settings.model,
+      providerCode: "openai",
+      model: result.model,
       prompt,
       output: result.text,
       inputTokens: result.inputTokens,
       outputTokens: result.outputTokens,
       durationMs: Date.now() - started,
       status: "success",
+      creditsUsed: result.creditsUsed,
+      costUsd: result.costUsd,
     });
 
     return {
       text: result.text,
       task,
       totalTokens: result.inputTokens + result.outputTokens,
-      model: settings.model,
-      providerCode: settings.providerCode,
+      model: result.model,
+      providerCode: "openai",
+      creditsUsed: result.creditsUsed,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "AI isteği başarısız";
@@ -368,7 +314,7 @@ export async function runAiTask(options: {
       storeId: options.storeId,
       userId: options.userId,
       task: task.key,
-      providerCode: settings.providerCode,
+      providerCode: "openai",
       model: settings.model,
       prompt,
       output: null,
@@ -385,8 +331,8 @@ export async function runAiTask(options: {
 export const COPY_SYSTEM_PROMPT = AI_TASK_MAP.get("product_description")!.system;
 export const INSIGHT_SYSTEM_PROMPT = AI_TASK_MAP.get("sales_analysis")!.system;
 
-/** Geriye dönük uyumluluk: doğrudan Lovable AI çağrısı. */
+/** Kredi kapısı olmayan platform içi çağrı (süper admin işleri). */
 export async function chatComplete(messages: ChatMessage[], maxTokens = 900): Promise<string> {
-  const result = await callLovable(DEFAULT_AI_SETTINGS.model, messages, 0.7, maxTokens);
+  const result = await callProvider({ messages, maxTokens, purpose: "text" });
   return result.text;
 }

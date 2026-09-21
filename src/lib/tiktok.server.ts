@@ -758,8 +758,8 @@ export async function generateTiktokReply(
   ];
 
   const result = await callProvider({
-    providerCode: settings.providerCode,
-    model: settings.model,
+    purpose: "text",
+    charge: { storeId: options.storeId, userId: null, task: "tiktok_reply" },
     messages,
     temperature: settings.creativity,
     maxTokens: 400,

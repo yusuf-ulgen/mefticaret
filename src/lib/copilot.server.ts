@@ -182,8 +182,8 @@ export async function sendCopilotTurn(options: {
   ];
 
   const result = await callProvider({
-    providerCode: settings.providerCode,
-    model: settings.model,
+    purpose: "copilot",
+    charge: { storeId: options.storeId, userId: userId, task: "copilot" },
     messages,
     temperature: settings.creativity,
     maxTokens: 1400,
