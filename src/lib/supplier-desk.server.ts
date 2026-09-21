@@ -530,14 +530,21 @@ export async function applySupplierImport(
   const skus = valid.map((row) => row.sku);
   const { data: existing } = await admin
     .from("supplier_products")
-    .select("id, sku")
+    .select("id, sku, product_id, variant_id")
     .eq("supplier_id", input.supplierId)
     .in("sku", skus);
-  const existingMap = new Map(((existing ?? []) as any[]).map((row) => [row.sku as string, row.id as string]));
+  const existingMap = new Map(
+    ((existing ?? []) as any[]).map((row) => [
+      row.sku as string,
+      { id: row.id as string, productId: row.product_id as string | null, variantId: row.variant_id as string | null },
+    ]),
+  );
 
   const now = new Date().toISOString();
   const payload = valid.map((row) => ({
-    id: existingMap.get(row.sku),
+    id: existingMap.get(row.sku)?.id,
+    product_id: existingMap.get(row.sku)?.productId ?? null,
+    variant_id: existingMap.get(row.sku)?.variantId ?? null,
     store_id: input.storeId,
     feed_id: input.feedId,
     supplier_id: input.supplierId,
@@ -562,7 +569,7 @@ export async function applySupplierImport(
     updated_at: now,
   }));
 
-  const inserts = payload.filter((row) => !row.id).map(({ id: _id, ...rest }) => rest);
+  const inserts = payload.filter((row) => !row.id).map(({ id: _id, product_id: _productId, variant_id: _variantId, ...rest }) => rest);
   const updates = payload.filter((row) => row.id);
 
   if (inserts.length) {
