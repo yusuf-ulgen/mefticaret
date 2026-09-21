@@ -69,6 +69,21 @@ export const supplierDeskOverview = createServerFn({ method: "POST" })
         importJobs: [] as Awaited<
           ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierFeeds>
         >["jobs"],
+        products: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
+        >["products"],
+        rfqs: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
+        >["rfqs"],
+        credit: null as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
+        >["credit"],
+        transactions: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
+        >["transactions"],
+        movements: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
+        >["movements"],
       };
     }
     const supplierIds = suppliers.map((supplier) => supplier.id);
