@@ -382,6 +382,8 @@ export type CardPaymentInput = {
   items: CartItem[];
   commissionFromUser: boolean;
   transactionType: "Auth" | "PreAuth";
+  /** Yalnız 3D akışında geçerli: ödemeyi kim tamamlayacak (app/merchant). */
+  paymentCompletedBy?: "app" | "merchant";
   returnUrl?: string;
   cancelUrl?: string;
   ip?: string;
@@ -419,7 +421,8 @@ function cardBody(credentials: QnbpayCredentials, input: CardPaymentInput) {
   if (input.billPhone) body["bill_phone"] = input.billPhone;
   if (input.identityNumber) body["identity_number"] = input.identityNumber;
   if (input.saleWebhookKey) body["sale_web_hook_key"] = input.saleWebhookKey;
-  if (input.commissionFromUser && input.installment > 1) body["is_comission_from_user"] = "1";
+  body["is_comission_from_user"] = input.commissionFromUser && input.installment > 1 ? "1" : "0";
+  if (input.paymentCompletedBy) body["payment_completed_by"] = input.paymentCompletedBy;
   if (input.storeCard) {
     body["is_stored_card"] = 1;
     body["card_customer_id"] = input.storeCard.customerId;
