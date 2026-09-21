@@ -323,6 +323,8 @@ export async function createPaymentLink(
   input: PurchaseLinkInput,
 ): Promise<{ link: string; orderId: string | null; raw: Record<string, unknown> }> {
   const token = await getToken(credentials);
+  // Servis, sepet satırlarını `invoice.items` altında bekler; kök seviyedeki
+  // `items` alanı "Invoice.OrderItems is required" hatasına (HTTP 400) yol açar.
   const body: Record<string, unknown> = {
     merchant_key: credentials.merchantKey,
     currency_code: input.currencyCode,
@@ -333,13 +335,13 @@ export async function createPaymentLink(
       return_url: input.returnUrl,
       cancel_url: input.cancelUrl,
       response_method: "POST",
+      items: input.items.map((item) => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        description: item.description,
+      })),
     },
-    items: input.items.map((item) => ({
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-      description: item.description,
-    })),
     name: input.name,
     surname: input.surname,
     is_comission_from_user: input.commissionFromUser ? "1" : "0",
