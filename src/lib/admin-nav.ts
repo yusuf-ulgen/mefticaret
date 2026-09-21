@@ -188,6 +188,8 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { to: "/admin/audit", label: "Audit Logs", icon: History, hint: "İşlem geçmişi", keywords: "denetim log" },
       { to: "/admin/security", label: "Güvenlik Olayları", icon: ShieldAlert, hint: "Şüpheli hareketler", keywords: "güvenlik olay" },
       { to: "/admin/system", label: "Sistem Durumu", icon: Activity, hint: "Kuyruk ve sağlık", keywords: "sağlık durum kuyruk" },
+      { to: "/admin/load-test", label: "Yük Testi Monitörü", icon: Activity, hint: "Otomatik stres testi turları", keywords: "yük test stres k6 simülasyon" },
+
     ],
   },
   {
