@@ -678,7 +678,7 @@ export async function refundPayment(
   const hashData = `${input.amount}|${input.invoiceId}|${credentials.merchantKey}`;
   const body: Record<string, unknown> = {
     invoice_id: input.invoiceId,
-    amount: input.amount,
+    amount: String(input.amount),
     merchant_key: credentials.merchantKey,
     hash_key: generateHashKey(hashData, credentials.appSecret),
   };
