@@ -49,6 +49,16 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
       throw error;
     }
     console.error(error);
+    // Sunucu tarafı beklenmeyen hatalar hata masasına yazılır ve kritik uyarı tetikler.
+    void (async () => {
+      const { recordAppError } = await import("@/lib/monitoring.server");
+      await recordAppError({
+        severity: "CRITICAL",
+        source: "server:request",
+        message: error instanceof Error ? error.message : String(error),
+        ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
+      });
+    })();
     return new Response(renderErrorPage(), {
       status: 500,
       headers: { "content-type": "text/html; charset=utf-8" },

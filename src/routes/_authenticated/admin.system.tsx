@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth-context";
 import { formatDateTime, formatNumber } from "@/lib/mefti";
 import { systemHealthQuery } from "@/lib/platform-finance-queries";
+import { SystemHealthPanel } from "@/components/monitoring/system-health-panel";
 
 export const Route = createFileRoute("/_authenticated/admin/system")({
   head: () => ({
@@ -66,6 +67,8 @@ function AdminSystemPage() {
         ) : null
       }
     >
+      <SystemHealthPanel />
+
       {error ? (
         <div className="surface-card p-6 text-sm text-destructive">{(error as Error).message}</div>
       ) : null}

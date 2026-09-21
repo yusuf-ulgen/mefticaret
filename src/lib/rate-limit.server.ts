@@ -14,8 +14,11 @@ export type RateLimitResult = {
 export type RateLimitRule = { limit: number; windowSeconds: number };
 
 export const RATE_LIMITS = {
-  api: { limit: 600, windowSeconds: 60 },
-  api_write: { limit: 120, windowSeconds: 60 },
+  // Genel API: 100 istek/dakika; yazma uçları daha dar.
+  api: { limit: 100, windowSeconds: 60 },
+  api_write: { limit: 60, windowSeconds: 60 },
+  // XML/CSV/Excel içe aktarma tetikleyicileri: 10 istek/dakika.
+  import_trigger: { limit: 10, windowSeconds: 60 },
   public_form: { limit: 20, windowSeconds: 600 },
   data_request: { limit: 5, windowSeconds: 3600 },
   consent: { limit: 60, windowSeconds: 600 },

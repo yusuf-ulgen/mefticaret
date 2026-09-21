@@ -558,19 +558,42 @@ export async function createStorefrontOrder(
   );
   if (itemsError) throw new Error(itemsError.message);
 
-  // Stok düşümü + değiştirilemez stok hareketi
+  // Stok düşümü: satır kilidi (FOR UPDATE) ile atomik rezervasyon. Aynı anda
+  // gelen siparişler tek adet stoku ikiye satamaz; yetersizse sipariş iptal edilir.
+  const reserved: { variantId: string; quantity: number; before: number; after: number }[] = [];
   for (const line of lines) {
-    const before = line.variant.stock ?? 0;
-    const after = Math.max(0, before - line.quantity);
-    await supabase.from("product_variants").update({ stock: after }).eq("id", line.variant.id);
+    const { data, error } = await supabase.rpc("reserve_variant_stock", {
+      _variant_id: line.variant.id,
+      _qty: line.quantity,
+    });
+    const row = (Array.isArray(data) ? data[0] : data) as
+      | { stock_before: number; stock_after: number }
+      | undefined;
+    if (error || !row) {
+      // Rezerve edilen stokları geri bırak ve siparişi geri al.
+      for (const item of reserved) {
+        await supabase.rpc("release_variant_stock", { _variant_id: item.variantId, _qty: item.quantity });
+      }
+      await supabase.from("order_items").delete().eq("order_id", order.id);
+      await supabase.from("orders").delete().eq("id", order.id);
+      throw new Error(
+        error?.message ?? `"${line.variant.products.title}" için yeterli stok kalmadı, lütfen adedi güncelleyin.`,
+      );
+    }
+    reserved.push({
+      variantId: line.variant.id,
+      quantity: line.quantity,
+      before: Number(row.stock_before),
+      after: Number(row.stock_after),
+    });
     await supabase.from("inventory_movements").insert({
       store_id: store.id,
       product_id: line.variant.product_id,
       variant_id: line.variant.id,
       kind: "sale",
       quantity: line.quantity,
-      stock_before: before,
-      stock_after: after,
+      stock_before: Number(row.stock_before),
+      stock_after: Number(row.stock_after),
       reason: `Sipariş ${number}`,
     });
   }

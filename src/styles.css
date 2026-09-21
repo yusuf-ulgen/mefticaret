@@ -68,6 +68,14 @@
   --color-supplier-brand: var(--supplier-brand);
   --color-supplier-brand-foreground: var(--supplier-brand-foreground);
   --color-supplier-surface: var(--supplier-surface);
+  --color-status-healthy: var(--status-healthy);
+  --color-status-degraded: var(--status-degraded);
+  --color-status-outage: var(--status-outage);
+  --color-monitor-surface: var(--monitor-surface);
+  --color-monitor-panel: var(--monitor-panel);
+  --color-monitor-foreground: var(--monitor-foreground);
+  --color-monitor-muted: var(--monitor-muted);
+  --color-monitor-border: var(--monitor-border);
 
   /* Kolay Panel (ev üretimi mağazalar) — yumuşak pastel palet */
   --color-hm-rose: oklch(0.62 0.13 12);
@@ -147,6 +155,16 @@
   --supplier-brand: oklch(0.68 0.2 43);
   --supplier-brand-foreground: oklch(1 0 0);
   --supplier-surface: oklch(0.975 0.004 80);
+
+  /* İzleme paneli — koyu altyapı görünümü ve durum renkleri */
+  --status-healthy: oklch(0.72 0.17 152);
+  --status-degraded: oklch(0.79 0.16 82);
+  --status-outage: oklch(0.63 0.22 25);
+  --monitor-surface: oklch(0.19 0.015 265);
+  --monitor-panel: oklch(0.24 0.018 265);
+  --monitor-foreground: oklch(0.97 0.005 265);
+  --monitor-muted: oklch(0.72 0.02 265);
+  --monitor-border: oklch(0.33 0.02 265);
 
   --gradient-hero: radial-gradient(
       110% 90% at 50% -10%,

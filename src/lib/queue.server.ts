@@ -35,7 +35,8 @@ export async function enqueueJob(supabase: Client, input: EnqueueInput): Promise
     ...(input.storeId ? { _store_id: input.storeId } : {}),
     ...(input.priority !== undefined ? { _priority: input.priority } : {}),
     ...(input.runAt ? { _run_at: input.runAt } : {}),
-    ...(input.maxAttempts !== undefined ? { _max_attempts: input.maxAttempts } : {}),
+    // Varsayılan olarak en fazla 3 deneme (üstel geri çekilme ile).
+    _max_attempts: input.maxAttempts ?? 3,
     ...(input.dedupeKey ? { _dedupe_key: input.dedupeKey } : {}),
   });
   if (error) throw new Error(error.message);
@@ -116,6 +117,12 @@ const HANDLERS: Record<JobKind, JobHandler> = {
   },
 
   feed_sync: async (supabase, job) => {
+    // Tedarikçi dosya içe aktarmaları da bu kanaldan arka planda işlenir.
+    const importJobId = payloadOf(job)["importJobId"];
+    if (typeof importJobId === "string" && importJobId.length > 0) {
+      const { runSupplierImportJob } = await import("@/lib/supplier-import-job.server");
+      return runSupplierImportJob(supabase as never, importJobId, payloadOf(job));
+    }
     const feedId = requireString(job, "feedId");
     const { data: feed, error } = await supabase
       .from("supplier_feeds")
@@ -242,6 +249,16 @@ export async function processQueue(
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : "bilinmeyen hata";
       await supabase.rpc("fail_job", { _id: job.id, _error: message.slice(0, 1000) });
+      const exhausted = (job.attempts ?? 0) + 1 >= (job.max_attempts ?? 3);
+      const { recordAppError } = await import("@/lib/monitoring.server");
+      await recordAppError({
+        severity: exhausted ? "CRITICAL" : "WARNING",
+        source: `queue:${job.kind}`,
+        message,
+        ...(cause instanceof Error && cause.stack ? { stack: cause.stack } : {}),
+        ...(job.store_id ? { storeId: job.store_id } : {}),
+        meta: { jobId: job.id, attempts: (job.attempts ?? 0) + 1, maxAttempts: job.max_attempts ?? 3 },
+      });
       results.push({ id: job.id, kind: job.kind, ok: false, error: message });
     }
   }
