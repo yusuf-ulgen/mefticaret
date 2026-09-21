@@ -355,9 +355,12 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
   let returns = Number(summary["returns"] ?? 0);
 
   while (orders < target && Date.now() < deadline) {
+    const testStoreIdsForQuery = await testStoreIdSet(db);
+    if (testStoreIdsForQuery.size === 0) break;
     const { data: variantRows } = await db
       .from("product_variants")
       .select("id, product_id, store_id, price, stock, title, sku, products!inner(title, tax_rate, store_id)")
+      .in("store_id", [...testStoreIdsForQuery])
       .gt("stock", 0)
       .order("updated_at", { ascending: true })
       .limit(ORDER_BATCH);
@@ -370,8 +373,7 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
       sku: string | null;
       products: { title: string; tax_rate: number };
     }[];
-    const testStoreIds = await testStoreIdSet(db);
-    const usable = variants.filter((v) => testStoreIds.has(v.store_id));
+    const usable = variants.filter((v) => testStoreIdsForQuery.has(v.store_id));
     if (usable.length === 0) break;
 
     for (const variant of usable) {
