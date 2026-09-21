@@ -42,6 +42,12 @@ export default defineConfig({
     prerender: { enabled: true, autoStaticPathsDiscovery: false },
   },
   vite: {
+    // Excel okuyucu tarayıcıda gerektiğinde yüklenir. Önceden paketlenmiş
+    // geliştirme önbelleği sürüm değişimlerinde eski parça adlarına bağlanıp
+    // sayfayı boş bırakabildiği için doğrudan Vite üzerinden sunulur.
+    optimizeDeps: {
+      exclude: ["@e965/xlsx"],
+    },
     // WebAuthn zinciri (@simplewebauthn/server → @peculiar/x509 → tsyringe) modül
     // yüklenirken Reflect.metadata arar; bu polyfill her sunucu parçasının başına
     // eklenir, aksi halde edge worker tüm sayfalarda 500 döner.

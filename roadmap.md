@@ -105,3 +105,10 @@
 - [ ] Rol kontrollü Mağazama Aktar ve çift yönlü stok eşlemesi
 - [ ] İade/değişim ile stok/fiyat hareketleri görünümü
 - [ ] Gerçek verili Recharts analiz ekranları ve mobil/masaüstü doğrulama
+
+## Sistem kararlılığı
+- [x] Arka plan işi kuyruğunda kullanıcı yetkisini doğrula ve güvenli sunucu bağlantısıyla kuyruğa yaz
+- [x] Çeviri yeniden deneme kuyruğundaki yetki hatasını gider
+- [x] Excel okuyucusunu güvenlik açıkları giderilmiş sürüme yükselt
+- [x] Ana sayfa, yönetici analizleri ve indirim akışındaki güvensiz veri varsayımlarını kaldır
+- [x] Ana sayfa, tedarikçi ve yönetici giriş adreslerinde sağlık kontrolü

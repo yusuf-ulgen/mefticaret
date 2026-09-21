@@ -104,13 +104,17 @@ export const adminGrowthQuery = (enabled: boolean) =>
       for (const row of orders.data ?? []) {
         const slot = index.get(String(row.placed_at).slice(0, 10));
         if (slot === undefined) continue;
-        days[slot]!.revenue += Number(row.grand_total ?? 0);
-        days[slot]!.orders += 1;
+        const day = days[slot];
+        if (!day) continue;
+        day.revenue += Number(row.grand_total ?? 0);
+        day.orders += 1;
       }
       for (const row of stores.data ?? []) {
         const slot = index.get(String(row.created_at).slice(0, 10));
         if (slot === undefined) continue;
-        days[slot]!.stores += 1;
+        const day = days[slot];
+        if (!day) continue;
+        day.stores += 1;
       }
 
       return days;
