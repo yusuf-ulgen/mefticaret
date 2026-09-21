@@ -19,18 +19,82 @@ export const importRowSchema = z.object({
   barcode: z.string().trim().max(120).nullable().transform((value) => sanitizeNullableText(value, 120)),
   title: z.string().trim().min(1).max(400).transform((value) => sanitizeText(value, 400)),
   description: z.string().max(8000).nullable().transform((value) => sanitizeNullableText(value, 8000)),
+  shortDescription: z
+    .string()
+    .max(1000)
+    .nullable()
+    .default(null)
+    .transform((value) => sanitizeNullableText(value, 600)),
   costPrice: z.number().finite().min(0).max(100_000_000),
   retailPrice: z.number().finite().min(0).max(100_000_000).nullable(),
+  discountPrice: z.number().finite().min(0).max(100_000_000).nullable().default(null),
+  taxRate: z.number().finite().min(0).max(100).nullable().default(null),
   stock: z.number().int().min(0).max(10_000_000),
   category: z.string().trim().max(200).nullable().transform((value) => sanitizeNullableText(value, 200)),
+  categoryPath: z
+    .array(z.string().max(200))
+    .max(6)
+    .default([])
+    .transform((values) => values.map((value) => sanitizeText(value, 200)).filter(Boolean)),
   brand: z.string().trim().max(200).nullable().transform((value) => sanitizeNullableText(value, 200)),
   images: z
     .array(z.string().max(2000))
     .max(20)
     .transform((values) => values.map((value) => sanitizeUrl(value)).filter((value): value is string => value !== null)),
+  videos: z
+    .array(
+      z.object({
+        url: z.string().max(2000),
+        source: z.string().max(20),
+        embedUrl: z.string().max(2000),
+        thumbnailUrl: z.string().max(2000).nullable(),
+      }),
+    )
+    .max(6)
+    .default([])
+    .transform((values) =>
+      values
+        .map((video) => ({
+          url: sanitizeUrl(video.url),
+          source: sanitizeText(video.source, 20),
+          embedUrl: sanitizeUrl(video.embedUrl),
+          thumbnailUrl: video.thumbnailUrl ? sanitizeUrl(video.thumbnailUrl) : null,
+        }))
+        .filter((video): video is { url: string; source: string; embedUrl: string; thumbnailUrl: string | null } =>
+          video.url !== null && video.embedUrl !== null,
+        ),
+    ),
   color: z.string().trim().max(120).nullable().transform((value) => sanitizeNullableText(value, 120)),
   size: z.string().trim().max(120).nullable().transform((value) => sanitizeNullableText(value, 120)),
   currency: z.string().trim().max(10).nullable(),
+  fabric: z.string().trim().max(200).nullable().default(null).transform((value) => sanitizeNullableText(value, 200)),
+  modelSize: z.string().trim().max(200).nullable().default(null).transform((value) => sanitizeNullableText(value, 200)),
+  hsCode: z.string().trim().max(40).nullable().default(null).transform((value) => sanitizeNullableText(value, 40)),
+  weight: z.number().finite().min(0).max(100_000).nullable().default(null),
+  variants: z
+    .array(
+      z.object({
+        name: z.string().max(120),
+        value: z.string().max(200),
+        barcode: z.string().max(120).nullable(),
+        stock: z.number().int().min(0).max(10_000_000),
+        price: z.number().finite().min(0).max(100_000_000).nullable(),
+        image: z.string().max(2000).nullable(),
+      }),
+    )
+    .max(60)
+    .default([])
+    .transform((values) =>
+      values.map((variant) => ({
+        name: sanitizeText(variant.name, 120) || "Beden",
+        value: sanitizeText(variant.value, 200),
+        barcode: sanitizeNullableText(variant.barcode, 120),
+        stock: variant.stock,
+        price: variant.price,
+        image: variant.image ? sanitizeUrl(variant.image) : null,
+      })),
+    ),
+  warnings: z.array(z.string().max(300)).max(20).default([]),
   errors: z.array(z.string().max(300)).max(20),
 });
 
