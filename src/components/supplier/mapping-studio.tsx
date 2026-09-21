@@ -1,4 +1,4 @@
-import { Check, GripVertical, Sparkles, X } from "lucide-react";
+import { AlertTriangle, Check, GripVertical, RefreshCw, Sparkles, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -47,12 +47,22 @@ export function MappingStudio({
   mapping,
   onChange,
   onPreset,
+  selectedRoot,
+  rootCandidates = [],
+  diagnostic,
+  onSelectRoot,
+  onReload,
 }: {
   columns: string[];
   rows: Array<Record<string, string>>;
   mapping: FieldMapping;
   onChange: (mapping: FieldMapping) => void;
   onPreset?: (preset: FeedPreset) => void;
+  selectedRoot?: string | null;
+  rootCandidates?: Array<{ path: string; label: string; count: number; score: number }>;
+  diagnostic?: string | null;
+  onSelectRoot?: (path: string) => void;
+  onReload?: () => void;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<MeftiField | null>(null);
@@ -69,17 +79,41 @@ export function MappingStudio({
   };
 
   return (
-    <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+    <div className="space-y-4">
+      {diagnostic ? (
+        <section className="rounded-lg border border-destructive/40 bg-destructive/5 p-4" role="alert">
+          <p className="flex items-start gap-2 text-sm font-semibold text-destructive">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+            Besleme görüntülenemedi
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">{diagnostic}</p>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            {onReload ? <Button type="button" variant="outline" onClick={onReload}><RefreshCw className="mr-2 size-4" aria-hidden />Proxy ile yeniden yükle</Button> : null}
+            {rootCandidates.length ? (
+              <select
+                aria-label="Manuel kök düğüm seç"
+                className="h-10 min-w-0 rounded-md border bg-background px-3 text-sm"
+                defaultValue=""
+                onChange={(event) => event.target.value && onSelectRoot?.(event.target.value)}
+              >
+                <option value="">Manuel kök düğüm seç</option>
+                {rootCandidates.map((candidate) => <option key={candidate.path} value={candidate.path}>{candidate.path} ({candidate.count})</option>)}
+              </select>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
       <section className="min-w-0 rounded-xl border bg-muted/20">
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 border-b px-3 py-2">
           <div className="min-w-0">
             <p className="text-sm font-semibold">Besleme düğüm ağacı</p>
-            <p className="text-[11px] text-muted-foreground">{columns.length} düğüm · örnek değerlerle</p>
+            <p className="text-[11px] text-muted-foreground">{columns.length} düğüm · {selectedRoot ? `kök: ${selectedRoot}` : "örnek değerlerle"}</p>
           </div>
           {selected ? <Badge variant="secondary" className="max-w-[120px] truncate">{selected}</Badge> : null}
         </header>
         <div className="max-h-64 overflow-auto p-2 lg:max-h-[420px]">
-          {tree.map((node) => (
+          {!tree.length ? <p className="p-3 text-sm text-muted-foreground">Henüz okunabilir kaynak düğümü yok.</p> : tree.slice(0, 600).map((node) => (
             <button
               type="button"
               key={node.path}
@@ -192,6 +226,7 @@ export function MappingStudio({
           </div>
         ))}
       </section>
+      </div>
     </div>
   );
 }

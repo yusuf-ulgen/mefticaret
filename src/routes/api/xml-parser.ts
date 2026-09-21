@@ -93,7 +93,9 @@ async function handler({ request }: { request: Request }) {
     const { parseWorkbook, parseTextFeed, suggestMapping } = await import("@/lib/supplier-import");
     let parsed;
     if (isWorkbook) {
-      parsed = parseWorkbook(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+      const workbookBytes = new Uint8Array(bytes.byteLength);
+      workbookBytes.set(bytes);
+      parsed = parseWorkbook(workbookBytes.buffer);
     } else {
       const text = new TextDecoder("utf-8").decode(bytes);
       const trimmed = text.trimStart();

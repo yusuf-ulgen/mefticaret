@@ -45,6 +45,7 @@ import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticated/supplier'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as ApiXmlParserRouteImport } from './routes/api/xml-parser'
 import { Route as ArIndexRouteImport } from './routes/ar.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -485,6 +486,11 @@ const AuthenticatedSupplierRoute = AuthenticatedSupplierRouteImport.update({
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiXmlParserRoute = ApiXmlParserRouteImport.update({
+  id: '/api/xml-parser',
+  path: '/api/xml-parser',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArIndexRoute = ArIndexRouteImport.update({
@@ -2013,6 +2019,7 @@ export interface FileRoutesByFullPath {
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
+  '/api/xml-parser': typeof ApiXmlParserRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
@@ -2309,6 +2316,7 @@ export interface FileRoutesByTo {
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
+  '/api/xml-parser': typeof ApiXmlParserRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
@@ -2607,6 +2615,7 @@ export interface FileRoutesById {
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
+  '/api/xml-parser': typeof ApiXmlParserRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
@@ -2906,6 +2915,7 @@ export interface FileRouteTypes {
     | '/stores'
     | '/supplier'
     | '/admin/login'
+    | '/api/xml-parser'
     | '/blog/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
@@ -3202,6 +3212,7 @@ export interface FileRouteTypes {
     | '/stores'
     | '/supplier'
     | '/admin/login'
+    | '/api/xml-parser'
     | '/blog/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
@@ -3499,6 +3510,7 @@ export interface FileRouteTypes {
     | '/_authenticated/stores'
     | '/_authenticated/supplier'
     | '/admin/login'
+    | '/api/xml-parser'
     | '/blog/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
@@ -3793,6 +3805,7 @@ export interface RootRouteChildren {
   UnauthorizedRoute: typeof UnauthorizedRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  ApiXmlParserRoute: typeof ApiXmlParserRoute
   BlogSlugRoute: typeof BlogSlugRoute
   EnHowToStartAnOnlineStoreRoute: typeof EnHowToStartAnOnlineStoreRoute
   EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
@@ -4124,6 +4137,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/xml-parser': {
+      id: '/api/xml-parser'
+      path: '/api/xml-parser'
+      fullPath: '/api/xml-parser'
+      preLoaderRoute: typeof ApiXmlParserRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ar/': {
@@ -6523,6 +6543,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminLoginRoute: AdminLoginRoute,
+  ApiXmlParserRoute: ApiXmlParserRoute,
   BlogSlugRoute: BlogSlugRoute,
   EnHowToStartAnOnlineStoreRoute: EnHowToStartAnOnlineStoreRoute,
   EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,

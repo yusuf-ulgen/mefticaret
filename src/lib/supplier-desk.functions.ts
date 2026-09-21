@@ -265,41 +265,6 @@ export const supplierDeskApproveRfq = createServerFn({ method: "POST" })
     return { purchaseOrderId };
   });
 
-/** Uzak bağlantıdaki dosyayı indirip ham satırları döndürür (alan eşleştirme için). */
-export const supplierDeskFetchRemote = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    z
-      .object({
-        supplierId: z.guid(),
-        url: z.string().url().max(2000),
-        itemPath: z.string().trim().max(120).optional(),
-      })
-      .parse(data),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    await assertSupplier(supabase, userId, data.supplierId);
-    await assertImportRate(userId);
-
-    const response = await fetch(data.url, { headers: { "user-agent": "MefticaretSupplierPortal/1.0" } });
-    if (!response.ok) throw new Error(`Kaynak yanıtı ${response.status}`);
-    const text = await response.text();
-    if (text.length > 25_000_000) throw new Error("Dosya çok büyük (25 MB üstü)");
-
-    const { detectFormat, parseTextFeed, suggestMapping } = await import("@/lib/supplier-import");
-    const format = detectFormat(data.url, text);
-    if (format === "xlsx") throw new Error("Excel bağlantıları desteklenmiyor; dosyayı yükleyin");
-    const parsed = parseTextFeed(text, format, data.itemPath);
-    return {
-      format,
-      columns: parsed.columns,
-      rows: parsed.rows.slice(0, 2000),
-      totalRows: parsed.rows.length,
-      mapping: suggestMapping(parsed.columns),
-    };
-  });
-
 /** Doğrulanmış satırları tedarikçi kataloğuna yazar ve yükleme kaydı oluşturur. */
 export const supplierDeskImport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
