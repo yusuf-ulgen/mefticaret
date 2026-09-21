@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AI_TASKS, AI_TASK_GROUP_LABELS, taskLabel, type AiTask } from "@/lib/ai-tasks";
-import { aiGenerationsQuery, aiProvidersQuery, aiUsageQuery, storeAiSettingsQuery } from "@/lib/ai-queries";
+import { aiGenerationsQuery, aiUsageQuery, storeAiSettingsQuery } from "@/lib/ai-queries";
 import { runAiAssistant, saveStoreAiSettings } from "@/lib/ai.functions";
 import { formatDateTime, formatNumber } from "@/lib/mefti";
 import { storeQuery } from "@/lib/store-queries";
@@ -70,7 +70,6 @@ function AiPage() {
   const queryClient = useQueryClient();
 
   const { data: store } = useQuery(storeQuery(storeId));
-  const { data: providers } = useQuery(aiProvidersQuery());
   const { data: settings } = useQuery(storeAiSettingsQuery(storeId));
   const { data: usage } = useQuery(aiUsageQuery(storeId));
   const { data: history } = useQuery(aiGenerationsQuery(storeId));
@@ -92,7 +91,6 @@ function AiPage() {
     isEnabled: settings?.is_enabled ?? true,
   });
 
-  const selectedProvider = (providers ?? []).find((item) => item.code === form.providerCode);
   const limit = settings?.monthly_token_limit ?? 500000;
   const usedPercent = limit > 0 ? Math.min(100, Math.round(((usage?.monthTokens ?? 0) / limit) * 100)) : 0;
 
