@@ -134,5 +134,5 @@
 - [x] `loadtest/k6/storefront.js` + `checkout.js` senaryoları
 - [x] Uçtan uca tur doğrulandı: purge → seed → 8 sipariş/2 iade → mutabakat (0 sapma, 0 aşırı satış) → rapor + temizlik
 - [x] Tetikleyici düzeltmeleri: tedarikçi bölme (`payment_status`), test mağazası finans defteri temizliği
-- [ ] Gerçek 20.000 eşzamanlı kullanıcı: harici k6 Cloud hesabı gerekiyor (kullanıcı sağlamalı)
+- [ ] Gerçek 20.000 eşzamanlı kullanıcı: k6 Cloud senaryoları hazır (`loadtest/k6/cloud-run.sh`); Grafana Cloud hesabı + API token kullanıcı sağlamalı; kasa senaryosu için korumalı `/api/public/loadtest/*` uç noktaları eksik
 

@@ -56,3 +56,66 @@ kendini yeniler.
   20.000'e kadar ayarlanabilir (varsayılan 500); gerçek 20.000 VU için
   `loadtest/k6/storefront.js` ve `loadtest/k6/checkout.js` senaryolarını k6 Cloud
   veya dağıtık k6 operator üzerinde çalıştırın.
+
+## k6 Cloud bağlama (gerçek 20.000 VU)
+
+Senaryolar k6 Cloud'a hazırdır (`ext.loadimpact` ayarları gömülü; yerel çalıştırmada
+yok sayılır). Hedef adres herkese açık bir URL olmalı: yayındaki site
+(`https://mefticaret.com`) veya sabit önizleme adresi.
+
+### 1) Grafana Cloud hesabı ve token
+
+1. https://grafana.com → ücretsiz hesap → **Grafana Cloud** stack'i açın.
+2. Sol menüden **Testing & k6** → **k6 Cloud**'u etkinleştirin (free katman yeterli).
+3. **k6 Cloud → Setup & API token** sayfasından API token ve proje kimliğini (projectID)
+   kopyalayın. Token yalnız kendi bilgisayarınızda env değişkeni olarak tutulur;
+   projeye yazılmaz, buraya yapıştırılmaz.
+
+### 2) k6 kurulumu (kendi bilgisayarınız)
+
+```bash
+# macOS
+brew install grafana/tap/xk6 && brew install k6
+# Linux (deb/rpm) veya Windows: https://grafana.com/docs/k6/latest/set-up/install-v2/
+```
+
+### 3) TEST mağazalarını hazır et
+
+k6 senaryoları `test-store-1 … test-store-N` mağazalarına vurur. Bu mağazalar yalnızca
+yönetim panelindeki orkestratör turunda üretilir:
+
+1. Süper admin olarak `/admin/load-test` → **TURU BAŞLAT**.
+2. Tohumlama (Veri tohumlama) fazı bitince **DURAKLAT** — TEST verisi silinmeden kalır.
+3. Panelde ölçek hedefini k6 Cloud çalıştırmanızla tutarlı seçin (örn. 1.000 mağaza / 50.000 ürün).
+
+### 4) Yükü k6 Cloud ile bas
+
+```bash
+export K6_CLOUD_TOKEN="..."        # 1. adımdaki token
+export K6_CLOUD_PROJECT_ID="..."   # 1. adımdaki proje kimliği
+
+# Vitrin: 20.000 eşzamanlı gezinti/filtreleme (varsayılan bölge: Frankfurt)
+BASE_URL=https://mefticaret.com VUS=20000 DURATION=15m bash loadtest/k6/cloud-run.sh storefront
+
+# Kasa: 10.000 sipariş, sandbox ödeme
+BASE_URL=https://mefticaret.com VUS=1000 ORDERS=10000 bash loadtest/k6/cloud-run.sh checkout
+
+# Bölge değiştirmek için: K6_LOAD_ZONE=amazon:us:ashburn
+```
+
+Sonuçları ve p95/hata grafiklerini Grafana Cloud k6 panosundan izlersiniz; eşikler
+(p95 < 200 ms vitrin, p95 < 400 ms kasa, hata < %1/%2) aşıldığında k6 testi FAIL işaretler.
+
+### 5) Temizlik
+
+Test bitince `/admin/load-test` panelinden turu **DURDUR** — TEST verisi
+(`purge_load_test_data`) silinir, vitrine asla sızmaz.
+
+### Bilinen sınırlar
+
+- `checkout.js` senaryosu `/api/public/loadtest/cart` ve `/api/public/loadtest/checkout`
+  uç noktalarını çağırır; bu uç noktalar henüz projede yok — kasa yükü için önce
+  korumalı (yalnız TEST mağazaları + izin anahtarı) olarak eklenmeli.
+- k6 Cloud trafiği Grafana'nın IP havuzundan gelir; genel API hız sınırı (100 istek/dk)
+  IP başına uygulandığından yüksek VU'da 429'lar normaldir ve hata oranına dahildir.
+  Vitrin ölçümünü önce 1.000–2.000 VU ile doğrulayıp artırın.

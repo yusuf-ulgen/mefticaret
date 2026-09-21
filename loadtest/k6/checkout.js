@@ -15,11 +15,22 @@ const BASE_URL = __ENV.BASE_URL || "http://localhost:8080";
 const VUS = Number(__ENV.VUS || 200);
 const ORDERS = Number(__ENV.ORDERS || 2000);
 const STORE_COUNT = Number(__ENV.STORE_COUNT || 1000);
+const PROJECT_ID = Number(__ENV.K6_CLOUD_PROJECT_ID || 0);
 
 const placedOrders = new Counter("simulated_orders");
 const stockBlocked = new Counter("stock_blocked");
 
 export const options = {
+  // k6 Cloud ayarları — yerel `k6 run` bunları yok sayar.
+  ext: {
+    loadimpact: {
+      projectID: PROJECT_ID,
+      name: "mefticaret-checkout",
+      distribution: {
+        [__ENV.K6_LOAD_ZONE || "amazon:de:frankfurt"]: { loadZone: 1, percent: 100 },
+      },
+    },
+  },
   scenarios: {
     checkout: {
       executor: "shared-iterations",
