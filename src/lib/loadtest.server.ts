@@ -181,6 +181,8 @@ async function addFinding(
 async function runPurge(db: Admin, run: LoadTestRun, dropStores: boolean) {
   const { data, error } = await db.rpc("purge_load_test_data", { _drop_stores: dropStores } as never);
   if (error) throw new Error(`Temizlik başarısız: ${error.message}`);
+  resetTestStoreCache();
+
   const result = (data ?? {}) as Record<string, Json>;
   await logEvent(db, run.id, "purge", "Eski test verisi silindi", result);
   return result;
