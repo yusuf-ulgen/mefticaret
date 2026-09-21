@@ -135,20 +135,22 @@ export function SupplierImportWizard({
   });
 
   const importMutation = useMutation({
-    mutationFn: () =>
-      runImport({
+    mutationFn: () => {
+      if (!loaded) throw new Error("Aktarılacak besleme bulunamadı");
+      return runImport({
         data: {
           supplierId,
-          source: loaded!.source,
-          format: loaded!.format,
-          fileName: loaded!.fileName ?? undefined,
-          sourceUrl: loaded!.sourceUrl ?? undefined,
+          source: loaded.source,
+          format: loaded.format,
+          fileName: loaded.fileName ?? undefined,
+          sourceUrl: loaded.sourceUrl ?? undefined,
           fieldMap: mapping as Record<string, string>,
           rows: validated.filter((row) => row.errors.length === 0).slice(0, 5000),
           invalidCount: summary.invalid,
           errorRows: summary.errorRows,
         },
-      }),
+      });
+    },
     onSuccess: (result) => {
       toast.success(
         `${result.total} satır arka planda işlenmek üzere sıraya alındı${result.invalid ? ` (${result.invalid} hatalı satır atlandı)` : ""}`,

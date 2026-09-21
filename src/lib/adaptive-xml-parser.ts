@@ -45,7 +45,12 @@ function collectCandidates(
     return;
   }
   for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-    collectCandidates(child, path ? `${path}.${key}` : key, output, values, depth + 1);
+    const nextPath = path ? `${path}.${key}` : key;
+    if (child && typeof child === "object" && !Array.isArray(child) && keyScore(child) >= 2) {
+      output.push({ path: nextPath, label: key, count: 1, score: keyScore(child) * 8 });
+      values.set(nextPath, [child as Record<string, unknown>]);
+    }
+    collectCandidates(child, nextPath, output, values, depth + 1);
   }
 }
 
