@@ -77,6 +77,9 @@ const CARRIERS = [
 const SCHEDULES = [
   { value: "manual", label: "Elle" },
   { value: "hourly", label: "Saatlik" },
+  { value: "three_hourly", label: "3 saatte bir" },
+  { value: "six_hourly", label: "6 saatte bir" },
+  { value: "twelve_hourly", label: "12 saatte bir" },
   { value: "daily", label: "Günlük" },
 ];
 
@@ -338,7 +341,7 @@ function SupplierPortalPage() {
                 <Button
                   key={item.value}
                   variant="ghost"
-                  className={`h-14 min-w-0 flex-col gap-1 px-1 text-[10px] ${activeTab === item.value ? "text-supplier-brand" : "text-muted-foreground"}`}
+                  className={`h-14 min-w-0 flex-col gap-1 px-1 text-[11px] ${activeTab === item.value ? "text-supplier-brand" : "text-muted-foreground"}`}
                   onClick={() => setActiveTab(item.value)}
                   aria-current={activeTab === item.value ? "page" : undefined}
                 >
@@ -365,17 +368,17 @@ function ProfileSummary({ data, openOrders }: { data: Overview; openOrders: numb
   return (
     <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-        <div className="rounded-lg border bg-card p-5">
+        <div className="min-w-0 rounded-lg border bg-card p-4 sm:p-5">
           <p className="text-xs text-muted-foreground">Net bakiye</p>
-          <p className="mt-1 text-3xl font-semibold">{formatMoney(primary?.net ?? 0, primary?.currency ?? "TRY")}</p>
+          <p className="mt-1 break-words text-2xl font-semibold sm:text-3xl">{formatMoney(primary?.net ?? 0, primary?.currency ?? "TRY")}</p>
           <p className="mt-2 text-xs text-muted-foreground">Net = Hakediş − Ödenen − Kesilen</p>
         </div>
-        <div className="flex min-w-40 items-center justify-between rounded-lg border bg-card p-5 sm:flex-col sm:justify-center">
+        <div className="flex min-w-0 flex-col justify-center rounded-lg border bg-card p-4 sm:min-w-40 sm:p-5">
           <div>
             <p className="text-xs text-muted-foreground">Teslimat başarısı</p>
             <p className="mt-1 text-2xl font-semibold">%{deliveryRate}</p>
           </div>
-          <Progress className="ml-4 w-28 sm:ml-0 sm:mt-3" value={deliveryRate} />
+          <Progress className="mt-3 w-full sm:w-28" value={deliveryRate} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -605,7 +608,7 @@ function FeedPanel({
           name,
           kind,
           sourceUrl: sourceUrl.trim(),
-          schedule: schedule as "manual" | "hourly" | "daily",
+           schedule: schedule as "manual" | "hourly" | "three_hourly" | "six_hourly" | "twelve_hourly" | "daily",
           isActive: true,
         },
       }),
