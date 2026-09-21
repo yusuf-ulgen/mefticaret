@@ -17,6 +17,16 @@ function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: { "cache-control": "no-store" } });
 }
 
+function authenticatedFetch(apiKey: string): typeof fetch {
+  return (input, init) => {
+    const headers = new Headers(input instanceof Request ? input.headers : undefined);
+    new Headers(init?.headers).forEach((value, name) => headers.set(name, value));
+    if (headers.get("authorization") === `Bearer ${apiKey}`) headers.delete("authorization");
+    headers.set("apikey", apiKey);
+    return fetch(input, { ...init, headers });
+  };
+}
+
 async function readLimited(response: Response): Promise<Uint8Array> {
   const declared = Number(response.headers.get("content-length") ?? 0);
   if (declared > MAX_BYTES) throw new Error("Dosya çok büyük (25 MB üstü)");
@@ -53,7 +63,7 @@ async function handler({ request }: { request: Request }) {
     const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
     if (!url || !key) return json({ error: "Sunucu bağlantısı hazır değil" }, 503);
     const supabase = createClient<Database>(url, key, {
-      global: { headers: { Authorization: `Bearer ${token}` } },
+      global: { fetch: authenticatedFetch(key), headers: { Authorization: `Bearer ${token}` } },
       auth: { persistSession: false, autoRefreshToken: false },
     });
     const { data: claims, error: claimError } = await supabase.auth.getClaims(token);

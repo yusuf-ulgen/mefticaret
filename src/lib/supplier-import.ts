@@ -110,7 +110,7 @@ const FIELD_HINTS: Record<MeftiField, string[]> = {
   category: ["category", "kategori", "categoryname", "kategoriadi"],
   category_path: ["categorypath", "kategoriyolu", "kategoriagaci", "kategori ağacı", "categorytree"],
   brand: ["brand", "marka", "vendor", "manufacturer", "uretici"],
-  images: ["image", "images", "resim", "resimler", "gorsel", "görsel", "picture", "imageurl", "photo"],
+  images: ["image", "images", "resim", "resimler", "gorsel", "görsel", "picture", "imageurl", "photo", "detectedmedia"],
   videos: ["video", "videourl", "videolink", "reels", "youtube", "vimeo"],
   color: ["color", "colour", "renk"],
   size: ["size", "beden", "olcu", "ölçü", "numara"],
@@ -207,6 +207,10 @@ function normalizeRows(rows: Array<Record<string, unknown>>, format: ImportForma
 
   for (const row of rows) {
     const flat = flatten(row);
+    const detectedMedia = Object.entries(flat)
+      .filter(([key, value]) => /(image|images|img|picture|photo|resim|gorsel|görsel|video|media)/i.test(key) && /(?:https?:)?\/\//i.test(value))
+      .flatMap(([, value]) => splitMediaField(value));
+    if (detectedMedia.length) flat["__detected_media"] = detectedMedia.join("|");
     const record: Record<string, string> = {};
     for (const [key, value] of Object.entries(flat)) {
       if (!columns.includes(key)) columns.push(key);

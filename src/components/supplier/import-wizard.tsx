@@ -46,7 +46,7 @@ type Loaded = {
 
 type ParserDiagnostic = {
   message: string;
-  code?: string;
+  code?: string | undefined;
   rootCandidates: Array<{ path: string; label: string; count: number; score: number }>;
 };
 
@@ -58,6 +58,7 @@ export function SupplierImportWizard({
   onImported: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const sourceFileRef = useRef<File | null>(null);
   const [dragging, setDragging] = useState(false);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [mapping, setMapping] = useState<FieldMapping>({});
@@ -75,14 +76,14 @@ export function SupplierImportWizard({
   const summary = useMemo(() => importSummary(validated), [validated]);
 
   const remoteMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (rootOverride?: string) => {
       const { data } = await supabase.auth.getSession();
       const token = data.session?.access_token;
       if (!token) throw new Error("Oturumunuz sona erdi. Yeniden giriş yapın.");
       const response = await fetch("/api/xml-parser", {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-        body: JSON.stringify({ supplierId, url: remoteUrl.trim(), itemPath: itemPath.trim() || undefined }),
+        body: JSON.stringify({ supplierId, url: remoteUrl.trim(), itemPath: rootOverride || itemPath.trim() || undefined }),
       });
       const result = (await response.json()) as {
         error?: string;
@@ -159,8 +160,9 @@ export function SupplierImportWizard({
     onError: (error: Error) => toast.error(error.message),
   });
 
-  async function handleFile(file: File) {
+  async function handleFile(file: File, rootOverride?: string) {
     try {
+      sourceFileRef.current = file;
       if (file.size > 25_000_000) throw new Error("Dosya çok büyük (25 MB üstü)");
       const format = detectFormat(file.name);
       if (format === "xlsx") {
@@ -170,7 +172,7 @@ export function SupplierImportWizard({
       } else {
         const text = await file.text();
         const realFormat = detectFormat(file.name, text);
-        const parsed = parseTextFeed(text, realFormat, itemPath.trim() || undefined);
+        const parsed = parseTextFeed(text, realFormat, rootOverride || itemPath.trim() || undefined);
         applyParsed(parsed.columns, parsed.rows, realFormat, file.name, parsed.selectedRoot, parsed.rootCandidates);
       }
     } catch (error) {
@@ -434,7 +436,8 @@ export function SupplierImportWizard({
             diagnostic={diagnostic?.message ?? null}
             onSelectRoot={(path) => {
               setItemPath(path);
-              if (loaded?.source === "url" || remoteUrl.trim()) remoteMutation.mutate();
+              if (sourceFileRef.current && loaded?.source !== "url") void handleFile(sourceFileRef.current, path);
+              else if (remoteUrl.trim()) remoteMutation.mutate(path);
             }}
             onReload={() => remoteMutation.mutate()}
           />
