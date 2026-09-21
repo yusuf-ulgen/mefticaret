@@ -321,48 +321,12 @@ function AiPage() {
           >
             <h2 className="font-display text-lg font-semibold">Mağaza AI ayarları</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Sağlayıcı</Label>
-                <Select
-                  value={form.providerCode}
-                  onValueChange={(value) => {
-                    const provider = (providers ?? []).find((item) => item.code === value);
-                    setForm((prev) => ({
-                      ...prev,
-                      providerCode: value,
-                      model: provider?.default_model ?? provider?.models[0] ?? prev.model,
-                    }));
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(providers ?? []).map((provider) => (
-                      <SelectItem key={provider.id} value={provider.code}>
-                        {provider.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Model</Label>
-                <Select
-                  value={form.model}
-                  onValueChange={(value) => setForm((prev) => ({ ...prev, model: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(selectedProvider?.models ?? [form.model]).map((model) => (
-                      <SelectItem key={model} value={model}>
-                        {model}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Yapay zekâ motoru</Label>
+                <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+                  Model seçimi platform tarafından yönetilir: hızlı metin işleri, strateji işleri ve görsel
+                  üretimi otomatik olarak en uygun motora yönlendirilir.
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="ai-creativity">Yaratıcılık (0-1)</Label>
@@ -437,27 +401,19 @@ function AiPage() {
           </form>
 
           <aside className="surface-card space-y-3 p-6">
-            <h3 className="font-semibold">Sağlayıcılar</h3>
+            <h3 className="font-semibold">Kredi kullanımı</h3>
             <p className="text-sm text-muted-foreground">
-              Sağlayıcı katmanı modülerdir; yeni sağlayıcı eklemek için sağlayıcı kaydı ve anahtarı
-              yeterlidir.
+              Her yapay zekâ işlemi kredi düşer: ürün açıklaması ve SEO metni 1 kredi; görsel üretimi,
+              kampanya taslağı ve CoPilot işlemi 2 kredi. Bakiyenizi üst çubuktaki kredi rozetinden takip
+              edebilir, tek tıkla yükleme yapabilirsiniz.
             </p>
-            {(providers ?? []).map((provider) => (
-              <article key={provider.id} className="rounded-lg border border-border p-3">
-                <header className="flex items-center justify-between gap-2">
-                  <span className="font-medium">{provider.name}</span>
-                  <Badge variant={provider.is_enabled ? "default" : "outline"}>
-                    {provider.is_enabled ? "Hazır" : "Anahtar bekliyor"}
-                  </Badge>
-                </header>
-                <p className="pt-1 text-xs text-muted-foreground">{provider.description}</p>
-                {provider.requires_api_key ? (
-                  <p className="pt-1 text-xs text-muted-foreground">
-                    Bu sağlayıcı için platform yöneticisi tarafından anahtar tanımlanmalıdır.
-                  </p>
-                ) : null}
-              </article>
-            ))}
+            <div className="rounded-lg border border-border p-3 text-sm">
+              <p className="font-medium">Motor</p>
+              <p className="pt-1 text-xs text-muted-foreground">
+                Metin ve strateji işleri ile görsel üretimi platform tarafından yönetilir; ayrı anahtar veya
+                sağlayıcı seçimi gerekmez.
+              </p>
+            </div>
           </aside>
         </TabsContent>
 
