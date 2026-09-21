@@ -13,6 +13,8 @@
  * yalnızca `stores.is_test` işaretli kayıtlar oluşturulur/silinir.
  */
 
+export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+
 const PHASES = ["purge", "seed", "traffic", "verify", "report"] as const;
 export type LoadTestPhase = (typeof PHASES)[number];
 
@@ -51,9 +53,9 @@ export type LoadTestRun = {
   cycleNo: number;
   status: string;
   phase: LoadTestPhase;
-  scale: Record<string, unknown>;
-  metrics: Record<string, unknown>;
-  summary: Record<string, unknown>;
+  scale: Record<string, Json>;
+  metrics: Record<string, Json>;
+  summary: Record<string, Json>;
   findingsCount: number;
   error: string | null;
   startedAt: string;
@@ -109,15 +111,15 @@ export async function updateLoadTestConfig(patch: Partial<LoadTestConfig>): Prom
 
 /* -------------------------------------------------------------------- runs */
 
-function mapRun(row: Record<string, unknown>): LoadTestRun {
+function mapRun(row: Record<string, Json>): LoadTestRun {
   return {
     id: String(row["id"]),
     cycleNo: Number(row["cycle_no"] ?? 1),
     status: String(row["status"] ?? "running"),
     phase: String(row["phase"] ?? "purge") as LoadTestPhase,
-    scale: (row["scale"] ?? {}) as Record<string, unknown>,
-    metrics: (row["metrics"] ?? {}) as Record<string, unknown>,
-    summary: (row["summary"] ?? {}) as Record<string, unknown>,
+    scale: (row["scale"] ?? {}) as Record<string, Json>,
+    metrics: (row["metrics"] ?? {}) as Record<string, Json>,
+    summary: (row["summary"] ?? {}) as Record<string, Json>,
     findingsCount: Number(row["findings_count"] ?? 0),
     error: (row["error"] as string | null) ?? null,
     startedAt: String(row["started_at"]),
@@ -135,7 +137,7 @@ async function activeRun(db: Admin): Promise<LoadTestRun | null> {
     .order("started_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  return data ? mapRun(data as Record<string, unknown>) : null;
+  return data ? mapRun(data as Record<string, Json>) : null;
 }
 
 async function lastRun(db: Admin): Promise<LoadTestRun | null> {
@@ -145,7 +147,7 @@ async function lastRun(db: Admin): Promise<LoadTestRun | null> {
     .order("started_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  return data ? mapRun(data as Record<string, unknown>) : null;
+  return data ? mapRun(data as Record<string, Json>) : null;
 }
 
 async function logEvent(
@@ -153,13 +155,13 @@ async function logEvent(
   runId: string,
   phase: string,
   message: string,
-  meta: Record<string, unknown> = {},
+  meta: Record<string, Json> = {},
   level: "INFO" | "WARNING" | "CRITICAL" = "INFO",
 ) {
   await db.from("load_test_events").insert({ run_id: runId, phase, message, level, meta } as never);
 }
 
-async function patchRun(db: Admin, runId: string, patch: Record<string, unknown>) {
+async function patchRun(db: Admin, runId: string, patch: Record<string, Json>) {
   await db.from("load_test_runs").update(patch as never).eq("id", runId);
 }
 
@@ -169,7 +171,7 @@ async function addFinding(
   kind: string,
   severity: "WARNING" | "CRITICAL",
   detail: string,
-  meta: Record<string, unknown> = {},
+  meta: Record<string, Json> = {},
 ) {
   await db.from("load_test_findings").insert({ run_id: runId, kind, severity, detail, meta } as never);
 }
@@ -179,7 +181,7 @@ async function addFinding(
 async function runPurge(db: Admin, run: LoadTestRun, dropStores: boolean) {
   const { data, error } = await db.rpc("purge_load_test_data", { _drop_stores: dropStores } as never);
   if (error) throw new Error(`Temizlik başarısız: ${error.message}`);
-  const result = (data ?? {}) as Record<string, unknown>;
+  const result = (data ?? {}) as Record<string, Json>;
   await logEvent(db, run.id, "purge", "Eski test verisi silindi", result);
   return result;
 }
@@ -295,7 +297,7 @@ async function seedProducts(db: Admin, run: LoadTestRun, target: number, deadlin
       .select("id, store_id, base_price");
     if (error) throw new Error(`Ürün tohumlama hatası: ${error.message}`);
 
-    const variantRows: Record<string, unknown>[] = [];
+    const variantRows: Record<string, Json>[] = [];
     for (const product of (inserted ?? []) as { id: string; store_id: string; base_price: number }[]) {
       for (const [position, variant] of variantMatrix(Number(product.base_price)).entries()) {
         variantRows.push({
@@ -587,7 +589,7 @@ function baseUrlFrom(request?: Request): string {
 }
 
 /** Tek bir cron adımı: aktif turu bir adım ilerletir veya yeni tur başlatır. */
-export async function advanceLoadTestCycle(request?: Request): Promise<Record<string, unknown>> {
+export async function advanceLoadTestCycle(request?: Request): Promise<Record<string, Json>> {
   const db = await admin();
   const config = await getLoadTestConfig();
   const deadline = Date.now() + TICK_BUDGET_MS;
@@ -620,7 +622,7 @@ export async function advanceLoadTestCycle(request?: Request): Promise<Record<st
       .select("*")
       .single();
     if (error) throw new Error(error.message);
-    run = mapRun(data as Record<string, unknown>);
+    run = mapRun(data as Record<string, Json>);
     await logEvent(db, run.id, "purge", `Tur ${run.cycleNo} başladı`, { scale: run.scale });
   }
 
@@ -691,7 +693,7 @@ export async function advanceLoadTestCycle(request?: Request): Promise<Record<st
       }
       case "report": {
         const fresh = await db.from("load_test_runs").select("*").eq("id", run.id).single();
-        const current = mapRun(fresh.data as Record<string, unknown>);
+        const current = mapRun(fresh.data as Record<string, Json>);
         const metrics = current.metrics as Record<string, number | Record<string, number>>;
         const health = (metrics["health"] ?? {}) as Record<string, number>;
         const latency = Number(health["apiP95"] ?? metrics["storefrontP95"] ?? 0);
@@ -789,9 +791,9 @@ export async function loadTestStatus() {
   return {
     config,
     activeRun: active,
-    runs: ((runRows ?? []) as Record<string, unknown>[]).map(mapRun),
-    events: (eventRows ?? []) as Record<string, unknown>[],
-    findings: (findingRows ?? []) as Record<string, unknown>[],
+    runs: ((runRows ?? []) as Record<string, Json>[]).map(mapRun),
+    events: (eventRows ?? []) as Record<string, Json>[],
+    findings: (findingRows ?? []) as Record<string, Json>[],
     nextCycleAt: active ? null : (previous?.nextCycleAt ?? null),
     testStores: testStores ?? 0,
     thresholds: LOADTEST_THRESHOLDS,
@@ -803,7 +805,7 @@ export async function loadTestStatus() {
 export async function stopLoadTest(cleanup: boolean) {
   const db = await admin();
   const run = await activeRun(db);
-  let purge: Record<string, unknown> | null = null;
+  let purge: Record<string, Json> | null = null;
   if (run) {
     if (cleanup) purge = await runPurge(db, run, true);
     await patchRun(db, run.id, {
@@ -814,7 +816,7 @@ export async function stopLoadTest(cleanup: boolean) {
     await logEvent(db, run.id, run.phase, "Tur yönetici tarafından durduruldu", purge ?? {}, "WARNING");
   } else if (cleanup) {
     const { data } = await db.rpc("purge_load_test_data", { _drop_stores: true } as never);
-    purge = (data ?? {}) as Record<string, unknown>;
+    purge = (data ?? {}) as Record<string, Json>;
   }
   testStoreCache = undefined;
   await updateLoadTestConfig({ enabled: false, paused: false });
