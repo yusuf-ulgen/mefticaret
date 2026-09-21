@@ -96,16 +96,16 @@
 - [ ] Gerçek tedarikçi hesabı ile uçtan uca test (dosya yükleme → sipariş → komisyon defteri)
 
 ## Mobil uyumlu B2B Tedarikçi Paneli
-- [ ] Tedarikçi panelinin tüm profil, sipariş, ürün, değişim, analiz, RFQ, finans ve içe aktarma ekranlarını 393 px telefonda taşmasız ve dokunmatik kullanıma uygun hale getir
+- [x] Tedarikçi panelinin tüm profil, sipariş, ürün, değişim, analiz, RFQ, finans ve içe aktarma ekranlarını 393 px telefonda taşmasız ve dokunmatik kullanıma uygun hale getir
 - [x] Trend_Molli referansındaki 20 ekranı PDF olarak teslim al
 - [ ] 20 ekranın sırasını mevcut tedarikçi panelindeki işlevlerle eşleştir
 - [ ] Mevcut tedarikçi panelini yenile; ayrı mobil uygulama veya ikinci bağımsız panel oluşturma
-- [ ] Mobil uyumlu panel kabuğu ve alt menü: Profil, Siparişler, Ürünler, Değişimler, Analiz
-- [ ] Gerçek cüzdan, sipariş ayrıntısı, kargo, ödeme ve teslimat başarı görünümü
-- [ ] Akıllı XML/CSV/Excel alan eşleştirme: varyant, galeri, vergi ve GTİP dahil
+- [x] Mobil uyumlu panel kabuğu ve alt menü: Profil, Siparişler, Ürünler, Değişimler, Analiz
+- [x] Gerçek cüzdan, sipariş ayrıntısı, kargo, ödeme ve teslimat başarı görünümü
+- [x] Akıllı XML/CSV/Excel alan eşleştirme: varyant, galeri, vergi ve GTİP dahil
 - [ ] Rol kontrollü Mağazama Aktar ve çift yönlü stok eşlemesi
-- [ ] İade/değişim ile stok/fiyat hareketleri görünümü
-- [ ] Gerçek verili Recharts analiz ekranları ve mobil/masaüstü doğrulama
+- [x] İade/değişim ile stok/fiyat hareketleri görünümü
+- [x] Gerçek verili Recharts analiz ekranları ve mobil/masaüstü doğrulama
 
 ## Sistem kararlılığı
 - [x] Arka plan işi kuyruğunda kullanıcı yetkisini doğrula ve güvenli sunucu bağlantısıyla kuyruğa yaz
