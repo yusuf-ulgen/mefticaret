@@ -17,7 +17,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { MappingStudio } from "@/components/supplier/mapping-studio";
-import { supplierDeskFetchRemote, supplierDeskImport } from "@/lib/supplier-desk.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { supplierDeskImport } from "@/lib/supplier-desk.functions";
 import {
   MEFTI_FIELDS,
   detectFormat,
@@ -39,6 +40,14 @@ type Loaded = {
   fileName: string | null;
   sourceUrl: string | null;
   source: "file" | "url";
+  selectedRoot: string | null;
+  rootCandidates: Array<{ path: string; label: string; count: number; score: number }>;
+};
+
+type ParserDiagnostic = {
+  message: string;
+  code?: string | undefined;
+  rootCandidates: Array<{ path: string; label: string; count: number; score: number }>;
 };
 
 export function SupplierImportWizard({
@@ -49,14 +58,15 @@ export function SupplierImportWizard({
   onImported: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const sourceFileRef = useRef<File | null>(null);
   const [dragging, setDragging] = useState(false);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [mapping, setMapping] = useState<FieldMapping>({});
   const [mapOpen, setMapOpen] = useState(false);
   const [remoteUrl, setRemoteUrl] = useState("");
   const [itemPath, setItemPath] = useState("");
+  const [diagnostic, setDiagnostic] = useState<ParserDiagnostic | null>(null);
 
-  const fetchRemote = useServerFn(supplierDeskFetchRemote);
   const runImport = useServerFn(supplierDeskImport);
 
   const validated: ImportRow[] = useMemo(
@@ -66,9 +76,44 @@ export function SupplierImportWizard({
   const summary = useMemo(() => importSummary(validated), [validated]);
 
   const remoteMutation = useMutation({
-    mutationFn: () =>
-      fetchRemote({ data: { supplierId, url: remoteUrl.trim(), itemPath: itemPath.trim() || undefined } }),
+    mutationFn: async (rootOverride?: string) => {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error("Oturumunuz sona erdi. Yeniden giriş yapın.");
+      const response = await fetch("/api/xml-parser", {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+        body: JSON.stringify({ supplierId, url: remoteUrl.trim(), itemPath: rootOverride || itemPath.trim() || undefined }),
+      });
+      const result = (await response.json()) as {
+        error?: string;
+        code?: string;
+        format?: ImportFormat;
+        columns?: string[];
+        rows?: Array<Record<string, string>>;
+        totalRows?: number;
+        mapping?: Record<string, string>;
+        selectedRoot?: string | null;
+        rootCandidates?: Array<{ path: string; label: string; count: number; score: number }>;
+      };
+      if (!response.ok || !result.format || !result.columns || !result.rows) {
+        const error = new Error(result.error ?? "Besleme çözümlenemedi") as Error & { diagnostic?: ParserDiagnostic };
+        error.diagnostic = { message: error.message, code: result.code, rootCandidates: result.rootCandidates ?? [] };
+        throw error;
+      }
+      return {
+        format: result.format,
+        columns: result.columns,
+        rows: result.rows,
+        totalRows: result.totalRows ?? result.rows.length,
+        mapping: result.mapping ?? {},
+        selectedRoot: result.selectedRoot ?? null,
+        rootCandidates: result.rootCandidates ?? [],
+      };
+    },
     onSuccess: (result) => {
+      sourceFileRef.current = null;
+      setDiagnostic(null);
       setLoaded({
         format: result.format,
         columns: result.columns,
@@ -76,29 +121,37 @@ export function SupplierImportWizard({
         fileName: null,
         sourceUrl: remoteUrl.trim(),
         source: "url",
+        selectedRoot: result.selectedRoot,
+        rootCandidates: result.rootCandidates,
       });
       setMapping(result.mapping as FieldMapping);
       setMapOpen(true);
       toast.success(`${result.totalRows} satır okundu`);
     },
-    onError: (error: Error) => toast.error(error.message),
+    onError: (error: Error & { diagnostic?: ParserDiagnostic }) => {
+      setDiagnostic(error.diagnostic ?? { message: error.message, rootCandidates: [] });
+      setMapOpen(true);
+      toast.error(error.message);
+    },
   });
 
   const importMutation = useMutation({
-    mutationFn: () =>
-      runImport({
+    mutationFn: () => {
+      if (!loaded) throw new Error("Aktarılacak besleme bulunamadı");
+      return runImport({
         data: {
           supplierId,
-          source: loaded!.source,
-          format: loaded!.format,
-          fileName: loaded!.fileName ?? undefined,
-          sourceUrl: loaded!.sourceUrl ?? undefined,
+          source: loaded.source,
+          format: loaded.format,
+          fileName: loaded.fileName ?? undefined,
+          sourceUrl: loaded.sourceUrl ?? undefined,
           fieldMap: mapping as Record<string, string>,
           rows: validated.filter((row) => row.errors.length === 0).slice(0, 5000),
           invalidCount: summary.invalid,
           errorRows: summary.errorRows,
         },
-      }),
+      });
+    },
     onSuccess: (result) => {
       toast.success(
         `${result.total} satır arka planda işlenmek üzere sıraya alındı${result.invalid ? ` (${result.invalid} hatalı satır atlandı)` : ""}`,
@@ -110,21 +163,26 @@ export function SupplierImportWizard({
     onError: (error: Error) => toast.error(error.message),
   });
 
-  async function handleFile(file: File) {
+  async function handleFile(file: File, rootOverride?: string) {
     try {
+      sourceFileRef.current = file;
+      if (file.size > 25_000_000) throw new Error("Dosya çok büyük (25 MB üstü)");
       const format = detectFormat(file.name);
       if (format === "xlsx") {
         const buffer = await file.arrayBuffer();
         const parsed = parseWorkbook(buffer);
-        applyParsed(parsed.columns, parsed.rows, "xlsx", file.name);
+        applyParsed(parsed.columns, parsed.rows, "xlsx", file.name, parsed.selectedRoot, parsed.rootCandidates);
       } else {
         const text = await file.text();
         const realFormat = detectFormat(file.name, text);
-        const parsed = parseTextFeed(text, realFormat, itemPath.trim() || undefined);
-        applyParsed(parsed.columns, parsed.rows, realFormat, file.name);
+        const parsed = parseTextFeed(text, realFormat, rootOverride || itemPath.trim() || undefined);
+        applyParsed(parsed.columns, parsed.rows, realFormat, file.name, parsed.selectedRoot, parsed.rootCandidates);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Dosya okunamadı");
+      const message = error instanceof Error ? error.message : "Dosya okunamadı";
+      setDiagnostic({ message, rootCandidates: [] });
+      setMapOpen(true);
+      toast.error(message);
     }
   }
 
@@ -133,12 +191,17 @@ export function SupplierImportWizard({
     rows: Array<Record<string, string>>,
     format: ImportFormat,
     fileName: string,
+    selectedRoot: string | null = null,
+    rootCandidates: Array<{ path: string; label: string; count: number; score: number }> = [],
   ) {
     if (!rows.length) {
-      toast.error("Dosyada okunabilir satır bulunamadı");
+      setDiagnostic({ message: "Dosyada okunabilir ürün satırı bulunamadı", code: "no_rows", rootCandidates });
+      setMapOpen(true);
+      toast.error("Dosyada okunabilir ürün satırı bulunamadı");
       return;
     }
-    setLoaded({ format, columns, rows, fileName, sourceUrl: null, source: "file" });
+    setDiagnostic(null);
+    setLoaded({ format, columns, rows, fileName, sourceUrl: null, source: "file", selectedRoot, rootCandidates });
     setMapping(suggestMapping(columns));
     setMapOpen(true);
     toast.success(`${rows.length} satır okundu`);
@@ -371,12 +434,30 @@ export function SupplierImportWizard({
               setItemPath(preset.itemPath);
               toast.success(`${preset.label} şablonu uygulandı`);
             }}
+            selectedRoot={loaded?.selectedRoot ?? null}
+            rootCandidates={loaded?.rootCandidates ?? diagnostic?.rootCandidates ?? []}
+            diagnostic={diagnostic?.message ?? null}
+            onSelectRoot={(path) => {
+              setItemPath(path);
+              if (sourceFileRef.current && loaded?.source !== "url") void handleFile(sourceFileRef.current, path);
+              else if (remoteUrl.trim()) remoteMutation.mutate(path);
+            }}
+            onReload={() => {
+              if (sourceFileRef.current && loaded?.source !== "url") void handleFile(sourceFileRef.current, itemPath.trim() || undefined);
+              else remoteMutation.mutate(itemPath.trim() || undefined);
+            }}
           />
-          <DialogFooter className="sticky bottom-0 -mx-4 grid grid-cols-2 gap-2 border-t bg-background px-4 py-3 sm:static sm:mx-0 sm:flex sm:border-0 sm:bg-transparent sm:p-0">
+          <DialogFooter className="sticky bottom-0 -mx-4 grid gap-2 border-t bg-background px-4 py-3 sm:static sm:mx-0 sm:flex sm:border-0 sm:bg-transparent sm:p-0">
             <Button className="w-full" variant="outline" onClick={() => setMapping(suggestMapping(loaded?.columns ?? []))}>
               Otomatik eşleştir
             </Button>
-            <Button className="w-full" onClick={() => setMapOpen(false)}>Tamam</Button>
+            <Button
+              className="w-full"
+              disabled={!loaded || summary.valid === 0 || importMutation.isPending}
+              onClick={() => importMutation.mutate()}
+            >
+              Eşleştirmeyi Uygula ve Toplu Aktarımı Başlat
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

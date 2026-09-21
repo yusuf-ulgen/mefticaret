@@ -30,20 +30,20 @@ const assertImportRate = async (userId: string) => {
 
 const rowSchema = z.object({
   index: z.number(),
-  sku: z.string().trim().min(1),
-  barcode: z.string().nullable(),
-  title: z.string().trim().min(1),
-  description: z.string().nullable(),
-  shortDescription: z.string().nullable().default(null),
-  costPrice: z.number(),
-  retailPrice: z.number().nullable(),
-  discountPrice: z.number().nullable().default(null),
-  taxRate: z.number().nullable().default(null),
-  stock: z.number(),
-  category: z.string().nullable(),
-  categoryPath: z.array(z.string()).max(6).default([]),
-  brand: z.string().nullable(),
-  images: z.array(z.string()),
+  sku: z.string().trim().min(1).max(120),
+  barcode: z.string().max(120).nullable(),
+  title: z.string().trim().min(1).max(400),
+  description: z.string().max(8000).nullable(),
+  shortDescription: z.string().max(1000).nullable().default(null),
+  costPrice: z.number().finite().min(0).max(100_000_000),
+  retailPrice: z.number().finite().min(0).max(100_000_000).nullable(),
+  discountPrice: z.number().finite().min(0).max(100_000_000).nullable().default(null),
+  taxRate: z.number().finite().min(0).max(100).nullable().default(null),
+  stock: z.number().int().min(0).max(10_000_000),
+  category: z.string().max(200).nullable(),
+  categoryPath: z.array(z.string().max(200)).max(6).default([]),
+  brand: z.string().max(200).nullable(),
+  images: z.array(z.string().max(2000)).max(20),
   videos: z
     .array(
       z.object({
@@ -55,13 +55,13 @@ const rowSchema = z.object({
     )
     .max(6)
     .default([]),
-  color: z.string().nullable(),
-  size: z.string().nullable(),
-  currency: z.string().nullable(),
-  fabric: z.string().nullable().default(null),
-  modelSize: z.string().nullable().default(null),
-  hsCode: z.string().nullable().default(null),
-  weight: z.number().nullable().default(null),
+  color: z.string().max(120).nullable(),
+  size: z.string().max(120).nullable(),
+  currency: z.string().max(10).nullable(),
+  fabric: z.string().max(200).nullable().default(null),
+  modelSize: z.string().max(200).nullable().default(null),
+  hsCode: z.string().max(40).nullable().default(null),
+  weight: z.number().finite().min(0).max(100_000).nullable().default(null),
   variants: z
     .array(
       z.object({
@@ -263,41 +263,6 @@ export const supplierDeskApproveRfq = createServerFn({ method: "POST" })
     const { error: updateError } = await supabaseAdmin.from("rfq_requests").update({ status: "won", purchase_order_id: purchaseOrderId }).eq("id", rfq.id);
     if (updateError) throw new Error(updateError.message);
     return { purchaseOrderId };
-  });
-
-/** Uzak bağlantıdaki dosyayı indirip ham satırları döndürür (alan eşleştirme için). */
-export const supplierDeskFetchRemote = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    z
-      .object({
-        supplierId: z.guid(),
-        url: z.string().url().max(2000),
-        itemPath: z.string().trim().max(120).optional(),
-      })
-      .parse(data),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    await assertSupplier(supabase, userId, data.supplierId);
-    await assertImportRate(userId);
-
-    const response = await fetch(data.url, { headers: { "user-agent": "MefticaretSupplierPortal/1.0" } });
-    if (!response.ok) throw new Error(`Kaynak yanıtı ${response.status}`);
-    const text = await response.text();
-    if (text.length > 25_000_000) throw new Error("Dosya çok büyük (25 MB üstü)");
-
-    const { detectFormat, parseTextFeed, suggestMapping } = await import("@/lib/supplier-import");
-    const format = detectFormat(data.url, text);
-    if (format === "xlsx") throw new Error("Excel bağlantıları desteklenmiyor; dosyayı yükleyin");
-    const parsed = parseTextFeed(text, format, data.itemPath);
-    return {
-      format,
-      columns: parsed.columns,
-      rows: parsed.rows.slice(0, 2000),
-      totalRows: parsed.rows.length,
-      mapping: suggestMapping(parsed.columns),
-    };
   });
 
 /** Doğrulanmış satırları tedarikçi kataloğuna yazar ve yükleme kaydı oluşturur. */
