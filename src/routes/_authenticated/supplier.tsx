@@ -737,10 +737,12 @@ function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }
   const [amount, setAmount] = useState("");
 
   const bank = useMutation({
-    mutationFn: () =>
-      saveBank({
-        data: { supplierId: primary!.supplierId, iban: iban.trim(), accountName: accountName.trim() || undefined },
-      }),
+    mutationFn: () => {
+      if (!primary) throw new Error("Tedarikçi hesabı bulunamadı");
+      return saveBank({
+        data: { supplierId: primary.supplierId, iban: iban.trim(), accountName: accountName.trim() || undefined },
+      });
+    },
     onSuccess: () => {
       toast.success("Banka bilgisi kaydedildi");
       onSaved();
@@ -749,10 +751,12 @@ function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }
   });
 
   const payout = useMutation({
-    mutationFn: () =>
-      requestPayout({
-        data: { supplierId: primary!.supplierId, amount: Number(amount.replace(",", ".")) },
-      }),
+    mutationFn: () => {
+      if (!primary) throw new Error("Tedarikçi hesabı bulunamadı");
+      return requestPayout({
+        data: { supplierId: primary.supplierId, amount: Number(amount.replace(",", ".")) },
+      });
+    },
     onSuccess: () => {
       toast.success("Ödeme talebiniz iletildi");
       setAmount("");
