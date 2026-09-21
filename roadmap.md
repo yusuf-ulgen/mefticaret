@@ -146,3 +146,4 @@
 - [x] Boş veya hatalı içerikte tanı kartı, proxy yeniden yükleme ve manuel kök seçimi
 - [x] Kaynak düğüm ağacı, örnek değerler, akıllı eşleştirme ve toplu aktarım çağrısı
 - [x] Medya düğümleri ile protokol/karakter onarımının ayrıştırıcı düzeyinde doğrulanması
+- [x] Tüm yapay zekâ işleri tek OpenAI motoruna bağlandı (hızlı/strateji/görsel yönlendirme), kredi cüzdanı + paket satın alma + süper admin AI Motor Masası + /api/ai/execute
