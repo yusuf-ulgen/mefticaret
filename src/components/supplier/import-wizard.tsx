@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { MappingStudio } from "@/components/supplier/mapping-studio";
 import { supplierDeskFetchRemote, supplierDeskImport } from "@/lib/supplier-desk.functions";
 import {
   MEFTI_FIELDS,
