@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { MappingStudio } from "@/components/supplier/mapping-studio";
 import { supplierDeskFetchRemote, supplierDeskImport } from "@/lib/supplier-desk.functions";
 import {
   MEFTI_FIELDS,
@@ -59,7 +60,7 @@ export function SupplierImportWizard({
   const runImport = useServerFn(supplierDeskImport);
 
   const validated: ImportRow[] = useMemo(
-    () => (loaded ? validateRows(loaded.rows, mapping) : []),
+    () => (loaded ? validateRows(loaded.rows, mapping, loaded.sourceUrl) : []),
     [loaded, mapping],
   );
   const summary = useMemo(() => importSummary(validated), [validated]);
@@ -225,6 +226,11 @@ export function SupplierImportWizard({
               <Badge variant="secondary">{summary.total} satır</Badge>
               <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">{summary.valid} geçerli</Badge>
               {summary.invalid ? <Badge variant="destructive">{summary.invalid} hatalı</Badge> : null}
+              {summary.images ? <Badge variant="outline">{summary.images} görsel</Badge> : null}
+              {summary.videos ? <Badge variant="outline">{summary.videos} video</Badge> : null}
+              {summary.variants ? <Badge variant="outline">{summary.variants} varyant</Badge> : null}
+              {summary.missingSku ? <Badge variant="destructive">{summary.missingSku} SKU eksik</Badge> : null}
+              {summary.zeroStock ? <Badge variant="outline">{summary.zeroStock} stoksuz</Badge> : null}
               <Button size="sm" variant="outline" onClick={() => setMapOpen(true)}>
                 Alan eşleştirme
               </Button>
@@ -264,6 +270,31 @@ export function SupplierImportWizard({
             </p>
           )}
 
+          {summary.warningRows.length ? (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3">
+              <p className="flex items-center gap-2 text-sm font-medium text-amber-700">
+                <AlertTriangle className="size-4" aria-hidden />
+                {summary.warningRows.length} satırda uyarı var — satırlar aktarılır
+              </p>
+              <ul className="mt-2 space-y-1 text-xs text-amber-700/90">
+                {summary.warningRows.slice(0, 10).map((row) => (
+                  <li key={`w-${row.line}`}>
+                    Satır {row.line} {row.sku ? `(${row.sku})` : ""}: {row.warnings.join(", ")}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {importMutation.isPending ? (
+            <div className="space-y-1">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div className="h-full w-1/3 animate-[loading_1.2s_ease-in-out_infinite] rounded-full bg-primary" />
+              </div>
+              <p className="text-xs text-muted-foreground">Aktarım kuyruğa alınıyor…</p>
+            </div>
+          ) : null}
+
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead className="text-left uppercase text-muted-foreground">
@@ -302,44 +333,24 @@ export function SupplierImportWizard({
       ) : null}
 
       <Dialog open={mapOpen} onOpenChange={setMapOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
           <DialogHeader>
-            <DialogTitle>Alan eşleştirme</DialogTitle>
+            <DialogTitle>Mapping Studio</DialogTitle>
             <DialogDescription>
-              Dosyanızdaki sütunları Mefticaret alanlarıyla eşleştirin. Zorunlu alanlar işaretlidir.
+              Soldaki besleme düğümlerini sağdaki Mefticaret alanlarına sürükleyin veya düğümü seçip alana dokunun.
+              Hazır tedarikçi şablonlarıyla eşleştirme tek tıkla dolar.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            {MEFTI_FIELDS.map((field) => (
-              <div key={field.key} className="grid grid-cols-1 gap-1 sm:grid-cols-[180px_1fr] sm:items-center">
-                <Label className="text-xs" htmlFor={`map-${field.key}`}>
-                  {field.label}
-                  {field.required ? <span className="ml-1 text-destructive">*</span> : null}
-                </Label>
-                <select
-                  id={`map-${field.key}`}
-                  className="h-9 rounded-md border bg-background px-2 text-sm"
-                  value={mapping[field.key] ?? ""}
-                  onChange={(event) =>
-                    setMapping((previous) => {
-                      const next = { ...previous };
-                      const value = event.target.value;
-                      if (!value) delete next[field.key as MeftiField];
-                      else next[field.key as MeftiField] = value;
-                      return next;
-                    })
-                  }
-                >
-                  <option value="">— eşleştirilmedi —</option>
-                  {(loaded?.columns ?? []).map((column) => (
-                    <option key={column} value={column}>
-                      {column}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
-          </div>
+          <MappingStudio
+            columns={loaded?.columns ?? []}
+            rows={loaded?.rows ?? []}
+            mapping={mapping}
+            onChange={setMapping}
+            onPreset={(preset) => {
+              setItemPath(preset.itemPath);
+              toast.success(`${preset.label} şablonu uygulandı`);
+            }}
+          />
           <DialogFooter>
             <Button variant="outline" onClick={() => setMapping(suggestMapping(loaded?.columns ?? []))}>
               Otomatik eşleştir

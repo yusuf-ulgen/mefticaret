@@ -34,15 +34,48 @@ const rowSchema = z.object({
   barcode: z.string().nullable(),
   title: z.string().trim().min(1),
   description: z.string().nullable(),
+  shortDescription: z.string().nullable().default(null),
   costPrice: z.number(),
   retailPrice: z.number().nullable(),
+  discountPrice: z.number().nullable().default(null),
+  taxRate: z.number().nullable().default(null),
   stock: z.number(),
   category: z.string().nullable(),
+  categoryPath: z.array(z.string()).max(6).default([]),
   brand: z.string().nullable(),
   images: z.array(z.string()),
+  videos: z
+    .array(
+      z.object({
+        url: z.string(),
+        source: z.string(),
+        embedUrl: z.string(),
+        thumbnailUrl: z.string().nullable(),
+      }),
+    )
+    .max(6)
+    .default([]),
   color: z.string().nullable(),
   size: z.string().nullable(),
   currency: z.string().nullable(),
+  fabric: z.string().nullable().default(null),
+  modelSize: z.string().nullable().default(null),
+  hsCode: z.string().nullable().default(null),
+  weight: z.number().nullable().default(null),
+  variants: z
+    .array(
+      z.object({
+        name: z.string(),
+        value: z.string(),
+        barcode: z.string().nullable(),
+        stock: z.number(),
+        price: z.number().nullable(),
+        image: z.string().nullable(),
+      }),
+    )
+    .max(60)
+    .default([]),
+  warnings: z.array(z.string()).default([]),
   errors: z.array(z.string()),
 });
 
