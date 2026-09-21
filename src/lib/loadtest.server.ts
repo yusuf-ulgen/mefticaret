@@ -92,7 +92,7 @@ export async function getLoadTestConfig(): Promise<LoadTestConfig> {
   };
 }
 
-export async function updateLoadTestConfig(patch: Partial<LoadTestConfig>): Promise<LoadTestConfig> {
+export async function updateLoadTestConfig(patch: { [K in keyof LoadTestConfig]?: LoadTestConfig[K] | undefined }): Promise<LoadTestConfig> {
   const db = await admin();
   const row: Record<string, number | boolean> = {};
   if (patch.enabled !== undefined) row["enabled"] = patch.enabled;
