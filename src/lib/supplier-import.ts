@@ -8,6 +8,7 @@ import Papa from "papaparse";
 import * as XLSX from "@e965/xlsx";
 
 import { parseXmlItems } from "@/lib/dropshipping";
+import { splitFeedMedia, splitMediaField } from "@/lib/feed-media";
 
 export type ImportFormat = "csv" | "xlsx" | "xml" | "json";
 
@@ -16,30 +17,82 @@ export type MeftiField =
   | "barcode"
   | "title"
   | "description"
+  | "short_description"
   | "cost_price"
   | "retail_price"
+  | "discount_price"
+  | "tax_rate"
   | "stock"
   | "category"
+  | "category_path"
   | "brand"
   | "images"
+  | "videos"
   | "color"
   | "size"
-  | "currency";
+  | "currency"
+  | "fabric"
+  | "model_size"
+  | "hs_code"
+  | "weight"
+  | "variants"
+  | "variant_name"
+  | "variant_value"
+  | "variant_barcode"
+  | "variant_stock"
+  | "variant_price"
+  | "variant_image";
 
-export const MEFTI_FIELDS: Array<{ key: MeftiField; label: string; required: boolean; kind: "text" | "number" }> = [
-  { key: "sku", label: "Stok kodu (SKU)", required: true, kind: "text" },
-  { key: "title", label: "Ürün adı", required: true, kind: "text" },
-  { key: "cost_price", label: "Alış fiyatı", required: true, kind: "number" },
-  { key: "retail_price", label: "Satış fiyatı", required: false, kind: "number" },
-  { key: "stock", label: "Stok adedi", required: true, kind: "number" },
-  { key: "barcode", label: "Barkod", required: false, kind: "text" },
-  { key: "description", label: "Açıklama", required: false, kind: "text" },
-  { key: "category", label: "Kategori", required: false, kind: "text" },
-  { key: "brand", label: "Marka", required: false, kind: "text" },
-  { key: "images", label: "Görsel bağlantıları", required: false, kind: "text" },
-  { key: "color", label: "Renk", required: false, kind: "text" },
-  { key: "size", label: "Beden / ölçü", required: false, kind: "text" },
-  { key: "currency", label: "Para birimi", required: false, kind: "text" },
+export type MeftiFieldGroup = "core" | "pricing" | "variants" | "media" | "logistics";
+
+export const MEFTI_FIELD_GROUPS: Array<{ key: MeftiFieldGroup; label: string }> = [
+  { key: "core", label: "Ürün çekirdeği" },
+  { key: "pricing", label: "Fiyat matrisi" },
+  { key: "variants", label: "Varyant çıkarımı" },
+  { key: "media", label: "Medya ve video" },
+  { key: "logistics", label: "Lojistik ve detay" },
+];
+
+export const MEFTI_FIELDS: Array<{
+  key: MeftiField;
+  label: string;
+  required: boolean;
+  kind: "text" | "number";
+  group: MeftiFieldGroup;
+}> = [
+  { key: "sku", label: "Stok kodu (SKU)", required: true, kind: "text", group: "core" },
+  { key: "title", label: "Ürün adı", required: true, kind: "text", group: "core" },
+  { key: "barcode", label: "EAN / GTIN barkod", required: false, kind: "text", group: "core" },
+  { key: "description", label: "Uzun açıklama (HTML temizlenir)", required: false, kind: "text", group: "core" },
+  { key: "short_description", label: "Kısa açıklama", required: false, kind: "text", group: "core" },
+  { key: "brand", label: "Marka", required: false, kind: "text", group: "core" },
+  { key: "category", label: "Kategori", required: false, kind: "text", group: "core" },
+  { key: "category_path", label: "Kategori ağacı (Kadın > İç Giyim > Sütyen)", required: false, kind: "text", group: "core" },
+
+  { key: "cost_price", label: "Alış fiyatı (maliyet)", required: true, kind: "number", group: "pricing" },
+  { key: "retail_price", label: "Satış fiyatı (liste)", required: false, kind: "number", group: "pricing" },
+  { key: "discount_price", label: "İndirimli fiyat", required: false, kind: "number", group: "pricing" },
+  { key: "tax_rate", label: "KDV oranı (%)", required: false, kind: "number", group: "pricing" },
+  { key: "currency", label: "Para birimi (TRY/USD/EUR)", required: false, kind: "text", group: "pricing" },
+  { key: "stock", label: "Stok adedi", required: true, kind: "number", group: "pricing" },
+
+  { key: "variants", label: "Varyant düğümü (<variants><variant>)", required: false, kind: "text", group: "variants" },
+  { key: "variant_name", label: "Varyant adı (Beden/Renk/Materyal)", required: false, kind: "text", group: "variants" },
+  { key: "variant_value", label: "Varyant değeri", required: false, kind: "text", group: "variants" },
+  { key: "variant_barcode", label: "Varyant barkodu", required: false, kind: "text", group: "variants" },
+  { key: "variant_stock", label: "Varyant stok adedi", required: false, kind: "number", group: "variants" },
+  { key: "variant_price", label: "Varyant fiyatı", required: false, kind: "number", group: "variants" },
+  { key: "variant_image", label: "Varyant görseli", required: false, kind: "text", group: "variants" },
+  { key: "color", label: "Renk", required: false, kind: "text", group: "variants" },
+  { key: "size", label: "Beden / ölçü", required: false, kind: "text", group: "variants" },
+
+  { key: "images", label: "Görsel bağlantıları", required: false, kind: "text", group: "media" },
+  { key: "videos", label: "Video / Reels bağlantıları", required: false, kind: "text", group: "media" },
+
+  { key: "fabric", label: "Kumaş türü", required: false, kind: "text", group: "logistics" },
+  { key: "model_size", label: "Manken ölçüleri", required: false, kind: "text", group: "logistics" },
+  { key: "hs_code", label: "GTİP / HS kodu", required: false, kind: "text", group: "logistics" },
+  { key: "weight", label: "Ağırlık / desi", required: false, kind: "number", group: "logistics" },
 ];
 
 /** Yaygın sütun adlarından otomatik eşleştirme önerisi. */
@@ -48,15 +101,31 @@ const FIELD_HINTS: Record<MeftiField, string[]> = {
   barcode: ["barcode", "barkod", "ean", "gtin", "upc"],
   title: ["title", "name", "urunadi", "ürün adı", "baslik", "başlık", "productname", "isim"],
   description: ["description", "aciklama", "açıklama", "detay", "detail"],
-  cost_price: ["cost", "costprice", "alis", "alış", "alisfiyati", "alış fiyatı", "supplierprice", "tedarikfiyati", "buyprice"],
-  retail_price: ["price", "satis", "satış", "satisfiyati", "satış fiyatı", "listprice", "retail", "fiyat"],
-  stock: ["stock", "stok", "quantity", "adet", "qty", "miktar", "inventory"],
+  short_description: ["shortdescription", "kisaaciklama", "kısa açıklama", "kisadetay", "ozet", "özet"],
+  cost_price: ["cost", "costprice", "alis", "alış", "alisfiyati", "alış fiyatı", "supplierprice", "tedarikfiyati", "buyprice", "bayifiyat", "pricewithouttax"],
+  retail_price: ["price", "satis", "satış", "satisfiyati", "satış fiyatı", "listprice", "retail", "fiyat", "psf"],
+  discount_price: ["indirimlifiyat", "indirimli fiyat", "saleprice", "discountprice", "kampanyafiyat"],
+  tax_rate: ["kdv", "kdvorani", "tax", "taxrate", "vat"],
+  stock: ["stock", "stok", "quantity", "adet", "qty", "miktar", "inventory", "stockamount"],
   category: ["category", "kategori", "categoryname", "kategoriadi"],
+  category_path: ["categorypath", "kategoriyolu", "kategoriagaci", "kategori ağacı", "categorytree"],
   brand: ["brand", "marka", "vendor", "manufacturer", "uretici"],
-  images: ["image", "images", "resim", "gorsel", "görsel", "picture", "imageurl", "photo"],
+  images: ["image", "images", "resim", "resimler", "gorsel", "görsel", "picture", "imageurl", "photo"],
+  videos: ["video", "videourl", "videolink", "reels", "youtube", "vimeo"],
   color: ["color", "colour", "renk"],
   size: ["size", "beden", "olcu", "ölçü", "numara"],
   currency: ["currency", "parabirimi", "para birimi", "kur", "doviz"],
+  fabric: ["kumas", "kumaş", "fabric", "material", "materyal"],
+  model_size: ["mankenolculeri", "manken", "modelsize", "modelolculeri"],
+  hs_code: ["gtip", "hscode", "hs_code"],
+  weight: ["agirlik", "ağırlık", "weight", "desi", "kg"],
+  variants: ["variants", "variant", "varyantlar", "secenekler", "options", "option"],
+  variant_name: ["variantname", "varyantadi", "secenekadi", "optionname"],
+  variant_value: ["variantvalue", "varyantdegeri", "secenekdegeri", "optionvalue"],
+  variant_barcode: ["variantbarcode", "varyantbarkod"],
+  variant_stock: ["variantstock", "varyantstok", "secenekstok"],
+  variant_price: ["variantprice", "varyantfiyat"],
+  variant_image: ["variantimage", "varyantresim", "secenekresim"],
 };
 
 function slug(value: string): string {
@@ -150,7 +219,10 @@ function flatten(input: unknown, prefix = "", depth = 0): Record<string, string>
     return out;
   }
   if (Array.isArray(input)) {
-    if (prefix) out[prefix] = input.map((item) => (typeof item === "object" ? JSON.stringify(item) : String(item))).join(",");
+    if (!prefix) return out;
+    // İç içe varyant/görsel düğümleri JSON olarak korunur; düz listeler virgülle birleşir.
+    const hasObject = input.some((item) => item !== null && typeof item === "object");
+    out[prefix] = hasObject ? JSON.stringify(input) : input.map((item) => String(item)).join(",");
     return out;
   }
   if (depth > 3) return out;
@@ -182,23 +254,130 @@ export function suggestMapping(columns: string[]): FieldMapping {
   return mapping;
 }
 
+export type ImportVariant = {
+  name: string;
+  value: string;
+  barcode: string | null;
+  stock: number;
+  price: number | null;
+  image: string | null;
+};
+
 export type ImportRow = {
   index: number;
   sku: string;
   barcode: string | null;
   title: string;
   description: string | null;
+  shortDescription: string | null;
   costPrice: number;
   retailPrice: number | null;
+  discountPrice: number | null;
+  taxRate: number | null;
   stock: number;
   category: string | null;
+  categoryPath: string[];
   brand: string | null;
   images: string[];
+  videos: Array<{ url: string; source: string; embedUrl: string; thumbnailUrl: string | null }>;
   color: string | null;
   size: string | null;
   currency: string | null;
+  fabric: string | null;
+  modelSize: string | null;
+  hsCode: string | null;
+  weight: number | null;
+  variants: ImportVariant[];
+  warnings: string[];
   errors: string[];
 };
+
+/** HTML açıklamayı düz metne indirir (script/style ve etiketler temizlenir). */
+export function cleanHtml(value: string): string {
+  return value
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|li|tr)>/gi, "\n")
+    .replace(/<li[^>]*>/gi, "• ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/** "Kadın > İç Giyim > Sütyen" gibi çok seviyeli kategori yolunu parçalar. */
+export function splitCategoryPath(value: string): string[] {
+  return value
+    .split(/\s*(?:>|»|\/|\|)\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .slice(0, 6);
+}
+
+/** İç içe varyant düğümlerini (JSON olarak korunan) okunabilir varyantlara çevirir. */
+export function extractVariants(raw: string, mapping: FieldMapping): ImportVariant[] {
+  if (!raw) return [];
+  let list: unknown[] = [];
+  const text = raw.trim();
+  if (text.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(text) as unknown;
+      list = Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      return [];
+    }
+  } else if (text.startsWith("{")) {
+    try {
+      list = [JSON.parse(text)];
+    } catch {
+      return [];
+    }
+  } else {
+    // Basit liste: "S,M,L" → her değer ayrı varyant
+    return text
+      .split(/[,;|]/)
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .slice(0, 50)
+      .map((value) => ({ name: mapping.variant_name ?? "Beden", value, barcode: null, stock: 0, price: null, image: null }));
+  }
+
+  const readKey = (item: Record<string, unknown>, mapped: string | undefined, fallbacks: string[]): string => {
+    const keys = [mapped, ...fallbacks].filter(Boolean) as string[];
+    for (const key of keys) {
+      const direct = item[key] ?? item[key.split(".").pop() ?? key];
+      if (direct !== undefined && direct !== null && String(direct).trim()) return String(direct).trim();
+      const lower = Object.keys(item).find((candidate) => candidate.toLowerCase() === key.toLowerCase());
+      if (lower && String(item[lower] ?? "").trim()) return String(item[lower]).trim();
+    }
+    return "";
+  };
+
+  const out: ImportVariant[] = [];
+  for (const entry of list.slice(0, 60)) {
+    if (!entry || typeof entry !== "object") continue;
+    const item = entry as Record<string, unknown>;
+    const value = readKey(item, mapping.variant_value, ["value", "deger", "değer", "beden", "size", "renk", "color", "name", "isim", "@value"]);
+    const name = readKey(item, mapping.variant_name, ["name", "ad", "adi", "attribute", "ozellik", "@name"]) || "Beden";
+    if (!value) continue;
+    const priceRaw = readKey(item, mapping.variant_price, ["price", "fiyat", "satisfiyati"]);
+    out.push({
+      name,
+      value,
+      barcode: readKey(item, mapping.variant_barcode, ["barcode", "barkod", "gtin"]) || null,
+      stock: Math.max(0, Math.round(parseNumber(readKey(item, mapping.variant_stock, ["stock", "stok", "adet", "quantity", "miktar"])))),
+      price: priceRaw ? parseNumber(priceRaw) : null,
+      image: readKey(item, mapping.variant_image, ["image", "resim", "gorsel", "picture"]) || null,
+    });
+  }
+  return out;
+}
+
 
 export function parseNumber(raw: string | undefined | null): number {
   if (!raw) return 0;
@@ -213,8 +392,15 @@ export function parseNumber(raw: string | undefined | null): number {
   return Number.isFinite(value) ? value : 0;
 }
 
-/** Eşleştirilmiş satırları doğrular; hatalı satırlar errors dizisiyle döner. */
-export function validateRows(rows: Array<Record<string, string>>, mapping: FieldMapping): ImportRow[] {
+/**
+ * Eşleştirilmiş satırları doğrular; hatalı satırlar errors, kurtarılan sorunlar
+ * (bozuk görsel linki, sıfır stok, dönüştürülen format) warnings ile döner.
+ */
+export function validateRows(
+  rows: Array<Record<string, string>>,
+  mapping: FieldMapping,
+  baseUrl?: string | null,
+): ImportRow[] {
   const seenSku = new Set<string>();
   return rows.map((row, index) => {
     const pick = (field: MeftiField) => {
@@ -223,10 +409,12 @@ export function validateRows(rows: Array<Record<string, string>>, mapping: Field
     };
 
     const errors: string[] = [];
+    const warnings: string[] = [];
     const sku = pick("sku");
     const title = pick("title");
     const costRaw = pick("cost_price");
     const retailRaw = pick("retail_price");
+    const discountRaw = pick("discount_price");
     const stockRaw = pick("stock");
 
     if (!sku) errors.push("Stok kodu (SKU) boş");
@@ -245,31 +433,64 @@ export function validateRows(rows: Array<Record<string, string>>, mapping: Field
       errors.push("Satış fiyatı alış fiyatının altında");
     }
 
-    const stock = Math.round(parseNumber(stockRaw));
-    if (!stockRaw) errors.push("Stok adedi boş");
-    else if (stock < 0) errors.push("Stok adedi negatif olamaz");
+    const discountPrice = discountRaw ? parseNumber(discountRaw) : null;
+    if (discountPrice !== null && discountPrice <= 0) warnings.push("İndirimli fiyat geçersiz, yok sayıldı");
 
-    const images = pick("images")
-      .split(/[,|;\s]+/)
-      .map((value) => value.trim())
-      .filter((value) => /^https?:\/\//i.test(value));
-    if (pick("images") && images.length === 0) errors.push("Görsel bağlantısı http ile başlamalı");
+    const taxRaw = pick("tax_rate");
+    let taxRate = taxRaw ? parseNumber(taxRaw) : null;
+    if (taxRate !== null && (taxRate < 0 || taxRate > 100)) {
+      warnings.push("KDV oranı geçersiz, mağaza varsayılanı kullanılacak");
+      taxRate = null;
+    }
+
+    const variants = extractVariants(pick("variants"), mapping);
+    const variantStock = variants.reduce((sum, variant) => sum + variant.stock, 0);
+    let stock = Math.round(parseNumber(stockRaw));
+    if (!stockRaw && variants.length) stock = variantStock;
+    else if (!stockRaw) errors.push("Stok adedi boş");
+    if (stock < 0) errors.push("Stok adedi negatif olamaz");
+    if (stock === 0 && variantStock === 0) warnings.push("Stok sıfır: ürün stokta yok olarak aktarılır");
+
+    const media = splitFeedMedia(
+      [...splitMediaField(pick("images")), ...splitMediaField(pick("videos")), ...variants.map((variant) => variant.image)],
+      baseUrl ?? null,
+    );
+    if (media.converted) warnings.push(`${media.converted} görsel web uyumlu WEBP'ye çevrildi`);
+    if (media.invalid.length) warnings.push(`${media.invalid.length} medya bağlantısı okunamadı`);
+    if (!media.images.length && (pick("images") || variants.some((variant) => variant.image))) {
+      warnings.push("Geçerli görsel bulunamadı, yer tutucu kullanılacak");
+    }
+
+    const rawDescription = pick("description");
+    const categoryPath = splitCategoryPath(pick("category_path") || pick("category"));
+    const weightRaw = pick("weight");
 
     return {
       index,
       sku,
       barcode: pick("barcode") || null,
       title,
-      description: pick("description") || null,
+      description: rawDescription ? cleanHtml(rawDescription).slice(0, 8000) : null,
+      shortDescription: pick("short_description") ? cleanHtml(pick("short_description")).slice(0, 600) : null,
       costPrice,
       retailPrice,
+      discountPrice: discountPrice && discountPrice > 0 ? discountPrice : null,
+      taxRate,
       stock: Math.max(0, stock),
-      category: pick("category") || null,
+      category: pick("category") || categoryPath[categoryPath.length - 1] || null,
+      categoryPath,
       brand: pick("brand") || null,
-      images,
+      images: media.images.length ? media.images : [],
+      videos: media.videos,
       color: pick("color") || null,
       size: pick("size") || null,
       currency: (pick("currency") || "").toUpperCase() || null,
+      fabric: pick("fabric") || null,
+      modelSize: pick("model_size") || null,
+      hsCode: pick("hs_code") || null,
+      weight: weightRaw ? parseNumber(weightRaw) : null,
+      variants,
+      warnings,
       errors,
     };
   });
@@ -277,11 +498,18 @@ export function validateRows(rows: Array<Record<string, string>>, mapping: Field
 
 export function importSummary(rows: ImportRow[]) {
   const invalid = rows.filter((row) => row.errors.length > 0);
+  const warned = rows.filter((row) => row.warnings.length > 0);
   return {
     total: rows.length,
     valid: rows.length - invalid.length,
     invalid: invalid.length,
+    images: rows.reduce((sum, row) => sum + row.images.length, 0),
+    videos: rows.reduce((sum, row) => sum + row.videos.length, 0),
+    variants: rows.reduce((sum, row) => sum + row.variants.length, 0),
+    missingSku: rows.filter((row) => !row.sku).length,
+    zeroStock: rows.filter((row) => row.stock === 0).length,
     errorRows: invalid.slice(0, 200).map((row) => ({ line: row.index + 2, sku: row.sku, errors: row.errors })),
+    warningRows: warned.slice(0, 200).map((row) => ({ line: row.index + 2, sku: row.sku, warnings: row.warnings })),
   };
 }
 
