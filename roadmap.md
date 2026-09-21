@@ -96,6 +96,7 @@
 - [ ] Gerçek tedarikçi hesabı ile uçtan uca test (dosya yükleme → sipariş → komisyon defteri)
 
 ## Mobil uyumlu B2B Tedarikçi Paneli
+- [ ] Tedarikçi panelinin tüm profil, sipariş, ürün, değişim, analiz, RFQ, finans ve içe aktarma ekranlarını 393 px telefonda taşmasız ve dokunmatik kullanıma uygun hale getir
 - [x] Trend_Molli referansındaki 20 ekranı PDF olarak teslim al
 - [ ] 20 ekranın sırasını mevcut tedarikçi panelindeki işlevlerle eşleştir
 - [ ] Mevcut tedarikçi panelini yenile; ayrı mobil uygulama veya ikinci bağımsız panel oluşturma
