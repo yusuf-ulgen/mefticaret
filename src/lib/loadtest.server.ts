@@ -376,7 +376,10 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
 
   while (orders < target && Date.now() < deadline) {
     const testStoreIdsForQuery = await testStoreIdSet(db);
-    if (testStoreIdsForQuery.size === 0) break;
+    if (testStoreIdsForQuery.size === 0) {
+      await logEvent(db, run.id, "traffic", "Test mağazası bulunamadı", { orders, target });
+      break;
+    }
     const { data: variantRows, error: variantError } = await db
       .from("product_variants")
       .select("id, product_id, store_id, price, stock, title, sku, products!inner(title, tax_rate, store_id)")
