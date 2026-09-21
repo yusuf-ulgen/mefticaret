@@ -694,9 +694,9 @@ export async function advanceLoadTestCycle(request?: Request): Promise<Record<st
       case "report": {
         const fresh = await db.from("load_test_runs").select("*").eq("id", run.id).single();
         const current = mapRun(fresh.data as Record<string, Json>);
-        const metrics = current.metrics as Record<string, number | Record<string, number>>;
-        const health = (metrics["health"] ?? {}) as Record<string, number>;
-        const latency = Number(health["apiP95"] ?? metrics["storefrontP95"] ?? 0);
+        const metrics = current.metrics as Record<string, Json>;
+        const health = (metrics["health"] ?? {}) as { api?: { p95?: number } };
+        const latency = Number(health.api?.p95 ?? metrics["storefrontP95"] ?? 0);
         const errorRate =
           Number(metrics["storefrontRequests"] ?? 0) > 0
             ? (Number(metrics["storefrontErrors"] ?? 0) / Number(metrics["storefrontRequests"])) * 100
