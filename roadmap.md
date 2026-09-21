@@ -132,4 +132,7 @@
 - [x] `/api/public/cron/loadtest` cron uç noktası (5 dk tick, 180 dk tur)
 - [x] `/admin/load-test` monitörü: geri sayım, göstergeler, ölçek ayarı, acil durdurma
 - [x] `loadtest/k6/storefront.js` + `checkout.js` senaryoları
+- [x] Uçtan uca tur doğrulandı: purge → seed → 8 sipariş/2 iade → mutabakat (0 sapma, 0 aşırı satış) → rapor + temizlik
+- [x] Tetikleyici düzeltmeleri: tedarikçi bölme (`payment_status`), test mağazası finans defteri temizliği
 - [ ] Gerçek 20.000 eşzamanlı kullanıcı: harici k6 Cloud hesabı gerekiyor (kullanıcı sağlamalı)
+
