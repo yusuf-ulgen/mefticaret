@@ -115,7 +115,7 @@ export function validateHashKey(hashKey: string, appSecret: string): ValidatedHa
       decipher.final(),
     ]).toString("utf8");
     const fields = decrypted.split("|");
-    if (fields.length < 5) return null;
+    if (fields.length < 3) return null;
     return {
       status: fields[0] ?? "",
       total: fields[1] ?? "",
@@ -161,9 +161,22 @@ async function request<T>(
     throw new Error(`QNBpay yanıtı okunamadı (${response.status}): ${text.slice(0, 300)}`);
   }
   if (!response.ok) {
+    const problem = parsed as {
+      status_description?: string;
+      message?: string;
+      title?: string;
+      errors?: Record<string, string[]>;
+    };
+    const validation = problem?.errors
+      ? Object.entries(problem.errors)
+          .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
+          .join(" | ")
+      : null;
     const message =
-      (parsed as { status_description?: string; message?: string })?.status_description ??
-      (parsed as { message?: string })?.message ??
+      problem?.status_description ??
+      validation ??
+      problem?.message ??
+      problem?.title ??
       `HTTP ${response.status}`;
     throw new Error(`QNBpay hata: ${message}`);
   }
@@ -242,8 +255,8 @@ export async function getPos(
       amount: input.amount,
       currency_code: input.currencyCode,
       merchant_key: credentials.merchantKey,
-      is_2d: 0,
       is_comission_from_user: input.commissionFromUser ? "1" : "0",
+      is_single_payment_allowed: true,
     },
     token,
   );
@@ -382,6 +395,8 @@ export type CardPaymentInput = {
   items: CartItem[];
   commissionFromUser: boolean;
   transactionType: "Auth" | "PreAuth";
+  /** Yalnız 3D akışında geçerli: ödemeyi kim tamamlayacak (app/merchant). */
+  paymentCompletedBy?: "app" | "merchant";
   returnUrl?: string;
   cancelUrl?: string;
   ip?: string;
@@ -419,7 +434,8 @@ function cardBody(credentials: QnbpayCredentials, input: CardPaymentInput) {
   if (input.billPhone) body["bill_phone"] = input.billPhone;
   if (input.identityNumber) body["identity_number"] = input.identityNumber;
   if (input.saleWebhookKey) body["sale_web_hook_key"] = input.saleWebhookKey;
-  if (input.commissionFromUser && input.installment > 1) body["is_comission_from_user"] = "1";
+  body["is_comission_from_user"] = input.commissionFromUser && input.installment > 1 ? "1" : "0";
+  if (input.paymentCompletedBy) body["payment_completed_by"] = input.paymentCompletedBy;
   if (input.storeCard) {
     body["is_stored_card"] = 1;
     body["card_customer_id"] = input.storeCard.customerId;
@@ -534,7 +550,7 @@ export async function payByToken(
 /* Tamamlama, durum, ön provizyon ve iade                              */
 /* ------------------------------------------------------------------ */
 
-/** /api/complete — ödemeyi üye işyeri tarafında tamamlar veya iptal eder. */
+/** /payment/complete — 3D ödemeyi üye işyeri tarafında tamamlar veya iptal eder. */
 export async function completePayment(
   credentials: QnbpayCredentials,
   input: { invoiceId: string; orderId: string; status: "complete" | "cancel" },
@@ -543,7 +559,7 @@ export async function completePayment(
   const hashData = `${credentials.merchantKey}|${input.invoiceId}|${input.orderId}|${input.status}`;
   return request<Record<string, unknown>>(
     credentials,
-    "/api/complete",
+    "/payment/complete",
     {
       merchant_key: credentials.merchantKey,
       invoice_id: input.invoiceId,
@@ -561,14 +577,15 @@ export async function confirmPayment(
   input: { invoiceId: string; status: 1 | 2; total?: number },
 ): Promise<Record<string, unknown>> {
   const token = await getToken(credentials);
-  const hashData = `${input.invoiceId}|${credentials.merchantKey}`;
+  // Dokümandaki sıra: merchant_key|invoice_id|status
+  const hashData = `${credentials.merchantKey}|${input.invoiceId}|${input.status}`;
   const body: Record<string, unknown> = {
     invoice_id: input.invoiceId,
     merchant_key: credentials.merchantKey,
     status: input.status,
+    total: input.total ?? 0,
     hash_key: generateHashKey(hashData, credentials.appSecret),
   };
-  if (input.total != null) body["total"] = input.total;
   return request<Record<string, unknown>>(credentials, "/api/confirmPayment", body, token);
 }
 
@@ -604,6 +621,8 @@ export async function checkStatus(
   input: { invoiceId: string; includePending?: boolean },
 ): Promise<StatusResult> {
   const token = await getToken(credentials);
+  // Servis hash_key zorunlu (invoice_id|merchant_key) ve include_pending_status
+  // alanını yalnızca boolean `true` olarak kabul eder.
   const hashData = `${input.invoiceId}|${credentials.merchantKey}`;
   const result = await request<{
     status_code?: number;
@@ -615,7 +634,7 @@ export async function checkStatus(
     {
       invoice_id: input.invoiceId,
       merchant_key: credentials.merchantKey,
-      include_pending_status: input.includePending ? "true" : "false",
+      include_pending_status: true,
       hash_key: generateHashKey(hashData, credentials.appSecret),
     },
     token,
@@ -659,7 +678,7 @@ export async function refundPayment(
   const hashData = `${input.amount}|${input.invoiceId}|${credentials.merchantKey}`;
   const body: Record<string, unknown> = {
     invoice_id: input.invoiceId,
-    amount: input.amount,
+    amount: String(input.amount),
     merchant_key: credentials.merchantKey,
     hash_key: generateHashKey(hashData, credentials.appSecret),
   };
