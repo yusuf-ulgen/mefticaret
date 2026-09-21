@@ -77,6 +77,9 @@ const CARRIERS = [
 const SCHEDULES = [
   { value: "manual", label: "Elle" },
   { value: "hourly", label: "Saatlik" },
+  { value: "three_hourly", label: "3 saatte bir" },
+  { value: "six_hourly", label: "6 saatte bir" },
+  { value: "twelve_hourly", label: "12 saatte bir" },
   { value: "daily", label: "Günlük" },
 ];
 
@@ -137,8 +140,8 @@ function SupplierPortalPage() {
 
   return (
     <AppShell title="Tedarikçi paneli">
-      <div className="mx-auto min-h-[calc(100vh-5rem)] max-w-6xl bg-supplier-surface pb-24 sm:rounded-lg sm:border sm:pb-6">
-        <header className="flex min-h-16 items-center justify-between bg-supplier-brand px-4 text-supplier-brand-foreground sm:rounded-t-lg sm:px-6">
+      <div className="-mx-3 min-h-[calc(100vh-5rem)] max-w-6xl overflow-x-clip bg-supplier-surface pb-24 sm:mx-auto sm:rounded-lg sm:border sm:pb-6">
+        <header className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-supplier-brand px-4 text-supplier-brand-foreground sm:rounded-t-lg sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <PackageCheck className="size-6 shrink-0" aria-hidden />
             <div className="min-w-0">
@@ -178,7 +181,7 @@ function SupplierPortalPage() {
             </Button>
           </div>
         ) : !data ? null : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="p-4 sm:p-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0 px-3 py-4 sm:p-6">
             <TabsList className="mb-4 hidden w-full grid-cols-5 bg-card sm:grid">
               {navigation.map((item) => (
                 <TabsTrigger key={item.value} value={item.value} className="gap-2">
@@ -206,7 +209,7 @@ function SupplierPortalPage() {
                     key={value}
                     size="sm"
                     variant={orderFilter === value ? "default" : "ghost"}
-                    className={orderFilter === value ? "bg-supplier-brand text-supplier-brand-foreground hover:bg-supplier-brand/90" : ""}
+                    className={`min-w-0 px-1 text-[11px] sm:px-3 sm:text-sm ${orderFilter === value ? "bg-supplier-brand text-supplier-brand-foreground hover:bg-supplier-brand/90" : ""}`}
                     onClick={() => value && setOrderFilter(value)}
                   >
                     {label}
@@ -239,7 +242,27 @@ function SupplierPortalPage() {
               {data.importJobs.length ? (
                 <div className="rounded-xl border bg-card p-4">
                   <h2 className="text-sm font-medium">Yükleme geçmişi</h2>
-                  <div className="mt-2 overflow-x-auto">
+                  <div className="mt-3 space-y-2 sm:hidden">
+                    {data.importJobs.map((job) => (
+                      <article key={job.id} className="rounded-lg border bg-muted/20 p-3 text-xs">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                          <div className="min-w-0">
+                            <p className="truncate font-medium">{job.fileName ?? job.sourceUrl ?? job.source}</p>
+                            <p className="mt-1 text-muted-foreground">{formatDate(job.createdAt)}</p>
+                          </div>
+                          <Badge variant={job.errorCount ? "destructive" : "secondary"}>
+                            {job.errorCount ? `${job.errorCount} hata` : "Tamamlandı"}
+                          </Badge>
+                        </div>
+                        <dl className="mt-3 grid grid-cols-3 gap-2 border-t pt-3 text-center">
+                          <div><dt className="text-muted-foreground">Satır</dt><dd className="font-semibold">{job.rowCount}</dd></div>
+                          <div><dt className="text-muted-foreground">Yeni</dt><dd className="font-semibold">{job.createdCount}</dd></div>
+                          <div><dt className="text-muted-foreground">Güncel</dt><dd className="font-semibold">{job.updatedCount}</dd></div>
+                        </dl>
+                      </article>
+                    ))}
+                  </div>
+                  <div className="mt-2 hidden overflow-x-auto sm:block">
                     <table className="w-full text-xs">
                       <thead className="text-left uppercase text-muted-foreground">
                         <tr>
@@ -276,9 +299,9 @@ function SupplierPortalPage() {
             <TabsContent value="analytics" className="mt-0 space-y-4">
               <SupplierAnalytics orders={data.orders} currency={data.suppliers[0]?.currency ?? "TRY"} />
               {data.ledger.map((row) => (
-                <div key={row.supplierId} className="rounded-lg border bg-card p-5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="font-medium">{row.supplierName}</h2>
+                <div key={row.supplierId} className="rounded-lg border bg-card p-4 sm:p-5">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                    <h2 className="min-w-0 truncate font-medium">{row.supplierName}</h2>
                     <Badge variant="outline">Komisyon %{row.commissionRate}</Badge>
                   </div>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -318,7 +341,7 @@ function SupplierPortalPage() {
                 <Button
                   key={item.value}
                   variant="ghost"
-                  className={`h-14 min-w-0 flex-col gap-1 px-1 text-[10px] ${activeTab === item.value ? "text-supplier-brand" : "text-muted-foreground"}`}
+                  className={`h-14 min-w-0 flex-col gap-1 px-1 text-[11px] ${activeTab === item.value ? "text-supplier-brand" : "text-muted-foreground"}`}
                   onClick={() => setActiveTab(item.value)}
                   aria-current={activeTab === item.value ? "page" : undefined}
                 >
@@ -345,17 +368,17 @@ function ProfileSummary({ data, openOrders }: { data: Overview; openOrders: numb
   return (
     <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-        <div className="rounded-lg border bg-card p-5">
+        <div className="min-w-0 rounded-lg border bg-card p-4 sm:p-5">
           <p className="text-xs text-muted-foreground">Net bakiye</p>
-          <p className="mt-1 text-3xl font-semibold">{formatMoney(primary?.net ?? 0, primary?.currency ?? "TRY")}</p>
+          <p className="mt-1 break-words text-2xl font-semibold sm:text-3xl">{formatMoney(primary?.net ?? 0, primary?.currency ?? "TRY")}</p>
           <p className="mt-2 text-xs text-muted-foreground">Net = Hakediş − Ödenen − Kesilen</p>
         </div>
-        <div className="flex min-w-40 items-center justify-between rounded-lg border bg-card p-5 sm:flex-col sm:justify-center">
+        <div className="flex min-w-0 flex-col justify-center rounded-lg border bg-card p-4 sm:min-w-40 sm:p-5">
           <div>
             <p className="text-xs text-muted-foreground">Teslimat başarısı</p>
             <p className="mt-1 text-2xl font-semibold">%{deliveryRate}</p>
           </div>
-          <Progress className="ml-4 w-28 sm:ml-0 sm:mt-3" value={deliveryRate} />
+          <Progress className="mt-3 w-full sm:w-28" value={deliveryRate} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -394,15 +417,15 @@ function SupplierOrderCard({
   const [trackingNumber, setTrackingNumber] = useState(order.trackingNumber ?? "");
 
   return (
-    <section className="rounded-xl border bg-card p-5 space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
+    <section className="space-y-4 rounded-xl border bg-card p-4 sm:p-5">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+        <div className="min-w-0">
           <p className="font-medium">{order.orderNumber}</p>
           <p className="text-xs text-muted-foreground">
             {formatDate(order.orderCreatedAt)} · {order.supplierName}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
           <Badge variant="outline">
             {DROPSHIP_STATUS_LABEL[order.status as keyof typeof DROPSHIP_STATUS_LABEL] ?? order.status}
           </Badge>
@@ -430,8 +453,8 @@ function SupplierOrderCard({
               if (!ok) toast.error("Yazdırma penceresi açılamadı; açılır pencere izni verin");
             }}
           >
-            <Printer className="mr-1 size-4" aria-hidden />
-            Kargo etiketi
+            <Printer className="size-4 sm:mr-1" aria-hidden />
+            <span className="hidden sm:inline">Kargo etiketi</span>
           </Button>
         </div>
       </div>
@@ -450,7 +473,25 @@ function SupplierOrderCard({
 
       {order.note || order.paymentStatus ? <div className="grid gap-2 text-sm sm:grid-cols-2">{order.paymentStatus ? <div className="border-l-2 border-supplier-brand bg-muted/20 p-3"><p className="text-xs text-muted-foreground">Ödeme</p><p className="font-medium">{order.paymentStatus}</p></div> : null}{order.note ? <div className="border-l-2 border-supplier-brand bg-muted/20 p-3"><p className="text-xs text-muted-foreground">Sipariş notu</p><p>{order.note}</p></div> : null}</div> : null}
 
-      <div className="overflow-x-auto">
+      <div className="space-y-2 sm:hidden">
+        {order.items.map((item) => (
+          <article key={item.id} className="grid grid-cols-[3rem_minmax(0,1fr)_auto] gap-3 border-t py-3 first:border-t-0">
+            <div className="size-12 overflow-hidden rounded bg-muted/30">
+              {item.imageUrl ? <SmartImage src={item.imageUrl} alt={item.title} width={48} height={48} className="h-full w-full object-cover" /> : null}
+            </div>
+            <div className="min-w-0">
+              <p className="line-clamp-2 text-sm font-medium">{item.title}</p>
+              {item.variantTitle ? <p className="truncate text-xs text-muted-foreground">{item.variantTitle}</p> : null}
+              <p className="mt-1 truncate text-[11px] text-muted-foreground">{item.productCode ?? "Kod yok"} · {item.barcode ?? "Barkod yok"}</p>
+            </div>
+            <div className="shrink-0 text-right text-sm">
+              <p className="font-semibold">{formatMoney(item.lineTotal, order.currency)}</p>
+              <p className="text-xs text-muted-foreground">{item.quantity} adet</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto sm:block">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase text-muted-foreground">
             <tr>
@@ -477,14 +518,14 @@ function SupplierOrderCard({
         </table>
       </div>
 
-      <div className="flex flex-wrap gap-4 text-sm">
-        <span>
+      <div className="grid grid-cols-2 gap-3 border-y py-3 text-sm sm:flex sm:flex-wrap sm:border-0 sm:py-0">
+        <span className="min-w-0">
           Kalem tutarı: <strong>{formatMoney(order.itemsTotal, order.currency)}</strong>
         </span>
-        <span className="text-muted-foreground">
+        <span className="min-w-0 text-muted-foreground">
           Platform komisyonu: {formatMoney(order.commissionTotal, order.currency)}
         </span>
-        <span>
+        <span className="col-span-2 min-w-0 sm:col-span-1">
           Hak edilen: <strong>{formatMoney(order.netTotal, order.currency)}</strong>
         </span>
       </div>
@@ -512,7 +553,7 @@ function SupplierOrderCard({
             onChange={(event) => setTrackingNumber(event.target.value)}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex">
           <Button
             variant="outline"
             size="sm"
@@ -567,7 +608,7 @@ function FeedPanel({
           name,
           kind,
           sourceUrl: sourceUrl.trim(),
-          schedule: schedule as "manual" | "hourly" | "daily",
+           schedule: schedule as "manual" | "hourly" | "three_hourly" | "six_hourly" | "twelve_hourly" | "daily",
           isActive: true,
         },
       }),
@@ -589,7 +630,7 @@ function FeedPanel({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border bg-card p-5 space-y-3">
+      <div className="space-y-3 rounded-xl border bg-card p-4 sm:p-5">
         <div>
           <h2 className="font-medium">Otomatik fiyat & stok senkronu</h2>
           <p className="text-sm text-muted-foreground">
@@ -648,11 +689,11 @@ function FeedPanel({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button disabled={!sourceUrl.trim() || save.isPending} onClick={() => save.mutate()}>
+          <Button className="flex-1 sm:flex-none" disabled={!sourceUrl.trim() || save.isPending} onClick={() => save.mutate()}>
             Kaydet
           </Button>
           {existing ? (
-            <Button variant="outline" disabled={run.isPending} onClick={() => run.mutate(existing.id)}>
+            <Button className="flex-1 sm:flex-none" variant="outline" disabled={run.isPending} onClick={() => run.mutate(existing.id)}>
               <RefreshCw className="mr-1 size-4" aria-hidden />
               Şimdi çalıştır
             </Button>
@@ -665,8 +706,8 @@ function FeedPanel({
           <h3 className="text-sm font-medium">Beslemeler</h3>
           <div className="mt-2 space-y-2 text-sm">
             {feeds.map((feed) => (
-              <div key={feed.id} className="flex flex-wrap items-center justify-between gap-2 border-t pt-2">
-                <div>
+              <div key={feed.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 border-t pt-2">
+                <div className="min-w-0">
                   <p className="font-medium">{feed.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {feed.kind.toUpperCase()} · {SCHEDULES.find((item) => item.value === feed.schedule)?.label}
@@ -725,9 +766,9 @@ function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }
   return (
     <div className="space-y-4">
       {data.ledger.map((row) => (
-        <div key={row.supplierId} className="rounded-xl border bg-card p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-medium">{row.supplierName} — komisyon defteri</h2>
+        <div key={row.supplierId} className="rounded-xl border bg-card p-4 sm:p-5">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+            <h2 className="min-w-0 font-medium">{row.supplierName} — komisyon defteri</h2>
             <Badge variant="outline">Platform komisyonu %{row.commissionRate}</Badge>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -741,7 +782,7 @@ function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }
       ))}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card p-5 space-y-3">
+        <div className="space-y-3 rounded-xl border bg-card p-4 sm:p-5">
           <h3 className="font-medium">Banka bilgisi</h3>
           <div className="space-y-1">
             <Label className="text-xs" htmlFor="supplier-iban">
@@ -764,13 +805,13 @@ function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }
               onChange={(event) => setAccountName(event.target.value)}
             />
           </div>
-          <Button disabled={iban.trim().length < 15 || bank.isPending} onClick={() => bank.mutate()}>
+          <Button className="w-full sm:w-auto" disabled={iban.trim().length < 15 || bank.isPending} onClick={() => bank.mutate()}>
             <BadgeCheck className="mr-1 size-4" aria-hidden />
             Kaydet
           </Button>
         </div>
 
-        <div className="rounded-xl border bg-card p-5 space-y-3">
+        <div className="space-y-3 rounded-xl border bg-card p-4 sm:p-5">
           <h3 className="font-medium">Ödeme talebi</h3>
           <p className="text-sm text-muted-foreground">
             Ödenebilir bakiyeniz: {formatMoney(primary.pending + primary.payable, primary.currency)}
@@ -788,6 +829,7 @@ function FinancePanel({ data, onSaved }: { data: Overview; onSaved: () => void }
             />
           </div>
           <Button
+            className="w-full sm:w-auto"
             disabled={!Number(amount.replace(",", ".")) || payout.isPending}
             onClick={() => payout.mutate()}
           >

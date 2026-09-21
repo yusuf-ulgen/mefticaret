@@ -158,7 +158,7 @@ export function SupplierImportWizard({
           const file = event.dataTransfer.files?.[0];
           if (file) void handleFile(file);
         }}
-        className={`rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
+        className={`rounded-xl border-2 border-dashed p-4 text-center transition-colors sm:p-6 ${
           dragging ? "border-primary bg-primary/5" : "border-muted-foreground/25 bg-muted/20"
         }`}
       >
@@ -217,12 +217,12 @@ export function SupplierImportWizard({
 
       {loaded ? (
         <div className="rounded-xl border bg-card p-4 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="text-sm">
-              <span className="font-medium">{loaded.fileName ?? loaded.sourceUrl}</span>
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+            <div className="min-w-0 text-sm">
+              <span className="block truncate font-medium">{loaded.fileName ?? loaded.sourceUrl}</span>
               <span className="text-muted-foreground"> · {loaded.format.toUpperCase()}</span>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
               <Badge variant="secondary">{summary.total} satır</Badge>
               <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">{summary.valid} geçerli</Badge>
               {summary.invalid ? <Badge variant="destructive">{summary.invalid} hatalı</Badge> : null}
@@ -231,10 +231,11 @@ export function SupplierImportWizard({
               {summary.variants ? <Badge variant="outline">{summary.variants} varyant</Badge> : null}
               {summary.missingSku ? <Badge variant="destructive">{summary.missingSku} SKU eksik</Badge> : null}
               {summary.zeroStock ? <Badge variant="outline">{summary.zeroStock} stoksuz</Badge> : null}
-              <Button size="sm" variant="outline" onClick={() => setMapOpen(true)}>
+              <Button className="flex-1 sm:flex-none" size="sm" variant="outline" onClick={() => setMapOpen(true)}>
                 Alan eşleştirme
               </Button>
               <Button
+                className="flex-1 sm:flex-none"
                 size="sm"
                 disabled={summary.valid === 0 || importMutation.isPending}
                 onClick={() => importMutation.mutate()}
@@ -295,7 +296,27 @@ export function SupplierImportWizard({
             </div>
           ) : null}
 
-          <div className="overflow-x-auto">
+          <div className="space-y-2 sm:hidden">
+            {validated.slice(0, 20).map((row) => (
+              <article key={row.index} className="rounded-lg border bg-muted/20 p-3 text-xs">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{row.title || `Satır ${row.index + 2}`}</p>
+                    <p className="mt-1 truncate text-muted-foreground">{row.sku || "SKU yok"}</p>
+                  </div>
+                  <span className={row.errors.length ? "text-destructive" : "text-success"}>
+                    {row.errors[0] ?? "Geçerli"}
+                  </span>
+                </div>
+                <dl className="mt-3 grid grid-cols-3 gap-2 border-t pt-3 text-center">
+                  <div><dt className="text-muted-foreground">Alış</dt><dd className="font-semibold">{row.costPrice || "—"}</dd></div>
+                  <div><dt className="text-muted-foreground">Satış</dt><dd className="font-semibold">{row.retailPrice ?? "—"}</dd></div>
+                  <div><dt className="text-muted-foreground">Stok</dt><dd className="font-semibold">{row.stock}</dd></div>
+                </dl>
+              </article>
+            ))}
+          </div>
+          <div className="hidden overflow-x-auto sm:block">
             <table className="w-full text-xs">
               <thead className="text-left uppercase text-muted-foreground">
                 <tr>
@@ -333,7 +354,7 @@ export function SupplierImportWizard({
       ) : null}
 
       <Dialog open={mapOpen} onOpenChange={setMapOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
+        <DialogContent className="h-[100dvh] w-screen max-w-none gap-3 overflow-y-auto rounded-none p-4 sm:h-auto sm:max-h-[90vh] sm:max-w-5xl sm:rounded-lg sm:p-6">
           <DialogHeader>
             <DialogTitle>Mapping Studio</DialogTitle>
             <DialogDescription>
@@ -351,11 +372,11 @@ export function SupplierImportWizard({
               toast.success(`${preset.label} şablonu uygulandı`);
             }}
           />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setMapping(suggestMapping(loaded?.columns ?? []))}>
+          <DialogFooter className="sticky bottom-0 -mx-4 grid grid-cols-2 gap-2 border-t bg-background px-4 py-3 sm:static sm:mx-0 sm:flex sm:border-0 sm:bg-transparent sm:p-0">
+            <Button className="w-full" variant="outline" onClick={() => setMapping(suggestMapping(loaded?.columns ?? []))}>
               Otomatik eşleştir
             </Button>
-            <Button onClick={() => setMapOpen(false)}>Tamam</Button>
+            <Button className="w-full" onClick={() => setMapOpen(false)}>Tamam</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
