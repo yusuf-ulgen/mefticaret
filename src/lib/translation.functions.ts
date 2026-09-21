@@ -422,7 +422,8 @@ export const retryTranslationJob = createServerFn({ method: "POST" })
       .eq("store_id", data.storeId);
 
     const { enqueueJob } = await import("@/lib/queue.server");
-    await enqueueJob(supabase, {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await enqueueJob(supabaseAdmin, {
       kind: "ai",
       storeId: data.storeId,
       payload: { translationJobId: data.jobId },

@@ -63,8 +63,19 @@ export const queueJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => enqueueSchema.parse(data))
   .handler(async ({ data, context }) => {
+    // Yönetici bağlantısına geçmeden önce çağıranın bu mağazaya gerçekten
+    // erişebildiğini kullanıcı oturumuna uygulanan RLS ile doğrula.
+    const { data: store, error } = await context.supabase
+      .from("stores")
+      .select("id")
+      .eq("id", data.storeId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
+
     const { enqueueJob } = await import("@/lib/queue.server");
-    const id = await enqueueJob(context.supabase, {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const id = await enqueueJob(supabaseAdmin, {
       kind: data.kind,
       storeId: data.storeId,
       ...(data.payload ? { payload: data.payload } : {}),
