@@ -112,6 +112,7 @@ export function SupplierImportWizard({
       };
     },
     onSuccess: (result) => {
+      sourceFileRef.current = null;
       setDiagnostic(null);
       setLoaded({
         format: result.format,
@@ -441,7 +442,10 @@ export function SupplierImportWizard({
               if (sourceFileRef.current && loaded?.source !== "url") void handleFile(sourceFileRef.current, path);
               else if (remoteUrl.trim()) remoteMutation.mutate(path);
             }}
-            onReload={() => remoteMutation.mutate()}
+            onReload={() => {
+              if (sourceFileRef.current && loaded?.source !== "url") void handleFile(sourceFileRef.current, itemPath.trim() || undefined);
+              else remoteMutation.mutate(itemPath.trim() || undefined);
+            }}
           />
           <DialogFooter className="sticky bottom-0 -mx-4 grid gap-2 border-t bg-background px-4 py-3 sm:static sm:mx-0 sm:flex sm:border-0 sm:bg-transparent sm:p-0">
             <Button className="w-full" variant="outline" onClick={() => setMapping(suggestMapping(loaded?.columns ?? []))}>

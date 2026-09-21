@@ -15,7 +15,7 @@ describe("adaptive supplier feed parser", () => {
     expect(parsed.columns).toContain("Varyantlar.Varyant");
     expect(parsed.columns).toContain("__detected_media");
     expect(suggestMapping(parsed.columns).sku).toBe("StokKodu");
-    expect(suggestMapping(parsed.columns).images).toBe("__detected_media");
+    expect(suggestMapping(parsed.columns).images).toBe("Resimler.Resim");
   });
 
   it("uses a manually selected root candidate", () => {
@@ -26,6 +26,10 @@ describe("adaptive supplier feed parser", () => {
 
   it("rejects unsafe XML entities with a readable error", () => {
     expect(() => parseAdaptiveXml('<!DOCTYPE x [<!ENTITY y SYSTEM "file:///etc/passwd">]><x>&y;</x>')).toThrow("DTD");
+  });
+
+  it("rejects malformed XML instead of returning a partial tree", () => {
+    expect(() => parseAdaptiveXml("<products><product><sku>A</product></products>")).toThrow("XML çözümlenemedi");
   });
 
   it("auto-detects TSV columns with PapaParse", () => {

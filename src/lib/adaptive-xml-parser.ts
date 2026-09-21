@@ -1,4 +1,4 @@
-import { XMLParser } from "fast-xml-parser";
+import { XMLParser, XMLValidator } from "fast-xml-parser";
 
 export type XmlRootCandidate = {
   path: string;
@@ -83,6 +83,8 @@ export function parseAdaptiveXml(xml: string, itemPath?: string | null): Adaptiv
   const text = xml.replace(/^\uFEFF/, "").trim();
   if (!text) throw new Error("XML kaynağı boş yanıt döndürdü");
   if (/<!DOCTYPE|<!ENTITY/i.test(text)) throw new Error("Güvenlik nedeniyle DTD veya ENTITY içeren XML desteklenmiyor");
+  const validation = XMLValidator.validate(text);
+  if (validation !== true) throw new Error(`XML çözümlenemedi: ${validation.err.msg} (${validation.err.line}:${validation.err.col})`);
 
   let payload: unknown;
   try {
