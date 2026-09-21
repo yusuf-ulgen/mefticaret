@@ -250,7 +250,7 @@ export async function loadSupplierDeskOrders(
     const order = orderMap.get(row.order_id as string);
     const orderItems = itemRows.filter((item) => item.order_id === row.order_id);
     const mine = orderItems.filter((item) => ownsItem(row.supplier_id as string, item));
-    const visible = mine.length ? mine : orderItems;
+    const visible = mine;
 
     const deskItems: DeskItem[] = visible.map((item) => {
       const product = item.product_id ? productMap.get(item.product_id) : undefined;
