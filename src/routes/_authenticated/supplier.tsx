@@ -19,8 +19,10 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { SmartImage } from "@/components/smart-image";
 import { SupplierImportWizard } from "@/components/supplier/import-wizard";
 import { printCargoLabels } from "@/components/supplier/cargo-label";
+import { SupplierAnalytics, SupplierCatalog, SupplierChanges, SupplierCommercialDesk } from "@/components/supplier/workspace-panels";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -188,6 +190,7 @@ function SupplierPortalPage() {
 
             <TabsContent value="profile" className="mt-0 space-y-4">
               <ProfileSummary data={data} openOrders={openOrders.length} />
+              {supplierId ? <SupplierCommercialDesk supplierId={supplierId} products={data.products} rfqs={data.rfqs} credit={data.credit} transactions={data.transactions} onChanged={refresh} /> : null}
               <FinancePanel data={data} onSaved={refresh} />
             </TabsContent>
 
@@ -229,6 +232,7 @@ function SupplierPortalPage() {
             </TabsContent>
 
             <TabsContent value="products" className="mt-0 space-y-4">
+              {supplierId ? <SupplierCatalog supplierId={supplierId} products={data.products} onChanged={refresh} /> : null}
               {supplierId ? (
                 <SupplierImportWizard supplierId={supplierId} onImported={refresh} />
               ) : null}
@@ -266,20 +270,11 @@ function SupplierPortalPage() {
             </TabsContent>
 
             <TabsContent value="changes" className="mt-0 space-y-4">
-              <div className="rounded-lg border bg-card p-5">
-                <h2 className="font-medium">İade & değişim</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Siparişlerinize bağlı iade ve değişim hareketleri burada gösterilir.
-                </p>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <Metric label="İade" value={String(data.ledger.reduce((total, row) => total + row.scorecard.returned, 0))} />
-                  <Metric label="İptal" value={String(data.ledger.reduce((total, row) => total + row.scorecard.cancelled, 0))} />
-                </div>
-              </div>
-              {supplierId ? <FeedPanel supplierId={supplierId} feeds={data.feeds} onSaved={refresh} /> : null}
+              {supplierId ? <SupplierChanges supplierId={supplierId} movements={data.movements} returnCount={data.ledger.reduce((total, row) => total + row.scorecard.returned, 0)} cancelledCount={data.ledger.reduce((total, row) => total + row.scorecard.cancelled, 0)} feedPanel={<FeedPanel supplierId={supplierId} feeds={data.feeds} onSaved={refresh} />} /> : null}
             </TabsContent>
 
             <TabsContent value="analytics" className="mt-0 space-y-4">
+              <SupplierAnalytics orders={data.orders} currency={data.suppliers[0]?.currency ?? "TRY"} />
               {data.ledger.map((row) => (
                 <div key={row.supplierId} className="rounded-lg border bg-card p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -453,6 +448,8 @@ function SupplierOrderCard({
         </div>
       ) : null}
 
+      {order.note || order.paymentStatus ? <div className="grid gap-2 text-sm sm:grid-cols-2">{order.paymentStatus ? <div className="border-l-2 border-supplier-brand bg-muted/20 p-3"><p className="text-xs text-muted-foreground">Ödeme</p><p className="font-medium">{order.paymentStatus}</p></div> : null}{order.note ? <div className="border-l-2 border-supplier-brand bg-muted/20 p-3"><p className="text-xs text-muted-foreground">Sipariş notu</p><p>{order.note}</p></div> : null}</div> : null}
+
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase text-muted-foreground">
@@ -468,8 +465,7 @@ function SupplierOrderCard({
             {order.items.map((item) => (
               <tr key={item.id} className="border-t align-top">
                 <td className="py-2">
-                  {item.title}
-                  {item.variantTitle ? <span className="text-muted-foreground"> · {item.variantTitle}</span> : null}
+                  <div className="flex min-w-48 items-center gap-2">{item.imageUrl ? <SmartImage src={item.imageUrl} alt={item.title} width={48} height={48} className="size-12 rounded object-cover" /> : null}<span>{item.title}{item.variantTitle ? <span className="text-muted-foreground"> · {item.variantTitle}</span> : null}</span></div>
                 </td>
                 <td className="py-2">{item.productCode ?? "—"}</td>
                 <td className="py-2">{item.barcode ?? "—"}</td>
