@@ -226,6 +226,11 @@ export function SupplierImportWizard({
               <Badge variant="secondary">{summary.total} satır</Badge>
               <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">{summary.valid} geçerli</Badge>
               {summary.invalid ? <Badge variant="destructive">{summary.invalid} hatalı</Badge> : null}
+              {summary.images ? <Badge variant="outline">{summary.images} görsel</Badge> : null}
+              {summary.videos ? <Badge variant="outline">{summary.videos} video</Badge> : null}
+              {summary.variants ? <Badge variant="outline">{summary.variants} varyant</Badge> : null}
+              {summary.missingSku ? <Badge variant="destructive">{summary.missingSku} SKU eksik</Badge> : null}
+              {summary.zeroStock ? <Badge variant="outline">{summary.zeroStock} stoksuz</Badge> : null}
               <Button size="sm" variant="outline" onClick={() => setMapOpen(true)}>
                 Alan eşleştirme
               </Button>
@@ -264,6 +269,31 @@ export function SupplierImportWizard({
               Tüm satırlar doğrulandı.
             </p>
           )}
+
+          {summary.warningRows.length ? (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3">
+              <p className="flex items-center gap-2 text-sm font-medium text-amber-700">
+                <AlertTriangle className="size-4" aria-hidden />
+                {summary.warningRows.length} satırda uyarı var — satırlar aktarılır
+              </p>
+              <ul className="mt-2 space-y-1 text-xs text-amber-700/90">
+                {summary.warningRows.slice(0, 10).map((row) => (
+                  <li key={`w-${row.index}`}>
+                    Satır {row.index + 2} {row.sku ? `(${row.sku})` : ""}: {row.warnings.join(", ")}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {importMutation.isPending ? (
+            <div className="space-y-1">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div className="h-full w-1/3 animate-[loading_1.2s_ease-in-out_infinite] rounded-full bg-primary" />
+              </div>
+              <p className="text-xs text-muted-foreground">Aktarım kuyruğa alınıyor…</p>
+            </div>
+          ) : null}
 
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
