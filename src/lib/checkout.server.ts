@@ -201,14 +201,14 @@ async function priceCart(
       (discount.usage_limit === null || discount.used_count < discount.usage_limit) &&
       subtotal >= Number(discount.min_subtotal ?? 0);
     if (!usable) throw new Error("İndirim kodu geçersiz veya bu sepet için uygun değil");
-    if (discount!.type === "percentage") {
-      discountTotal = Number(((subtotal * Number(discount!.value)) / 100).toFixed(2));
-    } else if (discount!.type === "fixed_amount") {
-      discountTotal = Math.min(subtotal, Number(discount!.value));
+    if (discount.type === "percentage") {
+      discountTotal = Number(((subtotal * Number(discount.value)) / 100).toFixed(2));
+    } else if (discount.type === "fixed_amount") {
+      discountTotal = Math.min(subtotal, Number(discount.value));
     } else {
       freeShipping = true;
     }
-    discountRow = { id: discount!.id, code: discount!.code, used_count: discount!.used_count };
+    discountRow = { id: discount.id, code: discount.code, used_count: discount.used_count };
   }
 
   // Kargo
@@ -728,32 +728,32 @@ export async function previewDiscount(input: z.infer<typeof previewDiscountSchem
     (discount.usage_limit === null || discount.used_count < discount.usage_limit);
   if (!usable) throw new Error("İndirim kodu geçersiz veya süresi dolmuş");
 
-  const minSubtotal = Number(discount!.min_subtotal ?? 0);
+  const minSubtotal = Number(discount.min_subtotal ?? 0);
   if (input.subtotal < minSubtotal) {
     throw new Error(`Bu kupon için minimum sepet tutarı ${minSubtotal.toFixed(2)} ${store.currency}`);
   }
 
   let discountTotal = 0;
   let freeShipping = false;
-  if (discount!.type === "percentage") {
-    discountTotal = Number(((input.subtotal * Number(discount!.value)) / 100).toFixed(2));
-  } else if (discount!.type === "fixed_amount") {
-    discountTotal = Math.min(input.subtotal, Number(discount!.value));
+  if (discount.type === "percentage") {
+    discountTotal = Number(((input.subtotal * Number(discount.value)) / 100).toFixed(2));
+  } else if (discount.type === "fixed_amount") {
+    discountTotal = Math.min(input.subtotal, Number(discount.value));
   } else {
     freeShipping = true;
   }
 
   return {
-    code: discount!.code,
-    title: discount!.title,
-    type: discount!.type,
+    code: discount.code,
+    title: discount.title,
+    type: discount.type,
     discountTotal,
     freeShipping,
     label:
-      discount!.type === "percentage"
-        ? `%${Number(discount!.value)} indirim`
-        : discount!.type === "fixed_amount"
-          ? `${Number(discount!.value)} ${store.currency} indirim`
+      discount.type === "percentage"
+        ? `%${Number(discount.value)} indirim`
+        : discount.type === "fixed_amount"
+          ? `${Number(discount.value)} ${store.currency} indirim`
           : "Ücretsiz kargo",
   };
 }

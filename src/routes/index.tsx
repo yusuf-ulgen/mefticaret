@@ -104,15 +104,15 @@ export const Route = createFileRoute("/")({
           description: loaderData?.homeSeo?.description || FALLBACK_DESCRIPTION,
           inLanguage: "tr-TR",
           publisher: { "@type": "Organization", name: "Mefticaret" },
-          ...((loaderData?.planOffers?.length ?? 0) > 0
+          ...(loaderData?.planOffers?.[0]
             ? {
                 offers: {
                   "@type": "AggregateOffer",
-                  priceCurrency: loaderData!.planOffers[0]!.currency,
-                  lowPrice: Math.min(...loaderData!.planOffers.map((plan) => plan.price)),
-                  highPrice: Math.max(...loaderData!.planOffers.map((plan) => plan.price)),
-                  offerCount: loaderData!.planOffers.length,
-                  offers: loaderData!.planOffers.map((plan) => ({
+                  priceCurrency: loaderData.planOffers[0].currency,
+                  lowPrice: Math.min(...loaderData.planOffers.map((plan) => plan.price)),
+                  highPrice: Math.max(...loaderData.planOffers.map((plan) => plan.price)),
+                  offerCount: loaderData.planOffers.length,
+                  offers: loaderData.planOffers.map((plan) => ({
                     "@type": "Offer",
                     name: plan.name,
                     price: plan.price,
