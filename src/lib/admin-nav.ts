@@ -197,6 +197,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     description: "Platform genelinde yapılandırma.",
     items: [
       { to: "/admin/settings", label: "Sistem Ayarları", icon: ShieldCheck, keywords: "ayar konfig" },
+      {
+        to: "/admin/settings/ai-engine",
+        label: "AI Motor Masası",
+        icon: Sparkles,
+        hint: "OpenAI yönlendirme ve kredi ekonomisi",
+        keywords: "yapay zeka openai kredi motor gpt dalle",
+      },
     ],
   },
 ];

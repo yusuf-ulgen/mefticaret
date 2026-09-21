@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { AiCreditBadge } from "@/components/ai-credit-badge";
 import { CommandPalette } from "@/components/command-palette";
 import { NotificationBell } from "@/components/notification-bell";
 import { Badge } from "@/components/ui/badge";
@@ -463,6 +464,7 @@ export function AppShell({
 
         <div className="ml-auto flex items-center gap-1">
           <div className="sm:hidden">{storeId ? <CommandPalette storeId={storeId} /> : null}</div>
+          {storeId ? <AiCreditBadge storeId={storeId} /> : null}
           {storeId ? <NotificationBell storeId={storeId} /> : null}
           <UserMenu />
         </div>
