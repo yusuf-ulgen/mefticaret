@@ -232,7 +232,7 @@ async function seedStores(db: Admin, run: LoadTestRun, target: number, deadline:
         name: `TEST Mağaza ${i + 1}`,
         slug: `test-store-${i + 1}`,
         status: "active",
-        currency: i % 5 === 0 ? "USD" : "TRY",
+        currency: "TRY",
         locale: i % 4 === 0 ? "en" : "tr",
         industry: `test-sektor-${i % 10}`,
         is_test: true,
