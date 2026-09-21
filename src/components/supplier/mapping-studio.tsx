@@ -69,16 +69,16 @@ export function MappingStudio({
   };
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
-      <section className="rounded-xl border bg-muted/20">
-        <header className="flex items-center justify-between border-b px-3 py-2">
-          <div>
+    <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+      <section className="min-w-0 rounded-xl border bg-muted/20">
+        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 border-b px-3 py-2">
+          <div className="min-w-0">
             <p className="text-sm font-semibold">Besleme düğüm ağacı</p>
             <p className="text-[11px] text-muted-foreground">{columns.length} düğüm · örnek değerlerle</p>
           </div>
           {selected ? <Badge variant="secondary" className="max-w-[120px] truncate">{selected}</Badge> : null}
         </header>
-        <div className="max-h-[420px] overflow-y-auto p-2">
+        <div className="max-h-64 overflow-auto p-2 lg:max-h-[420px]">
           {tree.map((node) => (
             <button
               type="button"
@@ -87,7 +87,7 @@ export function MappingStudio({
               onDragStart={(event) => event.dataTransfer.setData("text/plain", node.path)}
               onClick={() => setSelected(node.isLeaf ? node.path : null)}
               disabled={!node.isLeaf}
-              style={{ paddingLeft: `${node.depth * 14 + 8}px` }}
+              style={{ paddingLeft: `${Math.min(node.depth, 4) * 10 + 8}px` }}
               className={`flex w-full items-center gap-2 rounded-md py-1.5 pr-2 text-left text-xs transition-colors ${
                 node.isLeaf
                   ? `cursor-grab hover:bg-background ${selected === node.path ? "bg-background ring-1 ring-primary" : ""}`
@@ -96,7 +96,7 @@ export function MappingStudio({
             >
               {node.isLeaf ? <GripVertical className="size-3 shrink-0 text-muted-foreground" aria-hidden /> : null}
               <span className="truncate font-medium">{node.label}</span>
-              {node.sample ? <span className="ml-auto truncate text-[10px] text-muted-foreground">{node.sample}</span> : null}
+              {node.sample ? <span className="ml-auto max-w-[45%] truncate text-[10px] text-muted-foreground">{node.sample}</span> : null}
               {assigned.has(node.path) ? <Check className="size-3 shrink-0 text-emerald-600" aria-hidden /> : null}
             </button>
           ))}
@@ -104,14 +104,15 @@ export function MappingStudio({
       </section>
 
       <section className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => onChange(suggestMapping(columns))}>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          <Button className="shrink-0" size="sm" variant="outline" onClick={() => onChange(suggestMapping(columns))}>
             <Sparkles className="mr-1 size-4" aria-hidden />
             Otomatik eşleştir
           </Button>
           {FEED_PRESETS.map((preset) => (
             <Button
               key={preset.id}
+              className="shrink-0"
               size="sm"
               variant={detected?.id === preset.id ? "default" : "secondary"}
               title={preset.hint}
@@ -126,7 +127,7 @@ export function MappingStudio({
         </div>
 
         {MEFTI_FIELD_GROUPS.map((group) => (
-          <div key={group.key} className="rounded-xl border bg-card p-3">
+          <div key={group.key} className="min-w-0 rounded-xl border bg-card p-3">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group.label}</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {MEFTI_FIELDS.filter((field) => field.group === group.key).map((field) => {
