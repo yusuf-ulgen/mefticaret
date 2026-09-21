@@ -73,6 +73,7 @@ import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminKolayRouteImport } from './routes/_authenticated/admin.kolay'
 import { Route as AuthenticatedAdminLanguagesRouteImport } from './routes/_authenticated/admin.languages'
 import { Route as AuthenticatedAdminLiveRouteImport } from './routes/_authenticated/admin.live'
+import { Route as AuthenticatedAdminLoadTestRouteImport } from './routes/_authenticated/admin.load-test'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin.logs'
 import { Route as AuthenticatedAdminMarketplaceRouteImport } from './routes/_authenticated/admin.marketplace'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
@@ -635,6 +636,12 @@ const AuthenticatedAdminLiveRoute = AuthenticatedAdminLiveRouteImport.update({
   path: '/live',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminLoadTestRoute =
+  AuthenticatedAdminLoadTestRouteImport.update({
+    id: '/load-test',
+    path: '/load-test',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
   id: '/logs',
   path: '/logs',
@@ -2033,6 +2040,7 @@ export interface FileRoutesByFullPath {
   '/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
+  '/admin/load-test': typeof AuthenticatedAdminLoadTestRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -2328,6 +2336,7 @@ export interface FileRoutesByTo {
   '/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
+  '/admin/load-test': typeof AuthenticatedAdminLoadTestRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -2625,6 +2634,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/_authenticated/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/_authenticated/admin/live': typeof AuthenticatedAdminLiveRoute
+  '/_authenticated/admin/load-test': typeof AuthenticatedAdminLoadTestRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -2923,6 +2933,7 @@ export interface FileRouteTypes {
     | '/admin/kolay'
     | '/admin/languages'
     | '/admin/live'
+    | '/admin/load-test'
     | '/admin/logs'
     | '/admin/marketplace'
     | '/admin/messages'
@@ -3218,6 +3229,7 @@ export interface FileRouteTypes {
     | '/admin/kolay'
     | '/admin/languages'
     | '/admin/live'
+    | '/admin/load-test'
     | '/admin/logs'
     | '/admin/marketplace'
     | '/admin/messages'
@@ -3514,6 +3526,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/kolay'
     | '/_authenticated/admin/languages'
     | '/_authenticated/admin/live'
+    | '/_authenticated/admin/load-test'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/marketplace'
     | '/_authenticated/admin/messages'
@@ -4307,6 +4320,13 @@ declare module '@tanstack/react-router' {
       path: '/live'
       fullPath: '/admin/live'
       preLoaderRoute: typeof AuthenticatedAdminLiveRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/load-test': {
+      id: '/_authenticated/admin/load-test'
+      path: '/load-test'
+      fullPath: '/admin/load-test'
+      preLoaderRoute: typeof AuthenticatedAdminLoadTestRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/logs': {
@@ -5945,6 +5965,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminKolayRoute: typeof AuthenticatedAdminKolayRoute
   AuthenticatedAdminLanguagesRoute: typeof AuthenticatedAdminLanguagesRoute
   AuthenticatedAdminLiveRoute: typeof AuthenticatedAdminLiveRoute
+  AuthenticatedAdminLoadTestRoute: typeof AuthenticatedAdminLoadTestRoute
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminMarketplaceRoute: typeof AuthenticatedAdminMarketplaceRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
@@ -5996,6 +6017,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminKolayRoute: AuthenticatedAdminKolayRoute,
   AuthenticatedAdminLanguagesRoute: AuthenticatedAdminLanguagesRoute,
   AuthenticatedAdminLiveRoute: AuthenticatedAdminLiveRoute,
+  AuthenticatedAdminLoadTestRoute: AuthenticatedAdminLoadTestRoute,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
   AuthenticatedAdminMarketplaceRoute: AuthenticatedAdminMarketplaceRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
