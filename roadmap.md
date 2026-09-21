@@ -79,6 +79,7 @@
 ## Ana sayfada yeni özellikler
 - [x] Global e-ihracat, büyüme/lojistik ve e-posta pazarlama özelliklerini ana sayfada görünür ve mobil uyumlu sun
 - [x] Ana sayfa masaüstü ve mobil görünümünü doğrula
+- [x] İngilizce, Almanca, Fransızca ve Arapça ana sayfaları Türkçe ana sayfanın tam bölüm akışıyla eşitle; satış animasyonu, paketler, tedarikçi alanı, alt bilgi ve SEO metinlerini yerelleştir
 
 ## Tedarikçi portalı & otomasyon genişletmesi (talep listesi)
 - [x] Tedarikçi giriş ekranı: /tedarikci-giris — e-posta kayıt + doğrulama, şifre sıfırlama, sunucu tarafı tedarikçi rol kontrolü
