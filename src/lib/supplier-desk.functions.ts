@@ -69,19 +69,35 @@ export const supplierDeskOverview = createServerFn({ method: "POST" })
         importJobs: [] as Awaited<
           ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierFeeds>
         >["jobs"],
+        products: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
+        >["products"],
+        rfqs: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
+        >["rfqs"],
+        credit: null as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
+        >["credit"],
+        transactions: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
+        >["transactions"],
+        movements: [] as Awaited<
+          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
+        >["movements"],
       };
     }
     const supplierIds = suppliers.map((supplier) => supplier.id);
 
-    const { loadSupplierDeskOrders, loadSupplierLedger, loadSupplierFeeds } = await import(
+    const { loadSupplierDeskOrders, loadSupplierLedger, loadSupplierFeeds, loadSupplierWorkspace } = await import(
       "@/lib/supplier-desk.server"
     );
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [orders, ledger, feeds] = await Promise.all([
+    const [orders, ledger, feeds, workspace] = await Promise.all([
       loadSupplierDeskOrders(supabaseAdmin as never, supplierIds, 200),
       loadSupplierLedger(supabaseAdmin as never, suppliers as never),
       loadSupplierFeeds(supabaseAdmin as never, supplierIds),
+      loadSupplierWorkspace(supabaseAdmin as never, suppliers as never),
     ]);
 
     return {
@@ -98,7 +114,113 @@ export const supplierDeskOverview = createServerFn({ method: "POST" })
       payouts: ledger.payouts,
       feeds: feeds.feeds,
       importJobs: feeds.jobs,
+      ...workspace,
     };
+  });
+
+/** Seçili tedarikçi ürünlerini mağaza kataloğuna aktarır; sonraki senkronlar canlı fiyat/stoku günceller. */
+export const supplierDeskPublishProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ supplierId: z.guid(), productIds: z.array(z.guid()).min(1).max(500) }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supplier } = await assertSupplier(context.supabase, context.userId, data.supplierId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin.from("supplier_products")
+      .select("id, feed_id").eq("supplier_id", supplier.id).eq("store_id", supplier.store_id).in("id", data.productIds);
+    if (error) throw new Error(error.message);
+    if ((rows ?? []).length !== data.productIds.length) throw new Error("Ürünlerden biri bu tedarikçiye ait değil");
+    const { publishSupplierProducts } = await import("@/lib/xml-publish.server");
+    const byFeed = new Map<string, string[]>();
+    for (const row of (rows ?? []) as { id: string; feed_id: string }[]) {
+      byFeed.set(row.feed_id, [...(byFeed.get(row.feed_id) ?? []), row.id]);
+    }
+    const totals = { processed: 0, productsCreated: 0, productsActivated: 0, skipped: 0 };
+    for (const [feedId, supplierProductIds] of byFeed) {
+      const result = await publishSupplierProducts(supabaseAdmin as never, {
+        storeId: supplier.store_id, feedId, supplierProductIds, channelIds: [], activate: true, onlyInStock: false,
+      });
+      totals.processed += result.processed;
+      totals.productsCreated += result.productsCreated;
+      totals.productsActivated += result.productsActivated;
+      totals.skipped += result.skipped;
+    }
+    return totals;
+  });
+
+/** Tedarikçinin kendi ürünlerinden gerçek RFQ teklifi oluşturur. */
+export const supplierDeskCreateRfq = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({
+    supplierId: z.guid(), companyName: z.string().trim().min(2).max(200),
+    validDays: z.number().int().min(1).max(180).default(30),
+    items: z.array(z.object({ supplierProductId: z.guid(), quantity: z.number().int().min(1).max(100000) })).min(1).max(50),
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supplier } = await assertSupplier(context.supabase, context.userId, data.supplierId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ids = data.items.map((item) => item.supplierProductId);
+    const { data: products, error } = await supabaseAdmin.from("supplier_products")
+      .select("id, title, sku, supplier_price, computed_price, currency").eq("supplier_id", supplier.id).eq("store_id", supplier.store_id).in("id", ids);
+    if (error) throw new Error(error.message);
+    if ((products ?? []).length !== ids.length) throw new Error("Teklif ürünlerinden biri bu tedarikçiye ait değil");
+    const rows = (products ?? []) as any[];
+    const items = data.items.map((item) => {
+      const product = rows.find((row) => row.id === item.supplierProductId);
+      const unitPrice = Number(product?.computed_price ?? product?.supplier_price ?? 0);
+      return { supplierProductId: item.supplierProductId, title: String(product?.title ?? "Ürün"), sku: product?.sku ?? null, quantity: item.quantity, unitPrice, lineTotal: unitPrice * item.quantity };
+    });
+    const total = items.reduce((sum, item) => sum + item.lineTotal, 0);
+    const reference = `RFQ-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+    const validUntil = new Date(Date.now() + data.validDays * 86_400_000).toISOString().slice(0, 10);
+    const { data: created, error: insertError } = await supabaseAdmin.from("rfq_requests").insert({
+      store_id: supplier.store_id, supplier_id: supplier.id, reference, company_name: data.companyName,
+      currency: supplier.currency || "TRY", items, requested_total: total, quoted_total: total,
+      status: "quoted", valid_until: validUntil,
+    }).select("id").single();
+    if (insertError) throw new Error(insertError.message);
+    return { id: (created as { id: string }).id, reference, total };
+  });
+
+/** Teklifi onaylar ve bağlı gerçek satın alma siparişini üretir. */
+export const supplierDeskApproveRfq = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ supplierId: z.guid(), rfqId: z.guid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supplier } = await assertSupplier(context.supabase, context.userId, data.supplierId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rfq, error } = await supabaseAdmin.from("rfq_requests").select("*")
+      .eq("id", data.rfqId).eq("supplier_id", supplier.id).eq("store_id", supplier.store_id).maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!rfq) throw new Error("Teklif bulunamadı veya yetkiniz yok");
+    if (rfq.purchase_order_id) return { purchaseOrderId: rfq.purchase_order_id };
+    const items = Array.isArray(rfq.items) ? rfq.items as any[] : [];
+    if (!items.length) throw new Error("Teklifte sipariş kalemi bulunmuyor");
+    const productIds = items.map((item) => item.supplierProductId).filter(Boolean);
+    const { data: products } = await supabaseAdmin.from("supplier_products").select("id, product_id, variant_id, title, sku")
+      .eq("supplier_id", supplier.id).in("id", productIds);
+    if ((products ?? []).length !== productIds.length) throw new Error("Teklif ürünleri doğrulanamadı");
+    const code = `SA-${String(rfq.reference).replace(/^RFQ-/, "")}`;
+    const { data: order, error: orderError } = await supabaseAdmin.from("purchase_orders").insert({
+      store_id: supplier.store_id, supplier_id: supplier.id, code, status: "ordered",
+      currency: rfq.currency || supplier.currency || "TRY", expected_at: rfq.valid_until,
+      note: `${rfq.reference} teklifinden oluşturuldu`, created_by: context.userId,
+    }).select("id").single();
+    if (orderError) throw new Error(orderError.message);
+    const purchaseOrderId = (order as { id: string }).id;
+    const details = items.map((item) => {
+      const product = (products ?? []).find((row: any) => row.id === item.supplierProductId) as any;
+      return { store_id: supplier.store_id, purchase_order_id: purchaseOrderId, product_id: product?.product_id ?? null,
+        variant_id: product?.variant_id ?? null, title: item.title, sku: item.sku ?? product?.sku ?? null,
+        quantity: Number(item.quantity), unit_cost: Number(item.unitPrice) };
+    });
+    const { error: itemError } = await supabaseAdmin.from("purchase_order_items").insert(details);
+    if (itemError) {
+      await supabaseAdmin.from("purchase_orders").delete().eq("id", purchaseOrderId);
+      throw new Error(itemError.message);
+    }
+    const { error: updateError } = await supabaseAdmin.from("rfq_requests").update({ status: "won", purchase_order_id: purchaseOrderId }).eq("id", rfq.id);
+    if (updateError) throw new Error(updateError.message);
+    return { purchaseOrderId };
   });
 
 /** Uzak bağlantıdaki dosyayı indirip ham satırları döndürür (alan eşleştirme için). */

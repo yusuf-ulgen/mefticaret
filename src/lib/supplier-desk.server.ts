@@ -20,6 +20,7 @@ export type DeskItem = {
   unitPrice: number;
   lineTotal: number;
   mine: boolean;
+  imageUrl: string | null;
 };
 
 export type DeskOrder = {
@@ -40,6 +41,43 @@ export type DeskOrder = {
   itemsTotal: number;
   commissionTotal: number;
   netTotal: number;
+  note: string | null;
+  paymentStatus: string | null;
+};
+
+export type SupplierCatalogRow = {
+  id: string;
+  feedId: string;
+  title: string;
+  sku: string | null;
+  barcode: string | null;
+  category: string | null;
+  brand: string | null;
+  supplierPrice: number;
+  salePrice: number;
+  stock: number;
+  currency: string;
+  images: string[];
+  description: string | null;
+  color: string | null;
+  size: string | null;
+  productId: string | null;
+  variantId: string | null;
+  isPublished: boolean;
+  updatedAt: string;
+};
+
+export type SupplierRfqRow = {
+  id: string;
+  reference: string;
+  companyName: string;
+  currency: string;
+  total: number;
+  status: string;
+  validUntil: string | null;
+  purchaseOrderId: string | null;
+  items: Array<{ supplierProductId?: string; title: string; sku?: string; quantity: number; unitPrice: number }>;
+  createdAt: string;
 };
 
 export type LedgerSummary = {
@@ -149,7 +187,7 @@ export async function loadSupplierDeskOrders(
     admin
       .from("orders")
       .select(
-        "id, order_number, created_at, currency, shipping_carrier, customer_name, customer_phone, shipping_address",
+        "id, order_number, created_at, currency, shipping_carrier, customer_name, customer_phone, shipping_address, note, payment_status",
       )
       .in("id", orderIds),
     admin
@@ -176,7 +214,7 @@ export async function loadSupplierDeskOrders(
     new Set(itemRows.map((item) => item.variant_id).filter((id): id is string => Boolean(id))),
   );
 
-  const [{ data: products }, { data: variants }, { data: mappings }] = await Promise.all([
+  const [{ data: products }, { data: variants }, { data: mappings }, { data: images }] = await Promise.all([
     productIds.length
       ? admin.from("products").select("id, description, sku, barcode").in("id", productIds)
       : Promise.resolve({ data: [] }),
@@ -189,11 +227,15 @@ export async function loadSupplierDeskOrders(
           .select("supplier_id, product_id, variant_id")
           .in("supplier_id", supplierIds)
       : Promise.resolve({ data: [] }),
+    productIds.length
+      ? admin.from("product_images").select("product_id, url, position").in("product_id", productIds).order("position")
+      : Promise.resolve({ data: [] }),
   ]);
 
   const productMap = new Map(((products ?? []) as any[]).map((row) => [row.id as string, row]));
   const variantMap = new Map(((variants ?? []) as any[]).map((row) => [row.id as string, row]));
   const mappingRows = (mappings ?? []) as any[];
+  const imageRows = (images ?? []) as any[];
 
   const ownsItem = (supplierId: string, item: any) =>
     mappingRows.some(
@@ -208,7 +250,7 @@ export async function loadSupplierDeskOrders(
     const order = orderMap.get(row.order_id as string);
     const orderItems = itemRows.filter((item) => item.order_id === row.order_id);
     const mine = orderItems.filter((item) => ownsItem(row.supplier_id as string, item));
-    const visible = mine.length ? mine : orderItems;
+    const visible = mine;
 
     const deskItems: DeskItem[] = visible.map((item) => {
       const product = item.product_id ? productMap.get(item.product_id) : undefined;
@@ -224,6 +266,7 @@ export async function loadSupplierDeskOrders(
         unitPrice: num(item.unit_price),
         lineTotal: num(item.line_total ?? num(item.unit_price) * Number(item.quantity ?? 1)),
         mine: mine.length ? true : false,
+        imageUrl: imageRows.find((image) => image.product_id === item.product_id)?.url ?? null,
       };
     });
 
@@ -249,8 +292,69 @@ export async function loadSupplierDeskOrders(
       itemsTotal: deskItems.reduce((total, item) => total + item.lineTotal, 0),
       commissionTotal: entries.reduce((total, entry) => total + num(entry.commission_amount), 0),
       netTotal: entries.reduce((total, entry) => total + num(entry.net_amount), 0),
+      note: order?.note ?? null,
+      paymentStatus: order?.payment_status ?? null,
     };
   });
+}
+
+/** Tedarikçiye ait katalog, cari hesap, RFQ ve stok/fiyat hareketleri. */
+export async function loadSupplierWorkspace(admin: Client, suppliers: { id: string; store_id: string }[]) {
+  if (!suppliers.length) return { products: [] as SupplierCatalogRow[], rfqs: [] as SupplierRfqRow[], credit: null, transactions: [], movements: [] };
+  const supplierIds = suppliers.map((supplier) => supplier.id);
+  const storeIds = Array.from(new Set(suppliers.map((supplier) => supplier.store_id)));
+  const [{ data: products }, { data: rfqs }, { data: accounts }] = await Promise.all([
+    admin.from("supplier_products")
+      .select("id, feed_id, title, sku, barcode, category, brand, supplier_price, computed_price, stock, currency, images, raw, product_id, variant_id, updated_at")
+      .in("supplier_id", supplierIds).order("updated_at", { ascending: false }).limit(1000),
+    admin.from("rfq_requests")
+      .select("id, reference, company_name, currency, quoted_total, requested_total, status, valid_until, purchase_order_id, items, created_at")
+      .in("supplier_id", supplierIds).order("created_at", { ascending: false }).limit(100),
+    admin.from("b2b_credit_accounts")
+      .select("id, supplier_id, company_name, currency, credit_limit, balance, term_days, status")
+      .in("supplier_id", supplierIds).limit(10),
+  ]);
+  const productRows = (products ?? []) as any[];
+  const productIds = productRows.map((row) => row.product_id).filter(Boolean);
+  const variantIds = productRows.map((row) => row.variant_id).filter(Boolean);
+  const accountRows = (accounts ?? []) as any[];
+  const [{ data: liveProducts }, { data: liveVariants }, { data: transactions }, { data: movements }] = await Promise.all([
+    productIds.length ? admin.from("products").select("id, status, base_price, updated_at").in("id", productIds) : Promise.resolve({ data: [] }),
+    variantIds.length ? admin.from("product_variants").select("id, price, stock, updated_at").in("id", variantIds) : Promise.resolve({ data: [] }),
+    accountRows.length ? admin.from("b2b_credit_transactions").select("id, account_id, kind, amount, currency, note, created_at").in("account_id", accountRows.map((row) => row.id)).order("created_at", { ascending: false }).limit(100) : Promise.resolve({ data: [] }),
+    productIds.length ? admin.from("inventory_movements").select("id, product_id, variant_id, kind, quantity, stock_before, stock_after, reason, created_at").in("store_id", storeIds).in("product_id", productIds).order("created_at", { ascending: false }).limit(100) : Promise.resolve({ data: [] }),
+  ]);
+  const liveProductMap = new Map(((liveProducts ?? []) as any[]).map((row) => [row.id, row]));
+  const liveVariantMap = new Map(((liveVariants ?? []) as any[]).map((row) => [row.id, row]));
+  return {
+    products: productRows.map((row): SupplierCatalogRow => {
+      const raw = row.raw && typeof row.raw === "object" ? row.raw : {};
+      const liveProduct = row.product_id ? liveProductMap.get(row.product_id) : null;
+      const liveVariant = row.variant_id ? liveVariantMap.get(row.variant_id) : null;
+      return {
+        id: row.id, feedId: row.feed_id, title: row.title, sku: row.sku, barcode: row.barcode,
+        category: row.category, brand: row.brand, supplierPrice: num(row.supplier_price),
+        salePrice: num(liveVariant?.price ?? liveProduct?.base_price ?? row.computed_price ?? row.supplier_price),
+        stock: Number(liveVariant?.stock ?? row.stock ?? 0), currency: row.currency ?? "TRY",
+        images: Array.isArray(row.images) ? row.images.filter((url: unknown) => typeof url === "string") : [],
+        description: typeof raw.description === "string" ? raw.description : null,
+        color: typeof raw.color === "string" ? raw.color : null, size: typeof raw.size === "string" ? raw.size : null,
+        productId: row.product_id, variantId: row.variant_id, isPublished: liveProduct?.status === "active",
+        updatedAt: liveVariant?.updated_at ?? liveProduct?.updated_at ?? row.updated_at,
+      };
+    }),
+    rfqs: ((rfqs ?? []) as any[]).map((row): SupplierRfqRow => ({
+      id: row.id, reference: row.reference, companyName: row.company_name, currency: row.currency ?? "TRY",
+      total: num(row.quoted_total ?? row.requested_total), status: row.status, validUntil: row.valid_until,
+      purchaseOrderId: row.purchase_order_id, items: Array.isArray(row.items) ? row.items : [], createdAt: row.created_at,
+    })),
+    credit: accountRows[0] ? {
+      id: accountRows[0].id, companyName: accountRows[0].company_name, currency: accountRows[0].currency,
+      creditLimit: num(accountRows[0].credit_limit), balance: num(accountRows[0].balance),
+      termDays: Number(accountRows[0].term_days ?? 30), status: accountRows[0].status,
+    } : null,
+    transactions: (transactions ?? []) as any[], movements: (movements ?? []) as any[],
+  };
 }
 
 /** Komisyon defteri + performans karnesi. */
@@ -426,14 +530,21 @@ export async function applySupplierImport(
   const skus = valid.map((row) => row.sku);
   const { data: existing } = await admin
     .from("supplier_products")
-    .select("id, sku")
+    .select("id, sku, product_id, variant_id")
     .eq("supplier_id", input.supplierId)
     .in("sku", skus);
-  const existingMap = new Map(((existing ?? []) as any[]).map((row) => [row.sku as string, row.id as string]));
+  const existingMap = new Map(
+    ((existing ?? []) as any[]).map((row) => [
+      row.sku as string,
+      { id: row.id as string, productId: row.product_id as string | null, variantId: row.variant_id as string | null },
+    ]),
+  );
 
   const now = new Date().toISOString();
   const payload = valid.map((row) => ({
-    id: existingMap.get(row.sku),
+    id: existingMap.get(row.sku)?.id,
+    product_id: existingMap.get(row.sku)?.productId ?? null,
+    variant_id: existingMap.get(row.sku)?.variantId ?? null,
     store_id: input.storeId,
     feed_id: input.feedId,
     supplier_id: input.supplierId,
@@ -458,7 +569,7 @@ export async function applySupplierImport(
     updated_at: now,
   }));
 
-  const inserts = payload.filter((row) => !row.id).map(({ id: _id, ...rest }) => rest);
+  const inserts = payload.filter((row) => !row.id).map(({ id: _id, product_id: _productId, variant_id: _variantId, ...rest }) => rest);
   const updates = payload.filter((row) => row.id);
 
   if (inserts.length) {
@@ -471,6 +582,13 @@ export async function applySupplierImport(
     const { id, ...rest } = row;
     const { error } = await admin.from("supplier_products").update(rest).eq("id", id);
     if (error) throw new Error(error.message);
+    if (rest.product_id) {
+      const salePrice = row.computed_price ?? row.supplier_price;
+      await admin.from("products").update({ base_price: salePrice, cost_price: row.supplier_price }).eq("id", rest.product_id).eq("store_id", input.storeId);
+      if (rest.variant_id) {
+        await admin.from("product_variants").update({ price: salePrice, cost_price: row.supplier_price, stock: row.stock }).eq("id", rest.variant_id).eq("store_id", input.storeId);
+      }
+    }
   }
 
   return { created: inserts.length, updated: updates.length };
