@@ -108,6 +108,50 @@ export const importJobPayloadSchema = z.object({
   invalidCount: z.number().int().min(0),
 });
 
+/**
+ * Kırık görsel koruması: erişilemeyen (404) birincil görseller ayıklanır,
+ * satırda hiç geçerli görsel kalmazsa yer tutucu atanır — akış durmaz.
+ */
+async function repairBrokenImages<T extends { images: string[] }>(rows: T[], budget = 200): Promise<number> {
+  const cache = new Map<string, boolean>();
+  let checks = 0;
+  let replaced = 0;
+
+  const reachable = async (url: string): Promise<boolean> => {
+    if (cache.has(url)) return cache.get(url)!;
+    if (checks >= budget) return true;
+    checks += 1;
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 4000);
+      const response = await fetch(url, { method: "HEAD", signal: controller.signal, redirect: "follow" });
+      clearTimeout(timer);
+      const ok = response.status !== 404 && response.status !== 410;
+      cache.set(url, ok);
+      return ok;
+    } catch {
+      // Ağ hatası kırık link sayılmaz; görsel korunur.
+      cache.set(url, true);
+      return true;
+    }
+  };
+
+  for (const row of rows) {
+    if (!row.images.length) continue;
+    const kept: string[] = [];
+    for (const image of row.images.slice(0, 6)) {
+      if (await reachable(image)) kept.push(image);
+    }
+    if (!kept.length) {
+      row.images = [PLACEHOLDER_IMAGE];
+      replaced += 1;
+    } else if (kept.length !== row.images.length) {
+      row.images = kept;
+    }
+  }
+  return replaced;
+}
+
 export async function runSupplierImportJob(
   supabase: Client,
   importJobId: string,
@@ -119,6 +163,7 @@ export async function runSupplierImportJob(
   try {
     const { applySupplierImport } = await import("@/lib/supplier-desk.server");
     const rows = parsed.rows.filter((row) => row.errors.length === 0);
+    const placeholders = await repairBrokenImages(rows);
     const result = await applySupplierImport(supabase as never, {
       storeId: parsed.storeId,
       supplierId: parsed.supplierId,
@@ -126,6 +171,9 @@ export async function runSupplierImportJob(
       rows: rows as never,
       currency: parsed.currency,
     });
+    if (placeholders) {
+      console.warn(`[supplier-import] ${placeholders} satıra yer tutucu görsel atandı (job ${importJobId})`);
+    }
 
     const { error: finishError } = await supabase
       .from("supplier_import_jobs")
