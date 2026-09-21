@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-label="Görsel bulunamadı">
+  <rect width="800" height="800" fill="#f4f4f5" />
+  <g fill="none" stroke="#c4c4cc" stroke-width="12" stroke-linejoin="round">
+    <rect x="220" y="250" width="360" height="280" rx="24" />
+    <path d="M250 470l90-110 70 80 55-60 85 90" />
+  </g>
+  <circle cx="330" cy="330" r="26" fill="#c4c4cc" />
+  <text x="400" y="610" font-family="system-ui, sans-serif" font-size="34" fill="#8a8a93" text-anchor="middle">Görsel yok</text>
+</svg>
