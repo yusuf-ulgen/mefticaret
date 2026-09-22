@@ -23,6 +23,13 @@ import {
 } from "@/lib/xml-integrator";
 
 import {
+  DEFAULT_CURRENCY_CONFIG,
+  parseCurrencyConfig,
+  serializeCurrencyConfig,
+  SUPPORTED_FEED_CURRENCIES,
+  type CurrencyConfig,
+} from "@/lib/xml-currency";
+import {
   DEFAULT_VARIANT_CONFIG,
   parseVariantConfig,
   parseVariantMode,
@@ -65,6 +72,16 @@ const feedSchema = z.object({
   priceMarkup: z.number().min(-90).max(900).nullable().default(null),
   currency: z.string().trim().length(3).default("TRY"),
   isActive: z.boolean().default(true),
+  currencyConfig: z
+    .object({
+      sourceCurrency: z.enum(SUPPORTED_FEED_CURRENCIES).default("TRY"),
+      targetCurrency: z.enum(SUPPORTED_FEED_CURRENCIES).default("TRY"),
+      autoConvert: z.boolean().default(false),
+      exchangeRateType: z.enum(["auto", "manual"]).default("auto"),
+      manualRate: z.number().min(0).max(100000).default(1),
+      profitMarginPercent: z.number().min(-90).max(900).default(0),
+    })
+    .default(() => ({ ...DEFAULT_CURRENCY_CONFIG })),
   variantMode: z.enum(["none", "nested", "flat"]).default("none"),
   variantConfig: z
     .object({
@@ -106,7 +123,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
       context.supabase
         .from("xml_feeds")
         .select(
-          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config",
+          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config, currency_config",
         )
         .eq("store_id", data.storeId)
         .order("created_at", { ascending: false }),
@@ -145,6 +162,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
         priceMarkup: row["price_markup"] === null ? null : Number(row["price_markup"]),
         currency: String(row["currency"] ?? "TRY"),
         isActive: Boolean(row["is_active"]),
+        currencyConfig: parseCurrencyConfig(row["currency_config"]) as CurrencyConfig,
         variantMode: parseVariantMode(row["variant_mode"]) as VariantMode,
         variantConfig: parseVariantConfig(row["variant_config"]) as VariantConfig,
         lastRunAt: (row["last_run_at"] as string | null) ?? null,
@@ -199,6 +217,7 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
       price_markup: data.priceMarkup,
       currency: data.currency.toUpperCase(),
       is_active: data.isActive,
+      currency_config: serializeCurrencyConfig(data.currencyConfig),
       variant_mode: data.variantMode,
       variant_config: serializeVariantConfig(parseVariantConfig({
         parent_node_path: data.variantConfig.parentNodePath,
@@ -1030,4 +1049,21 @@ export const previewXmlImport = createServerFn({ method: "POST" })
         })),
       })),
     };
+  });
+
+/** Platform döviz kurları (TL karşılığı) — para birimi çevirimi ekranı için. */
+export const listPlatformCurrencyRates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("platform_currency_rates")
+      .select("code, rate, source, updated_at")
+      .order("code");
+    if (error) throw new Error(error.message);
+    return ((data ?? []) as Array<Record<string, any>>).map((row) => ({
+      code: String(row["code"]),
+      rate: Number(row["rate"]),
+      source: String(row["source"] ?? "tcmb"),
+      updatedAt: (row["updated_at"] as string | null) ?? null,
+    }));
   });
