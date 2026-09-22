@@ -137,21 +137,24 @@ export function parseNestedVariants(row: SourceRow, variantNodePath: string): Va
 
   for (const [key, value] of Object.entries(row)) {
     const plain = generic(key);
-    if (plain === wanted || !plain.startsWith(`${wanted}.`)) {
-      if (!plain.startsWith(`${wanted}`)) parentRow[key] = value;
+    if (!plain.startsWith(`${wanted}.`)) {
+      if (!plain.startsWith(wanted)) parentRow[key] = value;
       continue;
     }
     // Varyant düğümündeki indeksi bul: `...Variant[2].SKU` → "2"
-    const match = key.slice(0, key.length).match(/\[(\d+)\](?!.*\[\d+\])/);
-    const index = match?.[1] ?? "0";
+    const match = key.match(/\[(\d+)\]/g);
+    const index = match?.length ? (match[match.length - 1] as string).replace(/\D/g, "") : "0";
     const relative = plain.slice(wanted.length + 1);
     const bucket = buckets.get(index) ?? {};
     bucket[relative] = value;
     bucket[`${wanted}.${relative}`] = value;
+    // Eşleme sütun biçiminde yapıldıysa (ör. `Variants.Variant[].SKU`) o anahtar da yazılır.
+    bucket[columnStyle(key)] = value;
     buckets.set(index, bucket);
   }
 
   if (!buckets.size) return { isVariant: false, parentSku: null, mainRow: row, variantRows: [row] };
+
 
   const variantRows = [...buckets.entries()]
     .sort((a, b) => Number(a[0]) - Number(b[0]))
