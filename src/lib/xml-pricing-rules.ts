@@ -137,3 +137,66 @@ export function calculateFinalPrice(basePrice: number, rules: PricingRules): num
 
   return Math.max(0, price);
 }
+
+export type PricingStep = { label: string; value: number };
+
+/** Simülatör için adım adım fiyat dökümü döndürür. */
+export function explainPrice(basePrice: number, rules: PricingRules): PricingStep[] {
+  if (!Number.isFinite(basePrice) || basePrice <= 0) return [{ label: "Alış fiyatı", value: 0 }];
+  const steps: PricingStep[] = [{ label: "Alış fiyatı", value: basePrice }];
+  let price = basePrice;
+
+  if (rules.vatAction === "add_vat") {
+    price += price * (rules.vatRate / 100);
+    steps.push({ label: `KDV eklendi (%${rules.vatRate})`, value: price });
+  } else if (rules.vatAction === "remove_vat") {
+    price /= 1 + rules.vatRate / 100;
+    steps.push({ label: `KDV çıkarıldı (%${rules.vatRate})`, value: price });
+  }
+
+  if (rules.marginType === "flat") {
+    if (rules.flatMarginPercent !== 0 || rules.flatAddAmount !== 0) {
+      price += price * (rules.flatMarginPercent / 100);
+      price += rules.flatAddAmount;
+      steps.push({
+        label: `Sabit marj (%${rules.flatMarginPercent}${rules.flatAddAmount ? ` + ${rules.flatAddAmount} TL` : ""})`,
+        value: price,
+      });
+    }
+  } else {
+    for (const tier of rules.tieredMargins) {
+      const max = tier.max ?? Number.POSITIVE_INFINITY;
+      if (basePrice >= tier.min && basePrice < max) {
+        price += price * (tier.margin / 100);
+        price += tier.addAmount;
+        steps.push({
+          label: `Kademeli marj (%${tier.margin}${tier.addAmount ? ` + ${tier.addAmount} TL` : ""})`,
+          value: price,
+        });
+        break;
+      }
+    }
+  }
+
+  const { commissionPercent, shippingFee } = rules.marketplaceFees;
+  if (commissionPercent > 0 || shippingFee > 0) {
+    if (commissionPercent > 0) price += price * (commissionPercent / 100);
+    price += shippingFee;
+    steps.push({
+      label: `Pazaryeri gideri (%${commissionPercent}${shippingFee ? ` + ${shippingFee} TL kargo` : ""})`,
+      value: price,
+    });
+  }
+
+  const rounded = calculateFinalPrice(basePrice, rules);
+  const roundingLabel =
+    rules.roundingType === "round_99"
+      ? "Yuvarlama (,99)"
+      : rules.roundingType === "round_90"
+        ? "Yuvarlama (,90)"
+        : rules.roundingType === "integer"
+          ? "Yuvarlama (tam sayı)"
+          : "Son fiyat";
+  steps.push({ label: roundingLabel, value: rounded });
+  return steps;
+}
