@@ -606,7 +606,9 @@ export const listXmlCategoryMappings = createServerFn({ method: "GET" })
     const [{ data: mappings, error }, { data: categories }] = await Promise.all([
       context.supabase
         .from("xml_category_mappings")
-        .select("id, source_category, target_category_id, target_category_code, target_category_name, product_count")
+        .select(
+          "id, source_category, target_category_id, target_category_code, target_category_name, product_count, ai_confidence, is_ai_suggested, ai_reasoning",
+        )
         .eq("store_id", data.storeId)
         .eq("feed_id", data.feedId)
         .order("product_count", { ascending: false }),
