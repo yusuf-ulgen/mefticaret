@@ -6,7 +6,17 @@
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Copy, Download, Loader2, Pencil, Play, SlidersHorizontal as Sliders, Trash2, Upload } from "lucide-react";
+import {
+  Copy,
+  Download,
+  Loader2,
+  Pencil,
+  Play,
+  RefreshCw,
+  SlidersHorizontal as Sliders,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
