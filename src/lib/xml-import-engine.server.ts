@@ -333,7 +333,7 @@ export async function upsertProducts(
 
       const { error } = await admin.from("products").update(patch).eq("id", productId).eq("store_id", input.storeId);
       if (error) {
-        result.errors.push({ row: 0, reason: `${item.key}: ${error.message}` });
+        result.errors.push({ row: 0, reason: `${item.key}: ${error.message}`, category: "UPSERT_ERROR" });
         result.skipped += 1;
         continue;
       }
