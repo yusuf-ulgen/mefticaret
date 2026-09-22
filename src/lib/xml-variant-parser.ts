@@ -20,13 +20,33 @@ export type VariantConfig = {
   parentSkuField: string;
   /** Varyant seçeneği olarak kullanılacak alan adları, ör. `["Renk", "Beden"]`. */
   optionAttributes: string[];
+  /** Varyanta özel alan eşlemesi; boş bırakılan alanlar ürün eşlemesinden okunur. */
+  variantMapping: Record<string, string>;
 };
+
+/** Varyant satırlarında ayrı eşlenebilen alanlar. */
+export const VARIANT_FIELD_KEYS = [
+  "sku",
+  "barcode",
+  "price",
+  "compare_at_price",
+  "cost_price",
+  "stock",
+  "weight",
+  "color",
+  "size",
+  "material",
+  "variant_name",
+  "variant_value",
+  "images",
+] as const;
 
 export const DEFAULT_VARIANT_CONFIG: VariantConfig = {
   parentNodePath: "",
   variantNodePath: "",
   parentSkuField: "",
   optionAttributes: [],
+  variantMapping: {},
 };
 
 /** Veritabanındaki `variant_mode` değerini güvenli biçimde okur. */
@@ -42,6 +62,15 @@ export function parseVariantConfig(raw: unknown): VariantConfig {
     return typeof value === "string" ? value.trim() : "";
   };
   const attributes = Array.isArray(source["option_attributes"]) ? source["option_attributes"] : [];
+  const rawMapping =
+    source["variant_field_mapping"] && typeof source["variant_field_mapping"] === "object"
+      ? (source["variant_field_mapping"] as Record<string, unknown>)
+      : {};
+  const variantMapping: Record<string, string> = {};
+  for (const key of VARIANT_FIELD_KEYS) {
+    const value = rawMapping[key];
+    if (typeof value === "string" && value.trim()) variantMapping[key] = value.trim().slice(0, 300);
+  }
   return {
     parentNodePath: text("parent_node_path"),
     variantNodePath: text("variant_node_path"),
@@ -51,8 +80,21 @@ export function parseVariantConfig(raw: unknown): VariantConfig {
       .map((item) => item.trim())
       .filter(Boolean)
       .slice(0, 12),
+    variantMapping,
   };
 }
+
+/** `VariantConfig` nesnesini veritabanı JSON biçimine çevirir. */
+export function serializeVariantConfig(config: VariantConfig): Record<string, unknown> {
+  return {
+    parent_node_path: config.parentNodePath,
+    variant_node_path: config.variantNodePath,
+    parent_sku_field: config.parentSkuField,
+    option_attributes: config.optionAttributes,
+    variant_field_mapping: config.variantMapping,
+  };
+}
+
 
 export type SourceRow = Record<string, string>;
 
