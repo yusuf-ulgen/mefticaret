@@ -86,6 +86,39 @@ export function DirectionBadge({ direction }: { direction: string }) {
   );
 }
 
+const CONNECTION_SHORT: Record<string, string> = {
+  url: "HTTP",
+  ftp: "FTP",
+  sftp: "SFTP",
+  webhook: "WEBHOOK",
+};
+
+/** Bağlantı türü rozeti (HTTP · FTP · SFTP · WEBHOOK). */
+export function ConnectionBadge({ connectionType }: { connectionType: string }) {
+  return (
+    <Badge variant="outline" className="font-mono text-[10px] uppercase">
+      {CONNECTION_SHORT[connectionType] ?? "HTTP"}
+    </Badge>
+  );
+}
+
+/** Bağlantı sağlığı: son çalışmanın sonucuna göre. */
+export function ConnectionHealth({ feed }: { feed: XmlFeedRow }) {
+  const health = !feed.lastRunAt
+    ? { label: "Denenmedi", className: "text-muted-foreground" }
+    : feed.lastStatus === "failed"
+      ? { label: "Bağlantı sorunlu", className: "text-destructive" }
+      : feed.lastStatus === "partial"
+        ? { label: "Kısmen çalışıyor", className: "text-warning" }
+        : { label: "Bağlantı sağlıklı", className: "text-success" };
+  return (
+    <span className={`inline-flex items-center gap-1 text-xs ${health.className}`}>
+      <span aria-hidden className="size-1.5 rounded-full bg-current" />
+      {health.label}
+    </span>
+  );
+}
+
 const PLATFORM_MARKS: Record<string, { short: string; className: string }> = {
   trendyol: { short: "ty", className: "bg-platform-trendyol/12 text-platform-trendyol" },
   hepsiburada: { short: "hb", className: "bg-platform-hepsiburada/12 text-platform-hepsiburada" },
