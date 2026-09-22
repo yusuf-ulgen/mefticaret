@@ -23,19 +23,17 @@ export const Route = createFileRoute("/api/public/xml-feed-push/$token")({
         const { data: feedRow } = await supabaseAdmin
           .from("xml_feeds")
           .select(
-            "id, store_id, direction, connection_type, is_active, source_format, item_path, field_mapping, transform_rules, price_markup, currency, pricing_rules, variant_mode, variant_config, delta_sync_config, last_full_sync_at",
+            "id, store_id, direction, connection_type, is_active, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, pricing_rules, variant_mode, variant_config, delta_sync_config, last_full_sync_at, ftp_config",
           )
           .eq("webhook_token", token)
           .maybeSingle();
 
         const feed = feedRow as Record<string, unknown> | null;
-        if (
-          !feed ||
-          feed["direction"] !== "import" ||
-          feed["connection_type"] !== "webhook" ||
-          feed["is_active"] !== true
-        ) {
-          return new Response("Not found", { status: 404 });
+        if (!feed || feed["direction"] !== "import" || feed["is_active"] !== true) {
+          return Response.json(
+            { ok: false, error: "Invalid or inactive webhook token" },
+            { status: 404 },
+          );
         }
 
         const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
@@ -56,9 +54,23 @@ export const Route = createFileRoute("/api/public/xml-feed-push/$token")({
         if (new TextEncoder().encode(body).length > MAX_BYTES) {
           return Response.json({ ok: false, error: "Dosya 40 MB sınırını aşıyor" }, { status: 413 });
         }
-        if (body.trim().length === 0) {
-          return Response.json({ ok: false, error: "Gönderilen dosya boş" }, { status: 400 });
+
+        const { parseConnectionType } = await import("@/lib/xml-connection");
+        const connectionType = parseConnectionType(feed["connection_type"]);
+        const hasBody = body.trim().length > 0;
+
+        /*
+         * İki kullanım biçimi desteklenir:
+         * 1. Dosya gönderimi — gövdedeki içerik doğrudan içe aktarılır.
+         * 2. Tetikleme — gövde boşsa besleme kendi kaynağından (adres / FTP) indirir.
+         */
+        if (!hasBody && connectionType === "webhook") {
+          return Response.json(
+            { ok: false, error: "Gönderilen dosya boş; bu besleme kendi kaynağından indirme yapmaz" },
+            { status: 400 },
+          );
         }
+
 
         const { runImportFeed } = await import("@/lib/xml-import-engine.server");
         try {
