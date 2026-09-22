@@ -470,7 +470,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
     const { data: feedRow, error: readError } = await context.supabase
       .from("xml_feeds")
       .select(
-        "id, direction, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, price_markup, currency",
+        "id, direction, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency",
       )
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
@@ -498,6 +498,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
         authType: String(feed["auth_type"] ?? "none") as never,
         authConfig: (feed["auth_config"] ?? {}) as Record<string, string>,
         fieldMapping: (feed["field_mapping"] ?? {}) as Record<string, string>,
+        transformRules: feed["transform_rules"] ?? {},
         priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
         currency: String(feed["currency"] ?? "TRY"),
       },

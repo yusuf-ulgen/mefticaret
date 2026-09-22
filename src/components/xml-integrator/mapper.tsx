@@ -7,7 +7,7 @@ import { DndContext, useDraggable, useDroppable, type DragEndEvent } from "@dnd-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { GripVertical, Loader2, Wand2, X } from "lucide-react";
+import { GripVertical, Loader2, Wand2, Wrench, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -17,6 +17,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Input } from "@/components/ui/input";
+import { TransformPanel } from "@/components/xml-integrator/transform-panel";
+import {
+  describeTransforms,
+  parseTransformRules,
+  type TransformRules,
+  type TransformStep,
+} from "@/lib/xml-transforms";
 import { xmlFieldSchemaQuery, xmlIntegratorOverviewQuery } from "@/lib/xml-integrator-queries";
 import { analyzeXmlSource, saveXmlFeed } from "@/lib/xml-integrator.functions";
 import {
@@ -42,12 +49,15 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
 
   const feed = overview.data?.feeds.find((row) => row.id === feedId);
   const [mapping, setMapping] = useState<FieldMapping>({});
+  const [transforms, setTransforms] = useState<TransformRules>({});
+  const [activeField, setActiveField] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
 
   useEffect(() => {
     if (feed && loadedFor !== feed.id) {
       setMapping(feed.fieldMapping as FieldMapping);
+      setTransforms(parseTransformRules(feed.transformRules));
       setLoadedFor(feed.id);
     }
   }, [feed, loadedFor]);
@@ -56,6 +66,11 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
     () => (schema.data ?? []).map((row) => ({ path: row.field_path, samples: row.sample_values ?? [] })),
     [schema.data],
   );
+  const sampleRow = useMemo(() => {
+    const row: Record<string, string> = {};
+    for (const column of columns) row[column.path] = column.samples[0] ?? "";
+    return row;
+  }, [columns]);
   const visibleColumns = columns.filter((column) =>
     column.path.toLowerCase().includes(search.trim().toLowerCase()),
   );
@@ -102,7 +117,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           schedule: feed.schedule as XmlSchedule,
           fieldMapping: mapping,
           filterRules: {},
-          transformRules: {},
+          transformRules: transforms as never,
           priceMarkup: feed.priceMarkup,
           currency: feed.currency,
           isActive: feed.isActive,
@@ -189,6 +204,8 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
                         required={field.required}
                         value={mapping[field.key] ?? ""}
                         columns={columns.map((column) => column.path)}
+                        transformSummary={describeTransforms(transforms[field.key])}
+                        onOpenTransforms={() => setActiveField(field.key)}
                         onSelect={(value) =>
                           setMapping((current) => {
                             const next = { ...current };
@@ -206,6 +223,30 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           </div>
         </DndContext>
       )}
+
+      {activeField ? (
+        <TransformPanel
+          open
+          onOpenChange={(next) => {
+            if (!next) setActiveField(null);
+          }}
+          fieldLabel={TARGET_FIELDS.find((field) => field.key === activeField)?.label ?? activeField}
+          sourcePath={mapping[activeField] ?? ""}
+          sample={
+            columns.find((column) => column.path === mapping[activeField])?.samples[0] ?? ""
+          }
+          row={sampleRow}
+          steps={transforms[activeField] ?? []}
+          onChange={(steps: TransformStep[]) =>
+            setTransforms((current) => {
+              const next = { ...current };
+              if (steps.length) next[activeField] = steps;
+              else delete next[activeField];
+              return next;
+            })
+          }
+        />
+      ) : null}
 
       <XmlCategoryMapper storeId={storeId} feedId={feedId} />
 
@@ -261,6 +302,8 @@ function TargetSlot({
   value,
   columns,
   onSelect,
+  transformSummary,
+  onOpenTransforms,
 }: {
   fieldKey: string;
   label: string;
@@ -268,6 +311,8 @@ function TargetSlot({
   value: string;
   columns: string[];
   onSelect: (value: string) => void;
+  transformSummary: string;
+  onOpenTransforms: () => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: fieldKey });
   return (
@@ -280,11 +325,26 @@ function TargetSlot({
         {required ? <span className="text-destructive"> *</span> : null}
       </p>
       {value ? (
-        <div className="flex items-center gap-1">
-          <Badge variant="secondary" className="min-w-0 max-w-full truncate">{value}</Badge>
-          <Button size="icon" variant="ghost" aria-label={`${label} eşleşmesini kaldır`} onClick={() => onSelect("")}>
-            <X className="size-3" />
-          </Button>
+        <div className="space-y-1">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={onOpenTransforms}
+              className="flex min-w-0 flex-1 items-center gap-1 rounded-md border bg-background px-2 py-1 text-left text-xs hover:bg-muted"
+              aria-label={`${label} dönüştürme kuralları`}
+            >
+              <Wrench className="size-3 shrink-0 text-muted-foreground" />
+              <span className="min-w-0 flex-1 truncate">{value}</span>
+            </button>
+            <Button size="icon" variant="ghost" aria-label={`${label} eşleşmesini kaldır`} onClick={() => onSelect("")}>
+              <X className="size-3" />
+            </Button>
+          </div>
+          {transformSummary ? (
+            <p className="truncate text-[11px] text-muted-foreground">{transformSummary}</p>
+          ) : (
+            <p className="text-[11px] text-muted-foreground">Dönüştürme için alana tıklayın</p>
+          )}
         </div>
       ) : (
         <select
