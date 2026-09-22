@@ -21,7 +21,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
+import { LiveRunProgress } from "@/components/xml-integrator/live-run-progress";
 import { RunStatusBadge } from "@/components/xml-integrator/shared";
+
 import { supabase } from "@/integrations/supabase/client";
 import { formatDate } from "@/lib/mefti";
 import { XML_SCHEDULE_LABELS } from "@/lib/xml-integrator";
