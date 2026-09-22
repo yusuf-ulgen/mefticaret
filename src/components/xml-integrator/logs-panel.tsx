@@ -83,9 +83,11 @@ export function XmlLogsPanel({ storeId }: { storeId: string }) {
                   {Number(log["error_count"] ?? 0)} hata
                   {log["duration_seconds"] ? ` · ${Number(log["duration_seconds"])} sn` : ""}
                 </p>
+                <ErrorCategoryBadges value={log["error_categories"]} />
                 {log["error_message"] ? (
                   <p className="mt-1 text-destructive">{String(log["error_message"])}</p>
                 ) : null}
+
               </article>
             ))
           ) : (
