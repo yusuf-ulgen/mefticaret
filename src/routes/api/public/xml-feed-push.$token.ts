@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/public/xml-feed-push/$token")({
         const { data: feedRow } = await supabaseAdmin
           .from("xml_feeds")
           .select(
-            "id, store_id, direction, connection_type, is_active, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, pricing_rules, variant_mode, variant_config, delta_sync_config, last_full_sync_at, ftp_config",
+            "id, store_id, direction, connection_type, is_active, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, pricing_rules, variant_mode, variant_config, delta_sync_config, last_full_sync_at, ftp_config, guardrail_config",
           )
           .eq("webhook_token", token)
           .maybeSingle();
@@ -97,6 +97,7 @@ export const Route = createFileRoute("/api/public/xml-feed-push/$token")({
               variantConfig: feed["variant_config"] ?? {},
               deltaSyncConfig: feed["delta_sync_config"] ?? {},
               lastFullSyncAt: (feed["last_full_sync_at"] as string | null) ?? null,
+              guardrailConfig: feed["guardrail_config"] ?? {},
             },
             { trigger: "api", nextRunAt: null },
           );

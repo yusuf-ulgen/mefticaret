@@ -695,7 +695,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
     const { data: feedRow, error: readError } = await context.supabase
       .from("xml_feeds")
       .select(
-        "id, direction, platform, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, output_filename, export_token, filter_rules, variant_mode, variant_config, pricing_rules, delta_sync_config, last_full_sync_at, connection_type, ftp_config",
+        "id, direction, platform, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, output_filename, export_token, filter_rules, variant_mode, variant_config, pricing_rules, delta_sync_config, last_full_sync_at, connection_type, ftp_config, guardrail_config",
       )
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
@@ -762,6 +762,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
         variantMode: (feed["variant_mode"] as string | null) ?? "none",
         variantConfig: feed["variant_config"] ?? {},
         deltaSyncConfig: feed["delta_sync_config"] ?? {},
+        guardrailConfig: feed["guardrail_config"] ?? {},
         lastFullSyncAt: (feed["last_full_sync_at"] as string | null) ?? null,
         forceFullSync: data.forceFullSync,
       },
