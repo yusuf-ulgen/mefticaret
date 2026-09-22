@@ -18169,6 +18169,7 @@ export type Database = {
           output_filename: string | null
           platform: Database["public"]["Enums"]["xml_platform"]
           price_markup: number | null
+          pricing_rules: Json
           schedule: Database["public"]["Enums"]["xml_schedule"]
           source_format: Database["public"]["Enums"]["xml_source_format"]
           source_url: string | null
@@ -18205,6 +18206,7 @@ export type Database = {
           output_filename?: string | null
           platform?: Database["public"]["Enums"]["xml_platform"]
           price_markup?: number | null
+          pricing_rules?: Json
           schedule?: Database["public"]["Enums"]["xml_schedule"]
           source_format?: Database["public"]["Enums"]["xml_source_format"]
           source_url?: string | null
@@ -18241,6 +18243,7 @@ export type Database = {
           output_filename?: string | null
           platform?: Database["public"]["Enums"]["xml_platform"]
           price_markup?: number | null
+          pricing_rules?: Json
           schedule?: Database["public"]["Enums"]["xml_schedule"]
           source_format?: Database["public"]["Enums"]["xml_source_format"]
           source_url?: string | null
