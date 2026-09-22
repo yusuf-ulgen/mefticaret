@@ -263,6 +263,7 @@ import { Route as AuthenticatedStoreStoreIdWarehousesRouteImport } from './route
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
 import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/_authenticated/store.$storeId.whatsapp'
 import { Route as AuthenticatedStoreStoreIdXmlFeedRouteImport } from './routes/_authenticated/store.$storeId.xml-feed'
+import { Route as AuthenticatedStoreStoreIdXmlIntegratorRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator'
 import { Route as ApiPublicBlogCoverSplatRouteImport } from './routes/api/public/blog-cover.$'
 import { Route as ApiPublicCronArasTrackingRouteImport } from './routes/api/public/cron.aras-tracking'
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
@@ -308,6 +309,7 @@ import { Route as ApiPublicEmailClickTokenRouteImport } from './routes/api/publi
 import { Route as ApiPublicEmailOpenTokenRouteImport } from './routes/api/public/email.open.$token'
 import { Route as ApiPublicEmailUnsubscribeTokenRouteImport } from './routes/api/public/email.unsubscribe.$token'
 import { Route as ApiPublicFeedStoreSlugKindRouteImport } from './routes/api/public/feed.$storeSlug.$kind'
+import { Route as ApiPublicXmlExportStoreSlugFeedIdRouteImport } from './routes/api/public/xml-export.$storeSlug.$feedId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -1744,6 +1746,12 @@ const AuthenticatedStoreStoreIdXmlFeedRoute =
     path: '/xml-feed',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdXmlIntegratorRoute =
+  AuthenticatedStoreStoreIdXmlIntegratorRouteImport.update({
+    id: '/xml-integrator',
+    path: '/xml-integrator',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const ApiPublicBlogCoverSplatRoute = ApiPublicBlogCoverSplatRouteImport.update({
   id: '/api/public/blog-cover/$',
   path: '/api/public/blog-cover/$',
@@ -1993,6 +2001,12 @@ const ApiPublicFeedStoreSlugKindRoute =
   ApiPublicFeedStoreSlugKindRouteImport.update({
     id: '/api/public/feed/$storeSlug/$kind',
     path: '/api/public/feed/$storeSlug/$kind',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicXmlExportStoreSlugFeedIdRoute =
+  ApiPublicXmlExportStoreSlugFeedIdRouteImport.update({
+    id: '/api/public/xml-export/$storeSlug/$feedId',
+    path: '/api/public/xml-export/$storeSlug/$feedId',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -2249,6 +2263,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
+  '/store/$storeId/xml-integrator': typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
   '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/aras-tracking': typeof ApiPublicCronArasTrackingRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
@@ -2294,6 +2309,7 @@ export interface FileRoutesByFullPath {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
+  '/api/public/xml-export/$storeSlug/$feedId': typeof ApiPublicXmlExportStoreSlugFeedIdRoute
   '/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -2547,6 +2563,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
+  '/store/$storeId/xml-integrator': typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
   '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/aras-tracking': typeof ApiPublicCronArasTrackingRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
@@ -2592,6 +2609,7 @@ export interface FileRoutesByTo {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
+  '/api/public/xml-export/$storeSlug/$feedId': typeof ApiPublicXmlExportStoreSlugFeedIdRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRoutesById {
@@ -2849,6 +2867,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/_authenticated/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
   '/_authenticated/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
+  '/_authenticated/store/$storeId/xml-integrator': typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
   '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/aras-tracking': typeof ApiPublicCronArasTrackingRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
@@ -2894,6 +2913,7 @@ export interface FileRoutesById {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
+  '/api/public/xml-export/$storeSlug/$feedId': typeof ApiPublicXmlExportStoreSlugFeedIdRoute
   '/_authenticated/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRouteTypes {
@@ -3151,6 +3171,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/webhooks'
     | '/store/$storeId/whatsapp'
     | '/store/$storeId/xml-feed'
+    | '/store/$storeId/xml-integrator'
     | '/api/public/blog-cover/$'
     | '/api/public/cron/aras-tracking'
     | '/api/public/cron/automation-tick'
@@ -3196,6 +3217,7 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
+    | '/api/public/xml-export/$storeSlug/$feedId'
     | '/store/$storeId/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -3449,6 +3471,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/webhooks'
     | '/store/$storeId/whatsapp'
     | '/store/$storeId/xml-feed'
+    | '/store/$storeId/xml-integrator'
     | '/api/public/blog-cover/$'
     | '/api/public/cron/aras-tracking'
     | '/api/public/cron/automation-tick'
@@ -3494,6 +3517,7 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
+    | '/api/public/xml-export/$storeSlug/$feedId'
     | '/store/$storeId/products'
   id:
     | '__root__'
@@ -3750,6 +3774,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/webhooks'
     | '/_authenticated/store/$storeId/whatsapp'
     | '/_authenticated/store/$storeId/xml-feed'
+    | '/_authenticated/store/$storeId/xml-integrator'
     | '/api/public/blog-cover/$'
     | '/api/public/cron/aras-tracking'
     | '/api/public/cron/automation-tick'
@@ -3795,6 +3820,7 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
+    | '/api/public/xml-export/$storeSlug/$feedId'
     | '/_authenticated/store/$storeId/products/'
   fileRoutesById: FileRoutesById
 }
@@ -3909,6 +3935,7 @@ export interface RootRouteChildren {
   ApiPublicEmailOpenTokenRoute: typeof ApiPublicEmailOpenTokenRoute
   ApiPublicEmailUnsubscribeTokenRoute: typeof ApiPublicEmailUnsubscribeTokenRoute
   ApiPublicFeedStoreSlugKindRoute: typeof ApiPublicFeedStoreSlugKindRoute
+  ApiPublicXmlExportStoreSlugFeedIdRoute: typeof ApiPublicXmlExportStoreSlugFeedIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -5691,6 +5718,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdXmlFeedRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/xml-integrator': {
+      id: '/_authenticated/store/$storeId/xml-integrator'
+      path: '/xml-integrator'
+      fullPath: '/store/$storeId/xml-integrator'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/api/public/blog-cover/$': {
       id: '/api/public/blog-cover/$'
       path: '/api/public/blog-cover/$'
@@ -6006,6 +6040,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFeedStoreSlugKindRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/xml-export/$storeSlug/$feedId': {
+      id: '/api/public/xml-export/$storeSlug/$feedId'
+      path: '/api/public/xml-export/$storeSlug/$feedId'
+      fullPath: '/api/public/xml-export/$storeSlug/$feedId'
+      preLoaderRoute: typeof ApiPublicXmlExportStoreSlugFeedIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -6302,6 +6343,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdWebhooksRoute: typeof AuthenticatedStoreStoreIdWebhooksRoute
   AuthenticatedStoreStoreIdWhatsappRoute: typeof AuthenticatedStoreStoreIdWhatsappRoute
   AuthenticatedStoreStoreIdXmlFeedRoute: typeof AuthenticatedStoreStoreIdXmlFeedRoute
+  AuthenticatedStoreStoreIdXmlIntegratorRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
 }
 
 const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChildren =
@@ -6521,6 +6563,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdWhatsappRoute,
     AuthenticatedStoreStoreIdXmlFeedRoute:
       AuthenticatedStoreStoreIdXmlFeedRoute,
+    AuthenticatedStoreStoreIdXmlIntegratorRoute:
+      AuthenticatedStoreStoreIdXmlIntegratorRoute,
   }
 
 const AuthenticatedStoreStoreIdRouteWithChildren =
@@ -6665,6 +6709,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicEmailOpenTokenRoute: ApiPublicEmailOpenTokenRoute,
   ApiPublicEmailUnsubscribeTokenRoute: ApiPublicEmailUnsubscribeTokenRoute,
   ApiPublicFeedStoreSlugKindRoute: ApiPublicFeedStoreSlugKindRoute,
+  ApiPublicXmlExportStoreSlugFeedIdRoute:
+    ApiPublicXmlExportStoreSlugFeedIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
