@@ -145,6 +145,7 @@ export function FeedSheet({
           ...(form.itemPath ? { itemPath: form.itemPath } : {}),
           authType: form.authType,
           authConfig: authFields,
+          connectionType: form.connectionType,
         },
       }),
     onSuccess: (result) => {
