@@ -103,7 +103,13 @@ export function PreviewProductsDialog({
   );
 }
 
-function ProductNode({ product }: { product: PreviewProduct }) {
+function ProductNode({
+  product,
+  conversion,
+}: {
+  product: PreviewProduct;
+  conversion: PreviewConversion | null;
+}) {
   const [open, setOpen] = useState(false);
   const hasVariants = product.variants.length > 0;
   return (
