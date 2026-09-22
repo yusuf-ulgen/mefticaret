@@ -17,6 +17,8 @@ import {
   XML_SCHEDULES,
   XML_SCHEDULE_HOURS,
   XML_SOURCE_FORMATS,
+  isValidCron,
+  nextCronRun,
   type XmlSchedule,
 } from "@/lib/xml-integrator";
 
@@ -47,6 +49,7 @@ const feedSchema = z.object({
   authConfig: authConfigSchema,
   outputFilename: z.string().trim().max(120).optional(),
   schedule: z.enum(XML_SCHEDULES).default("manual"),
+  cronExpression: z.string().trim().min(9).max(100).optional(),
   fieldMapping: z.record(z.string(), z.string()).default({}),
   filterRules: z.record(z.string(), z.any()).default({}),
   transformRules: z.record(z.string(), z.any()).default({}),
@@ -55,7 +58,11 @@ const feedSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-const nextRunFor = (schedule: XmlSchedule): string | null => {
+const nextRunFor = (schedule: XmlSchedule, cronExpression?: string | null): string | null => {
+  if (schedule === "custom") {
+    const next = cronExpression ? nextCronRun(cronExpression) : null;
+    return next ? next.toISOString() : null;
+  }
   const hours = XML_SCHEDULE_HOURS[schedule];
   return hours === null ? null : new Date(Date.now() + hours * 3_600_000).toISOString();
 };
@@ -80,7 +87,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
       context.supabase
         .from("xml_feeds")
         .select(
-          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at",
+          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at",
         )
         .eq("store_id", data.storeId)
         .order("created_at", { ascending: false }),
@@ -112,6 +119,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
         outputFilename: (row["output_filename"] as string | null) ?? null,
         exportToken: String(row["export_token"] ?? ""),
         schedule: String(row["schedule"]),
+        cronExpression: (row["cron_expression"] as string | null) ?? null,
         fieldMapping: (row["field_mapping"] ?? {}) as Record<string, string>,
         filterRules: (row["filter_rules"] ?? {}) as Record<string, Json>,
         transformRules: (row["transform_rules"] ?? {}) as Record<string, Json>,
@@ -143,6 +151,9 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
     if (data.direction === "import" && !data.sourceUrl) {
       throw new Error("İçe aktarım beslemesi için kaynak bağlantısı zorunludur");
     }
+    if (data.schedule === "custom" && !isValidCron(data.cronExpression ?? "")) {
+      throw new Error("Özel zamanlama için geçerli bir cron ifadesi girin (örn. 0 */4 * * *)");
+    }
     if (data.sourceUrl) {
       const { assertPublicUrl } = await import("@/lib/safe-fetch.server");
       assertPublicUrl(data.sourceUrl);
@@ -160,13 +171,14 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
       auth_config: data.authConfig,
       output_filename: data.outputFilename || null,
       schedule: data.schedule,
+      cron_expression: data.schedule === "custom" ? (data.cronExpression ?? null) : null,
       field_mapping: data.fieldMapping,
       filter_rules: data.filterRules,
       transform_rules: data.transformRules,
       price_markup: data.priceMarkup,
       currency: data.currency.toUpperCase(),
       is_active: data.isActive,
-      next_run_at: data.isActive ? nextRunFor(data.schedule) : null,
+      next_run_at: data.isActive ? nextRunFor(data.schedule, data.cronExpression ?? null) : null,
       created_by: context.userId,
     };
 
@@ -227,17 +239,21 @@ export const toggleXmlFeed = createServerFn({ method: "POST" })
     await assertStoreManager(context.supabase, data.storeId, context.userId);
     const { data: feed, error: readError } = await context.supabase
       .from("xml_feeds")
-      .select("schedule")
+      .select("schedule, cron_expression")
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
       .maybeSingle();
     if (readError) throw new Error(readError.message);
     if (!feed) throw new Error("Besleme bulunamadı");
 
-    const schedule = String((feed as { schedule: string }).schedule) as XmlSchedule;
+    const scheduleRow = feed as { schedule: string; cron_expression: string | null };
+    const schedule = String(scheduleRow.schedule) as XmlSchedule;
     const { error } = await context.supabase
       .from("xml_feeds")
-      .update({ is_active: data.isActive, next_run_at: data.isActive ? nextRunFor(schedule) : null } as never)
+      .update({
+        is_active: data.isActive,
+        next_run_at: data.isActive ? nextRunFor(schedule, scheduleRow.cron_expression) : null,
+      } as never)
       .eq("id", data.feedId)
       .eq("store_id", data.storeId);
     if (error) throw new Error(error.message);
@@ -454,7 +470,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
 
     const { data: feedRow, error: readError } = await context.supabase
       .from("xml_feeds")
-      .select("id, direction, schedule, source_url, source_format, item_path, auth_type, auth_config")
+      .select("id, direction, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config")
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
       .maybeSingle();
@@ -506,7 +522,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
           last_run_at: startedAt.toISOString(),
           last_status: "success",
           last_error: null,
-          next_run_at: nextRunFor(String(feed["schedule"]) as XmlSchedule),
+          next_run_at: nextRunFor(String(feed["schedule"]) as XmlSchedule, (feed["cron_expression"] as string | null) ?? null),
         } as never)
         .eq("id", data.feedId)
         .eq("store_id", data.storeId);

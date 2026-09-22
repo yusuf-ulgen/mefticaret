@@ -59,6 +59,7 @@ export type FeedFormValue = {
   hasCredentials?: boolean;
   outputFilename: string;
   schedule: XmlSchedule;
+  cronExpression: string;
   fieldMapping: FieldMapping;
   currency: string;
   priceMarkup: number | null;
@@ -75,6 +76,7 @@ export const emptyFeed: FeedFormValue = {
   authType: "none",
   outputFilename: "",
   schedule: "daily",
+  cronExpression: "",
   fieldMapping: {},
   currency: "TRY",
   priceMarkup: null,
@@ -153,6 +155,9 @@ export function FeedSheet({
           authConfig: authFields,
           ...(form.outputFilename.trim() ? { outputFilename: form.outputFilename.trim() } : {}),
           schedule: form.schedule,
+          ...(form.schedule === "custom" && form.cronExpression.trim()
+            ? { cronExpression: form.cronExpression.trim() }
+            : {}),
           fieldMapping: form.fieldMapping,
           filterRules: {},
           transformRules: {},
@@ -230,6 +235,18 @@ export function FeedSheet({
               </select>
             </div>
           </div>
+
+          {form.schedule === "custom" ? (
+            <div className="space-y-1">
+              <Label htmlFor="feed-cron">Cron ifadesi (UTC)</Label>
+              <Input
+                id="feed-cron"
+                value={form.cronExpression}
+                onChange={(event) => set("cronExpression", event.target.value)}
+                placeholder="0 */4 * * *"
+              />
+            </div>
+          ) : null}
 
           {isImport ? (
             <section className="space-y-3 rounded-xl border bg-muted/20 p-4">

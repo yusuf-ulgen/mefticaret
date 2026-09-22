@@ -59,6 +59,7 @@ export const XML_SCHEDULES = [
   "six_hourly",
   "twelve_hourly",
   "daily",
+  "custom",
 ] as const;
 export type XmlSchedule = (typeof XML_SCHEDULES)[number];
 
@@ -69,6 +70,7 @@ export const XML_SCHEDULE_LABELS: Record<XmlSchedule, string> = {
   six_hourly: "6 saatte bir",
   twelve_hourly: "12 saatte bir",
   daily: "Günlük",
+  custom: "Özel cron",
 };
 
 /** Plan sıklığının saat cinsinden aralığı (manual = null). */
@@ -79,7 +81,82 @@ export const XML_SCHEDULE_HOURS: Record<XmlSchedule, number | null> = {
   six_hourly: 6,
   twelve_hourly: 12,
   daily: 24,
+  custom: null,
 };
+
+// Cron alanı (yıldız, adım, aralık veya liste) için izinli değer kümesi.
+function cronFieldValues(field: string, min: number, max: number): number[] | null {
+  const values = new Set<number>();
+  for (const part of field.split(",")) {
+    const [range, stepRaw] = part.split("/");
+    const step = stepRaw === undefined ? 1 : Number(stepRaw);
+    if (!Number.isInteger(step) || step < 1) return null;
+    let from = min;
+    let to = max;
+    if (range !== "*") {
+      const bounds = (range ?? "").split("-");
+      const start = Number(bounds[0]);
+      const end = bounds[1] === undefined ? start : Number(bounds[1]);
+      if (!Number.isInteger(start) || !Number.isInteger(end)) return null;
+      if (start < min || end > max || start > end) return null;
+      from = start;
+      to = end;
+    }
+    for (let value = from; value <= to; value += step) values.add(value);
+  }
+  return values.size ? [...values].sort((a, b) => a - b) : null;
+}
+
+/** 5 alanlı cron ifadesini çözer; geçersizse null döner. */
+export function parseCron(expression: string) {
+  const fields = expression.trim().split(/\s+/);
+  if (fields.length !== 5) return null;
+  const minutes = cronFieldValues(fields[0]!, 0, 59);
+  const hours = cronFieldValues(fields[1]!, 0, 23);
+  const days = cronFieldValues(fields[2]!, 1, 31);
+  const months = cronFieldValues(fields[3]!, 1, 12);
+  const weekdays = cronFieldValues(fields[4]!.replace(/7/g, "0"), 0, 6);
+  if (!minutes || !hours || !days || !months || !weekdays) return null;
+  return {
+    minutes,
+    hours,
+    days,
+    months,
+    weekdays,
+    anyDay: fields[2] === "*",
+    anyWeekday: fields[4] === "*",
+  };
+}
+
+export const isValidCron = (expression: string) => parseCron(expression) !== null;
+
+/**
+ * Cron ifadesinin verilen andan sonraki ilk çalışma zamanını (UTC) bulur.
+ * Bir yıl içinde eşleşme yoksa null döner.
+ */
+export function nextCronRun(expression: string, from: Date = new Date()): Date | null {
+  const cron = parseCron(expression);
+  if (!cron) return null;
+  const cursor = new Date(from.getTime());
+  cursor.setUTCSeconds(0, 0);
+  cursor.setUTCMinutes(cursor.getUTCMinutes() + 1);
+  const limit = 60 * 24 * 366;
+  for (let index = 0; index < limit; index += 1) {
+    const matchesDay = cron.anyDay || cron.days.includes(cursor.getUTCDate());
+    const matchesWeekday = cron.anyWeekday || cron.weekdays.includes(cursor.getUTCDay());
+    const dayOk = cron.anyDay && cron.anyWeekday ? true : cron.anyDay ? matchesWeekday : cron.anyWeekday ? matchesDay : matchesDay || matchesWeekday;
+    if (
+      dayOk &&
+      cron.months.includes(cursor.getUTCMonth() + 1) &&
+      cron.hours.includes(cursor.getUTCHours()) &&
+      cron.minutes.includes(cursor.getUTCMinutes())
+    ) {
+      return cursor;
+    }
+    cursor.setUTCMinutes(cursor.getUTCMinutes() + 1);
+  }
+  return null;
+}
 
 export const XML_AUTH_TYPES = ["none", "basic", "bearer", "header", "query"] as const;
 export type XmlAuthType = (typeof XML_AUTH_TYPES)[number];

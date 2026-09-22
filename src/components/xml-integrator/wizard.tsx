@@ -1,13 +1,16 @@
 /**
- * Yeni besleme sihirbazı: 4 adımda bağlantı, kaynak incelemesi, alan
- * eşleştirmesi ve özet/kayıt.
+ * Yeni besleme sihirbazı (4 adım):
+ * 1) Temel bilgiler + yön + platform
+ * 2) Bağlantı adresi, kimlik doğrulama tipi ve bağlantı testi
+ * 3) Zamanlama (hazır sıklıklar veya özel cron)
+ * 4) Özet, kayıt ve alan eşleme ekranına yönlendirme
  */
 
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, ArrowRight, Check, Loader2, Wand2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, Loader2, PlugZap } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -16,10 +19,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { authFieldsFor, emptyFeed, type FeedFormValue } from "@/components/xml-integrator/feed-sheet";
+import { DirectionBadge, PlatformMark } from "@/components/xml-integrator/shared";
 import { analyzeXmlSource, saveXmlFeed } from "@/lib/xml-integrator.functions";
 import {
-  TARGET_FIELDS,
-  TARGET_FIELD_GROUP_LABELS,
   XML_AUTH_TYPES,
   XML_AUTH_TYPE_LABELS,
   XML_DIRECTIONS,
@@ -30,8 +32,8 @@ import {
   XML_SCHEDULE_LABELS,
   XML_SOURCE_FORMATS,
   XML_SOURCE_FORMAT_LABELS,
-  missingRequiredFields,
-  type TargetFieldGroup,
+  isValidCron,
+  nextCronRun,
   type XmlAuthType,
   type XmlDirection,
   type XmlPlatform,
@@ -39,8 +41,14 @@ import {
   type XmlSourceFormat,
 } from "@/lib/xml-integrator";
 
-const STEPS = ["Bağlantı", "Kaynağı incele", "Alan eşleme", "Özet"] as const;
-const GROUPS = Object.keys(TARGET_FIELD_GROUP_LABELS) as TargetFieldGroup[];
+const STEPS = ["Temel bilgiler", "Bağlantı", "Zamanlama", "Özet"] as const;
+
+const CRON_PRESETS: Array<{ expression: string; label: string }> = [
+  { expression: "0 * * * *", label: "Her saat başı" },
+  { expression: "0 */4 * * *", label: "4 saatte bir" },
+  { expression: "30 2 * * *", label: "Her gece 02:30 (UTC)" },
+  { expression: "0 6 * * 1", label: "Pazartesi 06:00 (UTC)" },
+];
 
 export function XmlFeedWizard({ storeId }: { storeId: string }) {
   const navigate = useNavigate();
@@ -55,8 +63,11 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
     setForm((current) => ({ ...current, [key]: next }));
 
   const isImport = form.direction === "import";
+  const cronOk = form.schedule !== "custom" || isValidCron(form.cronExpression.trim());
+  const cronNext = form.schedule === "custom" && cronOk ? nextCronRun(form.cronExpression.trim()) : null;
 
-  const analysis = useMutation({
+  /** 2. adım: kaynağa gerçekten bağlanır, satır ve alan sayısını döndürür. */
+  const testConnection = useMutation({
     mutationFn: () =>
       analyze({
         data: {
@@ -75,7 +86,7 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
         ...current,
         fieldMapping: { ...result.suggestedMapping, ...current.fieldMapping },
       }));
-      toast.success(`${result.totalRows} ürün bulundu, ${result.columns.length} alan okundu`);
+      toast.success(`Bağlantı başarılı — ${result.totalRows} kayıt, ${result.columns.length} alan`);
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -95,6 +106,7 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
           authConfig: authFields,
           ...(form.outputFilename.trim() ? { outputFilename: form.outputFilename.trim() } : {}),
           schedule: form.schedule,
+          ...(form.schedule === "custom" ? { cronExpression: form.cronExpression.trim() } : {}),
           fieldMapping: form.fieldMapping,
           filterRules: {},
           transformRules: {},
@@ -103,27 +115,27 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
           isActive: form.isActive,
         },
       }),
-    onSuccess: () => {
-      toast.success("Besleme oluşturuldu");
+    onSuccess: (result) => {
+      toast.success("Besleme oluşturuldu, alan eşleme ekranı açılıyor");
       void client.invalidateQueries({ queryKey: ["xml-integrator", storeId] });
-      void navigate({ to: "/store/$storeId/xml-integrator/feeds", params: { storeId } });
+      void navigate({
+        to: "/store/$storeId/xml-integrator/feeds/$feedId/mapper",
+        params: { storeId, feedId: result.id },
+      });
     },
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const columns = analysis.data?.columns ?? [];
-  const samples = analysis.data?.sampleRows ?? [];
-  const missing = useMemo(() => missingRequiredFields(form.fieldMapping), [form.fieldMapping]);
+  const test = testConnection.data;
 
   const canContinue = () => {
-    if (step === 0) {
-      if (form.name.trim().length < 2) return false;
-      return isImport ? form.sourceUrl.trim().length > 8 : form.outputFilename.trim().length > 3;
-    }
-    if (step === 1) return isImport ? columns.length > 0 : true;
-    if (step === 2) return isImport ? missing.length === 0 : true;
+    if (step === 0) return form.name.trim().length >= 2;
+    if (step === 1) return isImport ? form.sourceUrl.trim().length > 8 : form.outputFilename.trim().length > 3;
+    if (step === 2) return cronOk;
     return true;
   };
+
+  const selectClass = "h-9 w-full rounded-md border bg-background px-2 text-sm";
 
   return (
     <div className="space-y-4">
@@ -143,16 +155,21 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
 
       {step === 0 ? (
         <section className="space-y-3 rounded-xl border bg-card p-4">
+          <div className="space-y-1">
+            <Label htmlFor="wiz-name">Besleme adı</Label>
+            <Input
+              id="wiz-name"
+              value={form.name}
+              onChange={(event) => set("name", event.target.value)}
+              placeholder="Örn. Bacio toptan listesi"
+            />
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1">
-              <Label htmlFor="wiz-name">Besleme adı</Label>
-              <Input id="wiz-name" value={form.name} onChange={(event) => set("name", event.target.value)} placeholder="Örn. Bacio toptan listesi" />
-            </div>
             <div className="space-y-1">
               <Label htmlFor="wiz-direction">Yön</Label>
               <select
                 id="wiz-direction"
-                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                className={selectClass}
                 value={form.direction}
                 onChange={(event) => set("direction", event.target.value as XmlDirection)}
               >
@@ -162,10 +179,10 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
               </select>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="wiz-platform">{isImport ? "Kaynak" : "Pazaryeri"}</Label>
+              <Label htmlFor="wiz-platform">{isImport ? "Kaynak platform" : "Hedef pazaryeri"}</Label>
               <select
                 id="wiz-platform"
-                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                className={selectClass}
                 value={form.platform}
                 onChange={(event) => set("platform", event.target.value as XmlPlatform)}
               >
@@ -174,91 +191,16 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
                 ))}
               </select>
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="wiz-schedule">Çalışma sıklığı</Label>
-              <select
-                id="wiz-schedule"
-                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
-                value={form.schedule}
-                onChange={(event) => set("schedule", event.target.value as XmlSchedule)}
-              >
-                {XML_SCHEDULES.map((item) => (
-                  <option key={item} value={item}>{XML_SCHEDULE_LABELS[item]}</option>
-                ))}
-              </select>
-            </div>
           </div>
-
-          {isImport ? (
-            <div className="grid gap-3 sm:grid-cols-[1fr_9rem]">
-              <div className="space-y-1">
-                <Label htmlFor="wiz-url">Kaynak bağlantısı</Label>
-                <Input id="wiz-url" value={form.sourceUrl} onChange={(event) => set("sourceUrl", event.target.value)} placeholder="https://tedarikci.com/urunler.xml" />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="wiz-format">Dosya türü</Label>
-                <select
-                  id="wiz-format"
-                  className="h-9 w-full rounded-md border bg-background px-2 text-sm"
-                  value={form.sourceFormat}
-                  onChange={(event) => set("sourceFormat", event.target.value as XmlSourceFormat)}
-                >
-                  {XML_SOURCE_FORMATS.filter((item) => item !== "xlsx").map((item) => (
-                    <option key={item} value={item}>{XML_SOURCE_FORMAT_LABELS[item]}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="space-y-1">
-                <Label htmlFor="wiz-output">Çıktı dosya adı</Label>
-                <Input id="wiz-output" value={form.outputFilename} onChange={(event) => set("outputFilename", event.target.value)} placeholder="trendyol-urunler.xml" />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="wiz-currency">Para birimi</Label>
-                <Input id="wiz-currency" maxLength={3} value={form.currency} onChange={(event) => set("currency", event.target.value.toUpperCase())} />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="wiz-markup">Fiyat farkı (%)</Label>
-                <Input
-                  id="wiz-markup"
-                  type="number"
-                  value={form.priceMarkup ?? ""}
-                  onChange={(event) => set("priceMarkup", event.target.value === "" ? null : Number(event.target.value))}
-                />
-              </div>
-            </div>
-          )}
-
-          {isImport ? (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1">
-                <Label htmlFor="wiz-auth">Giriş gerekiyor mu?</Label>
-                <select
-                  id="wiz-auth"
-                  className="h-9 w-full rounded-md border bg-background px-2 text-sm"
-                  value={form.authType}
-                  onChange={(event) => set("authType", event.target.value as XmlAuthType)}
-                >
-                  {XML_AUTH_TYPES.map((item) => (
-                    <option key={item} value={item}>{XML_AUTH_TYPE_LABELS[item]}</option>
-                  ))}
-                </select>
-              </div>
-              {authFieldsFor(form.authType).map((field) => (
-                <div key={field.key} className="space-y-1">
-                  <Label htmlFor={`wiz-auth-${field.key}`}>{field.label}</Label>
-                  <Input
-                    id={`wiz-auth-${field.key}`}
-                    type={field.secret ? "password" : "text"}
-                    value={authFields[field.key] ?? ""}
-                    onChange={(event) => setAuthFields((current) => ({ ...current, [field.key]: event.target.value }))}
-                  />
-                </div>
-              ))}
-            </div>
-          ) : null}
+          <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/20 p-3">
+            <DirectionBadge direction={form.direction} />
+            <PlatformMark platform={form.platform} />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {isImport
+              ? "İçe aktarım: tedarikçi dosyasındaki ürünler mağazanıza akar."
+              : "Dışa aktarım: mağazanızdaki ürünler pazaryeri dosyasına yazılır."}
+          </p>
         </section>
       ) : null}
 
@@ -266,131 +208,258 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
         <section className="space-y-3 rounded-xl border bg-card p-4">
           {isImport ? (
             <>
-              <Button type="button" variant="outline" disabled={analysis.isPending} onClick={() => analysis.mutate()}>
-                {analysis.isPending ? <Loader2 className="mr-1 size-4 animate-spin" /> : <Wand2 className="mr-1 size-4" />}
-                Kaynağı incele
-              </Button>
-              {analysis.data ? (
-                <div className="space-y-2 text-xs">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="secondary">{analysis.data.totalRows} ürün</Badge>
-                    <Badge variant="secondary">{analysis.data.columns.length} alan</Badge>
-                    <Badge variant="outline">{XML_SOURCE_FORMAT_LABELS[analysis.data.format as XmlSourceFormat]}</Badge>
-                    {analysis.data.rootPath ? <Badge variant="outline">Düğüm: {analysis.data.rootPath}</Badge> : null}
-                  </div>
-                  {analysis.data.rootCandidates.length > 1 ? (
-                    <div className="space-y-1">
-                      <Label className="text-xs" htmlFor="wiz-root">Yanlış düğüm mü bulundu?</Label>
-                      <select
-                        id="wiz-root"
-                        className="h-9 w-full rounded-md border bg-background px-2 text-sm"
-                        value={form.itemPath}
-                        onChange={(event) => {
-                          set("itemPath", event.target.value);
-                          analysis.reset();
-                        }}
-                      >
-                        {analysis.data.rootCandidates.map((candidate) => (
-                          <option key={candidate.path} value={candidate.path}>
-                            {candidate.path} ({candidate.count} kayıt)
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ) : null}
-                  {samples[0] ? (
-                    <p className="text-muted-foreground">
-                      Örnek: {Object.entries(samples[0]).slice(0, 4).map(([key, value]) => `${key}=${String(value).slice(0, 30)}`).join(" · ")}
-                    </p>
-                  ) : null}
+              <div className="grid gap-3 sm:grid-cols-[1fr_9rem]">
+                <div className="space-y-1">
+                  <Label htmlFor="wiz-url">Kaynak bağlantısı (URL)</Label>
+                  <Input
+                    id="wiz-url"
+                    value={form.sourceUrl}
+                    onChange={(event) => {
+                      set("sourceUrl", event.target.value);
+                      testConnection.reset();
+                    }}
+                    placeholder="https://tedarikci.com/urunler.xml"
+                  />
                 </div>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  Dosyayı okuyup ürün listesini ve alanları çıkarır; kimlik bilgileri yalnız sunucuda kullanılır.
-                </p>
-              )}
+                <div className="space-y-1">
+                  <Label htmlFor="wiz-format">Dosya türü</Label>
+                  <select
+                    id="wiz-format"
+                    className={selectClass}
+                    value={form.sourceFormat}
+                    onChange={(event) => set("sourceFormat", event.target.value as XmlSourceFormat)}
+                  >
+                    {XML_SOURCE_FORMATS.filter((item) => item !== "xlsx").map((item) => (
+                      <option key={item} value={item}>{XML_SOURCE_FORMAT_LABELS[item]}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="wiz-auth">Kimlik doğrulama tipi</Label>
+                  <select
+                    id="wiz-auth"
+                    className={selectClass}
+                    value={form.authType}
+                    onChange={(event) => {
+                      set("authType", event.target.value as XmlAuthType);
+                      testConnection.reset();
+                    }}
+                  >
+                    {XML_AUTH_TYPES.map((item) => (
+                      <option key={item} value={item}>{XML_AUTH_TYPE_LABELS[item]}</option>
+                    ))}
+                  </select>
+                </div>
+                {authFieldsFor(form.authType).map((field) => (
+                  <div key={field.key} className="space-y-1">
+                    <Label htmlFor={`wiz-auth-${field.key}`}>{field.label}</Label>
+                    <Input
+                      id={`wiz-auth-${field.key}`}
+                      type={field.secret ? "password" : "text"}
+                      value={authFields[field.key] ?? ""}
+                      onChange={(event) =>
+                        setAuthFields((current) => ({ ...current, [field.key]: event.target.value }))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={testConnection.isPending || form.sourceUrl.trim().length < 9}
+                  onClick={() => testConnection.mutate()}
+                >
+                  {testConnection.isPending ? (
+                    <Loader2 className="mr-1 size-4 animate-spin" />
+                  ) : (
+                    <PlugZap className="mr-1 size-4" />
+                  )}
+                  Bağlantıyı test et
+                </Button>
+                {test ? (
+                  <>
+                    <Badge className="bg-success/10 text-success">Bağlantı doğrulandı</Badge>
+                    <Badge variant="secondary">{test.totalRows} kayıt</Badge>
+                    <Badge variant="secondary">{test.columns.length} alan</Badge>
+                    {test.rootPath ? <Badge variant="outline">Düğüm: {test.rootPath}</Badge> : null}
+                  </>
+                ) : null}
+              </div>
+
+              {test && test.rootCandidates.length > 1 ? (
+                <div className="space-y-1">
+                  <Label className="text-xs" htmlFor="wiz-root">Ürün düğümü</Label>
+                  <select
+                    id="wiz-root"
+                    className={selectClass}
+                    value={form.itemPath}
+                    onChange={(event) => {
+                      set("itemPath", event.target.value);
+                      testConnection.reset();
+                    }}
+                  >
+                    {test.rootCandidates.map((candidate) => (
+                      <option key={candidate.path} value={candidate.path}>
+                        {candidate.path} ({candidate.count} kayıt)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
+
+              <p className="text-xs text-muted-foreground">
+                Test sırasında dosya sunucuda indirilir; kullanıcı adı, şifre ve anahtarlar tarayıcıya geri
+                gönderilmez.
+              </p>
             </>
           ) : (
-            <p className="text-xs text-muted-foreground">
-              Dışa aktarımda kaynak incelemesi gerekmez; ürünler mağazanızdan alınır.
-            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="space-y-1">
+                <Label htmlFor="wiz-output">Çıktı dosya adı</Label>
+                <Input
+                  id="wiz-output"
+                  value={form.outputFilename}
+                  onChange={(event) => set("outputFilename", event.target.value)}
+                  placeholder="trendyol-urunler.xml"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="wiz-currency">Para birimi</Label>
+                <Input
+                  id="wiz-currency"
+                  maxLength={3}
+                  value={form.currency}
+                  onChange={(event) => set("currency", event.target.value.toUpperCase())}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="wiz-markup">Fiyat farkı (%)</Label>
+                <Input
+                  id="wiz-markup"
+                  type="number"
+                  value={form.priceMarkup ?? ""}
+                  onChange={(event) =>
+                    set("priceMarkup", event.target.value === "" ? null : Number(event.target.value))
+                  }
+                />
+              </div>
+            </div>
           )}
         </section>
       ) : null}
 
       {step === 2 ? (
-        <section className="space-y-4 rounded-xl border bg-card p-4">
-          {isImport && columns.length ? (
-            <>
-              {GROUPS.map((group) => (
-                <div key={group} className="space-y-2">
-                  <p className="text-xs font-medium uppercase text-muted-foreground">{TARGET_FIELD_GROUP_LABELS[group]}</p>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {TARGET_FIELDS.filter((field) => field.group === group).map((field) => (
-                      <div key={field.key} className="space-y-1">
-                        <Label className="text-xs" htmlFor={`wiz-map-${field.key}`}>
-                          {field.label}
-                          {field.required ? <span className="text-destructive"> *</span> : null}
-                        </Label>
-                        <select
-                          id={`wiz-map-${field.key}`}
-                          className="h-9 w-full rounded-md border bg-background px-2 text-sm"
-                          value={form.fieldMapping[field.key] ?? ""}
-                          onChange={(event) =>
-                            setForm((current) => {
-                              const next = { ...current.fieldMapping };
-                              if (event.target.value) next[field.key] = event.target.value;
-                              else delete next[field.key];
-                              return { ...current, fieldMapping: next };
-                            })
-                          }
-                        >
-                          <option value="">— eşleştirilmedi —</option>
-                          {columns.map((column) => (
-                            <option key={column} value={column}>{column}</option>
-                          ))}
-                        </select>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+        <section className="space-y-3 rounded-xl border bg-card p-4">
+          <div className="space-y-1">
+            <Label htmlFor="wiz-schedule">Çalışma sıklığı</Label>
+            <select
+              id="wiz-schedule"
+              className={selectClass}
+              value={form.schedule}
+              onChange={(event) => set("schedule", event.target.value as XmlSchedule)}
+            >
+              {XML_SCHEDULES.map((item) => (
+                <option key={item} value={item}>{XML_SCHEDULE_LABELS[item]}</option>
               ))}
-              {missing.length ? (
-                <p className="text-xs text-destructive">
-                  Eksik zorunlu alan: {missing.map((field) => field.label).join(", ")}
+            </select>
+          </div>
+
+          {form.schedule === "custom" ? (
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <Label htmlFor="wiz-cron">Cron ifadesi (UTC, 5 alan)</Label>
+                <Input
+                  id="wiz-cron"
+                  value={form.cronExpression}
+                  onChange={(event) => set("cronExpression", event.target.value)}
+                  placeholder="0 */4 * * *"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {CRON_PRESETS.map((preset) => (
+                  <Button
+                    key={preset.expression}
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => set("cronExpression", preset.expression)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+              {form.cronExpression.trim() ? (
+                cronOk && cronNext ? (
+                  <p className="text-xs text-success">
+                    Geçerli ifade — ilk çalışma: {cronNext.toLocaleString("tr-TR", { timeZone: "UTC" })} (UTC)
+                  </p>
+                ) : (
+                  <p className="text-xs text-destructive">
+                    Geçersiz cron ifadesi. Biçim: dakika saat gün ay haftagünü (örn. 0 */4 * * *)
+                  </p>
+                )
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Sıra: dakika, saat, ayın günü, ay, haftanın günü. Örnek: 0 3 * * * → her gün 03:00 (UTC).
                 </p>
-              ) : null}
-            </>
+              )}
+            </div>
           ) : (
             <p className="text-xs text-muted-foreground">
-              {isImport
-                ? "Önce önceki adımda kaynağı inceleyin."
-                : "Dışa aktarımda alan eşlemesi pazaryeri şablonundan gelir."}
+              {form.schedule === "manual"
+                ? "Elle seçildi: besleme yalnızca “Şimdi çalıştır” ile çalışır."
+                : `Besleme ${XML_SCHEDULE_LABELS[form.schedule].toLowerCase()} otomatik çalışır.`}
             </p>
           )}
+
+          <div className="flex items-center justify-between rounded-lg border p-3">
+            <Label htmlFor="wiz-active">Besleme aktif</Label>
+            <Switch id="wiz-active" checked={form.isActive} onCheckedChange={(checked) => set("isActive", checked)} />
+          </div>
         </section>
       ) : null}
 
       {step === 3 ? (
         <section className="space-y-3 rounded-xl border bg-card p-4 text-sm">
+          <div className="flex flex-wrap items-center gap-3">
+            <DirectionBadge direction={form.direction} />
+            <PlatformMark platform={form.platform} />
+          </div>
           <dl className="grid gap-2 text-xs sm:grid-cols-2">
             <div><dt className="text-muted-foreground">Ad</dt><dd className="font-medium">{form.name}</dd></div>
-            <div><dt className="text-muted-foreground">Yön</dt><dd>{XML_DIRECTION_LABELS[form.direction]}</dd></div>
-            <div><dt className="text-muted-foreground">Platform</dt><dd>{XML_PLATFORM_LABELS[form.platform]}</dd></div>
-            <div><dt className="text-muted-foreground">Sıklık</dt><dd>{XML_SCHEDULE_LABELS[form.schedule]}</dd></div>
+            <div>
+              <dt className="text-muted-foreground">Zamanlama</dt>
+              <dd>
+                {XML_SCHEDULE_LABELS[form.schedule]}
+                {form.schedule === "custom" ? ` · ${form.cronExpression.trim()}` : ""}
+              </dd>
+            </div>
             <div className="min-w-0">
               <dt className="text-muted-foreground">{isImport ? "Kaynak" : "Çıktı"}</dt>
               <dd className="truncate">{isImport ? form.sourceUrl : form.outputFilename}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Eşleşen alan</dt>
-              <dd>{Object.keys(form.fieldMapping).length}</dd>
+              <dt className="text-muted-foreground">Kimlik doğrulama</dt>
+              <dd>{XML_AUTH_TYPE_LABELS[form.authType]}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Bağlantı testi</dt>
+              <dd>{test ? `${test.totalRows} kayıt, ${test.columns.length} alan` : "Yapılmadı"}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Önerilen eşleşme</dt>
+              <dd>{Object.keys(form.fieldMapping).length} alan</dd>
             </div>
           </dl>
-          <div className="flex items-center justify-between rounded-lg border p-3">
-            <Label htmlFor="wiz-active">Besleme aktif</Label>
-            <Switch id="wiz-active" checked={form.isActive} onCheckedChange={(checked) => set("isActive", checked)} />
-          </div>
+          <p className="text-xs text-muted-foreground">
+            Kaydettikten sonra alan eşleme ekranı açılır; zorunlu alanları orada bağlayabilirsiniz.
+          </p>
         </section>
       ) : null}
 
@@ -405,7 +474,7 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
         ) : (
           <Button disabled={saveMutation.isPending} onClick={() => saveMutation.mutate()}>
             {saveMutation.isPending ? <Loader2 className="mr-1 size-4 animate-spin" /> : null}
-            Beslemeyi oluştur
+            Kaydet ve alan eşlemeye geç
           </Button>
         )}
       </div>
