@@ -22,6 +22,12 @@ import {
 import { applyTransforms, parseTransformRules, type TransformRules } from "@/lib/xml-transforms";
 import { fetchSource, saveFieldSchema, type AuthConfig, type FetchedSource } from "@/lib/xml-integrator.server";
 import {
+  calculateFinalPrice,
+  parsePricingRules,
+  pricingRulesActive,
+  type PricingRules,
+} from "@/lib/xml-pricing-rules";
+import {
   buildVariantGroups,
   parseVariantConfig,
   parseVariantMode,
@@ -183,6 +189,8 @@ export function normalizeRows(
   mapping: FieldMapping,
   options: {
     priceMarkup?: number | null;
+    /** Fiyatlandırma kuralları (KDV, marj, pazaryeri gideri, yuvarlama). */
+    pricingRules?: PricingRules;
     currency?: string;
     transformRules?: TransformRules;
     /** `rows` ile aynı sıradaki varyant satırları (varyasyonlu beslemelerde). */
@@ -195,6 +203,11 @@ export function normalizeRows(
 ): { items: NormalizedProduct[]; errors: RowError[] } {
 
   const markup = options.priceMarkup ?? null;
+  const pricing = options.pricingRules && pricingRulesActive(options.pricingRules) ? options.pricingRules : null;
+  const finalPrice = (value: number) => {
+    const withMarkup = markup === null ? value : Math.round(value * (1 + markup / 100) * 100) / 100;
+    return pricing ? calculateFinalPrice(withMarkup, pricing) : withMarkup;
+  };
   const fallbackCurrency = (options.currency ?? "TRY").toUpperCase();
   const transforms = options.transformRules ?? {};
   const items: NormalizedProduct[] = [];
@@ -229,7 +242,7 @@ export function normalizeRows(
       return;
     }
 
-    const price = markup === null ? rawPrice : Math.round(rawPrice * (1 + markup / 100) * 100) / 100;
+    const price = finalPrice(rawPrice);
     const stockValue = parseNumber(read("stock"));
     const weight = parseNumber(read("weight"));
     const options_: Record<string, string> = {};
@@ -289,11 +302,7 @@ export function normalizeRows(
 
         const variantRawPrice = parseNumber(readVariant("price"));
         const variantPrice =
-          variantRawPrice === null || variantRawPrice < 0
-            ? price
-            : markup === null
-              ? variantRawPrice
-              : Math.round(variantRawPrice * (1 + markup / 100) * 100) / 100;
+          variantRawPrice === null || variantRawPrice < 0 ? price : finalPrice(variantRawPrice);
         const variantStock = parseNumber(readVariant("stock"));
         const variantWeight = parseNumber(readVariant("weight"));
 
@@ -657,6 +666,7 @@ export type FeedRecord = {
   fieldMapping: FieldMapping;
   transformRules?: TransformRules | unknown;
   priceMarkup: number | null;
+  pricingRules?: PricingRules | unknown;
   currency: string;
   /** "none" | "nested" | "flat" */
   variantMode?: VariantMode | string | null;
@@ -804,6 +814,7 @@ export async function runImportFeed(
       mapping,
       {
         priceMarkup: feed.priceMarkup,
+        pricingRules: parsePricingRules(feed.pricingRules),
         currency: feed.currency,
         transformRules: parseTransformRules(feed.transformRules),
         ...(variantMode === "none"
