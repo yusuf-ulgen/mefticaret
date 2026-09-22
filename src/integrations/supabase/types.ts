@@ -18149,6 +18149,7 @@ export type Database = {
           auth_config: Json
           auth_type: Database["public"]["Enums"]["xml_auth_type"]
           category_map: Json
+          connection_type: string
           created_at: string
           created_by: string | null
           cron_expression: string | null
@@ -18159,6 +18160,7 @@ export type Database = {
           export_token: string
           field_mapping: Json
           filter_rules: Json
+          ftp_config: Json
           id: string
           is_active: boolean
           item_path: string | null
@@ -18182,12 +18184,14 @@ export type Database = {
           updated_at: string
           variant_config: Json
           variant_mode: string
+          webhook_token: string
         }
         Insert: {
           ai_auto_map_enabled?: boolean
           auth_config?: Json
           auth_type?: Database["public"]["Enums"]["xml_auth_type"]
           category_map?: Json
+          connection_type?: string
           created_at?: string
           created_by?: string | null
           cron_expression?: string | null
@@ -18198,6 +18202,7 @@ export type Database = {
           export_token?: string
           field_mapping?: Json
           filter_rules?: Json
+          ftp_config?: Json
           id?: string
           is_active?: boolean
           item_path?: string | null
@@ -18221,12 +18226,14 @@ export type Database = {
           updated_at?: string
           variant_config?: Json
           variant_mode?: string
+          webhook_token?: string
         }
         Update: {
           ai_auto_map_enabled?: boolean
           auth_config?: Json
           auth_type?: Database["public"]["Enums"]["xml_auth_type"]
           category_map?: Json
+          connection_type?: string
           created_at?: string
           created_by?: string | null
           cron_expression?: string | null
@@ -18237,6 +18244,7 @@ export type Database = {
           export_token?: string
           field_mapping?: Json
           filter_rules?: Json
+          ftp_config?: Json
           id?: string
           is_active?: boolean
           item_path?: string | null
@@ -18260,6 +18268,7 @@ export type Database = {
           updated_at?: string
           variant_config?: Json
           variant_mode?: string
+          webhook_token?: string
         }
         Relationships: [
           {
