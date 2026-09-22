@@ -205,11 +205,14 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         </DndContext>
       )}
 
+      <XmlCategoryMapper storeId={storeId} feedId={feedId} />
+
       {missing.length ? (
         <p className="text-xs text-destructive">
           Eksik zorunlu alan: {missing.map((field) => field.label).join(", ")}
         </p>
       ) : null}
+
 
       <div className="flex flex-wrap gap-2">
         <Button disabled={saveMutation.isPending} onClick={() => saveMutation.mutate()}>
