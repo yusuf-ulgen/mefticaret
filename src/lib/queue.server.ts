@@ -116,24 +116,9 @@ const HANDLERS: Record<JobKind, JobHandler> = {
     return { assetId };
   },
 
-  feed_sync: async (supabase, job) => {
-    // Tedarikçi dosya içe aktarmaları da bu kanaldan arka planda işlenir.
-    const importJobId = payloadOf(job)["importJobId"];
-    if (typeof importJobId === "string" && importJobId.length > 0) {
-      const { runSupplierImportJob } = await import("@/lib/supplier-import-job.server");
-      return runSupplierImportJob(supabase as never, importJobId, payloadOf(job));
-    }
-    const feedId = requireString(job, "feedId");
-    const { data: feed, error } = await supabase
-      .from("supplier_feeds")
-      .select("*")
-      .eq("id", feedId)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!feed) throw new Error("Besleme bulunamadı");
-    const { runSupplierFeed } = await import("@/lib/dropshipping.server");
-    const result = await runSupplierFeed(supabase as never, feed as never, "scheduled");
-    return { feedId, result: result as unknown as Record<string, unknown> };
+  feed_sync: async () => {
+    // XML/Excel besleme entegratörü sistemden kaldırıldı.
+    throw new Error("Besleme senkronizasyonu kaldırıldı");
   },
 
   marketplace_sync: async (supabase, job) => {

@@ -208,19 +208,6 @@ function variantMatrix(basePrice: number) {
 }
 
 /** Tedarikçi XML gövdesi üretir; alan eşleştirme motoruyla ayrıştırılır. */
-function testFeedXml(storeIndex: number, offset: number, count: number): string {
-  const items: string[] = [];
-  for (let i = 0; i < count; i++) {
-    const n = offset + i;
-    items.push(
-      `<urun><stok_kodu>TEST-${storeIndex}-${n}</stok_kodu><ad>TEST Ürün ${storeIndex}-${n}</ad>` +
-        `<fiyat>${(50 + (n % 450)).toFixed(2)}</fiyat><stok>${20 + (n % 80)}</stok>` +
-        `<marka>MefTest</marka><kategori>Test Kategori ${n % 12}</kategori></urun>`,
-    );
-  }
-  return `<?xml version="1.0" encoding="UTF-8"?><urunler>${items.join("")}</urunler>`;
-}
-
 async function seedStores(db: Admin, run: LoadTestRun, target: number, deadline: number) {
   const { count } = await db
     .from("stores")
@@ -268,7 +255,6 @@ async function seedStores(db: Admin, run: LoadTestRun, target: number, deadline:
 }
 
 async function seedProducts(db: Admin, run: LoadTestRun, target: number, deadline: number) {
-  const { parseTextFeed, suggestMapping, validateRows } = await import("@/lib/supplier-import");
   const { data: storeRows } = await db
     .from("stores")
     .select("id, slug, currency")
@@ -288,21 +274,15 @@ async function seedProducts(db: Admin, run: LoadTestRun, target: number, deadlin
   while (created < target && Date.now() < deadline) {
     const batch = Math.min(PRODUCT_BATCH, target - created);
     const store = stores[cursor % stores.length]!;
-    // Tedarikçi XML akışı → alan eşleştirme → doğrulanmış satırlar
-    const xml = testFeedXml(cursor % stores.length, cursor, batch);
-    const parsed = parseTextFeed(xml, "xml");
-    const mapping = suggestMapping(parsed.columns);
-    const rows = validateRows(parsed.rows, mapping);
-
-    const productRows = rows.map((row, index) => ({
+    const productRows = Array.from({ length: batch }, (_, index) => ({
       store_id: store.id,
-      title: row.title ?? `TEST Ürün ${cursor + index}`,
+      title: `TEST Ürün ${cursor + index}`,
       slug: `test-${cursor + index}-${Math.random().toString(36).slice(2, 7)}`,
       status: "active",
-      base_price: money(row.retailPrice ?? row.costPrice ?? 99),
+      base_price: money(50 + ((cursor + index) % 450)),
       currency: store.currency ?? "TRY",
-      sku: row.sku ?? `TEST-${cursor + index}`,
-      vendor: row.brand ?? "MefTest",
+      sku: `TEST-${cursor + index}`,
+      vendor: "MefTest",
       description: "Otomatik yük testi ürünü (TEST).",
       variant_options: [
         { name: "Beden", values: ["S", "M", "L"] },
