@@ -350,7 +350,13 @@ export function FeedSheet({
               <Button
                 type="button"
                 variant="outline"
-                disabled={!form.sourceUrl.trim() || analysis.isPending}
+                disabled={
+                  analysis.isPending ||
+                  form.connectionType === "webhook" ||
+                  form.connectionType === "sftp" ||
+                  (form.connectionType === "url" && !form.sourceUrl.trim()) ||
+                  ((form.connectionType === "ftp") && (!form.id || !form.ftpConfig.host))
+                }
                 onClick={() => analysis.mutate()}
               >
                 {analysis.isPending ? <Loader2 className="mr-1 size-4 animate-spin" /> : <Wand2 className="mr-1 size-4" />}
