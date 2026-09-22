@@ -167,6 +167,7 @@ import { Route as AuthenticatedStoreStoreIdElasticityRouteImport } from './route
 import { Route as AuthenticatedStoreStoreIdEmailMarketingRouteImport } from './routes/_authenticated/store.$storeId.email-marketing'
 import { Route as AuthenticatedStoreStoreIdEngagementRouteImport } from './routes/_authenticated/store.$storeId.engagement'
 import { Route as AuthenticatedStoreStoreIdFacebookMarketplaceRouteImport } from './routes/_authenticated/store.$storeId.facebook-marketplace'
+import { Route as AuthenticatedStoreStoreIdFeedsRouteImport } from './routes/_authenticated/store.$storeId.feeds'
 import { Route as AuthenticatedStoreStoreIdFinanceRouteImport } from './routes/_authenticated/store.$storeId.finance'
 import { Route as AuthenticatedStoreStoreIdForecastRouteImport } from './routes/_authenticated/store.$storeId.forecast'
 import { Route as AuthenticatedStoreStoreIdFunnelRouteImport } from './routes/_authenticated/store.$storeId.funnel'
@@ -1164,6 +1165,12 @@ const AuthenticatedStoreStoreIdFacebookMarketplaceRoute =
     path: '/facebook-marketplace',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdFeedsRoute =
+  AuthenticatedStoreStoreIdFeedsRouteImport.update({
+    id: '/feeds',
+    path: '/feeds',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdFinanceRoute =
   AuthenticatedStoreStoreIdFinanceRouteImport.update({
     id: '/finance',
@@ -2120,6 +2127,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/email-marketing': typeof AuthenticatedStoreStoreIdEmailMarketingRoute
   '/store/$storeId/engagement': typeof AuthenticatedStoreStoreIdEngagementRoute
   '/store/$storeId/facebook-marketplace': typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
+  '/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -2414,6 +2422,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/email-marketing': typeof AuthenticatedStoreStoreIdEmailMarketingRoute
   '/store/$storeId/engagement': typeof AuthenticatedStoreStoreIdEngagementRoute
   '/store/$storeId/facebook-marketplace': typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
+  '/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -2710,6 +2719,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/email-marketing': typeof AuthenticatedStoreStoreIdEmailMarketingRoute
   '/_authenticated/store/$storeId/engagement': typeof AuthenticatedStoreStoreIdEngagementRoute
   '/_authenticated/store/$storeId/facebook-marketplace': typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
+  '/_authenticated/store/$storeId/feeds': typeof AuthenticatedStoreStoreIdFeedsRoute
   '/_authenticated/store/$storeId/finance': typeof AuthenticatedStoreStoreIdFinanceRoute
   '/_authenticated/store/$storeId/forecast': typeof AuthenticatedStoreStoreIdForecastRoute
   '/_authenticated/store/$storeId/funnel': typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -3007,6 +3017,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/email-marketing'
     | '/store/$storeId/engagement'
     | '/store/$storeId/facebook-marketplace'
+    | '/store/$storeId/feeds'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
     | '/store/$storeId/funnel'
@@ -3301,6 +3312,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/email-marketing'
     | '/store/$storeId/engagement'
     | '/store/$storeId/facebook-marketplace'
+    | '/store/$storeId/feeds'
     | '/store/$storeId/finance'
     | '/store/$storeId/forecast'
     | '/store/$storeId/funnel'
@@ -3596,6 +3608,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/email-marketing'
     | '/_authenticated/store/$storeId/engagement'
     | '/_authenticated/store/$storeId/facebook-marketplace'
+    | '/_authenticated/store/$storeId/feeds'
     | '/_authenticated/store/$storeId/finance'
     | '/_authenticated/store/$storeId/forecast'
     | '/_authenticated/store/$storeId/funnel'
@@ -4954,6 +4967,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdFacebookMarketplaceRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/feeds': {
+      id: '/_authenticated/store/$storeId/feeds'
+      path: '/feeds'
+      fullPath: '/store/$storeId/feeds'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdFeedsRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/finance': {
       id: '/_authenticated/store/$storeId/finance'
       path: '/finance'
@@ -6107,6 +6127,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdEmailMarketingRoute: typeof AuthenticatedStoreStoreIdEmailMarketingRoute
   AuthenticatedStoreStoreIdEngagementRoute: typeof AuthenticatedStoreStoreIdEngagementRoute
   AuthenticatedStoreStoreIdFacebookMarketplaceRoute: typeof AuthenticatedStoreStoreIdFacebookMarketplaceRoute
+  AuthenticatedStoreStoreIdFeedsRoute: typeof AuthenticatedStoreStoreIdFeedsRoute
   AuthenticatedStoreStoreIdFinanceRoute: typeof AuthenticatedStoreStoreIdFinanceRoute
   AuthenticatedStoreStoreIdForecastRoute: typeof AuthenticatedStoreStoreIdForecastRoute
   AuthenticatedStoreStoreIdFunnelRoute: typeof AuthenticatedStoreStoreIdFunnelRoute
@@ -6254,6 +6275,7 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdEngagementRoute,
     AuthenticatedStoreStoreIdFacebookMarketplaceRoute:
       AuthenticatedStoreStoreIdFacebookMarketplaceRoute,
+    AuthenticatedStoreStoreIdFeedsRoute: AuthenticatedStoreStoreIdFeedsRoute,
     AuthenticatedStoreStoreIdFinanceRoute:
       AuthenticatedStoreStoreIdFinanceRoute,
     AuthenticatedStoreStoreIdForecastRoute:
