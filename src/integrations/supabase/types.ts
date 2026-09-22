@@ -17992,6 +17992,69 @@ export type Database = {
           },
         ]
       }
+      xml_analytics_daily: {
+        Row: {
+          created_at: string
+          date: string
+          feed_id: string
+          id: string
+          out_of_stock_count: number
+          price_changed_count: number
+          quarantined_items_count: number
+          stock_changed_count: number
+          store_id: string
+          success_rate_percent: number
+          sync_duration_avg_seconds: number
+          total_products_count: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          feed_id: string
+          id?: string
+          out_of_stock_count?: number
+          price_changed_count?: number
+          quarantined_items_count?: number
+          stock_changed_count?: number
+          store_id: string
+          success_rate_percent?: number
+          sync_duration_avg_seconds?: number
+          total_products_count?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          feed_id?: string
+          id?: string
+          out_of_stock_count?: number
+          price_changed_count?: number
+          quarantined_items_count?: number
+          stock_changed_count?: number
+          store_id?: string
+          success_rate_percent?: number
+          sync_duration_avg_seconds?: number
+          total_products_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_analytics_daily_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "xml_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_analytics_daily_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xml_category_mappings: {
         Row: {
           ai_confidence: number
