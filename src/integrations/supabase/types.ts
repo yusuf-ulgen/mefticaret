@@ -14300,6 +14300,57 @@ export type Database = {
           },
         ]
       }
+      store_installed_themes: {
+        Row: {
+          activated_at: string | null
+          created_at: string
+          id: string
+          installed_at: string
+          installed_by: string | null
+          is_active: boolean
+          store_id: string
+          theme_id: string
+          updated_at: string
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string
+          id?: string
+          installed_at?: string
+          installed_by?: string | null
+          is_active?: boolean
+          store_id: string
+          theme_id: string
+          updated_at?: string
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string
+          id?: string
+          installed_at?: string
+          installed_by?: string | null
+          is_active?: boolean
+          store_id?: string
+          theme_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_installed_themes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_installed_themes_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_locales: {
         Row: {
           code: string
@@ -15199,6 +15250,63 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_theme_purchases: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          paid_at: string | null
+          status: string
+          store_id: string
+          theme_id: string
+          transaction_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          status?: string
+          store_id: string
+          theme_id: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          status?: string
+          store_id?: string
+          theme_id?: string
+          transaction_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_theme_purchases_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_theme_purchases_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
             referencedColumns: ["id"]
           },
         ]
@@ -16349,6 +16457,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      themes: {
+        Row: {
+          author: string
+          created_at: string
+          currency: string
+          description: string
+          features: Json
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          name: string
+          preview_image: string | null
+          price: number
+          price_note: string
+          slug: string
+          sort_order: number
+          tagline: string
+          template_code: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          author?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name: string
+          preview_image?: string | null
+          price?: number
+          price_note?: string
+          slug: string
+          sort_order?: number
+          tagline?: string
+          template_code: string
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          author?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name?: string
+          preview_image?: string | null
+          price?: number
+          price_note?: string
+          slug?: string
+          sort_order?: number
+          tagline?: string
+          template_code?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
       }
       tiktok_accounts: {
         Row: {
