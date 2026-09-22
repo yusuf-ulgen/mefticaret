@@ -186,6 +186,8 @@ export function FeedSheet({
           currency: form.currency,
           isActive: form.isActive,
           deltaSyncConfig: form.deltaSync,
+          connectionType: form.connectionType,
+          ftpConfig: form.ftpConfig,
         },
       }),
     onSuccess: () => {
