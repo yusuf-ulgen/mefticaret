@@ -543,6 +543,8 @@ export function AppShell({
           </div>
         </main>
       </div>
+
+      {storeId ? <PanelBottomNav storeId={storeId} /> : null}
     </div>
   );
 }
