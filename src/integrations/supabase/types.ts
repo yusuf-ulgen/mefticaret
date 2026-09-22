@@ -15795,42 +15795,60 @@ export type Database = {
       supplier_feed_runs: {
         Row: {
           created_at: string
+          direction: string
+          duration_seconds: number | null
           error: string | null
+          errors: Json
           feed_id: string
+          file_size_bytes: number | null
           finished_at: string | null
           id: string
+          output_url: string | null
           started_at: string
           status: Database["public"]["Enums"]["supplier_feed_run_status"]
           store_id: string
           totals: Json
           trigger: string
           updated_at: string
+          warnings: Json
         }
         Insert: {
           created_at?: string
+          direction?: string
+          duration_seconds?: number | null
           error?: string | null
+          errors?: Json
           feed_id: string
+          file_size_bytes?: number | null
           finished_at?: string | null
           id?: string
+          output_url?: string | null
           started_at?: string
           status?: Database["public"]["Enums"]["supplier_feed_run_status"]
           store_id: string
           totals?: Json
           trigger?: string
           updated_at?: string
+          warnings?: Json
         }
         Update: {
           created_at?: string
+          direction?: string
+          duration_seconds?: number | null
           error?: string | null
+          errors?: Json
           feed_id?: string
+          file_size_bytes?: number | null
           finished_at?: string | null
           id?: string
+          output_url?: string | null
           started_at?: string
           status?: Database["public"]["Enums"]["supplier_feed_run_status"]
           store_id?: string
           totals?: Json
           trigger?: string
           updated_at?: string
+          warnings?: Json
         }
         Relationships: [
           {
@@ -15856,6 +15874,9 @@ export type Database = {
           category_map: Json
           create_missing: boolean
           created_at: string
+          cron_expression: string | null
+          direction: string
+          export_token: string
           field_map: Json
           filter_rules: Json
           id: string
@@ -15869,15 +15890,22 @@ export type Database = {
             | Database["public"]["Enums"]["supplier_feed_run_status"]
             | null
           match_key: Database["public"]["Enums"]["supplier_match_key"]
+          max_runtime_seconds: number
           name: string
           next_run_at: string | null
+          output_filename: string | null
+          output_target: string
+          platform: string
           price_rules: Json
           schedule: Database["public"]["Enums"]["supplier_feed_schedule"]
-          source_url: string
+          source_url: string | null
           stats: Json
           stock_rules: Json
           store_id: string
           supplier_id: string | null
+          timezone: string
+          total_runs: number
+          transform_rules: Json
           updated_at: string
         }
         Insert: {
@@ -15886,6 +15914,9 @@ export type Database = {
           category_map?: Json
           create_missing?: boolean
           created_at?: string
+          cron_expression?: string | null
+          direction?: string
+          export_token?: string
           field_map?: Json
           filter_rules?: Json
           id?: string
@@ -15899,15 +15930,22 @@ export type Database = {
             | Database["public"]["Enums"]["supplier_feed_run_status"]
             | null
           match_key?: Database["public"]["Enums"]["supplier_match_key"]
+          max_runtime_seconds?: number
           name: string
           next_run_at?: string | null
+          output_filename?: string | null
+          output_target?: string
+          platform?: string
           price_rules?: Json
           schedule?: Database["public"]["Enums"]["supplier_feed_schedule"]
-          source_url: string
+          source_url?: string | null
           stats?: Json
           stock_rules?: Json
           store_id: string
           supplier_id?: string | null
+          timezone?: string
+          total_runs?: number
+          transform_rules?: Json
           updated_at?: string
         }
         Update: {
@@ -15916,6 +15954,9 @@ export type Database = {
           category_map?: Json
           create_missing?: boolean
           created_at?: string
+          cron_expression?: string | null
+          direction?: string
+          export_token?: string
           field_map?: Json
           filter_rules?: Json
           id?: string
@@ -15929,15 +15970,22 @@ export type Database = {
             | Database["public"]["Enums"]["supplier_feed_run_status"]
             | null
           match_key?: Database["public"]["Enums"]["supplier_match_key"]
+          max_runtime_seconds?: number
           name?: string
           next_run_at?: string | null
+          output_filename?: string | null
+          output_target?: string
+          platform?: string
           price_rules?: Json
           schedule?: Database["public"]["Enums"]["supplier_feed_schedule"]
-          source_url?: string
+          source_url?: string | null
           stats?: Json
           stock_rules?: Json
           store_id?: string
           supplier_id?: string | null
+          timezone?: string
+          total_runs?: number
+          transform_rules?: Json
           updated_at?: string
         }
         Relationships: [
@@ -18211,6 +18259,57 @@ export type Database = {
           },
           {
             foreignKeyName: "wholesale_tiers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xml_category_mappings: {
+        Row: {
+          created_at: string
+          feed_id: string
+          id: string
+          platform: string
+          source_category: string
+          store_id: string
+          target_category_id: string | null
+          target_category_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          feed_id: string
+          id?: string
+          platform?: string
+          source_category: string
+          store_id: string
+          target_category_id?: string | null
+          target_category_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          feed_id?: string
+          id?: string
+          platform?: string
+          source_category?: string
+          store_id?: string
+          target_category_id?: string | null
+          target_category_name?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_category_mappings_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_category_mappings_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
