@@ -136,7 +136,8 @@ export function FeedCard({
 
   const run = useServerFn(runXmlFeedNow);
   const runMutation = useMutation({
-    mutationFn: () => run({ data: { storeId, feedId: feed.id } }),
+    mutationFn: (forceFullSync: boolean = false) =>
+      run({ data: { storeId, feedId: feed.id, forceFullSync } }),
     onSuccess: (result) => {
       if (result.direction === "export") {
         toast.success(
@@ -215,7 +216,7 @@ export function FeedCard({
             size="sm"
             variant="secondary"
             disabled={runMutation.isPending}
-            onClick={() => runMutation.mutate()}
+            onClick={() => runMutation.mutate(false)}
           >
             {runMutation.isPending ? (
               <Loader2 className="mr-1 size-4 animate-spin" />
@@ -224,6 +225,19 @@ export function FeedCard({
             )}
             {feed.direction === "export" ? "XML üret" : "Şimdi çalıştır"}
           </Button>
+
+          {feed.direction === "import" ? (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={runMutation.isPending}
+              title="Delta atlanır, tüm ürünler yeniden işlenir"
+              onClick={() => runMutation.mutate(true)}
+            >
+              <RefreshCw className="mr-1 size-4" />
+              Tam senkronizasyon
+            </Button>
+          ) : null}
 
           <div className="flex gap-1">
             <Button asChild size="icon" variant="outline" aria-label="Alan eşleştirme">
