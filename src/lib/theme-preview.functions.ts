@@ -106,9 +106,14 @@ export const publishThemePreview = createServerFn({ method: "POST" })
     const keys = Object.keys(settings);
     if (keys.length === 0) throw new Error("Yayınlanacak değişiklik yok");
 
+    const patch: Record<string, string | number | boolean> = {};
+    for (const [key, value] of Object.entries(settings)) {
+      if (value !== undefined) patch[key] = value;
+    }
+
     const { error: upsertError } = await supabase
       .from("store_themes")
-      .upsert({ store_id: data.storeId, ...settings }, { onConflict: "store_id" });
+      .upsert({ store_id: data.storeId, ...patch } as never, { onConflict: "store_id" });
     if (upsertError) throw new Error(upsertError.message);
 
     await supabase.from("theme_preview_sessions").update({ settings: {} }).eq("id", session.id);
