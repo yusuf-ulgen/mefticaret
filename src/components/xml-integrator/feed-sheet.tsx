@@ -274,11 +274,23 @@ export function FeedSheet({
 
           {isImport ? (
             <section className="space-y-3 rounded-xl border bg-muted/20 p-4">
+              <ConnectionSettings
+                idPrefix="feed-conn"
+                connectionType={form.connectionType}
+                ftpConfig={form.ftpConfig}
+                hasFtpPassword={form.hasFtpPassword}
+                webhookUrl={webhookUrl}
+                onConnectionTypeChange={(next) => set("connectionType", next)}
+                onFtpConfigChange={(next) => set("ftpConfig", next)}
+              />
+
               <div className="grid gap-3 sm:grid-cols-[1fr_9rem]">
-                <div className="space-y-1">
-                  <Label htmlFor="feed-url">Kaynak bağlantısı</Label>
-                  <Input id="feed-url" value={form.sourceUrl} onChange={(event) => set("sourceUrl", event.target.value)} placeholder="https://tedarikci.com/urunler.xml" />
-                </div>
+                {form.connectionType === "url" ? (
+                  <div className="space-y-1">
+                    <Label htmlFor="feed-url">Kaynak bağlantısı</Label>
+                    <Input id="feed-url" value={form.sourceUrl} onChange={(event) => set("sourceUrl", event.target.value)} placeholder="https://tedarikci.com/urunler.xml" />
+                  </div>
+                ) : <div />}
                 <div className="space-y-1">
                   <Label htmlFor="feed-format">Dosya türü</Label>
                   <select
@@ -293,6 +305,7 @@ export function FeedSheet({
                   </select>
                 </div>
               </div>
+
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1">
