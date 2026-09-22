@@ -84,7 +84,7 @@ export const XML_SCHEDULE_HOURS: Record<XmlSchedule, number | null> = {
   custom: null,
 };
 
-/** Cron alanı ("*", "*/5", "1-5", "0,30") için izinli değer kümesi. */
+// Cron alanı (yıldız, adım, aralık veya liste) için izinli değer kümesi.
 function cronFieldValues(field: string, min: number, max: number): number[] | null {
   const values = new Set<number>();
   for (const part of field.split(",")) {
