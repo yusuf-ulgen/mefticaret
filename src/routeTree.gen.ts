@@ -288,6 +288,7 @@ import { Route as ApiPublicTiktokStoreIdRouteImport } from './routes/api/public/
 import { Route as ApiPublicTrackSlugRouteImport } from './routes/api/public/track.$slug'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicWhatsappStoreIdRouteImport } from './routes/api/public/whatsapp.$storeId'
+import { Route as ApiPublicXmlFeedTokenRouteImport } from './routes/api/public/xml-feed.$token'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -1885,6 +1886,11 @@ const ApiPublicWhatsappStoreIdRoute =
     path: '/api/public/whatsapp/$storeId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicXmlFeedTokenRoute = ApiPublicXmlFeedTokenRouteImport.update({
+  id: '/api/public/xml-feed/$token',
+  path: '/api/public/xml-feed/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -2290,6 +2296,7 @@ export interface FileRoutesByFullPath {
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
+  '/api/public/xml-feed/$token': typeof ApiPublicXmlFeedTokenRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -2589,6 +2596,7 @@ export interface FileRoutesByTo {
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
+  '/api/public/xml-feed/$token': typeof ApiPublicXmlFeedTokenRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -2893,6 +2901,7 @@ export interface FileRoutesById {
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
+  '/api/public/xml-feed/$token': typeof ApiPublicXmlFeedTokenRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -3197,6 +3206,7 @@ export interface FileRouteTypes {
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
+    | '/api/public/xml-feed/$token'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -3496,6 +3506,7 @@ export interface FileRouteTypes {
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
+    | '/api/public/xml-feed/$token'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -3799,6 +3810,7 @@ export interface FileRouteTypes {
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
+    | '/api/public/xml-feed/$token'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -3922,6 +3934,7 @@ export interface RootRouteChildren {
   ApiPublicTrackSlugRoute: typeof ApiPublicTrackSlugRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   ApiPublicWhatsappStoreIdRoute: typeof ApiPublicWhatsappStoreIdRoute
+  ApiPublicXmlFeedTokenRoute: typeof ApiPublicXmlFeedTokenRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -5890,6 +5903,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWhatsappStoreIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/xml-feed/$token': {
+      id: '/api/public/xml-feed/$token'
+      path: '/api/public/xml-feed/$token'
+      fullPath: '/api/public/xml-feed/$token'
+      preLoaderRoute: typeof ApiPublicXmlFeedTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/auth/preview': {
       id: '/lovable/email/auth/preview'
       path: '/lovable/email/auth/preview'
@@ -6714,6 +6734,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTrackSlugRoute: ApiPublicTrackSlugRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   ApiPublicWhatsappStoreIdRoute: ApiPublicWhatsappStoreIdRoute,
+  ApiPublicXmlFeedTokenRoute: ApiPublicXmlFeedTokenRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
