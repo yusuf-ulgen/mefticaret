@@ -520,7 +520,10 @@ export function AppShell({
         <main
           id="panel-content"
           tabIndex={-1}
-          className="min-w-0 flex-1 px-3 py-4 sm:px-5 lg:px-8 lg:py-6"
+          className={cn(
+            "min-w-0 flex-1 px-3 py-4 sm:px-5 lg:px-8 lg:py-6",
+            storeId && "pb-24 lg:pb-6",
+          )}
         >
           <div className="mx-auto w-full max-w-6xl space-y-4">
             {storeId ? <QuickLinks storeId={storeId} /> : null}
