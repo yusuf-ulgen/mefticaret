@@ -606,7 +606,9 @@ export const listXmlCategoryMappings = createServerFn({ method: "GET" })
     const [{ data: mappings, error }, { data: categories }] = await Promise.all([
       context.supabase
         .from("xml_category_mappings")
-        .select("id, source_category, target_category_id, target_category_code, target_category_name, product_count")
+        .select(
+          "id, source_category, target_category_id, target_category_code, target_category_name, product_count, ai_confidence, is_ai_suggested, ai_reasoning",
+        )
         .eq("store_id", data.storeId)
         .eq("feed_id", data.feedId)
         .order("product_count", { ascending: false }),
@@ -627,6 +629,9 @@ export const listXmlCategoryMappings = createServerFn({ method: "GET" })
         targetCategoryCode: (row["target_category_code"] as string | null) ?? null,
         targetCategoryName: (row["target_category_name"] as string | null) ?? null,
         productCount: Number(row["product_count"] ?? 0),
+        aiConfidence: Number(row["ai_confidence"] ?? 0),
+        isAiSuggested: Boolean(row["is_ai_suggested"]),
+        aiReasoning: (row["ai_reasoning"] as string | null) ?? null,
       })),
       categories: ((categories ?? []) as Array<Record<string, any>>).map((row) => ({
         id: String(row["id"]),
@@ -744,9 +749,92 @@ export const saveXmlCategoryMapping = createServerFn({ method: "POST" })
         target_category_id: data.targetCategoryId,
         target_category_code: data.targetCategoryCode,
         target_category_name: targetName,
+        is_ai_suggested: false,
+        ai_confidence: 0,
+        ai_reasoning: null,
       } as never,
       { onConflict: "feed_id,source_category" },
     );
     if (error) throw new Error(error.message);
     return { ok: true as boolean };
+  });
+
+/**
+ * Eşleşmesi olmayan kaynak kategoriler için yapay zekâ önerisi üretir.
+ * Öneriler `is_ai_suggested` işaretiyle kaydedilir; satıcı elle değiştirdiğinde işaret kalkar.
+ */
+export const aiSuggestXmlCategoryMappings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z.object({ storeId: z.guid(), feedId: z.guid(), onlyUnmapped: z.boolean().default(true) }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_ai_map:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla deneme, birkaç dakika sonra tekrar deneyin");
+
+    const [{ data: mappingRows, error }, { data: categoryRows }] = await Promise.all([
+      context.supabase
+        .from("xml_category_mappings")
+        .select("source_category, target_category_id, product_count")
+        .eq("store_id", data.storeId)
+        .eq("feed_id", data.feedId)
+        .order("product_count", { ascending: false })
+        .limit(200),
+      context.supabase
+        .from("categories")
+        .select("id, name, path")
+        .eq("store_id", data.storeId)
+        .order("path", { ascending: true })
+        .limit(300),
+    ]);
+    if (error) throw new Error(error.message);
+
+    const pending = ((mappingRows ?? []) as Array<Record<string, any>>)
+      .filter((row) => (data.onlyUnmapped ? !row["target_category_id"] : true))
+      .map((row) => String(row["source_category"]))
+      .slice(0, 60);
+    if (!pending.length) throw new Error("Önerilecek kaynak kategori yok — önce kaynağı tarayın");
+
+    const targets = ((categoryRows ?? []) as Array<Record<string, any>>).map((row) => ({
+      id: String(row["id"]),
+      name: String(row["path"] || row["name"]),
+    }));
+    if (!targets.length) throw new Error("Mağazanızda kategori bulunmuyor, önce kategori oluşturun");
+
+    const { suggestCategoryMappings } = await import("@/lib/ai-category-mapping.server");
+    const { suggestions, creditsUsed } = await suggestCategoryMappings({
+      sourceCategories: pending,
+      targetCategories: targets,
+      charge: { storeId: data.storeId, userId: context.userId },
+    });
+
+    const matched = suggestions.filter((row) => row.targetId);
+    if (matched.length) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { error: writeError } = await supabaseAdmin.from("xml_category_mappings").upsert(
+        matched.map((row) => ({
+          store_id: data.storeId,
+          feed_id: data.feedId,
+          source_category: row.source,
+          target_category_id: row.targetId,
+          target_category_name: row.targetName,
+          is_ai_suggested: true,
+          ai_confidence: row.confidence,
+          ai_reasoning: row.reason,
+        })) as never,
+        { onConflict: "feed_id,source_category" },
+      );
+      if (writeError) throw new Error(writeError.message);
+    }
+
+    return {
+      requested: pending.length,
+      suggested: matched.length,
+      unmatched: suggestions.length - matched.length,
+      creditsUsed,
+    };
   });

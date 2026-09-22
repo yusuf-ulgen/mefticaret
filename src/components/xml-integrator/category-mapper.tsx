@@ -5,7 +5,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, RefreshCw, Search } from "lucide-react";
+import { Loader2, RefreshCw, Search, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -14,13 +14,18 @@ import { Button } from "@/components/ui/button";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Input } from "@/components/ui/input";
 import { xmlCategoryMappingsQuery } from "@/lib/xml-integrator-queries";
-import { saveXmlCategoryMapping, scanXmlSourceCategories } from "@/lib/xml-integrator.functions";
+import {
+  aiSuggestXmlCategoryMappings,
+  saveXmlCategoryMapping,
+  scanXmlSourceCategories,
+} from "@/lib/xml-integrator.functions";
 
 export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId: string }) {
   const client = useQueryClient();
   const query = useQuery(xmlCategoryMappingsQuery(storeId, feedId));
   const scan = useServerFn(scanXmlSourceCategories);
   const saveOne = useServerFn(saveXmlCategoryMapping);
+  const aiSuggest = useServerFn(aiSuggestXmlCategoryMappings);
   const [search, setSearch] = useState("");
 
   const invalidate = () =>
@@ -30,6 +35,18 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
     mutationFn: () => scan({ data: { storeId, feedId } }),
     onSuccess: (result) => {
       toast.success(`${result.found} kaynak kategorisi bulundu (${result.rows} satır tarandı)`);
+      void invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const aiMutation = useMutation({
+    mutationFn: () => aiSuggest({ data: { storeId, feedId, onlyUnmapped: true } }),
+    onSuccess: (result) => {
+      toast.success(
+        `${result.suggested}/${result.requested} kategori için öneri oluşturuldu` +
+          (result.creditsUsed ? ` · ${result.creditsUsed} kredi` : ""),
+      );
       void invalidate();
     },
     onError: (error: Error) => toast.error(error.message),
@@ -84,6 +101,18 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
           )}
           Kaynak kategorilerini tara
         </Button>
+        <Button
+          size="sm"
+          disabled={aiMutation.isPending || !query.data?.mappings.length || !categories.length}
+          onClick={() => aiMutation.mutate()}
+        >
+          {aiMutation.isPending ? (
+            <Loader2 className="mr-1 size-4 animate-spin" />
+          ) : (
+            <Sparkles className="mr-1 size-4" />
+          )}
+          Yapay zekâ ile eşleştir
+        </Button>
       </header>
 
       {!query.data?.mappings.length ? (
@@ -108,7 +137,18 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
               <li key={row.id} className="grid gap-2 p-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-center">
                 <div className="min-w-0">
                   <p className="truncate text-sm">{row.sourceCategory}</p>
-                  <p className="text-xs text-muted-foreground">{row.productCount} ürün</p>
+                  <p className="text-xs text-muted-foreground">
+                    {row.productCount} ürün
+                    {row.isAiSuggested ? (
+                      <span className="ml-1 inline-flex items-center gap-1 text-primary">
+                        <Sparkles className="size-3" />
+                        AI önerisi · %{Math.round(row.aiConfidence * 100)} güven
+                      </span>
+                    ) : null}
+                  </p>
+                  {row.isAiSuggested && row.aiReasoning ? (
+                    <p className="text-xs text-muted-foreground/80">{row.aiReasoning}</p>
+                  ) : null}
                 </div>
                 <select
                   aria-label={`${row.sourceCategory} hedef kategorisi`}
