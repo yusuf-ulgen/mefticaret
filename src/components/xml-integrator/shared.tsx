@@ -134,16 +134,29 @@ export function FeedCard({
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const run = useServerFn(runXmlFeedNow);
+  const runMutation = useMutation({
+    mutationFn: () => run({ data: { storeId, feedId: feed.id } }),
+    onSuccess: (result) => {
+      toast.success(`Besleme çalıştı — ${result.totalRows} satır okundu`);
+      void refresh();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   return (
     <article className="rounded-xl border bg-card p-4">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
+            <DirectionBadge direction={feed.direction} />
             <h3 className="truncate font-medium">{feed.name}</h3>
-            <Badge variant="outline">{XML_PLATFORM_LABELS[feed.platform as XmlPlatform] ?? feed.platform}</Badge>
             <RunStatusBadge status={feed.lastStatus} />
           </div>
-          <p className="mt-1 truncate text-xs text-muted-foreground">
+          <div className="mt-2">
+            <PlatformMark platform={feed.platform} />
+          </div>
+          <p className="mt-2 truncate text-xs text-muted-foreground">
             {feed.sourceUrl ?? feed.outputFilename ?? "—"}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -153,11 +166,32 @@ export function FeedCard({
           {feed.lastError ? <p className="mt-1 text-xs text-destructive">{feed.lastError}</p> : null}
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
-          <Switch
-            aria-label={`${feed.name} aktif`}
-            checked={feed.isActive}
-            onCheckedChange={(checked) => toggleMutation.mutate(checked)}
-          />
+          <div className="flex items-center gap-2">
+            <span className={`text-xs ${feed.isActive ? "text-success" : "text-muted-foreground"}`}>
+              {feed.isActive ? "Aktif" : "Pasif"}
+            </span>
+            <Switch
+              aria-label={`${feed.name} aktif`}
+              checked={feed.isActive}
+              disabled={toggleMutation.isPending}
+              onCheckedChange={(checked) => toggleMutation.mutate(checked)}
+            />
+          </div>
+          {feed.direction === "import" ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={runMutation.isPending}
+              onClick={() => runMutation.mutate()}
+            >
+              {runMutation.isPending ? (
+                <Loader2 className="mr-1 size-4 animate-spin" />
+              ) : (
+                <Play className="mr-1 size-4" />
+              )}
+              Şimdi çalıştır
+            </Button>
+          ) : null}
           <div className="flex gap-1">
             <Button asChild size="icon" variant="outline" aria-label="Alan eşleştirme">
               <Link to="/store/$storeId/xml-integrator/feeds/$feedId/mapper" params={{ storeId, feedId: feed.id }}>
