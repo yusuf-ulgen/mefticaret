@@ -1,67 +1,20 @@
 import type { NormalizedProduct } from "./xml-import-engine.server";
+import {
+  DEFAULT_DELTA_HASH_FIELDS,
+  type DeltaSyncConfig,
+} from "./xml-delta-sync";
+
+export {
+  DEFAULT_DELTA_HASH_FIELDS,
+  DEFAULT_DELTA_SYNC_CONFIG,
+  needsFullSync,
+  parseDeltaSyncConfig,
+  serializeDeltaSyncConfig,
+  type DeltaSyncConfig,
+} from "./xml-delta-sync";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Client = { from: (table: string) => any };
-
-export const DEFAULT_DELTA_HASH_FIELDS = ["price", "stock", "title", "images"] as const;
-
-export type DeltaSyncConfig = {
-  enabled: boolean;
-  hashFields: string[];
-  forceFullSyncHours: number;
-};
-
-export const DEFAULT_DELTA_SYNC_CONFIG: DeltaSyncConfig = {
-  enabled: true,
-  hashFields: [...DEFAULT_DELTA_HASH_FIELDS],
-  forceFullSyncHours: 168,
-};
-
-const ALLOWED_HASH_FIELDS = new Set([
-  "price",
-  "compare_at_price",
-  "cost_price",
-  "stock",
-  "title",
-  "description",
-  "images",
-  "barcode",
-  "sku",
-  "vendor",
-  "currency",
-  "weight",
-  "variants",
-]);
-
-/** Veritabanındaki jsonb ayarını güvenli okur; bilinmeyen alanlar atılır. */
-export function parseDeltaSyncConfig(raw: unknown): DeltaSyncConfig {
-  const source = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
-  const rawFields = Array.isArray(source["hash_fields"])
-    ? (source["hash_fields"] as unknown[])
-    : Array.isArray(source["hashFields"])
-      ? (source["hashFields"] as unknown[])
-      : [];
-  const fields = rawFields
-    .map((item) => String(item).trim().toLowerCase())
-    .filter((item) => ALLOWED_HASH_FIELDS.has(item));
-
-  const hours = Number(source["force_full_sync_hours"] ?? source["forceFullSyncHours"]);
-
-  return {
-    enabled: source["enabled"] === undefined ? true : Boolean(source["enabled"]),
-    hashFields: fields.length ? Array.from(new Set(fields)) : [...DEFAULT_DELTA_HASH_FIELDS],
-    forceFullSyncHours:
-      Number.isFinite(hours) && hours > 0 ? Math.min(Math.round(hours), 24 * 90) : 168,
-  };
-}
-
-export function serializeDeltaSyncConfig(config: DeltaSyncConfig) {
-  return {
-    enabled: config.enabled,
-    hash_fields: config.hashFields,
-    force_full_sync_hours: config.forceFullSyncHours,
-  };
-}
 
 function fieldValue(product: NormalizedProduct, field: string): unknown {
   switch (field) {
@@ -195,17 +148,4 @@ export async function saveProductHashes(
       .from("xml_product_hashes")
       .upsert(rows.slice(i, i + 500) as never, { onConflict: "feed_id,product_key" });
   }
-}
-
-/** Zorunlu tam senkronizasyon zamanı geldi mi? */
-export function needsFullSync(
-  config: DeltaSyncConfig,
-  lastFullSyncAt: string | null | undefined,
-  now: Date = new Date(),
-): boolean {
-  if (!config.enabled) return true;
-  if (!lastFullSyncAt) return true;
-  const last = new Date(lastFullSyncAt).getTime();
-  if (!Number.isFinite(last)) return true;
-  return now.getTime() - last >= config.forceFullSyncHours * 3600_000;
 }
