@@ -218,6 +218,11 @@ function ThemeStorePage() {
               Tema düzenleyici
             </Link>
           </Button>
+          <Button asChild>
+            <Link to="/store/$storeId/customizer" params={{ storeId }}>
+              <Eye className="mr-2 size-4" /> Canlı önizleme
+            </Link>
+          </Button>
         </div>
       }
     >
