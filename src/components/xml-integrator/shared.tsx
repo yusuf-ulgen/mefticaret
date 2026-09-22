@@ -59,7 +59,52 @@ export function RunStatusBadge({ status }: { status: string | null }) {
   );
 }
 
-/** Liste satırı: durum, sıklık, aç/kapat, eşleştirme ve silme. */
+/** Yön rozeti: içe aktarım yeşil, dışa aktarım mavi. */
+export function DirectionBadge({ direction }: { direction: string }) {
+  const isImport = direction === "import";
+  return (
+    <span
+      className={
+        isImport
+          ? "inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success"
+          : "inline-flex items-center gap-1 rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info"
+      }
+    >
+      {isImport ? <Upload className="size-3" /> : <Download className="size-3" />}
+      {isImport ? "İçe aktarım" : "Dışa aktarım"}
+    </span>
+  );
+}
+
+const PLATFORM_MARKS: Record<string, { short: string; className: string }> = {
+  trendyol: { short: "ty", className: "bg-platform-trendyol/12 text-platform-trendyol" },
+  hepsiburada: { short: "hb", className: "bg-platform-hepsiburada/12 text-platform-hepsiburada" },
+  n11: { short: "n11", className: "bg-platform-n11/12 text-platform-n11" },
+  amazon: { short: "az", className: "bg-platform-amazon/12 text-platform-amazon" },
+  ciceksepeti: { short: "çs", className: "bg-platform-n11/12 text-platform-n11" },
+  pttavm: { short: "ptt", className: "bg-platform-amazon/12 text-platform-amazon" },
+  google_shopping: { short: "g", className: "bg-info/12 text-info" },
+  generic: { short: "xml", className: "bg-platform-generic/12 text-platform-generic" },
+};
+
+/** Platform işareti: kısa kod + platform adı. */
+export function PlatformMark({ platform }: { platform: string }) {
+  const mark = PLATFORM_MARKS[platform] ?? PLATFORM_MARKS["generic"]!;
+  const label = XML_PLATFORM_LABELS[platform as XmlPlatform] ?? platform;
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span
+        aria-hidden
+        className={`grid size-7 shrink-0 place-items-center rounded-md text-[10px] font-bold uppercase ${mark.className}`}
+      >
+        {mark.short}
+      </span>
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+    </span>
+  );
+}
+
+/** Liste satırı: yön rozeti, platform işareti, aç/kapat, çalıştır, eşleştirme, silme. */
 export function FeedCard({
   storeId,
   feed,
