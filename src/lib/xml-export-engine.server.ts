@@ -56,48 +56,53 @@ export async function collectExportProducts(
   storeId: string,
   options: { priceMarkup?: number | null; currency?: string | null } = {},
 ): Promise<{ products: ExportProduct[]; storeName: string; storeUrl: string | null; currency: string }> {
-  const [{ data: store }, { data: productRows, error }] = await Promise.all([
-    admin.from("stores").select("id, name, slug, currency").eq("id", storeId).maybeSingle(),
-    admin
-      .from("products")
-      .select(
-        "id, title, slug, description, sku, barcode, base_price, compare_at_price, currency, tax_rate, weight_grams, vendor, product_type, variant_options, category_id, track_inventory",
-      )
-      .eq("store_id", storeId)
-      .eq("status", "active")
-      .limit(MAX_PRODUCTS),
-  ]);
-  if (error) throw new Error(error.message);
+  const { data: store } = await admin
+    .from("stores")
+    .select("id, name, slug, currency")
+    .eq("id", storeId)
+    .maybeSingle();
   if (!store) throw new Error("Mağaza bulunamadı");
 
-  const products = productRows ?? [];
-  const ids = products.map((row) => String((row as Record<string, unknown>)["id"]));
-  const categoryIds = Array.from(
-    new Set(
-      products
-        .map((row) => (row as Record<string, unknown>)["category_id"])
-        .filter((value): value is string => typeof value === "string"),
-    ),
+  const products = await fetchAllPages(
+    (from, to) =>
+      admin
+        .from("products")
+        .select(
+          "id, title, slug, description, sku, barcode, base_price, compare_at_price, currency, tax_rate, weight_grams, vendor, product_type, variant_options, category_id, track_inventory",
+        )
+        .eq("store_id", storeId)
+        .eq("status", "active")
+        .order("created_at", { ascending: true })
+        .range(from, to),
+    MAX_PRODUCTS,
   );
 
-  const [{ data: images }, { data: variants }, { data: categories }] = await Promise.all([
-    ids.length
-      ? admin
-          .from("product_images")
-          .select("product_id, url, storage_path, position")
-          .in("product_id", ids)
-          .order("position", { ascending: true })
-      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
-    ids.length
-      ? admin
-          .from("product_variants")
-          .select("id, product_id, title, sku, barcode, price, stock, weight_grams, options")
-          .in("product_id", ids)
-      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
-    categoryIds.length
-      ? admin.from("categories").select("id, name").in("id", categoryIds)
-      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
+  const ids = products.map((row) => String(row["id"]));
+  const categoryIds = Array.from(
+    new Set(products.map((row) => row["category_id"]).filter((value): value is string => typeof value === "string")),
+  );
+
+  const [images, variants, categories] = await Promise.all([
+    fetchAllByIds(ids, (chunk, from, to) =>
+      admin
+        .from("product_images")
+        .select("product_id, url, storage_path, position")
+        .in("product_id", chunk)
+        .order("position", { ascending: true })
+        .range(from, to),
+    ),
+    fetchAllByIds(ids, (chunk, from, to) =>
+      admin
+        .from("product_variants")
+        .select("id, product_id, title, sku, barcode, price, stock, weight_grams, options")
+        .in("product_id", chunk)
+        .range(from, to),
+    ),
+    fetchAllByIds(categoryIds, (chunk, from, to) =>
+      admin.from("categories").select("id, name").in("id", chunk).range(from, to),
+    ),
   ]);
+
 
   const imagesByProduct = new Map<string, string[]>();
   for (const row of (images ?? []) as Array<Record<string, unknown>>) {
