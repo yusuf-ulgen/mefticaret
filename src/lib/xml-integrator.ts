@@ -79,6 +79,7 @@ export const XML_ERROR_CATEGORY_LABELS: Record<string, string> = {
   PARSE_ERROR: "Dosya okuma hatası",
   MAPPING_ERROR: "Alan eşleme hatası",
   UPSERT_ERROR: "Kayıt hatası",
+  GUARDRAIL_BLOCK: "Güvenlik sınırı — incelemeye alındı",
 };
 
 /** Çalışma aşamalarının Türkçe karşılıkları. */

@@ -148,7 +148,12 @@ export type NormalizedProduct = {
 
 
 /** Hata kategorileri — canlı sayaç ve kayıt panelinde gruplama için. */
-export type ErrorCategory = "FETCH_ERROR" | "PARSE_ERROR" | "MAPPING_ERROR" | "UPSERT_ERROR";
+export type ErrorCategory =
+  | "FETCH_ERROR"
+  | "PARSE_ERROR"
+  | "MAPPING_ERROR"
+  | "UPSERT_ERROR"
+  | "GUARDRAIL_BLOCK";
 
 export type RowError = { row: number; reason: string; category?: ErrorCategory };
 
