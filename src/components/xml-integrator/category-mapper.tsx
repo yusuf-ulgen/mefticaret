@@ -25,6 +25,7 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
   const query = useQuery(xmlCategoryMappingsQuery(storeId, feedId));
   const scan = useServerFn(scanXmlSourceCategories);
   const saveOne = useServerFn(saveXmlCategoryMapping);
+  const aiSuggest = useServerFn(aiSuggestXmlCategoryMappings);
   const [search, setSearch] = useState("");
 
   const invalidate = () =>
