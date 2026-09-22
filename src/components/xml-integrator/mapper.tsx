@@ -259,7 +259,7 @@ function TargetSlot({
 }: {
   fieldKey: string;
   label: string;
-  required?: boolean;
+  required?: boolean | undefined;
   value: string;
   columns: string[];
   onSelect: (value: string) => void;
