@@ -654,7 +654,11 @@ export type FeedRecord = {
   transformRules?: TransformRules | unknown;
   priceMarkup: number | null;
   currency: string;
+  /** "none" | "nested" | "flat" */
+  variantMode?: VariantMode | string | null;
+  variantConfig?: VariantConfig | unknown;
 };
+
 
 export type FeedRunResult = {
   status: "success" | "failed";
