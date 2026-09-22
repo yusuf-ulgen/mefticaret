@@ -50,6 +50,40 @@ export const feedPublicUrl = (token: string) => `${publicBase()}/api/public/xml-
 const httpsOnly = (url: string | null | undefined) =>
   url && /^https:\/\//i.test(url) ? url : null;
 
+type Row = Record<string, any>;
+type PageQuery = (from: number, to: number) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+
+const PAGE = 1_000;
+
+/** PostgREST 1000 satır sınırını aşmak için sayfa sayfa okur. */
+async function fetchAllPages(query: PageQuery, max: number): Promise<Row[]> {
+  const rows: Row[] = [];
+  for (let from = 0; from < max; from += PAGE) {
+    const to = Math.min(from + PAGE, max) - 1;
+    const { data, error } = await query(from, to);
+    if (error) throw new Error(error.message);
+    const page = (data ?? []) as Row[];
+    rows.push(...page);
+    if (page.length < to - from + 1) break;
+  }
+  return rows;
+}
+
+/** Kimlik listesini 200'erli gruplara bölerek ilişkili satırları okur. */
+async function fetchAllByIds(
+  ids: string[],
+  query: (chunk: string[], from: number, to: number) => PromiseLike<{ data: unknown; error: { message: string } | null }>,
+): Promise<Row[]> {
+  if (!ids.length) return [];
+  const rows: Row[] = [];
+  for (let index = 0; index < ids.length; index += 200) {
+    const chunk = ids.slice(index, index + 200);
+    rows.push(...(await fetchAllPages((from, to) => query(chunk, from, to), 20_000)));
+  }
+  return rows;
+}
+
+
 /** Mağazanın yayına uygun ürünlerini dışa aktarım biçimine çevirir. */
 export async function collectExportProducts(
   admin: SupabaseClient,
