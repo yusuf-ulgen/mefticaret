@@ -66,6 +66,11 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
     () => (schema.data ?? []).map((row) => ({ path: row.field_path, samples: row.sample_values ?? [] })),
     [schema.data],
   );
+  const sampleRow = useMemo(() => {
+    const row: Record<string, string> = {};
+    for (const column of columns) row[column.path] = column.samples[0] ?? "";
+    return row;
+  }, [columns]);
   const visibleColumns = columns.filter((column) =>
     column.path.toLowerCase().includes(search.trim().toLowerCase()),
   );
@@ -219,6 +224,30 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         </DndContext>
       )}
 
+      {activeField ? (
+        <TransformPanel
+          open
+          onOpenChange={(next) => {
+            if (!next) setActiveField(null);
+          }}
+          fieldLabel={TARGET_FIELDS.find((field) => field.key === activeField)?.label ?? activeField}
+          sourcePath={mapping[activeField] ?? ""}
+          sample={
+            columns.find((column) => column.path === mapping[activeField])?.samples[0] ?? ""
+          }
+          row={sampleRow}
+          steps={transforms[activeField] ?? []}
+          onChange={(steps: TransformStep[]) =>
+            setTransforms((current) => {
+              const next = { ...current };
+              if (steps.length) next[activeField] = steps;
+              else delete next[activeField];
+              return next;
+            })
+          }
+        />
+      ) : null}
+
       <XmlCategoryMapper storeId={storeId} feedId={feedId} />
 
       {missing.length ? (
@@ -273,6 +302,8 @@ function TargetSlot({
   value,
   columns,
   onSelect,
+  transformSummary,
+  onOpenTransforms,
 }: {
   fieldKey: string;
   label: string;
@@ -280,6 +311,8 @@ function TargetSlot({
   value: string;
   columns: string[];
   onSelect: (value: string) => void;
+  transformSummary: string;
+  onOpenTransforms: () => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: fieldKey });
   return (
@@ -292,11 +325,26 @@ function TargetSlot({
         {required ? <span className="text-destructive"> *</span> : null}
       </p>
       {value ? (
-        <div className="flex items-center gap-1">
-          <Badge variant="secondary" className="min-w-0 max-w-full truncate">{value}</Badge>
-          <Button size="icon" variant="ghost" aria-label={`${label} eşleşmesini kaldır`} onClick={() => onSelect("")}>
-            <X className="size-3" />
-          </Button>
+        <div className="space-y-1">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={onOpenTransforms}
+              className="flex min-w-0 flex-1 items-center gap-1 rounded-md border bg-background px-2 py-1 text-left text-xs hover:bg-muted"
+              aria-label={`${label} dönüştürme kuralları`}
+            >
+              <Wrench className="size-3 shrink-0 text-muted-foreground" />
+              <span className="min-w-0 flex-1 truncate">{value}</span>
+            </button>
+            <Button size="icon" variant="ghost" aria-label={`${label} eşleşmesini kaldır`} onClick={() => onSelect("")}>
+              <X className="size-3" />
+            </Button>
+          </div>
+          {transformSummary ? (
+            <p className="truncate text-[11px] text-muted-foreground">{transformSummary}</p>
+          ) : (
+            <p className="text-[11px] text-muted-foreground">Dönüştürme için alana tıklayın</p>
+          )}
         </div>
       ) : (
         <select
