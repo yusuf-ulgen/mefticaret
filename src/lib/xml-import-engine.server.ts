@@ -577,6 +577,7 @@ export async function runImportFeed(
     return { ...result, durationSeconds };
   };
 
+  let phase: "fetching" | "parsing" | "mapping" | "upserting" = "fetching";
 
   try {
     const fetched = await fetchFeedSource({
@@ -585,11 +586,17 @@ export async function runImportFeed(
       authConfig: feed.authConfig,
       format: feed.sourceFormat,
     });
+
+    phase = "parsing";
+    await patchLog({ phase });
     const parsed = parseFeedRows(fetched, {
       itemPath: feed.itemPath,
       ...(options.rowLimit === undefined ? {} : { limit: options.rowLimit }),
     });
     const fields = await saveFieldSchema(admin, { storeId: feed.storeId, feedId: feed.id, parsed });
+
+    phase = "mapping";
+    await patchLog({ phase, total_rows: parsed.totalRows });
 
     const mapping = feed.fieldMapping ?? {};
     if (!mapping["sku"] && !mapping["barcode"]) {
@@ -604,41 +611,75 @@ export async function runImportFeed(
       currency: feed.currency,
       transformRules: parseTransformRules(feed.transformRules),
     });
+    const mappingErrors: RowError[] = errors.map((item) => ({ ...item, category: "MAPPING_ERROR" }));
+
+    phase = "upserting";
+    await patchLog({ phase, error_count: mappingErrors.length });
+
+    let lastTick = 0;
     const upsert = await upsertProducts(admin, {
       storeId: feed.storeId,
       items,
       publishNew: options.publishNew ?? false,
+      onProgress: async ({ processed, result }) => {
+        // Her pakette değil, en fazla saniyede bir yazarız; gereksiz yük olmasın.
+        if (Date.now() - lastTick < 800 && processed < items.length) return;
+        lastTick = Date.now();
+        await patchLog({
+          processed_count: processed,
+          created_count: result.created,
+          updated_count: result.updated,
+          skipped_count: result.skipped + mappingErrors.length,
+          error_count: mappingErrors.length + result.errors.length,
+          error_categories: countErrorCategories([...mappingErrors, ...result.errors]) as never,
+        });
+      },
     });
 
-    const allErrors = [...errors, ...upsert.errors];
-    return await finish({
-      status: "success",
-      totalRows: parsed.totalRows,
-      created: upsert.created,
-      updated: upsert.updated,
-      skipped: upsert.skipped + errors.length,
-      errorCount: allErrors.length,
-      errorMessage: allErrors.length
-        ? allErrors.slice(0, 5).map((item) => item.reason).join(" | ").slice(0, 900)
-        : null,
-      attempts: fetched.attempts,
-      format: parsed.format,
-      fields,
-    });
+    const allErrors = [...mappingErrors, ...upsert.errors];
+    return await finish(
+      {
+        status: "success",
+        totalRows: parsed.totalRows,
+        created: upsert.created,
+        updated: upsert.updated,
+        skipped: upsert.skipped + mappingErrors.length,
+        errorCount: allErrors.length,
+        errorMessage: allErrors.length
+          ? allErrors.slice(0, 5).map((item) => item.reason).join(" | ").slice(0, 900)
+          : null,
+        attempts: fetched.attempts,
+        format: parsed.format,
+        fields,
+      },
+      allErrors,
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Bilinmeyen hata";
-    await finish({
-      status: "failed",
-      totalRows: 0,
-      created: 0,
-      updated: 0,
-      skipped: 0,
-      errorCount: 1,
-      errorMessage: message.slice(0, 900),
-      attempts: FETCH_ATTEMPTS,
-      format: feed.sourceFormat ?? "xml",
-      fields: 0,
-    });
+    const category: ErrorCategory =
+      phase === "fetching"
+        ? "FETCH_ERROR"
+        : phase === "parsing"
+          ? "PARSE_ERROR"
+          : phase === "upserting"
+            ? "UPSERT_ERROR"
+            : "MAPPING_ERROR";
+    await finish(
+      {
+        status: "failed",
+        totalRows: 0,
+        created: 0,
+        updated: 0,
+        skipped: 0,
+        errorCount: 1,
+        errorMessage: message.slice(0, 900),
+        attempts: FETCH_ATTEMPTS,
+        format: feed.sourceFormat ?? "xml",
+        fields: 0,
+      },
+      [{ row: 0, reason: message.slice(0, 300), category }],
+    );
     throw new Error(message);
   }
 }
+
