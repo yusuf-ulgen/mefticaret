@@ -420,7 +420,7 @@ export function FeedSheet({
   );
 }
 
-function authFieldsFor(authType: XmlAuthType): Array<{ key: string; label: string; secret?: boolean }> {
+export function authFieldsFor(authType: XmlAuthType): Array<{ key: string; label: string; secret?: boolean }> {
   if (authType === "basic") {
     return [
       { key: "username", label: "Kullanıcı adı" },
