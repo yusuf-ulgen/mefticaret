@@ -237,6 +237,71 @@ export function normalizeRows(
     const currency = (read("currency") || fallbackCurrency).toUpperCase().slice(0, 3);
     const videos = parseUrlList(read("videos"));
 
+    /* --- varyantlar (yalnızca varyasyonlu beslemelerde) --- */
+    const groupRows = options.variantRows?.[index] ?? [];
+    const variants: NormalizedVariant[] = [];
+    const seenVariant = new Set<string>();
+    if (groupRows.length > 1 || (groupRows.length === 1 && groupRows[0] !== row)) {
+      for (const variantRow of groupRows.slice(0, 200)) {
+        const readVariant = (field: string) =>
+          applyTransforms(readMapped(variantRow, mapping[field]).trim(), transforms[field], variantRow).trim();
+
+        const variantOptions: Record<string, string> = {};
+        for (const [field, label] of [
+          ["color", "Renk"],
+          ["size", "Beden"],
+          ["material", "Materyal"],
+        ] as const) {
+          const value = readVariant(field);
+          if (value) variantOptions[label] = value.slice(0, 80);
+        }
+        const vName = readVariant("variant_name");
+        const vValue = readVariant("variant_value");
+        if (vName && vValue) variantOptions[vName.slice(0, 40)] = vValue.slice(0, 80);
+        for (const attribute of options.optionAttributes ?? []) {
+          const value = readField(variantRow, attribute);
+          if (value) variantOptions[attribute.split(".").pop()!.slice(0, 40)] = value.slice(0, 80);
+        }
+
+        const variantSku = readVariant("sku");
+        const variantBarcode = readVariant("barcode");
+        const variantKey =
+          variantSku ||
+          variantBarcode ||
+          Object.entries(variantOptions)
+            .map(([label, value]) => `${label}:${value}`)
+            .join("/");
+        if (!variantKey || seenVariant.has(variantKey)) continue;
+        seenVariant.add(variantKey);
+
+        const variantRawPrice = parseNumber(readVariant("price"));
+        const variantPrice =
+          variantRawPrice === null || variantRawPrice < 0
+            ? price
+            : markup === null
+              ? variantRawPrice
+              : Math.round(variantRawPrice * (1 + markup / 100) * 100) / 100;
+        const variantStock = parseNumber(readVariant("stock"));
+        const variantWeight = parseNumber(readVariant("weight"));
+
+        variants.push({
+          sku: variantSku || null,
+          barcode: variantBarcode || null,
+          title:
+            Object.values(variantOptions).join(" / ").slice(0, 80) ||
+            (variantSku || variantBarcode || "Standart").slice(0, 80),
+          price: variantPrice,
+          compareAtPrice: parseNumber(readVariant("compare_at_price")),
+          costPrice: parseNumber(readVariant("cost_price")),
+          stock: variantStock === null ? 0 : Math.max(0, Math.round(variantStock)),
+          weightGrams:
+            variantWeight === null ? null : Math.round(variantWeight < 100 ? variantWeight * 1000 : variantWeight),
+          options: variantOptions,
+          images: parseUrlList(readVariant("images")),
+        });
+      }
+    }
+
     seen.add(key);
     items.push({
       key,
@@ -250,12 +315,19 @@ export function normalizeRows(
       costPrice: parseNumber(read("cost_price")),
       taxRate: parseNumber(read("tax_rate")) ?? 20,
       currency: /^[A-Z]{3}$/.test(currency) ? currency : fallbackCurrency,
-      stock: stockValue === null ? 0 : Math.max(0, Math.round(stockValue)),
+      stock:
+        variants.length > 0
+          ? variants.reduce((total, variant) => total + variant.stock, 0)
+          : stockValue === null
+            ? 0
+            : Math.max(0, Math.round(stockValue)),
       weightGrams: weight === null ? null : Math.round(weight < 100 ? weight * 1000 : weight),
       videoUrl: videos[0] ?? null,
       images: parseUrlList(read("images")),
       options: options_,
+      variants,
     });
+
   });
 
   return { items, errors };
