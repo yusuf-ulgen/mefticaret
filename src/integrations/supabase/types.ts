@@ -18149,6 +18149,8 @@ export type Database = {
           total_runs: number
           transform_rules: Json
           updated_at: string
+          variant_config: Json
+          variant_mode: string
         }
         Insert: {
           ai_auto_map_enabled?: boolean
@@ -18182,6 +18184,8 @@ export type Database = {
           total_runs?: number
           transform_rules?: Json
           updated_at?: string
+          variant_config?: Json
+          variant_mode?: string
         }
         Update: {
           ai_auto_map_enabled?: boolean
@@ -18215,6 +18219,8 @@ export type Database = {
           total_runs?: number
           transform_rules?: Json
           updated_at?: string
+          variant_config?: Json
+          variant_mode?: string
         }
         Relationships: [
           {
