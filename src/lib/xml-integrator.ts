@@ -73,6 +73,25 @@ export const XML_SCHEDULE_LABELS: Record<XmlSchedule, string> = {
   custom: "Özel cron",
 };
 
+/** Hata kategorilerinin Türkçe karşılıkları (canlı sayaç ve kayıt kartları). */
+export const XML_ERROR_CATEGORY_LABELS: Record<string, string> = {
+  FETCH_ERROR: "Bağlantı hatası",
+  PARSE_ERROR: "Dosya okuma hatası",
+  MAPPING_ERROR: "Alan eşleme hatası",
+  UPSERT_ERROR: "Kayıt hatası",
+};
+
+/** Çalışma aşamalarının Türkçe karşılıkları. */
+export const XML_PHASE_LABELS: Record<string, string> = {
+  fetching: "Kaynak indiriliyor",
+  parsing: "Dosya okunuyor",
+  mapping: "Alanlar eşleniyor",
+  upserting: "Ürünler yazılıyor",
+  done: "Tamamlandı",
+};
+
+
+
 /** Plan sıklığının saat cinsinden aralığı (manual = null). */
 export const XML_SCHEDULE_HOURS: Record<XmlSchedule, number | null> = {
   manual: null,
