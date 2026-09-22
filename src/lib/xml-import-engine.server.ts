@@ -21,6 +21,8 @@ import {
 } from "@/lib/xml-integrator";
 import { applyTransforms, parseTransformRules, type TransformRules } from "@/lib/xml-transforms";
 import { parseConnectionType, type ConnectionType } from "@/lib/xml-connection";
+import { checkProductSafety, parseGuardrailConfig, type GuardrailConfig } from "@/lib/xml-guardrail";
+import type { QuarantineRow } from "@/lib/xml-guardrail.server";
 import { fetchSource, saveFieldSchema, type AuthConfig, type FetchedSource } from "@/lib/xml-integrator.server";
 import {
   calculateFinalPrice,
