@@ -426,8 +426,6 @@ export async function upsertProducts(
     if (input.onProgress) await input.onProgress({ processed, total: input.items.length, result });
   }
 
-  }
-
   return result;
 }
 
