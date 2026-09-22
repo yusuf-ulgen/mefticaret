@@ -65,6 +65,7 @@ const DESCRIPTIONS: Record<string, string> = {
   warehouses: "Depo ve şube tanımları.",
   transfers: "Depolar arası stok transferi.",
   purchasing: "Tedarik siparişleri ve satın alma.",
+  "xml-integrator": "Tedarikçi XML/CSV beslemeleri ve pazaryeri XML çıktıları.",
   reorder: "Yeniden sipariş önerileri.",
   stockout: "Tükenmek üzere olan ürünler.",
   "stock-alerts": "Stok gelince müşteriye haber verme.",
