@@ -18154,6 +18154,7 @@ export type Database = {
           cron_expression: string | null
           currency: string
           currency_config: Json
+          delta_sync_config: Json
           direction: Database["public"]["Enums"]["xml_direction"]
           export_token: string
           field_mapping: Json
@@ -18191,6 +18192,7 @@ export type Database = {
           cron_expression?: string | null
           currency?: string
           currency_config?: Json
+          delta_sync_config?: Json
           direction?: Database["public"]["Enums"]["xml_direction"]
           export_token?: string
           field_mapping?: Json
@@ -18228,6 +18230,7 @@ export type Database = {
           cron_expression?: string | null
           currency?: string
           currency_config?: Json
+          delta_sync_config?: Json
           direction?: Database["public"]["Enums"]["xml_direction"]
           export_token?: string
           field_mapping?: Json
@@ -18323,6 +18326,7 @@ export type Database = {
         Row: {
           created_at: string
           created_count: number
+          delta_sync_enabled: boolean
           duration_seconds: number | null
           error_categories: Json
           error_count: number
@@ -18339,12 +18343,14 @@ export type Database = {
           store_id: string
           total_rows: number
           trigger: Database["public"]["Enums"]["xml_run_trigger"]
+          unchanged_count: number
           updated_at: string
           updated_count: number
         }
         Insert: {
           created_at?: string
           created_count?: number
+          delta_sync_enabled?: boolean
           duration_seconds?: number | null
           error_categories?: Json
           error_count?: number
@@ -18361,12 +18367,14 @@ export type Database = {
           store_id: string
           total_rows?: number
           trigger?: Database["public"]["Enums"]["xml_run_trigger"]
+          unchanged_count?: number
           updated_at?: string
           updated_count?: number
         }
         Update: {
           created_at?: string
           created_count?: number
+          delta_sync_enabled?: boolean
           duration_seconds?: number | null
           error_categories?: Json
           error_count?: number
@@ -18383,6 +18391,7 @@ export type Database = {
           store_id?: string
           total_rows?: number
           trigger?: Database["public"]["Enums"]["xml_run_trigger"]
+          unchanged_count?: number
           updated_at?: string
           updated_count?: number
         }
