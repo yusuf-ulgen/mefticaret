@@ -21,6 +21,7 @@ import type {
   XmlSchedule,
   XmlSourceFormat,
 } from "@/lib/xml-integrator";
+import { DEFAULT_FTP_CONFIG } from "@/lib/xml-connection";
 
 export function XmlFeedList({ storeId }: { storeId: string }) {
   const client = useQueryClient();
