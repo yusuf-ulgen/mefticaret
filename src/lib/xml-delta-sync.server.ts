@@ -1,8 +1,7 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-
 import type { NormalizedProduct } from "./xml-import-engine.server";
 
-type Client = SupabaseClient<never>;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type Client = { from: (table: string) => any };
 
 export const DEFAULT_DELTA_HASH_FIELDS = ["price", "stock", "title", "images"] as const;
 
