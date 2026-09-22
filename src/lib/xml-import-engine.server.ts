@@ -281,14 +281,18 @@ export async function upsertProducts(
     chunkSize?: number;
     publishNew?: boolean;
     updateContent?: boolean;
+    /** Her paket bittiğinde çağrılır; canlı ilerleme için kullanılır. */
+    onProgress?: (progress: { processed: number; total: number; result: UpsertResult }) => void | Promise<void>;
   },
 ): Promise<UpsertResult> {
   const result: UpsertResult = { created: 0, updated: 0, skipped: 0, errors: [] };
   const size = Math.max(10, Math.min(input.chunkSize ?? UPSERT_CHUNK_SIZE, 250));
   const updateContent = input.updateContent ?? true;
+  let processed = 0;
 
   for (const part of chunk(input.items, size)) {
     const skus = part.map((item) => item.key);
+
 
     const { data: existingRows, error: existingError } = await admin
       .from("products")
