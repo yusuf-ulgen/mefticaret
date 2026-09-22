@@ -40,6 +40,8 @@ import {
   type XmlSchedule,
   type XmlSourceFormat,
 } from "@/lib/xml-integrator";
+import { validationRulesFor } from "@/lib/xml-export-generators";
+
 
 const STEPS = ["Temel bilgiler", "Bağlantı", "Zamanlama", "Özet"] as const;
 
