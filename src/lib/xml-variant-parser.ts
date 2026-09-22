@@ -67,8 +67,11 @@ export type VariantGroup = {
   variantRows: SourceRow[];
 };
 
-/** Yol karşılaştırmasında `[3]` indekslerini yok sayar. */
-const generic = (key: string) => key.replace(/\[\d+\]/g, "[]");
+/** Yol karşılaştırmasında `[3]` ve `[]` indekslerini tümüyle yok sayar. */
+const generic = (key: string) => key.replace(/\[\d*\]/g, "");
+/** Kaynak sütun biçimi: `Variants.Variant[0].SKU` → `Variants.Variant[].SKU`. */
+const columnStyle = (key: string) => key.replace(/\[\d+\]/g, "[]");
+
 
 /** Bir satırdan alan değeri okur; tam yol, indeks bağımsız yol ve son parça sırayla denenir. */
 export function readField(row: SourceRow, field: string): string {
