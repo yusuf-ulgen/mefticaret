@@ -435,3 +435,102 @@ export const getXmlIntegratorStats = createServerFn({ method: "GET" })
       },
     };
   });
+
+/**
+ * Beslemeyi elle çalıştırır. Şu aşamada içe aktarım beslemesinde kaynak
+ * indirilir, satırlar sayılır ve çalışma kaydı yazılır; ürün yazımı içe
+ * aktarım motoru adımında devreye girer.
+ */
+export const runXmlFeedNow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_run:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla çalıştırma denemesi, birkaç dakika sonra tekrar deneyin");
+
+    const { data: feedRow, error: readError } = await context.supabase
+      .from("xml_feeds")
+      .select("id, direction, schedule, source_url, source_format, item_path, auth_type, auth_config")
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!feedRow) throw new Error("Besleme bulunamadı");
+    const feed = feedRow as Record<string, any>;
+
+    if (String(feed["direction"]) !== "import") {
+      throw new Error("Dışa aktarım beslemeleri çıktı bağlantısı üzerinden servis edilir, elle çalıştırılmaz");
+    }
+    const sourceUrl = (feed["source_url"] as string | null) ?? "";
+    if (!sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı tanımlı değil");
+
+    const startedAt = new Date();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { analyzeSource, saveFieldSchema } = await import("@/lib/xml-integrator.server");
+
+    try {
+      const analysis = await analyzeSource({
+        url: sourceUrl,
+        authType: String(feed["auth_type"] ?? "none") as never,
+        authConfig: (feed["auth_config"] ?? {}) as Record<string, string>,
+        format: (feed["source_format"] as never) ?? null,
+        itemPath: (feed["item_path"] as string | null) ?? null,
+        limit: 500,
+      });
+      await saveFieldSchema(supabaseAdmin as never, {
+        storeId: data.storeId,
+        feedId: data.feedId,
+        parsed: analysis,
+      });
+
+      const durationSeconds = Math.max(1, Math.round((Date.now() - startedAt.getTime()) / 1000));
+      await supabaseAdmin.from("xml_import_logs").insert({
+        store_id: data.storeId,
+        feed_id: data.feedId,
+        status: "success",
+        trigger: "manual",
+        total_rows: analysis.totalRows,
+        skipped_count: analysis.totalRows,
+        duration_seconds: durationSeconds,
+        started_at: startedAt.toISOString(),
+        finished_at: new Date().toISOString(),
+      } as never);
+
+      await supabaseAdmin
+        .from("xml_feeds")
+        .update({
+          last_run_at: startedAt.toISOString(),
+          last_status: "success",
+          last_error: null,
+          next_run_at: nextRunFor(String(feed["schedule"]) as XmlSchedule),
+        } as never)
+        .eq("id", data.feedId)
+        .eq("store_id", data.storeId);
+
+      return { ok: true as boolean, totalRows: analysis.totalRows, format: analysis.format };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Bilinmeyen hata";
+      const durationSeconds = Math.max(1, Math.round((Date.now() - startedAt.getTime()) / 1000));
+      await supabaseAdmin.from("xml_import_logs").insert({
+        store_id: data.storeId,
+        feed_id: data.feedId,
+        status: "failed",
+        trigger: "manual",
+        error_count: 1,
+        error_message: message,
+        duration_seconds: durationSeconds,
+        started_at: startedAt.toISOString(),
+        finished_at: new Date().toISOString(),
+      } as never);
+      await supabaseAdmin
+        .from("xml_feeds")
+        .update({ last_run_at: startedAt.toISOString(), last_status: "failed", last_error: message } as never)
+        .eq("id", data.feedId)
+        .eq("store_id", data.storeId);
+      throw new Error(message);
+    }
+  });
