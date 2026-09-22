@@ -22,6 +22,15 @@ import {
   type XmlSchedule,
 } from "@/lib/xml-integrator";
 
+import {
+  DEFAULT_VARIANT_CONFIG,
+  parseVariantConfig,
+  parseVariantMode,
+  serializeVariantConfig,
+  type VariantConfig,
+  type VariantMode,
+} from "@/lib/xml-variant-parser";
+
 const storeSchema = z.object({ storeId: z.guid() });
 
 const authConfigSchema = z
@@ -56,6 +65,16 @@ const feedSchema = z.object({
   priceMarkup: z.number().min(-90).max(900).nullable().default(null),
   currency: z.string().trim().length(3).default("TRY"),
   isActive: z.boolean().default(true),
+  variantMode: z.enum(["none", "nested", "flat"]).default("none"),
+  variantConfig: z
+    .object({
+      parentNodePath: z.string().trim().max(300).default(""),
+      variantNodePath: z.string().trim().max(300).default(""),
+      parentSkuField: z.string().trim().max(300).default(""),
+      optionAttributes: z.array(z.string().trim().max(300)).max(12).default([]),
+      variantMapping: z.record(z.string(), z.string().max(300)).default({}),
+    })
+    .default({}),
 });
 
 const nextRunFor = (schedule: XmlSchedule, cronExpression?: string | null): string | null => {
@@ -87,7 +106,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
       context.supabase
         .from("xml_feeds")
         .select(
-          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at",
+          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config",
         )
         .eq("store_id", data.storeId)
         .order("created_at", { ascending: false }),
@@ -126,6 +145,8 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
         priceMarkup: row["price_markup"] === null ? null : Number(row["price_markup"]),
         currency: String(row["currency"] ?? "TRY"),
         isActive: Boolean(row["is_active"]),
+        variantMode: parseVariantMode(row["variant_mode"]) as VariantMode,
+        variantConfig: parseVariantConfig(row["variant_config"]) as VariantConfig,
         lastRunAt: (row["last_run_at"] as string | null) ?? null,
         nextRunAt: (row["next_run_at"] as string | null) ?? null,
         lastStatus: (row["last_status"] as string | null) ?? null,
@@ -178,6 +199,14 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
       price_markup: data.priceMarkup,
       currency: data.currency.toUpperCase(),
       is_active: data.isActive,
+      variant_mode: data.variantMode,
+      variant_config: serializeVariantConfig(parseVariantConfig({
+        parent_node_path: data.variantConfig.parentNodePath,
+        variant_node_path: data.variantConfig.variantNodePath,
+        parent_sku_field: data.variantConfig.parentSkuField,
+        option_attributes: data.variantConfig.optionAttributes,
+        variant_field_mapping: data.variantConfig.variantMapping,
+      })),
       next_run_at: data.isActive ? nextRunFor(data.schedule, data.cronExpression ?? null) : null,
       created_by: context.userId,
     };
