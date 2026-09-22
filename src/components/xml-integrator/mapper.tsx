@@ -13,6 +13,14 @@ import { toast } from "sonner";
 
 import { XmlCategoryMapper } from "@/components/xml-integrator/category-mapper";
 import { VariationManager } from "@/components/xml-integrator/variation-manager";
+import { CurrencySettings, useCurrencyRates } from "@/components/xml-integrator/currency-settings";
+import {
+  DEFAULT_CURRENCY_CONFIG,
+  PRICE_FIELD_KEYS,
+  syncCurrencyTransforms,
+  totalMultiplier,
+  type CurrencyConfig,
+} from "@/lib/xml-currency";
 import { PreviewProductsDialog, type PreviewResult } from "@/components/xml-integrator/preview-products";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -72,6 +80,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
   const [aiInfo, setAiInfo] = useState<Record<string, { confidence: number; reason: string | null }>>({});
   const [variantMode, setVariantMode] = useState<VariantMode>("none");
   const [variantConfig, setVariantConfig] = useState<VariantConfig>(DEFAULT_VARIANT_CONFIG);
+  const [currencyConfig, setCurrencyConfig] = useState<CurrencyConfig>(DEFAULT_CURRENCY_CONFIG);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
 
@@ -81,9 +90,31 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
       setTransforms(parseTransformRules(feed.transformRules));
       setVariantMode(feed.variantMode);
       setVariantConfig({ ...DEFAULT_VARIANT_CONFIG, ...feed.variantConfig });
+      setCurrencyConfig({ ...DEFAULT_CURRENCY_CONFIG, ...feed.currencyConfig });
       setLoadedFor(feed.id);
     }
   }, [feed, loadedFor]);
+
+  const ratesQuery = useCurrencyRates();
+  const rates = ratesQuery.data ?? [];
+
+  /* Otomatik çevirim açıkken eşlenen fiyat alanlarına currency(kur) kuralı eklenir. */
+  const effectiveTransforms = useMemo(
+    () => syncCurrencyTransforms(transforms, mapping, currencyConfig, rates),
+    [transforms, mapping, currencyConfig, rates],
+  );
+  const conversionMultiplier = totalMultiplier(currencyConfig, rates);
+  const conversion =
+    currencyConfig.autoConvert && conversionMultiplier > 0 && conversionMultiplier !== 1
+      ? {
+          from: currencyConfig.sourceCurrency,
+          to: currencyConfig.targetCurrency,
+          multiplier: conversionMultiplier,
+        }
+      : null;
+  const mappedPriceFields = PRICE_FIELD_KEYS.filter((key) => mapping[key]).map(
+    (key) => TARGET_FIELDS.find((field) => field.key === key)?.label ?? key,
+  );
 
   const columns = useMemo(
     () => (schema.data ?? []).map((row) => ({ path: row.field_path, samples: row.sample_values ?? [] })),
@@ -150,7 +181,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           storeId,
           feedId,
           fieldMapping: mapping,
-          transformRules: transforms as never,
+          transformRules: effectiveTransforms as never,
           variantMode,
           variantConfig,
         },
@@ -181,7 +212,8 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           schedule: feed.schedule as XmlSchedule,
           fieldMapping: mapping,
           filterRules: {},
-          transformRules: transforms as never,
+          transformRules: effectiveTransforms as never,
+          currencyConfig,
           priceMarkup: feed.priceMarkup,
           currency: feed.currency,
           isActive: feed.isActive,
@@ -245,6 +277,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         <TabsList>
           <TabsTrigger value="fields">Alan eşleme</TabsTrigger>
           <TabsTrigger value="variants">Varyasyon ve seçenekler</TabsTrigger>
+          <TabsTrigger value="currency">Para birimi</TabsTrigger>
           <TabsTrigger value="categories">Kategori eşleme</TabsTrigger>
         </TabsList>
 
@@ -293,7 +326,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
                         required={field.required}
                         value={mapping[field.key] ?? ""}
                         columns={columns.map((column) => column.path)}
-                        transformSummary={describeTransforms(transforms[field.key])}
+                        transformSummary={describeTransforms(effectiveTransforms[field.key])}
                         ai={aiInfo[field.key] ?? null}
                         onOpenTransforms={() => setActiveField(field.key)}
                         onSelect={(value) =>
@@ -323,6 +356,16 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
             config={variantConfig}
             onModeChange={setVariantMode}
             onConfigChange={setVariantConfig}
+          />
+        </TabsContent>
+
+        <TabsContent value="currency">
+          <CurrencySettings
+            config={currencyConfig}
+            onChange={setCurrencyConfig}
+            rates={rates}
+            ratesLoading={ratesQuery.isLoading}
+            mappedPriceFields={mappedPriceFields}
           />
         </TabsContent>
 
@@ -385,7 +428,12 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         </Button>
       </div>
 
-      <PreviewProductsDialog open={previewOpen} onOpenChange={setPreviewOpen} result={preview} />
+      <PreviewProductsDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        result={preview}
+        conversion={conversion}
+      />
     </div>
   );
 }
