@@ -18163,6 +18163,7 @@ export type Database = {
           is_active: boolean
           item_path: string | null
           last_error: string | null
+          last_full_sync_at: string | null
           last_run_at: string | null
           last_status: Database["public"]["Enums"]["xml_run_status"] | null
           name: string
@@ -18201,6 +18202,7 @@ export type Database = {
           is_active?: boolean
           item_path?: string | null
           last_error?: string | null
+          last_full_sync_at?: string | null
           last_run_at?: string | null
           last_status?: Database["public"]["Enums"]["xml_run_status"] | null
           name: string
@@ -18239,6 +18241,7 @@ export type Database = {
           is_active?: boolean
           item_path?: string | null
           last_error?: string | null
+          last_full_sync_at?: string | null
           last_run_at?: string | null
           last_status?: Database["public"]["Enums"]["xml_run_status"] | null
           name?: string
@@ -18405,6 +18408,51 @@ export type Database = {
           },
           {
             foreignKeyName: "xml_import_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xml_product_hashes: {
+        Row: {
+          created_at: string
+          feed_id: string
+          id: string
+          payload_hash: string
+          product_key: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          feed_id: string
+          id?: string
+          payload_hash: string
+          product_key: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          feed_id?: string
+          id?: string
+          payload_hash?: string
+          product_key?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_product_hashes_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "xml_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_product_hashes_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
