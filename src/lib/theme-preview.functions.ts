@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
+
+import type { Database } from "@/integrations/supabase/types";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
@@ -17,7 +20,7 @@ const uuid = z.string().uuid();
 const keySchema = z.enum(PREVIEW_KEYS as unknown as [PreviewKey, ...PreviewKey[]]);
 
 /** Oturum sahibi mağazayı yönetebiliyor mu? (RLS de aynı kuralı uygular.) */
-async function assertManager(supabase: never, storeId: string, userId: string) {
+async function assertManager(supabase: SupabaseClient<Database>, storeId: string, userId: string) {
   const { assertStoreManager } = await import("@/lib/store-access.server");
   await assertStoreManager(supabase, storeId, userId);
 }
