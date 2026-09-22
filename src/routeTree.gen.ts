@@ -278,6 +278,7 @@ import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/publ
 import { Route as ApiPublicMobileAppStoreSlugRouteImport } from './routes/api/public/mobile-app.$storeSlug'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
+import { Route as ApiPublicProductImageSplatRouteImport } from './routes/api/public/product-image.$'
 import { Route as ApiPublicQnbpayRefundWebhookRouteImport } from './routes/api/public/qnbpay.refund-webhook'
 import { Route as ApiPublicQnbpaySaleWebhookRouteImport } from './routes/api/public/qnbpay.sale-webhook'
 import { Route as ApiPublicRobotsSlugRouteImport } from './routes/api/public/robots.$slug'
@@ -288,6 +289,7 @@ import { Route as ApiPublicTiktokStoreIdRouteImport } from './routes/api/public/
 import { Route as ApiPublicTrackSlugRouteImport } from './routes/api/public/track.$slug'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicWhatsappStoreIdRouteImport } from './routes/api/public/whatsapp.$storeId'
+import { Route as ApiPublicXmlFeedTokenRouteImport } from './routes/api/public/xml-feed.$token'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -1832,6 +1834,12 @@ const ApiPublicOauthTokenRoute = ApiPublicOauthTokenRouteImport.update({
   path: '/api/public/oauth/token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicProductImageSplatRoute =
+  ApiPublicProductImageSplatRouteImport.update({
+    id: '/api/public/product-image/$',
+    path: '/api/public/product-image/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicQnbpayRefundWebhookRoute =
   ApiPublicQnbpayRefundWebhookRouteImport.update({
     id: '/api/public/qnbpay/refund-webhook',
@@ -1885,6 +1893,11 @@ const ApiPublicWhatsappStoreIdRoute =
     path: '/api/public/whatsapp/$storeId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicXmlFeedTokenRoute = ApiPublicXmlFeedTokenRouteImport.update({
+  id: '/api/public/xml-feed/$token',
+  path: '/api/public/xml-feed/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -2280,6 +2293,7 @@ export interface FileRoutesByFullPath {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
+  '/api/public/product-image/$': typeof ApiPublicProductImageSplatRoute
   '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
   '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -2290,6 +2304,7 @@ export interface FileRoutesByFullPath {
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
+  '/api/public/xml-feed/$token': typeof ApiPublicXmlFeedTokenRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -2579,6 +2594,7 @@ export interface FileRoutesByTo {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
+  '/api/public/product-image/$': typeof ApiPublicProductImageSplatRoute
   '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
   '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -2589,6 +2605,7 @@ export interface FileRoutesByTo {
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
+  '/api/public/xml-feed/$token': typeof ApiPublicXmlFeedTokenRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -2883,6 +2900,7 @@ export interface FileRoutesById {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
+  '/api/public/product-image/$': typeof ApiPublicProductImageSplatRoute
   '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
   '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
   '/api/public/robots/$slug': typeof ApiPublicRobotsSlugRoute
@@ -2893,6 +2911,7 @@ export interface FileRoutesById {
   '/api/public/track/$slug': typeof ApiPublicTrackSlugRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/api/public/whatsapp/$storeId': typeof ApiPublicWhatsappStoreIdRoute
+  '/api/public/xml-feed/$token': typeof ApiPublicXmlFeedTokenRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -3187,6 +3206,7 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
+    | '/api/public/product-image/$'
     | '/api/public/qnbpay/refund-webhook'
     | '/api/public/qnbpay/sale-webhook'
     | '/api/public/robots/$slug'
@@ -3197,6 +3217,7 @@ export interface FileRouteTypes {
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
+    | '/api/public/xml-feed/$token'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -3486,6 +3507,7 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
+    | '/api/public/product-image/$'
     | '/api/public/qnbpay/refund-webhook'
     | '/api/public/qnbpay/sale-webhook'
     | '/api/public/robots/$slug'
@@ -3496,6 +3518,7 @@ export interface FileRouteTypes {
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
+    | '/api/public/xml-feed/$token'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -3789,6 +3812,7 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
+    | '/api/public/product-image/$'
     | '/api/public/qnbpay/refund-webhook'
     | '/api/public/qnbpay/sale-webhook'
     | '/api/public/robots/$slug'
@@ -3799,6 +3823,7 @@ export interface FileRouteTypes {
     | '/api/public/track/$slug'
     | '/api/public/v1/$'
     | '/api/public/whatsapp/$storeId'
+    | '/api/public/xml-feed/$token'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -3912,6 +3937,7 @@ export interface RootRouteChildren {
   ApiPublicMobileAppStoreSlugRoute: typeof ApiPublicMobileAppStoreSlugRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
+  ApiPublicProductImageSplatRoute: typeof ApiPublicProductImageSplatRoute
   ApiPublicQnbpayRefundWebhookRoute: typeof ApiPublicQnbpayRefundWebhookRoute
   ApiPublicQnbpaySaleWebhookRoute: typeof ApiPublicQnbpaySaleWebhookRoute
   ApiPublicRobotsSlugRoute: typeof ApiPublicRobotsSlugRoute
@@ -3922,6 +3948,7 @@ export interface RootRouteChildren {
   ApiPublicTrackSlugRoute: typeof ApiPublicTrackSlugRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   ApiPublicWhatsappStoreIdRoute: typeof ApiPublicWhatsappStoreIdRoute
+  ApiPublicXmlFeedTokenRoute: typeof ApiPublicXmlFeedTokenRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -5820,6 +5847,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOauthTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/product-image/$': {
+      id: '/api/public/product-image/$'
+      path: '/api/public/product-image/$'
+      fullPath: '/api/public/product-image/$'
+      preLoaderRoute: typeof ApiPublicProductImageSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/qnbpay/refund-webhook': {
       id: '/api/public/qnbpay/refund-webhook'
       path: '/api/public/qnbpay/refund-webhook'
@@ -5888,6 +5922,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/whatsapp/$storeId'
       fullPath: '/api/public/whatsapp/$storeId'
       preLoaderRoute: typeof ApiPublicWhatsappStoreIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/xml-feed/$token': {
+      id: '/api/public/xml-feed/$token'
+      path: '/api/public/xml-feed/$token'
+      fullPath: '/api/public/xml-feed/$token'
+      preLoaderRoute: typeof ApiPublicXmlFeedTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/preview': {
@@ -6704,6 +6745,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMobileAppStoreSlugRoute: ApiPublicMobileAppStoreSlugRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
+  ApiPublicProductImageSplatRoute: ApiPublicProductImageSplatRoute,
   ApiPublicQnbpayRefundWebhookRoute: ApiPublicQnbpayRefundWebhookRoute,
   ApiPublicQnbpaySaleWebhookRoute: ApiPublicQnbpaySaleWebhookRoute,
   ApiPublicRobotsSlugRoute: ApiPublicRobotsSlugRoute,
@@ -6714,6 +6756,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTrackSlugRoute: ApiPublicTrackSlugRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   ApiPublicWhatsappStoreIdRoute: ApiPublicWhatsappStoreIdRoute,
+  ApiPublicXmlFeedTokenRoute: ApiPublicXmlFeedTokenRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

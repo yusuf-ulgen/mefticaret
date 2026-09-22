@@ -6,7 +6,7 @@
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Download, Loader2, Pencil, Play, SlidersHorizontal as Sliders, Trash2, Upload } from "lucide-react";
+import { Copy, Download, Loader2, Pencil, Play, SlidersHorizontal as Sliders, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -138,14 +138,27 @@ export function FeedCard({
   const runMutation = useMutation({
     mutationFn: () => run({ data: { storeId, feedId: feed.id } }),
     onSuccess: (result) => {
-      toast.success(
-        `Besleme çalıştı — ${result.totalRows} satır okundu, ${result.created} yeni ürün, ${result.updated} güncelleme` +
-          (result.errorCount ? `, ${result.errorCount} hata` : ""),
-      );
+      if (result.direction === "export") {
+        toast.success(
+          `XML üretildi — ${result.exported} ürün eklendi` +
+            (result.skipped ? `, ${result.skipped} ürün pazaryeri kurallarına uymadığı için atlandı` : ""),
+        );
+      } else {
+        toast.success(
+          `Besleme çalıştı — ${result.totalRows} satır okundu, ${result.created} yeni ürün, ${result.updated} güncelleme` +
+            (result.errorCount ? `, ${result.errorCount} hata` : ""),
+        );
+      }
       void refresh();
     },
     onError: (error: Error) => toast.error(error.message),
   });
+
+  const feedUrl =
+    feed.direction === "export" && feed.exportToken
+      ? `${typeof window === "undefined" ? "" : window.location.origin}/api/public/xml-feed/${feed.exportToken}`
+      : null;
+
 
   return (
     <article className="rounded-xl border bg-card p-4">
@@ -167,6 +180,24 @@ export function FeedCard({
             {feed.lastRunAt ? `Son çalışma: ${formatDate(feed.lastRunAt)}` : "Henüz çalışmadı"} · {feed.totalRuns} çalışma
           </p>
           {feed.lastError ? <p className="mt-1 text-xs text-destructive">{feed.lastError}</p> : null}
+          {feedUrl ? (
+            <div className="mt-2 flex items-center gap-2">
+              <code className="min-w-0 flex-1 truncate rounded bg-muted px-2 py-1 text-xs">{feedUrl}</code>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  void navigator.clipboard
+                    .writeText(feedUrl)
+                    .then(() => toast.success("Besleme adresi kopyalandı"))
+                    .catch(() => toast.error("Kopyalanamadı, adresi elle seçin"));
+                }}
+              >
+                <Copy className="mr-1 size-4" />
+                Kopyala
+              </Button>
+            </div>
+          ) : null}
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
           <div className="flex items-center gap-2">
@@ -180,21 +211,20 @@ export function FeedCard({
               onCheckedChange={(checked) => toggleMutation.mutate(checked)}
             />
           </div>
-          {feed.direction === "import" ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              disabled={runMutation.isPending}
-              onClick={() => runMutation.mutate()}
-            >
-              {runMutation.isPending ? (
-                <Loader2 className="mr-1 size-4 animate-spin" />
-              ) : (
-                <Play className="mr-1 size-4" />
-              )}
-              Şimdi çalıştır
-            </Button>
-          ) : null}
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={runMutation.isPending}
+            onClick={() => runMutation.mutate()}
+          >
+            {runMutation.isPending ? (
+              <Loader2 className="mr-1 size-4 animate-spin" />
+            ) : (
+              <Play className="mr-1 size-4" />
+            )}
+            {feed.direction === "export" ? "XML üret" : "Şimdi çalıştır"}
+          </Button>
+
           <div className="flex gap-1">
             <Button asChild size="icon" variant="outline" aria-label="Alan eşleştirme">
               <Link to="/store/$storeId/xml-integrator/feeds/$feedId/mapper" params={{ storeId, feedId: feed.id }}>

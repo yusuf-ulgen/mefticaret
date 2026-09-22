@@ -470,7 +470,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
     const { data: feedRow, error: readError } = await context.supabase
       .from("xml_feeds")
       .select(
-        "id, direction, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency",
+        "id, direction, platform, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, output_filename, export_token, filter_rules",
       )
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
@@ -479,11 +479,41 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
     if (!feedRow) throw new Error("Besleme bulunamadı");
     const feed = feedRow as Record<string, any>;
 
-    if (String(feed["direction"]) !== "import") {
-      throw new Error("Dışa aktarım beslemeleri çıktı bağlantısı üzerinden servis edilir, elle çalıştırılmaz");
-    }
+    const nextRunAt = nextRunFor(
+      String(feed["schedule"]) as XmlSchedule,
+      (feed["cron_expression"] as string | null) ?? null,
+    );
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    if (String(feed["direction"]) === "export") {
+      const { runExportFeed } = await import("@/lib/xml-export-engine.server");
+      const result = await runExportFeed(
+        supabaseAdmin as never,
+        {
+          id: String(feed["id"]),
+          storeId: data.storeId,
+          platform: feed["platform"] as never,
+          currency: (feed["currency"] as string | null) ?? null,
+          priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
+          outputFilename: (feed["output_filename"] as string | null) ?? null,
+          exportToken: (feed["export_token"] as string | null) ?? null,
+          filterRules: feed["filter_rules"] ?? {},
+        },
+        { trigger: "manual", nextRunAt },
+      );
+
+      return {
+        ok: true as boolean,
+        direction: "export" as const,
+        exported: result.included,
+        skipped: result.skipped,
+        fileSizeBytes: result.fileSizeBytes,
+        publicUrl: result.publicUrl,
+        issues: result.issues.slice(0, 20),
+      };
+    }
+
     const { runImportFeed } = await import("@/lib/xml-import-engine.server");
 
     const result = await runImportFeed(
@@ -502,17 +532,12 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
         priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
         currency: String(feed["currency"] ?? "TRY"),
       },
-      {
-        trigger: "manual",
-        nextRunAt: nextRunFor(
-          String(feed["schedule"]) as XmlSchedule,
-          (feed["cron_expression"] as string | null) ?? null,
-        ),
-      },
+      { trigger: "manual", nextRunAt },
     );
 
     return {
       ok: true as boolean,
+      direction: "import" as const,
       totalRows: result.totalRows,
       created: result.created,
       updated: result.updated,
@@ -521,6 +546,50 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
       format: result.format,
     };
   });
+
+/** Dışa aktarım beslemesinin önizlemesi: kaç ürün uygun, hangileri neden atlanıyor. */
+export const previewXmlExport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { data: feedRow, error } = await context.supabase
+      .from("xml_feeds")
+      .select("id, direction, platform, currency, price_markup, output_filename, export_token")
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!feedRow) throw new Error("Besleme bulunamadı");
+    const feed = feedRow as Record<string, any>;
+    if (String(feed["direction"]) !== "export") {
+      throw new Error("Önizleme yalnızca dışa aktarım beslemeleri için geçerlidir");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { buildExportXml, feedPublicUrl } = await import("@/lib/xml-export-engine.server");
+    const generated = await buildExportXml(supabaseAdmin as never, {
+      id: String(feed["id"]),
+      storeId: data.storeId,
+      platform: feed["platform"] as never,
+      currency: (feed["currency"] as string | null) ?? null,
+      priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
+      outputFilename: (feed["output_filename"] as string | null) ?? null,
+      exportToken: (feed["export_token"] as string | null) ?? null,
+    });
+
+    return {
+      platform: generated.platform,
+      included: generated.included,
+      skipped: generated.skipped,
+      issues: generated.issues.slice(0, 50),
+      sample: generated.xml.slice(0, 4000),
+      publicUrl: feed["export_token"] ? feedPublicUrl(String(feed["export_token"])) : null,
+    };
+  });
+
 
 /* --------------------------- kategori eşleştirme -------------------------- */
 
