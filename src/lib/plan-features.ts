@@ -19,10 +19,10 @@ export const MODULE_PREFIX = "module_";
 
 export const MODULE_CATALOG: PlanModule[] = [
   {
-    key: "module_xml_feed",
-    label: "XML / CSV Entegratör",
-    description: "Tedarikçi beslemeleri, dropshipping ve ürün akışları.",
-    routes: ["xml-feed", "dropshipping", "feeds"],
+    key: "module_product_feeds",
+    label: "Ürün Akışları",
+    description: "Google Shopping, TikTok, Instagram ve Facebook katalog akışları.",
+    routes: ["feeds"],
   },
   {
     key: "module_migration",
