@@ -680,6 +680,8 @@ export type FeedRecord = {
   variantConfig?: VariantConfig | unknown;
   deltaSyncConfig?: unknown;
   lastFullSyncAt?: string | null;
+  /** Satıcı "Tam senkronizasyon" düğmesine bastıysa delta atlanır. */
+  forceFullSync?: boolean;
 };
 
 
