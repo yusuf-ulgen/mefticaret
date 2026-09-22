@@ -34,7 +34,9 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { useAuth } from "@/lib/auth-context";
 import { myStoresQuery } from "@/lib/store-queries";
 import { STORE_ROLE_LABELS } from "@/lib/mefti";
+import { PanelBottomNav } from "@/components/panel-bottom-nav";
 import { storeNavGroups, storeQuickLinks, type StoreNavItem } from "@/lib/store-nav";
+import { useRecentPaths } from "@/lib/store-recent-nav";
 import { storeEntitlementsQuery } from "@/lib/entitlements-queries";
 import { moduleKeyForPath } from "@/lib/plan-features";
 import { cn } from "@/lib/utils";
