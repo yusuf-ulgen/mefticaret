@@ -17965,6 +17965,372 @@ export type Database = {
           },
         ]
       }
+      xml_category_mappings: {
+        Row: {
+          created_at: string
+          feed_id: string
+          id: string
+          product_count: number
+          source_category: string
+          store_id: string
+          target_category_code: string | null
+          target_category_id: string | null
+          target_category_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          feed_id: string
+          id?: string
+          product_count?: number
+          source_category: string
+          store_id: string
+          target_category_code?: string | null
+          target_category_id?: string | null
+          target_category_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          feed_id?: string
+          id?: string
+          product_count?: number
+          source_category?: string
+          store_id?: string
+          target_category_code?: string | null
+          target_category_id?: string | null
+          target_category_name?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_category_mappings_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "xml_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_category_mappings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_category_mappings_target_category_id_fkey"
+            columns: ["target_category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xml_export_logs: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          error_message: string | null
+          exported_count: number
+          failed_count: number
+          feed_id: string
+          file_size_bytes: number | null
+          finished_at: string | null
+          id: string
+          issues: Json
+          output_url: string | null
+          started_at: string
+          status: Database["public"]["Enums"]["xml_run_status"]
+          store_id: string
+          trigger: Database["public"]["Enums"]["xml_run_trigger"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          error_message?: string | null
+          exported_count?: number
+          failed_count?: number
+          feed_id: string
+          file_size_bytes?: number | null
+          finished_at?: string | null
+          id?: string
+          issues?: Json
+          output_url?: string | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["xml_run_status"]
+          store_id: string
+          trigger?: Database["public"]["Enums"]["xml_run_trigger"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          error_message?: string | null
+          exported_count?: number
+          failed_count?: number
+          feed_id?: string
+          file_size_bytes?: number | null
+          finished_at?: string | null
+          id?: string
+          issues?: Json
+          output_url?: string | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["xml_run_status"]
+          store_id?: string
+          trigger?: Database["public"]["Enums"]["xml_run_trigger"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_export_logs_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "xml_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_export_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xml_feeds: {
+        Row: {
+          auth_config: Json
+          auth_type: Database["public"]["Enums"]["xml_auth_type"]
+          category_map: Json
+          created_at: string
+          created_by: string | null
+          currency: string
+          direction: Database["public"]["Enums"]["xml_direction"]
+          export_token: string
+          field_mapping: Json
+          filter_rules: Json
+          id: string
+          is_active: boolean
+          item_path: string | null
+          last_error: string | null
+          last_run_at: string | null
+          last_status: Database["public"]["Enums"]["xml_run_status"] | null
+          name: string
+          next_run_at: string | null
+          output_filename: string | null
+          platform: Database["public"]["Enums"]["xml_platform"]
+          price_markup: number | null
+          schedule: Database["public"]["Enums"]["xml_schedule"]
+          source_format: Database["public"]["Enums"]["xml_source_format"]
+          source_url: string | null
+          stats: Json
+          store_id: string
+          total_runs: number
+          transform_rules: Json
+          updated_at: string
+        }
+        Insert: {
+          auth_config?: Json
+          auth_type?: Database["public"]["Enums"]["xml_auth_type"]
+          category_map?: Json
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          direction?: Database["public"]["Enums"]["xml_direction"]
+          export_token?: string
+          field_mapping?: Json
+          filter_rules?: Json
+          id?: string
+          is_active?: boolean
+          item_path?: string | null
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: Database["public"]["Enums"]["xml_run_status"] | null
+          name: string
+          next_run_at?: string | null
+          output_filename?: string | null
+          platform?: Database["public"]["Enums"]["xml_platform"]
+          price_markup?: number | null
+          schedule?: Database["public"]["Enums"]["xml_schedule"]
+          source_format?: Database["public"]["Enums"]["xml_source_format"]
+          source_url?: string | null
+          stats?: Json
+          store_id: string
+          total_runs?: number
+          transform_rules?: Json
+          updated_at?: string
+        }
+        Update: {
+          auth_config?: Json
+          auth_type?: Database["public"]["Enums"]["xml_auth_type"]
+          category_map?: Json
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          direction?: Database["public"]["Enums"]["xml_direction"]
+          export_token?: string
+          field_mapping?: Json
+          filter_rules?: Json
+          id?: string
+          is_active?: boolean
+          item_path?: string | null
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: Database["public"]["Enums"]["xml_run_status"] | null
+          name?: string
+          next_run_at?: string | null
+          output_filename?: string | null
+          platform?: Database["public"]["Enums"]["xml_platform"]
+          price_markup?: number | null
+          schedule?: Database["public"]["Enums"]["xml_schedule"]
+          source_format?: Database["public"]["Enums"]["xml_source_format"]
+          source_url?: string | null
+          stats?: Json
+          store_id?: string
+          total_runs?: number
+          transform_rules?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_feeds_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xml_field_schemas: {
+        Row: {
+          created_at: string
+          detected_type: string | null
+          feed_id: string
+          field_path: string
+          id: string
+          label: string | null
+          occurrence: number
+          sample_values: Json
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          detected_type?: string | null
+          feed_id: string
+          field_path: string
+          id?: string
+          label?: string | null
+          occurrence?: number
+          sample_values?: Json
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          detected_type?: string | null
+          feed_id?: string
+          field_path?: string
+          id?: string
+          label?: string | null
+          occurrence?: number
+          sample_values?: Json
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_field_schemas_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "xml_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_field_schemas_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xml_import_logs: {
+        Row: {
+          created_at: string
+          created_count: number
+          duration_seconds: number | null
+          error_count: number
+          error_message: string | null
+          errors: Json
+          feed_id: string
+          finished_at: string | null
+          id: string
+          skipped_count: number
+          started_at: string
+          status: Database["public"]["Enums"]["xml_run_status"]
+          store_id: string
+          total_rows: number
+          trigger: Database["public"]["Enums"]["xml_run_trigger"]
+          updated_at: string
+          updated_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_count?: number
+          duration_seconds?: number | null
+          error_count?: number
+          error_message?: string | null
+          errors?: Json
+          feed_id: string
+          finished_at?: string | null
+          id?: string
+          skipped_count?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["xml_run_status"]
+          store_id: string
+          total_rows?: number
+          trigger?: Database["public"]["Enums"]["xml_run_trigger"]
+          updated_at?: string
+          updated_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_count?: number
+          duration_seconds?: number | null
+          error_count?: number
+          error_message?: string | null
+          errors?: Json
+          feed_id?: string
+          finished_at?: string | null
+          id?: string
+          skipped_count?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["xml_run_status"]
+          store_id?: string
+          total_rows?: number
+          trigger?: Database["public"]["Enums"]["xml_run_trigger"]
+          updated_at?: string
+          updated_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_import_logs_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "xml_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_import_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18526,6 +18892,27 @@ export type Database = {
         | "virtual"
       webhook_delivery_status: "pending" | "success" | "failed"
       whatsapp_direction: "inbound" | "outbound"
+      xml_auth_type: "none" | "basic" | "bearer" | "header" | "query"
+      xml_direction: "import" | "export"
+      xml_platform:
+        | "generic"
+        | "trendyol"
+        | "hepsiburada"
+        | "n11"
+        | "amazon"
+        | "ciceksepeti"
+        | "pttavm"
+        | "google_shopping"
+      xml_run_status: "queued" | "running" | "success" | "partial" | "failed"
+      xml_run_trigger: "manual" | "scheduled" | "api"
+      xml_schedule:
+        | "manual"
+        | "hourly"
+        | "three_hourly"
+        | "six_hourly"
+        | "twelve_hourly"
+        | "daily"
+      xml_source_format: "xml" | "csv" | "xlsx" | "json"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -18959,6 +19346,29 @@ export const Constants = {
       ],
       webhook_delivery_status: ["pending", "success", "failed"],
       whatsapp_direction: ["inbound", "outbound"],
+      xml_auth_type: ["none", "basic", "bearer", "header", "query"],
+      xml_direction: ["import", "export"],
+      xml_platform: [
+        "generic",
+        "trendyol",
+        "hepsiburada",
+        "n11",
+        "amazon",
+        "ciceksepeti",
+        "pttavm",
+        "google_shopping",
+      ],
+      xml_run_status: ["queued", "running", "success", "partial", "failed"],
+      xml_run_trigger: ["manual", "scheduled", "api"],
+      xml_schedule: [
+        "manual",
+        "hourly",
+        "three_hourly",
+        "six_hourly",
+        "twelve_hourly",
+        "daily",
+      ],
+      xml_source_format: ["xml", "csv", "xlsx", "json"],
     },
   },
 } as const
