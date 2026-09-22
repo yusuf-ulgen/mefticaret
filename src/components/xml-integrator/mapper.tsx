@@ -7,11 +7,19 @@ import { DndContext, useDraggable, useDroppable, type DragEndEvent } from "@dnd-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { GripVertical, Loader2, Sparkles, Wand2, Wrench, X } from "lucide-react";
+import { Eye, GripVertical, Loader2, Sparkles, Wand2, Wrench, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { XmlCategoryMapper } from "@/components/xml-integrator/category-mapper";
+import { VariationManager } from "@/components/xml-integrator/variation-manager";
+import { PreviewProductsDialog, type PreviewResult } from "@/components/xml-integrator/preview-products";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DEFAULT_VARIANT_CONFIG,
+  type VariantConfig,
+  type VariantMode,
+} from "@/lib/xml-variant-parser";
 import { Badge } from "@/components/ui/badge";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +37,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   aiSuggestXmlFieldMapping,
   analyzeXmlSource,
+  previewXmlImport,
   saveXmlFeed,
 } from "@/lib/xml-integrator.functions";
 import {
@@ -52,6 +61,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
   const analyze = useServerFn(analyzeXmlSource);
   const save = useServerFn(saveXmlFeed);
   const aiMapFields = useServerFn(aiSuggestXmlFieldMapping);
+  const previewImport = useServerFn(previewXmlImport);
 
   const feed = overview.data?.feeds.find((row) => row.id === feedId);
   const [mapping, setMapping] = useState<FieldMapping>({});
@@ -60,11 +70,17 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
   const [search, setSearch] = useState("");
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
   const [aiInfo, setAiInfo] = useState<Record<string, { confidence: number; reason: string | null }>>({});
+  const [variantMode, setVariantMode] = useState<VariantMode>("none");
+  const [variantConfig, setVariantConfig] = useState<VariantConfig>(DEFAULT_VARIANT_CONFIG);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [preview, setPreview] = useState<PreviewResult | null>(null);
 
   useEffect(() => {
     if (feed && loadedFor !== feed.id) {
       setMapping(feed.fieldMapping as FieldMapping);
       setTransforms(parseTransformRules(feed.transformRules));
+      setVariantMode(feed.variantMode);
+      setVariantConfig({ ...DEFAULT_VARIANT_CONFIG, ...feed.variantConfig });
       setLoadedFor(feed.id);
     }
   }, [feed, loadedFor]);
@@ -127,6 +143,25 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const previewMutation = useMutation({
+    mutationFn: () =>
+      previewImport({
+        data: {
+          storeId,
+          feedId,
+          fieldMapping: mapping,
+          transformRules: transforms as never,
+          variantMode,
+          variantConfig,
+        },
+      }),
+    onSuccess: (result) => {
+      setPreview(result as PreviewResult);
+      setPreviewOpen(true);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const saveMutation = useMutation({
     mutationFn: () => {
       if (!feed) throw new Error("Besleme bulunamadı");
@@ -150,6 +185,8 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           priceMarkup: feed.priceMarkup,
           currency: feed.currency,
           isActive: feed.isActive,
+          variantMode,
+          variantConfig,
         },
       });
     },
@@ -204,6 +241,14 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         ) : null}
       </div>
 
+      <Tabs defaultValue="fields" className="space-y-3">
+        <TabsList>
+          <TabsTrigger value="fields">Alan eşleme</TabsTrigger>
+          <TabsTrigger value="variants">Varyasyon ve seçenekler</TabsTrigger>
+          <TabsTrigger value="categories">Kategori eşleme</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="fields" className="space-y-4">
       {columns.length === 0 ? (
         <div className="rounded-xl border border-dashed bg-card p-6 text-center text-sm">
           <p className="text-muted-foreground">Bu beslemenin alan listesi henüz okunmadı.</p>
@@ -269,6 +314,23 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         </DndContext>
       )}
 
+        </TabsContent>
+
+        <TabsContent value="variants">
+          <VariationManager
+            columns={columns.map((column) => column.path)}
+            mode={variantMode}
+            config={variantConfig}
+            onModeChange={setVariantMode}
+            onConfigChange={setVariantConfig}
+          />
+        </TabsContent>
+
+        <TabsContent value="categories">
+          <XmlCategoryMapper storeId={storeId} feedId={feedId} />
+        </TabsContent>
+      </Tabs>
+
       {activeField ? (
         <TransformPanel
           open
@@ -293,7 +355,6 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         />
       ) : null}
 
-      <XmlCategoryMapper storeId={storeId} feedId={feedId} />
 
       {missing.length ? (
         <p className="text-xs text-destructive">
@@ -307,6 +368,12 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           {saveMutation.isPending ? <Loader2 className="mr-1 size-4 animate-spin" /> : null}
           Eşleştirmeyi kaydet
         </Button>
+        {feed.direction === "import" ? (
+          <Button variant="outline" disabled={previewMutation.isPending} onClick={() => previewMutation.mutate()}>
+            {previewMutation.isPending ? <Loader2 className="mr-1 size-4 animate-spin" /> : <Eye className="mr-1 size-4" />}
+            İlk 10 ürünü önizle
+          </Button>
+        ) : null}
         {columns.length ? (
           <Button variant="outline" disabled={refresh.isPending} onClick={() => refresh.mutate()}>
             {refresh.isPending ? <Loader2 className="mr-1 size-4 animate-spin" /> : <Wand2 className="mr-1 size-4" />}
@@ -317,6 +384,8 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           <Link to="/store/$storeId/xml-integrator/feeds" params={{ storeId }}>Listeye dön</Link>
         </Button>
       </div>
+
+      <PreviewProductsDialog open={previewOpen} onOpenChange={setPreviewOpen} result={preview} />
     </div>
   );
 }

@@ -189,6 +189,8 @@ export function normalizeRows(
     variantRows?: Array<Array<Record<string, string>>>;
     /** Varyant seçeneği olarak okunacak ek kaynak alanları. */
     optionAttributes?: string[];
+    /** Varyanta özel alan eşlemesi; eksik alanlar ürün eşlemesinden okunur. */
+    variantMapping?: FieldMapping;
   } = {},
 ): { items: NormalizedProduct[]; errors: RowError[] } {
 
@@ -252,8 +254,10 @@ export function normalizeRows(
     const seenVariant = new Set<string>();
     if (groupRows.length > 1 || (groupRows.length === 1 && groupRows[0] !== row)) {
       for (const variantRow of groupRows.slice(0, 200)) {
-        const readVariant = (field: string) =>
-          applyTransforms(readMapped(variantRow, mapping[field]).trim(), transforms[field], variantRow).trim();
+        const readVariant = (field: string) => {
+          const path = options.variantMapping?.[field] || mapping[field];
+          return applyTransforms(readMapped(variantRow, path).trim(), transforms[field], variantRow).trim();
+        };
 
         const variantOptions: Record<string, string> = {};
         for (const [field, label] of [
@@ -807,6 +811,7 @@ export async function runImportFeed(
           : {
               variantRows: groups.map((group) => group.variantRows),
               optionAttributes: variantConfig.optionAttributes,
+              variantMapping: variantConfig.variantMapping,
             }),
       },
     );
