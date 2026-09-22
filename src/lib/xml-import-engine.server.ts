@@ -19,6 +19,7 @@ import {
   type XmlAuthType,
   type XmlSourceFormat,
 } from "@/lib/xml-integrator";
+import { applyTransforms, parseTransformRules, type TransformRules } from "@/lib/xml-transforms";
 import { fetchSource, saveFieldSchema, type AuthConfig, type FetchedSource } from "@/lib/xml-integrator.server";
 
 /* ------------------------------- XmlFetcher ------------------------------- */
@@ -141,16 +142,18 @@ function parseUrlList(raw: string): string[] {
 export function normalizeRows(
   rows: Array<Record<string, string>>,
   mapping: FieldMapping,
-  options: { priceMarkup?: number | null; currency?: string } = {},
+  options: { priceMarkup?: number | null; currency?: string; transformRules?: TransformRules } = {},
 ): { items: NormalizedProduct[]; errors: RowError[] } {
   const markup = options.priceMarkup ?? null;
   const fallbackCurrency = (options.currency ?? "TRY").toUpperCase();
+  const transforms = options.transformRules ?? {};
   const items: NormalizedProduct[] = [];
   const errors: RowError[] = [];
   const seen = new Set<string>();
 
   rows.forEach((row, index) => {
-    const read = (field: string) => readMapped(row, mapping[field]).trim();
+    const read = (field: string) =>
+      applyTransforms(readMapped(row, mapping[field]).trim(), transforms[field], row).trim();
 
     const sku = read("sku");
     const barcode = read("barcode");
@@ -443,6 +446,7 @@ export type FeedRecord = {
   authType: XmlAuthType;
   authConfig: AuthConfig;
   fieldMapping: FieldMapping;
+  transformRules?: TransformRules | unknown;
   priceMarkup: number | null;
   currency: string;
 };
@@ -539,6 +543,7 @@ export async function runImportFeed(
     const { items, errors } = normalizeRows(parsed.rows, mapping, {
       priceMarkup: feed.priceMarkup,
       currency: feed.currency,
+      transformRules: parseTransformRules(feed.transformRules),
     });
     const upsert = await upsertProducts(admin, {
       storeId: feed.storeId,

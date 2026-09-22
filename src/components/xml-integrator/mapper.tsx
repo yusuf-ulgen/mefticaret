@@ -7,7 +7,7 @@ import { DndContext, useDraggable, useDroppable, type DragEndEvent } from "@dnd-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { GripVertical, Loader2, Wand2, X } from "lucide-react";
+import { GripVertical, Loader2, Wand2, Wrench, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -17,6 +17,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Input } from "@/components/ui/input";
+import { TransformPanel } from "@/components/xml-integrator/transform-panel";
+import {
+  describeTransforms,
+  parseTransformRules,
+  type TransformRules,
+  type TransformStep,
+} from "@/lib/xml-transforms";
 import { xmlFieldSchemaQuery, xmlIntegratorOverviewQuery } from "@/lib/xml-integrator-queries";
 import { analyzeXmlSource, saveXmlFeed } from "@/lib/xml-integrator.functions";
 import {
@@ -42,12 +49,15 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
 
   const feed = overview.data?.feeds.find((row) => row.id === feedId);
   const [mapping, setMapping] = useState<FieldMapping>({});
+  const [transforms, setTransforms] = useState<TransformRules>({});
+  const [activeField, setActiveField] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
 
   useEffect(() => {
     if (feed && loadedFor !== feed.id) {
       setMapping(feed.fieldMapping as FieldMapping);
+      setTransforms(parseTransformRules(feed.transformRules));
       setLoadedFor(feed.id);
     }
   }, [feed, loadedFor]);
@@ -102,7 +112,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           schedule: feed.schedule as XmlSchedule,
           fieldMapping: mapping,
           filterRules: {},
-          transformRules: {},
+          transformRules: transforms as never,
           priceMarkup: feed.priceMarkup,
           currency: feed.currency,
           isActive: feed.isActive,
@@ -189,6 +199,8 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
                         required={field.required}
                         value={mapping[field.key] ?? ""}
                         columns={columns.map((column) => column.path)}
+                        transformSummary={describeTransforms(transforms[field.key])}
+                        onOpenTransforms={() => setActiveField(field.key)}
                         onSelect={(value) =>
                           setMapping((current) => {
                             const next = { ...current };
