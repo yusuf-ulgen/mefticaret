@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { formatDate } from "@/lib/mefti";
+import { QuarantineAlertBadge } from "@/components/xml-integrator/quarantine-panel";
 import { deleteXmlFeed, runXmlFeedNow, toggleXmlFeed } from "@/lib/xml-integrator.functions";
 import {
   XML_PLATFORM_LABELS,
