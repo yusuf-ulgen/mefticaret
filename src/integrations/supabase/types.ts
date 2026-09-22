@@ -18161,6 +18161,7 @@ export type Database = {
           field_mapping: Json
           filter_rules: Json
           ftp_config: Json
+          guardrail_config: Json
           id: string
           is_active: boolean
           item_path: string | null
@@ -18203,6 +18204,7 @@ export type Database = {
           field_mapping?: Json
           filter_rules?: Json
           ftp_config?: Json
+          guardrail_config?: Json
           id?: string
           is_active?: boolean
           item_path?: string | null
@@ -18245,6 +18247,7 @@ export type Database = {
           field_mapping?: Json
           filter_rules?: Json
           ftp_config?: Json
+          guardrail_config?: Json
           id?: string
           is_active?: boolean
           item_path?: string | null
@@ -18462,6 +18465,78 @@ export type Database = {
           },
           {
             foreignKeyName: "xml_product_hashes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xml_quarantine_items: {
+        Row: {
+          created_at: string
+          feed_id: string
+          id: string
+          issue_type: string
+          new_price: number | null
+          new_stock: number | null
+          old_price: number | null
+          old_stock: number | null
+          product_title: string | null
+          raw_data: Json
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sku: string
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          feed_id: string
+          id?: string
+          issue_type: string
+          new_price?: number | null
+          new_stock?: number | null
+          old_price?: number | null
+          old_stock?: number | null
+          product_title?: string | null
+          raw_data?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sku: string
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          feed_id?: string
+          id?: string
+          issue_type?: string
+          new_price?: number | null
+          new_stock?: number | null
+          old_price?: number | null
+          old_stock?: number | null
+          product_title?: string | null
+          raw_data?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sku?: string
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_quarantine_items_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "xml_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_quarantine_items_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
