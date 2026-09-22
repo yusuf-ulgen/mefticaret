@@ -24,10 +24,10 @@ const money = (value: number) =>
   new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 
 const ROUNDING_OPTIONS = [
-  { value: "none", label: "Yuvarlama yok (kuruşlu)" },
-  { value: "round_99", label: "X,99 ile bitir" },
-  { value: "round_90", label: "X,90 ile bitir" },
-  { value: "integer", label: "Tam sayıya yuvarla" },
+  { value: "none", label: "Yuvarlama yok (199,24)" },
+  { value: "round_99", label: ",99 ile bitir (199,99 TL)" },
+  { value: "round_90", label: ",90 ile bitir (199,90 TL)" },
+  { value: "integer", label: "En yakın tam sayıya yuvarla (199 TL)" },
 ] as const;
 
 const VAT_OPTIONS = [
