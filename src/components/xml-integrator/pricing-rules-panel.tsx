@@ -18,22 +18,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { calculateFinalPrice, type PricingRules, type PricingTier } from "@/lib/xml-pricing-rules";
+import { explainPrice, type PricingRules, type PricingTier } from "@/lib/xml-pricing-rules";
 
 const money = (value: number) =>
   new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 
 const ROUNDING_OPTIONS = [
-  { value: "none", label: "Yuvarlama yok (kuruşlu)" },
-  { value: "round_99", label: "X,99 ile bitir" },
-  { value: "round_90", label: "X,90 ile bitir" },
-  { value: "integer", label: "Tam sayıya yuvarla" },
+  { value: "none", label: "Yuvarlama yok (199,24)" },
+  { value: "round_99", label: ",99 ile bitir (199,99 TL)" },
+  { value: "round_90", label: ",90 ile bitir (199,90 TL)" },
+  { value: "integer", label: "En yakın tam sayıya yuvarla (199 TL)" },
 ] as const;
 
 const VAT_OPTIONS = [
-  { value: "none", label: "KDV işlemi yok" },
-  { value: "add_vat", label: "Fiyata KDV ekle" },
-  { value: "remove_vat", label: "Fiyattan KDV çıkar" },
+  { value: "none", label: "KDV işlemi yok", hint: "Fiyat kaynaktaki gibi kalır" },
+  { value: "add_vat", label: "KDV ekle (+%)", hint: "Alış fiyatına KDV eklenir" },
+  { value: "remove_vat", label: "KDV çıkar (-%)", hint: "Fiyat KDV'den arındırılır" },
 ] as const;
 
 export function PricingRulesPanel({
@@ -45,7 +45,8 @@ export function PricingRulesPanel({
 }) {
   const [samplePrice, setSamplePrice] = useState("100");
   const base = Number(samplePrice.replace(",", ".")) || 0;
-  const result = calculateFinalPrice(base, rules);
+  const steps = explainPrice(base, rules);
+  const result = steps[steps.length - 1]?.value ?? 0;
 
   const patch = (partial: Partial<PricingRules>) => onChange({ ...rules, ...partial });
   const patchTier = (index: number, partial: Partial<PricingTier>) =>
@@ -66,47 +67,49 @@ export function PricingRulesPanel({
           <Badge variant="secondary">Sıra: KDV → marj → gider → yuvarlama</Badge>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>KDV işlemi</Label>
-            <Select
-              value={rules.vatAction}
-              onValueChange={(value) => patch({ vatAction: value as PricingRules["vatAction"] })}
+        <div className="grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="KDV işlemi">
+          {VAT_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={rules.vatAction === option.value}
+              onClick={() => patch({ vatAction: option.value })}
+              className={`rounded-lg border p-3 text-left transition ${
+                rules.vatAction === option.value
+                  ? "border-primary bg-primary/5 ring-1 ring-primary"
+                  : "hover:border-primary/40"
+              }`}
             >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {VAT_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="vat-rate">KDV oranı (%)</Label>
-            <Input
-              id="vat-rate"
-              type="number"
-              min={0}
-              max={100}
-              step="0.1"
-              value={rules.vatRate}
-              disabled={rules.vatAction === "none"}
-              onChange={(event) => patch({ vatRate: Number(event.target.value) || 0 })}
-            />
-          </div>
+              <span className="block text-sm font-medium">{option.label}</span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">{option.hint}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="max-w-xs space-y-1.5">
+          <Label htmlFor="vat-rate">KDV oranı (%)</Label>
+          <Input
+            id="vat-rate"
+            type="number"
+            min={0}
+            max={100}
+            step="0.1"
+            value={rules.vatRate}
+            disabled={rules.vatAction === "none"}
+            onChange={(event) => patch({ vatRate: Number(event.target.value) || 0 })}
+          />
         </div>
       </section>
 
       <section className="rounded-xl border bg-card p-4 space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <Label htmlFor="tiered">Kademeli kâr marjı</Label>
+            <Label htmlFor="tiered">
+              {rules.marginType === "tiered" ? "Kademeli marj (fiyat aralıkları)" : "Sabit marj (tek oran)"}
+            </Label>
             <p className="text-xs text-muted-foreground">
-              Kapalıyken tüm ürünlere aynı marj uygulanır; açıkken alış fiyatı aralığına göre marj değişir.
+              Kapalıyken tüm ürünlere aynı oran uygulanır; açıkken alış fiyatı aralığına göre oran değişir.
             </p>
           </div>
           <Switch
@@ -201,7 +204,7 @@ export function PricingRulesPanel({
                 })
               }
             >
-              <Plus className="mr-2 size-4" /> Kademe ekle
+              <Plus className="mr-2 size-4" /> Fiyat aralığı ekle
             </Button>
           </div>
         )}
@@ -267,10 +270,10 @@ export function PricingRulesPanel({
         </div>
       </section>
 
-      <section className="rounded-xl border bg-muted/40 p-4">
-        <div className="flex flex-wrap items-end gap-3">
+      <section className="rounded-xl border bg-muted/40 p-4 space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="sample">Örnek alış fiyatı (TL)</Label>
+            <Label htmlFor="sample">Fiyat simülatörü — örnek alış fiyatı (TL)</Label>
             <Input
               id="sample"
               className="w-40"
@@ -278,12 +281,21 @@ export function PricingRulesPanel({
               onChange={(event) => setSamplePrice(event.target.value)}
             />
           </div>
-          <p className="text-sm">
-            <span className="text-muted-foreground">{money(base)} TL</span>{" "}
-            <span aria-hidden>→</span>{" "}
-            <span className="font-semibold">{money(result)} TL</span>
-          </p>
+          <Badge variant="secondary">Son fiyat: {money(result)} TL</Badge>
         </div>
+
+        <ol className="space-y-1 text-sm">
+          {steps.map((step, index) => (
+            <li key={`${step.label}-${index}`} className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">
+                {index + 1}. {step.label}
+              </span>
+              <span className={index === steps.length - 1 ? "font-semibold" : ""}>
+                {money(step.value)} TL
+              </span>
+            </li>
+          ))}
+        </ol>
       </section>
     </div>
   );
