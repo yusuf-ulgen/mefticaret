@@ -101,6 +101,18 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
           )}
           Kaynak kategorilerini tara
         </Button>
+        <Button
+          size="sm"
+          disabled={aiMutation.isPending || !query.data?.mappings.length || !categories.length}
+          onClick={() => aiMutation.mutate()}
+        >
+          {aiMutation.isPending ? (
+            <Loader2 className="mr-1 size-4 animate-spin" />
+          ) : (
+            <Sparkles className="mr-1 size-4" />
+          )}
+          Yapay zekâ ile eşleştir
+        </Button>
       </header>
 
       {!query.data?.mappings.length ? (
