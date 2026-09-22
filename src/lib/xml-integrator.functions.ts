@@ -52,6 +52,16 @@ import {
 } from "@/lib/xml-delta-sync";
 
 import {
+  DEFAULT_GUARDRAIL_CONFIG,
+  parseGuardrailConfig,
+  serializeGuardrailConfig,
+  QUARANTINE_STATUSES,
+  ZERO_PRICE_ACTIONS,
+  ZERO_STOCK_ACTIONS,
+  type GuardrailConfig,
+} from "@/lib/xml-guardrail";
+
+import {
   CONNECTION_TYPES,
   DEFAULT_FTP_CONFIG,
   maskFtpConfig,
@@ -155,6 +165,17 @@ const feedSchema = z.object({
       forceFullSyncHours: z.number().int().min(1).max(24 * 90).default(168),
     })
     .default(() => ({ ...DEFAULT_DELTA_SYNC_CONFIG })),
+  guardrailConfig: z
+    .object({
+      enabled: z.boolean().default(true),
+      maxPriceDropPercent: z.number().min(0).max(100000).default(50),
+      maxPriceIncreasePercent: z.number().min(0).max(100000).default(200),
+      zeroPriceAction: z.enum(ZERO_PRICE_ACTIONS).default("quarantine"),
+      zeroStockAction: z.enum(ZERO_STOCK_ACTIONS).default("update"),
+      autoQuarantine: z.boolean().default(true),
+      notificationEmail: z.string().trim().max(200).default(""),
+    })
+    .default(() => ({ ...DEFAULT_GUARDRAIL_CONFIG })),
   variantMode: z.enum(["none", "nested", "flat"]).default("none"),
   variantConfig: z
     .object({
@@ -196,7 +217,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
       context.supabase
         .from("xml_feeds")
         .select(
-          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config, currency_config, pricing_rules, delta_sync_config, last_full_sync_at, connection_type, ftp_config, webhook_token",
+          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config, currency_config, pricing_rules, delta_sync_config, last_full_sync_at, connection_type, ftp_config, webhook_token, guardrail_config",
         )
         .eq("store_id", data.storeId)
         .order("created_at", { ascending: false }),
@@ -240,6 +261,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
         variantMode: parseVariantMode(row["variant_mode"]) as VariantMode,
         variantConfig: parseVariantConfig(row["variant_config"]) as VariantConfig,
         deltaSyncConfig: parseDeltaSyncConfig(row["delta_sync_config"]) as DeltaSyncConfig,
+        guardrailConfig: parseGuardrailConfig(row["guardrail_config"]) as GuardrailConfig,
         lastFullSyncAt: (row["last_full_sync_at"] as string | null) ?? null,
         connectionType: parseConnectionType(row["connection_type"]) as ConnectionType,
         /* Şifre tarayıcıya gönderilmez; yalnızca kayıtlı olup olmadığı bildirilir. */
@@ -309,6 +331,7 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
       currency_config: serializeCurrencyConfig(data.currencyConfig),
       pricing_rules: serializePricingRules(data.pricingRules),
       delta_sync_config: serializeDeltaSyncConfig(data.deltaSyncConfig as DeltaSyncConfig),
+      guardrail_config: serializeGuardrailConfig(data.guardrailConfig as GuardrailConfig),
       variant_mode: data.variantMode,
       variant_config: serializeVariantConfig(parseVariantConfig({
         parent_node_path: data.variantConfig.parentNodePath,
@@ -1266,4 +1289,139 @@ export const listPlatformCurrencyRates = createServerFn({ method: "GET" })
       source: String(row["source"] ?? "tcmb"),
       updatedAt: (row["updated_at"] as string | null) ?? null,
     }));
+  });
+
+/** İncelemeye alınan (karantina) ürünler — liste ve bekleyen sayısı. */
+export const listXmlQuarantine = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        status: z.enum(QUARANTINE_STATUSES).default("pending_review"),
+        limit: z.number().int().min(1).max(200).default(100),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { data: rows, error } = await context.supabase
+      .from("xml_quarantine_items")
+      .select("id, feed_id, sku, product_title, old_price, new_price, old_stock, new_stock, issue_type, status, raw_data, created_at, reviewed_at")
+      .eq("store_id", data.storeId)
+      .eq("status", data.status)
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (error) throw new Error(error.message);
+
+    const { count } = await context.supabase
+      .from("xml_quarantine_items")
+      .select("id", { count: "exact", head: true })
+      .eq("store_id", data.storeId)
+      .eq("status", "pending_review");
+
+    return {
+      pendingCount: count ?? 0,
+      items: ((rows ?? []) as Array<Record<string, unknown>>).map((row) => ({
+        id: String(row["id"]),
+        feedId: String(row["feed_id"]),
+        sku: String(row["sku"]),
+        productTitle: (row["product_title"] as string | null) ?? null,
+        oldPrice: row["old_price"] === null ? null : Number(row["old_price"]),
+        newPrice: row["new_price"] === null ? null : Number(row["new_price"]),
+        oldStock: row["old_stock"] === null ? null : Number(row["old_stock"]),
+        newStock: row["new_stock"] === null ? null : Number(row["new_stock"]),
+        issueType: String(row["issue_type"]),
+        status: String(row["status"]),
+        reason: String(((row["raw_data"] ?? {}) as Record<string, unknown>)["reason"] ?? ""),
+        createdAt: String(row["created_at"]),
+      })),
+    };
+  });
+
+/**
+ * İncelemeye alınan ürünleri onaylar (yeni fiyatı canlıya uygular) veya reddeder
+ * (ürün olduğu gibi kalır). Toplu işlem için birden fazla kayıt kabul eder.
+ */
+export const resolveXmlQuarantine = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        itemIds: z.array(z.guid()).min(1).max(200),
+        action: z.enum(["approve", "reject"]),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { data: rows, error } = await context.supabase
+      .from("xml_quarantine_items")
+      .select("id, sku, new_price, new_stock, status")
+      .eq("store_id", data.storeId)
+      .in("id", data.itemIds)
+      .eq("status", "pending_review");
+    if (error) throw new Error(error.message);
+
+    const items = (rows ?? []) as Array<{
+      id: string;
+      sku: string;
+      new_price: number | null;
+      new_stock: number | null;
+    }>;
+    if (items.length === 0) return { applied: 0, rejected: 0, notFound: data.itemIds.length };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let applied = 0;
+
+    if (data.action === "approve") {
+      for (const item of items) {
+        /* Ürün stok kodu ya da barkodu ile bulunur; bulunamazsa kayıt yine kapatılır. */
+        const { data: productRows } = await supabaseAdmin
+          .from("products")
+          .select("id")
+          .eq("store_id", data.storeId)
+          .or(`sku.eq.${item.sku},barcode.eq.${item.sku}`)
+          .limit(1);
+        const productId = (productRows as Array<{ id: string }> | null)?.[0]?.id ?? null;
+        if (!productId) continue;
+
+        if (item.new_price !== null) {
+          await supabaseAdmin
+            .from("products")
+            .update({ base_price: item.new_price, updated_at: new Date().toISOString() })
+            .eq("id", productId)
+            .eq("store_id", data.storeId);
+        }
+        if (item.new_stock !== null) {
+          await supabaseAdmin
+            .from("product_variants")
+            .update({ stock: item.new_stock })
+            .eq("product_id", productId);
+        }
+        applied += 1;
+      }
+    }
+
+    const { error: updateError } = await supabaseAdmin
+      .from("xml_quarantine_items")
+      .update({
+        status: data.action === "approve" ? "approved" : "rejected",
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: context.userId,
+      })
+      .eq("store_id", data.storeId)
+      .in("id", items.map((item) => item.id));
+    if (updateError) throw new Error(updateError.message);
+
+    return {
+      applied,
+      rejected: data.action === "reject" ? items.length : 0,
+      notFound: data.itemIds.length - items.length,
+    };
   });

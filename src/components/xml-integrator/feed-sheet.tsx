@@ -25,6 +25,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ConnectionSettings } from "@/components/xml-integrator/connection-settings";
 import { DeltaSyncSettings } from "@/components/xml-integrator/delta-sync-settings";
+import { GuardrailSettings } from "@/components/xml-integrator/guardrail-settings";
+import { DEFAULT_GUARDRAIL_CONFIG, type GuardrailConfig } from "@/lib/xml-guardrail";
 import {
   DEFAULT_FTP_CONFIG,
   type ConnectionType,
@@ -76,6 +78,7 @@ export type FeedFormValue = {
   priceMarkup: number | null;
   isActive: boolean;
   deltaSync: DeltaSyncConfig;
+  guardrail: GuardrailConfig;
   lastFullSyncAt?: string | null;
   connectionType: ConnectionType;
   ftpConfig: FtpConfig;
@@ -99,6 +102,7 @@ export const emptyFeed: FeedFormValue = {
   priceMarkup: null,
   isActive: true,
   deltaSync: { ...DEFAULT_DELTA_SYNC_CONFIG },
+  guardrail: { ...DEFAULT_GUARDRAIL_CONFIG },
   connectionType: "url",
   ftpConfig: { ...DEFAULT_FTP_CONFIG },
 };
@@ -186,6 +190,7 @@ export function FeedSheet({
           currency: form.currency,
           isActive: form.isActive,
           deltaSyncConfig: form.deltaSync,
+          guardrailConfig: form.guardrail,
           connectionType: form.connectionType,
           ftpConfig: form.ftpConfig,
         },
@@ -466,6 +471,14 @@ export function FeedSheet({
               </div>
             </section>
           )}
+
+          {isImport ? (
+            <GuardrailSettings
+              idPrefix="feed-guard"
+              value={form.guardrail}
+              onChange={(next) => set("guardrail", next)}
+            />
+          ) : null}
 
           {isImport ? (
             <DeltaSyncSettings

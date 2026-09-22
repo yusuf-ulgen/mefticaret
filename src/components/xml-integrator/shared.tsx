@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { formatDate } from "@/lib/mefti";
+import { QuarantineAlertBadge } from "@/components/xml-integrator/quarantine-panel";
 import { deleteXmlFeed, runXmlFeedNow, toggleXmlFeed } from "@/lib/xml-integrator.functions";
 import {
   XML_PLATFORM_LABELS,
@@ -56,6 +57,18 @@ export function XmlIntegratorTabs({ storeId }: { storeId: string }) {
       <Link to="/store/$storeId/xml-integrator/logs" params={{ storeId }} activeProps={active} inactiveProps={inactive}>
         Kayıtlar
       </Link>
+      <Link
+        to="/store/$storeId/xml-integrator/quarantine"
+        params={{ storeId }}
+        activeProps={active}
+        inactiveProps={inactive}
+        className="flex items-center gap-2"
+      >
+        İnceleme
+      </Link>
+      <span className="ml-auto flex items-center pl-2">
+        <QuarantineAlertBadge storeId={storeId} />
+      </span>
     </nav>
   );
 }
