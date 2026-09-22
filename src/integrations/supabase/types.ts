@@ -17967,9 +17967,12 @@ export type Database = {
       }
       xml_category_mappings: {
         Row: {
+          ai_confidence: number
+          ai_reasoning: string | null
           created_at: string
           feed_id: string
           id: string
+          is_ai_suggested: boolean
           product_count: number
           source_category: string
           store_id: string
@@ -17979,9 +17982,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_confidence?: number
+          ai_reasoning?: string | null
           created_at?: string
           feed_id: string
           id?: string
+          is_ai_suggested?: boolean
           product_count?: number
           source_category: string
           store_id: string
@@ -17991,9 +17997,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_confidence?: number
+          ai_reasoning?: string | null
           created_at?: string
           feed_id?: string
           id?: string
+          is_ai_suggested?: boolean
           product_count?: number
           source_category?: string
           store_id?: string
@@ -18109,6 +18118,7 @@ export type Database = {
       }
       xml_feeds: {
         Row: {
+          ai_auto_map_enabled: boolean
           auth_config: Json
           auth_type: Database["public"]["Enums"]["xml_auth_type"]
           category_map: Json
@@ -18141,6 +18151,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_auto_map_enabled?: boolean
           auth_config?: Json
           auth_type?: Database["public"]["Enums"]["xml_auth_type"]
           category_map?: Json
@@ -18173,6 +18184,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_auto_map_enabled?: boolean
           auth_config?: Json
           auth_type?: Database["public"]["Enums"]["xml_auth_type"]
           category_map?: Json
