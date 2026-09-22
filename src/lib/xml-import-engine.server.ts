@@ -507,23 +507,55 @@ export async function runImportFeed(
   if (feed.direction !== "import") throw new Error("Bu besleme içe aktarım beslemesi değil");
   if (!feed.sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı tanımlı değil");
 
-  const finish = async (result: Omit<FeedRunResult, "durationSeconds">) => {
-    const durationSeconds = Math.max(1, Math.round((Date.now() - startedAt.getTime()) / 1000));
-    await admin.from("xml_import_logs").insert({
+  /* Çalışma kaydı en başta "running" olarak açılır; ilerleme aynı satıra yazılır
+     ve tarayıcı Realtime ile bu satırı canlı izler. */
+  const { data: logRow } = await admin
+    .from("xml_import_logs")
+    .insert({
       store_id: feed.storeId,
       feed_id: feed.id,
-      status: result.status,
+      status: "running",
       trigger,
+      phase: "fetching",
+      total_rows: 0,
+      processed_count: 0,
+      started_at: startedAt.toISOString(),
+    })
+    .select("id")
+    .single();
+  const logId = (logRow as { id: string } | null)?.id ?? null;
+
+  const patchLog = async (patch: Record<string, unknown>) => {
+    if (!logId) return;
+    await admin.from("xml_import_logs").update(patch).eq("id", logId).eq("store_id", feed.storeId);
+  };
+
+  const finish = async (result: Omit<FeedRunResult, "durationSeconds">, errors: RowError[] = []) => {
+    const durationSeconds = Math.max(1, Math.round((Date.now() - startedAt.getTime()) / 1000));
+    const payload = {
+      status: result.status,
+      phase: "done",
       total_rows: result.totalRows,
+      processed_count: result.created + result.updated + result.skipped,
       created_count: result.created,
       updated_count: result.updated,
       skipped_count: result.skipped,
       error_count: result.errorCount,
+      error_categories: countErrorCategories(errors) as never,
+      errors: errors.slice(0, 50) as never,
       error_message: result.errorMessage,
       duration_seconds: durationSeconds,
-      started_at: startedAt.toISOString(),
       finished_at: new Date().toISOString(),
-    });
+    };
+    if (logId) await patchLog(payload);
+    else
+      await admin.from("xml_import_logs").insert({
+        store_id: feed.storeId,
+        feed_id: feed.id,
+        trigger,
+        started_at: startedAt.toISOString(),
+        ...payload,
+      });
     await admin
       .from("xml_feeds")
       .update({
@@ -544,6 +576,7 @@ export async function runImportFeed(
       .eq("store_id", feed.storeId);
     return { ...result, durationSeconds };
   };
+
 
   try {
     const fetched = await fetchFeedSource({
