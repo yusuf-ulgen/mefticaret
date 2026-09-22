@@ -457,8 +457,8 @@ export const getXmlRunDetail = createServerFn({ method: "POST" })
       started_at: string;
       finished_at: string | null;
       totals: Record<string, number> | null;
-      errors: unknown[] | null;
-      warnings: unknown[] | null;
+      errors: Array<Record<string, string | number | null>> | null;
+      warnings: Array<Record<string, string | number | null>> | null;
       error: string | null;
       output_url: string | null;
       file_size_bytes: number | null;
