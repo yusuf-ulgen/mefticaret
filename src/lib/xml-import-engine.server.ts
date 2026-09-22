@@ -785,11 +785,28 @@ export async function runImportFeed(
       throw new Error("Alan eşleme eksik: ürün adı ve satış fiyatı alanları eşleştirilmeli");
     }
 
-    const { items, errors } = normalizeRows(parsed.rows, mapping, {
-      priceMarkup: feed.priceMarkup,
-      currency: feed.currency,
-      transformRules: parseTransformRules(feed.transformRules),
-    });
+    /* Varyasyon yapısı: düz liste üst stok koduna göre gruplanır,
+       iç içe yapıda varyant düğümleri ayrıştırılır. */
+    const variantMode = parseVariantMode(feed.variantMode);
+    const variantConfig = parseVariantConfig(feed.variantConfig);
+    const groups = buildVariantGroups(parsed.rows, variantMode, variantConfig);
+
+    const { items, errors } = normalizeRows(
+      groups.map((group) => group.mainRow),
+      mapping,
+      {
+        priceMarkup: feed.priceMarkup,
+        currency: feed.currency,
+        transformRules: parseTransformRules(feed.transformRules),
+        ...(variantMode === "none"
+          ? {}
+          : {
+              variantRows: groups.map((group) => group.variantRows),
+              optionAttributes: variantConfig.optionAttributes,
+            }),
+      },
+    );
+
     const mappingErrors: RowError[] = errors.map((item) => ({ ...item, category: "MAPPING_ERROR" }));
 
     phase = "upserting";
