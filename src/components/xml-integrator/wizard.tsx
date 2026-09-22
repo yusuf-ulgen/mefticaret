@@ -225,6 +225,7 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
             <>
               <ConnectionSettings
                 idPrefix="wiz-conn"
+                storeId={storeId}
                 connectionType={form.connectionType}
                 ftpConfig={form.ftpConfig}
                 onConnectionTypeChange={(next) => {
