@@ -750,6 +750,8 @@ export type FeedRecord = {
   variantMode?: VariantMode | string | null;
   variantConfig?: VariantConfig | unknown;
   deltaSyncConfig?: unknown;
+  /** Güvenlik sınırları yapılandırması (xml_feeds.guardrail_config). */
+  guardrailConfig?: unknown;
   lastFullSyncAt?: string | null;
   /** Satıcı "Tam senkronizasyon" düğmesine bastıysa delta atlanır. */
   forceFullSync?: boolean;
@@ -959,6 +961,7 @@ export async function runImportFeed(
       storeId: feed.storeId,
       items: itemsToWrite,
       publishNew: options.publishNew ?? false,
+      guardrail: { feedId: feed.id, config: parseGuardrailConfig(feed.guardrailConfig) },
       onProgress: async ({ processed, result }) => {
         // Her pakette değil, en fazla saniyede bir yazarız; gereksiz yük olmasın.
         if (Date.now() - lastTick < 800 && processed < itemsToWrite.length) return;
