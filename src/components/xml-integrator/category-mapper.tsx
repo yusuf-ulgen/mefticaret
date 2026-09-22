@@ -40,6 +40,18 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const aiMutation = useMutation({
+    mutationFn: () => aiSuggest({ data: { storeId, feedId, onlyUnmapped: true } }),
+    onSuccess: (result) => {
+      toast.success(
+        `${result.suggested}/${result.requested} kategori için öneri oluşturuldu` +
+          (result.creditsUsed ? ` · ${result.creditsUsed} kredi` : ""),
+      );
+      void invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const saveMutation = useMutation({
     mutationFn: (input: { sourceCategory: string; targetCategoryId: string | null }) =>
       saveOne({
