@@ -31,3 +31,10 @@ export const xmlIntegratorStatsQuery = (storeId: string) =>
     queryFn: () => getXmlIntegratorStats({ data: { storeId } }),
     staleTime: 30_000,
   });
+
+export const xmlCategoryMappingsQuery = (storeId: string, feedId: string) =>
+  queryOptions({
+    queryKey: ["xml-integrator", storeId, "categories", feedId],
+    queryFn: () => listXmlCategoryMappings({ data: { storeId, feedId } }),
+    staleTime: 30_000,
+  });
