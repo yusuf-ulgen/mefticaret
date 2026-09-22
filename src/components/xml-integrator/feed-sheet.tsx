@@ -77,6 +77,10 @@ export type FeedFormValue = {
   isActive: boolean;
   deltaSync: DeltaSyncConfig;
   lastFullSyncAt?: string | null;
+  connectionType: ConnectionType;
+  ftpConfig: FtpConfig;
+  hasFtpPassword?: boolean;
+  webhookToken?: string | null;
 };
 
 export const emptyFeed: FeedFormValue = {
@@ -95,6 +99,8 @@ export const emptyFeed: FeedFormValue = {
   priceMarkup: null,
   isActive: true,
   deltaSync: { ...DEFAULT_DELTA_SYNC_CONFIG },
+  connectionType: "url",
+  ftpConfig: { ...DEFAULT_FTP_CONFIG },
 };
 
 const GROUPS = Object.keys(TARGET_FIELD_GROUP_LABELS) as TargetFieldGroup[];
