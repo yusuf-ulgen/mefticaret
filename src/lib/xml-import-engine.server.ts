@@ -396,7 +396,12 @@ export async function upsertProducts(
             .select("id")
             .single();
           if (singleError || !single) {
-            result.errors.push({ row: 0, reason: `${item.key}: ${singleError?.message ?? "eklenemedi"}` });
+            result.errors.push({
+              row: 0,
+              reason: `${item.key}: ${singleError?.message ?? "eklenemedi"}`,
+              category: "UPSERT_ERROR",
+            });
+
             result.skipped += 1;
             continue;
           }
