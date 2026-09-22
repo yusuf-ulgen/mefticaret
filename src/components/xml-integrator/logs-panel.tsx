@@ -38,7 +38,10 @@ export function XmlLogsPanel({ storeId }: { storeId: string }) {
 
   return (
     <div className="space-y-4">
+      <LiveRunProgress storeId={storeId} feedNames={feedName} />
+
       <div className="space-y-1">
+
         <Label htmlFor="log-feed">Besleme</Label>
         <select
           id="log-feed"
