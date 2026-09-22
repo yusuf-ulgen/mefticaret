@@ -23,7 +23,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ConnectionSettings } from "@/components/xml-integrator/connection-settings";
 import { DeltaSyncSettings } from "@/components/xml-integrator/delta-sync-settings";
+import {
+  DEFAULT_FTP_CONFIG,
+  type ConnectionType,
+  type FtpConfig,
+} from "@/lib/xml-connection";
 import {
   DEFAULT_DELTA_SYNC_CONFIG,
   type DeltaSyncConfig,
