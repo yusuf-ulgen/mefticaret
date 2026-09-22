@@ -537,23 +537,42 @@ export async function upsertProducts(
   return result;
 }
 
-/** Yeni ürünün varsayılan varyantı ve görselleri. */
+/** Yeni ürünün varyantları (varyasyonlu ürünlerde hepsi) ve görselleri. */
 async function insertChildren(admin: Client, storeId: string, productId: string, item: NormalizedProduct) {
   const optionEntries = Object.entries(item.options);
-  await admin.from("product_variants").insert({
-    product_id: productId,
-    store_id: storeId,
-    title: optionEntries.length ? optionEntries.map(([, value]) => value).join(" / ").slice(0, 80) : "Standart",
-    sku: item.sku,
-    barcode: item.barcode,
-    price: item.price,
-    cost_price: item.costPrice,
-    compare_at_price: item.compareAtPrice,
-    stock: item.stock,
-    weight_grams: item.weightGrams,
-    options: item.options as never,
-    position: 1,
-  });
+  const rows = item.variants.length
+    ? item.variants.map((variant, index) => ({
+        product_id: productId,
+        store_id: storeId,
+        title: variant.title || "Standart",
+        sku: variant.sku,
+        barcode: variant.barcode,
+        price: variant.price,
+        cost_price: variant.costPrice,
+        compare_at_price: variant.compareAtPrice,
+        stock: variant.stock,
+        weight_grams: variant.weightGrams,
+        options: variant.options as never,
+        position: index + 1,
+      }))
+    : [
+        {
+          product_id: productId,
+          store_id: storeId,
+          title: optionEntries.length ? optionEntries.map(([, value]) => value).join(" / ").slice(0, 80) : "Standart",
+          sku: item.sku,
+          barcode: item.barcode,
+          price: item.price,
+          cost_price: item.costPrice,
+          compare_at_price: item.compareAtPrice,
+          stock: item.stock,
+          weight_grams: item.weightGrams,
+          options: item.options as never,
+          position: 1,
+        },
+      ];
+  await admin.from("product_variants").insert(rows);
+
 
   if (item.images.length) {
     await admin.from("product_images").insert(
