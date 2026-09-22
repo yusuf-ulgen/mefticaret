@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { DeltaSyncSettings } from "@/components/xml-integrator/delta-sync-settings";
+import { GuardrailSettings } from "@/components/xml-integrator/guardrail-settings";
 import { authFieldsFor, emptyFeed, type FeedFormValue } from "@/components/xml-integrator/feed-sheet";
 import { DirectionBadge, PlatformMark } from "@/components/xml-integrator/shared";
 import { ConnectionSettings } from "@/components/xml-integrator/connection-settings";
@@ -119,6 +120,7 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
           currency: form.currency,
           isActive: form.isActive,
           deltaSyncConfig: form.deltaSync,
+          guardrailConfig: form.guardrail,
           connectionType: form.connectionType,
           ftpConfig: form.ftpConfig,
         },
@@ -451,6 +453,11 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
           )}
 
           {isImport ? (
+            <GuardrailSettings
+              idPrefix="wiz-guard"
+              value={form.guardrail}
+              onChange={(next) => set("guardrail", next)}
+            />
             <DeltaSyncSettings
               idPrefix="wiz-delta"
               value={form.deltaSync}
