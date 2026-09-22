@@ -35,6 +35,13 @@ import {
   type VariantConfig,
   type VariantMode,
 } from "@/lib/xml-variant-parser";
+import {
+  filterChangedProducts,
+  loadProductHashes,
+  needsFullSync,
+  parseDeltaSyncConfig,
+  saveProductHashes,
+} from "./xml-delta-sync.server";
 
 
 /* ------------------------------- XmlFetcher ------------------------------- */
@@ -671,6 +678,8 @@ export type FeedRecord = {
   /** "none" | "nested" | "flat" */
   variantMode?: VariantMode | string | null;
   variantConfig?: VariantConfig | unknown;
+  deltaSyncConfig?: unknown;
+  lastFullSyncAt?: string | null;
 };
 
 
@@ -829,28 +838,63 @@ export async function runImportFeed(
 
     const mappingErrors: RowError[] = errors.map((item) => ({ ...item, category: "MAPPING_ERROR" }));
 
+    /* Delta senkronizasyon: kayıtlı özetle aynı olan ürünler atlanır.
+       Ayarlanan süre geçtiyse (varsayılan 7 gün) tam senkronizasyon yapılır. */
+    const deltaConfig = parseDeltaSyncConfig(feed.deltaSyncConfig);
+    const fullSync = needsFullSync(deltaConfig, feed.lastFullSyncAt ?? null, startedAt);
+    const deltaActive = deltaConfig.enabled && !fullSync;
+    let itemsToWrite = items;
+    let unchangedCount = 0;
+    let newHashes: Map<string, string> | null = null;
+
+    if (deltaConfig.enabled) {
+      const existingHashes = deltaActive
+        ? await loadProductHashes(admin, { storeId: feed.storeId, feedId: feed.id })
+        : new Map<string, string>();
+      const delta = await filterChangedProducts(items, existingHashes, deltaConfig);
+      itemsToWrite = delta.changed;
+      unchangedCount = delta.unchangedCount;
+      newHashes = delta.hashes;
+    }
+
     phase = "upserting";
-    await patchLog({ phase, error_count: mappingErrors.length });
+    await patchLog({
+      phase,
+      error_count: mappingErrors.length,
+      unchanged_count: unchangedCount,
+      delta_sync_enabled: deltaActive,
+    });
 
     let lastTick = 0;
     const upsert = await upsertProducts(admin, {
       storeId: feed.storeId,
-      items,
+      items: itemsToWrite,
       publishNew: options.publishNew ?? false,
       onProgress: async ({ processed, result }) => {
         // Her pakette değil, en fazla saniyede bir yazarız; gereksiz yük olmasın.
-        if (Date.now() - lastTick < 800 && processed < items.length) return;
+        if (Date.now() - lastTick < 800 && processed < itemsToWrite.length) return;
         lastTick = Date.now();
         await patchLog({
           processed_count: processed,
           created_count: result.created,
           updated_count: result.updated,
-          skipped_count: result.skipped + mappingErrors.length,
+          skipped_count: result.skipped + mappingErrors.length + unchangedCount,
           error_count: mappingErrors.length + result.errors.length,
           error_categories: countErrorCategories([...mappingErrors, ...result.errors]) as never,
         });
       },
     });
+
+    if (newHashes && newHashes.size) {
+      await saveProductHashes(admin, { storeId: feed.storeId, feedId: feed.id, hashes: newHashes });
+    }
+    if (fullSync) {
+      await admin
+        .from("xml_feeds")
+        .update({ last_full_sync_at: startedAt.toISOString() })
+        .eq("id", feed.id)
+        .eq("store_id", feed.storeId);
+    }
 
     const allErrors = [...mappingErrors, ...upsert.errors];
     return await finish(
@@ -859,7 +903,7 @@ export async function runImportFeed(
         totalRows: parsed.totalRows,
         created: upsert.created,
         updated: upsert.updated,
-        skipped: upsert.skipped + mappingErrors.length,
+        skipped: upsert.skipped + mappingErrors.length + unchangedCount,
         errorCount: allErrors.length,
         errorMessage: allErrors.length
           ? allErrors.slice(0, 5).map((item) => item.reason).join(" | ").slice(0, 900)
