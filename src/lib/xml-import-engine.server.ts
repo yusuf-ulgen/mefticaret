@@ -21,6 +21,15 @@ import {
 } from "@/lib/xml-integrator";
 import { applyTransforms, parseTransformRules, type TransformRules } from "@/lib/xml-transforms";
 import { fetchSource, saveFieldSchema, type AuthConfig, type FetchedSource } from "@/lib/xml-integrator.server";
+import {
+  buildVariantGroups,
+  parseVariantConfig,
+  parseVariantMode,
+  readField,
+  type VariantConfig,
+  type VariantMode,
+} from "@/lib/xml-variant-parser";
+
 
 /* ------------------------------- XmlFetcher ------------------------------- */
 
