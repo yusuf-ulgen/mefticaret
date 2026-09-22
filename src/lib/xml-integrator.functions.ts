@@ -343,3 +343,95 @@ export const listXmlFieldSchema = createServerFn({ method: "GET" })
       detected_type: string | null;
     }>;
   });
+
+/** Pano grafikleri: son 14 günün içe/dışa aktarım çalışmaları ve ürün sonuçları. */
+export const getXmlIntegratorStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => storeSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const days = 14;
+    const since = new Date();
+    since.setUTCHours(0, 0, 0, 0);
+    since.setUTCDate(since.getUTCDate() - (days - 1));
+    const sinceIso = since.toISOString();
+
+    const [{ data: importRows, error: importError }, { data: exportRows, error: exportError }] = await Promise.all([
+      context.supabase
+        .from("xml_import_logs")
+        .select("status, started_at, total_rows, created_count, updated_count, skipped_count, error_count")
+        .eq("store_id", data.storeId)
+        .gte("started_at", sinceIso),
+      context.supabase
+        .from("xml_export_logs")
+        .select("status, started_at, exported_count, failed_count")
+        .eq("store_id", data.storeId)
+        .gte("started_at", sinceIso),
+    ]);
+    if (importError) throw new Error(importError.message);
+    if (exportError) throw new Error(exportError.message);
+
+    const dayKey = (value: unknown) => String(value ?? "").slice(0, 10);
+    const series: Array<{
+      date: string;
+      importRuns: number;
+      exportRuns: number;
+      successItems: number;
+      failedItems: number;
+    }> = [];
+    const index = new Map<string, number>();
+    for (let i = 0; i < days; i += 1) {
+      const d = new Date(since);
+      d.setUTCDate(since.getUTCDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      index.set(key, series.length);
+      series.push({ date: key, importRuns: 0, exportRuns: 0, successItems: 0, failedItems: 0 });
+    }
+
+    let importRuns = 0;
+    let importSuccessRuns = 0;
+    let exportRuns = 0;
+    let exportSuccessRuns = 0;
+    let todayRuns = 0;
+    const today = new Date().toISOString().slice(0, 10);
+
+    for (const row of (importRows ?? []) as Array<Record<string, unknown>>) {
+      const key = dayKey(row["started_at"]);
+      const bucket = index.has(key) ? series[index.get(key)!]! : null;
+      importRuns += 1;
+      if (String(row["status"]) === "success") importSuccessRuns += 1;
+      if (key === today) todayRuns += 1;
+      if (!bucket) continue;
+      bucket.importRuns += 1;
+      bucket.successItems += Number(row["created_count"] ?? 0) + Number(row["updated_count"] ?? 0);
+      bucket.failedItems += Number(row["error_count"] ?? 0);
+    }
+    for (const row of (exportRows ?? []) as Array<Record<string, unknown>>) {
+      const key = dayKey(row["started_at"]);
+      const bucket = index.has(key) ? series[index.get(key)!]! : null;
+      exportRuns += 1;
+      if (String(row["status"]) === "success") exportSuccessRuns += 1;
+      if (key === today) todayRuns += 1;
+      if (!bucket) continue;
+      bucket.exportRuns += 1;
+      bucket.successItems += Number(row["exported_count"] ?? 0);
+      bucket.failedItems += Number(row["failed_count"] ?? 0);
+    }
+
+    const totalRuns = importRuns + exportRuns;
+    const successRuns = importSuccessRuns + exportSuccessRuns;
+
+    return {
+      series,
+      totals: {
+        importRuns,
+        exportRuns,
+        todayRuns,
+        totalRuns,
+        successRuns,
+        successRate: totalRuns ? Math.round((successRuns / totalRuns) * 100) : null,
+      },
+    };
+  });
