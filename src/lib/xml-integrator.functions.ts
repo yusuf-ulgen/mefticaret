@@ -320,11 +320,7 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
 /** Beslemeyi ve bağlı kayıtlarını siler. */
 export const deleteXmlFeed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    z
-      .object({ storeId: z.guid(), feedId: z.guid(), forceFullSync: z.boolean().default(false) })
-      .parse(data),
-  )
+  .inputValidator((data) => z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { assertStoreManager } = await import("@/lib/store-access.server");
     await assertStoreManager(context.supabase, data.storeId, context.userId);
