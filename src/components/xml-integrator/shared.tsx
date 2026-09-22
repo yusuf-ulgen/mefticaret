@@ -138,14 +138,27 @@ export function FeedCard({
   const runMutation = useMutation({
     mutationFn: () => run({ data: { storeId, feedId: feed.id } }),
     onSuccess: (result) => {
-      toast.success(
-        `Besleme çalıştı — ${result.totalRows} satır okundu, ${result.created} yeni ürün, ${result.updated} güncelleme` +
-          (result.errorCount ? `, ${result.errorCount} hata` : ""),
-      );
+      if (result.direction === "export") {
+        toast.success(
+          `XML üretildi — ${result.exported} ürün eklendi` +
+            (result.skipped ? `, ${result.skipped} ürün pazaryeri kurallarına uymadığı için atlandı` : ""),
+        );
+      } else {
+        toast.success(
+          `Besleme çalıştı — ${result.totalRows} satır okundu, ${result.created} yeni ürün, ${result.updated} güncelleme` +
+            (result.errorCount ? `, ${result.errorCount} hata` : ""),
+        );
+      }
       void refresh();
     },
     onError: (error: Error) => toast.error(error.message),
   });
+
+  const feedUrl =
+    feed.direction === "export" && feed.exportToken
+      ? `${typeof window === "undefined" ? "" : window.location.origin}/api/public/xml-feed/${feed.exportToken}`
+      : null;
+
 
   return (
     <article className="rounded-xl border bg-card p-4">
