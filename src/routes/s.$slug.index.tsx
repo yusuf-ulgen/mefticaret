@@ -130,8 +130,8 @@ function StorefrontHome() {
       footerPages={footerPages}
       commerce={data.commerce}
       sections={sections}
-      customCss={theme?.custom_css ?? null}
-      customJs={theme?.custom_js ?? null}
+      customCss={data.theme?.custom_css ?? null}
+      customJs={data.theme?.custom_js ?? null}
       simpleStorefront={isHomeMakerStorefront}
     >
       {data.campaign?.message ? (
