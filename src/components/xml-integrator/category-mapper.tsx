@@ -140,15 +140,18 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
                   <p className="text-xs text-muted-foreground">
                     {row.productCount} ürün
                     {row.isAiSuggested ? (
-                      <span className="ml-1 inline-flex items-center gap-1 text-primary">
-                        <Sparkles className="size-3" />
-                        AI önerisi · %{Math.round(row.aiConfidence * 100)} güven
-                      </span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="ml-1 inline-flex cursor-help items-center gap-1 text-primary">
+                            <Sparkles className="size-3" />%{Math.round(row.aiConfidence * 100)} güven
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-64">
+                          {row.aiReasoning || "Yapay zekâ önerisi — gerekçe belirtilmedi."}
+                        </TooltipContent>
+                      </Tooltip>
                     ) : null}
                   </p>
-                  {row.isAiSuggested && row.aiReasoning ? (
-                    <p className="text-xs text-muted-foreground/80">{row.aiReasoning}</p>
-                  ) : null}
                 </div>
                 <select
                   aria-label={`${row.sourceCategory} hedef kategorisi`}
