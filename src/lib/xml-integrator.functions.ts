@@ -52,6 +52,15 @@ import {
 } from "@/lib/xml-delta-sync";
 
 import {
+  DEFAULT_GUARDRAIL_CONFIG,
+  parseGuardrailConfig,
+  serializeGuardrailConfig,
+  ZERO_PRICE_ACTIONS,
+  ZERO_STOCK_ACTIONS,
+  type GuardrailConfig,
+} from "@/lib/xml-guardrail";
+
+import {
   CONNECTION_TYPES,
   DEFAULT_FTP_CONFIG,
   maskFtpConfig,
@@ -155,6 +164,17 @@ const feedSchema = z.object({
       forceFullSyncHours: z.number().int().min(1).max(24 * 90).default(168),
     })
     .default(() => ({ ...DEFAULT_DELTA_SYNC_CONFIG })),
+  guardrailConfig: z
+    .object({
+      enabled: z.boolean().default(true),
+      maxPriceDropPercent: z.number().min(0).max(100000).default(50),
+      maxPriceIncreasePercent: z.number().min(0).max(100000).default(200),
+      zeroPriceAction: z.enum(ZERO_PRICE_ACTIONS).default("quarantine"),
+      zeroStockAction: z.enum(ZERO_STOCK_ACTIONS).default("update"),
+      autoQuarantine: z.boolean().default(true),
+      notificationEmail: z.string().trim().max(200).default(""),
+    })
+    .default(() => ({ ...DEFAULT_GUARDRAIL_CONFIG })),
   variantMode: z.enum(["none", "nested", "flat"]).default("none"),
   variantConfig: z
     .object({
@@ -196,7 +216,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
       context.supabase
         .from("xml_feeds")
         .select(
-          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config, currency_config, pricing_rules, delta_sync_config, last_full_sync_at, connection_type, ftp_config, webhook_token",
+          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config, currency_config, pricing_rules, delta_sync_config, last_full_sync_at, connection_type, ftp_config, webhook_token, guardrail_config",
         )
         .eq("store_id", data.storeId)
         .order("created_at", { ascending: false }),
@@ -240,6 +260,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
         variantMode: parseVariantMode(row["variant_mode"]) as VariantMode,
         variantConfig: parseVariantConfig(row["variant_config"]) as VariantConfig,
         deltaSyncConfig: parseDeltaSyncConfig(row["delta_sync_config"]) as DeltaSyncConfig,
+        guardrailConfig: parseGuardrailConfig(row["guardrail_config"]) as GuardrailConfig,
         lastFullSyncAt: (row["last_full_sync_at"] as string | null) ?? null,
         connectionType: parseConnectionType(row["connection_type"]) as ConnectionType,
         /* Şifre tarayıcıya gönderilmez; yalnızca kayıtlı olup olmadığı bildirilir. */
@@ -309,6 +330,7 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
       currency_config: serializeCurrencyConfig(data.currencyConfig),
       pricing_rules: serializePricingRules(data.pricingRules),
       delta_sync_config: serializeDeltaSyncConfig(data.deltaSyncConfig as DeltaSyncConfig),
+      guardrail_config: serializeGuardrailConfig(data.guardrailConfig as GuardrailConfig),
       variant_mode: data.variantMode,
       variant_config: serializeVariantConfig(parseVariantConfig({
         parent_node_path: data.variantConfig.parentNodePath,
