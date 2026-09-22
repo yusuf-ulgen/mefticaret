@@ -6,6 +6,7 @@ import { Check, Download, Eye, Monitor, Palette, Smartphone, Sparkles, Tablet } 
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { ThemeMarketPanel } from "@/components/theme-market-panel";
 import { StorefrontSections, type SectionProduct } from "@/components/storefront-sections";
 import type { StoreTheme } from "@/components/storefront-chrome";
 import { ThemeSettingsDialog } from "@/components/theme-editor/theme-settings-dialog";
@@ -221,6 +222,8 @@ function ThemeStorePage() {
       }
     >
       <div className="space-y-8">
+        <ThemeMarketPanel storeId={storeId} />
+
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {THEME_TEMPLATES.map((template) => {
             const active = theme?.preset === template.code;
