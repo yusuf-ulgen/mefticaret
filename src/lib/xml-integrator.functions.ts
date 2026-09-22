@@ -1425,3 +1425,110 @@ export const resolveXmlQuarantine = createServerFn({ method: "POST" })
       notFound: data.itemIds.length - items.length,
     };
   });
+
+/** Tedarikçi performans raporu: besleme bazında günlük istatistiklerin özeti. */
+export const xmlSupplierPerformanceReport = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z.object({ storeId: z.guid(), days: z.number().int().min(1).max(365).default(30) }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const start = new Date(Date.now() - data.days * 86_400_000).toISOString().slice(0, 10);
+    const { data: rows, error } = await context.supabase
+      .from("xml_analytics_daily")
+      .select(
+        "feed_id, date, total_products_count, out_of_stock_count, price_changed_count, stock_changed_count, sync_duration_avg_seconds, success_rate_percent, quarantined_items_count, xml_feeds(name)",
+      )
+      .eq("store_id", data.storeId)
+      .gte("date", start)
+      .order("date", { ascending: true })
+      .limit(5000);
+    if (error) throw new Error(error.message);
+
+    type Row = {
+      feed_id: string;
+      date: string;
+      total_products_count: number | null;
+      out_of_stock_count: number | null;
+      price_changed_count: number | null;
+      stock_changed_count: number | null;
+      sync_duration_avg_seconds: number | null;
+      success_rate_percent: number | null;
+      quarantined_items_count: number | null;
+      xml_feeds: { name: string | null } | null;
+    };
+
+    const grouped = new Map<
+      string,
+      {
+        feedId: string;
+        supplierName: string;
+        days: number;
+        catalogSum: number;
+        outOfStockSum: number;
+        priceUpdates: number;
+        stockUpdates: number;
+        durationSum: number;
+        successSum: number;
+        errors: number;
+      }
+    >();
+
+    for (const row of (rows ?? []) as unknown as Row[]) {
+      const entry = grouped.get(row.feed_id) ?? {
+        feedId: row.feed_id,
+        supplierName: row.xml_feeds?.name ?? "Besleme",
+        days: 0,
+        catalogSum: 0,
+        outOfStockSum: 0,
+        priceUpdates: 0,
+        stockUpdates: 0,
+        durationSum: 0,
+        successSum: 0,
+        errors: 0,
+      };
+      entry.days += 1;
+      entry.catalogSum += Number(row.total_products_count ?? 0);
+      entry.outOfStockSum += Number(row.out_of_stock_count ?? 0);
+      entry.priceUpdates += Number(row.price_changed_count ?? 0);
+      entry.stockUpdates += Number(row.stock_changed_count ?? 0);
+      entry.durationSum += Number(row.sync_duration_avg_seconds ?? 0);
+      entry.successSum += Number(row.success_rate_percent ?? 0);
+      entry.errors += Number(row.quarantined_items_count ?? 0);
+      grouped.set(row.feed_id, entry);
+    }
+
+    const round = (value: number) => Math.round(value * 100) / 100;
+
+    return {
+      since: start,
+      days: data.days,
+      suppliers: [...grouped.values()]
+        .map((entry) => ({
+          feedId: entry.feedId,
+          supplierName: entry.supplierName,
+          avgCatalogSize: round(entry.catalogSum / entry.days),
+          avgOutOfStock: round(entry.outOfStockSum / entry.days),
+          totalPriceUpdates: entry.priceUpdates,
+          totalStockUpdates: entry.stockUpdates,
+          avgSpeedSeconds: round(entry.durationSum / entry.days),
+          avgSuccessPercent: round(entry.successSum / entry.days),
+          totalQuarantined: entry.errors,
+        }))
+        .sort((a, b) => b.avgCatalogSize - a.avgCatalogSize),
+      daily: ((rows ?? []) as unknown as Row[]).map((row) => ({
+        feedId: row.feed_id,
+        date: row.date,
+        totalProducts: Number(row.total_products_count ?? 0),
+        outOfStock: Number(row.out_of_stock_count ?? 0),
+        priceChanged: Number(row.price_changed_count ?? 0),
+        stockChanged: Number(row.stock_changed_count ?? 0),
+        durationSeconds: Number(row.sync_duration_avg_seconds ?? 0),
+        successPercent: Number(row.success_rate_percent ?? 0),
+        quarantined: Number(row.quarantined_items_count ?? 0),
+      })),
+    };
+  });

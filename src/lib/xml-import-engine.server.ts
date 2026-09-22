@@ -1015,6 +1015,31 @@ export async function runImportFeed(
     }
 
     const allErrors = [...mappingErrors, ...upsert.errors];
+
+    /* Günlük tedarikçi istatistikleri (katalog boyutu, stoksuz ürün, değişim sayıları). */
+    const { recordImportMetrics } = await import("@/lib/xml-analytics.server");
+    const outOfStock = items.filter((item) =>
+      item.variants.length
+        ? item.variants.every((variant) => Number(variant.stock ?? 0) <= 0)
+        : Number(item.stock ?? 0) <= 0,
+    ).length;
+    await recordImportMetrics(admin, {
+      storeId: feed.storeId,
+      feedId: feed.id,
+      summary: {
+        totalRecords: items.length,
+        outOfStockCount: outOfStock,
+        priceChangedCount: upsert.priceChanged,
+        stockChangedCount: upsert.stockChanged,
+        quarantineCount: upsert.quarantined,
+        durationSeconds: Math.max(1, Math.round((Date.now() - startedAt.getTime()) / 1000)),
+        successRatePercent:
+          parsed.totalRows > 0
+            ? Math.max(0, ((parsed.totalRows - allErrors.length) / parsed.totalRows) * 100)
+            : 100,
+      },
+    });
+
     return await finish(
       {
         status: "success",
