@@ -9,7 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ErrorCategoryBadges, LiveRunProgress } from "@/components/xml-integrator/live-run-progress";
 import { RunStatusBadge } from "@/components/xml-integrator/shared";
+
 import { formatDate } from "@/lib/mefti";
 import { xmlIntegratorOverviewQuery } from "@/lib/xml-integrator-queries";
 
@@ -38,7 +40,10 @@ export function XmlLogsPanel({ storeId }: { storeId: string }) {
 
   return (
     <div className="space-y-4">
+      <LiveRunProgress storeId={storeId} feedNames={feedName} />
+
       <div className="space-y-1">
+
         <Label htmlFor="log-feed">Besleme</Label>
         <select
           id="log-feed"
@@ -78,9 +83,11 @@ export function XmlLogsPanel({ storeId }: { storeId: string }) {
                   {Number(log["error_count"] ?? 0)} hata
                   {log["duration_seconds"] ? ` · ${Number(log["duration_seconds"])} sn` : ""}
                 </p>
+                <ErrorCategoryBadges value={log["error_categories"]} />
                 {log["error_message"] ? (
                   <p className="mt-1 text-destructive">{String(log["error_message"])}</p>
                 ) : null}
+
               </article>
             ))
           ) : (

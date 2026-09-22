@@ -103,7 +103,21 @@ export type NormalizedProduct = {
   options: Record<string, string>;
 };
 
-export type RowError = { row: number; reason: string };
+/** Hata kategorileri — canlı sayaç ve kayıt panelinde gruplama için. */
+export type ErrorCategory = "FETCH_ERROR" | "PARSE_ERROR" | "MAPPING_ERROR" | "UPSERT_ERROR";
+
+export type RowError = { row: number; reason: string; category?: ErrorCategory };
+
+/** Hata listesini kategori sayaçlarına çevirir. */
+export function countErrorCategories(errors: RowError[]): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const item of errors) {
+    const key = item.category ?? "MAPPING_ERROR";
+    out[key] = (out[key] ?? 0) + 1;
+  }
+  return out;
+}
+
 
 /** "1.234,56" / "1,234.56" / "12 TL" gibi değerleri sayıya çevirir. */
 export function parseNumber(raw: string | undefined | null): number | null {
@@ -267,14 +281,18 @@ export async function upsertProducts(
     chunkSize?: number;
     publishNew?: boolean;
     updateContent?: boolean;
+    /** Her paket bittiğinde çağrılır; canlı ilerleme için kullanılır. */
+    onProgress?: (progress: { processed: number; total: number; result: UpsertResult }) => void | Promise<void>;
   },
 ): Promise<UpsertResult> {
   const result: UpsertResult = { created: 0, updated: 0, skipped: 0, errors: [] };
   const size = Math.max(10, Math.min(input.chunkSize ?? UPSERT_CHUNK_SIZE, 250));
   const updateContent = input.updateContent ?? true;
+  let processed = 0;
 
   for (const part of chunk(input.items, size)) {
     const skus = part.map((item) => item.key);
+
 
     const { data: existingRows, error: existingError } = await admin
       .from("products")
@@ -315,7 +333,7 @@ export async function upsertProducts(
 
       const { error } = await admin.from("products").update(patch).eq("id", productId).eq("store_id", input.storeId);
       if (error) {
-        result.errors.push({ row: 0, reason: `${item.key}: ${error.message}` });
+        result.errors.push({ row: 0, reason: `${item.key}: ${error.message}`, category: "UPSERT_ERROR" });
         result.skipped += 1;
         continue;
       }
@@ -378,7 +396,12 @@ export async function upsertProducts(
             .select("id")
             .single();
           if (singleError || !single) {
-            result.errors.push({ row: 0, reason: `${item.key}: ${singleError?.message ?? "eklenemedi"}` });
+            result.errors.push({
+              row: 0,
+              reason: `${item.key}: ${singleError?.message ?? "eklenemedi"}`,
+              category: "UPSERT_ERROR",
+            });
+
             result.skipped += 1;
             continue;
           }
@@ -390,14 +413,19 @@ export async function upsertProducts(
         for (const [index, item] of toInsert.entries()) {
           const row = insertedRows[index];
           if (!row) {
+            result.errors.push({ row: 0, reason: `${item.key}: ürün eklenemedi`, category: "UPSERT_ERROR" });
             result.skipped += 1;
             continue;
           }
+
           await insertChildren(admin, input.storeId, row.id, item);
           result.created += 1;
         }
       }
     }
+
+    processed += part.length;
+    if (input.onProgress) await input.onProgress({ processed, total: input.items.length, result });
   }
 
   return result;
@@ -481,23 +509,55 @@ export async function runImportFeed(
   if (feed.direction !== "import") throw new Error("Bu besleme içe aktarım beslemesi değil");
   if (!feed.sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı tanımlı değil");
 
-  const finish = async (result: Omit<FeedRunResult, "durationSeconds">) => {
-    const durationSeconds = Math.max(1, Math.round((Date.now() - startedAt.getTime()) / 1000));
-    await admin.from("xml_import_logs").insert({
+  /* Çalışma kaydı en başta "running" olarak açılır; ilerleme aynı satıra yazılır
+     ve tarayıcı Realtime ile bu satırı canlı izler. */
+  const { data: logRow } = await admin
+    .from("xml_import_logs")
+    .insert({
       store_id: feed.storeId,
       feed_id: feed.id,
-      status: result.status,
+      status: "running",
       trigger,
+      phase: "fetching",
+      total_rows: 0,
+      processed_count: 0,
+      started_at: startedAt.toISOString(),
+    })
+    .select("id")
+    .single();
+  const logId = (logRow as { id: string } | null)?.id ?? null;
+
+  const patchLog = async (patch: Record<string, unknown>) => {
+    if (!logId) return;
+    await admin.from("xml_import_logs").update(patch).eq("id", logId).eq("store_id", feed.storeId);
+  };
+
+  const finish = async (result: Omit<FeedRunResult, "durationSeconds">, errors: RowError[] = []) => {
+    const durationSeconds = Math.max(1, Math.round((Date.now() - startedAt.getTime()) / 1000));
+    const payload = {
+      status: result.status,
+      phase: "done",
       total_rows: result.totalRows,
+      processed_count: result.created + result.updated + result.skipped,
       created_count: result.created,
       updated_count: result.updated,
       skipped_count: result.skipped,
       error_count: result.errorCount,
+      error_categories: countErrorCategories(errors) as never,
+      errors: errors.slice(0, 50) as never,
       error_message: result.errorMessage,
       duration_seconds: durationSeconds,
-      started_at: startedAt.toISOString(),
       finished_at: new Date().toISOString(),
-    });
+    };
+    if (logId) await patchLog(payload);
+    else
+      await admin.from("xml_import_logs").insert({
+        store_id: feed.storeId,
+        feed_id: feed.id,
+        trigger,
+        started_at: startedAt.toISOString(),
+        ...payload,
+      });
     await admin
       .from("xml_feeds")
       .update({
@@ -519,6 +579,8 @@ export async function runImportFeed(
     return { ...result, durationSeconds };
   };
 
+  let phase: "fetching" | "parsing" | "mapping" | "upserting" = "fetching";
+
   try {
     const fetched = await fetchFeedSource({
       url: feed.sourceUrl,
@@ -526,11 +588,17 @@ export async function runImportFeed(
       authConfig: feed.authConfig,
       format: feed.sourceFormat,
     });
+
+    phase = "parsing";
+    await patchLog({ phase });
     const parsed = parseFeedRows(fetched, {
       itemPath: feed.itemPath,
       ...(options.rowLimit === undefined ? {} : { limit: options.rowLimit }),
     });
     const fields = await saveFieldSchema(admin, { storeId: feed.storeId, feedId: feed.id, parsed });
+
+    phase = "mapping";
+    await patchLog({ phase, total_rows: parsed.totalRows });
 
     const mapping = feed.fieldMapping ?? {};
     if (!mapping["sku"] && !mapping["barcode"]) {
@@ -545,41 +613,75 @@ export async function runImportFeed(
       currency: feed.currency,
       transformRules: parseTransformRules(feed.transformRules),
     });
+    const mappingErrors: RowError[] = errors.map((item) => ({ ...item, category: "MAPPING_ERROR" }));
+
+    phase = "upserting";
+    await patchLog({ phase, error_count: mappingErrors.length });
+
+    let lastTick = 0;
     const upsert = await upsertProducts(admin, {
       storeId: feed.storeId,
       items,
       publishNew: options.publishNew ?? false,
+      onProgress: async ({ processed, result }) => {
+        // Her pakette değil, en fazla saniyede bir yazarız; gereksiz yük olmasın.
+        if (Date.now() - lastTick < 800 && processed < items.length) return;
+        lastTick = Date.now();
+        await patchLog({
+          processed_count: processed,
+          created_count: result.created,
+          updated_count: result.updated,
+          skipped_count: result.skipped + mappingErrors.length,
+          error_count: mappingErrors.length + result.errors.length,
+          error_categories: countErrorCategories([...mappingErrors, ...result.errors]) as never,
+        });
+      },
     });
 
-    const allErrors = [...errors, ...upsert.errors];
-    return await finish({
-      status: "success",
-      totalRows: parsed.totalRows,
-      created: upsert.created,
-      updated: upsert.updated,
-      skipped: upsert.skipped + errors.length,
-      errorCount: allErrors.length,
-      errorMessage: allErrors.length
-        ? allErrors.slice(0, 5).map((item) => item.reason).join(" | ").slice(0, 900)
-        : null,
-      attempts: fetched.attempts,
-      format: parsed.format,
-      fields,
-    });
+    const allErrors = [...mappingErrors, ...upsert.errors];
+    return await finish(
+      {
+        status: "success",
+        totalRows: parsed.totalRows,
+        created: upsert.created,
+        updated: upsert.updated,
+        skipped: upsert.skipped + mappingErrors.length,
+        errorCount: allErrors.length,
+        errorMessage: allErrors.length
+          ? allErrors.slice(0, 5).map((item) => item.reason).join(" | ").slice(0, 900)
+          : null,
+        attempts: fetched.attempts,
+        format: parsed.format,
+        fields,
+      },
+      allErrors,
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Bilinmeyen hata";
-    await finish({
-      status: "failed",
-      totalRows: 0,
-      created: 0,
-      updated: 0,
-      skipped: 0,
-      errorCount: 1,
-      errorMessage: message.slice(0, 900),
-      attempts: FETCH_ATTEMPTS,
-      format: feed.sourceFormat ?? "xml",
-      fields: 0,
-    });
+    const category: ErrorCategory =
+      phase === "fetching"
+        ? "FETCH_ERROR"
+        : phase === "parsing"
+          ? "PARSE_ERROR"
+          : phase === "upserting"
+            ? "UPSERT_ERROR"
+            : "MAPPING_ERROR";
+    await finish(
+      {
+        status: "failed",
+        totalRows: 0,
+        created: 0,
+        updated: 0,
+        skipped: 0,
+        errorCount: 1,
+        errorMessage: message.slice(0, 900),
+        attempts: FETCH_ATTEMPTS,
+        format: feed.sourceFormat ?? "xml",
+        fields: 0,
+      },
+      [{ row: 0, reason: message.slice(0, 300), category }],
+    );
     throw new Error(message);
   }
 }
+

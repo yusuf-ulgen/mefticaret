@@ -21,7 +21,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
+import { LiveRunProgress } from "@/components/xml-integrator/live-run-progress";
 import { RunStatusBadge } from "@/components/xml-integrator/shared";
+
 import { supabase } from "@/integrations/supabase/client";
 import { formatDate } from "@/lib/mefti";
 import { XML_SCHEDULE_LABELS } from "@/lib/xml-integrator";
@@ -102,7 +104,10 @@ export function XmlIntegratorDashboard({ storeId }: { storeId: string }) {
 
   return (
     <div className="space-y-4">
+      <LiveRunProgress storeId={storeId} feedNames={new Map(feeds.map((feed) => [feed.id, feed.name]))} />
+
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+
         {metrics.map((metric) => (
           <div key={metric.label} className="rounded-xl border bg-card p-4">
             <metric.icon className="size-4 text-muted-foreground" />
