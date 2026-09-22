@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/customizer"
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: CustomizerPage;
+  component: CustomizerPage,
 });
 
 function CustomizerPage() {
