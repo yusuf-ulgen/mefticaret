@@ -385,6 +385,10 @@ export type UpsertResult = {
   skipped: number;
   /** Güvenlik sınırlarına takılıp incelemeye alınan ürün sayısı. */
   quarantined: number;
+  /** Fiyatı gerçekten değişen ürün sayısı. */
+  priceChanged: number;
+  /** Stoğu gerçekten değişen ürün sayısı. */
+  stockChanged: number;
   errors: RowError[];
 };
 
@@ -426,7 +430,15 @@ export async function upsertProducts(
     onProgress?: (progress: { processed: number; total: number; result: UpsertResult }) => void | Promise<void>;
   },
 ): Promise<UpsertResult> {
-  const result: UpsertResult = { created: 0, updated: 0, skipped: 0, quarantined: 0, errors: [] };
+  const result: UpsertResult = {
+    created: 0,
+    updated: 0,
+    skipped: 0,
+    quarantined: 0,
+    priceChanged: 0,
+    stockChanged: 0,
+    errors: [],
+  };
   const size = Math.max(10, Math.min(input.chunkSize ?? UPSERT_CHUNK_SIZE, 250));
   const updateContent = input.updateContent ?? true;
   const guardrail = input.guardrail && input.guardrail.config.enabled ? input.guardrail : null;
@@ -511,7 +523,11 @@ export async function upsertProducts(
 
     /* --- var olan ürünler: fiyat ve stok güncellenir --- */
     for (const item of toUpdate) {
-      const productId = byKey.get(item.key)!.id;
+      const existingEntry = byKey.get(item.key)!;
+      const productId = existingEntry.id;
+      if (existingEntry.basePrice === null || Math.abs(existingEntry.basePrice - item.price) > 0.009) {
+        result.priceChanged += 1;
+      }
       const patch: Record<string, unknown> = {
         base_price: item.price,
         compare_at_price: item.compareAtPrice,
@@ -537,7 +553,7 @@ export async function upsertProducts(
 
       const { data: variantRows } = await admin
         .from("product_variants")
-        .select("id, sku, barcode, position")
+        .select("id, sku, barcode, position, stock")
         .eq("product_id", productId)
         .order("position", { ascending: true });
       const existingVariants = (variantRows ?? []) as Array<{
@@ -545,7 +561,17 @@ export async function upsertProducts(
         sku: string | null;
         barcode: string | null;
         position: number | null;
+        stock: number | null;
       }>;
+
+      /* Stok değişimi: varyasyonlu üründe toplam, tekil üründe ilk varyant. */
+      const previousStock = item.variants.length
+        ? existingVariants.reduce((sum, row) => sum + Number(row.stock ?? 0), 0)
+        : Number(existingVariants[0]?.stock ?? 0);
+      const incomingStock = item.variants.length
+        ? item.variants.reduce((sum, variant) => sum + Number(variant.stock ?? 0), 0)
+        : Number(item.stock ?? 0);
+      if (previousStock !== incomingStock) result.stockChanged += 1;
 
       if (item.variants.length) {
         /* Varyasyonlu ürün: her varyant stok kodu/barkoduna göre eşleşir,
