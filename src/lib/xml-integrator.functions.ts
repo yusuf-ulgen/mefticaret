@@ -835,6 +835,7 @@ export const aiSuggestXmlCategoryMappings = createServerFn({ method: "POST" })
       requested: pending.length,
       suggested: matched.length,
       unmatched: suggestions.length - matched.length,
+      highConfidence: matched.filter((row) => row.confidence >= 0.9).length,
       creditsUsed,
     };
   });
