@@ -83,6 +83,7 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
   const matched = (query.data?.mappings ?? []).filter((row) => row.targetCategoryId).length;
 
   return (
+    <TooltipProvider>
     <section className="space-y-3 rounded-xl border bg-card p-3">
       <header className="flex flex-wrap items-center gap-2">
         <h3 className="text-sm font-medium">Kategori eşleme</h3>
@@ -184,5 +185,6 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
         </>
       )}
     </section>
+    </TooltipProvider>
   );
 }
