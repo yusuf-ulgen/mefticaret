@@ -18105,6 +18105,7 @@ export type Database = {
           category_map: Json
           created_at: string
           created_by: string | null
+          cron_expression: string | null
           currency: string
           direction: Database["public"]["Enums"]["xml_direction"]
           export_token: string
@@ -18136,6 +18137,7 @@ export type Database = {
           category_map?: Json
           created_at?: string
           created_by?: string | null
+          cron_expression?: string | null
           currency?: string
           direction?: Database["public"]["Enums"]["xml_direction"]
           export_token?: string
@@ -18167,6 +18169,7 @@ export type Database = {
           category_map?: Json
           created_at?: string
           created_by?: string | null
+          cron_expression?: string | null
           currency?: string
           direction?: Database["public"]["Enums"]["xml_direction"]
           export_token?: string
@@ -18912,6 +18915,7 @@ export type Database = {
         | "six_hourly"
         | "twelve_hourly"
         | "daily"
+        | "custom"
       xml_source_format: "xml" | "csv" | "xlsx" | "json"
     }
     CompositeTypes: {
@@ -19367,6 +19371,7 @@ export const Constants = {
         "six_hourly",
         "twelve_hourly",
         "daily",
+        "custom",
       ],
       xml_source_format: ["xml", "csv", "xlsx", "json"],
     },
