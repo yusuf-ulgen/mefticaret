@@ -843,7 +843,8 @@ export async function runImportFeed(
     /* Delta senkronizasyon: kayıtlı özetle aynı olan ürünler atlanır.
        Ayarlanan süre geçtiyse (varsayılan 7 gün) tam senkronizasyon yapılır. */
     const deltaConfig = parseDeltaSyncConfig(feed.deltaSyncConfig);
-    const fullSync = needsFullSync(deltaConfig, feed.lastFullSyncAt ?? null, startedAt);
+    const fullSync =
+      feed.forceFullSync === true || needsFullSync(deltaConfig, feed.lastFullSyncAt ?? null, startedAt);
     const deltaActive = deltaConfig.enabled && !fullSync;
     let itemsToWrite = items;
     let unchangedCount = 0;
