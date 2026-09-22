@@ -921,3 +921,113 @@ export const aiSuggestXmlFieldMapping = createServerFn({ method: "POST" })
       creditsUsed,
     };
   });
+
+/**
+ * İçe aktarım önizlemesi: kaynağın ilk satırları ekrandaki (henüz kaydedilmemiş)
+ * eşleme ve varyasyon ayarlarıyla işlenir, ilk 10 ürün ağaç olarak döndürülür.
+ */
+export const previewXmlImport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        feedId: z.guid(),
+        fieldMapping: z.record(z.string(), z.string()).default({}),
+        transformRules: z.record(z.string(), z.any()).default({}),
+        variantMode: z.enum(["none", "nested", "flat"]).default("none"),
+        variantConfig: z
+          .object({
+            parentNodePath: z.string().trim().max(300).default(""),
+            variantNodePath: z.string().trim().max(300).default(""),
+            parentSkuField: z.string().trim().max(300).default(""),
+            optionAttributes: z.array(z.string().trim().max(300)).max(12).default([]),
+            variantMapping: z.record(z.string(), z.string().max(300)).default({}),
+          })
+          .default({}),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_preview:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla önizleme denemesi, birkaç dakika sonra tekrar deneyin");
+
+    const { data: feedRow, error } = await context.supabase
+      .from("xml_feeds")
+      .select("source_url, source_format, item_path, auth_type, auth_config, price_markup, currency")
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!feedRow) throw new Error("Besleme bulunamadı");
+    const feed = feedRow as Record<string, any>;
+    const sourceUrl = (feed["source_url"] as string | null) ?? null;
+    if (!sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı yok");
+
+    const { fetchFeedSource, parseFeedRows, normalizeRows } = await import("@/lib/xml-import-engine.server");
+    const { buildVariantGroups } = await import("@/lib/xml-variant-parser");
+
+    const fetched = await fetchFeedSource({
+      url: sourceUrl,
+      authType: String(feed["auth_type"] ?? "none") as never,
+      authConfig: (feed["auth_config"] ?? {}) as Record<string, string>,
+      format: (feed["source_format"] as never) ?? null,
+    });
+    const parsed = parseFeedRows(fetched, { itemPath: (feed["item_path"] as string | null) ?? null, limit: 200 });
+
+    const variantConfig = parseVariantConfig({
+      parent_node_path: data.variantConfig.parentNodePath,
+      variant_node_path: data.variantConfig.variantNodePath,
+      parent_sku_field: data.variantConfig.parentSkuField,
+      option_attributes: data.variantConfig.optionAttributes,
+      variant_field_mapping: data.variantConfig.variantMapping,
+    });
+    const mode = parseVariantMode(data.variantMode);
+    const groups = buildVariantGroups(parsed.rows, mode, variantConfig);
+
+    const { items, errors } = normalizeRows(
+      groups.map((group) => group.row),
+      data.fieldMapping,
+      {
+        priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
+        currency: String(feed["currency"] ?? "TRY"),
+        transformRules: data.transformRules as never,
+        ...(mode === "none"
+          ? {}
+          : {
+              variantRows: groups.map((group) => group.variantRows),
+              optionAttributes: variantConfig.optionAttributes,
+              variantMapping: variantConfig.variantMapping,
+            }),
+      },
+    );
+
+    return {
+      totalRows: parsed.rows.length,
+      format: parsed.format,
+      errorCount: errors.length,
+      errors: errors.slice(0, 10),
+      products: items.slice(0, 10).map((item) => ({
+        sku: item.sku,
+        barcode: item.barcode,
+        title: item.title,
+        price: item.price,
+        stock: item.stock,
+        currency: item.currency,
+        images: item.images.slice(0, 3),
+        options: item.options,
+        variants: item.variants.slice(0, 50).map((variant) => ({
+          sku: variant.sku,
+          barcode: variant.barcode,
+          title: variant.title,
+          price: variant.price,
+          stock: variant.stock,
+          options: variant.options,
+        })),
+      })),
+    };
+  });
