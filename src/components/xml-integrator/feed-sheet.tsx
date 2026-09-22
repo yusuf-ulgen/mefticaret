@@ -198,6 +198,9 @@ export function FeedSheet({
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const webhookUrl = form.webhookToken
+    ? `${typeof window === "undefined" ? "" : window.location.origin}/api/public/xml-feed-push/${form.webhookToken}`
+    : null;
   const columns = analysis.data?.columns ?? [];
   const samples = analysis.data?.sampleRows ?? [];
   const missing = useMemo(() => missingRequiredFields(form.fieldMapping), [form.fieldMapping]);

@@ -29,11 +29,11 @@ export function ConnectionSettings({
   onConnectionTypeChange,
   onFtpConfigChange,
 }: {
-  idPrefix?: string;
+  idPrefix?: string | undefined;
   connectionType: ConnectionType;
   ftpConfig: FtpConfig;
-  hasFtpPassword?: boolean;
-  webhookUrl?: string | null;
+  hasFtpPassword?: boolean | undefined;
+  webhookUrl?: string | null | undefined;
   onConnectionTypeChange: (next: ConnectionType) => void;
   onFtpConfigChange: (next: FtpConfig) => void;
 }) {
