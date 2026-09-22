@@ -148,6 +148,17 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
     [groups, pinned],
   );
 
+  // Son ziyaret edilen ekranlar, sabitlenmemiş olanlar arasından gösterilir.
+  const { recent, clear: clearRecent } = useRecentPaths(storeId);
+  const recentItems = useMemo(() => {
+    const all = groups.flatMap((group) => group.items);
+    return recent
+      .map((path) => all.find((item) => item.to === path))
+      .filter((item): item is StoreNavItem => Boolean(item))
+      .filter((item) => !pinned.includes(item.label))
+      .slice(0, 5);
+  }, [groups, recent, pinned]);
+
   const [openGroups, setOpenGroups] = useState<string[]>([]);
   const activeGroup = groups.find((group) =>
     group.items.some((item) => pathname.startsWith(item.to)),
