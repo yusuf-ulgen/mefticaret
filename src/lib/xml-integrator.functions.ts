@@ -51,6 +51,16 @@ import {
   type DeltaSyncConfig,
 } from "@/lib/xml-delta-sync";
 
+import {
+  CONNECTION_TYPES,
+  DEFAULT_FTP_CONFIG,
+  maskFtpConfig,
+  parseConnectionType,
+  parseFtpConfig,
+  serializeFtpConfig,
+  type ConnectionType,
+} from "@/lib/xml-connection";
+
 const storeSchema = z.object({ storeId: z.guid() });
 
 const authConfigSchema = z
@@ -76,6 +86,19 @@ const feedSchema = z.object({
   itemPath: z.string().trim().max(200).optional(),
   authType: z.enum(XML_AUTH_TYPES).default("none"),
   authConfig: authConfigSchema,
+  connectionType: z.enum(CONNECTION_TYPES).default("url"),
+  ftpConfig: z
+    .object({
+      host: z.string().trim().max(253).default(""),
+      port: z.number().int().min(1).max(65535).default(21),
+      username: z.string().trim().max(200).default(""),
+      /* Boş bırakılırsa kayıtlı şifre korunur. */
+      password: z.string().max(400).default(""),
+      passive: z.boolean().default(true),
+      ssl: z.boolean().default(false),
+      filePath: z.string().trim().max(500).default(DEFAULT_FTP_CONFIG.filePath),
+    })
+    .default(() => ({ ...DEFAULT_FTP_CONFIG })),
   outputFilename: z.string().trim().max(120).optional(),
   schedule: z.enum(XML_SCHEDULES).default("manual"),
   cronExpression: z.string().trim().min(9).max(100).optional(),
@@ -173,7 +196,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
       context.supabase
         .from("xml_feeds")
         .select(
-          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config, currency_config, pricing_rules, delta_sync_config, last_full_sync_at",
+          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config, currency_config, pricing_rules, delta_sync_config, last_full_sync_at, connection_type, ftp_config, webhook_token",
         )
         .eq("store_id", data.storeId)
         .order("created_at", { ascending: false }),
@@ -218,6 +241,10 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
         variantConfig: parseVariantConfig(row["variant_config"]) as VariantConfig,
         deltaSyncConfig: parseDeltaSyncConfig(row["delta_sync_config"]) as DeltaSyncConfig,
         lastFullSyncAt: (row["last_full_sync_at"] as string | null) ?? null,
+        connectionType: parseConnectionType(row["connection_type"]) as ConnectionType,
+        /* Şifre tarayıcıya gönderilmez; yalnızca kayıtlı olup olmadığı bildirilir. */
+        ftpConfig: maskFtpConfig(row["ftp_config"]),
+        webhookToken: String(row["webhook_token"] ?? ""),
         lastRunAt: (row["last_run_at"] as string | null) ?? null,
         nextRunAt: (row["next_run_at"] as string | null) ?? null,
         lastStatus: (row["last_status"] as string | null) ?? null,
@@ -240,8 +267,16 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
     const { assertStoreManager } = await import("@/lib/store-access.server");
     await assertStoreManager(context.supabase, data.storeId, context.userId);
 
-    if (data.direction === "import" && !data.sourceUrl) {
+    /* Dışa aktarım beslemeleri her zaman adres tabanlıdır. */
+    const connectionType: ConnectionType = data.direction === "export" ? "url" : data.connectionType;
+
+    if (data.direction === "import" && connectionType === "url" && !data.sourceUrl) {
       throw new Error("İçe aktarım beslemesi için kaynak bağlantısı zorunludur");
+    }
+    if (connectionType === "ftp" || connectionType === "sftp") {
+      if (!data.ftpConfig.host) throw new Error("FTP sunucu adresi zorunludur");
+      if (!data.ftpConfig.username) throw new Error("FTP kullanıcı adı zorunludur");
+      if (!data.ftpConfig.filePath) throw new Error("İndirilecek dosya yolu zorunludur");
     }
     if (data.schedule === "custom" && !isValidCron(data.cronExpression ?? "")) {
       throw new Error("Özel zamanlama için geçerli bir cron ifadesi girin (örn. 0 */4 * * *)");
@@ -261,6 +296,7 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
       item_path: data.itemPath || null,
       auth_type: data.authType,
       auth_config: data.authConfig,
+      connection_type: connectionType,
       output_filename: data.outputFilename || null,
       schedule: data.schedule,
       cron_expression: data.schedule === "custom" ? (data.cronExpression ?? null) : null,
@@ -281,6 +317,7 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
         option_attributes: data.variantConfig.optionAttributes,
         variant_field_mapping: data.variantConfig.variantMapping,
       })),
+      ftp_config: serializeFtpConfig(data.ftpConfig),
       next_run_at: data.isActive ? nextRunFor(data.schedule, data.cronExpression ?? null) : null,
       created_by: context.userId,
     };
@@ -289,19 +326,26 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
       // Kimlik bilgisi alanları boş gönderildiyse mevcut değer korunur.
       const { data: existing } = await context.supabase
         .from("xml_feeds")
-        .select("auth_config")
+        .select("auth_config, ftp_config")
         .eq("id", data.feedId)
         .eq("store_id", data.storeId)
         .maybeSingle();
-      const previous = ((existing as { auth_config?: Record<string, string> } | null)?.auth_config ?? {}) as Record<string, string>;
+      const row = existing as { auth_config?: Record<string, string>; ftp_config?: unknown } | null;
+      const previous = (row?.auth_config ?? {}) as Record<string, string>;
       const merged: Record<string, string> = { ...previous };
       for (const [key, value] of Object.entries(data.authConfig)) {
         if (typeof value === "string" && value.length > 0) merged[key] = value;
       }
+      /* FTP şifresi boş gönderildiyse kayıtlı şifre korunur. */
+      const previousFtp = parseFtpConfig(row?.ftp_config);
+      const ftpConfig = serializeFtpConfig({
+        ...data.ftpConfig,
+        password: data.ftpConfig.password.length > 0 ? data.ftpConfig.password : previousFtp.password,
+      });
 
       const { error } = await context.supabase
         .from("xml_feeds")
-        .update({ ...payload, auth_config: merged } as never)
+        .update({ ...payload, auth_config: merged, ftp_config: ftpConfig } as never)
         .eq("id", data.feedId)
         .eq("store_id", data.storeId);
       if (error) throw new Error(error.message);
@@ -374,11 +418,12 @@ export const analyzeXmlSource = createServerFn({ method: "POST" })
       .object({
         storeId: z.guid(),
         feedId: z.guid().optional(),
-        sourceUrl: z.string().trim().min(8).max(2000),
+        sourceUrl: z.string().trim().max(2000).default(""),
         sourceFormat: z.enum(XML_SOURCE_FORMATS).optional(),
         itemPath: z.string().trim().max(200).optional(),
         authType: z.enum(XML_AUTH_TYPES).default("none"),
         authConfig: authConfigSchema,
+        connectionType: z.enum(CONNECTION_TYPES).default("url"),
       })
       .parse(data),
   )
@@ -395,18 +440,33 @@ export const analyzeXmlSource = createServerFn({ method: "POST" })
     let authConfig: Record<string, string> = Object.fromEntries(
       Object.entries(data.authConfig).filter(([, value]) => typeof value === "string" && value.length > 0),
     ) as Record<string, string>;
+    let ftpConfig: unknown = {};
     if (data.feedId) {
       const { data: feed } = await context.supabase
         .from("xml_feeds")
-        .select("auth_type, auth_config")
+        .select("auth_type, auth_config, ftp_config")
         .eq("id", data.feedId)
         .eq("store_id", data.storeId)
         .maybeSingle();
-      const row = feed as { auth_type?: string; auth_config?: Record<string, string> } | null;
+      const row = feed as
+        | { auth_type?: string; auth_config?: Record<string, string>; ftp_config?: unknown }
+        | null;
       if (row) {
         authType = (row.auth_type as typeof authType) ?? authType;
         authConfig = { ...(row.auth_config ?? {}), ...authConfig };
+        ftpConfig = row.ftp_config ?? {};
       }
+    }
+
+    const connectionType = data.connectionType;
+    if (connectionType === "url" && data.sourceUrl.length < 8) {
+      throw new Error("Geçerli bir kaynak bağlantısı girin");
+    }
+    if ((connectionType === "ftp" || connectionType === "sftp") && !data.feedId) {
+      throw new Error("FTP kaynağını incelemek için beslemeyi önce kaydedin");
+    }
+    if (connectionType === "webhook") {
+      throw new Error("Webhook beslemesinde inceleme yapılamaz; tedarikçinin dosya göndermesi gerekir");
     }
 
     const { analyzeSource, saveFieldSchema } = await import("@/lib/xml-integrator.server");
@@ -417,6 +477,8 @@ export const analyzeXmlSource = createServerFn({ method: "POST" })
       format: data.sourceFormat ?? null,
       itemPath: data.itemPath ?? null,
       limit: 100,
+      connectionType,
+      ftpConfig,
     });
 
     if (data.feedId) {
@@ -577,7 +639,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
     const { data: feedRow, error: readError } = await context.supabase
       .from("xml_feeds")
       .select(
-        "id, direction, platform, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, output_filename, export_token, filter_rules, variant_mode, variant_config, pricing_rules, delta_sync_config, last_full_sync_at",
+        "id, direction, platform, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, output_filename, export_token, filter_rules, variant_mode, variant_config, pricing_rules, delta_sync_config, last_full_sync_at, connection_type, ftp_config",
       )
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
@@ -630,6 +692,8 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
         storeId: data.storeId,
         direction: "import",
         sourceUrl: (feed["source_url"] as string | null) ?? null,
+        connectionType: parseConnectionType(feed["connection_type"]),
+        ftpConfig: feed["ftp_config"] ?? {},
         sourceFormat: (feed["source_format"] as never) ?? null,
         itemPath: (feed["item_path"] as string | null) ?? null,
         authType: String(feed["auth_type"] ?? "none") as never,
@@ -773,7 +837,7 @@ export const scanXmlSourceCategories = createServerFn({ method: "POST" })
 
     const { data: feedRow, error: readError } = await context.supabase
       .from("xml_feeds")
-      .select("source_url, source_format, item_path, auth_type, auth_config, field_mapping")
+      .select("source_url, source_format, item_path, auth_type, auth_config, field_mapping, connection_type, ftp_config")
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
       .maybeSingle();
@@ -784,8 +848,11 @@ export const scanXmlSourceCategories = createServerFn({ method: "POST" })
     const mapping = (feed["field_mapping"] ?? {}) as Record<string, string>;
     const categoryField = mapping["category_path"] || mapping["category"];
     if (!categoryField) throw new Error("Önce kategori veya kategori yolu alanını eşleştirin");
+    const connectionType = parseConnectionType(feed["connection_type"]);
     const sourceUrl = (feed["source_url"] as string | null) ?? "";
-    if (!sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı tanımlı değil");
+    if (connectionType === "url" && !sourceUrl) {
+      throw new Error("Bu beslemede kaynak bağlantısı tanımlı değil");
+    }
 
     const { fetchFeedSource, parseFeedRows } = await import("@/lib/xml-import-engine.server");
     const { readMapped } = await import("@/lib/xml-integrator");
@@ -795,6 +862,8 @@ export const scanXmlSourceCategories = createServerFn({ method: "POST" })
       authType: String(feed["auth_type"] ?? "none") as never,
       authConfig: (feed["auth_config"] ?? {}) as Record<string, string>,
       format: (feed["source_format"] as never) ?? null,
+      connectionType,
+      ftpConfig: feed["ftp_config"] ?? {},
     });
     const parsed = parseFeedRows(fetched, { itemPath: (feed["item_path"] as string | null) ?? null, limit: 3000 });
 
@@ -1042,15 +1111,19 @@ export const previewXmlImport = createServerFn({ method: "POST" })
 
     const { data: feedRow, error } = await context.supabase
       .from("xml_feeds")
-      .select("source_url, source_format, item_path, auth_type, auth_config, price_markup, currency, pricing_rules")
+      .select("source_url, source_format, item_path, auth_type, auth_config, price_markup, currency, pricing_rules, connection_type, ftp_config")
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!feedRow) throw new Error("Besleme bulunamadı");
     const feed = feedRow as Record<string, any>;
+    const connectionType = parseConnectionType(feed["connection_type"]);
     const sourceUrl = (feed["source_url"] as string | null) ?? null;
-    if (!sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı yok");
+    if (connectionType === "url" && !sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı yok");
+    if (connectionType === "webhook") {
+      throw new Error("Webhook beslemesinde önizleme yapılamaz; önce tedarikçinin dosya göndermesi gerekir");
+    }
 
     const { fetchFeedSource, parseFeedRows, normalizeRows } = await import("@/lib/xml-import-engine.server");
     const { buildVariantGroups } = await import("@/lib/xml-variant-parser");
@@ -1060,6 +1133,8 @@ export const previewXmlImport = createServerFn({ method: "POST" })
       authType: String(feed["auth_type"] ?? "none") as never,
       authConfig: (feed["auth_config"] ?? {}) as Record<string, string>,
       format: (feed["source_format"] as never) ?? null,
+      connectionType,
+      ftpConfig: feed["ftp_config"] ?? {},
     });
     const parsed = parseFeedRows(fetched, { itemPath: (feed["item_path"] as string | null) ?? null, limit: 200 });
 

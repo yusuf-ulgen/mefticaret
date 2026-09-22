@@ -21,6 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { DeltaSyncSettings } from "@/components/xml-integrator/delta-sync-settings";
 import { authFieldsFor, emptyFeed, type FeedFormValue } from "@/components/xml-integrator/feed-sheet";
 import { DirectionBadge, PlatformMark } from "@/components/xml-integrator/shared";
+import { ConnectionSettings } from "@/components/xml-integrator/connection-settings";
 import { analyzeXmlSource, saveXmlFeed } from "@/lib/xml-integrator.functions";
 import {
   XML_AUTH_TYPES,
@@ -80,6 +81,7 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
           ...(form.itemPath.trim() ? { itemPath: form.itemPath.trim() } : {}),
           authType: form.authType,
           authConfig: authFields,
+          connectionType: form.connectionType,
         },
       }),
     onSuccess: (result) => {
@@ -117,6 +119,8 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
           currency: form.currency,
           isActive: form.isActive,
           deltaSyncConfig: form.deltaSync,
+          connectionType: form.connectionType,
+          ftpConfig: form.ftpConfig,
         },
       }),
     onSuccess: (result) => {
@@ -134,7 +138,14 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
 
   const canContinue = () => {
     if (step === 0) return form.name.trim().length >= 2;
-    if (step === 1) return isImport ? form.sourceUrl.trim().length > 8 : form.outputFilename.trim().length > 3;
+    if (step === 1) {
+      if (!isImport) return form.outputFilename.trim().length > 3;
+      if (form.connectionType === "webhook") return true;
+      if (form.connectionType === "ftp" || form.connectionType === "sftp") {
+        return form.ftpConfig.host.trim().length > 3 && form.ftpConfig.username.trim().length > 0;
+      }
+      return form.sourceUrl.trim().length > 8;
+    }
     if (step === 2) return cronOk;
     return true;
   };
@@ -212,19 +223,31 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
         <section className="space-y-3 rounded-xl border bg-card p-4">
           {isImport ? (
             <>
+              <ConnectionSettings
+                idPrefix="wiz-conn"
+                connectionType={form.connectionType}
+                ftpConfig={form.ftpConfig}
+                onConnectionTypeChange={(next) => {
+                  set("connectionType", next);
+                  testConnection.reset();
+                }}
+                onFtpConfigChange={(next) => set("ftpConfig", next)}
+              />
               <div className="grid gap-3 sm:grid-cols-[1fr_9rem]">
-                <div className="space-y-1">
-                  <Label htmlFor="wiz-url">Kaynak bağlantısı (URL)</Label>
-                  <Input
-                    id="wiz-url"
-                    value={form.sourceUrl}
-                    onChange={(event) => {
-                      set("sourceUrl", event.target.value);
-                      testConnection.reset();
-                    }}
-                    placeholder="https://tedarikci.com/urunler.xml"
-                  />
-                </div>
+                {form.connectionType === "url" ? (
+                  <div className="space-y-1">
+                    <Label htmlFor="wiz-url">Kaynak bağlantısı (URL)</Label>
+                    <Input
+                      id="wiz-url"
+                      value={form.sourceUrl}
+                      onChange={(event) => {
+                        set("sourceUrl", event.target.value);
+                        testConnection.reset();
+                      }}
+                      placeholder="https://tedarikci.com/urunler.xml"
+                    />
+                  </div>
+                ) : <div />}
                 <div className="space-y-1">
                   <Label htmlFor="wiz-format">Dosya türü</Label>
                   <select
@@ -276,7 +299,11 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={testConnection.isPending || form.sourceUrl.trim().length < 9}
+                  disabled={
+                    testConnection.isPending ||
+                    form.connectionType !== "url" ||
+                    form.sourceUrl.trim().length < 9
+                  }
                   onClick={() => testConnection.mutate()}
                 >
                   {testConnection.isPending ? (

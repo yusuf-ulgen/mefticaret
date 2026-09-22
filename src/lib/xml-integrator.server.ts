@@ -16,6 +16,7 @@ import {
   type XmlSourceFormat,
 } from "@/lib/xml-integrator";
 import { safeFetch } from "@/lib/safe-fetch.server";
+import { parseConnectionType, type ConnectionType } from "@/lib/xml-connection";
 
 const MAX_BYTES = 40 * 1024 * 1024; // 40 MB
 
@@ -59,13 +60,53 @@ export type FetchedSource = {
   contentType: string | null;
 };
 
-/** Kaynağı indirir; boyut sınırını aşan yanıtlar reddedilir. */
+/**
+ * Kaynağı indirir; boyut sınırını aşan yanıtlar reddedilir.
+ *
+ * Bağlantı türüne göre: "url" adresten indirir, "ftp"/"sftp" dosya sunucusundan
+ * çeker, "webhook" beslemelerinde içerik tedarikçi tarafından gönderilmiş olur
+ * ve inlineContent ile verilir.
+ */
 export async function fetchSource(input: {
-  url: string;
+  url?: string | null;
   authType?: XmlAuthType;
   authConfig?: AuthConfig;
   format?: XmlSourceFormat | null;
+  connectionType?: ConnectionType;
+  ftpConfig?: unknown;
+  /** Webhook ile gönderilen ham içerik. */
+  inlineContent?: string | null;
 }): Promise<FetchedSource> {
+  const connectionType = parseConnectionType(input.connectionType ?? "url");
+
+  if (input.inlineContent != null) {
+    const content = input.inlineContent;
+    const bytes = new TextEncoder().encode(content).length;
+    if (bytes > MAX_BYTES) throw new Error("Gönderilen dosya 40 MB sınırını aşıyor");
+    return {
+      content,
+      format: input.format ?? detectFormat("", content),
+      bytes,
+      contentType: null,
+    };
+  }
+
+  if (connectionType === "ftp" || connectionType === "sftp") {
+    const { fetchFromFtp } = await import("@/lib/xml-ftp.server");
+    const fetched = await fetchFromFtp(input.ftpConfig, connectionType);
+    return {
+      content: fetched.content,
+      format: input.format ?? detectFormat(fetched.filePath, fetched.content),
+      bytes: fetched.bytes,
+      contentType: null,
+    };
+  }
+
+  if (connectionType === "webhook") {
+    throw new Error("Webhook beslemesi kendi kendine indirme yapmaz; tedarikçinin dosyayı göndermesi beklenir");
+  }
+
+  if (!input.url) throw new Error("Kaynak bağlantısı tanımlı değil");
   const { url, headers } = applyAuth(input.url, input.authType ?? "none", input.authConfig ?? {});
 
   let response: Response;
@@ -105,12 +146,15 @@ export type SourceAnalysis = ParsedSource & {
 
 /** Kaynağı indirir, satırlara çevirir ve eşleştirme önerisi üretir. */
 export async function analyzeSource(input: {
-  url: string;
+  url?: string | null;
   authType?: XmlAuthType;
   authConfig?: AuthConfig;
   format?: XmlSourceFormat | null;
   itemPath?: string | null;
   limit?: number;
+  connectionType?: ConnectionType;
+  ftpConfig?: unknown;
+  inlineContent?: string | null;
 }): Promise<SourceAnalysis> {
   const fetched = await fetchSource(input);
   const parsed = parseSourceText(fetched.content, fetched.format, {

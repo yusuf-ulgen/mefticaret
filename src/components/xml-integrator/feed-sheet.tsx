@@ -23,7 +23,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ConnectionSettings } from "@/components/xml-integrator/connection-settings";
 import { DeltaSyncSettings } from "@/components/xml-integrator/delta-sync-settings";
+import {
+  DEFAULT_FTP_CONFIG,
+  type ConnectionType,
+  type FtpConfig,
+} from "@/lib/xml-connection";
 import {
   DEFAULT_DELTA_SYNC_CONFIG,
   type DeltaSyncConfig,
@@ -71,6 +77,10 @@ export type FeedFormValue = {
   isActive: boolean;
   deltaSync: DeltaSyncConfig;
   lastFullSyncAt?: string | null;
+  connectionType: ConnectionType;
+  ftpConfig: FtpConfig;
+  hasFtpPassword?: boolean;
+  webhookToken?: string | null;
 };
 
 export const emptyFeed: FeedFormValue = {
@@ -89,6 +99,8 @@ export const emptyFeed: FeedFormValue = {
   priceMarkup: null,
   isActive: true,
   deltaSync: { ...DEFAULT_DELTA_SYNC_CONFIG },
+  connectionType: "url",
+  ftpConfig: { ...DEFAULT_FTP_CONFIG },
 };
 
 const GROUPS = Object.keys(TARGET_FIELD_GROUP_LABELS) as TargetFieldGroup[];
@@ -133,6 +145,7 @@ export function FeedSheet({
           ...(form.itemPath ? { itemPath: form.itemPath } : {}),
           authType: form.authType,
           authConfig: authFields,
+          connectionType: form.connectionType,
         },
       }),
     onSuccess: (result) => {
@@ -173,6 +186,8 @@ export function FeedSheet({
           currency: form.currency,
           isActive: form.isActive,
           deltaSyncConfig: form.deltaSync,
+          connectionType: form.connectionType,
+          ftpConfig: form.ftpConfig,
         },
       }),
     onSuccess: () => {
@@ -183,6 +198,9 @@ export function FeedSheet({
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const webhookUrl = form.webhookToken
+    ? `${typeof window === "undefined" ? "" : window.location.origin}/api/public/xml-feed-push/${form.webhookToken}`
+    : null;
   const columns = analysis.data?.columns ?? [];
   const samples = analysis.data?.sampleRows ?? [];
   const missing = useMemo(() => missingRequiredFields(form.fieldMapping), [form.fieldMapping]);
@@ -259,11 +277,23 @@ export function FeedSheet({
 
           {isImport ? (
             <section className="space-y-3 rounded-xl border bg-muted/20 p-4">
+              <ConnectionSettings
+                idPrefix="feed-conn"
+                connectionType={form.connectionType}
+                ftpConfig={form.ftpConfig}
+                hasFtpPassword={form.hasFtpPassword}
+                webhookUrl={webhookUrl}
+                onConnectionTypeChange={(next) => set("connectionType", next)}
+                onFtpConfigChange={(next) => set("ftpConfig", next)}
+              />
+
               <div className="grid gap-3 sm:grid-cols-[1fr_9rem]">
-                <div className="space-y-1">
-                  <Label htmlFor="feed-url">Kaynak bağlantısı</Label>
-                  <Input id="feed-url" value={form.sourceUrl} onChange={(event) => set("sourceUrl", event.target.value)} placeholder="https://tedarikci.com/urunler.xml" />
-                </div>
+                {form.connectionType === "url" ? (
+                  <div className="space-y-1">
+                    <Label htmlFor="feed-url">Kaynak bağlantısı</Label>
+                    <Input id="feed-url" value={form.sourceUrl} onChange={(event) => set("sourceUrl", event.target.value)} placeholder="https://tedarikci.com/urunler.xml" />
+                  </div>
+                ) : <div />}
                 <div className="space-y-1">
                   <Label htmlFor="feed-format">Dosya türü</Label>
                   <select
@@ -278,6 +308,7 @@ export function FeedSheet({
                   </select>
                 </div>
               </div>
+
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1">
@@ -319,7 +350,13 @@ export function FeedSheet({
               <Button
                 type="button"
                 variant="outline"
-                disabled={!form.sourceUrl.trim() || analysis.isPending}
+                disabled={
+                  analysis.isPending ||
+                  form.connectionType === "webhook" ||
+                  form.connectionType === "sftp" ||
+                  (form.connectionType === "url" && !form.sourceUrl.trim()) ||
+                  ((form.connectionType === "ftp") && (!form.id || !form.ftpConfig.host))
+                }
                 onClick={() => analysis.mutate()}
               >
                 {analysis.isPending ? <Loader2 className="mr-1 size-4 animate-spin" /> : <Wand2 className="mr-1 size-4" />}

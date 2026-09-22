@@ -21,6 +21,7 @@ import type {
   XmlSchedule,
   XmlSourceFormat,
 } from "@/lib/xml-integrator";
+import { DEFAULT_FTP_CONFIG } from "@/lib/xml-connection";
 
 export function XmlFeedList({ storeId }: { storeId: string }) {
   const client = useQueryClient();
@@ -62,6 +63,10 @@ export function XmlFeedList({ storeId }: { storeId: string }) {
       isActive: feed.isActive,
       deltaSync: feed.deltaSyncConfig,
       lastFullSyncAt: feed.lastFullSyncAt,
+      connectionType: feed.connectionType,
+      ftpConfig: { ...DEFAULT_FTP_CONFIG, ...feed.ftpConfig, password: "" },
+      hasFtpPassword: feed.ftpConfig.hasPassword,
+      webhookToken: feed.webhookToken,
     });
 
   return (

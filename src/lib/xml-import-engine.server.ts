@@ -20,6 +20,7 @@ import {
   type XmlSourceFormat,
 } from "@/lib/xml-integrator";
 import { applyTransforms, parseTransformRules, type TransformRules } from "@/lib/xml-transforms";
+import { parseConnectionType, type ConnectionType } from "@/lib/xml-connection";
 import { fetchSource, saveFieldSchema, type AuthConfig, type FetchedSource } from "@/lib/xml-integrator.server";
 import {
   calculateFinalPrice,
@@ -63,11 +64,14 @@ export type FetchResult = FetchedSource & { attempts: number };
  * geçici hatalarda en fazla 3 kez (1.5 sn, 3 sn bekleyerek) yeniden denenir.
  */
 export async function fetchFeedSource(input: {
-  url: string;
+  url?: string | null;
   authType?: XmlAuthType;
   authConfig?: AuthConfig;
   format?: XmlSourceFormat | null;
   attempts?: number;
+  connectionType?: ConnectionType;
+  ftpConfig?: unknown;
+  inlineContent?: string | null;
 }): Promise<FetchResult> {
   const maxAttempts = Math.max(1, Math.min(input.attempts ?? FETCH_ATTEMPTS, 5));
   let lastError = "Kaynak indirilemedi";
@@ -682,6 +686,11 @@ export type FeedRecord = {
   lastFullSyncAt?: string | null;
   /** Satıcı "Tam senkronizasyon" düğmesine bastıysa delta atlanır. */
   forceFullSync?: boolean;
+  /** "url" | "ftp" | "sftp" | "webhook" */
+  connectionType?: ConnectionType | string | null;
+  ftpConfig?: unknown;
+  /** Webhook ile gönderilen ham dosya içeriği. */
+  inlineContent?: string | null;
 };
 
 
@@ -713,7 +722,14 @@ export async function runImportFeed(
   const trigger = options.trigger ?? "manual";
 
   if (feed.direction !== "import") throw new Error("Bu besleme içe aktarım beslemesi değil");
-  if (!feed.sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı tanımlı değil");
+
+  const connectionType = parseConnectionType(feed.connectionType ?? "url");
+  if (connectionType === "url" && !feed.sourceUrl) {
+    throw new Error("Bu beslemede kaynak bağlantısı tanımlı değil");
+  }
+  if (connectionType === "webhook" && feed.inlineContent == null) {
+    throw new Error("Bu besleme webhook ile beslenir; tedarikçinin dosyayı göndermesi gerekir");
+  }
 
   /* Çalışma kaydı en başta "running" olarak açılır; ilerleme aynı satıra yazılır
      ve tarayıcı Realtime ile bu satırı canlı izler. */
@@ -793,6 +809,9 @@ export async function runImportFeed(
       authType: feed.authType,
       authConfig: feed.authConfig,
       format: feed.sourceFormat,
+      connectionType,
+      ftpConfig: feed.ftpConfig,
+      inlineContent: feed.inlineContent ?? null,
     });
 
     phase = "parsing";
