@@ -103,7 +103,21 @@ export type NormalizedProduct = {
   options: Record<string, string>;
 };
 
-export type RowError = { row: number; reason: string };
+/** Hata kategorileri — canlı sayaç ve kayıt panelinde gruplama için. */
+export type ErrorCategory = "FETCH_ERROR" | "PARSE_ERROR" | "MAPPING_ERROR" | "UPSERT_ERROR";
+
+export type RowError = { row: number; reason: string; category?: ErrorCategory };
+
+/** Hata listesini kategori sayaçlarına çevirir. */
+export function countErrorCategories(errors: RowError[]): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const item of errors) {
+    const key = item.category ?? "MAPPING_ERROR";
+    out[key] = (out[key] ?? 0) + 1;
+  }
+  return out;
+}
+
 
 /** "1.234,56" / "1,234.56" / "12 TL" gibi değerleri sayıya çevirir. */
 export function parseNumber(raw: string | undefined | null): number | null {
