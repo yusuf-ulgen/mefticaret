@@ -172,8 +172,17 @@ function parseUrlList(raw: string): string[] {
 export function normalizeRows(
   rows: Array<Record<string, string>>,
   mapping: FieldMapping,
-  options: { priceMarkup?: number | null; currency?: string; transformRules?: TransformRules } = {},
+  options: {
+    priceMarkup?: number | null;
+    currency?: string;
+    transformRules?: TransformRules;
+    /** `rows` ile aynı sıradaki varyant satırları (varyasyonlu beslemelerde). */
+    variantRows?: Array<Array<Record<string, string>>>;
+    /** Varyant seçeneği olarak okunacak ek kaynak alanları. */
+    optionAttributes?: string[];
+  } = {},
 ): { items: NormalizedProduct[]; errors: RowError[] } {
+
   const markup = options.priceMarkup ?? null;
   const fallbackCurrency = (options.currency ?? "TRY").toUpperCase();
   const transforms = options.transformRules ?? {};
