@@ -180,6 +180,24 @@ export function FeedCard({
             {feed.lastRunAt ? `Son çalışma: ${formatDate(feed.lastRunAt)}` : "Henüz çalışmadı"} · {feed.totalRuns} çalışma
           </p>
           {feed.lastError ? <p className="mt-1 text-xs text-destructive">{feed.lastError}</p> : null}
+          {feedUrl ? (
+            <div className="mt-2 flex items-center gap-2">
+              <code className="min-w-0 flex-1 truncate rounded bg-muted px-2 py-1 text-xs">{feedUrl}</code>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  void navigator.clipboard
+                    .writeText(feedUrl)
+                    .then(() => toast.success("Besleme adresi kopyalandı"))
+                    .catch(() => toast.error("Kopyalanamadı, adresi elle seçin"));
+                }}
+              >
+                <Copy className="mr-1 size-4" />
+                Kopyala
+              </Button>
+            </div>
+          ) : null}
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
           <div className="flex items-center gap-2">
@@ -193,21 +211,20 @@ export function FeedCard({
               onCheckedChange={(checked) => toggleMutation.mutate(checked)}
             />
           </div>
-          {feed.direction === "import" ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              disabled={runMutation.isPending}
-              onClick={() => runMutation.mutate()}
-            >
-              {runMutation.isPending ? (
-                <Loader2 className="mr-1 size-4 animate-spin" />
-              ) : (
-                <Play className="mr-1 size-4" />
-              )}
-              Şimdi çalıştır
-            </Button>
-          ) : null}
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={runMutation.isPending}
+            onClick={() => runMutation.mutate()}
+          >
+            {runMutation.isPending ? (
+              <Loader2 className="mr-1 size-4 animate-spin" />
+            ) : (
+              <Play className="mr-1 size-4" />
+            )}
+            {feed.direction === "export" ? "XML üret" : "Şimdi çalıştır"}
+          </Button>
+
           <div className="flex gap-1">
             <Button asChild size="icon" variant="outline" aria-label="Alan eşleştirme">
               <Link to="/store/$storeId/xml-integrator/feeds/$feedId/mapper" params={{ storeId, feedId: feed.id }}>
