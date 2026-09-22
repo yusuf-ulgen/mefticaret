@@ -34,7 +34,9 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { useAuth } from "@/lib/auth-context";
 import { myStoresQuery } from "@/lib/store-queries";
 import { STORE_ROLE_LABELS } from "@/lib/mefti";
+import { PanelBottomNav } from "@/components/panel-bottom-nav";
 import { storeNavGroups, storeQuickLinks, type StoreNavItem } from "@/lib/store-nav";
+import { useRecentPaths } from "@/lib/store-recent-nav";
 import { storeEntitlementsQuery } from "@/lib/entitlements-queries";
 import { moduleKeyForPath } from "@/lib/plan-features";
 import { cn } from "@/lib/utils";
@@ -148,6 +150,17 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
     [groups, pinned],
   );
 
+  // Son ziyaret edilen ekranlar, sabitlenmemiş olanlar arasından gösterilir.
+  const { recent, clear: clearRecent } = useRecentPaths(storeId);
+  const recentItems = useMemo(() => {
+    const all = groups.flatMap((group) => group.items);
+    return recent
+      .map((path) => all.find((item) => item.to === path))
+      .filter((item): item is StoreNavItem => Boolean(item))
+      .filter((item) => !pinned.includes(item.label))
+      .slice(0, 5);
+  }, [groups, recent, pinned]);
+
   const [openGroups, setOpenGroups] = useState<string[]>([]);
   const activeGroup = groups.find((group) =>
     group.items.some((item) => pathname.startsWith(item.to)),
@@ -201,6 +214,35 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
                   item={item}
                   active={pathname === item.to}
                   pinned
+                  onTogglePin={toggle}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {!term && recentItems.length ? (
+          <div className="pb-1">
+            <div className="flex items-center justify-between gap-2 px-2 pb-1">
+              <p className="text-[0.66rem] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                Son kullanılanlar
+              </p>
+              <button
+                type="button"
+                onClick={clearRecent}
+                className="text-[0.66rem] text-sidebar-foreground/50 transition-colors hover:text-sidebar-foreground"
+              >
+                Temizle
+              </button>
+            </div>
+            <ul className="space-y-0.5">
+              {recentItems.map((item) => (
+                <NavLinkRow
+                  key={`recent-${item.label}`}
+                  item={item}
+                  active={pathname === item.to}
+                  pinned={false}
                   onTogglePin={toggle}
                   onNavigate={onNavigate}
                 />
@@ -478,7 +520,10 @@ export function AppShell({
         <main
           id="panel-content"
           tabIndex={-1}
-          className="min-w-0 flex-1 px-3 py-4 sm:px-5 lg:px-8 lg:py-6"
+          className={cn(
+            "min-w-0 flex-1 px-3 py-4 sm:px-5 lg:px-8 lg:py-6",
+            storeId && "pb-24 lg:pb-6",
+          )}
         >
           <div className="mx-auto w-full max-w-6xl space-y-4">
             {storeId ? <QuickLinks storeId={storeId} /> : null}
@@ -498,6 +543,8 @@ export function AppShell({
           </div>
         </main>
       </div>
+
+      {storeId ? <PanelBottomNav storeId={storeId} /> : null}
     </div>
   );
 }
