@@ -376,6 +376,8 @@ export type UpsertResult = {
   created: number;
   updated: number;
   skipped: number;
+  /** Güvenlik sınırlarına takılıp incelemeye alınan ürün sayısı. */
+  quarantined: number;
   errors: RowError[];
 };
 
