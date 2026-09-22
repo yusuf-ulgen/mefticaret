@@ -222,6 +222,35 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
           </div>
         ) : null}
 
+        {!term && recentItems.length ? (
+          <div className="pb-1">
+            <div className="flex items-center justify-between gap-2 px-2 pb-1">
+              <p className="text-[0.66rem] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                Son kullanılanlar
+              </p>
+              <button
+                type="button"
+                onClick={clearRecent}
+                className="text-[0.66rem] text-sidebar-foreground/50 transition-colors hover:text-sidebar-foreground"
+              >
+                Temizle
+              </button>
+            </div>
+            <ul className="space-y-0.5">
+              {recentItems.map((item) => (
+                <NavLinkRow
+                  key={`recent-${item.label}`}
+                  item={item}
+                  active={pathname === item.to}
+                  pinned={false}
+                  onTogglePin={toggle}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         {filtered.length === 0 ? (
           <p className="px-2 py-6 text-center text-xs text-sidebar-foreground/60">
             Sonuç bulunamadı.
