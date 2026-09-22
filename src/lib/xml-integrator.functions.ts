@@ -453,9 +453,8 @@ export const getXmlIntegratorStats = createServerFn({ method: "GET" })
   });
 
 /**
- * Beslemeyi elle çalıştırır. Şu aşamada içe aktarım beslemesinde kaynak
- * indirilir, satırlar sayılır ve çalışma kaydı yazılır; ürün yazımı içe
- * aktarım motoru adımında devreye girer.
+ * Beslemeyi elle çalıştırır: kaynağı indirir (3 denemeli), satırlara çevirir,
+ * eşleştirmeyi uygular ve ürünleri 100'erli paketler halinde yazar.
  */
 export const runXmlFeedNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
