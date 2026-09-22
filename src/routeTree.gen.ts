@@ -305,6 +305,7 @@ import { Route as AuthenticatedStoreStoreIdProductsIndexRouteImport } from './ro
 import { Route as AuthenticatedStoreStoreIdProductsProductIdRouteImport } from './routes/_authenticated/store.$storeId.products.$productId'
 import { Route as AuthenticatedStoreStoreIdProductsNewRouteImport } from './routes/_authenticated/store.$storeId.products.new'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorIndexRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.index'
+import { Route as AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.analytics'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorLogsRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.logs'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorQuarantineRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.quarantine'
 import { Route as ApiPublicEmailClickTokenRouteImport } from './routes/api/public/email.click.$token'
@@ -1985,6 +1986,12 @@ const AuthenticatedStoreStoreIdXmlIntegratorIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedStoreStoreIdXmlIntegratorRoute,
   } as any)
+const AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute =
+  AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedStoreStoreIdXmlIntegratorRoute,
+  } as any)
 const AuthenticatedStoreStoreIdXmlIntegratorLogsRoute =
   AuthenticatedStoreStoreIdXmlIntegratorLogsRouteImport.update({
     id: '/logs',
@@ -2333,6 +2340,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/store/$storeId/xml-integrator/analytics': typeof AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute
   '/store/$storeId/xml-integrator/logs': typeof AuthenticatedStoreStoreIdXmlIntegratorLogsRoute
   '/store/$storeId/xml-integrator/quarantine': typeof AuthenticatedStoreStoreIdXmlIntegratorQuarantineRoute
   '/api/public/email/click/$token': typeof ApiPublicEmailClickTokenRoute
@@ -2636,6 +2644,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/store/$storeId/xml-integrator/analytics': typeof AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute
   '/store/$storeId/xml-integrator/logs': typeof AuthenticatedStoreStoreIdXmlIntegratorLogsRoute
   '/store/$storeId/xml-integrator/quarantine': typeof AuthenticatedStoreStoreIdXmlIntegratorQuarantineRoute
   '/api/public/email/click/$token': typeof ApiPublicEmailClickTokenRoute
@@ -2944,6 +2953,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/_authenticated/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/_authenticated/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/_authenticated/store/$storeId/xml-integrator/analytics': typeof AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute
   '/_authenticated/store/$storeId/xml-integrator/logs': typeof AuthenticatedStoreStoreIdXmlIntegratorLogsRoute
   '/_authenticated/store/$storeId/xml-integrator/quarantine': typeof AuthenticatedStoreStoreIdXmlIntegratorQuarantineRoute
   '/api/public/email/click/$token': typeof ApiPublicEmailClickTokenRoute
@@ -3252,6 +3262,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
     | '/store/$storeId/products/new'
+    | '/store/$storeId/xml-integrator/analytics'
     | '/store/$storeId/xml-integrator/logs'
     | '/store/$storeId/xml-integrator/quarantine'
     | '/api/public/email/click/$token'
@@ -3555,6 +3566,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
     | '/store/$storeId/products/new'
+    | '/store/$storeId/xml-integrator/analytics'
     | '/store/$storeId/xml-integrator/logs'
     | '/store/$storeId/xml-integrator/quarantine'
     | '/api/public/email/click/$token'
@@ -3862,6 +3874,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/orders/new'
     | '/_authenticated/store/$storeId/products/$productId'
     | '/_authenticated/store/$storeId/products/new'
+    | '/_authenticated/store/$storeId/xml-integrator/analytics'
     | '/_authenticated/store/$storeId/xml-integrator/logs'
     | '/_authenticated/store/$storeId/xml-integrator/quarantine'
     | '/api/public/email/click/$token'
@@ -6063,6 +6076,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorIndexRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
     }
+    '/_authenticated/store/$storeId/xml-integrator/analytics': {
+      id: '/_authenticated/store/$storeId/xml-integrator/analytics'
+      path: '/analytics'
+      fullPath: '/store/$storeId/xml-integrator/analytics'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
+    }
     '/_authenticated/store/$storeId/xml-integrator/logs': {
       id: '/_authenticated/store/$storeId/xml-integrator/logs'
       path: '/logs'
@@ -6297,6 +6317,7 @@ const AuthenticatedStoreStoreIdProductsRouteWithChildren =
   )
 
 interface AuthenticatedStoreStoreIdXmlIntegratorRouteChildren {
+  AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute
   AuthenticatedStoreStoreIdXmlIntegratorLogsRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorLogsRoute
   AuthenticatedStoreStoreIdXmlIntegratorQuarantineRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorQuarantineRoute
   AuthenticatedStoreStoreIdXmlIntegratorIndexRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorIndexRoute
@@ -6307,6 +6328,8 @@ interface AuthenticatedStoreStoreIdXmlIntegratorRouteChildren {
 
 const AuthenticatedStoreStoreIdXmlIntegratorRouteChildren: AuthenticatedStoreStoreIdXmlIntegratorRouteChildren =
   {
+    AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute:
+      AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute,
     AuthenticatedStoreStoreIdXmlIntegratorLogsRoute:
       AuthenticatedStoreStoreIdXmlIntegratorLogsRoute,
     AuthenticatedStoreStoreIdXmlIntegratorQuarantineRoute:
