@@ -7,6 +7,7 @@
 
 export const QUARANTINE_ISSUE_TYPES = [
   "ZERO_PRICE",
+  "ZERO_STOCK",
   "PRICE_DROP_LIMIT",
   "PRICE_INCREASE_LIMIT",
   "INVALID_BARCODE",
@@ -15,6 +16,7 @@ export type QuarantineIssueType = (typeof QUARANTINE_ISSUE_TYPES)[number];
 
 export const QUARANTINE_ISSUE_LABELS: Record<QuarantineIssueType, string> = {
   ZERO_PRICE: "Fiyat sıfır veya eksi",
+  ZERO_STOCK: "Stok sıfır",
   PRICE_DROP_LIMIT: "Aşırı fiyat düşüşü",
   PRICE_INCREASE_LIMIT: "Aşırı fiyat artışı",
   INVALID_BARCODE: "Geçersiz barkod",
@@ -136,7 +138,7 @@ export function checkProductSafety(input: {
   if (input.newStock <= 0 && config.zeroStockAction === "quarantine") {
     return {
       safe: false,
-      issueType: "ZERO_PRICE",
+      issueType: "ZERO_STOCK",
       quarantine,
       reason: "Gelen stok sıfır",
     };
