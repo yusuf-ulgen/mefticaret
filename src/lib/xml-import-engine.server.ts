@@ -21,6 +21,15 @@ import {
 } from "@/lib/xml-integrator";
 import { applyTransforms, parseTransformRules, type TransformRules } from "@/lib/xml-transforms";
 import { fetchSource, saveFieldSchema, type AuthConfig, type FetchedSource } from "@/lib/xml-integrator.server";
+import {
+  buildVariantGroups,
+  parseVariantConfig,
+  parseVariantMode,
+  readField,
+  type VariantConfig,
+  type VariantMode,
+} from "@/lib/xml-variant-parser";
+
 
 /* ------------------------------- XmlFetcher ------------------------------- */
 
@@ -84,6 +93,19 @@ export function parseFeedRows(
 
 /* ----------------------------- Normalizasyon ----------------------------- */
 
+export type NormalizedVariant = {
+  sku: string | null;
+  barcode: string | null;
+  title: string;
+  price: number;
+  compareAtPrice: number | null;
+  costPrice: number | null;
+  stock: number;
+  weightGrams: number | null;
+  options: Record<string, string>;
+  images: string[];
+};
+
 export type NormalizedProduct = {
   key: string;
   sku: string | null;
@@ -101,7 +123,10 @@ export type NormalizedProduct = {
   videoUrl: string | null;
   images: string[];
   options: Record<string, string>;
+  /** Varyasyonlu ürünlerde varyant listesi; tekil üründe boş kalır. */
+  variants: NormalizedVariant[];
 };
+
 
 /** Hata kategorileri — canlı sayaç ve kayıt panelinde gruplama için. */
 export type ErrorCategory = "FETCH_ERROR" | "PARSE_ERROR" | "MAPPING_ERROR" | "UPSERT_ERROR";
@@ -156,8 +181,17 @@ function parseUrlList(raw: string): string[] {
 export function normalizeRows(
   rows: Array<Record<string, string>>,
   mapping: FieldMapping,
-  options: { priceMarkup?: number | null; currency?: string; transformRules?: TransformRules } = {},
+  options: {
+    priceMarkup?: number | null;
+    currency?: string;
+    transformRules?: TransformRules;
+    /** `rows` ile aynı sıradaki varyant satırları (varyasyonlu beslemelerde). */
+    variantRows?: Array<Array<Record<string, string>>>;
+    /** Varyant seçeneği olarak okunacak ek kaynak alanları. */
+    optionAttributes?: string[];
+  } = {},
 ): { items: NormalizedProduct[]; errors: RowError[] } {
+
   const markup = options.priceMarkup ?? null;
   const fallbackCurrency = (options.currency ?? "TRY").toUpperCase();
   const transforms = options.transformRules ?? {};
@@ -212,6 +246,71 @@ export function normalizeRows(
     const currency = (read("currency") || fallbackCurrency).toUpperCase().slice(0, 3);
     const videos = parseUrlList(read("videos"));
 
+    /* --- varyantlar (yalnızca varyasyonlu beslemelerde) --- */
+    const groupRows = options.variantRows?.[index] ?? [];
+    const variants: NormalizedVariant[] = [];
+    const seenVariant = new Set<string>();
+    if (groupRows.length > 1 || (groupRows.length === 1 && groupRows[0] !== row)) {
+      for (const variantRow of groupRows.slice(0, 200)) {
+        const readVariant = (field: string) =>
+          applyTransforms(readMapped(variantRow, mapping[field]).trim(), transforms[field], variantRow).trim();
+
+        const variantOptions: Record<string, string> = {};
+        for (const [field, label] of [
+          ["color", "Renk"],
+          ["size", "Beden"],
+          ["material", "Materyal"],
+        ] as const) {
+          const value = readVariant(field);
+          if (value) variantOptions[label] = value.slice(0, 80);
+        }
+        const vName = readVariant("variant_name");
+        const vValue = readVariant("variant_value");
+        if (vName && vValue) variantOptions[vName.slice(0, 40)] = vValue.slice(0, 80);
+        for (const attribute of options.optionAttributes ?? []) {
+          const value = readField(variantRow, attribute);
+          if (value) variantOptions[attribute.split(".").pop()!.slice(0, 40)] = value.slice(0, 80);
+        }
+
+        const variantSku = readVariant("sku");
+        const variantBarcode = readVariant("barcode");
+        const variantKey =
+          variantSku ||
+          variantBarcode ||
+          Object.entries(variantOptions)
+            .map(([label, value]) => `${label}:${value}`)
+            .join("/");
+        if (!variantKey || seenVariant.has(variantKey)) continue;
+        seenVariant.add(variantKey);
+
+        const variantRawPrice = parseNumber(readVariant("price"));
+        const variantPrice =
+          variantRawPrice === null || variantRawPrice < 0
+            ? price
+            : markup === null
+              ? variantRawPrice
+              : Math.round(variantRawPrice * (1 + markup / 100) * 100) / 100;
+        const variantStock = parseNumber(readVariant("stock"));
+        const variantWeight = parseNumber(readVariant("weight"));
+
+        variants.push({
+          sku: variantSku || null,
+          barcode: variantBarcode || null,
+          title:
+            Object.values(variantOptions).join(" / ").slice(0, 80) ||
+            (variantSku || variantBarcode || "Standart").slice(0, 80),
+          price: variantPrice,
+          compareAtPrice: parseNumber(readVariant("compare_at_price")),
+          costPrice: parseNumber(readVariant("cost_price")),
+          stock: variantStock === null ? 0 : Math.max(0, Math.round(variantStock)),
+          weightGrams:
+            variantWeight === null ? null : Math.round(variantWeight < 100 ? variantWeight * 1000 : variantWeight),
+          options: variantOptions,
+          images: parseUrlList(readVariant("images")),
+        });
+      }
+    }
+
     seen.add(key);
     items.push({
       key,
@@ -225,12 +324,19 @@ export function normalizeRows(
       costPrice: parseNumber(read("cost_price")),
       taxRate: parseNumber(read("tax_rate")) ?? 20,
       currency: /^[A-Z]{3}$/.test(currency) ? currency : fallbackCurrency,
-      stock: stockValue === null ? 0 : Math.max(0, Math.round(stockValue)),
+      stock:
+        variants.length > 0
+          ? variants.reduce((total, variant) => total + variant.stock, 0)
+          : stockValue === null
+            ? 0
+            : Math.max(0, Math.round(stockValue)),
       weightGrams: weight === null ? null : Math.round(weight < 100 ? weight * 1000 : weight),
       videoUrl: videos[0] ?? null,
       images: parseUrlList(read("images")),
       options: options_,
+      variants,
     });
+
   });
 
   return { items, errors };
@@ -338,30 +444,82 @@ export async function upsertProducts(
         continue;
       }
 
-      const { data: variants } = await admin
+      const { data: variantRows } = await admin
         .from("product_variants")
-        .select("id, position")
+        .select("id, sku, barcode, position")
         .eq("product_id", productId)
-        .order("position", { ascending: true })
-        .limit(1);
-      const variantId = ((variants ?? []) as Array<{ id: string }>)[0]?.id ?? null;
-      if (variantId) {
-        await admin
-          .from("product_variants")
-          .update({ price: item.price, stock: item.stock, cost_price: item.costPrice, sku: item.sku })
-          .eq("id", variantId);
+        .order("position", { ascending: true });
+      const existingVariants = (variantRows ?? []) as Array<{
+        id: string;
+        sku: string | null;
+        barcode: string | null;
+        position: number | null;
+      }>;
+
+      if (item.variants.length) {
+        /* Varyasyonlu ürün: her varyant stok kodu/barkoduna göre eşleşir,
+           eşleşmeyen varyantlar yeni satır olarak eklenir. */
+        const byVariantKey = new Map<string, string>();
+        for (const row of existingVariants) {
+          if (row.sku) byVariantKey.set(row.sku, row.id);
+          if (row.barcode && !byVariantKey.has(row.barcode)) byVariantKey.set(row.barcode, row.id);
+        }
+        let position = existingVariants.length;
+        for (const variant of item.variants) {
+          const matchId =
+            (variant.sku ? byVariantKey.get(variant.sku) : undefined) ??
+            (variant.barcode ? byVariantKey.get(variant.barcode) : undefined) ??
+            null;
+          if (matchId) {
+            await admin
+              .from("product_variants")
+              .update({
+                price: variant.price,
+                stock: variant.stock,
+                cost_price: variant.costPrice,
+                compare_at_price: variant.compareAtPrice,
+                ...(Object.keys(variant.options).length ? { options: variant.options as never } : {}),
+              })
+              .eq("id", matchId);
+          } else {
+            position += 1;
+            await admin.from("product_variants").insert({
+              product_id: productId,
+              store_id: input.storeId,
+              title: variant.title || "Standart",
+              sku: variant.sku,
+              barcode: variant.barcode,
+              price: variant.price,
+              cost_price: variant.costPrice,
+              compare_at_price: variant.compareAtPrice,
+              stock: variant.stock,
+              weight_grams: variant.weightGrams,
+              options: variant.options as never,
+              position,
+            });
+          }
+        }
       } else {
-        await admin.from("product_variants").insert({
-          product_id: productId,
-          store_id: input.storeId,
-          title: "Standart",
-          sku: item.sku,
-          price: item.price,
-          stock: item.stock,
-          cost_price: item.costPrice,
-          position: 1,
-        });
+        const variantId = existingVariants[0]?.id ?? null;
+        if (variantId) {
+          await admin
+            .from("product_variants")
+            .update({ price: item.price, stock: item.stock, cost_price: item.costPrice, sku: item.sku })
+            .eq("id", variantId);
+        } else {
+          await admin.from("product_variants").insert({
+            product_id: productId,
+            store_id: input.storeId,
+            title: "Standart",
+            sku: item.sku,
+            price: item.price,
+            stock: item.stock,
+            cost_price: item.costPrice,
+            position: 1,
+          });
+        }
       }
+
       result.updated += 1;
     }
 
@@ -431,23 +589,42 @@ export async function upsertProducts(
   return result;
 }
 
-/** Yeni ürünün varsayılan varyantı ve görselleri. */
+/** Yeni ürünün varyantları (varyasyonlu ürünlerde hepsi) ve görselleri. */
 async function insertChildren(admin: Client, storeId: string, productId: string, item: NormalizedProduct) {
   const optionEntries = Object.entries(item.options);
-  await admin.from("product_variants").insert({
-    product_id: productId,
-    store_id: storeId,
-    title: optionEntries.length ? optionEntries.map(([, value]) => value).join(" / ").slice(0, 80) : "Standart",
-    sku: item.sku,
-    barcode: item.barcode,
-    price: item.price,
-    cost_price: item.costPrice,
-    compare_at_price: item.compareAtPrice,
-    stock: item.stock,
-    weight_grams: item.weightGrams,
-    options: item.options as never,
-    position: 1,
-  });
+  const rows = item.variants.length
+    ? item.variants.map((variant, index) => ({
+        product_id: productId,
+        store_id: storeId,
+        title: variant.title || "Standart",
+        sku: variant.sku,
+        barcode: variant.barcode,
+        price: variant.price,
+        cost_price: variant.costPrice,
+        compare_at_price: variant.compareAtPrice,
+        stock: variant.stock,
+        weight_grams: variant.weightGrams,
+        options: variant.options as never,
+        position: index + 1,
+      }))
+    : [
+        {
+          product_id: productId,
+          store_id: storeId,
+          title: optionEntries.length ? optionEntries.map(([, value]) => value).join(" / ").slice(0, 80) : "Standart",
+          sku: item.sku,
+          barcode: item.barcode,
+          price: item.price,
+          cost_price: item.costPrice,
+          compare_at_price: item.compareAtPrice,
+          stock: item.stock,
+          weight_grams: item.weightGrams,
+          options: item.options as never,
+          position: 1,
+        },
+      ];
+  await admin.from("product_variants").insert(rows);
+
 
   if (item.images.length) {
     await admin.from("product_images").insert(
@@ -477,7 +654,11 @@ export type FeedRecord = {
   transformRules?: TransformRules | unknown;
   priceMarkup: number | null;
   currency: string;
+  /** "none" | "nested" | "flat" */
+  variantMode?: VariantMode | string | null;
+  variantConfig?: VariantConfig | unknown;
 };
+
 
 export type FeedRunResult = {
   status: "success" | "failed";
@@ -608,11 +789,28 @@ export async function runImportFeed(
       throw new Error("Alan eşleme eksik: ürün adı ve satış fiyatı alanları eşleştirilmeli");
     }
 
-    const { items, errors } = normalizeRows(parsed.rows, mapping, {
-      priceMarkup: feed.priceMarkup,
-      currency: feed.currency,
-      transformRules: parseTransformRules(feed.transformRules),
-    });
+    /* Varyasyon yapısı: düz liste üst stok koduna göre gruplanır,
+       iç içe yapıda varyant düğümleri ayrıştırılır. */
+    const variantMode = parseVariantMode(feed.variantMode);
+    const variantConfig = parseVariantConfig(feed.variantConfig);
+    const groups = buildVariantGroups(parsed.rows, variantMode, variantConfig);
+
+    const { items, errors } = normalizeRows(
+      groups.map((group) => group.mainRow),
+      mapping,
+      {
+        priceMarkup: feed.priceMarkup,
+        currency: feed.currency,
+        transformRules: parseTransformRules(feed.transformRules),
+        ...(variantMode === "none"
+          ? {}
+          : {
+              variantRows: groups.map((group) => group.variantRows),
+              optionAttributes: variantConfig.optionAttributes,
+            }),
+      },
+    );
+
     const mappingErrors: RowError[] = errors.map((item) => ({ ...item, category: "MAPPING_ERROR" }));
 
     phase = "upserting";
