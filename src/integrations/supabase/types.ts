@@ -18030,6 +18030,7 @@ export type Database = {
         Row: {
           created_at: string
           duration_seconds: number | null
+          error_categories: Json
           error_message: string | null
           exported_count: number
           failed_count: number
@@ -18039,6 +18040,8 @@ export type Database = {
           id: string
           issues: Json
           output_url: string | null
+          phase: string | null
+          processed_count: number
           started_at: string
           status: Database["public"]["Enums"]["xml_run_status"]
           store_id: string
@@ -18048,6 +18051,7 @@ export type Database = {
         Insert: {
           created_at?: string
           duration_seconds?: number | null
+          error_categories?: Json
           error_message?: string | null
           exported_count?: number
           failed_count?: number
@@ -18057,6 +18061,8 @@ export type Database = {
           id?: string
           issues?: Json
           output_url?: string | null
+          phase?: string | null
+          processed_count?: number
           started_at?: string
           status?: Database["public"]["Enums"]["xml_run_status"]
           store_id: string
@@ -18066,6 +18072,7 @@ export type Database = {
         Update: {
           created_at?: string
           duration_seconds?: number | null
+          error_categories?: Json
           error_message?: string | null
           exported_count?: number
           failed_count?: number
@@ -18075,6 +18082,8 @@ export type Database = {
           id?: string
           issues?: Json
           output_url?: string | null
+          phase?: string | null
+          processed_count?: number
           started_at?: string
           status?: Database["public"]["Enums"]["xml_run_status"]
           store_id?: string
@@ -18264,12 +18273,15 @@ export type Database = {
           created_at: string
           created_count: number
           duration_seconds: number | null
+          error_categories: Json
           error_count: number
           error_message: string | null
           errors: Json
           feed_id: string
           finished_at: string | null
           id: string
+          phase: string | null
+          processed_count: number
           skipped_count: number
           started_at: string
           status: Database["public"]["Enums"]["xml_run_status"]
@@ -18283,12 +18295,15 @@ export type Database = {
           created_at?: string
           created_count?: number
           duration_seconds?: number | null
+          error_categories?: Json
           error_count?: number
           error_message?: string | null
           errors?: Json
           feed_id: string
           finished_at?: string | null
           id?: string
+          phase?: string | null
+          processed_count?: number
           skipped_count?: number
           started_at?: string
           status?: Database["public"]["Enums"]["xml_run_status"]
@@ -18302,12 +18317,15 @@ export type Database = {
           created_at?: string
           created_count?: number
           duration_seconds?: number | null
+          error_categories?: Json
           error_count?: number
           error_message?: string | null
           errors?: Json
           feed_id?: string
           finished_at?: string | null
           id?: string
+          phase?: string | null
+          processed_count?: number
           skipped_count?: number
           started_at?: string
           status?: Database["public"]["Enums"]["xml_run_status"]
