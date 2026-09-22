@@ -109,36 +109,6 @@ export type PayoutRow = {
   processedAt: string | null;
 };
 
-export type ImportJobRow = {
-  id: string;
-  supplierId: string;
-  source: string;
-  fileName: string | null;
-  sourceUrl: string | null;
-  format: string;
-  rowCount: number;
-  validCount: number;
-  errorCount: number;
-  createdCount: number;
-  updatedCount: number;
-  status: string;
-  createdAt: string;
-};
-
-export type FeedRow = {
-  id: string;
-  supplierId: string;
-  name: string;
-  kind: string;
-  sourceUrl: string | null;
-  schedule: string;
-  isActive: boolean;
-  lastRunAt: string | null;
-  nextRunAt: string | null;
-  lastStatus: string | null;
-  lastError: string | null;
-};
-
 const num = (value: unknown) => Number(value ?? 0) || 0;
 
 function formatAddress(address: unknown): string[] {
