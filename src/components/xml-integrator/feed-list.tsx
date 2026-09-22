@@ -60,6 +60,8 @@ export function XmlFeedList({ storeId }: { storeId: string }) {
       currency: feed.currency,
       priceMarkup: feed.priceMarkup,
       isActive: feed.isActive,
+      deltaSync: feed.deltaSyncConfig,
+      lastFullSyncAt: feed.lastFullSyncAt,
     });
 
   return (
