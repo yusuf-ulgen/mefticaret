@@ -413,9 +413,11 @@ export async function upsertProducts(
         for (const [index, item] of toInsert.entries()) {
           const row = insertedRows[index];
           if (!row) {
+            result.errors.push({ row: 0, reason: `${item.key}: ürün eklenemedi`, category: "UPSERT_ERROR" });
             result.skipped += 1;
             continue;
           }
+
           await insertChildren(admin, input.storeId, row.id, item);
           result.created += 1;
         }
