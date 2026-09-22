@@ -1,6 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { getXmlIntegratorOverview, listXmlFieldSchema } from "@/lib/xml-integrator.functions";
+import {
+  getXmlIntegratorOverview,
+  getXmlIntegratorStats,
+  listXmlFieldSchema,
+} from "@/lib/xml-integrator.functions";
 
 /** XmlIntegrator panosu ve alan envanteri sorguları. */
 
