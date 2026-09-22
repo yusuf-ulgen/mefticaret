@@ -137,7 +137,18 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
               <li key={row.id} className="grid gap-2 p-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-center">
                 <div className="min-w-0">
                   <p className="truncate text-sm">{row.sourceCategory}</p>
-                  <p className="text-xs text-muted-foreground">{row.productCount} ürün</p>
+                  <p className="text-xs text-muted-foreground">
+                    {row.productCount} ürün
+                    {row.isAiSuggested ? (
+                      <span className="ml-1 inline-flex items-center gap-1 text-primary">
+                        <Sparkles className="size-3" />
+                        AI önerisi · %{Math.round(row.aiConfidence * 100)} güven
+                      </span>
+                    ) : null}
+                  </p>
+                  {row.isAiSuggested && row.aiReasoning ? (
+                    <p className="text-xs text-muted-foreground/80">{row.aiReasoning}</p>
+                  ) : null}
                 </div>
                 <select
                   aria-label={`${row.sourceCategory} hedef kategorisi`}
