@@ -138,7 +138,10 @@ export function FeedCard({
   const runMutation = useMutation({
     mutationFn: () => run({ data: { storeId, feedId: feed.id } }),
     onSuccess: (result) => {
-      toast.success(`Besleme çalıştı — ${result.totalRows} satır okundu`);
+      toast.success(
+        `Besleme çalıştı — ${result.totalRows} satır okundu, ${result.created} yeni ürün, ${result.updated} güncelleme` +
+          (result.errorCount ? `, ${result.errorCount} hata` : ""),
+      );
       void refresh();
     },
     onError: (error: Error) => toast.error(error.message),
