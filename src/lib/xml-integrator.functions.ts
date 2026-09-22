@@ -520,3 +520,163 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
       format: result.format,
     };
   });
+
+/* --------------------------- kategori eşleştirme -------------------------- */
+
+const feedRefSchema = z.object({ storeId: z.guid(), feedId: z.guid() });
+
+/** Besleme kategorileri + mağazanın kategori ağacı (eşleştirme tablosu için). */
+export const listXmlCategoryMappings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => feedRefSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const [{ data: mappings, error }, { data: categories }] = await Promise.all([
+      context.supabase
+        .from("xml_category_mappings")
+        .select("id, source_category, target_category_id, target_category_code, target_category_name, product_count")
+        .eq("store_id", data.storeId)
+        .eq("feed_id", data.feedId)
+        .order("product_count", { ascending: false }),
+      context.supabase
+        .from("categories")
+        .select("id, name, path, level")
+        .eq("store_id", data.storeId)
+        .order("path", { ascending: true })
+        .limit(500),
+    ]);
+    if (error) throw new Error(error.message);
+
+    return {
+      mappings: ((mappings ?? []) as Array<Record<string, any>>).map((row) => ({
+        id: String(row["id"]),
+        sourceCategory: String(row["source_category"]),
+        targetCategoryId: (row["target_category_id"] as string | null) ?? null,
+        targetCategoryCode: (row["target_category_code"] as string | null) ?? null,
+        targetCategoryName: (row["target_category_name"] as string | null) ?? null,
+        productCount: Number(row["product_count"] ?? 0),
+      })),
+      categories: ((categories ?? []) as Array<Record<string, any>>).map((row) => ({
+        id: String(row["id"]),
+        name: String(row["name"]),
+        path: (row["path"] as string | null) ?? null,
+        level: Number(row["level"] ?? 0),
+      })),
+    };
+  });
+
+/**
+ * Kaynaktaki kategori değerlerini tarar ve ürün sayılarıyla birlikte
+ * eşleştirme tablosuna yazar. Var olan hedef seçimleri korunur.
+ */
+export const scanXmlSourceCategories = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => feedRefSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_categories:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla tarama denemesi, birkaç dakika sonra tekrar deneyin");
+
+    const { data: feedRow, error: readError } = await context.supabase
+      .from("xml_feeds")
+      .select("source_url, source_format, item_path, auth_type, auth_config, field_mapping")
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!feedRow) throw new Error("Besleme bulunamadı");
+    const feed = feedRow as Record<string, any>;
+
+    const mapping = (feed["field_mapping"] ?? {}) as Record<string, string>;
+    const categoryField = mapping["category_path"] || mapping["category"];
+    if (!categoryField) throw new Error("Önce kategori veya kategori yolu alanını eşleştirin");
+    const sourceUrl = (feed["source_url"] as string | null) ?? "";
+    if (!sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı tanımlı değil");
+
+    const { fetchFeedSource, parseFeedRows } = await import("@/lib/xml-import-engine.server");
+    const { readMapped } = await import("@/lib/xml-integrator");
+
+    const fetched = await fetchFeedSource({
+      url: sourceUrl,
+      authType: String(feed["auth_type"] ?? "none") as never,
+      authConfig: (feed["auth_config"] ?? {}) as Record<string, string>,
+      format: (feed["source_format"] as never) ?? null,
+    });
+    const parsed = parseFeedRows(fetched, { itemPath: (feed["item_path"] as string | null) ?? null, limit: 3000 });
+
+    const counts = new Map<string, number>();
+    for (const row of parsed.rows) {
+      const value = readMapped(row, categoryField).trim().slice(0, 300);
+      if (!value) continue;
+      counts.set(value, (counts.get(value) ?? 0) + 1);
+    }
+    if (!counts.size) throw new Error("Kaynakta kategori değeri bulunamadı");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const rows = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 500)
+      .map(([sourceCategory, productCount]) => ({
+        store_id: data.storeId,
+        feed_id: data.feedId,
+        source_category: sourceCategory,
+        product_count: productCount,
+      }));
+
+    const { error } = await supabaseAdmin
+      .from("xml_category_mappings")
+      .upsert(rows as never, { onConflict: "feed_id,source_category", ignoreDuplicates: false });
+    if (error) throw new Error(error.message);
+
+    return { found: rows.length, rows: parsed.rows.length };
+  });
+
+/** Bir kaynak kategorisinin hedefini kaydeder (boş değer eşleşmeyi kaldırır). */
+export const saveXmlCategoryMapping = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        feedId: z.guid(),
+        sourceCategory: z.string().trim().min(1).max(300),
+        targetCategoryId: z.guid().nullable().default(null),
+        targetCategoryCode: z.string().trim().max(60).nullable().default(null),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    let targetName: string | null = null;
+    if (data.targetCategoryId) {
+      const { data: category } = await context.supabase
+        .from("categories")
+        .select("name")
+        .eq("id", data.targetCategoryId)
+        .eq("store_id", data.storeId)
+        .maybeSingle();
+      if (!category) throw new Error("Hedef kategori bulunamadı");
+      targetName = String((category as { name: string }).name);
+    }
+
+    const { error } = await context.supabase.from("xml_category_mappings").upsert(
+      {
+        store_id: data.storeId,
+        feed_id: data.feedId,
+        source_category: data.sourceCategory,
+        target_category_id: data.targetCategoryId,
+        target_category_code: data.targetCategoryCode,
+        target_category_name: targetName,
+      } as never,
+      { onConflict: "feed_id,source_category" },
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true as boolean };
+  });
