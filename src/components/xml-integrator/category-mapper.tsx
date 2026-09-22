@@ -14,7 +14,11 @@ import { Button } from "@/components/ui/button";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Input } from "@/components/ui/input";
 import { xmlCategoryMappingsQuery } from "@/lib/xml-integrator-queries";
-import { saveXmlCategoryMapping, scanXmlSourceCategories } from "@/lib/xml-integrator.functions";
+import {
+  aiSuggestXmlCategoryMappings,
+  saveXmlCategoryMapping,
+  scanXmlSourceCategories,
+} from "@/lib/xml-integrator.functions";
 
 export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId: string }) {
   const client = useQueryClient();
