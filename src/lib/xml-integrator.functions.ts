@@ -55,6 +55,7 @@ import {
   DEFAULT_GUARDRAIL_CONFIG,
   parseGuardrailConfig,
   serializeGuardrailConfig,
+  QUARANTINE_STATUSES,
   ZERO_PRICE_ACTIONS,
   ZERO_STOCK_ACTIONS,
   type GuardrailConfig,
@@ -1288,4 +1289,139 @@ export const listPlatformCurrencyRates = createServerFn({ method: "GET" })
       source: String(row["source"] ?? "tcmb"),
       updatedAt: (row["updated_at"] as string | null) ?? null,
     }));
+  });
+
+/** İncelemeye alınan (karantina) ürünler — liste ve bekleyen sayısı. */
+export const listXmlQuarantine = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        status: z.enum(QUARANTINE_STATUSES).default("pending_review"),
+        limit: z.number().int().min(1).max(200).default(100),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { data: rows, error } = await context.supabase
+      .from("xml_quarantine_items")
+      .select("id, feed_id, sku, product_title, old_price, new_price, old_stock, new_stock, issue_type, status, raw_data, created_at, reviewed_at")
+      .eq("store_id", data.storeId)
+      .eq("status", data.status)
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (error) throw new Error(error.message);
+
+    const { count } = await context.supabase
+      .from("xml_quarantine_items")
+      .select("id", { count: "exact", head: true })
+      .eq("store_id", data.storeId)
+      .eq("status", "pending_review");
+
+    return {
+      pendingCount: count ?? 0,
+      items: ((rows ?? []) as Array<Record<string, unknown>>).map((row) => ({
+        id: String(row["id"]),
+        feedId: String(row["feed_id"]),
+        sku: String(row["sku"]),
+        productTitle: (row["product_title"] as string | null) ?? null,
+        oldPrice: row["old_price"] === null ? null : Number(row["old_price"]),
+        newPrice: row["new_price"] === null ? null : Number(row["new_price"]),
+        oldStock: row["old_stock"] === null ? null : Number(row["old_stock"]),
+        newStock: row["new_stock"] === null ? null : Number(row["new_stock"]),
+        issueType: String(row["issue_type"]),
+        status: String(row["status"]),
+        reason: String(((row["raw_data"] ?? {}) as Record<string, unknown>)["reason"] ?? ""),
+        createdAt: String(row["created_at"]),
+      })),
+    };
+  });
+
+/**
+ * İncelemeye alınan ürünleri onaylar (yeni fiyatı canlıya uygular) veya reddeder
+ * (ürün olduğu gibi kalır). Toplu işlem için birden fazla kayıt kabul eder.
+ */
+export const resolveXmlQuarantine = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        itemIds: z.array(z.guid()).min(1).max(200),
+        action: z.enum(["approve", "reject"]),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { data: rows, error } = await context.supabase
+      .from("xml_quarantine_items")
+      .select("id, sku, new_price, new_stock, status")
+      .eq("store_id", data.storeId)
+      .in("id", data.itemIds)
+      .eq("status", "pending_review");
+    if (error) throw new Error(error.message);
+
+    const items = (rows ?? []) as Array<{
+      id: string;
+      sku: string;
+      new_price: number | null;
+      new_stock: number | null;
+    }>;
+    if (items.length === 0) return { applied: 0, rejected: 0, notFound: data.itemIds.length };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let applied = 0;
+
+    if (data.action === "approve") {
+      for (const item of items) {
+        /* Ürün stok kodu ya da barkodu ile bulunur; bulunamazsa kayıt yine kapatılır. */
+        const { data: productRows } = await supabaseAdmin
+          .from("products")
+          .select("id")
+          .eq("store_id", data.storeId)
+          .or(`sku.eq.${item.sku},barcode.eq.${item.sku}`)
+          .limit(1);
+        const productId = (productRows as Array<{ id: string }> | null)?.[0]?.id ?? null;
+        if (!productId) continue;
+
+        if (item.new_price !== null) {
+          await supabaseAdmin
+            .from("products")
+            .update({ base_price: item.new_price, updated_at: new Date().toISOString() })
+            .eq("id", productId)
+            .eq("store_id", data.storeId);
+        }
+        if (item.new_stock !== null) {
+          await supabaseAdmin
+            .from("product_variants")
+            .update({ stock: item.new_stock })
+            .eq("product_id", productId);
+        }
+        applied += 1;
+      }
+    }
+
+    const { error: updateError } = await supabaseAdmin
+      .from("xml_quarantine_items")
+      .update({
+        status: data.action === "approve" ? "approved" : "rejected",
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: context.userId,
+      })
+      .eq("store_id", data.storeId)
+      .in("id", items.map((item) => item.id));
+    if (updateError) throw new Error(updateError.message);
+
+    return {
+      applied,
+      rejected: data.action === "reject" ? items.length : 0,
+      notFound: data.itemIds.length - items.length,
+    };
   });
