@@ -502,6 +502,62 @@ export const analyzeXmlSource = createServerFn({ method: "POST" })
     };
   });
 
+/**
+ * FTP bağlantısını dener ve dosyayı indirir (sadece deneme — içe aktarım yapmaz).
+ * Şifre boş gönderilirse kayıtlı beslemenin şifresi kullanılır.
+ */
+export const testFeedConnection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        feedId: z.guid().optional(),
+        connectionType: z.enum(CONNECTION_TYPES).default("ftp"),
+        ftpConfig: feedSchema.shape.ftpConfig,
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_conn_test:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla deneme yapıldı, birkaç dakika sonra tekrar deneyin");
+
+    if (data.connectionType !== "ftp" && data.connectionType !== "sftp") {
+      throw new Error("Bağlantı denemesi yalnızca FTP/SFTP kaynakları için yapılır");
+    }
+
+    let config = { ...data.ftpConfig };
+    if (config.password.length === 0 && data.feedId) {
+      const { data: feed } = await context.supabase
+        .from("xml_feeds")
+        .select("ftp_config")
+        .eq("id", data.feedId)
+        .eq("store_id", data.storeId)
+        .maybeSingle();
+      const stored = parseFtpConfig((feed as { ftp_config?: unknown } | null)?.ftp_config ?? {});
+      config = { ...config, password: stored.password };
+    }
+    if (!config.host) throw new Error("FTP sunucu adresi zorunludur");
+    if (!config.username) throw new Error("FTP kullanıcı adı zorunludur");
+    if (!config.filePath) throw new Error("İndirilecek dosya yolu zorunludur");
+
+    const { fetchFromFtp } = await import("@/lib/xml-ftp.server");
+    const started = Date.now();
+    const result = await fetchFromFtp(serializeFtpConfig(config), data.connectionType);
+    return {
+      ok: true,
+      bytes: result.bytes,
+      filePath: result.filePath,
+      durationMs: Date.now() - started,
+      preview: result.content.slice(0, 400),
+    };
+  });
+
+
 /** Bir beslemenin kayıtlı alan envanteri (eşleştirme ekranı için). */
 export const listXmlFieldSchema = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

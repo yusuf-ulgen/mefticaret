@@ -279,6 +279,8 @@ export function FeedSheet({
             <section className="space-y-3 rounded-xl border bg-muted/20 p-4">
               <ConnectionSettings
                 idPrefix="feed-conn"
+                storeId={storeId}
+                {...(form.id ? { feedId: form.id } : {})}
                 connectionType={form.connectionType}
                 ftpConfig={form.ftpConfig}
                 hasFtpPassword={form.hasFtpPassword}

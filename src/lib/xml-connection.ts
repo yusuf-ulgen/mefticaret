@@ -23,6 +23,14 @@ export const CONNECTION_TYPE_HINTS: Record<ConnectionType, string> = {
   webhook: "Tedarikçi dosyayı size verilen gizli adrese gönderir; biz beklemeyiz.",
 };
 
+/** Bağlantı türüne göre varsayılan port. */
+export const DEFAULT_PORTS: Record<ConnectionType, number> = {
+  url: 443,
+  ftp: 21,
+  sftp: 22,
+  webhook: 443,
+};
+
 export type FtpConfig = {
   host: string;
   port: number;
