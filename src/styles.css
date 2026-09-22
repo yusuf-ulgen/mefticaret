@@ -46,6 +46,11 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-platform-trendyol: var(--platform-trendyol);
+  --color-platform-hepsiburada: var(--platform-hepsiburada);
+  --color-platform-n11: var(--platform-n11);
+  --color-platform-amazon: var(--platform-amazon);
+  --color-platform-generic: var(--platform-generic);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
