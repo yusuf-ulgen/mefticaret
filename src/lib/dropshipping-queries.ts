@@ -1,59 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
-import type {
-  DropshipOrderStatus,
-  FieldMap,
-  PriceRules,
-  StockRules,
-  SupplierFeedKind,
-  SupplierFeedRunStatus,
-  SupplierFeedSchedule,
-  SupplierMatchKey,
-} from "@/lib/dropshipping";
+import type { DropshipOrderStatus } from "@/lib/dropshipping";
 
-export type SupplierFeedRow = {
-  id: string;
-  store_id: string;
-  supplier_id: string | null;
-  name: string;
-  kind: SupplierFeedKind;
-  source_url: string;
-  auth_header: string | null;
-  schedule: SupplierFeedSchedule;
-  is_active: boolean;
-  match_key: SupplierMatchKey;
-  item_path: string | null;
-  field_map: FieldMap;
-  category_map: Record<string, string>;
-  brand_map: Record<string, string>;
-  price_rules: PriceRules;
-  stock_rules: StockRules;
-  import_images: boolean;
-  create_missing: boolean;
-  last_run_at: string | null;
-  next_run_at: string | null;
-  last_status: SupplierFeedRunStatus | null;
-  last_error: string | null;
-  stats: Record<string, number>;
-  created_at: string;
-  suppliers: { id: string; name: string } | null;
-};
-
-export type SupplierFeedRunRow = {
-  id: string;
-  feed_id: string;
-  status: SupplierFeedRunStatus;
-  trigger: string;
-  started_at: string;
-  finished_at: string | null;
-  totals: Record<string, number>;
-  error: string | null;
-};
+/** Dropshipping sipariş yönlendirme sorguları (tedarikçi besleme motoru kaldırıldı). */
 
 export type SupplierProductRow = {
   id: string;
-  feed_id: string;
   external_id: string | null;
   sku: string | null;
   barcode: string | null;
@@ -85,49 +38,18 @@ export type DropshipOrderRow = {
   suppliers: { id: string; name: string } | null;
 };
 
-export const supplierFeedsQuery = (storeId: string) =>
+export const supplierProductsQuery = (storeId: string) =>
   queryOptions({
-    queryKey: ["supplier-feeds", storeId],
+    queryKey: ["supplier-products", storeId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("supplier_feeds")
-        .select("*, suppliers(id, name)")
-        .eq("store_id", storeId)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as unknown as SupplierFeedRow[];
-    },
-  });
-
-export const supplierFeedRunsQuery = (storeId: string) =>
-  queryOptions({
-    queryKey: ["supplier-feed-runs", storeId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("supplier_feed_runs")
-        .select("id, feed_id, status, trigger, started_at, finished_at, totals, error")
-        .eq("store_id", storeId)
-        .order("started_at", { ascending: false })
-        .limit(40);
-      if (error) throw error;
-      return (data ?? []) as unknown as SupplierFeedRunRow[];
-    },
-  });
-
-export const supplierProductsQuery = (storeId: string, feedId?: string) =>
-  queryOptions({
-    queryKey: ["supplier-products", storeId, feedId ?? "all"],
-    queryFn: async () => {
-      let query = supabase
         .from("supplier_products")
         .select(
-          "id, feed_id, external_id, sku, barcode, title, brand, category, supplier_price, computed_price, stock, images, product_id, variant_id, matched_at, updated_at",
+          "id, external_id, sku, barcode, title, brand, category, supplier_price, computed_price, stock, images, product_id, variant_id, matched_at, updated_at",
         )
         .eq("store_id", storeId)
         .order("updated_at", { ascending: false })
         .limit(200);
-      if (feedId) query = query.eq("feed_id", feedId);
-      const { data, error } = await query;
       if (error) throw error;
       return (data ?? []) as unknown as SupplierProductRow[];
     },

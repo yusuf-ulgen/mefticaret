@@ -20,7 +20,6 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { SmartImage } from "@/components/smart-image";
-import { SupplierImportWizard } from "@/components/supplier/import-wizard";
 import { printCargoLabels } from "@/components/supplier/cargo-label";
 import { SupplierAnalytics, SupplierCatalog, SupplierChanges, SupplierCommercialDesk } from "@/components/supplier/workspace-panels";
 import { Badge } from "@/components/ui/badge";
@@ -35,9 +34,7 @@ import { LEDGER_STATUS_LABELS, PAYOUT_STATUS_LABELS } from "@/lib/supplier-impor
 import {
   supplierDeskOverview,
   supplierDeskRequestPayout,
-  supplierDeskRunFeed,
   supplierDeskSaveBank,
-  supplierDeskSaveFeed,
 } from "@/lib/supplier-desk.functions";
 import { supplierPortalUpdateOrder } from "@/lib/supplier-portal.functions";
 
@@ -72,15 +69,6 @@ const CARRIERS = [
   "DHL",
   "FedEx",
   "Trendyol Express",
-];
-
-const SCHEDULES = [
-  { value: "manual", label: "Elle" },
-  { value: "hourly", label: "Saatlik" },
-  { value: "three_hourly", label: "3 saatte bir" },
-  { value: "six_hourly", label: "6 saatte bir" },
-  { value: "twelve_hourly", label: "12 saatte bir" },
-  { value: "daily", label: "Günlük" },
 ];
 
 type Overview = Awaited<ReturnType<typeof supplierDeskOverview>>;
@@ -235,65 +223,11 @@ function SupplierPortalPage() {
             </TabsContent>
 
             <TabsContent value="products" className="mt-0 space-y-4">
-              {supplierId ? <SupplierCatalog supplierId={supplierId} products={data.products} onChanged={refresh} /> : null}
-              {supplierId ? (
-                <SupplierImportWizard supplierId={supplierId} onImported={refresh} />
-              ) : null}
-              {data.importJobs.length ? (
-                <div className="rounded-xl border bg-card p-4">
-                  <h2 className="text-sm font-medium">Yükleme geçmişi</h2>
-                  <div className="mt-3 space-y-2 sm:hidden">
-                    {data.importJobs.map((job) => (
-                      <article key={job.id} className="rounded-lg border bg-muted/20 p-3 text-xs">
-                        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
-                          <div className="min-w-0">
-                            <p className="truncate font-medium">{job.fileName ?? job.sourceUrl ?? job.source}</p>
-                            <p className="mt-1 text-muted-foreground">{formatDate(job.createdAt)}</p>
-                          </div>
-                          <Badge variant={job.errorCount ? "destructive" : "secondary"}>
-                            {job.errorCount ? `${job.errorCount} hata` : "Tamamlandı"}
-                          </Badge>
-                        </div>
-                        <dl className="mt-3 grid grid-cols-3 gap-2 border-t pt-3 text-center">
-                          <div><dt className="text-muted-foreground">Satır</dt><dd className="font-semibold">{job.rowCount}</dd></div>
-                          <div><dt className="text-muted-foreground">Yeni</dt><dd className="font-semibold">{job.createdCount}</dd></div>
-                          <div><dt className="text-muted-foreground">Güncel</dt><dd className="font-semibold">{job.updatedCount}</dd></div>
-                        </dl>
-                      </article>
-                    ))}
-                  </div>
-                  <div className="mt-2 hidden overflow-x-auto sm:block">
-                    <table className="w-full text-xs">
-                      <thead className="text-left uppercase text-muted-foreground">
-                        <tr>
-                          <th className="py-1">Tarih</th>
-                          <th className="py-1">Kaynak</th>
-                          <th className="py-1">Satır</th>
-                          <th className="py-1">Yeni</th>
-                          <th className="py-1">Güncel</th>
-                          <th className="py-1">Hatalı</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.importJobs.map((job) => (
-                          <tr key={job.id} className="border-t">
-                            <td className="py-1">{formatDate(job.createdAt)}</td>
-                            <td className="py-1">{job.fileName ?? job.sourceUrl ?? job.source}</td>
-                            <td className="py-1">{job.rowCount}</td>
-                            <td className="py-1">{job.createdCount}</td>
-                            <td className="py-1">{job.updatedCount}</td>
-                            <td className="py-1">{job.errorCount}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              ) : null}
+              <SupplierCatalog products={data.products} />
             </TabsContent>
 
             <TabsContent value="changes" className="mt-0 space-y-4">
-              {supplierId ? <SupplierChanges supplierId={supplierId} movements={data.movements} returnCount={data.ledger.reduce((total, row) => total + row.scorecard.returned, 0)} cancelledCount={data.ledger.reduce((total, row) => total + row.scorecard.cancelled, 0)} feedPanel={<FeedPanel supplierId={supplierId} feeds={data.feeds} onSaved={refresh} />} /> : null}
+              <SupplierChanges movements={data.movements} returnCount={data.ledger.reduce((total, row) => total + row.scorecard.returned, 0)} cancelledCount={data.ledger.reduce((total, row) => total + row.scorecard.cancelled, 0)} />
             </TabsContent>
 
             <TabsContent value="analytics" className="mt-0 space-y-4">
@@ -578,152 +512,6 @@ function SupplierOrderCard({
         ))}
       </datalist>
     </section>
-  );
-}
-
-function FeedPanel({
-  supplierId,
-  feeds,
-  onSaved,
-}: {
-  supplierId: string;
-  feeds: Overview["feeds"];
-  onSaved: () => void;
-}) {
-  const saveFeed = useServerFn(supplierDeskSaveFeed);
-  const runFeed = useServerFn(supplierDeskRunFeed);
-  const existing = feeds[0];
-
-  const [name, setName] = useState(existing?.name ?? "Fiyat & stok beslemesi");
-  const [kind, setKind] = useState<"xml" | "csv" | "json">((existing?.kind as "xml") ?? "xml");
-  const [sourceUrl, setSourceUrl] = useState(existing?.sourceUrl ?? "");
-  const [schedule, setSchedule] = useState(existing?.schedule ?? "daily");
-
-  const save = useMutation({
-    mutationFn: () =>
-      saveFeed({
-        data: {
-          supplierId,
-          feedId: existing?.id,
-          name,
-          kind,
-          sourceUrl: sourceUrl.trim(),
-           schedule: schedule as "manual" | "hourly" | "three_hourly" | "six_hourly" | "twelve_hourly" | "daily",
-          isActive: true,
-        },
-      }),
-    onSuccess: () => {
-      toast.success("Otomatik senkron kaydedildi");
-      onSaved();
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
-  const run = useMutation({
-    mutationFn: (feedId: string) => runFeed({ data: { supplierId, feedId } }),
-    onSuccess: () => {
-      toast.success("Senkron tamamlandı");
-      onSaved();
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
-  return (
-    <div className="space-y-4">
-      <div className="space-y-3 rounded-xl border bg-card p-4 sm:p-5">
-        <div>
-          <h2 className="font-medium">Otomatik fiyat & stok senkronu</h2>
-          <p className="text-sm text-muted-foreground">
-            Bağlantınızı verin; sistem seçtiğiniz sıklıkta fiyat ve stokları günceller.
-          </p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1">
-            <Label className="text-xs" htmlFor="feed-name">
-              Besleme adı
-            </Label>
-            <Input id="feed-name" value={name} onChange={(event) => setName(event.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs" htmlFor="feed-kind">
-              Dosya türü
-            </Label>
-            <select
-              id="feed-kind"
-              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
-              value={kind}
-              onChange={(event) => setKind(event.target.value as "xml" | "csv" | "json")}
-            >
-              <option value="xml">XML</option>
-              <option value="csv">CSV</option>
-              <option value="json">JSON</option>
-            </select>
-          </div>
-          <div className="space-y-1 sm:col-span-2">
-            <Label className="text-xs" htmlFor="feed-url">
-              Kaynak bağlantısı
-            </Label>
-            <Input
-              id="feed-url"
-              value={sourceUrl}
-              onChange={(event) => setSourceUrl(event.target.value)}
-              placeholder="https://tedarikci.com/urunler.xml"
-            />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs" htmlFor="feed-schedule">
-              Sıklık
-            </Label>
-            <select
-              id="feed-schedule"
-              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
-              value={schedule}
-              onChange={(event) => setSchedule(event.target.value)}
-            >
-              {SCHEDULES.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button className="flex-1 sm:flex-none" disabled={!sourceUrl.trim() || save.isPending} onClick={() => save.mutate()}>
-            Kaydet
-          </Button>
-          {existing ? (
-            <Button className="flex-1 sm:flex-none" variant="outline" disabled={run.isPending} onClick={() => run.mutate(existing.id)}>
-              <RefreshCw className="mr-1 size-4" aria-hidden />
-              Şimdi çalıştır
-            </Button>
-          ) : null}
-        </div>
-      </div>
-
-      {feeds.length ? (
-        <div className="rounded-xl border bg-card p-4">
-          <h3 className="text-sm font-medium">Beslemeler</h3>
-          <div className="mt-2 space-y-2 text-sm">
-            {feeds.map((feed) => (
-              <div key={feed.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 border-t pt-2">
-                <div className="min-w-0">
-                  <p className="font-medium">{feed.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {feed.kind.toUpperCase()} · {SCHEDULES.find((item) => item.value === feed.schedule)?.label}
-                    {feed.lastRunAt ? ` · son çalışma ${formatDate(feed.lastRunAt)}` : ""}
-                  </p>
-                  {feed.lastError ? <p className="text-xs text-destructive">{feed.lastError}</p> : null}
-                </div>
-                <Badge variant={feed.isActive ? "secondary" : "outline"}>
-                  {feed.isActive ? "Aktif" : "Kapalı"}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
-    </div>
   );
 }
 

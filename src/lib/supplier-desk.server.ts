@@ -5,7 +5,7 @@
  * Çağıran her zaman kendi tedarikçi kimlikleriyle sınırlandırılır.
  */
 
-import type { ImportRow, SupplierScorecard } from "@/lib/supplier-import";
+import type { SupplierScorecard } from "@/lib/supplier-import";
 
 type Client = { from: (table: string) => any };
 
@@ -107,36 +107,6 @@ export type PayoutRow = {
   adminNote: string | null;
   createdAt: string;
   processedAt: string | null;
-};
-
-export type ImportJobRow = {
-  id: string;
-  supplierId: string;
-  source: string;
-  fileName: string | null;
-  sourceUrl: string | null;
-  format: string;
-  rowCount: number;
-  validCount: number;
-  errorCount: number;
-  createdCount: number;
-  updatedCount: number;
-  status: string;
-  createdAt: string;
-};
-
-export type FeedRow = {
-  id: string;
-  supplierId: string;
-  name: string;
-  kind: string;
-  sourceUrl: string | null;
-  schedule: string;
-  isActive: boolean;
-  lastRunAt: string | null;
-  nextRunAt: string | null;
-  lastStatus: string | null;
-  lastError: string | null;
 };
 
 const num = (value: unknown) => Number(value ?? 0) || 0;
@@ -457,152 +427,6 @@ export async function loadSupplierLedger(
   }));
 
   return { ledger, payouts: payoutRows };
-}
-
-/** Portal içi besleme ayarları ve yükleme geçmişi. */
-export async function loadSupplierFeeds(
-  admin: Client,
-  supplierIds: string[],
-): Promise<{ feeds: FeedRow[]; jobs: ImportJobRow[] }> {
-  if (!supplierIds.length) return { feeds: [], jobs: [] };
-  const [{ data: feeds }, { data: jobs }] = await Promise.all([
-    admin
-      .from("supplier_feeds")
-      .select("id, supplier_id, name, kind, source_url, schedule, is_active, last_run_at, next_run_at, last_status, last_error")
-      .in("supplier_id", supplierIds)
-      .order("created_at", { ascending: false }),
-    admin
-      .from("supplier_import_jobs")
-      .select(
-        "id, supplier_id, source, file_name, source_url, format, row_count, valid_count, error_count, created_count, updated_count, status, created_at",
-      )
-      .in("supplier_id", supplierIds)
-      .order("created_at", { ascending: false })
-      .limit(30),
-  ]);
-
-  return {
-    feeds: ((feeds ?? []) as any[]).map((row) => ({
-      id: row.id as string,
-      supplierId: row.supplier_id as string,
-      name: row.name as string,
-      kind: row.kind as string,
-      sourceUrl: row.source_url ?? null,
-      schedule: row.schedule as string,
-      isActive: Boolean(row.is_active),
-      lastRunAt: row.last_run_at ?? null,
-      nextRunAt: row.next_run_at ?? null,
-      lastStatus: row.last_status ?? null,
-      lastError: row.last_error ?? null,
-    })),
-    jobs: ((jobs ?? []) as any[]).map((row) => ({
-      id: row.id as string,
-      supplierId: row.supplier_id as string,
-      source: row.source as string,
-      fileName: row.file_name ?? null,
-      sourceUrl: row.source_url ?? null,
-      format: row.format as string,
-      rowCount: Number(row.row_count ?? 0),
-      validCount: Number(row.valid_count ?? 0),
-      errorCount: Number(row.error_count ?? 0),
-      createdCount: Number(row.created_count ?? 0),
-      updatedCount: Number(row.updated_count ?? 0),
-      status: row.status as string,
-      createdAt: row.created_at as string,
-    })),
-  };
-}
-
-/** Doğrulanmış satırları tedarikçi kataloğuna yazar (supplier_products). */
-export async function applySupplierImport(
-  admin: Client,
-  input: {
-    storeId: string;
-    supplierId: string;
-    feedId: string;
-    rows: ImportRow[];
-    currency: string;
-  },
-): Promise<{ created: number; updated: number }> {
-  const valid = input.rows.filter((row) => row.errors.length === 0);
-  if (!valid.length) return { created: 0, updated: 0 };
-
-  const skus = valid.map((row) => row.sku);
-  const { data: existing } = await admin
-    .from("supplier_products")
-    .select("id, sku, product_id, variant_id")
-    .eq("supplier_id", input.supplierId)
-    .in("sku", skus);
-  const existingMap = new Map(
-    ((existing ?? []) as any[]).map((row) => [
-      row.sku as string,
-      { id: row.id as string, productId: row.product_id as string | null, variantId: row.variant_id as string | null },
-    ]),
-  );
-
-  const now = new Date().toISOString();
-  const payload = valid.map((row) => ({
-    id: existingMap.get(row.sku)?.id,
-    product_id: existingMap.get(row.sku)?.productId ?? null,
-    variant_id: existingMap.get(row.sku)?.variantId ?? null,
-    store_id: input.storeId,
-    feed_id: input.feedId,
-    supplier_id: input.supplierId,
-    external_id: row.sku,
-    sku: row.sku,
-    barcode: row.barcode,
-    title: row.title,
-    brand: row.brand,
-    category: row.category,
-    supplier_price: row.costPrice,
-    currency: row.currency || input.currency || "TRY",
-    computed_price: row.retailPrice ?? null,
-    stock: row.stock,
-    images: row.images,
-    raw: {
-      description: row.description,
-      short_description: (row as any).shortDescription ?? null,
-      color: row.color,
-      size: row.size,
-      retail_price: row.retailPrice,
-      discount_price: (row as any).discountPrice ?? null,
-      tax_rate: (row as any).taxRate ?? null,
-      category_path: (row as any).categoryPath ?? [],
-      videos: (row as any).videos ?? [],
-      variants: (row as any).variants ?? [],
-      fabric: (row as any).fabric ?? null,
-      model_size: (row as any).modelSize ?? null,
-      hs_code: (row as any).hsCode ?? null,
-      weight: (row as any).weight ?? null,
-      warnings: (row as any).warnings ?? [],
-    },
-    last_seen_at: now,
-    updated_at: now,
-  }));
-
-  const inserts = payload.filter((row) => !row.id).map(({ id: _id, product_id: _productId, variant_id: _variantId, ...rest }) => rest);
-  const updates = payload.filter((row) => row.id);
-
-  if (inserts.length) {
-    for (let index = 0; index < inserts.length; index += 400) {
-      const { error } = await admin.from("supplier_products").insert(inserts.slice(index, index + 400));
-      if (error) throw new Error(error.message);
-    }
-  }
-  for (const row of updates) {
-    const { id, ...rest } = row;
-    const { error } = await admin.from("supplier_products").update(rest).eq("id", id);
-    if (error) throw new Error(error.message);
-    if (rest.product_id) {
-      const salePrice = row.computed_price ?? row.supplier_price;
-      await admin.from("products").update({ base_price: salePrice, cost_price: row.supplier_price }).eq("id", rest.product_id).eq("store_id", input.storeId);
-      if (rest.variant_id) {
-        await admin.from("product_variants").update({ price: salePrice, cost_price: row.supplier_price, stock: row.stock }).eq("id", rest.variant_id).eq("store_id", input.storeId);
-      }
-    }
-  }
-
-  return { created: inserts.length, updated: updates.length };
 }
 
 /** Kargo etiketi / irsaliye için yazdırılabilir veri. */

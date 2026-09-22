@@ -105,12 +105,6 @@ export const supplierDeskOverview = createServerFn({ method: "POST" })
         payouts: [] as Awaited<
           ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierLedger>
         >["payouts"],
-        feeds: [] as Awaited<
-          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierFeeds>
-        >["feeds"],
-        importJobs: [] as Awaited<
-          ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierFeeds>
-        >["jobs"],
         products: [] as Awaited<
           ReturnType<typeof import("@/lib/supplier-desk.server").loadSupplierWorkspace>
         >["products"],
@@ -130,15 +124,14 @@ export const supplierDeskOverview = createServerFn({ method: "POST" })
     }
     const supplierIds = suppliers.map((supplier) => supplier.id);
 
-    const { loadSupplierDeskOrders, loadSupplierLedger, loadSupplierFeeds, loadSupplierWorkspace } = await import(
+    const { loadSupplierDeskOrders, loadSupplierLedger, loadSupplierWorkspace } = await import(
       "@/lib/supplier-desk.server"
     );
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [orders, ledger, feeds, workspace] = await Promise.all([
+    const [orders, ledger, workspace] = await Promise.all([
       loadSupplierDeskOrders(supabaseAdmin as never, supplierIds, 200),
       loadSupplierLedger(supabaseAdmin as never, suppliers as never),
-      loadSupplierFeeds(supabaseAdmin as never, supplierIds),
       loadSupplierWorkspace(supabaseAdmin as never, suppliers as never),
     ]);
 
@@ -154,39 +147,8 @@ export const supplierDeskOverview = createServerFn({ method: "POST" })
       orders,
       ledger: ledger.ledger,
       payouts: ledger.payouts,
-      feeds: feeds.feeds,
-      importJobs: feeds.jobs,
       ...workspace,
     };
-  });
-
-/** Seçili tedarikçi ürünlerini mağaza kataloğuna aktarır; sonraki senkronlar canlı fiyat/stoku günceller. */
-export const supplierDeskPublishProducts = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ supplierId: z.guid(), productIds: z.array(z.guid()).min(1).max(500) }).parse(data))
-  .handler(async ({ data, context }) => {
-    const { supplier } = await assertSupplier(context.supabase, context.userId, data.supplierId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: rows, error } = await supabaseAdmin.from("supplier_products")
-      .select("id, feed_id").eq("supplier_id", supplier.id).eq("store_id", supplier.store_id).in("id", data.productIds);
-    if (error) throw new Error(error.message);
-    if ((rows ?? []).length !== data.productIds.length) throw new Error("Ürünlerden biri bu tedarikçiye ait değil");
-    const { publishSupplierProducts } = await import("@/lib/xml-publish.server");
-    const byFeed = new Map<string, string[]>();
-    for (const row of (rows ?? []) as { id: string; feed_id: string }[]) {
-      byFeed.set(row.feed_id, [...(byFeed.get(row.feed_id) ?? []), row.id]);
-    }
-    const totals = { processed: 0, productsCreated: 0, productsActivated: 0, skipped: 0 };
-    for (const [feedId, supplierProductIds] of byFeed) {
-      const result = await publishSupplierProducts(supabaseAdmin as never, {
-        storeId: supplier.store_id, feedId, supplierProductIds, channelIds: [], activate: true, onlyInStock: false,
-      });
-      totals.processed += result.processed;
-      totals.productsCreated += result.productsCreated;
-      totals.productsActivated += result.productsActivated;
-      totals.skipped += result.skipped;
-    }
-    return totals;
   });
 
 /** Tedarikçinin kendi ürünlerinden gerçek RFQ teklifi oluşturur. */
@@ -263,199 +225,6 @@ export const supplierDeskApproveRfq = createServerFn({ method: "POST" })
     const { error: updateError } = await supabaseAdmin.from("rfq_requests").update({ status: "won", purchase_order_id: purchaseOrderId }).eq("id", rfq.id);
     if (updateError) throw new Error(updateError.message);
     return { purchaseOrderId };
-  });
-
-/** Doğrulanmış satırları tedarikçi kataloğuna yazar ve yükleme kaydı oluşturur. */
-export const supplierDeskImport = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    z
-      .object({
-        supplierId: z.guid(),
-        source: z.enum(["file", "url"]),
-        format: z.enum(["csv", "xml", "xlsx", "json"]),
-        fileName: z.string().trim().max(240).optional(),
-        sourceUrl: z.string().trim().max(2000).optional(),
-        fieldMap: z.record(z.string(), z.string()).default({}),
-        rows: z.array(rowSchema).max(5000),
-        invalidCount: z.number().int().min(0).default(0),
-        errorRows: z
-          .array(z.object({ line: z.number(), sku: z.string(), errors: z.array(z.string()) }))
-          .max(200)
-          .default([]),
-      })
-      .parse(data),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { supplier } = await assertSupplier(supabase, userId, data.supplierId);
-    await assertImportRate(userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    // Portal yüklemeleri için tedarikçiye ait bir besleme kaydı kullanılır.
-    const { data: feeds } = await supabaseAdmin
-      .from("supplier_feeds")
-      .select("id")
-      .eq("supplier_id", supplier.id)
-      .eq("store_id", supplier.store_id)
-      .limit(1);
-    let feedId = (feeds ?? [])[0]?.id as string | undefined;
-    if (!feedId) {
-      const { data: created, error: feedError } = await supabaseAdmin
-        .from("supplier_feeds")
-        .insert({
-          store_id: supplier.store_id,
-          supplier_id: supplier.id,
-          name: `${supplier.name} portal yüklemesi`,
-          kind: data.format === "xml" ? "xml" : "csv",
-          source_url: data.sourceUrl || "portal://upload",
-          schedule: "manual",
-          is_active: true,
-          match_key: "sku",
-        } as never)
-        .select("id")
-        .single();
-      if (feedError) throw new Error(feedError.message);
-      feedId = (created as { id: string }).id;
-    }
-
-    const rows = data.rows.filter((row) => row.errors.length === 0);
-    const invalidCount = data.invalidCount;
-    const totalRows = rows.length + invalidCount;
-
-    // Ağır işleme (binlerce satır) istek içinde yapılmaz: kayıt "kuyrukta" açılır,
-    // satırlar arka plan worker'ı tarafından işlenir (en fazla 3 deneme).
-    const { data: job, error: jobError } = await supabaseAdmin
-      .from("supplier_import_jobs")
-      .insert({
-        store_id: supplier.store_id,
-        supplier_id: supplier.id,
-        source: data.source,
-        file_name: data.fileName ?? null,
-        source_url: data.sourceUrl ?? null,
-        format: data.format,
-        row_count: totalRows,
-        valid_count: 0,
-        error_count: invalidCount,
-        created_count: 0,
-        updated_count: 0,
-        field_map: data.fieldMap as never,
-        errors: data.errorRows as never,
-        status: "queued",
-        created_by: userId,
-      } as never)
-      .select("id")
-      .single();
-    if (jobError) throw new Error(jobError.message);
-    const importJobId = (job as { id: string }).id;
-
-    const { enqueueJob } = await import("@/lib/queue.server");
-    await enqueueJob(supabaseAdmin as never, {
-      kind: "feed_sync",
-      storeId: supplier.store_id,
-      priority: 5,
-      maxAttempts: 3,
-      payload: {
-        importJobId,
-        storeId: supplier.store_id,
-        supplierId: supplier.id,
-        feedId,
-        currency: supplier.currency || "TRY",
-        rows,
-        invalidCount,
-      },
-    });
-
-    return { queued: true as boolean, importJobId, invalid: invalidCount, total: totalRows };
-  });
-
-/** Otomatik senkron ayarı: uzak XML/CSV bağlantısı ve saatlik/günlük plan. */
-export const supplierDeskSaveFeed = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    z
-      .object({
-        supplierId: z.guid(),
-        feedId: z.guid().optional(),
-        name: z.string().trim().min(2).max(120),
-        kind: z.enum(["xml", "csv", "json"]),
-        sourceUrl: z.string().url().max(2000),
-        schedule: z.enum(["manual", "hourly", "daily"]),
-        itemPath: z.string().trim().max(120).optional(),
-        isActive: z.boolean().default(true),
-        fieldMap: z.record(z.string(), z.string()).default({}),
-      })
-      .parse(data),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { supplier } = await assertSupplier(supabase, userId, data.supplierId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const next =
-      data.schedule === "hourly"
-        ? new Date(Date.now() + 3_600_000).toISOString()
-        : data.schedule === "daily"
-          ? new Date(Date.now() + 86_400_000).toISOString()
-          : null;
-
-    const payload = {
-      store_id: supplier.store_id,
-      supplier_id: supplier.id,
-      name: data.name,
-      kind: data.kind,
-      source_url: data.sourceUrl,
-      schedule: data.schedule,
-      item_path: data.itemPath || null,
-      is_active: data.isActive,
-      match_key: "sku",
-      field_map: data.fieldMap as never,
-      next_run_at: next,
-    };
-
-    if (data.feedId) {
-      const { data: existing } = await supabaseAdmin
-        .from("supplier_feeds")
-        .select("id, supplier_id")
-        .eq("id", data.feedId)
-        .maybeSingle();
-      if (!existing || (existing as { supplier_id: string }).supplier_id !== supplier.id) {
-        throw new Error("Besleme bulunamadı veya yetkiniz yok");
-      }
-      const { error } = await supabaseAdmin.from("supplier_feeds").update(payload as never).eq("id", data.feedId);
-      if (error) throw new Error(error.message);
-      return { id: data.feedId };
-    }
-
-    const { data: created, error } = await supabaseAdmin
-      .from("supplier_feeds")
-      .insert(payload as never)
-      .select("id")
-      .single();
-    if (error) throw new Error(error.message);
-    return { id: (created as { id: string }).id };
-  });
-
-/** Beslemeyi hemen çalıştırır (fiyat/stok güncellemesi). */
-export const supplierDeskRunFeed = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ supplierId: z.guid(), feedId: z.guid() }).parse(data))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { supplier } = await assertSupplier(supabase, userId, data.supplierId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const { data: feed, error } = await supabaseAdmin
-      .from("supplier_feeds")
-      .select("*")
-      .eq("id", data.feedId)
-      .eq("supplier_id", supplier.id)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!feed) throw new Error("Besleme bulunamadı");
-
-    const { runSupplierFeed } = await import("@/lib/dropshipping.server");
-    return runSupplierFeed(supabaseAdmin as never, feed as never, "manual");
   });
 
 /** Banka bilgisi (IBAN) kaydı. */

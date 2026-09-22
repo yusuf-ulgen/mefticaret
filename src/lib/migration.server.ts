@@ -115,9 +115,7 @@ async function request(
         try {
           body = JSON.parse(text);
         } catch {
-          const { parseFeedPayload } = await import("@/lib/dropshipping");
-          const kind: "xml" | "csv" = text.trimStart().startsWith("<") ? "xml" : "csv";
-          body = parseFeedPayload(kind, text, null);
+          throw new Error("Kaynak sistem JSON dışı bir yanıt döndürdü");
         }
       }
       return { body, headers: response.headers };

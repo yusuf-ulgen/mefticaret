@@ -134,18 +134,6 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Depo Transferleri", to: p("transfers"), icon: ArrowLeftRight },
         { label: "Stok Sayımı", to: p("stock-count"), icon: ClipboardList },
         { label: "Tedarik & Satın Alma", to: p("purchasing"), icon: Truck },
-        {
-          label: "XML Entegratör",
-          to: p("xml-feed"),
-          icon: FileSpreadsheet,
-          keywords: "xml dropshipping tedarikçi csv api besleme entegratör filtre eşleştirme",
-        },
-        {
-          label: "XML Entegratör Panosu",
-          to: p("xml-integrator"),
-          icon: FileSpreadsheet,
-          keywords: "xml pano dışa aktarım export trendyol hepsiburada n11 amazon pazaryeri besleme",
-        },
         { label: "Yeniden Sipariş", to: p("reorder"), icon: RefreshCcw },
         { label: "Stok Tükenme Radarı", to: p("stockout"), icon: Timer },
         { label: "Stok Bildirimleri", to: p("stock-alerts"), icon: BellRing },

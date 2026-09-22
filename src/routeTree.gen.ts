@@ -45,7 +45,6 @@ import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticated/supplier'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
-import { Route as ApiXmlParserRouteImport } from './routes/api/xml-parser'
 import { Route as ArIndexRouteImport } from './routes/ar.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -164,7 +163,6 @@ import { Route as AuthenticatedStoreStoreIdCustomersRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdDashboardRouteImport } from './routes/_authenticated/store.$storeId.dashboard'
 import { Route as AuthenticatedStoreStoreIdDiscountsRouteImport } from './routes/_authenticated/store.$storeId.discounts'
 import { Route as AuthenticatedStoreStoreIdDomainsRouteImport } from './routes/_authenticated/store.$storeId.domains'
-import { Route as AuthenticatedStoreStoreIdDropshippingRouteImport } from './routes/_authenticated/store.$storeId.dropshipping'
 import { Route as AuthenticatedStoreStoreIdElasticityRouteImport } from './routes/_authenticated/store.$storeId.elasticity'
 import { Route as AuthenticatedStoreStoreIdEmailMarketingRouteImport } from './routes/_authenticated/store.$storeId.email-marketing'
 import { Route as AuthenticatedStoreStoreIdEngagementRouteImport } from './routes/_authenticated/store.$storeId.engagement'
@@ -262,15 +260,12 @@ import { Route as AuthenticatedStoreStoreIdVendorsRouteImport } from './routes/_
 import { Route as AuthenticatedStoreStoreIdWarehousesRouteImport } from './routes/_authenticated/store.$storeId.warehouses'
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
 import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/_authenticated/store.$storeId.whatsapp'
-import { Route as AuthenticatedStoreStoreIdXmlFeedRouteImport } from './routes/_authenticated/store.$storeId.xml-feed'
-import { Route as AuthenticatedStoreStoreIdXmlIntegratorRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator'
 import { Route as ApiPublicBlogCoverSplatRouteImport } from './routes/api/public/blog-cover.$'
 import { Route as ApiPublicCronArasTrackingRouteImport } from './routes/api/public/cron.aras-tracking'
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronExchangeRatesRouteImport } from './routes/api/public/cron.exchange-rates'
 import { Route as ApiPublicCronFbMarketplaceSyncRouteImport } from './routes/api/public/cron.fb-marketplace-sync'
-import { Route as ApiPublicCronFeedSyncRouteImport } from './routes/api/public/cron.feed-sync'
 import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
 import { Route as ApiPublicCronLoadtestRouteImport } from './routes/api/public/cron.loadtest'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
@@ -309,7 +304,6 @@ import { Route as ApiPublicEmailClickTokenRouteImport } from './routes/api/publi
 import { Route as ApiPublicEmailOpenTokenRouteImport } from './routes/api/public/email.open.$token'
 import { Route as ApiPublicEmailUnsubscribeTokenRouteImport } from './routes/api/public/email.unsubscribe.$token'
 import { Route as ApiPublicFeedStoreSlugKindRouteImport } from './routes/api/public/feed.$storeSlug.$kind'
-import { Route as ApiPublicXmlExportStoreSlugFeedIdRouteImport } from './routes/api/public/xml-export.$storeSlug.$feedId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -490,11 +484,6 @@ const AuthenticatedSupplierRoute = AuthenticatedSupplierRouteImport.update({
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiXmlParserRoute = ApiXmlParserRouteImport.update({
-  id: '/api/xml-parser',
-  path: '/api/xml-parser',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArIndexRoute = ArIndexRouteImport.update({
@@ -1152,12 +1141,6 @@ const AuthenticatedStoreStoreIdDomainsRoute =
     path: '/domains',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
-const AuthenticatedStoreStoreIdDropshippingRoute =
-  AuthenticatedStoreStoreIdDropshippingRouteImport.update({
-    id: '/dropshipping',
-    path: '/dropshipping',
-    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
-  } as any)
 const AuthenticatedStoreStoreIdElasticityRoute =
   AuthenticatedStoreStoreIdElasticityRouteImport.update({
     id: '/elasticity',
@@ -1740,18 +1723,6 @@ const AuthenticatedStoreStoreIdWhatsappRoute =
     path: '/whatsapp',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
-const AuthenticatedStoreStoreIdXmlFeedRoute =
-  AuthenticatedStoreStoreIdXmlFeedRouteImport.update({
-    id: '/xml-feed',
-    path: '/xml-feed',
-    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
-  } as any)
-const AuthenticatedStoreStoreIdXmlIntegratorRoute =
-  AuthenticatedStoreStoreIdXmlIntegratorRouteImport.update({
-    id: '/xml-integrator',
-    path: '/xml-integrator',
-    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
-  } as any)
 const ApiPublicBlogCoverSplatRoute = ApiPublicBlogCoverSplatRouteImport.update({
   id: '/api/public/blog-cover/$',
   path: '/api/public/blog-cover/$',
@@ -1787,11 +1758,6 @@ const ApiPublicCronFbMarketplaceSyncRoute =
     path: '/api/public/cron/fb-marketplace-sync',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicCronFeedSyncRoute = ApiPublicCronFeedSyncRouteImport.update({
-  id: '/api/public/cron/feed-sync',
-  path: '/api/public/cron/feed-sync',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicCronInstagramEventsRoute =
   ApiPublicCronInstagramEventsRouteImport.update({
     id: '/api/public/cron/instagram-events',
@@ -2003,12 +1969,6 @@ const ApiPublicFeedStoreSlugKindRoute =
     path: '/api/public/feed/$storeSlug/$kind',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicXmlExportStoreSlugFeedIdRoute =
-  ApiPublicXmlExportStoreSlugFeedIdRouteImport.update({
-    id: '/api/public/xml-export/$storeSlug/$feedId',
-    path: '/api/public/xml-export/$storeSlug/$feedId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -2046,7 +2006,6 @@ export interface FileRoutesByFullPath {
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
-  '/api/xml-parser': typeof ApiXmlParserRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
@@ -2164,7 +2123,6 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
-  '/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
   '/store/$storeId/email-marketing': typeof AuthenticatedStoreStoreIdEmailMarketingRoute
   '/store/$storeId/engagement': typeof AuthenticatedStoreStoreIdEngagementRoute
@@ -2262,15 +2220,12 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
-  '/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
-  '/store/$storeId/xml-integrator': typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
   '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/aras-tracking': typeof ApiPublicCronArasTrackingRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
-  '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -2309,7 +2264,6 @@ export interface FileRoutesByFullPath {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
-  '/api/public/xml-export/$storeSlug/$feedId': typeof ApiPublicXmlExportStoreSlugFeedIdRoute
   '/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -2347,7 +2301,6 @@ export interface FileRoutesByTo {
   '/stores': typeof AuthenticatedStoresRoute
   '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
-  '/api/xml-parser': typeof ApiXmlParserRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
@@ -2465,7 +2418,6 @@ export interface FileRoutesByTo {
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
-  '/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
   '/store/$storeId/email-marketing': typeof AuthenticatedStoreStoreIdEmailMarketingRoute
   '/store/$storeId/engagement': typeof AuthenticatedStoreStoreIdEngagementRoute
@@ -2562,15 +2514,12 @@ export interface FileRoutesByTo {
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
-  '/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
-  '/store/$storeId/xml-integrator': typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
   '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/aras-tracking': typeof ApiPublicCronArasTrackingRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
-  '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -2609,7 +2558,6 @@ export interface FileRoutesByTo {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
-  '/api/public/xml-export/$storeSlug/$feedId': typeof ApiPublicXmlExportStoreSlugFeedIdRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRoutesById {
@@ -2650,7 +2598,6 @@ export interface FileRoutesById {
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
-  '/api/xml-parser': typeof ApiXmlParserRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
@@ -2768,7 +2715,6 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/_authenticated/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/_authenticated/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
-  '/_authenticated/store/$storeId/dropshipping': typeof AuthenticatedStoreStoreIdDropshippingRoute
   '/_authenticated/store/$storeId/elasticity': typeof AuthenticatedStoreStoreIdElasticityRoute
   '/_authenticated/store/$storeId/email-marketing': typeof AuthenticatedStoreStoreIdEmailMarketingRoute
   '/_authenticated/store/$storeId/engagement': typeof AuthenticatedStoreStoreIdEngagementRoute
@@ -2866,15 +2812,12 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/_authenticated/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
-  '/_authenticated/store/$storeId/xml-feed': typeof AuthenticatedStoreStoreIdXmlFeedRoute
-  '/_authenticated/store/$storeId/xml-integrator': typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
   '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/aras-tracking': typeof ApiPublicCronArasTrackingRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
-  '/api/public/cron/feed-sync': typeof ApiPublicCronFeedSyncRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -2913,7 +2856,6 @@ export interface FileRoutesById {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
-  '/api/public/xml-export/$storeSlug/$feedId': typeof ApiPublicXmlExportStoreSlugFeedIdRoute
   '/_authenticated/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRouteTypes {
@@ -2954,7 +2896,6 @@ export interface FileRouteTypes {
     | '/stores'
     | '/supplier'
     | '/admin/login'
-    | '/api/xml-parser'
     | '/blog/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
@@ -3072,7 +3013,6 @@ export interface FileRouteTypes {
     | '/store/$storeId/dashboard'
     | '/store/$storeId/discounts'
     | '/store/$storeId/domains'
-    | '/store/$storeId/dropshipping'
     | '/store/$storeId/elasticity'
     | '/store/$storeId/email-marketing'
     | '/store/$storeId/engagement'
@@ -3170,15 +3110,12 @@ export interface FileRouteTypes {
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
     | '/store/$storeId/whatsapp'
-    | '/store/$storeId/xml-feed'
-    | '/store/$storeId/xml-integrator'
     | '/api/public/blog-cover/$'
     | '/api/public/cron/aras-tracking'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
     | '/api/public/cron/fb-marketplace-sync'
-    | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
@@ -3217,7 +3154,6 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
-    | '/api/public/xml-export/$storeSlug/$feedId'
     | '/store/$storeId/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -3255,7 +3191,6 @@ export interface FileRouteTypes {
     | '/stores'
     | '/supplier'
     | '/admin/login'
-    | '/api/xml-parser'
     | '/blog/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
@@ -3373,7 +3308,6 @@ export interface FileRouteTypes {
     | '/store/$storeId/dashboard'
     | '/store/$storeId/discounts'
     | '/store/$storeId/domains'
-    | '/store/$storeId/dropshipping'
     | '/store/$storeId/elasticity'
     | '/store/$storeId/email-marketing'
     | '/store/$storeId/engagement'
@@ -3470,15 +3404,12 @@ export interface FileRouteTypes {
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
     | '/store/$storeId/whatsapp'
-    | '/store/$storeId/xml-feed'
-    | '/store/$storeId/xml-integrator'
     | '/api/public/blog-cover/$'
     | '/api/public/cron/aras-tracking'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
     | '/api/public/cron/fb-marketplace-sync'
-    | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
@@ -3517,7 +3448,6 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
-    | '/api/public/xml-export/$storeSlug/$feedId'
     | '/store/$storeId/products'
   id:
     | '__root__'
@@ -3557,7 +3487,6 @@ export interface FileRouteTypes {
     | '/_authenticated/stores'
     | '/_authenticated/supplier'
     | '/admin/login'
-    | '/api/xml-parser'
     | '/blog/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
@@ -3675,7 +3604,6 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/dashboard'
     | '/_authenticated/store/$storeId/discounts'
     | '/_authenticated/store/$storeId/domains'
-    | '/_authenticated/store/$storeId/dropshipping'
     | '/_authenticated/store/$storeId/elasticity'
     | '/_authenticated/store/$storeId/email-marketing'
     | '/_authenticated/store/$storeId/engagement'
@@ -3773,15 +3701,12 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/warehouses'
     | '/_authenticated/store/$storeId/webhooks'
     | '/_authenticated/store/$storeId/whatsapp'
-    | '/_authenticated/store/$storeId/xml-feed'
-    | '/_authenticated/store/$storeId/xml-integrator'
     | '/api/public/blog-cover/$'
     | '/api/public/cron/aras-tracking'
     | '/api/public/cron/automation-tick'
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
     | '/api/public/cron/fb-marketplace-sync'
-    | '/api/public/cron/feed-sync'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
@@ -3820,7 +3745,6 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
-    | '/api/public/xml-export/$storeSlug/$feedId'
     | '/_authenticated/store/$storeId/products/'
   fileRoutesById: FileRoutesById
 }
@@ -3856,7 +3780,6 @@ export interface RootRouteChildren {
   UnauthorizedRoute: typeof UnauthorizedRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminLoginRoute: typeof AdminLoginRoute
-  ApiXmlParserRoute: typeof ApiXmlParserRoute
   BlogSlugRoute: typeof BlogSlugRoute
   EnHowToStartAnOnlineStoreRoute: typeof EnHowToStartAnOnlineStoreRoute
   EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
@@ -3902,7 +3825,6 @@ export interface RootRouteChildren {
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronExchangeRatesRoute: typeof ApiPublicCronExchangeRatesRoute
   ApiPublicCronFbMarketplaceSyncRoute: typeof ApiPublicCronFbMarketplaceSyncRoute
-  ApiPublicCronFeedSyncRoute: typeof ApiPublicCronFeedSyncRoute
   ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
   ApiPublicCronLoadtestRoute: typeof ApiPublicCronLoadtestRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
@@ -3935,7 +3857,6 @@ export interface RootRouteChildren {
   ApiPublicEmailOpenTokenRoute: typeof ApiPublicEmailOpenTokenRoute
   ApiPublicEmailUnsubscribeTokenRoute: typeof ApiPublicEmailUnsubscribeTokenRoute
   ApiPublicFeedStoreSlugKindRoute: typeof ApiPublicFeedStoreSlugKindRoute
-  ApiPublicXmlExportStoreSlugFeedIdRoute: typeof ApiPublicXmlExportStoreSlugFeedIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -4190,13 +4111,6 @@ declare module '@tanstack/react-router' {
       path: '/admin/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/xml-parser': {
-      id: '/api/xml-parser'
-      path: '/api/xml-parser'
-      fullPath: '/api/xml-parser'
-      preLoaderRoute: typeof ApiXmlParserRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ar/': {
@@ -5025,13 +4939,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdDomainsRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
-    '/_authenticated/store/$storeId/dropshipping': {
-      id: '/_authenticated/store/$storeId/dropshipping'
-      path: '/dropshipping'
-      fullPath: '/store/$storeId/dropshipping'
-      preLoaderRoute: typeof AuthenticatedStoreStoreIdDropshippingRouteImport
-      parentRoute: typeof AuthenticatedStoreStoreIdRoute
-    }
     '/_authenticated/store/$storeId/elasticity': {
       id: '/_authenticated/store/$storeId/elasticity'
       path: '/elasticity'
@@ -5711,20 +5618,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdWhatsappRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
-    '/_authenticated/store/$storeId/xml-feed': {
-      id: '/_authenticated/store/$storeId/xml-feed'
-      path: '/xml-feed'
-      fullPath: '/store/$storeId/xml-feed'
-      preLoaderRoute: typeof AuthenticatedStoreStoreIdXmlFeedRouteImport
-      parentRoute: typeof AuthenticatedStoreStoreIdRoute
-    }
-    '/_authenticated/store/$storeId/xml-integrator': {
-      id: '/_authenticated/store/$storeId/xml-integrator'
-      path: '/xml-integrator'
-      fullPath: '/store/$storeId/xml-integrator'
-      preLoaderRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRouteImport
-      parentRoute: typeof AuthenticatedStoreStoreIdRoute
-    }
     '/api/public/blog-cover/$': {
       id: '/api/public/blog-cover/$'
       path: '/api/public/blog-cover/$'
@@ -5765,13 +5658,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/cron/fb-marketplace-sync'
       fullPath: '/api/public/cron/fb-marketplace-sync'
       preLoaderRoute: typeof ApiPublicCronFbMarketplaceSyncRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/cron/feed-sync': {
-      id: '/api/public/cron/feed-sync'
-      path: '/api/public/cron/feed-sync'
-      fullPath: '/api/public/cron/feed-sync'
-      preLoaderRoute: typeof ApiPublicCronFeedSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/cron/instagram-events': {
@@ -6040,13 +5926,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFeedStoreSlugKindRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/xml-export/$storeSlug/$feedId': {
-      id: '/api/public/xml-export/$storeSlug/$feedId'
-      path: '/api/public/xml-export/$storeSlug/$feedId'
-      fullPath: '/api/public/xml-export/$storeSlug/$feedId'
-      preLoaderRoute: typeof ApiPublicXmlExportStoreSlugFeedIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -6244,7 +6123,6 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdDashboardRoute: typeof AuthenticatedStoreStoreIdDashboardRoute
   AuthenticatedStoreStoreIdDiscountsRoute: typeof AuthenticatedStoreStoreIdDiscountsRoute
   AuthenticatedStoreStoreIdDomainsRoute: typeof AuthenticatedStoreStoreIdDomainsRoute
-  AuthenticatedStoreStoreIdDropshippingRoute: typeof AuthenticatedStoreStoreIdDropshippingRoute
   AuthenticatedStoreStoreIdElasticityRoute: typeof AuthenticatedStoreStoreIdElasticityRoute
   AuthenticatedStoreStoreIdEmailMarketingRoute: typeof AuthenticatedStoreStoreIdEmailMarketingRoute
   AuthenticatedStoreStoreIdEngagementRoute: typeof AuthenticatedStoreStoreIdEngagementRoute
@@ -6342,8 +6220,6 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdWarehousesRoute: typeof AuthenticatedStoreStoreIdWarehousesRoute
   AuthenticatedStoreStoreIdWebhooksRoute: typeof AuthenticatedStoreStoreIdWebhooksRoute
   AuthenticatedStoreStoreIdWhatsappRoute: typeof AuthenticatedStoreStoreIdWhatsappRoute
-  AuthenticatedStoreStoreIdXmlFeedRoute: typeof AuthenticatedStoreStoreIdXmlFeedRoute
-  AuthenticatedStoreStoreIdXmlIntegratorRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
 }
 
 const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChildren =
@@ -6391,8 +6267,6 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdDiscountsRoute,
     AuthenticatedStoreStoreIdDomainsRoute:
       AuthenticatedStoreStoreIdDomainsRoute,
-    AuthenticatedStoreStoreIdDropshippingRoute:
-      AuthenticatedStoreStoreIdDropshippingRoute,
     AuthenticatedStoreStoreIdElasticityRoute:
       AuthenticatedStoreStoreIdElasticityRoute,
     AuthenticatedStoreStoreIdEmailMarketingRoute:
@@ -6561,10 +6435,6 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdWebhooksRoute,
     AuthenticatedStoreStoreIdWhatsappRoute:
       AuthenticatedStoreStoreIdWhatsappRoute,
-    AuthenticatedStoreStoreIdXmlFeedRoute:
-      AuthenticatedStoreStoreIdXmlFeedRoute,
-    AuthenticatedStoreStoreIdXmlIntegratorRoute:
-      AuthenticatedStoreStoreIdXmlIntegratorRoute,
   }
 
 const AuthenticatedStoreStoreIdRouteWithChildren =
@@ -6630,7 +6500,6 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminLoginRoute: AdminLoginRoute,
-  ApiXmlParserRoute: ApiXmlParserRoute,
   BlogSlugRoute: BlogSlugRoute,
   EnHowToStartAnOnlineStoreRoute: EnHowToStartAnOnlineStoreRoute,
   EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,
@@ -6676,7 +6545,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronExchangeRatesRoute: ApiPublicCronExchangeRatesRoute,
   ApiPublicCronFbMarketplaceSyncRoute: ApiPublicCronFbMarketplaceSyncRoute,
-  ApiPublicCronFeedSyncRoute: ApiPublicCronFeedSyncRoute,
   ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
   ApiPublicCronLoadtestRoute: ApiPublicCronLoadtestRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,
@@ -6709,8 +6577,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicEmailOpenTokenRoute: ApiPublicEmailOpenTokenRoute,
   ApiPublicEmailUnsubscribeTokenRoute: ApiPublicEmailUnsubscribeTokenRoute,
   ApiPublicFeedStoreSlugKindRoute: ApiPublicFeedStoreSlugKindRoute,
-  ApiPublicXmlExportStoreSlugFeedIdRoute:
-    ApiPublicXmlExportStoreSlugFeedIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
