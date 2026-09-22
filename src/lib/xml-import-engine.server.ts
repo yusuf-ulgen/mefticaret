@@ -84,6 +84,19 @@ export function parseFeedRows(
 
 /* ----------------------------- Normalizasyon ----------------------------- */
 
+export type NormalizedVariant = {
+  sku: string | null;
+  barcode: string | null;
+  title: string;
+  price: number;
+  compareAtPrice: number | null;
+  costPrice: number | null;
+  stock: number;
+  weightGrams: number | null;
+  options: Record<string, string>;
+  images: string[];
+};
+
 export type NormalizedProduct = {
   key: string;
   sku: string | null;
@@ -101,7 +114,10 @@ export type NormalizedProduct = {
   videoUrl: string | null;
   images: string[];
   options: Record<string, string>;
+  /** Varyasyonlu ürünlerde varyant listesi; tekil üründe boş kalır. */
+  variants: NormalizedVariant[];
 };
+
 
 /** Hata kategorileri — canlı sayaç ve kayıt panelinde gruplama için. */
 export type ErrorCategory = "FETCH_ERROR" | "PARSE_ERROR" | "MAPPING_ERROR" | "UPSERT_ERROR";
