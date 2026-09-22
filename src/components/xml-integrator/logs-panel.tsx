@@ -9,7 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ErrorCategoryBadges, LiveRunProgress } from "@/components/xml-integrator/live-run-progress";
 import { RunStatusBadge } from "@/components/xml-integrator/shared";
+
 import { formatDate } from "@/lib/mefti";
 import { xmlIntegratorOverviewQuery } from "@/lib/xml-integrator-queries";
 
