@@ -62,6 +62,10 @@ export function XmlFeedList({ storeId }: { storeId: string }) {
       isActive: feed.isActive,
       deltaSync: feed.deltaSyncConfig,
       lastFullSyncAt: feed.lastFullSyncAt,
+      connectionType: feed.connectionType,
+      ftpConfig: { ...DEFAULT_FTP_CONFIG, ...feed.ftpConfig, password: "" },
+      hasFtpPassword: feed.ftpConfig.hasPassword,
+      webhookToken: feed.webhookToken,
     });
 
   return (
