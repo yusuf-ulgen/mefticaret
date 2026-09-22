@@ -453,16 +453,18 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
           )}
 
           {isImport ? (
-            <GuardrailSettings
-              idPrefix="wiz-guard"
-              value={form.guardrail}
-              onChange={(next) => set("guardrail", next)}
-            />
-            <DeltaSyncSettings
-              idPrefix="wiz-delta"
-              value={form.deltaSync}
-              onChange={(next) => set("deltaSync", next)}
-            />
+            <>
+              <GuardrailSettings
+                idPrefix="wiz-guard"
+                value={form.guardrail}
+                onChange={(next) => set("guardrail", next)}
+              />
+              <DeltaSyncSettings
+                idPrefix="wiz-delta"
+                value={form.deltaSync}
+                onChange={(next) => set("deltaSync", next)}
+              />
+            </>
           ) : null}
 
           <div className="flex items-center justify-between rounded-lg border p-3">
