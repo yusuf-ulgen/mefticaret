@@ -14,6 +14,12 @@ import { toast } from "sonner";
 import { XmlCategoryMapper } from "@/components/xml-integrator/category-mapper";
 import { VariationManager } from "@/components/xml-integrator/variation-manager";
 import { CurrencySettings, useCurrencyRates } from "@/components/xml-integrator/currency-settings";
+import { PricingRulesPanel } from "@/components/xml-integrator/pricing-rules-panel";
+import {
+  DEFAULT_PRICING_RULES,
+  serializePricingRules,
+  type PricingRules,
+} from "@/lib/xml-pricing-rules";
 import {
   DEFAULT_CURRENCY_CONFIG,
   PRICE_FIELD_KEYS,
@@ -81,6 +87,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
   const [variantMode, setVariantMode] = useState<VariantMode>("none");
   const [variantConfig, setVariantConfig] = useState<VariantConfig>(DEFAULT_VARIANT_CONFIG);
   const [currencyConfig, setCurrencyConfig] = useState<CurrencyConfig>(DEFAULT_CURRENCY_CONFIG);
+  const [pricingRules, setPricingRules] = useState<PricingRules>(DEFAULT_PRICING_RULES);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
 
@@ -91,6 +98,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
       setVariantMode(feed.variantMode);
       setVariantConfig({ ...DEFAULT_VARIANT_CONFIG, ...feed.variantConfig });
       setCurrencyConfig({ ...DEFAULT_CURRENCY_CONFIG, ...feed.currencyConfig });
+      setPricingRules({ ...DEFAULT_PRICING_RULES, ...feed.pricingRules });
       setLoadedFor(feed.id);
     }
   }, [feed, loadedFor]);
@@ -184,6 +192,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           transformRules: effectiveTransforms as never,
           variantMode,
           variantConfig,
+          pricingRules: serializePricingRules(pricingRules) as never,
         },
       }),
     onSuccess: (result) => {
@@ -219,6 +228,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           isActive: feed.isActive,
           variantMode,
           variantConfig,
+          pricingRules,
         },
       });
     },
@@ -274,10 +284,11 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
       </div>
 
       <Tabs defaultValue="fields" className="space-y-3">
-        <TabsList>
+        <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="fields">Alan eşleme</TabsTrigger>
           <TabsTrigger value="variants">Varyasyon ve seçenekler</TabsTrigger>
           <TabsTrigger value="currency">Para birimi</TabsTrigger>
+          <TabsTrigger value="pricing">Fiyatlandırma</TabsTrigger>
           <TabsTrigger value="categories">Kategori eşleme</TabsTrigger>
         </TabsList>
 
@@ -367,6 +378,10 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
             ratesLoading={ratesQuery.isLoading}
             mappedPriceFields={mappedPriceFields}
           />
+        </TabsContent>
+
+        <TabsContent value="pricing">
+          <PricingRulesPanel rules={pricingRules} onChange={setPricingRules} />
         </TabsContent>
 
         <TabsContent value="categories">

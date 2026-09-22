@@ -5,6 +5,12 @@
  * Kaynak kimlik bilgileri tarayıcıya geri gönderilmez.
  */
 
+import {
+  DEFAULT_PRICING_RULES,
+  parsePricingRules,
+  serializePricingRules,
+  type PricingRules,
+} from "@/lib/xml-pricing-rules";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -82,6 +88,33 @@ const feedSchema = z.object({
       profitMarginPercent: z.number().min(-90).max(900).default(0),
     })
     .default(() => ({ ...DEFAULT_CURRENCY_CONFIG })),
+  pricingRules: z
+    .object({
+      marginType: z.enum(["flat", "tiered"]).default("flat"),
+      flatMarginPercent: z.number().min(-90).max(900).default(0),
+      flatAddAmount: z.number().min(-100000).max(1000000).default(0),
+      vatAction: z.enum(["none", "add_vat", "remove_vat"]).default("none"),
+      vatRate: z.number().min(0).max(100).default(20),
+      roundingType: z.enum(["none", "round_99", "round_90", "integer"]).default("none"),
+      tieredMargins: z
+        .array(
+          z.object({
+            min: z.number().min(0).max(10000000).default(0),
+            max: z.number().min(0).max(10000000).nullable().default(null),
+            margin: z.number().min(-90).max(900).default(0),
+            addAmount: z.number().min(-100000).max(1000000).default(0),
+          }),
+        )
+        .max(20)
+        .default([]),
+      marketplaceFees: z
+        .object({
+          commissionPercent: z.number().min(0).max(100).default(0),
+          shippingFee: z.number().min(0).max(1000000).default(0),
+        })
+        .default(() => ({ commissionPercent: 0, shippingFee: 0 })),
+    })
+    .default(() => ({ ...DEFAULT_PRICING_RULES })),
   variantMode: z.enum(["none", "nested", "flat"]).default("none"),
   variantConfig: z
     .object({
@@ -123,7 +156,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
       context.supabase
         .from("xml_feeds")
         .select(
-          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config, currency_config",
+          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config, currency_config, pricing_rules",
         )
         .eq("store_id", data.storeId)
         .order("created_at", { ascending: false }),
@@ -163,6 +196,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
         currency: String(row["currency"] ?? "TRY"),
         isActive: Boolean(row["is_active"]),
         currencyConfig: parseCurrencyConfig(row["currency_config"]) as CurrencyConfig,
+        pricingRules: parsePricingRules(row["pricing_rules"]) as PricingRules,
         variantMode: parseVariantMode(row["variant_mode"]) as VariantMode,
         variantConfig: parseVariantConfig(row["variant_config"]) as VariantConfig,
         lastRunAt: (row["last_run_at"] as string | null) ?? null,
@@ -218,6 +252,7 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
       currency: data.currency.toUpperCase(),
       is_active: data.isActive,
       currency_config: serializeCurrencyConfig(data.currencyConfig),
+      pricing_rules: serializePricingRules(data.pricingRules),
       variant_mode: data.variantMode,
       variant_config: serializeVariantConfig(parseVariantConfig({
         parent_node_path: data.variantConfig.parentNodePath,
@@ -518,7 +553,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
     const { data: feedRow, error: readError } = await context.supabase
       .from("xml_feeds")
       .select(
-        "id, direction, platform, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, output_filename, export_token, filter_rules, variant_mode, variant_config",
+        "id, direction, platform, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, output_filename, export_token, filter_rules, variant_mode, variant_config, pricing_rules",
       )
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
@@ -579,6 +614,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
         transformRules: feed["transform_rules"] ?? {},
         priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
         currency: String(feed["currency"] ?? "TRY"),
+        pricingRules: feed["pricing_rules"] ?? {},
         variantMode: (feed["variant_mode"] as string | null) ?? "none",
         variantConfig: feed["variant_config"] ?? {},
       },
@@ -954,6 +990,7 @@ export const previewXmlImport = createServerFn({ method: "POST" })
         feedId: z.guid(),
         fieldMapping: z.record(z.string(), z.string()).default({}),
         transformRules: z.record(z.string(), z.any()).default({}),
+        pricingRules: z.record(z.string(), z.any()).default({}),
         variantMode: z.enum(["none", "nested", "flat"]).default("none"),
         variantConfig: z
           .object({
@@ -977,7 +1014,7 @@ export const previewXmlImport = createServerFn({ method: "POST" })
 
     const { data: feedRow, error } = await context.supabase
       .from("xml_feeds")
-      .select("source_url, source_format, item_path, auth_type, auth_config, price_markup, currency")
+      .select("source_url, source_format, item_path, auth_type, auth_config, price_markup, currency, pricing_rules")
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
       .maybeSingle();
@@ -1013,6 +1050,9 @@ export const previewXmlImport = createServerFn({ method: "POST" })
       data.fieldMapping,
       {
         priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
+        pricingRules: parsePricingRules(
+          Object.keys(data.pricingRules).length > 0 ? data.pricingRules : feed["pricing_rules"],
+        ),
         currency: String(feed["currency"] ?? "TRY"),
         transformRules: data.transformRules as never,
         ...(mode === "none"
