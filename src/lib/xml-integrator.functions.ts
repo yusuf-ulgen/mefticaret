@@ -74,7 +74,7 @@ const feedSchema = z.object({
       optionAttributes: z.array(z.string().trim().max(300)).max(12).default([]),
       variantMapping: z.record(z.string(), z.string().max(300)).default({}),
     })
-    .default({}),
+    .default(() => ({ ...DEFAULT_VARIANT_CONFIG })),
 });
 
 const nextRunFor = (schedule: XmlSchedule, cronExpression?: string | null): string | null => {
@@ -944,7 +944,7 @@ export const previewXmlImport = createServerFn({ method: "POST" })
             optionAttributes: z.array(z.string().trim().max(300)).max(12).default([]),
             variantMapping: z.record(z.string(), z.string().max(300)).default({}),
           })
-          .default({}),
+          .default(() => ({ ...DEFAULT_VARIANT_CONFIG })),
       })
       .parse(data),
   )
@@ -990,7 +990,7 @@ export const previewXmlImport = createServerFn({ method: "POST" })
     const groups = buildVariantGroups(parsed.rows, mode, variantConfig);
 
     const { items, errors } = normalizeRows(
-      groups.map((group) => group.row),
+      groups.map((group) => group.mainRow),
       data.fieldMapping,
       {
         priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
