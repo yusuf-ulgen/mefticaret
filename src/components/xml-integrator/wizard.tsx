@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { DeltaSyncSettings } from "@/components/xml-integrator/delta-sync-settings";
 import { authFieldsFor, emptyFeed, type FeedFormValue } from "@/components/xml-integrator/feed-sheet";
 import { DirectionBadge, PlatformMark } from "@/components/xml-integrator/shared";
 import { analyzeXmlSource, saveXmlFeed } from "@/lib/xml-integrator.functions";
@@ -115,6 +116,7 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
           priceMarkup: form.priceMarkup,
           currency: form.currency,
           isActive: form.isActive,
+          deltaSyncConfig: form.deltaSync,
         },
       }),
     onSuccess: (result) => {
@@ -419,6 +421,14 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
                 : `Besleme ${XML_SCHEDULE_LABELS[form.schedule].toLowerCase()} otomatik çalışır.`}
             </p>
           )}
+
+          {isImport ? (
+            <DeltaSyncSettings
+              idPrefix="wiz-delta"
+              value={form.deltaSync}
+              onChange={(next) => set("deltaSync", next)}
+            />
+          ) : null}
 
           <div className="flex items-center justify-between rounded-lg border p-3">
             <Label htmlFor="wiz-active">Besleme aktif</Label>

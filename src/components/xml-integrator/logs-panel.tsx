@@ -9,7 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ErrorCategoryBadges, LiveRunProgress } from "@/components/xml-integrator/live-run-progress";
+import {
+  DeltaEfficiencyBadge,
+  ErrorCategoryBadges,
+  LiveRunProgress,
+  RunStat,
+} from "@/components/xml-integrator/live-run-progress";
 import { RunStatusBadge } from "@/components/xml-integrator/shared";
 
 import { formatDate } from "@/lib/mefti";
@@ -78,11 +83,24 @@ export function XmlLogsPanel({ storeId }: { storeId: string }) {
                   <Badge variant="outline">{formatDate(String(log["started_at"]))}</Badge>
                 </div>
                 <p className="mt-2 text-muted-foreground">
-                  {Number(log["total_rows"] ?? 0)} satır · {Number(log["created_count"] ?? 0)} yeni ·{" "}
-                  {Number(log["updated_count"] ?? 0)} güncellendi · {Number(log["skipped_count"] ?? 0)} atlandı ·{" "}
-                  {Number(log["error_count"] ?? 0)} hata
+                  {Number(log["total_rows"] ?? 0)} satır okundu
                   {log["duration_seconds"] ? ` · ${Number(log["duration_seconds"])} sn` : ""}
                 </p>
+                <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <RunStat label="Yeni" value={Number(log["created_count"] ?? 0)} />
+                  <RunStat label="Güncellendi" value={Number(log["updated_count"] ?? 0)} />
+                  <RunStat label="Değişmeyen (atlandı)" value={Number(log["unchanged_count"] ?? 0)} />
+                  <RunStat
+                    label="Hatalı"
+                    value={Number(log["error_count"] ?? 0)}
+                    tone={Number(log["error_count"] ?? 0) > 0 ? "error" : "default"}
+                  />
+                </div>
+                <DeltaEfficiencyBadge
+                  totalRows={Number(log["total_rows"] ?? 0)}
+                  unchanged={Number(log["unchanged_count"] ?? 0)}
+                  active={log["delta_sync_enabled"] === null ? null : Boolean(log["delta_sync_enabled"])}
+                />
                 <ErrorCategoryBadges value={log["error_categories"]} />
                 {log["error_message"] ? (
                   <p className="mt-1 text-destructive">{String(log["error_message"])}</p>

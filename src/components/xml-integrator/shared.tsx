@@ -6,7 +6,17 @@
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Copy, Download, Loader2, Pencil, Play, SlidersHorizontal as Sliders, Trash2, Upload } from "lucide-react";
+import {
+  Copy,
+  Download,
+  Loader2,
+  Pencil,
+  Play,
+  RefreshCw,
+  SlidersHorizontal as Sliders,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -136,7 +146,8 @@ export function FeedCard({
 
   const run = useServerFn(runXmlFeedNow);
   const runMutation = useMutation({
-    mutationFn: () => run({ data: { storeId, feedId: feed.id } }),
+    mutationFn: (forceFullSync: boolean = false) =>
+      run({ data: { storeId, feedId: feed.id, forceFullSync } }),
     onSuccess: (result) => {
       if (result.direction === "export") {
         toast.success(
@@ -145,7 +156,7 @@ export function FeedCard({
         );
       } else {
         toast.success(
-          `Besleme çalıştı — ${result.totalRows} satır okundu, ${result.created} yeni ürün, ${result.updated} güncelleme` +
+          `${result.forcedFullSync ? "Tam senkronizasyon" : "Besleme"} çalıştı — ${result.totalRows} satır okundu, ${result.created} yeni ürün, ${result.updated} güncelleme, ${result.skipped} atlandı` +
             (result.errorCount ? `, ${result.errorCount} hata` : ""),
         );
       }
@@ -215,7 +226,7 @@ export function FeedCard({
             size="sm"
             variant="secondary"
             disabled={runMutation.isPending}
-            onClick={() => runMutation.mutate()}
+            onClick={() => runMutation.mutate(false)}
           >
             {runMutation.isPending ? (
               <Loader2 className="mr-1 size-4 animate-spin" />
@@ -224,6 +235,19 @@ export function FeedCard({
             )}
             {feed.direction === "export" ? "XML üret" : "Şimdi çalıştır"}
           </Button>
+
+          {feed.direction === "import" ? (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={runMutation.isPending}
+              title="Delta atlanır, tüm ürünler yeniden işlenir"
+              onClick={() => runMutation.mutate(true)}
+            >
+              <RefreshCw className="mr-1 size-4" />
+              Tam senkronizasyon
+            </Button>
+          ) : null}
 
           <div className="flex gap-1">
             <Button asChild size="icon" variant="outline" aria-label="Alan eşleştirme">

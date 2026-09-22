@@ -23,6 +23,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { DeltaSyncSettings } from "@/components/xml-integrator/delta-sync-settings";
+import {
+  DEFAULT_DELTA_SYNC_CONFIG,
+  type DeltaSyncConfig,
+} from "@/lib/xml-delta-sync";
 import { analyzeXmlSource, saveXmlFeed } from "@/lib/xml-integrator.functions";
 import {
   TARGET_FIELDS,
@@ -64,6 +69,8 @@ export type FeedFormValue = {
   currency: string;
   priceMarkup: number | null;
   isActive: boolean;
+  deltaSync: DeltaSyncConfig;
+  lastFullSyncAt?: string | null;
 };
 
 export const emptyFeed: FeedFormValue = {
@@ -81,6 +88,7 @@ export const emptyFeed: FeedFormValue = {
   currency: "TRY",
   priceMarkup: null,
   isActive: true,
+  deltaSync: { ...DEFAULT_DELTA_SYNC_CONFIG },
 };
 
 const GROUPS = Object.keys(TARGET_FIELD_GROUP_LABELS) as TargetFieldGroup[];
@@ -164,6 +172,7 @@ export function FeedSheet({
           priceMarkup: form.priceMarkup,
           currency: form.currency,
           isActive: form.isActive,
+          deltaSyncConfig: form.deltaSync,
         },
       }),
     onSuccess: () => {
@@ -418,6 +427,15 @@ export function FeedSheet({
               </div>
             </section>
           )}
+
+          {isImport ? (
+            <DeltaSyncSettings
+              idPrefix="feed-delta"
+              value={form.deltaSync}
+              onChange={(next) => set("deltaSync", next)}
+              lastFullSyncAt={form.lastFullSyncAt ?? null}
+            />
+          ) : null}
 
           <div className="flex items-center justify-between rounded-xl border bg-card p-4">
             <Label htmlFor="feed-active">Besleme aktif</Label>
