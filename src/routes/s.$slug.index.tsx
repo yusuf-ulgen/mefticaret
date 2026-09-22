@@ -19,6 +19,7 @@ import {
   storefrontHead,
 } from "@/lib/storefront-seo";
 import { useStorefrontLive } from "@/hooks/use-storefront-live";
+import { usePreviewTheme } from "@/hooks/use-preview-theme";
 
 export const Route = createFileRoute("/s/$slug/")({
   loader: async ({ context, params, location }) => {
@@ -85,9 +86,12 @@ function StorefrontHome() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   useStorefrontLive(slug, data?.store?.id);
+  // Customizer canlı önizlemesi: ?preview_token ile kaydedilmemiş ayarlar uygulanır.
+  const previewTheme = usePreviewTheme(data?.store?.id, data?.theme ?? null);
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
-  const { store, theme, products, collections, footerPages } = data;
+  const { store, products, collections, footerPages } = data;
+  const theme = previewTheme ?? data.theme;
   const { t, muted, cardBg, border } = storefrontTokens(theme);
   const isHomeMakerStorefront = data.isHomeMakerStorefront;
   // Mağaza yalnızca tek bir bileşen tanımladıysa vitrin boş kalmasın: hero,
