@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -65,7 +66,8 @@ const exportFilterSchema = z
   })
   .default({});
 
-const originOf = (request: Request): string => {
+const originOf = (): string => {
+  const request = getRequest();
   const url = new URL(request.url);
   const forwarded = url.hostname === "localhost" ? request.headers.get("x-forwarded-host") : null;
   return forwarded ? `https://${forwarded}` : url.origin;
@@ -273,7 +275,7 @@ export const saveXmlExportFeed = createServerFn({ method: "POST" })
 export const runXmlExportNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data))
-  .handler(async ({ data, context, request }) => {
+  .handler(async ({ data, context }) => {
     const { supabase } = context;
     const store = await storeGuard(supabase, data.storeId);
 
@@ -295,7 +297,7 @@ export const runXmlExportNow = createServerFn({ method: "POST" })
         storeName: store.name,
         storeSlug: store.slug,
         storeCurrency: store.currency ?? "TRY",
-        origin: originOf(request),
+        origin: originOf(),
       },
       "manual",
     );
@@ -308,7 +310,7 @@ export const previewXmlExport = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z.object({ storeId: z.guid(), feedId: z.guid(), limit: z.number().min(1).max(50).default(10) }).parse(data),
   )
-  .handler(async ({ data, context, request }) => {
+  .handler(async ({ data, context }) => {
     const { supabase } = context;
     const store = await storeGuard(supabase, data.storeId);
 
@@ -327,7 +329,7 @@ export const previewXmlExport = createServerFn({ method: "POST" })
       storeName: store.name,
       storeSlug: store.slug,
       storeCurrency: store.currency ?? "TRY",
-      origin: originOf(request),
+      origin: originOf(),
       limit: data.limit,
     });
     return {
@@ -343,7 +345,7 @@ export const previewXmlExport = createServerFn({ method: "POST" })
 export const getXmlExportUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data))
-  .handler(async ({ data, context, request }) => {
+  .handler(async ({ data, context }) => {
     const { supabase } = context;
     const store = await storeGuard(supabase, data.storeId);
     const { data: feed, error } = await supabase
@@ -356,7 +358,7 @@ export const getXmlExportUrl = createServerFn({ method: "POST" })
     if (!feed) throw new Error("Besleme bulunamadı");
     const row = feed as { export_token: string };
     return {
-      url: `${originOf(request)}/api/public/xml-export/${store.slug}/${data.feedId}?token=${row.export_token}`,
+      url: `${originOf()}/api/public/xml-export/${store.slug}/${data.feedId}?token=${row.export_token}`,
     };
   });
 
@@ -446,5 +448,20 @@ export const getXmlRunDetail = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Çalıştırma kaydı bulunamadı");
-    return row as Record<string, unknown>;
+    return row as {
+      id: string;
+      feed_id: string;
+      direction: string;
+      status: string;
+      trigger: string | null;
+      started_at: string;
+      finished_at: string | null;
+      totals: Record<string, number> | null;
+      errors: unknown[] | null;
+      warnings: unknown[] | null;
+      error: string | null;
+      output_url: string | null;
+      file_size_bytes: number | null;
+      duration_seconds: number | null;
+    };
   });
