@@ -444,30 +444,82 @@ export async function upsertProducts(
         continue;
       }
 
-      const { data: variants } = await admin
+      const { data: variantRows } = await admin
         .from("product_variants")
-        .select("id, position")
+        .select("id, sku, barcode, position")
         .eq("product_id", productId)
-        .order("position", { ascending: true })
-        .limit(1);
-      const variantId = ((variants ?? []) as Array<{ id: string }>)[0]?.id ?? null;
-      if (variantId) {
-        await admin
-          .from("product_variants")
-          .update({ price: item.price, stock: item.stock, cost_price: item.costPrice, sku: item.sku })
-          .eq("id", variantId);
+        .order("position", { ascending: true });
+      const existingVariants = (variantRows ?? []) as Array<{
+        id: string;
+        sku: string | null;
+        barcode: string | null;
+        position: number | null;
+      }>;
+
+      if (item.variants.length) {
+        /* Varyasyonlu ürün: her varyant stok kodu/barkoduna göre eşleşir,
+           eşleşmeyen varyantlar yeni satır olarak eklenir. */
+        const byVariantKey = new Map<string, string>();
+        for (const row of existingVariants) {
+          if (row.sku) byVariantKey.set(row.sku, row.id);
+          if (row.barcode && !byVariantKey.has(row.barcode)) byVariantKey.set(row.barcode, row.id);
+        }
+        let position = existingVariants.length;
+        for (const variant of item.variants) {
+          const matchId =
+            (variant.sku ? byVariantKey.get(variant.sku) : undefined) ??
+            (variant.barcode ? byVariantKey.get(variant.barcode) : undefined) ??
+            null;
+          if (matchId) {
+            await admin
+              .from("product_variants")
+              .update({
+                price: variant.price,
+                stock: variant.stock,
+                cost_price: variant.costPrice,
+                compare_at_price: variant.compareAtPrice,
+                ...(Object.keys(variant.options).length ? { options: variant.options as never } : {}),
+              })
+              .eq("id", matchId);
+          } else {
+            position += 1;
+            await admin.from("product_variants").insert({
+              product_id: productId,
+              store_id: input.storeId,
+              title: variant.title || "Standart",
+              sku: variant.sku,
+              barcode: variant.barcode,
+              price: variant.price,
+              cost_price: variant.costPrice,
+              compare_at_price: variant.compareAtPrice,
+              stock: variant.stock,
+              weight_grams: variant.weightGrams,
+              options: variant.options as never,
+              position,
+            });
+          }
+        }
       } else {
-        await admin.from("product_variants").insert({
-          product_id: productId,
-          store_id: input.storeId,
-          title: "Standart",
-          sku: item.sku,
-          price: item.price,
-          stock: item.stock,
-          cost_price: item.costPrice,
-          position: 1,
-        });
+        const variantId = existingVariants[0]?.id ?? null;
+        if (variantId) {
+          await admin
+            .from("product_variants")
+            .update({ price: item.price, stock: item.stock, cost_price: item.costPrice, sku: item.sku })
+            .eq("id", variantId);
+        } else {
+          await admin.from("product_variants").insert({
+            product_id: productId,
+            store_id: input.storeId,
+            title: "Standart",
+            sku: item.sku,
+            price: item.price,
+            stock: item.stock,
+            cost_price: item.costPrice,
+            position: 1,
+          });
+        }
       }
+
       result.updated += 1;
     }
 
