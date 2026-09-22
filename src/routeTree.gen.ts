@@ -160,6 +160,7 @@ import { Route as AuthenticatedStoreStoreIdCollectionsRouteImport } from './rout
 import { Route as AuthenticatedStoreStoreIdCopilotRouteImport } from './routes/_authenticated/store.$storeId.copilot'
 import { Route as AuthenticatedStoreStoreIdCustomerSegmentsRouteImport } from './routes/_authenticated/store.$storeId.customer-segments'
 import { Route as AuthenticatedStoreStoreIdCustomersRouteImport } from './routes/_authenticated/store.$storeId.customers'
+import { Route as AuthenticatedStoreStoreIdCustomizerRouteImport } from './routes/_authenticated/store.$storeId.customizer'
 import { Route as AuthenticatedStoreStoreIdDashboardRouteImport } from './routes/_authenticated/store.$storeId.dashboard'
 import { Route as AuthenticatedStoreStoreIdDiscountsRouteImport } from './routes/_authenticated/store.$storeId.discounts'
 import { Route as AuthenticatedStoreStoreIdDomainsRouteImport } from './routes/_authenticated/store.$storeId.domains'
@@ -1132,6 +1133,12 @@ const AuthenticatedStoreStoreIdCustomersRoute =
   AuthenticatedStoreStoreIdCustomersRouteImport.update({
     id: '/customers',
     path: '/customers',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
+const AuthenticatedStoreStoreIdCustomizerRoute =
+  AuthenticatedStoreStoreIdCustomizerRouteImport.update({
+    id: '/customizer',
+    path: '/customizer',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdDashboardRoute =
@@ -2196,6 +2203,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
   '/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
+  '/store/$storeId/customizer': typeof AuthenticatedStoreStoreIdCustomizerRoute
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
@@ -2502,6 +2510,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
   '/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
+  '/store/$storeId/customizer': typeof AuthenticatedStoreStoreIdCustomizerRoute
   '/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
@@ -2809,6 +2818,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
   '/_authenticated/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   '/_authenticated/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
+  '/_authenticated/store/$storeId/customizer': typeof AuthenticatedStoreStoreIdCustomizerRoute
   '/_authenticated/store/$storeId/dashboard': typeof AuthenticatedStoreStoreIdDashboardRoute
   '/_authenticated/store/$storeId/discounts': typeof AuthenticatedStoreStoreIdDiscountsRoute
   '/_authenticated/store/$storeId/domains': typeof AuthenticatedStoreStoreIdDomainsRoute
@@ -3118,6 +3128,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/copilot'
     | '/store/$storeId/customer-segments'
     | '/store/$storeId/customers'
+    | '/store/$storeId/customizer'
     | '/store/$storeId/dashboard'
     | '/store/$storeId/discounts'
     | '/store/$storeId/domains'
@@ -3424,6 +3435,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/copilot'
     | '/store/$storeId/customer-segments'
     | '/store/$storeId/customers'
+    | '/store/$storeId/customizer'
     | '/store/$storeId/dashboard'
     | '/store/$storeId/discounts'
     | '/store/$storeId/domains'
@@ -3730,6 +3742,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/copilot'
     | '/_authenticated/store/$storeId/customer-segments'
     | '/_authenticated/store/$storeId/customers'
+    | '/_authenticated/store/$storeId/customizer'
     | '/_authenticated/store/$storeId/dashboard'
     | '/_authenticated/store/$storeId/discounts'
     | '/_authenticated/store/$storeId/domains'
@@ -5061,6 +5074,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCustomersRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/customizer': {
+      id: '/_authenticated/store/$storeId/customizer'
+      path: '/customizer'
+      fullPath: '/store/$storeId/customizer'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdCustomizerRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/dashboard': {
       id: '/_authenticated/store/$storeId/dashboard'
       path: '/dashboard'
@@ -6373,6 +6393,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdCopilotRoute: typeof AuthenticatedStoreStoreIdCopilotRoute
   AuthenticatedStoreStoreIdCustomerSegmentsRoute: typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   AuthenticatedStoreStoreIdCustomersRoute: typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
+  AuthenticatedStoreStoreIdCustomizerRoute: typeof AuthenticatedStoreStoreIdCustomizerRoute
   AuthenticatedStoreStoreIdDashboardRoute: typeof AuthenticatedStoreStoreIdDashboardRoute
   AuthenticatedStoreStoreIdDiscountsRoute: typeof AuthenticatedStoreStoreIdDiscountsRoute
   AuthenticatedStoreStoreIdDomainsRoute: typeof AuthenticatedStoreStoreIdDomainsRoute
@@ -6515,6 +6536,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdCustomerSegmentsRoute,
     AuthenticatedStoreStoreIdCustomersRoute:
       AuthenticatedStoreStoreIdCustomersRouteWithChildren,
+    AuthenticatedStoreStoreIdCustomizerRoute:
+      AuthenticatedStoreStoreIdCustomizerRoute,
     AuthenticatedStoreStoreIdDashboardRoute:
       AuthenticatedStoreStoreIdDashboardRoute,
     AuthenticatedStoreStoreIdDiscountsRoute:
