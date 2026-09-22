@@ -457,9 +457,27 @@ export function XmlFeedWizard({ storeId }: { storeId: string }) {
               <dd>{Object.keys(form.fieldMapping).length} alan</dd>
             </div>
           </dl>
+          {!isImport ? (
+            <div className="rounded-lg border bg-muted/40 p-3">
+              <p className="text-xs font-medium">
+                {XML_PLATFORM_LABELS[form.platform]} zorunlu alan kuralları
+              </p>
+              <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                {validationRulesFor(form.platform).map((rule) => (
+                  <li key={rule.code}>• {rule.label}</li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Bu kurallara uymayan ürünler XML'e eklenmez; nedenleri Kayıtlar sayfasında listelenir.
+              </p>
+            </div>
+          ) : null}
           <p className="text-xs text-muted-foreground">
-            Kaydettikten sonra alan eşleme ekranı açılır; zorunlu alanları orada bağlayabilirsiniz.
+            {isImport
+              ? "Kaydettikten sonra alan eşleme ekranı açılır; zorunlu alanları orada bağlayabilirsiniz."
+              : "Kaydettikten sonra besleme listesinde \"XML üret\" ile dosyayı oluşturup adresini kopyalayabilirsiniz."}
           </p>
+
         </section>
       ) : null}
 
