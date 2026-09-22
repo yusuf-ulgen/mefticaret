@@ -156,7 +156,7 @@ export function FeedCard({
         );
       } else {
         toast.success(
-          `Besleme çalıştı — ${result.totalRows} satır okundu, ${result.created} yeni ürün, ${result.updated} güncelleme` +
+          `${result.forcedFullSync ? "Tam senkronizasyon" : "Besleme"} çalıştı — ${result.totalRows} satır okundu, ${result.created} yeni ürün, ${result.updated} güncelleme, ${result.skipped} atlandı` +
             (result.errorCount ? `, ${result.errorCount} hata` : ""),
         );
       }

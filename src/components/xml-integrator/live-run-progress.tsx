@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { XML_ERROR_CATEGORY_LABELS, XML_PHASE_LABELS } from "@/lib/xml-integrator";
+import { deltaEfficiency } from "@/lib/xml-delta-sync";
 
 export type LiveRun = {
   id: string;
@@ -22,6 +23,8 @@ export type LiveRun = {
   updated_count: number | null;
   skipped_count: number | null;
   error_count: number | null;
+  unchanged_count: number | null;
+  delta_sync_enabled: boolean | null;
   error_categories: Record<string, number> | null;
   started_at: string | null;
 };
@@ -29,7 +32,7 @@ export type LiveRun = {
 const LIVE_STATUSES = new Set(["queued", "running"]);
 
 const SELECT =
-  "id, feed_id, status, phase, total_rows, processed_count, created_count, updated_count, skipped_count, error_count, error_categories, started_at";
+  "id, feed_id, status, phase, total_rows, processed_count, created_count, updated_count, skipped_count, unchanged_count, delta_sync_enabled, error_count, error_categories, started_at";
 
 /** Süren çalışmaları okur ve Realtime güncellemeleriyle canlı tutar. */
 export function useLiveImportRuns(storeId: string) {
@@ -101,10 +104,18 @@ function RunCard({ run, feedName }: { run: LiveRun; feedName: string }) {
           ? `${processed} / ${total} ürün işlendi${percent === null ? "" : ` · %${percent}`}`
           : "Kaynak hazırlanıyor…"}
       </p>
-      <p className="mt-1 text-muted-foreground">
-        {Number(run.created_count ?? 0)} yeni · {Number(run.updated_count ?? 0)} güncellendi ·{" "}
-        {Number(run.skipped_count ?? 0)} atlandı
-      </p>
+      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <RunStat label="Yeni" value={Number(run.created_count ?? 0)} />
+        <RunStat label="Güncellendi" value={Number(run.updated_count ?? 0)} />
+        <RunStat label="Değişmeyen (atlandı)" value={Number(run.unchanged_count ?? 0)} />
+        <RunStat label="Hatalı" value={errorCount} tone={errorCount > 0 ? "error" : "default"} />
+      </div>
+
+      <DeltaEfficiencyBadge
+        totalRows={total}
+        unchanged={Number(run.unchanged_count ?? 0)}
+        active={run.delta_sync_enabled}
+      />
 
       {categories.length ? (
         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -116,6 +127,47 @@ function RunCard({ run, feedName }: { run: LiveRun; feedName: string }) {
         </div>
       ) : null}
     </article>
+  );
+}
+
+/** Tek sayaç kutusu. */
+export function RunStat({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: number;
+  tone?: "default" | "error";
+}) {
+  return (
+    <div className="rounded-lg border bg-muted/20 p-2">
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className={`text-sm font-semibold ${tone === "error" ? "text-destructive" : ""}`}>
+        {value.toLocaleString("tr-TR")}
+      </p>
+    </div>
+  );
+}
+
+/** Delta senkronizasyonun o çalışmada kazandırdığı sorgu sayısı. */
+export function DeltaEfficiencyBadge({
+  totalRows,
+  unchanged,
+  active,
+}: {
+  totalRows: number;
+  unchanged: number;
+  active?: boolean | null;
+}) {
+  if (active === false) return null;
+  const stats = deltaEfficiency({ totalRows, unchanged });
+  if (!stats) return null;
+  return (
+    <Badge className="mt-2 bg-success/10 text-success">
+      ⚡ Delta senkronizasyon {stats.savedQueries.toLocaleString("tr-TR")} veritabanı sorgusu kazandırdı
+      {stats.percent === null ? "" : ` (%${stats.percent} hızlanma)`}
+    </Badge>
   );
 }
 
