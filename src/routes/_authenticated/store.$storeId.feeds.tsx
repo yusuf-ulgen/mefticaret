@@ -11,6 +11,7 @@ import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { storeProductFeedsQuery } from "@/lib/marketing-tools-queries";
+import { storeQuery } from "@/lib/store-queries";
 import {
   rebuildStoreProductFeed,
   rotateStoreFeedToken,
@@ -55,6 +56,8 @@ function FeedsPage() {
   const { storeId } = Route.useParams();
   const queryClient = useQueryClient();
   const feeds = useQuery(storeProductFeedsQuery(storeId));
+  const store = useQuery(storeQuery(storeId));
+  const storeSlug = (store.data as { slug?: string } | null | undefined)?.slug ?? "";
   const save = useServerFn(saveStoreProductFeed);
   const rebuild = useServerFn(rebuildStoreProductFeed);
   const rotate = useServerFn(rotateStoreFeedToken);
@@ -104,8 +107,8 @@ function FeedsPage() {
         <div className="grid gap-4 md:grid-cols-2">
           {FEED_KINDS.map((kind) => {
             const row = byKind.get(kind);
-            const feedUrl = row?.token
-              ? `${typeof window === "undefined" ? "" : window.location.origin}/api/public/feed/${storeId}/${kind}?token=${row.token}`
+            const feedUrl = row?.token && storeSlug
+              ? `${typeof window === "undefined" ? "" : window.location.origin}/api/public/feed/${storeSlug}/${kind}?token=${row.token}`
               : null;
             return (
               <div key={kind} className="rounded-2xl border border-border bg-card p-5">
