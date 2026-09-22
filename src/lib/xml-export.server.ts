@@ -212,7 +212,6 @@ export async function runExportFeed(
         last_status: result.failed && !result.exported ? "failed" : "success",
         last_error: result.failed ? `${result.failed} ürün doğrulamadan geçemedi` : null,
         stats: { exported: result.exported, failed: result.failed, bytes },
-        total_runs: undefined,
       })
       .eq("id", feed.id);
 
