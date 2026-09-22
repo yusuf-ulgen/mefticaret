@@ -308,6 +308,7 @@ import { Route as ApiPublicEmailClickTokenRouteImport } from './routes/api/publi
 import { Route as ApiPublicEmailOpenTokenRouteImport } from './routes/api/public/email.open.$token'
 import { Route as ApiPublicEmailUnsubscribeTokenRouteImport } from './routes/api/public/email.unsubscribe.$token'
 import { Route as ApiPublicFeedStoreSlugKindRouteImport } from './routes/api/public/feed.$storeSlug.$kind'
+import { Route as ApiPublicXmlExportStoreSlugFeedIdRouteImport } from './routes/api/public/xml-export.$storeSlug.$feedId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -1995,6 +1996,12 @@ const ApiPublicFeedStoreSlugKindRoute =
     path: '/api/public/feed/$storeSlug/$kind',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicXmlExportStoreSlugFeedIdRoute =
+  ApiPublicXmlExportStoreSlugFeedIdRouteImport.update({
+    id: '/api/public/xml-export/$storeSlug/$feedId',
+    path: '/api/public/xml-export/$storeSlug/$feedId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -2294,6 +2301,7 @@ export interface FileRoutesByFullPath {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
+  '/api/public/xml-export/$storeSlug/$feedId': typeof ApiPublicXmlExportStoreSlugFeedIdRoute
   '/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -2592,6 +2600,7 @@ export interface FileRoutesByTo {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
+  '/api/public/xml-export/$storeSlug/$feedId': typeof ApiPublicXmlExportStoreSlugFeedIdRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRoutesById {
@@ -2894,6 +2903,7 @@ export interface FileRoutesById {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
+  '/api/public/xml-export/$storeSlug/$feedId': typeof ApiPublicXmlExportStoreSlugFeedIdRoute
   '/_authenticated/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
 }
 export interface FileRouteTypes {
@@ -3196,6 +3206,7 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
+    | '/api/public/xml-export/$storeSlug/$feedId'
     | '/store/$storeId/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -3494,6 +3505,7 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
+    | '/api/public/xml-export/$storeSlug/$feedId'
     | '/store/$storeId/products'
   id:
     | '__root__'
@@ -3795,6 +3807,7 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
+    | '/api/public/xml-export/$storeSlug/$feedId'
     | '/_authenticated/store/$storeId/products/'
   fileRoutesById: FileRoutesById
 }
@@ -3909,6 +3922,7 @@ export interface RootRouteChildren {
   ApiPublicEmailOpenTokenRoute: typeof ApiPublicEmailOpenTokenRoute
   ApiPublicEmailUnsubscribeTokenRoute: typeof ApiPublicEmailUnsubscribeTokenRoute
   ApiPublicFeedStoreSlugKindRoute: typeof ApiPublicFeedStoreSlugKindRoute
+  ApiPublicXmlExportStoreSlugFeedIdRoute: typeof ApiPublicXmlExportStoreSlugFeedIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -6006,6 +6020,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFeedStoreSlugKindRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/xml-export/$storeSlug/$feedId': {
+      id: '/api/public/xml-export/$storeSlug/$feedId'
+      path: '/api/public/xml-export/$storeSlug/$feedId'
+      fullPath: '/api/public/xml-export/$storeSlug/$feedId'
+      preLoaderRoute: typeof ApiPublicXmlExportStoreSlugFeedIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -6665,6 +6686,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicEmailOpenTokenRoute: ApiPublicEmailOpenTokenRoute,
   ApiPublicEmailUnsubscribeTokenRoute: ApiPublicEmailUnsubscribeTokenRoute,
   ApiPublicFeedStoreSlugKindRoute: ApiPublicFeedStoreSlugKindRoute,
+  ApiPublicXmlExportStoreSlugFeedIdRoute:
+    ApiPublicXmlExportStoreSlugFeedIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
