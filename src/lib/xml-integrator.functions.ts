@@ -43,6 +43,13 @@ import {
   type VariantConfig,
   type VariantMode,
 } from "@/lib/xml-variant-parser";
+import {
+  DEFAULT_DELTA_SYNC_CONFIG,
+  DELTA_HASH_FIELDS,
+  parseDeltaSyncConfig,
+  serializeDeltaSyncConfig,
+  type DeltaSyncConfig,
+} from "@/lib/xml-delta-sync";
 
 const storeSchema = z.object({ storeId: z.guid() });
 
@@ -115,6 +122,16 @@ const feedSchema = z.object({
         .default(() => ({ commissionPercent: 0, shippingFee: 0 })),
     })
     .default(() => ({ ...DEFAULT_PRICING_RULES })),
+  deltaSyncConfig: z
+    .object({
+      enabled: z.boolean().default(true),
+      hashFields: z
+        .array(z.enum(DELTA_HASH_FIELDS.map((item) => item.key) as [string, ...string[]]))
+        .max(DELTA_HASH_FIELDS.length)
+        .default([...DEFAULT_DELTA_SYNC_CONFIG.hashFields]),
+      forceFullSyncHours: z.number().int().min(1).max(24 * 90).default(168),
+    })
+    .default(() => ({ ...DEFAULT_DELTA_SYNC_CONFIG })),
   variantMode: z.enum(["none", "nested", "flat"]).default("none"),
   variantConfig: z
     .object({
@@ -162,7 +179,7 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
         .order("created_at", { ascending: false }),
       context.supabase
         .from("xml_import_logs")
-        .select("id, feed_id, status, trigger, total_rows, created_count, updated_count, skipped_count, error_count, error_message, duration_seconds, started_at, finished_at")
+        .select("id, feed_id, status, trigger, total_rows, created_count, updated_count, skipped_count, unchanged_count, delta_sync_enabled, error_count, error_categories, error_message, duration_seconds, started_at, finished_at")
         .eq("store_id", data.storeId)
         .order("started_at", { ascending: false })
         .limit(25),
@@ -199,6 +216,8 @@ export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
         pricingRules: parsePricingRules(row["pricing_rules"]) as PricingRules,
         variantMode: parseVariantMode(row["variant_mode"]) as VariantMode,
         variantConfig: parseVariantConfig(row["variant_config"]) as VariantConfig,
+        deltaSyncConfig: parseDeltaSyncConfig(row["delta_sync_config"]) as DeltaSyncConfig,
+        lastFullSyncAt: (row["last_full_sync_at"] as string | null) ?? null,
         lastRunAt: (row["last_run_at"] as string | null) ?? null,
         nextRunAt: (row["next_run_at"] as string | null) ?? null,
         lastStatus: (row["last_status"] as string | null) ?? null,
@@ -253,6 +272,7 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
       is_active: data.isActive,
       currency_config: serializeCurrencyConfig(data.currencyConfig),
       pricing_rules: serializePricingRules(data.pricingRules),
+      delta_sync_config: serializeDeltaSyncConfig(data.deltaSyncConfig as DeltaSyncConfig),
       variant_mode: data.variantMode,
       variant_config: serializeVariantConfig(parseVariantConfig({
         parent_node_path: data.variantConfig.parentNodePath,
@@ -300,7 +320,11 @@ export const saveXmlFeed = createServerFn({ method: "POST" })
 /** Beslemeyi ve bağlı kayıtlarını siler. */
 export const deleteXmlFeed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data))
+  .inputValidator((data) =>
+    z
+      .object({ storeId: z.guid(), feedId: z.guid(), forceFullSync: z.boolean().default(false) })
+      .parse(data),
+  )
   .handler(async ({ data, context }) => {
     const { assertStoreManager } = await import("@/lib/store-access.server");
     await assertStoreManager(context.supabase, data.storeId, context.userId);
@@ -619,6 +643,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
         variantConfig: feed["variant_config"] ?? {},
         deltaSyncConfig: feed["delta_sync_config"] ?? {},
         lastFullSyncAt: (feed["last_full_sync_at"] as string | null) ?? null,
+        forceFullSync: data.forceFullSync,
       },
       { trigger: "manual", nextRunAt },
     );
@@ -632,6 +657,7 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
       skipped: result.skipped,
       errorCount: result.errorCount,
       format: result.format,
+      forcedFullSync: data.forceFullSync,
     };
   });
 
