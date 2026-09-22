@@ -413,13 +413,16 @@ export async function upsertProducts(
     chunkSize?: number;
     publishNew?: boolean;
     updateContent?: boolean;
+    /** Güvenlik sınırları: anormal fiyat/stok verisi canlıya yazılmaz, incelemeye alınır. */
+    guardrail?: { feedId: string; config: GuardrailConfig };
     /** Her paket bittiğinde çağrılır; canlı ilerleme için kullanılır. */
     onProgress?: (progress: { processed: number; total: number; result: UpsertResult }) => void | Promise<void>;
   },
 ): Promise<UpsertResult> {
-  const result: UpsertResult = { created: 0, updated: 0, skipped: 0, errors: [] };
+  const result: UpsertResult = { created: 0, updated: 0, skipped: 0, quarantined: 0, errors: [] };
   const size = Math.max(10, Math.min(input.chunkSize ?? UPSERT_CHUNK_SIZE, 250));
   const updateContent = input.updateContent ?? true;
+  const guardrail = input.guardrail && input.guardrail.config.enabled ? input.guardrail : null;
   let processed = 0;
 
   for (const part of chunk(input.items, size)) {
@@ -428,21 +431,76 @@ export async function upsertProducts(
 
     const { data: existingRows, error: existingError } = await admin
       .from("products")
-      .select("id, sku, barcode, slug")
+      .select("id, sku, barcode, slug, base_price")
       .eq("store_id", input.storeId)
       .or(`sku.in.(${skus.map((s) => `"${s.replace(/"/g, "")}"`).join(",")}),barcode.in.(${skus
         .map((s) => `"${s.replace(/"/g, "")}"`)
         .join(",")})`);
     if (existingError) throw new Error(existingError.message);
 
-    const byKey = new Map<string, { id: string }>();
-    for (const row of (existingRows ?? []) as Array<{ id: string; sku: string | null; barcode: string | null }>) {
-      if (row.sku) byKey.set(row.sku, { id: row.id });
-      if (row.barcode && !byKey.has(row.barcode)) byKey.set(row.barcode, { id: row.id });
+    const byKey = new Map<string, { id: string; basePrice: number | null }>();
+    for (const row of (existingRows ?? []) as Array<{
+      id: string;
+      sku: string | null;
+      barcode: string | null;
+      base_price: number | null;
+    }>) {
+      const entry = { id: row.id, basePrice: row.base_price === null ? null : Number(row.base_price) };
+      if (row.sku) byKey.set(row.sku, entry);
+      if (row.barcode && !byKey.has(row.barcode)) byKey.set(row.barcode, entry);
     }
 
-    const toUpdate = part.filter((item) => byKey.has(item.key));
-    const toInsert = part.filter((item) => !byKey.has(item.key));
+    let candidatesUpdate = part.filter((item) => byKey.has(item.key));
+    let candidatesInsert = part.filter((item) => !byKey.has(item.key));
+
+    /* --- güvenlik sınırları: anormal veri canlıya yazılmadan ayıklanır --- */
+    if (guardrail) {
+      const blocked: QuarantineRow[] = [];
+      const keep = (item: NormalizedProduct, existingPrice: number | null): boolean => {
+        const verdict = checkProductSafety({
+          newPrice: item.price,
+          newStock: item.stock,
+          existingPrice,
+          config: guardrail.config,
+        });
+        if (verdict.safe) return true;
+        if (verdict.quarantine) {
+          blocked.push({
+            item,
+            issueType: verdict.issueType,
+            oldPrice: existingPrice,
+            oldStock: null,
+            reason: verdict.reason,
+          });
+        }
+        result.errors.push({
+          row: 0,
+          reason: `${item.key}: ${verdict.reason}`,
+          category: "GUARDRAIL_BLOCK",
+        });
+        return false;
+      };
+
+      candidatesUpdate = candidatesUpdate.filter((item) =>
+        keep(item, byKey.get(item.key)?.basePrice ?? null),
+      );
+      candidatesInsert = candidatesInsert.filter((item) => keep(item, null));
+
+      if (blocked.length) {
+        const { quarantineProducts } = await import("@/lib/xml-guardrail.server");
+        const saved = await quarantineProducts(admin as never, {
+          storeId: input.storeId,
+          feedId: guardrail.feedId,
+          rows: blocked,
+        });
+        result.quarantined += saved;
+      }
+      result.skipped += part.length - candidatesUpdate.length - candidatesInsert.length;
+    }
+
+    const toUpdate = candidatesUpdate;
+    const toInsert = candidatesInsert;
+
 
     /* --- var olan ürünler: fiyat ve stok güncellenir --- */
     for (const item of toUpdate) {
