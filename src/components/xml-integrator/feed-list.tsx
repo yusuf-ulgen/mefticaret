@@ -55,6 +55,7 @@ export function XmlFeedList({ storeId }: { storeId: string }) {
       hasCredentials: feed.hasCredentials,
       outputFilename: feed.outputFilename ?? "",
       schedule: feed.schedule as XmlSchedule,
+      cronExpression: feed.cronExpression ?? "",
       fieldMapping: feed.fieldMapping as FieldMapping,
       currency: feed.currency,
       priceMarkup: feed.priceMarkup,
