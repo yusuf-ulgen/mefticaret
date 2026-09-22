@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { xmlCategoryMappingsQuery } from "@/lib/xml-integrator-queries";
 import {
   aiSuggestXmlCategoryMappings,
@@ -44,7 +45,7 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
     mutationFn: () => aiSuggest({ data: { storeId, feedId, onlyUnmapped: true } }),
     onSuccess: (result) => {
       toast.success(
-        `${result.suggested}/${result.requested} kategori için öneri oluşturuldu` +
+        `Yapay zekâ ${result.suggested} kategoriyi eşleştirdi (${result.highConfidence} tanesi %90+ güven)` +
           (result.creditsUsed ? ` · ${result.creditsUsed} kredi` : ""),
       );
       void invalidate();
@@ -82,6 +83,7 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
   const matched = (query.data?.mappings ?? []).filter((row) => row.targetCategoryId).length;
 
   return (
+    <TooltipProvider>
     <section className="space-y-3 rounded-xl border bg-card p-3">
       <header className="flex flex-wrap items-center gap-2">
         <h3 className="text-sm font-medium">Kategori eşleme</h3>
@@ -140,15 +142,18 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
                   <p className="text-xs text-muted-foreground">
                     {row.productCount} ürün
                     {row.isAiSuggested ? (
-                      <span className="ml-1 inline-flex items-center gap-1 text-primary">
-                        <Sparkles className="size-3" />
-                        AI önerisi · %{Math.round(row.aiConfidence * 100)} güven
-                      </span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="ml-1 inline-flex cursor-help items-center gap-1 text-primary">
+                            <Sparkles className="size-3" />%{Math.round(row.aiConfidence * 100)} güven
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-64">
+                          {row.aiReasoning || "Yapay zekâ önerisi — gerekçe belirtilmedi."}
+                        </TooltipContent>
+                      </Tooltip>
                     ) : null}
                   </p>
-                  {row.isAiSuggested && row.aiReasoning ? (
-                    <p className="text-xs text-muted-foreground/80">{row.aiReasoning}</p>
-                  ) : null}
                 </div>
                 <select
                   aria-label={`${row.sourceCategory} hedef kategorisi`}
@@ -180,5 +185,6 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
         </>
       )}
     </section>
+    </TooltipProvider>
   );
 }

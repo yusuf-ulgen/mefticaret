@@ -110,3 +110,71 @@ export async function suggestCategoryMappings(input: {
 
   return { suggestions, creditsUsed: result.creditsUsed, model: result.model };
 }
+
+export type AiFieldSuggestion = {
+  targetKey: string;
+  sourcePath: string;
+  confidence: number;
+  reason: string | null;
+};
+
+/**
+ * Kaynak XML/CSV alan yollarını Mefticaret ürün alanlarıyla eşleştirir.
+ * Hedef anahtarların dışındaki öneriler ve bilinmeyen kaynak yolları atılır.
+ */
+export async function suggestFieldMapping(input: {
+  sourceFields: { path: string; sample?: string | null }[];
+  targetFields: { key: string; label: string; hint?: string | null }[];
+  charge?: { storeId: string; userId?: string | null };
+}): Promise<{ suggestions: AiFieldSuggestion[]; creditsUsed: number }> {
+  if (!input.sourceFields.length) return { suggestions: [], creditsUsed: 0 };
+
+  const allowedPaths = new Set(input.sourceFields.map((row) => row.path));
+  const allowedKeys = new Set(input.targetFields.map((row) => row.key));
+
+  const prompt = [
+    "Bir tedarikçi ürün dosyasındaki alanları e-ticaret sistemimizin ürün alanlarıyla eşleştir.",
+    "Emin olmadığın hedef alanı hiç yazma; her hedef alan en fazla bir kez kullanılabilir.",
+    "",
+    `Kaynak Alanlar (yol ve örnek değer):\n${JSON.stringify(input.sourceFields)}`,
+    "",
+    `Hedef Alanlar:\n${JSON.stringify(input.targetFields)}`,
+    "",
+    "Yanıtı SADECE şu JSON biçiminde döndür:",
+    '[{"target_key":"sku","source_path":"Barkod","confidence":0.98,"reason":"Kısa Türkçe gerekçe"}]',
+  ].join("\n");
+
+  const result = await callProvider({
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: prompt },
+    ],
+    temperature: 0.1,
+    maxTokens: 2500,
+    purpose: "text",
+    ...(input.charge ? { charge: { ...input.charge, task: "xml_field_mapping" } } : {}),
+  });
+
+  const parsed = extractJsonArray(result.text);
+  if (!Array.isArray(parsed)) return { suggestions: [], creditsUsed: result.creditsUsed };
+
+  const usedKeys = new Set<string>();
+  const suggestions: AiFieldSuggestion[] = [];
+  for (const raw of parsed) {
+    if (!raw || typeof raw !== "object") continue;
+    const row = raw as Record<string, unknown>;
+    const targetKey = typeof row["target_key"] === "string" ? row["target_key"].trim() : "";
+    const sourcePath = typeof row["source_path"] === "string" ? row["source_path"].trim() : "";
+    if (!allowedKeys.has(targetKey) || !allowedPaths.has(sourcePath) || usedKeys.has(targetKey)) continue;
+    const reason = typeof row["reason"] === "string" ? row["reason"].trim().slice(0, 300) : null;
+    usedKeys.add(targetKey);
+    suggestions.push({
+      targetKey,
+      sourcePath,
+      confidence: clampConfidence(row["confidence"]),
+      reason: reason || null,
+    });
+  }
+
+  return { suggestions, creditsUsed: result.creditsUsed };
+}

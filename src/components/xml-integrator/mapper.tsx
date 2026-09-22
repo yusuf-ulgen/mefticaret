@@ -7,7 +7,7 @@ import { DndContext, useDraggable, useDroppable, type DragEndEvent } from "@dnd-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { GripVertical, Loader2, Wand2, Wrench, X } from "lucide-react";
+import { GripVertical, Loader2, Sparkles, Wand2, Wrench, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -25,7 +25,12 @@ import {
   type TransformStep,
 } from "@/lib/xml-transforms";
 import { xmlFieldSchemaQuery, xmlIntegratorOverviewQuery } from "@/lib/xml-integrator-queries";
-import { analyzeXmlSource, saveXmlFeed } from "@/lib/xml-integrator.functions";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  aiSuggestXmlFieldMapping,
+  analyzeXmlSource,
+  saveXmlFeed,
+} from "@/lib/xml-integrator.functions";
 import {
   TARGET_FIELDS,
   TARGET_FIELD_GROUP_LABELS,
@@ -46,6 +51,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
   const schema = useQuery(xmlFieldSchemaQuery(storeId, feedId));
   const analyze = useServerFn(analyzeXmlSource);
   const save = useServerFn(saveXmlFeed);
+  const aiMapFields = useServerFn(aiSuggestXmlFieldMapping);
 
   const feed = overview.data?.feeds.find((row) => row.id === feedId);
   const [mapping, setMapping] = useState<FieldMapping>({});
@@ -53,6 +59,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
   const [activeField, setActiveField] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
+  const [aiInfo, setAiInfo] = useState<Record<string, { confidence: number; reason: string | null }>>({});
 
   useEffect(() => {
     if (feed && loadedFor !== feed.id) {
@@ -94,6 +101,28 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
       setMapping((current) => ({ ...result.suggestedMapping, ...current }));
       void client.invalidateQueries({ queryKey: ["xml-integrator", storeId] });
       toast.success(`${result.columns.length} alan yenilendi`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const aiFieldMutation = useMutation({
+    mutationFn: () => aiMapFields({ data: { storeId, feedId } }),
+    onSuccess: (result) => {
+      setMapping((current) => {
+        const next = { ...current };
+        for (const row of result.suggestions) next[row.targetKey] = row.sourcePath;
+        return next;
+      });
+      setAiInfo(() => {
+        const next: Record<string, { confidence: number; reason: string | null }> = {};
+        for (const row of result.suggestions) next[row.targetKey] = { confidence: row.confidence, reason: row.reason };
+        return next;
+      });
+      toast.success(
+        `Yapay zekâ ${result.matched} alanı eşleştirdi (${result.highConfidence} tanesi %90+ güven)` +
+          (result.creditsUsed ? ` · ${result.creditsUsed} kredi` : "") +
+          " — kaydetmeyi unutmayın",
+      );
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -158,6 +187,21 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         <h2 className="text-sm font-medium">{feed.name}</h2>
         <Badge variant="outline">{columns.length} kaynak alanı</Badge>
         <Badge variant="outline">{Object.keys(mapping).length} eşleşme</Badge>
+        {columns.length ? (
+          <Button
+            className="ml-auto"
+            size="sm"
+            disabled={aiFieldMutation.isPending}
+            onClick={() => aiFieldMutation.mutate()}
+          >
+            {aiFieldMutation.isPending ? (
+              <Loader2 className="mr-1 size-4 animate-spin" />
+            ) : (
+              <Sparkles className="mr-1 size-4" />
+            )}
+            Yapay zekâ ile eşleştir
+          </Button>
+        ) : null}
       </div>
 
       {columns.length === 0 ? (
@@ -205,6 +249,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
                         value={mapping[field.key] ?? ""}
                         columns={columns.map((column) => column.path)}
                         transformSummary={describeTransforms(transforms[field.key])}
+                        ai={aiInfo[field.key] ?? null}
                         onOpenTransforms={() => setActiveField(field.key)}
                         onSelect={(value) =>
                           setMapping((current) => {
@@ -304,6 +349,7 @@ function TargetSlot({
   onSelect,
   transformSummary,
   onOpenTransforms,
+  ai,
 }: {
   fieldKey: string;
   label: string;
@@ -313,6 +359,7 @@ function TargetSlot({
   onSelect: (value: string) => void;
   transformSummary: string;
   onOpenTransforms: () => void;
+  ai?: { confidence: number; reason: string | null } | null;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: fieldKey });
   return (
@@ -320,9 +367,25 @@ function TargetSlot({
       ref={setNodeRef}
       className={`space-y-1 rounded-lg border p-2 ${isOver ? "border-foreground bg-muted" : "bg-background"}`}
     >
-      <p className="text-xs font-medium">
-        {label}
-        {required ? <span className="text-destructive"> *</span> : null}
+      <p className="flex items-center gap-1 text-xs font-medium">
+        <span className="min-w-0 truncate">
+          {label}
+          {required ? <span className="text-destructive"> *</span> : null}
+        </span>
+        {ai ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex shrink-0 cursor-help items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                  <Sparkles className="size-3" />%{Math.round(ai.confidence * 100)} eşleşme
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-64">
+                {ai.reason || "Yapay zekâ önerisi — gerekçe belirtilmedi."}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : null}
       </p>
       {value ? (
         <div className="space-y-1">
