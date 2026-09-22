@@ -6,14 +6,14 @@
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Pencil, SlidersHorizontal as Sliders, Trash2 } from "lucide-react";
+import { Download, Loader2, Pencil, Play, SlidersHorizontal as Sliders, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { formatDate } from "@/lib/mefti";
-import { deleteXmlFeed, toggleXmlFeed } from "@/lib/xml-integrator.functions";
+import { deleteXmlFeed, runXmlFeedNow, toggleXmlFeed } from "@/lib/xml-integrator.functions";
 import {
   XML_PLATFORM_LABELS,
   XML_RUN_STATUS_LABELS,
