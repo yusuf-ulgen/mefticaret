@@ -11,7 +11,9 @@ import { GripVertical, Loader2, Wand2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { XmlCategoryMapper } from "@/components/xml-integrator/category-mapper";
 import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Input } from "@/components/ui/input";
@@ -205,11 +207,14 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         </DndContext>
       )}
 
+      <XmlCategoryMapper storeId={storeId} feedId={feedId} />
+
       {missing.length ? (
         <p className="text-xs text-destructive">
           Eksik zorunlu alan: {missing.map((field) => field.label).join(", ")}
         </p>
       ) : null}
+
 
       <div className="flex flex-wrap gap-2">
         <Button disabled={saveMutation.isPending} onClick={() => saveMutation.mutate()}>
