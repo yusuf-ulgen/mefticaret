@@ -25,6 +25,12 @@ export const MODULE_CATALOG: PlanModule[] = [
     routes: ["feeds"],
   },
   {
+    key: "module_xml_integrator",
+    label: "XML Entegratör",
+    description: "Tedarikçi XML/CSV beslemeleri ve pazaryeri XML çıktıları.",
+    routes: ["xml-integrator"],
+  },
+  {
     key: "module_migration",
     label: "Mağaza Taşıma",
     description: "Diğer platformlardan ürün, sipariş ve müşteri aktarımı.",

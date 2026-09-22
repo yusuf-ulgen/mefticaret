@@ -260,6 +260,7 @@ import { Route as AuthenticatedStoreStoreIdVendorsRouteImport } from './routes/_
 import { Route as AuthenticatedStoreStoreIdWarehousesRouteImport } from './routes/_authenticated/store.$storeId.warehouses'
 import { Route as AuthenticatedStoreStoreIdWebhooksRouteImport } from './routes/_authenticated/store.$storeId.webhooks'
 import { Route as AuthenticatedStoreStoreIdWhatsappRouteImport } from './routes/_authenticated/store.$storeId.whatsapp'
+import { Route as AuthenticatedStoreStoreIdXmlIntegratorRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator'
 import { Route as ApiPublicBlogCoverSplatRouteImport } from './routes/api/public/blog-cover.$'
 import { Route as ApiPublicCronArasTrackingRouteImport } from './routes/api/public/cron.aras-tracking'
 import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/public/cron.automation-tick'
@@ -1723,6 +1724,12 @@ const AuthenticatedStoreStoreIdWhatsappRoute =
     path: '/whatsapp',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdXmlIntegratorRoute =
+  AuthenticatedStoreStoreIdXmlIntegratorRouteImport.update({
+    id: '/xml-integrator',
+    path: '/xml-integrator',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const ApiPublicBlogCoverSplatRoute = ApiPublicBlogCoverSplatRouteImport.update({
   id: '/api/public/blog-cover/$',
   path: '/api/public/blog-cover/$',
@@ -2220,6 +2227,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
+  '/store/$storeId/xml-integrator': typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
   '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/aras-tracking': typeof ApiPublicCronArasTrackingRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
@@ -2514,6 +2522,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
+  '/store/$storeId/xml-integrator': typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
   '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/aras-tracking': typeof ApiPublicCronArasTrackingRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
@@ -2812,6 +2821,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/warehouses': typeof AuthenticatedStoreStoreIdWarehousesRoute
   '/_authenticated/store/$storeId/webhooks': typeof AuthenticatedStoreStoreIdWebhooksRoute
   '/_authenticated/store/$storeId/whatsapp': typeof AuthenticatedStoreStoreIdWhatsappRoute
+  '/_authenticated/store/$storeId/xml-integrator': typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
   '/api/public/blog-cover/$': typeof ApiPublicBlogCoverSplatRoute
   '/api/public/cron/aras-tracking': typeof ApiPublicCronArasTrackingRoute
   '/api/public/cron/automation-tick': typeof ApiPublicCronAutomationTickRoute
@@ -3110,6 +3120,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
     | '/store/$storeId/whatsapp'
+    | '/store/$storeId/xml-integrator'
     | '/api/public/blog-cover/$'
     | '/api/public/cron/aras-tracking'
     | '/api/public/cron/automation-tick'
@@ -3404,6 +3415,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/warehouses'
     | '/store/$storeId/webhooks'
     | '/store/$storeId/whatsapp'
+    | '/store/$storeId/xml-integrator'
     | '/api/public/blog-cover/$'
     | '/api/public/cron/aras-tracking'
     | '/api/public/cron/automation-tick'
@@ -3701,6 +3713,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/warehouses'
     | '/_authenticated/store/$storeId/webhooks'
     | '/_authenticated/store/$storeId/whatsapp'
+    | '/_authenticated/store/$storeId/xml-integrator'
     | '/api/public/blog-cover/$'
     | '/api/public/cron/aras-tracking'
     | '/api/public/cron/automation-tick'
@@ -5618,6 +5631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdWhatsappRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/xml-integrator': {
+      id: '/_authenticated/store/$storeId/xml-integrator'
+      path: '/xml-integrator'
+      fullPath: '/store/$storeId/xml-integrator'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/api/public/blog-cover/$': {
       id: '/api/public/blog-cover/$'
       path: '/api/public/blog-cover/$'
@@ -6220,6 +6240,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdWarehousesRoute: typeof AuthenticatedStoreStoreIdWarehousesRoute
   AuthenticatedStoreStoreIdWebhooksRoute: typeof AuthenticatedStoreStoreIdWebhooksRoute
   AuthenticatedStoreStoreIdWhatsappRoute: typeof AuthenticatedStoreStoreIdWhatsappRoute
+  AuthenticatedStoreStoreIdXmlIntegratorRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRoute
 }
 
 const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChildren =
@@ -6435,6 +6456,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdWebhooksRoute,
     AuthenticatedStoreStoreIdWhatsappRoute:
       AuthenticatedStoreStoreIdWhatsappRoute,
+    AuthenticatedStoreStoreIdXmlIntegratorRoute:
+      AuthenticatedStoreStoreIdXmlIntegratorRoute,
   }
 
 const AuthenticatedStoreStoreIdRouteWithChildren =
