@@ -22,3 +22,10 @@ export const xmlFieldSchemaQuery = (storeId: string, feedId: string | null) =>
     enabled: Boolean(feedId),
     staleTime: 60_000,
   });
+
+export const xmlIntegratorStatsQuery = (storeId: string) =>
+  queryOptions({
+    queryKey: ["xml-integrator", storeId, "stats"],
+    queryFn: () => getXmlIntegratorStats({ data: { storeId } }),
+    staleTime: 30_000,
+  });
