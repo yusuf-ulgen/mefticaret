@@ -629,6 +629,9 @@ export const listXmlCategoryMappings = createServerFn({ method: "GET" })
         targetCategoryCode: (row["target_category_code"] as string | null) ?? null,
         targetCategoryName: (row["target_category_name"] as string | null) ?? null,
         productCount: Number(row["product_count"] ?? 0),
+        aiConfidence: Number(row["ai_confidence"] ?? 0),
+        isAiSuggested: Boolean(row["is_ai_suggested"]),
+        aiReasoning: (row["ai_reasoning"] as string | null) ?? null,
       })),
       categories: ((categories ?? []) as Array<Record<string, any>>).map((row) => ({
         id: String(row["id"]),
