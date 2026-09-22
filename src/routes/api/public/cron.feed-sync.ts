@@ -27,10 +27,40 @@ export const Route = createFileRoute("/api/public/cron/feed-sync")({
           .limit(25);
         if (error) return Response.json({ error: error.message }, { status: 500 });
 
+        const { runExportFeed } = await import("@/lib/xml-export.server");
+        const origin = new URL(request.url).origin;
+        const storeCache = new Map<string, { name: string; slug: string; currency: string | null } | null>();
+
         const results: { feedId: string; ok: boolean; error?: string }[] = [];
         for (const feed of feeds ?? []) {
           try {
-            await runSupplierFeed(supabaseAdmin as never, feed as never, "scheduled");
+            const row = feed as Record<string, any>;
+            if (row["direction"] === "export") {
+              const storeId = String(row["store_id"]);
+              if (!storeCache.has(storeId)) {
+                const { data: store } = await supabaseAdmin
+                  .from("stores")
+                  .select("name, slug, currency")
+                  .eq("id", storeId)
+                  .maybeSingle();
+                storeCache.set(storeId, (store as never) ?? null);
+              }
+              const store = storeCache.get(storeId);
+              if (!store) throw new Error("Mağaza bulunamadı");
+              await runExportFeed(
+                supabaseAdmin as never,
+                feed as never,
+                {
+                  storeName: store.name,
+                  storeSlug: store.slug,
+                  storeCurrency: store.currency ?? "TRY",
+                  origin,
+                },
+                "scheduled",
+              );
+            } else {
+              await runSupplierFeed(supabaseAdmin as never, feed as never, "scheduled");
+            }
             results.push({ feedId: feed.id, ok: true });
           } catch (err) {
             results.push({
