@@ -37,14 +37,27 @@ export type PreviewResult = {
   products: PreviewProduct[];
 };
 
+export type PreviewConversion = { from: string; to: string; multiplier: number };
+
+/** "10,00 USD → 342,50 TRY" biçiminde çevirim etiketi. */
+function conversionLabel(price: number, conversion: PreviewConversion | null, currency: string) {
+  const fmt = (value: number) =>
+    value.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!conversion || conversion.multiplier <= 0) return `${fmt(price)} ${currency}`;
+  const source = price / conversion.multiplier;
+  return `${fmt(source)} ${conversion.from} → ${fmt(price)} ${conversion.to}`;
+}
+
 export function PreviewProductsDialog({
   open,
   onOpenChange,
   result,
+  conversion = null,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   result: PreviewResult | null;
+  conversion?: PreviewConversion | null;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,7 +77,11 @@ export function PreviewProductsDialog({
               <p className="text-sm text-muted-foreground">Bu eşleme ile ürün üretilemedi.</p>
             ) : (
               result.products.map((product, index) => (
-                <ProductNode key={`${product.sku ?? product.barcode ?? index}`} product={product} />
+                <ProductNode
+                  key={`${product.sku ?? product.barcode ?? index}`}
+                  product={product}
+                  conversion={conversion}
+                />
               ))
             )}
             {result.errors.length ? (
@@ -86,7 +103,13 @@ export function PreviewProductsDialog({
   );
 }
 
-function ProductNode({ product }: { product: PreviewProduct }) {
+function ProductNode({
+  product,
+  conversion,
+}: {
+  product: PreviewProduct;
+  conversion: PreviewConversion | null;
+}) {
   const [open, setOpen] = useState(false);
   const hasVariants = product.variants.length > 0;
   return (
@@ -109,7 +132,8 @@ function ProductNode({ product }: { product: PreviewProduct }) {
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium">{product.title || "(başlık yok)"}</span>
           <span className="block truncate text-muted-foreground">
-            {product.sku || product.barcode || "kod yok"} · {product.price} {product.currency} · stok {product.stock}
+            {product.sku || product.barcode || "kod yok"} ·{" "}
+            {conversionLabel(product.price, conversion, product.currency)} · stok {product.stock}
           </span>
         </span>
         {hasVariants ? (
@@ -133,7 +157,7 @@ function ProductNode({ product }: { product: PreviewProduct }) {
                   .join(" · ") || "seçenek yok"}
               </p>
               <p className="text-muted-foreground">
-                {variant.price} · stok {variant.stock}
+                {conversionLabel(variant.price, conversion, product.currency)} · stok {variant.stock}
               </p>
             </li>
           ))}
