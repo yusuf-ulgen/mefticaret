@@ -44,7 +44,7 @@ export function XmlCategoryMapper({ storeId, feedId }: { storeId: string; feedId
     mutationFn: () => aiSuggest({ data: { storeId, feedId, onlyUnmapped: true } }),
     onSuccess: (result) => {
       toast.success(
-        `${result.suggested}/${result.requested} kategori için öneri oluşturuldu` +
+        `Yapay zekâ ${result.suggested} kategoriyi eşleştirdi (${result.highConfidence} tanesi %90+ güven)` +
           (result.creditsUsed ? ` · ${result.creditsUsed} kredi` : ""),
       );
       void invalidate();
