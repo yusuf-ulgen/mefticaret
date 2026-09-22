@@ -838,3 +838,54 @@ export const aiSuggestXmlCategoryMappings = createServerFn({ method: "POST" })
       creditsUsed,
     };
   });
+
+/**
+ * Kaynak alan yollarını Mefticaret ürün alanlarına yapay zekâ ile eşleştirir.
+ * Öneriler kaydedilmez; panelde önizlenir ve satıcı kaydettiğinde beslemeye yazılır.
+ */
+export const aiSuggestXmlFieldMapping = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => feedRefSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_ai_field:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla deneme, birkaç dakika sonra tekrar deneyin");
+
+    const { data: schemaRows, error } = await context.supabase
+      .from("xml_field_schemas")
+      .select("field_path, sample_values")
+      .eq("store_id", data.storeId)
+      .eq("feed_id", data.feedId)
+      .limit(200);
+    if (error) throw new Error(error.message);
+
+    const sourceFields = ((schemaRows ?? []) as Array<Record<string, any>>)
+      .map((row) => ({
+        path: String(row["field_path"]),
+        sample: String((row["sample_values"] as string[] | null)?.[0] ?? "").slice(0, 120),
+      }))
+      .filter((row) => row.path);
+    if (!sourceFields.length) throw new Error("Önce “Kaynağı oku” ile alan listesini oluşturun");
+
+    const { TARGET_FIELDS } = await import("@/lib/xml-integrator");
+    const { suggestFieldMapping } = await import("@/lib/ai-category-mapping.server");
+    const { suggestions, creditsUsed } = await suggestFieldMapping({
+      sourceFields,
+      targetFields: TARGET_FIELDS.map((field) => ({
+        key: field.key,
+        label: field.label,
+        hint: field.hint ?? null,
+      })),
+      charge: { storeId: data.storeId, userId: context.userId },
+    });
+
+    return {
+      suggestions,
+      matched: suggestions.length,
+      highConfidence: suggestions.filter((row) => row.confidence >= 0.9).length,
+      creditsUsed,
+    };
+  });
