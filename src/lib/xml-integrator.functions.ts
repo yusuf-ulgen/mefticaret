@@ -547,12 +547,13 @@ export const testFeedConnection = createServerFn({ method: "POST" })
 
     const { fetchFromFtp } = await import("@/lib/xml-ftp.server");
     const started = Date.now();
-    const content = await fetchFromFtp(serializeFtpConfig(config), data.connectionType);
+    const result = await fetchFromFtp(serializeFtpConfig(config), data.connectionType);
     return {
       ok: true,
-      bytes: new TextEncoder().encode(content).length,
+      bytes: result.bytes,
+      filePath: result.filePath,
       durationMs: Date.now() - started,
-      preview: content.slice(0, 400),
+      preview: result.content.slice(0, 400),
     };
   });
 
