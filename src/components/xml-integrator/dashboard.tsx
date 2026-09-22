@@ -102,7 +102,10 @@ export function XmlIntegratorDashboard({ storeId }: { storeId: string }) {
 
   return (
     <div className="space-y-4">
+      <LiveRunProgress storeId={storeId} feedNames={new Map(feeds.map((feed) => [feed.id, feed.name]))} />
+
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+
         {metrics.map((metric) => (
           <div key={metric.label} className="rounded-xl border bg-card p-4">
             <metric.icon className="size-4 text-muted-foreground" />
