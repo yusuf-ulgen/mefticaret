@@ -522,7 +522,10 @@ export async function runImportFeed(
       authConfig: feed.authConfig,
       format: feed.sourceFormat,
     });
-    const parsed = parseFeedRows(fetched, { itemPath: feed.itemPath, limit: options.rowLimit });
+    const parsed = parseFeedRows(fetched, {
+      itemPath: feed.itemPath,
+      ...(options.rowLimit === undefined ? {} : { limit: options.rowLimit }),
+    });
     const fields = await saveFieldSchema(admin, { storeId: feed.storeId, feedId: feed.id, parsed });
 
     const mapping = feed.fieldMapping ?? {};
