@@ -84,7 +84,7 @@ const formatBytes = (value: number | null) => {
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-type StatCardProps = { label: string; value: string; hint?: string; icon: React.ReactNode };
+type StatCardProps = { label: string; value: string; hint?: string | undefined; icon: React.ReactNode };
 
 function StatCard({ label, value, hint, icon }: StatCardProps) {
   return (
