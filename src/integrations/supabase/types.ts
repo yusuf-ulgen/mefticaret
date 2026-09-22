@@ -10135,6 +10135,33 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_currency_rates: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          rate: number
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          rate: number
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          rate?: number
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_pages: {
         Row: {
           body: string
@@ -18126,6 +18153,7 @@ export type Database = {
           created_by: string | null
           cron_expression: string | null
           currency: string
+          currency_config: Json
           direction: Database["public"]["Enums"]["xml_direction"]
           export_token: string
           field_mapping: Json
@@ -18161,6 +18189,7 @@ export type Database = {
           created_by?: string | null
           cron_expression?: string | null
           currency?: string
+          currency_config?: Json
           direction?: Database["public"]["Enums"]["xml_direction"]
           export_token?: string
           field_mapping?: Json
@@ -18196,6 +18225,7 @@ export type Database = {
           created_by?: string | null
           cron_expression?: string | null
           currency?: string
+          currency_config?: Json
           direction?: Database["public"]["Enums"]["xml_direction"]
           export_token?: string
           field_mapping?: Json
