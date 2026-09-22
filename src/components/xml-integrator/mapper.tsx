@@ -11,7 +11,9 @@ import { GripVertical, Loader2, Wand2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { XmlCategoryMapper } from "@/components/xml-integrator/category-mapper";
 import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Input } from "@/components/ui/input";
