@@ -59,6 +59,7 @@ export type FeedFormValue = {
   hasCredentials?: boolean;
   outputFilename: string;
   schedule: XmlSchedule;
+  cronExpression: string;
   fieldMapping: FieldMapping;
   currency: string;
   priceMarkup: number | null;
@@ -75,6 +76,7 @@ export const emptyFeed: FeedFormValue = {
   authType: "none",
   outputFilename: "",
   schedule: "daily",
+  cronExpression: "",
   fieldMapping: {},
   currency: "TRY",
   priceMarkup: null,
