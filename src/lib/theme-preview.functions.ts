@@ -17,11 +17,7 @@ const uuid = z.string().uuid();
 const keySchema = z.enum(PREVIEW_KEYS as unknown as [PreviewKey, ...PreviewKey[]]);
 
 /** Oturum sahibi mağazayı yönetebiliyor mu? (RLS de aynı kuralı uygular.) */
-async function assertManager(
-  supabase: Parameters<typeof parsePreviewSettings> extends never ? never : any,
-  storeId: string,
-  userId: string,
-) {
+async function assertManager(supabase: never, storeId: string, userId: string) {
   const { assertStoreManager } = await import("@/lib/store-access.server");
   await assertStoreManager(supabase, storeId, userId);
 }
