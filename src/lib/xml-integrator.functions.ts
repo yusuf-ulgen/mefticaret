@@ -469,7 +469,9 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
 
     const { data: feedRow, error: readError } = await context.supabase
       .from("xml_feeds")
-      .select("id, direction, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config")
+      .select(
+        "id, direction, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, price_markup, currency",
+      )
       .eq("id", data.feedId)
       .eq("store_id", data.storeId)
       .maybeSingle();
@@ -480,72 +482,41 @@ export const runXmlFeedNow = createServerFn({ method: "POST" })
     if (String(feed["direction"]) !== "import") {
       throw new Error("Dışa aktarım beslemeleri çıktı bağlantısı üzerinden servis edilir, elle çalıştırılmaz");
     }
-    const sourceUrl = (feed["source_url"] as string | null) ?? "";
-    if (!sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı tanımlı değil");
 
-    const startedAt = new Date();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { analyzeSource, saveFieldSchema } = await import("@/lib/xml-integrator.server");
+    const { runImportFeed } = await import("@/lib/xml-import-engine.server");
 
-    try {
-      const analysis = await analyzeSource({
-        url: sourceUrl,
+    const result = await runImportFeed(
+      supabaseAdmin as never,
+      {
+        id: String(feed["id"]),
+        storeId: data.storeId,
+        direction: "import",
+        sourceUrl: (feed["source_url"] as string | null) ?? null,
+        sourceFormat: (feed["source_format"] as never) ?? null,
+        itemPath: (feed["item_path"] as string | null) ?? null,
         authType: String(feed["auth_type"] ?? "none") as never,
         authConfig: (feed["auth_config"] ?? {}) as Record<string, string>,
-        format: (feed["source_format"] as never) ?? null,
-        itemPath: (feed["item_path"] as string | null) ?? null,
-        limit: 500,
-      });
-      await saveFieldSchema(supabaseAdmin as never, {
-        storeId: data.storeId,
-        feedId: data.feedId,
-        parsed: analysis,
-      });
-
-      const durationSeconds = Math.max(1, Math.round((Date.now() - startedAt.getTime()) / 1000));
-      await supabaseAdmin.from("xml_import_logs").insert({
-        store_id: data.storeId,
-        feed_id: data.feedId,
-        status: "success",
+        fieldMapping: (feed["field_mapping"] ?? {}) as Record<string, string>,
+        priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
+        currency: String(feed["currency"] ?? "TRY"),
+      },
+      {
         trigger: "manual",
-        total_rows: analysis.totalRows,
-        skipped_count: analysis.totalRows,
-        duration_seconds: durationSeconds,
-        started_at: startedAt.toISOString(),
-        finished_at: new Date().toISOString(),
-      } as never);
+        nextRunAt: nextRunFor(
+          String(feed["schedule"]) as XmlSchedule,
+          (feed["cron_expression"] as string | null) ?? null,
+        ),
+      },
+    );
 
-      await supabaseAdmin
-        .from("xml_feeds")
-        .update({
-          last_run_at: startedAt.toISOString(),
-          last_status: "success",
-          last_error: null,
-          next_run_at: nextRunFor(String(feed["schedule"]) as XmlSchedule, (feed["cron_expression"] as string | null) ?? null),
-        } as never)
-        .eq("id", data.feedId)
-        .eq("store_id", data.storeId);
-
-      return { ok: true as boolean, totalRows: analysis.totalRows, format: analysis.format };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Bilinmeyen hata";
-      const durationSeconds = Math.max(1, Math.round((Date.now() - startedAt.getTime()) / 1000));
-      await supabaseAdmin.from("xml_import_logs").insert({
-        store_id: data.storeId,
-        feed_id: data.feedId,
-        status: "failed",
-        trigger: "manual",
-        error_count: 1,
-        error_message: message,
-        duration_seconds: durationSeconds,
-        started_at: startedAt.toISOString(),
-        finished_at: new Date().toISOString(),
-      } as never);
-      await supabaseAdmin
-        .from("xml_feeds")
-        .update({ last_run_at: startedAt.toISOString(), last_status: "failed", last_error: message } as never)
-        .eq("id", data.feedId)
-        .eq("store_id", data.storeId);
-      throw new Error(message);
-    }
+    return {
+      ok: true as boolean,
+      totalRows: result.totalRows,
+      created: result.created,
+      updated: result.updated,
+      skipped: result.skipped,
+      errorCount: result.errorCount,
+      format: result.format,
+    };
   });
