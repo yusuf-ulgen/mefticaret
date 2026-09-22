@@ -57,6 +57,9 @@ export function XmlIntegratorTabs({ storeId }: { storeId: string }) {
       <Link to="/store/$storeId/xml-integrator/logs" params={{ storeId }} activeProps={active} inactiveProps={inactive}>
         Kayıtlar
       </Link>
+      <Link to="/store/$storeId/xml-integrator/analytics" params={{ storeId }} activeProps={active} inactiveProps={inactive}>
+        Analitik
+      </Link>
       <Link
         to="/store/$storeId/xml-integrator/quarantine"
         params={{ storeId }}
