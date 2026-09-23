@@ -150,6 +150,41 @@ function HomeMakerAuthPage() {
     setBusy(false);
   }
 
+  /** Telefona 4 haneli kod gönderir. */
+  async function askCode(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    try {
+      await sendCode({ data: { phone } });
+      setCodeSent(true);
+      toast.success("Kodu telefonunuza gönderdik.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kod gönderilemedi.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** Kodu doğrular ve oturumu açar. */
+  async function confirmCode(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    try {
+      const result = await checkCode({ data: { phone, code } });
+      const { error } = await supabase.auth.verifyOtp({
+        type: "magiclink",
+        token_hash: result.tokenHash,
+      });
+      if (error) throw new Error(error.message);
+      toast.success("Hoş geldiniz!");
+      await routeAfterLogin();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Giriş yapılamadı.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (checking) {
     return (
       <div className="grid min-h-screen place-items-center bg-hm-sand">
