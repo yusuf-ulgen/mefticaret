@@ -101,6 +101,7 @@ export const simpleProductsQuery = (storeId: string) =>
 
 export type SimpleOrder = {
   gift_wrap?: boolean;
+  is_digital?: boolean;
   gift_message?: string | null;
   id: string;
   order_number: string;
