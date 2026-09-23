@@ -5,16 +5,19 @@ import {
   AlertTriangle,
   Bell,
   BarChart3,
+  GraduationCap,
   Package,
   PartyPopper,
   Share2,
   ShoppingBag,
+  ShoppingBasket,
   Store,
   Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { AcademyDrawer } from "@/components/homemaker/academy-drawer";
 import { CampaignSheet, type CampaignBanner } from "@/components/homemaker/campaign-sheet";
 import { CustomersTab } from "@/components/homemaker/customers-tab";
 import { EarningsBar } from "@/components/homemaker/earnings-bar";
@@ -22,7 +25,11 @@ import { InsightsTab } from "@/components/homemaker/insights-tab";
 import { ShareSheet, Sheet } from "@/components/homemaker/kolay-parts";
 import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
 import { OrdersTab } from "@/components/homemaker/orders-tab";
+import { PackagingTab } from "@/components/homemaker/packaging-tab";
 import { ProductsTab } from "@/components/homemaker/products-tab";
+import { PromoCard } from "@/components/homemaker/promo-card";
+import { ReceiptVerifier } from "@/components/homemaker/receipt-verifier";
+import { RemindersCard } from "@/components/homemaker/reminders-card";
 import { ShopPageCard } from "@/components/homemaker/shop-page-card";
 import { SetupGuide } from "@/components/homemaker/setup-guide";
 import { StoreTab } from "@/components/homemaker/store-tab";
@@ -53,7 +60,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/kolay")({
   component: KolayPanel,
 });
 
-type Tab = "store" | "products" | "orders" | "customers" | "insights";
+type Tab = "store" | "products" | "orders" | "packaging" | "customers" | "insights";
 
 function KolayPanel() {
   const { storeId } = Route.useParams();
@@ -61,6 +68,7 @@ function KolayPanel() {
   const [tab, setTab] = useState<Tab>("store");
   const [shareOpen, setShareOpen] = useState(false);
   const [campaignOpen, setCampaignOpen] = useState(false);
+  const [academyOpen, setAcademyOpen] = useState(false);
   const [origin, setOrigin] = useState("https://mefticaret.com");
   const [bellOpen, setBellOpen] = useState(false);
   const [seenCount, setSeenCount] = useState(0);
@@ -201,6 +209,14 @@ function KolayPanel() {
             <PartyPopper className="size-4" />
             {campaign?.code ? "Kampanyam açık" : "Özel gün kampanyası başlat"}
           </button>
+          <button
+            type="button"
+            onClick={() => setAcademyOpen(true)}
+            aria-label="1 Dakika Akademi"
+            className="grid min-h-12 w-12 place-items-center rounded-2xl bg-hm-sand text-hm-ink"
+          >
+            <GraduationCap className="size-5" />
+          </button>
         </div>
       </header>
 
@@ -258,6 +274,10 @@ function KolayPanel() {
                 live={live}
               />
             </div>
+            <div className="mt-4 grid gap-4">
+              <PromoCard storeId={storeId} currency={store.currency ?? "TRY"} />
+              <RemindersCard storeId={storeId} />
+            </div>
           </>
         ) : null}
         {tab === "products" ? (
@@ -271,15 +291,23 @@ function KolayPanel() {
           />
         ) : null}
         {tab === "orders" ? (
-          <OrdersTab
-            storeId={storeId}
-            storeSlug={store.slug}
-            storeName={store.name}
-            orders={orders ?? []}
-            products={products ?? []}
-            currency={store.currency ?? "TRY"}
-          />
+          <div className="grid gap-4">
+            <ReceiptVerifier
+              storeId={storeId}
+              orders={orders ?? []}
+              currency={store.currency ?? "TRY"}
+            />
+            <OrdersTab
+              storeId={storeId}
+              storeSlug={store.slug}
+              storeName={store.name}
+              orders={orders ?? []}
+              products={products ?? []}
+              currency={store.currency ?? "TRY"}
+            />
+          </div>
         ) : null}
+        {tab === "packaging" ? <PackagingTab storeId={storeId} /> : null}
         {tab === "customers" ? <CustomersTab storeId={storeId} /> : null}
         {tab === "insights" ? <InsightsTab storeId={storeId} /> : null}
       </main>
@@ -288,12 +316,13 @@ function KolayPanel() {
         aria-label="Panel bölümleri"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-hm-line bg-white pb-[env(safe-area-inset-bottom)]"
       >
-        <div className="mx-auto grid max-w-lg grid-cols-5">
+        <div className="mx-auto grid max-w-lg grid-cols-6">
           {(
             [
               ["store", "Mağazam", Store],
               ["products", "Ürünlerim", Package],
               ["orders", "Siparişler", ShoppingBag],
+              ["packaging", "Ambalaj", ShoppingBasket],
               ["customers", "Müşteriler", Users],
               ["insights", "Raporlar", BarChart3],
             ] as const
@@ -353,6 +382,7 @@ function KolayPanel() {
         storeId={storeId}
         banner={campaign}
       />
+      <AcademyDrawer open={academyOpen} onClose={() => setAcademyOpen(false)} />
       <OnboardingWizard storeId={storeId} />
     </div>
   );

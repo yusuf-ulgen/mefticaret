@@ -6350,6 +6350,414 @@ export type Database = {
           },
         ]
       }
+      kolay_academy_lessons: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          duration_seconds: number
+          id: string
+          is_active: boolean
+          sort_order: number
+          steps: Json
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          steps?: Json
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          steps?: Json
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      kolay_annual_reminders: {
+        Row: {
+          created_at: string
+          customer_name: string
+          id: string
+          is_active: boolean
+          last_sent_at: string | null
+          message: string | null
+          occasion: string
+          order_id: string | null
+          phone: string
+          remind_on: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name: string
+          id?: string
+          is_active?: boolean
+          last_sent_at?: string | null
+          message?: string | null
+          occasion: string
+          order_id?: string | null
+          phone: string
+          remind_on: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string
+          id?: string
+          is_active?: boolean
+          last_sent_at?: string | null
+          message?: string | null
+          occasion?: string
+          order_id?: string | null
+          phone?: string
+          remind_on?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_annual_reminders_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kolay_annual_reminders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kolay_cross_sell_partners: {
+        Row: {
+          created_at: string
+          headline: string | null
+          id: string
+          is_active: boolean
+          partner_product_id: string | null
+          partner_store_id: string
+          sort_order: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          headline?: string | null
+          id?: string
+          is_active?: boolean
+          partner_product_id?: string | null
+          partner_store_id: string
+          sort_order?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          headline?: string | null
+          id?: string
+          is_active?: boolean
+          partner_product_id?: string | null
+          partner_store_id?: string
+          sort_order?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_cross_sell_partners_partner_product_id_fkey"
+            columns: ["partner_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kolay_cross_sell_partners_partner_store_id_fkey"
+            columns: ["partner_store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kolay_cross_sell_partners_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kolay_packaging_items: {
+        Row: {
+          category: string
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          list_price: number
+          pack_size: number
+          sale_price: number
+          sort_order: number
+          supplier_name: string | null
+          title: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          list_price: number
+          pack_size?: number
+          sale_price: number
+          sort_order?: number
+          supplier_name?: string | null
+          title: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          list_price?: number
+          pack_size?: number
+          sale_price?: number
+          sort_order?: number
+          supplier_name?: string | null
+          title?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      kolay_packaging_orders: {
+        Row: {
+          created_at: string
+          currency: string
+          delivery_note: string | null
+          id: string
+          item_id: string
+          quantity: number
+          requested_by: string | null
+          status: string
+          store_id: string
+          total: number
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          delivery_note?: string | null
+          id?: string
+          item_id: string
+          quantity?: number
+          requested_by?: string | null
+          status?: string
+          store_id: string
+          total: number
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          delivery_note?: string | null
+          id?: string
+          item_id?: string
+          quantity?: number
+          requested_by?: string | null
+          status?: string
+          store_id?: string
+          total?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_packaging_orders_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "kolay_packaging_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kolay_packaging_orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kolay_phone_otps: {
+        Row: {
+          attempts: number
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          ip: string | null
+          phone: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          ip?: string | null
+          phone: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip?: string | null
+          phone?: string
+        }
+        Relationships: []
+      }
+      kolay_promo_settings: {
+        Row: {
+          bundle_discount_percent: number
+          bundle_enabled: boolean
+          bundle_min_quantity: number
+          cross_sell_enabled: boolean
+          free_shipping_enabled: boolean
+          free_shipping_threshold: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          bundle_discount_percent?: number
+          bundle_enabled?: boolean
+          bundle_min_quantity?: number
+          cross_sell_enabled?: boolean
+          free_shipping_enabled?: boolean
+          free_shipping_threshold?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          bundle_discount_percent?: number
+          bundle_enabled?: boolean
+          bundle_min_quantity?: number
+          cross_sell_enabled?: boolean
+          free_shipping_enabled?: boolean
+          free_shipping_threshold?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_promo_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kolay_receipt_checks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          detected_amount: number | null
+          detected_at: string | null
+          detected_sender: string | null
+          expected_amount: number | null
+          id: string
+          notes: string | null
+          order_id: string
+          status: string
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          detected_amount?: number | null
+          detected_at?: string | null
+          detected_sender?: string | null
+          expected_amount?: number | null
+          id?: string
+          notes?: string | null
+          order_id: string
+          status?: string
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          detected_amount?: number | null
+          detected_at?: string | null
+          detected_sender?: string | null
+          expected_amount?: number | null
+          id?: string
+          notes?: string | null
+          order_id?: string
+          status?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_receipt_checks_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kolay_receipt_checks_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ledger_accounts: {
         Row: {
           code: string | null

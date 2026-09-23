@@ -1,6 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Heart, Loader2, Lock, Mail, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Heart,
+  Loader2,
+  Lock,
+  Mail,
+  Phone,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -8,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { getHomeMakerProfile } from "@/lib/home-maker.functions";
+import { requestPhoneOtp, verifyPhoneOtp } from "@/lib/kolay-v8.functions";
 
 export const Route = createFileRoute("/ev-hanimlari/")({
   ssr: false,
@@ -17,7 +27,7 @@ export const Route = createFileRoute("/ev-hanimlari/")({
       {
         name: "description",
         content:
-          "E-posta ve şifrenizle giriş yapın, el emeği ürünlerinizi sade bir panelden satmaya hemen başlayın.",
+          "Telefon numaranızla veya e-postanızla giriş yapın, el emeği ürünlerinizi sade bir panelden satmaya hemen başlayın.",
       },
       { property: "og:title", content: "Ev Hanımları Portalı — Mefticaret" },
       {
@@ -37,15 +47,20 @@ const PERKS = [
   "Kargosuz teslimat için kod üretir",
 ];
 
-type Mode = "login" | "register";
+type Mode = "phone" | "login" | "register";
 
 function HomeMakerAuthPage() {
   const navigate = useNavigate();
   const readProfile = useServerFn(getHomeMakerProfile);
-  const [mode, setMode] = useState<Mode>("login");
+  const sendCode = useServerFn(requestPhoneOtp);
+  const checkCode = useServerFn(verifyPhoneOtp);
+  const [mode, setMode] = useState<Mode>("phone");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [code, setCode] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
   const [confirmSent, setConfirmSent] = useState(false);
@@ -135,6 +150,41 @@ function HomeMakerAuthPage() {
     setBusy(false);
   }
 
+  /** Telefona 4 haneli kod gönderir. */
+  async function askCode(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    try {
+      await sendCode({ data: { phone } });
+      setCodeSent(true);
+      toast.success("Kodu telefonunuza gönderdik.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kod gönderilemedi.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** Kodu doğrular ve oturumu açar. */
+  async function confirmCode(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    try {
+      const result = await checkCode({ data: { phone, code } });
+      const { error } = await supabase.auth.verifyOtp({
+        type: "magiclink",
+        token_hash: result.tokenHash,
+      });
+      if (error) throw new Error(error.message);
+      toast.success("Hoş geldiniz!");
+      await routeAfterLogin();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Giriş yapılamadı.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (checking) {
     return (
       <div className="grid min-h-screen place-items-center bg-hm-sand">
@@ -152,30 +202,103 @@ function HomeMakerAuthPage() {
           </span>
           <h1 className="mt-4 text-[26px] font-semibold leading-tight text-hm-ink">Evde Üretenler Portalı</h1>
           <p className="mt-2 text-sm text-hm-ink-soft">
-            E-posta ve şifrenizle girin. Onay kodu beklemek yok.
+            Telefon numaranızla kod alarak ya da e-posta ve şifrenizle girin.
           </p>
         </div>
 
         <div className="rounded-[28px] border border-hm-line bg-white p-6 shadow-sm">
-          <div className="mb-5 grid grid-cols-2 gap-1 rounded-2xl bg-hm-sand p-1">
-            {(["login", "register"] as Mode[]).map((value) => (
+          <div className="mb-5 grid grid-cols-3 gap-1 rounded-2xl bg-hm-sand p-1">
+            {(["phone", "login", "register"] as Mode[]).map((value) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => {
                   setMode(value);
                   setConfirmSent(false);
+                  setCodeSent(false);
+                  setCode("");
                 }}
-                className={`h-11 rounded-xl text-sm font-semibold transition ${
+                className={`h-11 rounded-xl text-[13px] font-semibold transition ${
                   mode === value ? "bg-white text-hm-ink shadow-sm" : "text-hm-ink-soft"
                 }`}
               >
-                {value === "login" ? "Giriş yap" : "Hesap oluştur"}
+                {value === "phone" ? "Telefonla" : value === "login" ? "Giriş yap" : "Hesap aç"}
               </button>
             ))}
           </div>
 
-          {confirmSent ? (
+          {mode === "phone" ? (
+            codeSent ? (
+              <form onSubmit={confirmCode} className="grid gap-4">
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-hm-ink" htmlFor="hm-code">
+                    Telefonunuza gelen 4 haneli kod
+                  </label>
+                  <Input
+                    id="hm-code"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    required
+                    maxLength={4}
+                    placeholder="0000"
+                    value={code}
+                    onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 4))}
+                    className="h-16 rounded-2xl border-hm-line text-center text-2xl tracking-[0.5em]"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={busy || code.length !== 4}
+                  className="h-14 rounded-2xl bg-hm-rose text-base font-semibold text-white hover:bg-hm-rose/90"
+                >
+                  {busy ? <Loader2 className="size-5 animate-spin" /> : "Giriş yap"}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCodeSent(false);
+                    setCode("");
+                  }}
+                  className="text-center text-sm font-medium text-hm-ink-soft underline-offset-4 hover:underline"
+                >
+                  Numaramı değiştir / yeni kod isteyin
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={askCode} className="grid gap-4">
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-hm-ink" htmlFor="hm-phone">
+                    Telefon numaranız
+                  </label>
+                  <div className="relative flex items-center">
+                    <Phone className="pointer-events-none absolute left-4 size-5 text-hm-ink-soft" />
+                    <Input
+                      id="hm-phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      required
+                      maxLength={20}
+                      placeholder="0555 000 00 00"
+                      value={phone}
+                      onChange={(event) => setPhone(event.target.value)}
+                      className="h-14 rounded-2xl border-hm-line pl-12 text-base"
+                    />
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  disabled={busy || phone.replace(/\D/g, "").length < 10}
+                  className="h-14 rounded-2xl bg-hm-rose text-base font-semibold text-white hover:bg-hm-rose/90"
+                >
+                  {busy ? <Loader2 className="size-5 animate-spin" /> : "Kod gönder"}
+                </Button>
+                <p className="text-center text-xs text-hm-ink-soft">
+                  Kod ücretsizdir ve 5 dakika geçerlidir.
+                </p>
+              </form>
+            )
+          ) : confirmSent ? (
             <div className="grid gap-3 rounded-2xl bg-hm-amber-soft p-4 text-sm text-hm-ink">
               <p className="font-semibold">E-postanızı kontrol edin.</p>
               <p className="text-hm-ink-soft">

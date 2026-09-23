@@ -3,6 +3,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { StoreBoosters } from "@/components/homemaker/store-boosters";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { markCartRecovered, syncAbandonedCart } from "@/lib/abandoned.functions";
 import { useCart } from "@/lib/cart";
@@ -698,6 +699,9 @@ function CheckoutPage() {
                   <span>{formatMoney(line.price * line.quantity, line.currency)}</span>
                 </div>
               ))}
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <StoreBoosters slug={slug} cartTotal={subtotal} currency={store.currency} />
             </div>
             <Field label="İndirim kodu" muted={muted}>
               <div style={{ display: "flex", gap: 8 }}>

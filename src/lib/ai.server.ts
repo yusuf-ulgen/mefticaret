@@ -71,9 +71,39 @@ function gatewayError(status: number, detail: string): AiError {
   return new AiError(`AI isteği başarısız (${status}): ${detail.slice(0, 200)}`, false);
 }
 
+type OpenAiMessage =
+  | ChatMessage
+  | {
+      role: "user";
+      content: ({ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } })[];
+    };
+
+/** Metin mesajlarına görsel ekler (görsel okuma gerektiren işler için). */
+function withImages(messages: ChatMessage[], images: string[]): OpenAiMessage[] {
+  if (images.length === 0) return messages;
+  const out: OpenAiMessage[] = [];
+  let attached = false;
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i]!;
+    if (!attached && message.role === "user") {
+      out.unshift({
+        role: "user",
+        content: [
+          { type: "text", text: message.content },
+          ...images.map((url) => ({ type: "image_url" as const, image_url: { url } })),
+        ],
+      });
+      attached = true;
+    } else {
+      out.unshift(message);
+    }
+  }
+  return out;
+}
+
 async function callOpenAi(
   model: string,
-  messages: ChatMessage[],
+  messages: OpenAiMessage[],
   temperature: number,
   maxTokens: number,
 ): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
@@ -109,6 +139,7 @@ export async function callProvider(options: {
   providerCode?: string;
   model?: string;
   messages: ChatMessage[];
+  images?: string[];
   temperature?: number;
   maxTokens?: number;
   purpose?: AiCreditPurpose;
@@ -128,7 +159,12 @@ export async function callProvider(options: {
     credits = gate.credits;
   }
 
-  const result = await callOpenAi(model, options.messages, temperature, maxTokens);
+  const result = await callOpenAi(
+    model,
+    withImages(options.messages, options.images ?? []),
+    temperature,
+    maxTokens,
+  );
   const costUsd = usdCost(
     engine,
     PURPOSE_MODEL_CLASS[purpose],

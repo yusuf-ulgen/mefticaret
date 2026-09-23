@@ -1,0 +1,1 @@
+CREATE POLICY "otp_platform_admin_read" ON public.kolay_phone_otps FOR SELECT TO authenticated USING (app_private.has_role(auth.uid(), 'platform_admin'::public.app_role)); GRANT SELECT ON public.kolay_phone_otps TO authenticated;
