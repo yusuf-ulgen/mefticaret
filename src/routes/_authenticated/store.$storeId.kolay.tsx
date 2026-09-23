@@ -5,16 +5,19 @@ import {
   AlertTriangle,
   Bell,
   BarChart3,
+  GraduationCap,
   Package,
   PartyPopper,
   Share2,
   ShoppingBag,
+  ShoppingBasket,
   Store,
   Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { AcademyDrawer } from "@/components/homemaker/academy-drawer";
 import { CampaignSheet, type CampaignBanner } from "@/components/homemaker/campaign-sheet";
 import { CustomersTab } from "@/components/homemaker/customers-tab";
 import { EarningsBar } from "@/components/homemaker/earnings-bar";
@@ -22,7 +25,11 @@ import { InsightsTab } from "@/components/homemaker/insights-tab";
 import { ShareSheet, Sheet } from "@/components/homemaker/kolay-parts";
 import { OnboardingWizard } from "@/components/homemaker/onboarding-wizard";
 import { OrdersTab } from "@/components/homemaker/orders-tab";
+import { PackagingTab } from "@/components/homemaker/packaging-tab";
 import { ProductsTab } from "@/components/homemaker/products-tab";
+import { PromoCard } from "@/components/homemaker/promo-card";
+import { ReceiptVerifier } from "@/components/homemaker/receipt-verifier";
+import { RemindersCard } from "@/components/homemaker/reminders-card";
 import { ShopPageCard } from "@/components/homemaker/shop-page-card";
 import { SetupGuide } from "@/components/homemaker/setup-guide";
 import { StoreTab } from "@/components/homemaker/store-tab";
