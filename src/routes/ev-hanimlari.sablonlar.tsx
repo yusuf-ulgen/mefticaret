@@ -276,7 +276,10 @@ function CardBuilder({ store, storeUrl }: { store: Store; storeUrl: string }) {
   const [qr, setQr] = useState("");
 
   useEffect(() => {
-    if (!link.trim()) return setQr("");
+    if (!link.trim()) {
+      setQr("");
+      return;
+    }
     QRCode.toDataURL(link.trim(), { width: 300, margin: 1 }).then(setQr).catch(() => setQr(""));
   }, [link]);
 
