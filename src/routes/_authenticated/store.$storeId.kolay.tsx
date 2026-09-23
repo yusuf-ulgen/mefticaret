@@ -209,6 +209,14 @@ function KolayPanel() {
             <PartyPopper className="size-4" />
             {campaign?.code ? "Kampanyam açık" : "Özel gün kampanyası başlat"}
           </button>
+          <button
+            type="button"
+            onClick={() => setAcademyOpen(true)}
+            aria-label="1 Dakika Akademi"
+            className="grid min-h-12 w-12 place-items-center rounded-2xl bg-hm-sand text-hm-ink"
+          >
+            <GraduationCap className="size-5" />
+          </button>
         </div>
       </header>
 
