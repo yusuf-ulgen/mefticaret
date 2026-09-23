@@ -99,8 +99,41 @@ function useCustomCategories(storeId: string) {
   });
 }
 
-function buildTree(custom: CustomRow[]): Main[] {
-  const tree: Main[] = CATEGORY_PRESETS.map((m) => ({ ...m, subs: [...m.subs] }));
+type RuleRow = { main_name: string; sub_name: string; keywords: string[] };
+
+/** Süper admin'in yönettiği kategori/anahtar kelime kuralları. Boşsa hazır liste kullanılır. */
+function useCategoryRules() {
+  return useQuery({
+    queryKey: ["kolay-category-rules"],
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<RuleRow[]> => {
+      const { data, error } = await supabase
+        .from("kolay_category_rules")
+        .select("main_name, sub_name, keywords")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+}
+
+function rulesToTree(rules: RuleRow[] | undefined): Main[] {
+  if (!rules || rules.length === 0) return CATEGORY_PRESETS.map((m) => ({ ...m, subs: [...m.subs] }));
+  const tree: Main[] = [];
+  for (const r of rules) {
+    let main = tree.find((m) => m.name === r.main_name);
+    if (!main) {
+      main = { name: r.main_name, keywords: [], subs: [] };
+      tree.push(main);
+    }
+    main.subs.push({ name: r.sub_name, keywords: r.keywords });
+  }
+  return tree;
+}
+
+function buildTree(custom: CustomRow[], rules: RuleRow[] | undefined): Main[] {
+  const tree: Main[] = rulesToTree(rules);
   for (const c of custom) {
     let main = tree.find((m) => norm(m.name) === norm(c.main_name));
     if (!main) {
@@ -126,7 +159,8 @@ export function SmartCategoryPicker({
   onChange: (next: string) => void;
 }) {
   const { data: custom = [] } = useCustomCategories(storeId);
-  const tree = useMemo(() => buildTree(custom), [custom]);
+  const { data: rules } = useCategoryRules();
+  const tree = useMemo(() => buildTree(custom, rules), [custom, rules]);
   const [manual, setManual] = useState(false);
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
