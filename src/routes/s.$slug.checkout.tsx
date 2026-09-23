@@ -66,6 +66,7 @@ function CheckoutPage() {
   const [line1, setLine1] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [note, setNote] = useState("");
+  const [gift, setGift] = useState({ wrap: false, message: "" });
   const [discountCode, setDiscountCode] = useState("");
   const [giftCardCode, setGiftCardCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{
@@ -380,6 +381,8 @@ function CheckoutPage() {
         paymentMethodId: paymentMethodId || undefined,
         discountCode: appliedDiscount?.code ?? (discountCode.trim() ? discountCode.trim() : undefined),
         giftCardCode: appliedGiftCard?.code ?? (giftCardCode.trim() ? giftCardCode.trim() : undefined),
+        giftWrap: gift.wrap || undefined,
+        giftMessage: gift.wrap && gift.message.trim() ? gift.message.trim() : undefined,
         note: [
           selectedPickup
             ? `Mağazadan teslim: ${selectedPickup.name} — ${selectedPickup.addressLine}, ${selectedPickup.city}`
@@ -701,7 +704,7 @@ function CheckoutPage() {
               ))}
             </div>
             <div style={{ marginBottom: 12 }}>
-              <StoreBoosters slug={slug} cartTotal={subtotal} currency={store.currency} />
+              <StoreBoosters slug={slug} cartTotal={subtotal} currency={store.currency} gift={gift} onGiftChange={setGift} />
             </div>
             <Field label="İndirim kodu" muted={muted}>
               <div style={{ display: "flex", gap: 8 }}>
