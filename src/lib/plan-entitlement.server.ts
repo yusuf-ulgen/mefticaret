@@ -13,6 +13,7 @@ export async function assertPlanEntitlement(
   supabase: SupabaseClient<Database>,
   storeId: string,
   planId: string,
+  userId: string,
 ): Promise<void> {
   const { data: plan, error } = await supabase
     .from("plans")
@@ -28,28 +29,20 @@ export async function assertPlanEntitlement(
   const { data: platformRole } = await supabase
     .from("user_roles")
     .select("role")
+    .eq("user_id", userId)
     .eq("role", "platform_admin")
     .maybeSingle();
   if (platformRole) return;
 
-  // Ödemesi tamamlanmış bir paket işlemi var mı?
-  const { data: paidTransaction } = await supabase
-    .from("qnbpay_transactions")
-    .select("id")
-    .eq("store_id", storeId)
-    .eq("status", "completed")
-    .limit(1)
-    .maybeSingle();
-
+  // Ödeme akışı bu paketi zaten etkinleştirmişse (abonelik kaydı) değişikliğe izin verilir.
   const { data: subscription } = await supabase
     .from("subscriptions")
-    .select("id, plan_id, status")
+    .select("id")
     .eq("store_id", storeId)
     .eq("plan_id", planId)
     .in("status", ["active", "trialing"])
     .maybeSingle();
-
-  if (paidTransaction || subscription) return;
+  if (subscription) return;
 
   throw new Error("Ücretli pakete geçmek için ödeme gerekir");
 }
