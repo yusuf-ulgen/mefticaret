@@ -382,6 +382,7 @@ function KolayPanel() {
         storeId={storeId}
         banner={campaign}
       />
+      <AcademyDrawer open={academyOpen} onClose={() => setAcademyOpen(false)} />
       <OnboardingWizard storeId={storeId} />
     </div>
   );
