@@ -6455,6 +6455,39 @@ export type Database = {
           },
         ]
       }
+      kolay_category_rules: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          keywords: string[]
+          main_name: string
+          sort_order: number
+          sub_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          main_name: string
+          sort_order?: number
+          sub_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          main_name?: string
+          sort_order?: number
+          sub_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       kolay_cross_sell_partners: {
         Row: {
           created_at: string
@@ -6730,6 +6763,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          in_stock: boolean
           is_active: boolean
           list_price: number
           pack_size: number
@@ -6747,6 +6781,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          in_stock?: boolean
           is_active?: boolean
           list_price: number
           pack_size?: number
@@ -6764,6 +6799,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          in_stock?: boolean
           is_active?: boolean
           list_price?: number
           pack_size?: number
@@ -6981,6 +7017,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      kolay_system_templates: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_active: boolean
+          kind: string
+          label: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind: string
+          label: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          label?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       ledger_accounts: {
         Row: {
