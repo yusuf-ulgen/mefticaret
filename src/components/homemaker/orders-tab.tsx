@@ -338,8 +338,21 @@ export function OrdersTab({
                     </span>
                   ) : null}
                   {order.is_digital ? (
-                    <div className="mt-1">
+                    <div className="mt-1 grid gap-1">
                       <DigitalOrderBadge />
+                      {order.payment_status === "paid" && phone && order.customer_email ? (
+                        <a
+                          href={`https://wa.me/${waPhone}?text=${encodeURIComponent(
+                            `Merhaba ${order.customer_name ?? ""}, ${order.order_number} numaralı dijital siparişinizi buradan indirebilirsiniz: https://mefticaret.com/s/${storeSlug}/order?no=${encodeURIComponent(order.order_number)}&email=${encodeURIComponent(order.customer_email)}`,
+                          )}`}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          onClick={() => toast.success("WhatsApp açılıyor, mesajı gönderin")}
+                          className="inline-flex min-h-10 items-center gap-1 rounded-full bg-hm-emerald-soft px-3 text-xs font-semibold text-hm-emerald"
+                        >
+                          <MessageCircle className="size-3.5" /> İndirme bağlantısını WhatsApp'tan gönder
+                        </a>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
