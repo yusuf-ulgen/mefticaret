@@ -273,6 +273,8 @@ function CheckoutPage() {
       }),
   });
   const q = quote.data?.ok ? quote.data : null;
+  // Sunucu fiyatlamasına göre: sepet yalnız dijital ürünse adres/kargo gizlenir.
+  const digitalOnly = q?.digitalOnly === true;
 
   async function applyGiftCard() {
     const code = giftCardCode.trim();
@@ -336,21 +338,23 @@ function CheckoutPage() {
       toast.error("Lütfen telefon numaranızı yazın (örnek: 0555 111 22 33).");
       return;
     }
-    if (country.trim().length < 2) {
-      toast.error("Lütfen ülke yazın.");
-      return;
-    }
-    if (city.trim().length < 1) {
-      toast.error("Lütfen şehir yazın.");
-      return;
-    }
-    if (line1.trim().length < 5) {
-      toast.error("Lütfen açık adresinizi yazın (en az 5 karakter).");
-      return;
-    }
-    if (!billingSame && (billingCountry.trim().length < 2 || billingCity.trim().length < 1 || billingLine1.trim().length < 5)) {
-      toast.error("Fatura adresini eksiksiz doldurun.");
-      return;
+    if (!digitalOnly) {
+      if (country.trim().length < 2) {
+        toast.error("Lütfen ülke yazın.");
+        return;
+      }
+      if (city.trim().length < 1) {
+        toast.error("Lütfen şehir yazın.");
+        return;
+      }
+      if (line1.trim().length < 5) {
+        toast.error("Lütfen açık adresinizi yazın (en az 5 karakter).");
+        return;
+      }
+      if (!billingSame && (billingCountry.trim().length < 2 || billingCity.trim().length < 1 || billingLine1.trim().length < 5)) {
+        toast.error("Fatura adresini eksiksiz doldurun.");
+        return;
+      }
     }
     setSubmitting(true);
     try {
@@ -358,14 +362,16 @@ function CheckoutPage() {
         slug,
         items: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
         customer: { fullName, email, phone, acceptsMarketing: false },
-        address: {
-          country,
-          city,
-          district: district || undefined,
-          line1,
-          postalCode: postalCode || undefined,
-        },
-        billingAddress: billingSame
+        address: digitalOnly
+          ? undefined
+          : {
+              country,
+              city,
+              district: district || undefined,
+              line1,
+              postalCode: postalCode || undefined,
+            },
+        billingAddress: billingSame || digitalOnly
           ? undefined
           : {
               recipient: billingRecipient || undefined,
@@ -377,7 +383,7 @@ function CheckoutPage() {
               line1: billingLine1,
               postalCode: billingPostalCode || undefined,
             },
-        shippingRateId: pickupLocationId ? undefined : shippingRateId || undefined,
+        shippingRateId: pickupLocationId || digitalOnly ? undefined : shippingRateId || undefined,
         paymentMethodId: paymentMethodId || undefined,
         discountCode: appliedDiscount?.code ?? (discountCode.trim() ? discountCode.trim() : undefined),
         giftCardCode: appliedGiftCard?.code ?? (giftCardCode.trim() ? giftCardCode.trim() : undefined),
@@ -512,30 +518,48 @@ function CheckoutPage() {
                 <Field label="Telefon *" muted={muted}>
                   <input style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </Field>
-                <Field label="Ülke" muted={muted}>
-                  <input style={inputStyle} value={country} onChange={(e) => setCountry(e.target.value)} />
-                </Field>
-                <Field label="Şehir *" muted={muted}>
-                  <input style={inputStyle} value={city} onChange={(e) => setCity(e.target.value)} />
-                </Field>
-                <Field label="İlçe" muted={muted}>
-                  <input style={inputStyle} value={district} onChange={(e) => setDistrict(e.target.value)} />
-                </Field>
-                <Field label="Posta kodu" muted={muted}>
-                  <input style={inputStyle} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
-                </Field>
+                {digitalOnly ? null : (
+                  <>
+                    <Field label="Ülke" muted={muted}>
+                      <input style={inputStyle} value={country} onChange={(e) => setCountry(e.target.value)} />
+                    </Field>
+                    <Field label="Şehir *" muted={muted}>
+                      <input style={inputStyle} value={city} onChange={(e) => setCity(e.target.value)} />
+                    </Field>
+                    <Field label="İlçe" muted={muted}>
+                      <input style={inputStyle} value={district} onChange={(e) => setDistrict(e.target.value)} />
+                    </Field>
+                    <Field label="Posta kodu" muted={muted}>
+                      <input style={inputStyle} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
+                    </Field>
+                  </>
+                )}
               </div>
-              <div style={{ marginTop: 12 }}>
-                <Field label="Adres *" muted={muted}>
-                  <textarea
-                    style={{ ...inputStyle, minHeight: 76, resize: "vertical" }}
-                    value={line1}
-                    onChange={(e) => setLine1(e.target.value)}
-                  />
-                </Field>
-              </div>
+              {digitalOnly ? null : (
+                <div style={{ marginTop: 12 }}>
+                  <Field label="Adres *" muted={muted}>
+                    <textarea
+                      style={{ ...inputStyle, minHeight: 76, resize: "vertical" }}
+                      value={line1}
+                      onChange={(e) => setLine1(e.target.value)}
+                    />
+                  </Field>
+                </div>
+              )}
             </section>
 
+            {digitalOnly ? (
+              <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
+                <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 8px" }}>
+                  Dijital teslimat — kargo gerekmez
+                </h2>
+                <p style={{ margin: 0, fontSize: 13, color: muted, lineHeight: 1.6 }}>
+                  Sepetinizdeki ürünler dijital. Ödeme onaylanınca indirme bağlantısı sipariş sayfanızda
+                  açılır ve telefonunuza WhatsApp ile gönderebilirsiniz. Adres bilgisi istenmez.
+                </p>
+              </section>
+            ) : (
+            <>
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
               <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>Fatura adresi</h2>
               <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: muted }}>
@@ -609,8 +633,10 @@ function CheckoutPage() {
                 </div>
               )}
             </section>
+            </>
+            )}
 
-            {pickupLocations.length > 0 ? (
+            {!digitalOnly && pickupLocations.length > 0 ? (
               <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
                 <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 6px" }}>Mağazadan teslim al</h2>
                 <p style={{ margin: "0 0 12px", fontSize: 13, color: muted }}>
