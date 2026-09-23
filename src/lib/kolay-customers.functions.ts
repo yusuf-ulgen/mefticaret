@@ -1,3 +1,4 @@
+import { requireHomeMaker } from "@/lib/home-maker-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -27,7 +28,7 @@ export type KolayCustomer = {
 const storeInput = z.object({ storeId: z.string().uuid() });
 
 export const listKolayCustomers = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((input: unknown) => storeInput.parse(input))
   .handler(async ({ data, context }): Promise<KolayCustomer[]> => {
     const { supabase } = context;
@@ -106,7 +107,7 @@ const saveInput = z.object({
 });
 
 export const saveKolayCustomer = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((input: unknown) => saveInput.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -138,7 +139,7 @@ export const saveKolayCustomer = createServerFn({ method: "POST" })
   });
 
 export const deleteKolayCustomer = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((input: unknown) =>
     z.object({ storeId: z.string().uuid(), customerId: z.string().uuid() }).parse(input),
   )

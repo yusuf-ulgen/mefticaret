@@ -1,3 +1,4 @@
+import { requireHomeMaker } from "@/lib/home-maker-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -34,7 +35,7 @@ const materialSchema = z.object({
 
 /** Malzeme ekler veya günceller (son kullanma tarihi dahil). */
 export const saveMaterial = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => materialSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -72,7 +73,7 @@ export const saveMaterial = createServerFn({ method: "POST" })
 
 /** Malzemeyi siler; ürün bağlantıları da düşer. */
 export const deleteMaterial = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => z.object({ materialId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -85,7 +86,7 @@ export const deleteMaterial = createServerFn({ method: "POST" })
 
 /** Bir ürünün içindekiler listesini (malzemelerini) yeniden yazar. */
 export const setProductMaterials = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) =>
     z
       .object({
@@ -121,7 +122,7 @@ export const setProductMaterials = createServerFn({ method: "POST" })
 
 /** Aynı şehirdeki aktif mağazaları listeler (yalnızca ad, şehir ve adres). */
 export const listNearbyStores = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -165,7 +166,7 @@ export const listNearbyStores = createServerFn({ method: "POST" })
 
 /** Siparişi güvendiğiniz komşu mağazaya devretmek için talep açar. */
 export const delegateOrder = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) =>
     z
       .object({
@@ -215,7 +216,7 @@ export const delegateOrder = createServerFn({ method: "POST" })
 
 /** Devredilen mağaza talebi kabul eder veya reddeder. */
 export const answerDelegation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => z.object({ delegationId: z.guid(), accept: z.boolean() }).parse(data))
   .handler(async ({ data, context }) => {
     const { data: updated, error } = await context.supabase
@@ -231,7 +232,7 @@ export const answerDelegation = createServerFn({ method: "POST" })
 
 /** Devir talebini geri alır. */
 export const cancelDelegation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => z.object({ delegationId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -254,7 +255,7 @@ const campaignSchema = z.object({
 
 /** Özel gün kampanyası başlatır: indirim kodu üretir ve vitrine duyuru yazar. */
 export const startSeasonalCampaign = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => campaignSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -300,7 +301,7 @@ export const startSeasonalCampaign = createServerFn({ method: "POST" })
 
 /** Kampanyayı bitirir: duyuru kaldırılır, kod pasife alınır. */
 export const stopSeasonalCampaign = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => z.object({ storeId: z.guid(), code: z.string().max(40) }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;

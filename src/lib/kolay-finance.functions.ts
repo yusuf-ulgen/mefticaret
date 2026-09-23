@@ -1,3 +1,4 @@
+import { requireHomeMaker } from "@/lib/home-maker-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -75,13 +76,13 @@ async function computeBalance(
 
 /** Bugünün kazancı ve çekilebilir bakiye (gerçek ödenmiş siparişlerden). */
 export const getKolayFinance = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => computeBalance(context.supabase as never, data.storeId));
 
 /** Para çekme (hakediş) talebi oluşturur; tutar sunucuda doğrulanır. */
 export const requestKolayPayout = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) =>
     z
       .object({
@@ -141,7 +142,7 @@ export const requestKolayPayout = createServerFn({ method: "POST" })
  * ve tahsil edilmeyi bekleyen tutar. Tüm sayılar veritabanındaki siparişlerden gelir.
  */
 export const getKolayFinanceDetail = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const supabase = context.supabase as unknown as { from: (table: string) => any };

@@ -1,3 +1,4 @@
+import { requireHomeMaker } from "@/lib/home-maker-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -160,7 +161,7 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
 const storeInput = z.object({ storeId: z.guid() });
 
 export const listCrossSellPartners = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => storeInput.parse(data))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
@@ -193,7 +194,7 @@ export const listCrossSellPartners = createServerFn({ method: "POST" })
 
 /** Aynı şehirdeki diğer Kolay Panel mağazalarının satıştaki ürünleri. */
 export const listCrossSellCandidates = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => storeInput.parse(data))
   .handler(async ({ data, context }) => {
     const { data: source, error: sourceError } = await context.supabase
@@ -248,7 +249,7 @@ export const listCrossSellCandidates = createServerFn({ method: "POST" })
   });
 
 export const saveCrossSellPartner = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) =>
     z
       .object({
@@ -278,7 +279,7 @@ export const saveCrossSellPartner = createServerFn({ method: "POST" })
   });
 
 export const setCrossSellActive = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) =>
     z.object({ storeId: z.guid(), id: z.guid(), isActive: z.boolean() }).parse(data),
   )
@@ -293,7 +294,7 @@ export const setCrossSellActive = createServerFn({ method: "POST" })
   });
 
 export const deleteCrossSellPartner = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => z.object({ storeId: z.guid(), id: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -310,7 +311,7 @@ export const deleteCrossSellPartner = createServerFn({ method: "POST" })
 const BUNDLE_CODE = "2AL10";
 
 export const getPromoSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => storeInput.parse(data))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -336,7 +337,7 @@ export const getPromoSettings = createServerFn({ method: "POST" })
  * indirim koduna yazılır.
  */
 export const savePromoSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) =>
     z
       .object({
@@ -495,7 +496,7 @@ export const getStoreBoosters = createServerFn({ method: "POST" })
 /* ---------------------------- yıllık hatırlatmalar --------------------------- */
 
 export const listAnnualReminders = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => storeInput.parse(data))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
@@ -508,7 +509,7 @@ export const listAnnualReminders = createServerFn({ method: "POST" })
   });
 
 export const saveAnnualReminder = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) =>
     z
       .object({
@@ -558,7 +559,7 @@ export const saveAnnualReminder = createServerFn({ method: "POST" })
   });
 
 export const deleteAnnualReminder = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => z.object({ storeId: z.guid(), id: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -573,7 +574,7 @@ export const deleteAnnualReminder = createServerFn({ method: "POST" })
 /* ------------------------------ ambalaj pazarı ------------------------------ */
 
 export const listPackagingItems = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("kolay_packaging_items")
@@ -587,7 +588,7 @@ export const listPackagingItems = createServerFn({ method: "GET" })
   });
 
 export const listPackagingOrders = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => storeInput.parse(data))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
@@ -614,7 +615,7 @@ export const listPackagingOrders = createServerFn({ method: "POST" })
   });
 
 export const orderPackagingItem = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) =>
     z
       .object({
@@ -653,7 +654,7 @@ export const orderPackagingItem = createServerFn({ method: "POST" })
 /* --------------------------- 1 Dakika Akademi ------------------------------- */
 
 export const listAcademyLessons = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("kolay_academy_lessons")
@@ -676,7 +677,7 @@ export const listAcademyLessons = createServerFn({ method: "GET" })
 /* ---------------------------- dekont doğrulama ------------------------------ */
 
 export const listReceiptChecks = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) => storeInput.parse(data))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
@@ -696,7 +697,7 @@ export const listReceiptChecks = createServerFn({ method: "POST" })
  * ödemesi "ödendi" olarak işaretlenir; uyuşmuyorsa karar satıcıya bırakılır.
  */
 export const verifyPaymentReceipt = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((data) =>
     z
       .object({
