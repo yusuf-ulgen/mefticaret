@@ -124,5 +124,9 @@ export async function markOrderPaidFromTransaction(
     provider_reference: transaction.id,
   } as never);
 
+  // Dijital siparişte indirme bağlantısı WhatsApp'tan otomatik gönderilir (hata ödemeyi etkilemez).
+  const { notifyDigitalOrderPaid } = await import("@/lib/digital-delivery.server");
+  await notifyDigitalOrderPaid(db as never, order.id);
+
   return { handled: true };
 }
