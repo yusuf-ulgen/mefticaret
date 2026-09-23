@@ -97,6 +97,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         keywords: "kolay panel ev hanımı hanimlari micro satıcı vitrin mikro paket",
       },
       {
+        to: "/admin/ev-hanimlari",
+        label: "Ev Hanımları İçerikleri",
+        icon: Store,
+        hint: "Akademi, ambalaj, kategori, şablon",
+        keywords: "ev hanımları akademi video ambalaj kategori şablon whatsapp",
+      },
+      {
         to: "/admin/users",
         label: "Kullanıcılar",
         icon: Users,

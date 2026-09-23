@@ -180,7 +180,7 @@ function AcademyManager() {
 
   return (
     <section className="grid gap-4">
-      <Header title="Akademi Videoları" onAdd={() => setEdit({ category: ACADEMY_CATEGORIES[0], is_active: false, duration_seconds: 60 })} />
+      <Header title="Akademi Videoları" onAdd={() => setEdit({ category: ACADEMY_CATEGORIES[0]!, is_active: false, duration_seconds: 60 })} />
       {isLoading ? <p className="text-sm text-muted-foreground">Yükleniyor…</p> : null}
       <p className="text-xs text-muted-foreground">Sıralamak için satırı tutup sürükleyin.</p>
       <div className="grid gap-2">
@@ -337,7 +337,7 @@ function PackagingManager() {
   });
   return (
     <section className="grid gap-4">
-      <Header title="Ambalaj Pazarı" onAdd={() => setEdit({ category: PACK_CATEGORIES[0], in_stock: true, is_active: true, pack_size: 1 })} />
+      <Header title="Ambalaj Pazarı" onAdd={() => setEdit({ category: PACK_CATEGORIES[0]!, in_stock: true, is_active: true, pack_size: 1 })} />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {rows.map((r) => (
           <div key={r.id} className="grid gap-2 rounded-lg border bg-card p-3">
