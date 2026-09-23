@@ -393,7 +393,7 @@ function PackDialog({ value, nextOrder, onClose, onSaved }: { value: Partial<Pac
       if (!(list > 0) || !(sale > 0)) throw new Error("Fiyatlar sıfırdan büyük olmalı");
       if (sale > list) throw new Error("Toplu fiyat birim fiyattan yüksek olamaz");
       if (!(size >= 1)) throw new Error("Paket adedi en az 1 olmalı");
-      if (f.image_url && !/^https:\/\//.test(f.image_url.trim())) throw new Error("Fotoğraf adresi https:// ile başlamalı");
+      if (f.image_url && !/^(https:\/\/|data:image\/(jpeg|png|webp);base64,)/.test(f.image_url.trim())) throw new Error("Geçerli bir fotoğraf seçin");
       const row = {
         title: f.title.trim(),
         description: f.description.trim() || null,
@@ -416,8 +416,19 @@ function PackDialog({ value, nextOrder, onClose, onSaved }: { value: Partial<Pac
   return (
     <FormDialog title={value.id ? "Ürünü düzenle" : "Yeni ambalaj ürünü"} onClose={onClose} onSave={() => save.mutate()} saving={save.isPending}>
       <F label="Ürün adı"><Input value={f.title} maxLength={120} onChange={(e) => set("title", e.target.value)} /></F>
-      <F label="Fotoğraf adresi (https://…)"><Input value={f.image_url} onChange={(e) => set("image_url", e.target.value)} /></F>
-      {f.image_url.startsWith("https://") ? <img src={f.image_url} alt="" className="h-28 w-full rounded object-cover" /> : null}
+      <F label="Fotoğraf yükle (veritabanına kaydedilir)">
+        <Input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            try { set("image_url", await compressToDataUrl(file)); } catch { toast.error("Fotoğraf okunamadı"); }
+          }}
+        />
+      </F>
+      {f.image_url ? <Button type="button" variant="outline" size="sm" onClick={() => set("image_url", "")}>Fotoğrafı kaldır</Button> : null}
+      {f.image_url ? <img src={f.image_url} alt="" className="h-28 w-full rounded object-cover" /> : null}
       <div className="grid grid-cols-2 gap-3">
         <F label="Birim fiyat (₺)"><Input inputMode="decimal" value={f.list_price} onChange={(e) => set("list_price", e.target.value)} /></F>
         <F label="İndirimli toplu fiyat (₺)"><Input inputMode="decimal" value={f.sale_price} onChange={(e) => set("sale_price", e.target.value)} /></F>
@@ -643,4 +654,15 @@ function FormDialog({ title, children, onClose, onSave, saving }: { title: strin
       </DialogContent>
     </Dialog>
   );
+}
+
+/** Fotoğrafı 600px'e küçültüp WebP olarak veri adresine çevirir (≈50 KB). */
+async function compressToDataUrl(file: File): Promise<string> {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 600 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/webp", 0.8);
 }
