@@ -159,7 +159,12 @@ export async function callProvider(options: {
     credits = gate.credits;
   }
 
-  const result = await callOpenAi(model, options.messages, temperature, maxTokens);
+  const result = await callOpenAi(
+    model,
+    withImages(options.messages, options.images ?? []),
+    temperature,
+    maxTokens,
+  );
   const costUsd = usdCost(
     engine,
     PURPOSE_MODEL_CLASS[purpose],
