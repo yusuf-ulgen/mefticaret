@@ -25,6 +25,13 @@ export const getHomeMakerProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
+    const { data: role } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "home_maker")
+      .maybeSingle();
+    if (!role) return null;
     const { data, error } = await supabase
       .from("home_maker_profiles")
       .select("user_id, full_name, store_name, category, panel_mode, store_id")
@@ -67,4 +74,29 @@ export const createHomeMakerStore = createServerFn({ method: "POST" })
     const store = rows?.[0];
     if (!store) throw new Error("Kolay Panel mağazası oluşturulamadı");
     return { ok: true as const, storeId: store.store_id, slug: store.store_slug };
+  });
+
+/** Kolay Panel kapısı: rol + mikro mağaza + mağazayı yönetme yetkisi sunucuda doğrulanır. */
+export const checkKolayAccess = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.string().uuid() }).parse(data))
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const [{ data: role }, { data: store }] = await Promise.all([
+      supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "home_maker").maybeSingle(),
+      supabase.from("stores").select("id, store_kind, owner_id").eq("id", data.storeId).maybeSingle(),
+    ]);
+    let member = store?.owner_id === userId;
+    if (store && !member) {
+      const { data: su } = await supabase
+        .from("store_users")
+        .select("user_id")
+        .eq("store_id", data.storeId)
+        .eq("user_id", userId)
+        .maybeSingle();
+      member = Boolean(su);
+    }
+    if (!role) return { ok: false as const, reason: "role" as const };
+    if (!store || !member || store.store_kind !== "micro") return { ok: false as const, reason: "store" as const };
+    return { ok: true as const };
   });

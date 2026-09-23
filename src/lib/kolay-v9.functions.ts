@@ -1,7 +1,7 @@
+import { requireHomeMaker } from "@/lib/home-maker-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
  * Ev Hanımları Portalı v9: üretim modu, özel müşteri notları, hediye paketi,
@@ -13,7 +13,7 @@ const storeInput = z.object({ storeId: z.guid() });
 /* ------------------------------ üretim modu ------------------------------- */
 
 export const getKitchenSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((d) => storeInput.parse(d))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -30,7 +30,7 @@ export const getKitchenSettings = createServerFn({ method: "POST" })
   });
 
 export const saveKitchenSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((d) =>
     z
       .object({
@@ -59,7 +59,7 @@ export const saveKitchenSettings = createServerFn({ method: "POST" })
 /* ---------------------------- müşteri notları ----------------------------- */
 
 export const listOrderNotes = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((d) => storeInput.parse(d))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
@@ -75,7 +75,7 @@ export const listOrderNotes = createServerFn({ method: "POST" })
   });
 
 export const saveOrderNote = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((d) =>
     z
       .object({
@@ -105,7 +105,7 @@ export const saveOrderNote = createServerFn({ method: "POST" })
 
 /** Satıcının seçebileceği kayıtlı ev hanımı mağazaları (ada göre arama). */
 export const searchSplitPartners = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((d) =>
     z.object({ storeId: z.guid(), query: z.string().trim().max(60) }).parse(d),
   )
@@ -142,7 +142,7 @@ export const searchSplitPartners = createServerFn({ method: "POST" })
   });
 
 export const createOrderSplit = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((d) =>
     z
       .object({
@@ -178,7 +178,7 @@ type SplitRow = {
 };
 
 export const listOrderSplits = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((d) => storeInput.parse(d))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
@@ -208,7 +208,7 @@ export const listOrderSplits = createServerFn({ method: "POST" })
   });
 
 export const respondOrderSplit = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((d) =>
     z
       .object({
@@ -235,7 +235,7 @@ export const respondOrderSplit = createServerFn({ method: "POST" })
 /* ------------------------------- mentorluk -------------------------------- */
 
 export const getMentorship = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((d) => storeInput.parse(d))
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
@@ -263,7 +263,7 @@ export const getMentorship = createServerFn({ method: "POST" })
 
 /** Yeni satıcı, kendisine yardım eden deneyimli satıcıyı mağaza adresiyle seçer. */
 export const chooseMentor = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((d) =>
     z.object({ storeId: z.guid(), mentorSlug: z.string().trim().min(2).max(120) }).parse(d),
   )

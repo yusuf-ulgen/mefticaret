@@ -1,7 +1,7 @@
+import { requireHomeMaker } from "@/lib/home-maker-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
  * Kolay Panel analitik ucu.
@@ -31,7 +31,7 @@ export type KolayInsights = {
 const DEAD = ["cancelled", "refunded", "returned"];
 
 export const getKolayInsights = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireHomeMaker])
   .inputValidator((input: unknown) =>
     z
       .object({ storeId: z.string().uuid(), days: z.number().int().min(7).max(90).default(30) })
