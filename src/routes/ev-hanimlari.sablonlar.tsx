@@ -290,7 +290,10 @@ function CardBuilder({ store, storeUrl }: { store: Store; storeUrl: string }) {
 
   function print() {
     const w = window.open("", "_blank");
-    if (!w) return toast.error("Açılır pencereye izin verin");
+    if (!w) {
+      toast.error("Açılır pencereye izin verin");
+      return;
+    }
     w.document.write(`<!doctype html><html><head><title>${esc(name)} - Teşekkür kartları</title><style>
       @page{size:A4;margin:10mm}body{margin:0;font-family:Geist,Arial,sans-serif}
       .g{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6mm;height:270mm}
