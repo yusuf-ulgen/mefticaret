@@ -67,7 +67,7 @@ export function ReceiptVerifier({
       const outcome = await verify({ data: { storeId, orderId: selected.id, imageDataUrl } });
       setResult({ status: outcome.status, notes: outcome.notes });
       if (outcome.status === "matched") {
-        await queryClient.invalidateQueries({ queryKey: ["simple-orders", storeId] });
+        await queryClient.invalidateQueries({ queryKey: ["kolay-orders", storeId] });
         toast.success("Ödeme alındı olarak işaretlendi");
       } else {
         toast.warning("Dekont doğrulanamadı");
