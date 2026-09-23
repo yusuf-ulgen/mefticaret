@@ -60,7 +60,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/kolay")({
   component: KolayPanel,
 });
 
-type Tab = "store" | "products" | "orders" | "customers" | "insights";
+type Tab = "store" | "products" | "orders" | "packaging" | "customers" | "insights";
 
 function KolayPanel() {
   const { storeId } = Route.useParams();
@@ -68,6 +68,7 @@ function KolayPanel() {
   const [tab, setTab] = useState<Tab>("store");
   const [shareOpen, setShareOpen] = useState(false);
   const [campaignOpen, setCampaignOpen] = useState(false);
+  const [academyOpen, setAcademyOpen] = useState(false);
   const [origin, setOrigin] = useState("https://mefticaret.com");
   const [bellOpen, setBellOpen] = useState(false);
   const [seenCount, setSeenCount] = useState(0);
