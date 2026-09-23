@@ -56,6 +56,7 @@ import { Route as EvHanimlariKurulumRouteImport } from './routes/ev-hanimlari.ku
 import { Route as EvHanimlariSablonlarRouteImport } from './routes/ev-hanimlari.sablonlar'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as FrIndexRouteImport } from './routes/fr.index'
+import { Route as MagazaSlugRouteImport } from './routes/magaza.$slug'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -554,6 +555,11 @@ const FaturaTokenRoute = FaturaTokenRouteImport.update({
 const FrIndexRoute = FrIndexRouteImport.update({
   id: '/fr/',
   path: '/fr/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MagazaSlugRoute = MagazaSlugRouteImport.update({
+  id: '/magaza/$slug',
+  path: '/magaza/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SayfaSlugRoute = SayfaSlugRouteImport.update({
@@ -2107,6 +2113,7 @@ export interface FileRoutesByFullPath {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/magaza/$slug': typeof MagazaSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -2416,6 +2423,7 @@ export interface FileRoutesByTo {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/magaza/$slug': typeof MagazaSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar': typeof ArIndexRoute
   '/blog': typeof BlogIndexRoute
@@ -2726,6 +2734,7 @@ export interface FileRoutesById {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/magaza/$slug': typeof MagazaSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -3038,6 +3047,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/magaza/$slug'
     | '/sayfa/$slug'
     | '/ar/'
     | '/blog/'
@@ -3347,6 +3357,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/magaza/$slug'
     | '/sayfa/$slug'
     | '/ar'
     | '/blog'
@@ -3656,6 +3667,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/magaza/$slug'
     | '/sayfa/$slug'
     | '/ar/'
     | '/blog/'
@@ -3963,6 +3975,7 @@ export interface RootRouteChildren {
   EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
   EvHanimlariSablonlarRoute: typeof EvHanimlariSablonlarRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
+  MagazaSlugRoute: typeof MagazaSlugRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
   ArIndexRoute: typeof ArIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -4370,6 +4383,13 @@ declare module '@tanstack/react-router' {
       path: '/fr'
       fullPath: '/fr/'
       preLoaderRoute: typeof FrIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/magaza/$slug': {
+      id: '/magaza/$slug'
+      path: '/magaza/$slug'
+      fullPath: '/magaza/$slug'
+      preLoaderRoute: typeof MagazaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sayfa/$slug': {
@@ -6826,6 +6846,7 @@ const rootRouteChildren: RootRouteChildren = {
   EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,
   EvHanimlariSablonlarRoute: EvHanimlariSablonlarRoute,
   FaturaTokenRoute: FaturaTokenRoute,
+  MagazaSlugRoute: MagazaSlugRoute,
   SayfaSlugRoute: SayfaSlugRoute,
   ArIndexRoute: ArIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
