@@ -6513,6 +6513,41 @@ export type Database = {
           },
         ]
       }
+      kolay_custom_categories: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          main_name: string
+          store_id: string
+          sub_name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          main_name: string
+          store_id: string
+          sub_name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          main_name?: string
+          store_id?: string
+          sub_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_custom_categories_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kolay_mentor_points: {
         Row: {
           created_at: string
