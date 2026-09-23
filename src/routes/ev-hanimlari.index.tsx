@@ -1,6 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Heart, Loader2, Lock, Mail, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Heart,
+  Loader2,
+  Lock,
+  Mail,
+  Phone,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -8,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { getHomeMakerProfile } from "@/lib/home-maker.functions";
+import { requestPhoneOtp, verifyPhoneOtp } from "@/lib/kolay-v8.functions";
 
 export const Route = createFileRoute("/ev-hanimlari/")({
   ssr: false,
@@ -17,7 +27,7 @@ export const Route = createFileRoute("/ev-hanimlari/")({
       {
         name: "description",
         content:
-          "E-posta ve şifrenizle giriş yapın, el emeği ürünlerinizi sade bir panelden satmaya hemen başlayın.",
+          "Telefon numaranızla veya e-postanızla giriş yapın, el emeği ürünlerinizi sade bir panelden satmaya hemen başlayın.",
       },
       { property: "og:title", content: "Ev Hanımları Portalı — Mefticaret" },
       {
@@ -37,15 +47,20 @@ const PERKS = [
   "Kargosuz teslimat için kod üretir",
 ];
 
-type Mode = "login" | "register";
+type Mode = "phone" | "login" | "register";
 
 function HomeMakerAuthPage() {
   const navigate = useNavigate();
   const readProfile = useServerFn(getHomeMakerProfile);
-  const [mode, setMode] = useState<Mode>("login");
+  const sendCode = useServerFn(requestPhoneOtp);
+  const checkCode = useServerFn(verifyPhoneOtp);
+  const [mode, setMode] = useState<Mode>("phone");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [code, setCode] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
   const [confirmSent, setConfirmSent] = useState(false);
