@@ -19746,6 +19746,10 @@ export type Database = {
         Returns: string
       }
       purge_load_test_data: { Args: { _drop_stores?: boolean }; Returns: Json }
+      purge_store_completely: {
+        Args: { _store_id: string }
+        Returns: undefined
+      }
       record_app_error: {
         Args: {
           _fingerprint: string
