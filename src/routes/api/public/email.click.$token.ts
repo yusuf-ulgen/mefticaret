@@ -58,7 +58,7 @@ export const Route = createFileRoute("/api/public/email/click/$token")({
                 .from("store_domains")
                 .select("hostname")
                 .eq("store_id", send.store_id)
-                .eq("status", "active");
+                .eq("status", "verified");
               const storeHosts = (domains ?? [])
                 .map((row) => row.hostname?.toLowerCase())
                 .filter((value): value is string => Boolean(value));
