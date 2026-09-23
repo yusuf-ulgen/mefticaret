@@ -110,16 +110,18 @@ export const searchSplitPartners = createServerFn({ method: "POST" })
     z.object({ storeId: z.guid(), query: z.string().trim().max(60) }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { data: ok } = await context.supabase.rpc("can_manage_store" as never, {
-      _store_id: data.storeId,
-      _user_id: context.userId,
-    } as never);
     const { data: own } = await context.supabase
       .from("stores")
-      .select("id")
+      .select("owner_id")
       .eq("id", data.storeId)
       .maybeSingle();
-    if (!own && !ok) throw new Error("Bu mağazaya erişim yetkiniz yok");
+    const { data: member } = await context.supabase
+      .from("store_users")
+      .select("role")
+      .eq("store_id", data.storeId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (own?.owner_id !== context.userId && !member) throw new Error("Bu mağazaya erişim yetkiniz yok");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin
