@@ -122,17 +122,23 @@ export function storefrontHead(input: StorefrontHeadInput) {
   const noindex = Boolean(seo.noindex || ctx?.settings.noindexStore);
   const keywords = seo.keywords || ctx?.settings.keywords;
 
-  // Ziyaretçi dili seçtiyse canonical kendi dil adresini işaret eder.
+  // Ziyaretçi varsayılan dışı bir dil seçtiyse canonical kendi dil adresini işaret eder.
+  // Varsayılan dilde parametresiz adres kullanılır (?lang=tr kopyası oluşmaz).
   const activeShort = ctx?.activeLocale ? ctx.activeLocale.slice(0, 2).toLowerCase() : null;
-  const canonicalPath = activeShort
-    ? `${path}${path.includes("?") ? "&" : "?"}lang=${activeShort}`
-    : path;
+  const defaultShort = (ctx?.defaultLocale ?? "tr").slice(0, 2).toLowerCase();
+  const canonicalPath =
+    activeShort && activeShort !== defaultShort
+      ? `${path}${path.includes("?") ? "&" : "?"}lang=${activeShort}`
+      : path;
+  // Önizleme / lovable.app adresleri asıl alan adının kopyası sayılmasın.
+  const canonicalOrigin =
+    !input.origin || /lovable\.app|localhost/i.test(input.origin) ? "https://mefticaret.com" : input.origin;
 
   const head = buildSeoHead({
     title,
     description,
     canonicalPath,
-    origin: input.origin,
+    origin: canonicalOrigin,
     image,
     ogType: input.ogType ?? "website",
     locale: ogLocaleFor(ctx?.activeLocale ?? ctx?.defaultLocale ?? "tr"),
