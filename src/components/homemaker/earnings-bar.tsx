@@ -61,6 +61,11 @@ export function EarningsBar({ storeId }: { storeId: string }) {
           <p className="text-sm font-bold text-hm-teal">
             {formatMoney(data?.withdrawable ?? 0, currency)}
           </p>
+          {data?.commission ? (
+            <p className="text-[10px] text-hm-ink-soft">
+              Komisyon (%{Math.round((data.commissionRate ?? 0) * 1000) / 10}) düşüldü
+            </p>
+          ) : null}
         </button>
         <button
           type="button"
