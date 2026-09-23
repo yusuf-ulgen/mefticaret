@@ -6513,6 +6513,180 @@ export type Database = {
           },
         ]
       }
+      kolay_mentor_points: {
+        Row: {
+          created_at: string
+          delta: number
+          id: string
+          reason: string
+          reference_id: string | null
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta: number
+          id?: string
+          reason: string
+          reference_id?: string | null
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          delta?: number
+          id?: string
+          reason?: string
+          reference_id?: string | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_mentor_points_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kolay_mentorships: {
+        Row: {
+          created_at: string
+          id: string
+          mentee_store_id: string
+          mentor_store_id: string
+          rewarded_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mentee_store_id: string
+          mentor_store_id: string
+          rewarded_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mentee_store_id?: string
+          mentor_store_id?: string
+          rewarded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_mentorships_mentee_store_id_fkey"
+            columns: ["mentee_store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kolay_mentorships_mentor_store_id_fkey"
+            columns: ["mentor_store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kolay_order_notes: {
+        Row: {
+          created_at: string
+          note: string | null
+          order_id: string
+          store_id: string
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          note?: string | null
+          order_id: string
+          store_id: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          note?: string | null
+          order_id?: string
+          store_id?: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_order_notes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kolay_order_notes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kolay_order_splits: {
+        Row: {
+          created_at: string
+          from_store_id: string
+          id: string
+          order_id: string
+          share_amount: number
+          share_note: string
+          status: string
+          to_store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          from_store_id: string
+          id?: string
+          order_id: string
+          share_amount?: number
+          share_note: string
+          status?: string
+          to_store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          from_store_id?: string
+          id?: string
+          order_id?: string
+          share_amount?: number
+          share_note?: string
+          status?: string
+          to_store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_order_splits_from_store_id_fkey"
+            columns: ["from_store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kolay_order_splits_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kolay_order_splits_to_store_id_fkey"
+            columns: ["to_store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kolay_packaging_items: {
         Row: {
           category: string
@@ -6574,6 +6748,7 @@ export type Database = {
           delivery_note: string | null
           id: string
           item_id: string
+          points_used: number
           quantity: number
           requested_by: string | null
           status: string
@@ -6588,6 +6763,7 @@ export type Database = {
           delivery_note?: string | null
           id?: string
           item_id: string
+          points_used?: number
           quantity?: number
           requested_by?: string | null
           status?: string
@@ -6602,6 +6778,7 @@ export type Database = {
           delivery_note?: string | null
           id?: string
           item_id?: string
+          points_used?: number
           quantity?: number
           requested_by?: string | null
           status?: string
@@ -6668,6 +6845,10 @@ export type Database = {
           cross_sell_enabled: boolean
           free_shipping_enabled: boolean
           free_shipping_threshold: number
+          gift_wrap_enabled: boolean
+          gift_wrap_fee: number
+          production_message: string | null
+          production_mode: boolean
           store_id: string
           updated_at: string
         }
@@ -6678,6 +6859,10 @@ export type Database = {
           cross_sell_enabled?: boolean
           free_shipping_enabled?: boolean
           free_shipping_threshold?: number
+          gift_wrap_enabled?: boolean
+          gift_wrap_fee?: number
+          production_message?: string | null
+          production_mode?: boolean
           store_id: string
           updated_at?: string
         }
@@ -6688,6 +6873,10 @@ export type Database = {
           cross_sell_enabled?: boolean
           free_shipping_enabled?: boolean
           free_shipping_threshold?: number
+          gift_wrap_enabled?: boolean
+          gift_wrap_fee?: number
+          production_message?: string | null
+          production_mode?: boolean
           store_id?: string
           updated_at?: string
         }
@@ -9716,6 +9905,8 @@ export type Database = {
           display_currency: string | null
           exchange_rate: number | null
           fulfillment_status: Database["public"]["Enums"]["fulfillment_status"]
+          gift_message: string | null
+          gift_wrap: boolean
           grand_total: number
           id: string
           invoice_number: string | null
@@ -9750,6 +9941,8 @@ export type Database = {
           display_currency?: string | null
           exchange_rate?: number | null
           fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
+          gift_message?: string | null
+          gift_wrap?: boolean
           grand_total?: number
           id?: string
           invoice_number?: string | null
@@ -9784,6 +9977,8 @@ export type Database = {
           display_currency?: string | null
           exchange_rate?: number | null
           fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
+          gift_message?: string | null
+          gift_wrap?: boolean
           grand_total?: number
           id?: string
           invoice_number?: string | null
@@ -15421,6 +15616,7 @@ export type Database = {
           base_currency: string
           bio: string | null
           campaign_banner: Json | null
+          city: string | null
           cold_pack_enabled: boolean
           cold_pack_fee: number
           contact_email: string | null
@@ -15457,6 +15653,7 @@ export type Database = {
           base_currency?: string
           bio?: string | null
           campaign_banner?: Json | null
+          city?: string | null
           cold_pack_enabled?: boolean
           cold_pack_fee?: number
           contact_email?: string | null
@@ -15493,6 +15690,7 @@ export type Database = {
           base_currency?: string
           bio?: string | null
           campaign_banner?: Json | null
+          city?: string | null
           cold_pack_enabled?: boolean
           cold_pack_fee?: number
           contact_email?: string | null
@@ -19384,6 +19582,16 @@ export type Database = {
           name: string
           slug: string
         }[]
+      }
+      kolay_order_packaging: {
+        Args: {
+          _item_id: string
+          _note: string
+          _quantity: number
+          _store_id: string
+          _use_points: boolean
+        }
+        Returns: Json
       }
       ledger_account_balance: { Args: { _account_id: string }; Returns: number }
       ledger_store_balances: {
