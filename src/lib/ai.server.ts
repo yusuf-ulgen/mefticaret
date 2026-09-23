@@ -139,6 +139,7 @@ export async function callProvider(options: {
   providerCode?: string;
   model?: string;
   messages: ChatMessage[];
+  images?: string[];
   temperature?: number;
   maxTokens?: number;
   purpose?: AiCreditPurpose;
