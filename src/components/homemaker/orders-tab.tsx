@@ -233,6 +233,7 @@ export function OrdersTab({
 
   return (
     <div className="grid gap-4">
+      <SplitInvitesCard storeId={storeId} />
       <div className="grid grid-cols-3 gap-2">
         <SoftCard className="text-center">
           <p className="text-xs text-hm-ink-soft">Bugün</p>
