@@ -2,20 +2,33 @@ import { createFileRoute } from "@tanstack/react-router";
 
 /**
  * E-posta tıklama takibi: olayı kaydeder ve hedef adrese yönlendirir.
- * Yalnızca kendi alan adımıza veya http(s) mağaza bağlantılarına yönlendirir.
+ *
+ * Açık yönlendirme (open redirect) olmaması için hedef adres yalnızca kendi
+ * alan adlarımız veya ilgili mağazanın doğrulanmış kendi alan adı olabilir;
+ * dışarıdan verilen başka adresler yok sayılıp ana sayfaya düşülür.
  */
 
 const FALLBACK = "https://mefticaret.com";
 
-function safeTarget(raw: string | null) {
-  if (!raw) return FALLBACK;
+const ALLOWED_SUFFIXES = ["mefticaret.com", "lovable.app", "lovableproject.com"];
+
+function parseTarget(raw: string | null): URL | null {
+  if (!raw) return null;
   try {
     const url = new URL(raw);
-    if (url.protocol !== "http:" && url.protocol !== "https:") return FALLBACK;
-    return url.toString();
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    return url;
   } catch {
-    return FALLBACK;
+    return null;
   }
+}
+
+function isAllowedHost(host: string, storeHosts: string[]): boolean {
+  const normalized = host.toLowerCase();
+  if (storeHosts.includes(normalized)) return true;
+  return ALLOWED_SUFFIXES.some(
+    (suffix) => normalized === suffix || normalized.endsWith(`.${suffix}`),
+  );
 }
 
 export const Route = createFileRoute("/api/public/email/click/$token")({
@@ -23,9 +36,13 @@ export const Route = createFileRoute("/api/public/email/click/$token")({
     handlers: {
       GET: async ({ params, request }) => {
         const url = new URL(request.url);
-        const target = safeTarget(url.searchParams.get("u"));
+        const candidate = parseTarget(url.searchParams.get("u"));
         const token = String(params.token ?? "");
-        if (!/^[a-f0-9]{16,64}$/i.test(token)) return Response.redirect(target, 302);
+        let target = FALLBACK;
+
+        if (!/^[a-f0-9]{16,64}$/i.test(token)) {
+          return new Response(null, { status: 302, headers: { location: FALLBACK } });
+        }
 
         try {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -36,6 +53,18 @@ export const Route = createFileRoute("/api/public/email/click/$token")({
             .maybeSingle();
 
           if (send) {
+            if (candidate) {
+              const { data: domains } = await supabaseAdmin
+                .from("store_domains")
+                .select("hostname")
+                .eq("store_id", send.store_id)
+                .eq("status", "verified");
+              const storeHosts = (domains ?? [])
+                .map((row) => row.hostname?.toLowerCase())
+                .filter((value): value is string => Boolean(value));
+              if (isAllowedHost(candidate.hostname, storeHosts)) target = candidate.toString();
+            }
+
             const now = new Date().toISOString();
             const patch = {
               ...(send.clicked_at ? {} : { clicked_at: now }),

@@ -388,6 +388,18 @@ export const sendEmailCampaign = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await guard(supabase, data.storeId, userId);
 
+    // Test gönderimi yalnızca oturum sahibinin doğrulanmış adresine yapılabilir;
+    // böylece kampanya motoru rastgele adreslere posta atmak için kullanılamaz.
+    if (data.testEmail) {
+      const callerEmail =
+        typeof context.claims?.["email"] === "string"
+          ? (context.claims["email"] as string).toLowerCase()
+          : null;
+      if (!callerEmail || callerEmail !== data.testEmail.toLowerCase()) {
+        throw new Error("Test gönderimi yalnızca kendi e-posta adresinize yapılabilir");
+      }
+    }
+
     const { sendMarketingEmail, trackingUrls, PUBLIC_SITE_URL } = await import("@/lib/email-marketing.server");
 
     const [{ data: campaign, error: campaignError }, { data: store }] = await Promise.all([

@@ -108,6 +108,10 @@ export const upsertSubscription = createServerFn({ method: "POST" })
     if (planError) throw new Error(planError.message);
     if (!plan || !plan.is_active) throw new Error("Paket bulunamadı veya aktif değil");
 
+    // Ücretli abonelik yalnızca ödeme onayı ya da platform yöneticisi ile açılır.
+    const { assertPlanEntitlement } = await import("./plan-entitlement.server");
+    await assertPlanEntitlement(supabase, data.storeId, plan.id, userId);
+
     const { data: existing, error: existingError } = await supabase
       .from("subscriptions")
       .select("id, plan_id, billing_interval, status, trial_ends_at")

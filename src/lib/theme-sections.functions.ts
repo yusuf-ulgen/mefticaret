@@ -165,9 +165,26 @@ export const saveThemeCode = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    // Özel JavaScript vitrin ziyaretçilerinin tarayıcısında çalıştığı için
+    // yalnızca platform yöneticisi kaydedebilir; mağaza yöneticisi CSS yazabilir.
+    if (data.customJs?.trim()) {
+      const { assertPlatformAdmin } = await import("@/lib/platform-admin.server");
+      await assertPlatformAdmin(context.supabase, context.userId);
+    }
+
+    const update: { custom_css: string | null; custom_js?: string | null } = {
+      custom_css: data.customCss || null,
+    };
+    if (data.customJs === null || data.customJs?.trim()) {
+      update.custom_js = data.customJs?.trim() ? data.customJs : null;
+    }
+
     const { error } = await context.supabase
       .from("store_themes")
-      .update({ custom_css: data.customCss || null, custom_js: data.customJs || null })
+      .update(update)
       .eq("store_id", data.storeId);
     if (error) throw new Error(error.message);
     return { ok: true };

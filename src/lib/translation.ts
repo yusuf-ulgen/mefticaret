@@ -281,7 +281,12 @@ export function sourceHash(text: string): string {
 export function toCsv(
   rows: { translation_key: string; locale: string; source_value: string | null; translated_value: string | null; status: string }[],
 ): string {
-  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
+  // Hücre değeri elektronik tabloda formül olarak okunmasın: =, +, -, @, tab,
+  // satır başı ile başlayan değerlerin önüne tek tırnak eklenir.
+  const escape = (value: string) => {
+    const neutral = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+    return `"${neutral.replace(/"/g, '""')}"`;
+  };
   const lines = ["key,locale,source,value,status"];
   for (const row of rows) {
     lines.push(

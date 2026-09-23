@@ -8,6 +8,26 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * ve otomatik cevap kuralları.
  */
 
+/**
+ * Giden mesaj yetkisi: yalnızca mağaza yöneticileri (sahip/admin) ya da platform
+ * yöneticisi mesaj gönderebilir; kötüye kullanımı sınırlamak için hız sınırı var.
+ */
+async function assertManager(supabase: unknown, storeId: string, userId: string) {
+  const { assertStoreManager } = await import("@/lib/store-access.server");
+  await assertStoreManager(supabase as never, storeId, userId);
+}
+
+async function limitOutbound(storeId: string, userId: string, count: number) {
+  const { consumeRateLimit } = await import("@/lib/rate-limit.server");
+  const limit = await consumeRateLimit(`whatsapp_send:${storeId}:${userId}`, {
+    limit: 400,
+    windowSeconds: 3600,
+  });
+  if (!limit.allowed || count > 200) {
+    throw new Error("Çok fazla mesaj gönderimi denendi. Bir süre sonra tekrar deneyin.");
+  }
+}
+
 export const saveWhatsAppAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
@@ -57,6 +77,8 @@ export const sendWhatsApp = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
+    await assertManager(context.supabase, data.storeId, context.userId);
+    await limitOutbound(data.storeId, context.userId, 1);
     const { sendWhatsAppMessage } = await import("@/lib/whatsapp.server");
     const result = await sendWhatsAppMessage(context.supabase, {
       storeId: data.storeId,
@@ -190,6 +212,8 @@ export const sendWhatsAppCampaign = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
+    await assertManager(context.supabase, data.storeId, context.userId);
+    await limitOutbound(data.storeId, context.userId, data.waIds.length);
     const { sendWhatsAppMessage } = await import("@/lib/whatsapp.server");
     let sent = 0;
     let failed = 0;

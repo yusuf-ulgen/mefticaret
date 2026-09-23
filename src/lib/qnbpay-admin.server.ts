@@ -819,9 +819,10 @@ export async function handleSaleWebhook(fields: WebhookFields) {
   const invoiceRef = fields["invoice_id"];
   if (!invoiceRef) return { ok: false, reason: "invoice_id yok" };
 
+  // hash_key zorunludur: imzasız bildirim hiçbir kaydı değiştirmez.
   const hashKey = fields["hash_key"];
   const validated = hashKey ? qnbpay.validateHashKey(hashKey, credentials.appSecret) : null;
-  if (hashKey && (!validated || validated.invoiceId !== invoiceRef)) {
+  if (!validated || validated.invoiceId !== invoiceRef) {
     return { ok: false, reason: "hash doğrulanamadı" };
   }
 
@@ -842,17 +843,17 @@ export async function handleSaleWebhook(fields: WebhookFields) {
     .update({
       status,
       transaction_status: result.transactionStatus,
-      order_id: result.orderId ?? result.orderNo ?? fields["order_no"] ?? null,
+      order_id: result.orderId ?? result.orderNo ?? null,
       transaction_id: result.transactionId,
       status_code: result.statusCode,
       status_description: result.statusDescription,
       payment_status: result.paymentStatus,
       md_status: result.mdStatus,
-      credit_card_no: result.creditCardNo ?? fields["credit_card_no"] ?? null,
+      credit_card_no: result.creditCardNo ?? null,
       merchant_commission: result.merchantCommission,
       user_commission: result.userCommission,
-      error_code: result.errorCode ?? fields["error_code"] ?? null,
-      error_message: result.error ?? fields["error"] ?? null,
+      error_code: result.errorCode ?? null,
+      error_message: result.error ?? null,
       bank_status_code: result.bankErrorCode,
       bank_status_description: result.bankErrorDescription,
       webhook_payload: fields as never,
@@ -881,9 +882,10 @@ export async function handleRefundWebhook(fields: WebhookFields) {
 
   const invoiceRef = fields["invoice_id"];
   if (!invoiceRef) return { ok: false, reason: "invoice_id yok" };
+  // hash_key zorunludur: imzasız iade bildirimi kabul edilmez.
   const hashKey = fields["hash_key"];
   const validated = hashKey ? qnbpay.validateHashKey(hashKey, credentials.appSecret) : null;
-  if (hashKey && (!validated || validated.invoiceId !== invoiceRef)) {
+  if (!validated || validated.invoiceId !== invoiceRef) {
     return { ok: false, reason: "hash doğrulanamadı" };
   }
 
@@ -895,7 +897,8 @@ export async function handleRefundWebhook(fields: WebhookFields) {
     .maybeSingle();
   if (!transaction) return { ok: false, reason: "işlem bulunamadı" };
 
-  const refundedNow = Number(fields["amount"] ?? validated?.total ?? 0);
+  // İade tutarı imzalı hash içeriğinden alınır; gövdedeki tutara güvenilmez.
+  const refundedNow = Number(validated.total ?? 0);
   const succeeded = (fields["status"] ?? "").toUpperCase() !== "FAIL";
   const total = Number(transaction.refunded_amount ?? 0) + (succeeded ? refundedNow : 0);
   const paid = Number(transaction.amount ?? 0);

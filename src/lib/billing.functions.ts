@@ -31,6 +31,10 @@ export const changeStorePlan = createServerFn({ method: "POST" })
     if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
     if (store.store_kind === "micro") throw new Error("Kolay Panel kurumsal paketlere bağlı değildir");
 
+    // Ücretli paket yalnızca ödeme onayı ya da platform yöneticisi ile uygulanır.
+    const { assertPlanEntitlement } = await import("./plan-entitlement.server");
+    await assertPlanEntitlement(supabase, data.storeId, plan.id, userId);
+
     const { error: updateError } = await supabase
       .from("stores")
       .update({ plan_id: plan.id })

@@ -13,7 +13,8 @@ export const Route = createFileRoute("/sitemap-tr.xml")({
             headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
           });
         } catch (cause) {
-          return new Response(cause instanceof Error ? cause.message : "error", { status: 500 });
+          console.error("sitemap build failed", cause);
+          return new Response("Sitemap unavailable", { status: 500 });
         }
       },
     },
