@@ -39,14 +39,19 @@ export function PackagingTab({ storeId }: { storeId: string }) {
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  const [usePoints, setUsePoints] = useState(false);
 
   const submit = async () => {
     if (!selected) return;
     setBusy(true);
     try {
-      await placeOrder({
-        data: { storeId, itemId: selected.id, quantity, deliveryNote: note.trim() || null },
+      const result = await placeOrder({
+        data: { storeId, itemId: selected.id, quantity, deliveryNote: note.trim() || null, usePoints },
       });
+      if (result.pointsUsed > 0) {
+        toast.success(`${result.pointsUsed} mentor puanınızla ${result.pointsUsed} TL indirim kazandınız`);
+        await queryClient.invalidateQueries({ queryKey: ["kolay-mentor", storeId] });
+      }
       await queryClient.invalidateQueries({ queryKey: ["kolay-packaging-orders", storeId] });
       setSelected(null);
       setQuantity(1);
@@ -179,6 +184,10 @@ export function PackagingTab({ storeId }: { storeId: string }) {
               Toplam:{" "}
               <strong>{formatMoney(selected.price * quantity, selected.currency)}</strong>
             </p>
+            <label className="flex min-h-12 items-center gap-3 rounded-2xl bg-hm-amber-soft px-4 text-sm font-semibold text-hm-ink">
+              <input type="checkbox" className="size-5" checked={usePoints} onChange={(e) => setUsePoints(e.target.checked)} />
+              Mentor puanlarımı kullan (1 puan = 1 TL, en fazla yarısı)
+            </label>
             <BigButton tone="teal" onClick={() => void submit()} disabled={busy}>
               {busy ? <Loader2 className="size-5 animate-spin" /> : null}
               Talebi gönder
