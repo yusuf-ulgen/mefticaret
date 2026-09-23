@@ -578,7 +578,7 @@ export const listPackagingItems = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("kolay_packaging_items")
       .select(
-        "id, title, description, category, unit, pack_size, list_price, sale_price, currency, image_url, supplier_name",
+        "id, title, description, category, unit, pack_size, list_price, sale_price, currency, image_url, supplier_name, in_stock",
       )
       .eq("is_active", true)
       .order("sort_order");
@@ -630,11 +630,12 @@ export const orderPackagingItem = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: item, error: itemError } = await supabase
       .from("kolay_packaging_items")
-      .select("id, sale_price, currency, is_active")
+      .select("id, sale_price, currency, is_active, in_stock")
       .eq("id", data.itemId)
       .maybeSingle();
     if (itemError) throw new Error(itemError.message);
     if (!item || !item.is_active) throw new Error("Bu ambalaj ürünü şu anda satışta değil");
+    if (!item.in_stock) throw new Error("Bu ambalaj ürünü şu anda tükendi");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: result, error } = await supabaseAdmin.rpc("kolay_order_packaging_srv" as never, {

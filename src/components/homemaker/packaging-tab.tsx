@@ -116,6 +116,9 @@ export function PackagingTab({ storeId }: { storeId: string }) {
                       </p>
                     ) : null}
                   </div>
+                  {item.in_stock === false ? (
+                    <span className="rounded-2xl bg-hm-rose-soft px-4 py-3 text-sm font-semibold text-hm-rose">Tükendi</span>
+                  ) : (
                   <BigButton
                     tone="teal"
                     onClick={() =>
@@ -129,6 +132,7 @@ export function PackagingTab({ storeId }: { storeId: string }) {
                   >
                     Sipariş et
                   </BigButton>
+                  )}
                 </div>
               </SoftCard>
             );

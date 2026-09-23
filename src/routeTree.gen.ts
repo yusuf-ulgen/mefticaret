@@ -70,6 +70,7 @@ import { Route as AuthenticatedAdminCommissionsRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin.coupons'
 import { Route as AuthenticatedAdminEinvoiceRouteImport } from './routes/_authenticated/admin.einvoice'
+import { Route as AuthenticatedAdminEvHanimlariRouteImport } from './routes/_authenticated/admin.ev-hanimlari'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminKolayRouteImport } from './routes/_authenticated/admin.kolay'
 import { Route as AuthenticatedAdminLanguagesRouteImport } from './routes/_authenticated/admin.languages'
@@ -629,6 +630,12 @@ const AuthenticatedAdminEinvoiceRoute =
   AuthenticatedAdminEinvoiceRouteImport.update({
     id: '/einvoice',
     path: '/einvoice',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminEvHanimlariRoute =
+  AuthenticatedAdminEvHanimlariRouteImport.update({
+    id: '/ev-hanimlari',
+    path: '/ev-hanimlari',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminFinanceRoute =
@@ -2119,6 +2126,7 @@ export interface FileRoutesByFullPath {
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
+  '/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
@@ -2427,6 +2435,7 @@ export interface FileRoutesByTo {
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
+  '/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
@@ -2736,6 +2745,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
+  '/_authenticated/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/_authenticated/admin/languages': typeof AuthenticatedAdminLanguagesRoute
@@ -3047,6 +3057,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/coupons'
     | '/admin/einvoice'
+    | '/admin/ev-hanimlari'
     | '/admin/finance'
     | '/admin/kolay'
     | '/admin/languages'
@@ -3355,6 +3366,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/coupons'
     | '/admin/einvoice'
+    | '/admin/ev-hanimlari'
     | '/admin/finance'
     | '/admin/kolay'
     | '/admin/languages'
@@ -3663,6 +3675,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/content'
     | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/einvoice'
+    | '/_authenticated/admin/ev-hanimlari'
     | '/_authenticated/admin/finance'
     | '/_authenticated/admin/kolay'
     | '/_authenticated/admin/languages'
@@ -4455,6 +4468,13 @@ declare module '@tanstack/react-router' {
       path: '/einvoice'
       fullPath: '/admin/einvoice'
       preLoaderRoute: typeof AuthenticatedAdminEinvoiceRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/ev-hanimlari': {
+      id: '/_authenticated/admin/ev-hanimlari'
+      path: '/ev-hanimlari'
+      fullPath: '/admin/ev-hanimlari'
+      preLoaderRoute: typeof AuthenticatedAdminEvHanimlariRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/finance': {
@@ -6201,6 +6221,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
   AuthenticatedAdminEinvoiceRoute: typeof AuthenticatedAdminEinvoiceRoute
+  AuthenticatedAdminEvHanimlariRoute: typeof AuthenticatedAdminEvHanimlariRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminKolayRoute: typeof AuthenticatedAdminKolayRoute
   AuthenticatedAdminLanguagesRoute: typeof AuthenticatedAdminLanguagesRoute
@@ -6254,6 +6275,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
   AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
   AuthenticatedAdminEinvoiceRoute: AuthenticatedAdminEinvoiceRoute,
+  AuthenticatedAdminEvHanimlariRoute: AuthenticatedAdminEvHanimlariRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
   AuthenticatedAdminKolayRoute: AuthenticatedAdminKolayRoute,
   AuthenticatedAdminLanguagesRoute: AuthenticatedAdminLanguagesRoute,
