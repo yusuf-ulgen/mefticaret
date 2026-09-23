@@ -42,17 +42,8 @@ import { addProductImage } from "@/lib/media.functions";
 import { uploadProductImage } from "@/lib/media";
 import { cleanProductPhoto } from "@/lib/photo-ai.functions";
 import { formatMoney } from "@/lib/mefti";
+import { SmartCategoryPicker } from "@/components/homemaker/category-picker";
 
-const CATEGORIES = [
-  "El yapımı takı",
-  "Ev tekstili",
-  "Sabun & mum",
-  "Kozmetik",
-  "Bebek & çocuk",
-  "Ev yapımı gıda",
-  "Hediyelik",
-  "Diğer",
-];
 
 /** Bu adede kadar düşen stok "az kaldı" sayılır. */
 const LOW_STOCK = 3;
@@ -550,7 +541,7 @@ function AddProductSheet({
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("1");
-  const [category, setCategory] = useState(CATEGORIES[0]!);
+  const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [optionOne, setOptionOne] = useState({ name: "Renk", values: "" });
@@ -589,7 +580,7 @@ function AddProductSheet({
     setAiBusy(true);
     try {
       const result = await writeCopy({
-        data: { storeId, title: title.trim(), keywords: category, tone: "samimi" },
+        data: { storeId, title: title.trim(), keywords: category || title.trim(), tone: "samimi" },
       });
       setDescription(result.text.trim());
       toast.success("Açıklama hazır, dilediğiniz gibi değiştirebilirsiniz.");
@@ -652,7 +643,7 @@ function AddProductSheet({
           storeId,
           title: title.trim(),
           description: description.trim() || undefined,
-          productType: category,
+          productType: category || undefined,
           basePrice: priceValue,
           stock: Math.max(0, Number(stock) || 0),
           status: "active",
@@ -811,19 +802,7 @@ function AddProductSheet({
           </Field>
         </div>
 
-        <Field label="Kategori">
-          <select
-            className={inputClass}
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-          >
-            {CATEGORIES.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </Field>
+        <SmartCategoryPicker storeId={storeId} title={title} value={category} onChange={setCategory} />
 
         <Field label="Açıklama" hint="İsterseniz yardımcı sizin için yazsın.">
           <textarea

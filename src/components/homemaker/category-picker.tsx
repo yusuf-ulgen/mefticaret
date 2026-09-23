@@ -352,11 +352,11 @@ function CreateSheet({
         </Field>
         {main === "__new" ? (
           <Field label="Yeni ana kategori adı">
-            <input className={inputClass} maxLength={60} value={newMain} onChange={(e) => setNewMain(e.target.value)} placeholder="Örn: Doğal Kozmetik" />
+            <input className={inputClass} maxLength={38} value={newMain} onChange={(e) => setNewMain(e.target.value)} placeholder="Örn: Doğal Kozmetik" />
           </Field>
         ) : null}
         <Field label="Kategori adı">
-          <input className={inputClass} maxLength={60} value={sub} onChange={(e) => setSub(e.target.value)} placeholder="Örn: Keçi Sütü Sabunu" />
+          <input className={inputClass} maxLength={38} value={sub} onChange={(e) => setSub(e.target.value)} placeholder="Örn: Keçi Sütü Sabunu" />
         </Field>
         <button
           type="button"
