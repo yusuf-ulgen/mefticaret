@@ -503,17 +503,74 @@ export function parsePairs(value: unknown): { left: string; right: string }[] {
     });
 }
 
+/** Render edilmesine izin verilen etiketler. Diğer tüm etiketler atılır. */
+const ALLOWED_TAGS = new Set([
+  "a", "b", "blockquote", "br", "code", "div", "em", "figcaption", "figure",
+  "h1", "h2", "h3", "h4", "h5", "h6", "hr", "i", "img", "li", "ol", "p",
+  "picture", "pre", "small", "source", "span", "strong", "sub", "sup",
+  "table", "tbody", "td", "tfoot", "th", "thead", "tr", "u", "ul",
+]);
+
+/** Etiket başına izin verilen nitelikler; listede olmayan her nitelik atılır. */
+const ALLOWED_ATTRS: Record<string, Set<string>> = {
+  "*": new Set(["class", "id", "style", "title", "dir", "lang"]),
+  a: new Set(["href", "target", "rel"]),
+  img: new Set(["src", "srcset", "alt", "width", "height", "loading"]),
+  source: new Set(["src", "srcset", "type", "media"]),
+  td: new Set(["colspan", "rowspan"]),
+  th: new Set(["colspan", "rowspan", "scope"]),
+};
+
+const SAFE_URL = /^(https?:|mailto:|tel:|\/|#|data:image\/(png|jpe?g|gif|webp|avif);base64,)/i;
+
+function safeAttrValue(name: string, value: string): string | null {
+  const clean = value.replace(/[\u0000-\u001f]/g, "").trim();
+  if (name === "href" || name === "src" || name === "srcset") {
+    return SAFE_URL.test(clean) ? clean : null;
+  }
+  if (name === "style" && /(expression|url\s*\(\s*['"]?\s*javascript)/i.test(clean)) return null;
+  return clean;
+}
+
 /**
- * Özel HTML bloklarını render etmeden önce script/iframe ve inline event
- * niteliklerini temizler. Özel JavaScript ayrı ve bilinçli bir alandır.
+ * Özel HTML bloklarını izin listesiyle temizler: yalnızca güvenli etiketler ve
+ * nitelikler kalır, event nitelikleri (tırnaklı veya tırnaksız) ve betik
+ * çalıştıran adresler tamamen atılır. Özel JavaScript ayrı bir alandır.
  */
-export function sanitizeHtml(html: string) {
-  return html
-    .replace(/<\s*(script|iframe|object|embed|link|meta)[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
-    .replace(/<\s*(script|iframe|object|embed|link|meta)[^>]*\/?>/gi, "")
-    .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "")
-    .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "")
-    .replace(/javascript:/gi, "");
+export function sanitizeHtml(html: string): string {
+  // Başlangıçta script/style/iframe gibi etiketlerin içeriği de silinir.
+  const withoutRawBlocks = html.replace(
+    /<\s*(script|style|iframe|object|embed|template|noscript|svg|math)[\s\S]*?(<\s*\/\s*\1\s*>|$)/gi,
+    "",
+  );
+
+  return withoutRawBlocks.replace(/<[^>]*>?/g, (tag) => {
+    const match = /^<\s*(\/?)([a-zA-Z][a-zA-Z0-9-]*)([\s\S]*?)\/?\s*>?$/.exec(tag);
+    if (!match) return "";
+    const closing = match[1] === "/";
+    const name = (match[2] ?? "").toLowerCase();
+    if (!ALLOWED_TAGS.has(name)) return "";
+    if (closing) return `</${name}>`;
+
+    const rest = match[3] ?? "";
+    const allowed = ALLOWED_ATTRS[name];
+    const attrs: string[] = [];
+    const attrPattern = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*(?:=\s*("[^"]*"|'[^']*'|[^\s"'`=<>]+))?/g;
+    let attr: RegExpExecArray | null;
+    while ((attr = attrPattern.exec(rest)) !== null) {
+      const attrName = (attr[1] ?? "").toLowerCase();
+      if (attrName.startsWith("on") || attrName === "formaction") continue;
+      if (!ALLOWED_ATTRS["*"]!.has(attrName) && !allowed?.has(attrName)) continue;
+      const raw = attr[2] ?? "";
+      const unquoted = raw.replace(/^['"]|['"]$/g, "");
+      const value = safeAttrValue(attrName, unquoted);
+      if (value === null) continue;
+      attrs.push(`${attrName}="${value.replace(/"/g, "&quot;")}"`);
+    }
+    if (name === "a") attrs.push('rel="noopener noreferrer nofollow"');
+    const selfClosing = name === "br" || name === "hr" || name === "img" || name === "source";
+    return `<${name}${attrs.length ? ` ${attrs.join(" ")}` : ""}${selfClosing ? " /" : ""}>`;
+  });
 }
 
 /**
