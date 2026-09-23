@@ -72,7 +72,7 @@ export function StoreBoosters({
           key={partner.id}
           href={
             partner.productSlug
-              ? `/s/${partner.storeSlug}/urun/${partner.productSlug}`
+              ? `/s/${partner.storeSlug}/p/${partner.productSlug}`
               : `/s/${partner.storeSlug}`
           }
           className="block rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary"
