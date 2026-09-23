@@ -427,10 +427,12 @@ export const getStoreBoosters = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!store) return null;
 
-    const { data: promo } = await client
+    // Kampanya ayarları herkese açık değildir; yalnız mağazanın gösterilecek alanları okunur.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: promo } = await supabaseAdmin
       .from("kolay_promo_settings")
       .select(
-        "bundle_enabled, bundle_min_quantity, bundle_discount_percent, free_shipping_enabled, free_shipping_threshold, cross_sell_enabled",
+        "bundle_enabled, bundle_min_quantity, bundle_discount_percent, free_shipping_enabled, free_shipping_threshold, cross_sell_enabled, production_mode, production_message, gift_wrap_enabled, gift_wrap_fee",
       )
       .eq("store_id", store.id)
       .maybeSingle();
@@ -445,7 +447,19 @@ export const getStoreBoosters = createServerFn({ method: "POST" })
       .order("sort_order")
       .limit(3);
 
+    const { data: rateRows } = await client
+      .from("platform_currency_rates")
+      .select("code, rate")
+      .in("code", ["EUR", "USD"]);
+    const rates: Record<string, number> = {};
+    for (const r of rateRows ?? []) if (Number(r.rate) > 0) rates[r.code] = Number(r.rate);
+
     return {
+      production: promo?.production_mode
+        ? { message: promo.production_message || "Şu an üretimdeyim, siparişiniz taze hazırlanacak." }
+        : null,
+      giftWrap: promo?.gift_wrap_enabled ? { fee: Number(promo.gift_wrap_fee ?? 0) } : null,
+      rates,
       bundle:
         promo?.bundle_enabled === true
           ? {
@@ -608,6 +622,7 @@ export const orderPackagingItem = createServerFn({ method: "POST" })
         itemId: z.guid(),
         quantity: z.number().int().min(1).max(50),
         deliveryNote: z.string().trim().max(200).nullable(),
+        usePoints: z.boolean().optional(),
       })
       .parse(data),
   )
@@ -621,19 +636,18 @@ export const orderPackagingItem = createServerFn({ method: "POST" })
     if (itemError) throw new Error(itemError.message);
     if (!item || !item.is_active) throw new Error("Bu ambalaj ürünü şu anda satışta değil");
 
-    const unitPrice = Number(item.sale_price);
-    const { error } = await supabase.from("kolay_packaging_orders").insert({
-      store_id: data.storeId,
-      item_id: item.id,
-      quantity: data.quantity,
-      unit_price: unitPrice,
-      total: Number((unitPrice * data.quantity).toFixed(2)),
-      currency: item.currency,
-      delivery_note: data.deliveryNote,
-      requested_by: userId,
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: result, error } = await supabaseAdmin.rpc("kolay_order_packaging_srv" as never, {
+      _user_id: userId,
+      _store_id: data.storeId,
+      _item_id: item.id,
+      _quantity: data.quantity,
+      _note: data.deliveryNote,
+      _use_points: data.usePoints ?? false,
     } as never);
     if (error) throw new Error(error.message);
-    return { ok: true as const };
+    const r = (result ?? {}) as { pointsUsed?: number };
+    return { ok: true as const, pointsUsed: Number(r.pointsUsed ?? 0) };
   });
 
 /* --------------------------- 1 Dakika Akademi ------------------------------- */
