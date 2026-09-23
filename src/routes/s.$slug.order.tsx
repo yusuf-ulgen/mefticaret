@@ -153,6 +153,35 @@ function OrderPage() {
             </section>
           ) : null}
 
+          {result && result.order.is_digital && result.digital.length === 0 && result.payment.unpaid ? (
+            <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
+              <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 6px" }}>Dijital teslimat</h2>
+              <p style={{ margin: 0, fontSize: 14, color: muted }}>
+                Kargo gerekmez. Ödemeniz onaylandığında indirme bağlantınız burada açılacak.
+              </p>
+            </section>
+          ) : null}
+
+          {result && result.digital.length > 0 ? (
+            <DigitalAccess
+              digital={result.digital}
+              phone={result.order.customer_phone}
+              orderNumber={result.order.order_number}
+              pageUrl={
+                typeof window === "undefined"
+                  ? ""
+                  : `${window.location.origin}/s/${slug}/order?no=${encodeURIComponent(result.order.order_number)}&email=${encodeURIComponent(email.trim())}`
+              }
+              storeName={store.name}
+              primary={t.primary_color}
+              border={border}
+              radius={radius}
+              cardBg={cardBg}
+              muted={muted}
+              headingFont={fonts.heading}
+            />
+          ) : null}
+
           {result && result.payment.unpaid ? (
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
               <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 10px" }}>Ödeme</h2>
@@ -308,5 +337,92 @@ function Badge({ text, accent, radius }: { text: string; accent: string; radius:
     <span style={{ background: `${accent}22`, border: `1px solid ${accent}`, borderRadius: radius, padding: "5px 12px", fontSize: 12 }}>
       {text}
     </span>
+  );
+}
+
+/** Ödeme onaylı dijital siparişte anında erişim: indirme / bağlantı + WhatsApp'a gönderme. */
+function DigitalAccess({
+  digital,
+  phone,
+  orderNumber,
+  pageUrl,
+  storeName,
+  primary,
+  border,
+  radius,
+  cardBg,
+  muted,
+  headingFont,
+}: {
+  digital: NonNullable<OrderStatus>["digital"];
+  phone: string | null;
+  orderNumber: string;
+  pageUrl: string;
+  storeName: string;
+  primary: string;
+  border: string;
+  radius: string;
+  cardBg: string;
+  muted: string;
+  headingFont: string;
+}) {
+  let digits = (phone ?? "").replace(/\D/g, "");
+  if (digits.startsWith("0")) digits = `9${digits}`;
+  else if (digits.length === 10) digits = `90${digits}`;
+  const text = `${storeName} — ${orderNumber} numaralı dijital siparişiniz hazır. İndirme sayfanız: ${pageUrl}`;
+  const waUrl = digits.length >= 11 ? `https://wa.me/${digits}?text=${encodeURIComponent(text)}` : null;
+  const buttonStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    padding: "14px 20px",
+    borderRadius: radius,
+    background: primary,
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: 15,
+    textDecoration: "none",
+  } as const;
+
+  return (
+    <section style={{ border: `2px solid ${primary}`, borderRadius: radius, background: cardBg, padding: 20 }}>
+      <h2 style={{ fontFamily: headingFont, fontSize: 18, margin: "0 0 4px" }}>Dijital ürününüz hazır</h2>
+      <p style={{ margin: "0 0 14px", fontSize: 13, color: muted }}>
+        Dijital Teslimat (Kargo Gerektirmez). İndirme bağlantısı 1 saat geçerlidir; süre dolarsa bu sayfayı yenileyin.
+      </p>
+      <div style={{ display: "grid", gap: 14 }}>
+        {digital.map((item) => (
+          <div key={item.productId} style={{ border: `1px solid ${border}`, borderRadius: radius, padding: 14 }}>
+            <strong style={{ fontSize: 14 }}>{item.title}</strong>
+            {item.deliveryNote ? (
+              <p style={{ margin: "8px 0 0", fontSize: 14, whiteSpace: "pre-wrap" }}>{item.deliveryNote}</p>
+            ) : null}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 12 }}>
+              {item.downloadUrl ? (
+                <a href={item.downloadUrl} style={buttonStyle}>
+                  Dosyayı İndir{item.fileName ? ` (${item.fileName})` : ""}
+                </a>
+              ) : null}
+              {item.accessUrl ? (
+                <a href={item.accessUrl} target="_blank" rel="noreferrer noopener" style={buttonStyle}>
+                  Bağlantıya Git →
+                </a>
+              ) : null}
+            </div>
+          </div>
+        ))}
+      </div>
+      {waUrl ? (
+        <a
+          href={waUrl}
+          target="_blank"
+          rel="noreferrer noopener"
+          style={{ display: "inline-block", marginTop: 14, fontSize: 14, color: primary, fontWeight: 600 }}
+        >
+          Bağlantıyı WhatsApp ile telefonuma gönder
+        </a>
+      ) : null}
+    </section>
   );
 }
