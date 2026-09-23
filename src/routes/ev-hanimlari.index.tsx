@@ -202,30 +202,103 @@ function HomeMakerAuthPage() {
           </span>
           <h1 className="mt-4 text-[26px] font-semibold leading-tight text-hm-ink">Evde Üretenler Portalı</h1>
           <p className="mt-2 text-sm text-hm-ink-soft">
-            E-posta ve şifrenizle girin. Onay kodu beklemek yok.
+            Telefon numaranızla kod alarak ya da e-posta ve şifrenizle girin.
           </p>
         </div>
 
         <div className="rounded-[28px] border border-hm-line bg-white p-6 shadow-sm">
-          <div className="mb-5 grid grid-cols-2 gap-1 rounded-2xl bg-hm-sand p-1">
-            {(["login", "register"] as Mode[]).map((value) => (
+          <div className="mb-5 grid grid-cols-3 gap-1 rounded-2xl bg-hm-sand p-1">
+            {(["phone", "login", "register"] as Mode[]).map((value) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => {
                   setMode(value);
                   setConfirmSent(false);
+                  setCodeSent(false);
+                  setCode("");
                 }}
-                className={`h-11 rounded-xl text-sm font-semibold transition ${
+                className={`h-11 rounded-xl text-[13px] font-semibold transition ${
                   mode === value ? "bg-white text-hm-ink shadow-sm" : "text-hm-ink-soft"
                 }`}
               >
-                {value === "login" ? "Giriş yap" : "Hesap oluştur"}
+                {value === "phone" ? "Telefonla" : value === "login" ? "Giriş yap" : "Hesap aç"}
               </button>
             ))}
           </div>
 
-          {confirmSent ? (
+          {mode === "phone" ? (
+            codeSent ? (
+              <form onSubmit={confirmCode} className="grid gap-4">
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-hm-ink" htmlFor="hm-code">
+                    Telefonunuza gelen 4 haneli kod
+                  </label>
+                  <Input
+                    id="hm-code"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    required
+                    maxLength={4}
+                    placeholder="0000"
+                    value={code}
+                    onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 4))}
+                    className="h-16 rounded-2xl border-hm-line text-center text-2xl tracking-[0.5em]"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={busy || code.length !== 4}
+                  className="h-14 rounded-2xl bg-hm-rose text-base font-semibold text-white hover:bg-hm-rose/90"
+                >
+                  {busy ? <Loader2 className="size-5 animate-spin" /> : "Giriş yap"}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCodeSent(false);
+                    setCode("");
+                  }}
+                  className="text-center text-sm font-medium text-hm-ink-soft underline-offset-4 hover:underline"
+                >
+                  Numaramı değiştir / yeni kod isteyin
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={askCode} className="grid gap-4">
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-hm-ink" htmlFor="hm-phone">
+                    Telefon numaranız
+                  </label>
+                  <div className="relative flex items-center">
+                    <Phone className="pointer-events-none absolute left-4 size-5 text-hm-ink-soft" />
+                    <Input
+                      id="hm-phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      required
+                      maxLength={20}
+                      placeholder="0555 000 00 00"
+                      value={phone}
+                      onChange={(event) => setPhone(event.target.value)}
+                      className="h-14 rounded-2xl border-hm-line pl-12 text-base"
+                    />
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  disabled={busy || phone.replace(/\D/g, "").length < 10}
+                  className="h-14 rounded-2xl bg-hm-rose text-base font-semibold text-white hover:bg-hm-rose/90"
+                >
+                  {busy ? <Loader2 className="size-5 animate-spin" /> : "Kod gönder"}
+                </Button>
+                <p className="text-center text-xs text-hm-ink-soft">
+                  Kod ücretsizdir ve 5 dakika geçerlidir.
+                </p>
+              </form>
+            )
+          ) : confirmSent ? (
             <div className="grid gap-3 rounded-2xl bg-hm-amber-soft p-4 text-sm text-hm-ink">
               <p className="font-semibold">E-postanızı kontrol edin.</p>
               <p className="text-hm-ink-soft">
