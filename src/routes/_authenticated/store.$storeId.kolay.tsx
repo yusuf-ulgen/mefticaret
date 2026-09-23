@@ -274,6 +274,10 @@ function KolayPanel() {
                 live={live}
               />
             </div>
+            <div className="mt-4 grid gap-4">
+              <PromoCard storeId={storeId} currency={store.currency ?? "TRY"} />
+              <RemindersCard storeId={storeId} />
+            </div>
           </>
         ) : null}
         {tab === "products" ? (
@@ -287,15 +291,23 @@ function KolayPanel() {
           />
         ) : null}
         {tab === "orders" ? (
-          <OrdersTab
-            storeId={storeId}
-            storeSlug={store.slug}
-            storeName={store.name}
-            orders={orders ?? []}
-            products={products ?? []}
-            currency={store.currency ?? "TRY"}
-          />
+          <div className="grid gap-4">
+            <ReceiptVerifier
+              storeId={storeId}
+              orders={orders ?? []}
+              currency={store.currency ?? "TRY"}
+            />
+            <OrdersTab
+              storeId={storeId}
+              storeSlug={store.slug}
+              storeName={store.name}
+              orders={orders ?? []}
+              products={products ?? []}
+              currency={store.currency ?? "TRY"}
+            />
+          </div>
         ) : null}
+        {tab === "packaging" ? <PackagingTab storeId={storeId} /> : null}
         {tab === "customers" ? <CustomersTab storeId={storeId} /> : null}
         {tab === "insights" ? <InsightsTab storeId={storeId} /> : null}
       </main>
@@ -304,12 +316,13 @@ function KolayPanel() {
         aria-label="Panel bölümleri"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-hm-line bg-white pb-[env(safe-area-inset-bottom)]"
       >
-        <div className="mx-auto grid max-w-lg grid-cols-5">
+        <div className="mx-auto grid max-w-lg grid-cols-6">
           {(
             [
               ["store", "Mağazam", Store],
               ["products", "Ürünlerim", Package],
               ["orders", "Siparişler", ShoppingBag],
+              ["packaging", "Ambalaj", ShoppingBasket],
               ["customers", "Müşteriler", Users],
               ["insights", "Raporlar", BarChart3],
             ] as const
