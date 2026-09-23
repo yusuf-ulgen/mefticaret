@@ -1,6 +1,7 @@
 import { Check, Copy, Share2, X } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 
 /** Kolay Panel'in paylaşılan sade arayüz parçaları. */
@@ -105,14 +106,14 @@ export function Sheet({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
-  return (
+  if (!open || typeof document === "undefined") return null;
+  return createPortal(
     <div
       role="presentation"
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="hm-app fixed inset-0 z-[90] flex items-end justify-center overflow-x-hidden bg-black/40 p-0 sm:items-center sm:p-6"
+      className="hm-app fixed inset-0 z-[200] flex items-end justify-center overflow-x-hidden bg-black/40 p-0 sm:items-center sm:p-6"
     >
       <div
         role="dialog"
@@ -134,7 +135,8 @@ export function Sheet({
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
