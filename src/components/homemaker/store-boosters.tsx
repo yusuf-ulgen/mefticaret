@@ -33,7 +33,7 @@ export function StoreBoosters({
 
   if (!data) return null;
   const { bundle, freeShipping, crossSell, production, giftWrap, rates } = data;
-  const canConvert = currency === "TRY" && (rates.EUR || rates.USD);
+  const canConvert = currency === "TRY" && (rates['EUR'] || rates['USD']);
   const converted = shown !== "TRY" && rates[shown] ? cartTotal / rates[shown] : null;
 
   const remaining = freeShipping ? Math.max(0, freeShipping.threshold - cartTotal) : 0;
