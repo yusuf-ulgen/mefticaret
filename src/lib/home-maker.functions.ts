@@ -84,10 +84,19 @@ export const checkKolayAccess = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const [{ data: role }, { data: store }] = await Promise.all([
       supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "home_maker").maybeSingle(),
-      supabase.from("stores").select("id, store_kind").eq("id", data.storeId).maybeSingle(),
+      supabase.from("stores").select("id, store_kind, owner_id").eq("id", data.storeId).maybeSingle(),
     ]);
+    let member = store?.owner_id === userId;
+    if (store && !member) {
+      const { data: su } = await supabase
+        .from("store_users")
+        .select("user_id")
+        .eq("store_id", data.storeId)
+        .eq("user_id", userId)
+        .maybeSingle();
+      member = Boolean(su);
+    }
     if (!role) return { ok: false as const, reason: "role" as const };
-    // stores RLS yalnız yöneticinin görebileceği satırı döndürür.
-    if (!store || store.store_kind !== "micro") return { ok: false as const, reason: "store" as const };
+    if (!store || !member || store.store_kind !== "micro") return { ok: false as const, reason: "store" as const };
     return { ok: true as const };
   });
