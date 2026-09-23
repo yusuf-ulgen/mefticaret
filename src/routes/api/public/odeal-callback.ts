@@ -34,25 +34,33 @@ export const Route = createFileRoute("/api/public/odeal-callback")({
         if (!payment) return new Response("ok");
         if (payment.status === "COMPLETED") return new Response("ok");
 
-        let status = "PENDING";
+        // Bildirim yalnızca tetikleyicidir; kayda geçen her alan Ödeal'in
+        // doğrulama yanıtından gelir, çağırandan gelen alanlar yazılmaz.
+        let verified: Awaited<ReturnType<typeof checkPaymentStatus>>;
         try {
-          const verified = await checkPaymentStatus({
+          verified = await checkPaymentStatus({
             id: providerId ?? payment.provider_payment_id,
             externalId,
           });
-          status = verified.status;
         } catch {
           return new Response("ok");
         }
+        const status = verified.status;
+        const verifiedRecord = verified as unknown as Record<string, unknown>;
+        const verifiedId = verifiedRecord["id"] != null ? String(verifiedRecord["id"]) : null;
+        const verifiedUniqueKey =
+          typeof verifiedRecord["uniqueKey"] === "string" ? (verifiedRecord["uniqueKey"] as string) : null;
+        const verifiedReason =
+          typeof verifiedRecord["reason"] === "string" ? (verifiedRecord["reason"] as string) : null;
 
         await supabaseAdmin
           .from("invoice_payments")
           .update({
             status,
-            provider_payment_id: providerId ?? payment.provider_payment_id,
-            unique_key: typeof payload["uniqueKey"] === "string" ? payload["uniqueKey"] : null,
-            reason: typeof payload["reason"] === "string" ? payload["reason"] : null,
-            raw_callback: payload as never,
+            provider_payment_id: verifiedId ?? payment.provider_payment_id,
+            unique_key: verifiedUniqueKey,
+            reason: verifiedReason,
+            raw_callback: verifiedRecord as never,
             updated_at: new Date().toISOString(),
           })
           .eq("id", payment.id);
