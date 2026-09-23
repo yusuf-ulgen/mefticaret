@@ -696,7 +696,10 @@ function CheckoutPage() {
                     {line.title} × {line.quantity}
                   </span>
                   <span>{formatMoney(line.price * line.quantity, line.currency)}</span>
-                </div>
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <StoreBoosters slug={slug} cartTotal={subtotal} currency={store.currency} />
+            </div>
               ))}
             </div>
             <Field label="İndirim kodu" muted={muted}>
