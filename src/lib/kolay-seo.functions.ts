@@ -36,17 +36,12 @@ export const saveKolayStoreSeo = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: canManage } = await supabase.rpc("can_manage_store" as never, {
-      _store_id: data.storeId,
-      _user_id: context.userId,
-    } as never);
     const { data: row, error } = await supabase
       .from("store_settings")
       .select("store_id, seo")
       .eq("store_id", data.storeId)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!row && canManage === false) throw new Error("Bu mağazayı düzenleme yetkiniz yok");
     const seo = { ...((row?.seo ?? {}) as Record<string, unknown>) };
     if (data.title) seo["homeTitle"] = data.title;
     else delete seo["homeTitle"];
