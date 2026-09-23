@@ -19583,13 +19583,14 @@ export type Database = {
           slug: string
         }[]
       }
-      kolay_order_packaging: {
+      kolay_order_packaging_srv: {
         Args: {
           _item_id: string
           _note: string
           _quantity: number
           _store_id: string
           _use_points: boolean
+          _user_id: string
         }
         Returns: Json
       }
