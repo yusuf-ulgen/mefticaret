@@ -21,6 +21,8 @@ async function computeBalance(
   currency: string;
   today: number;
   paidTotal: number;
+  commission: number;
+  commissionRate: number;
   requested: number;
   withdrawable: number;
 }> {
@@ -64,12 +66,32 @@ async function computeBalance(
     .filter((row: { status: string }) => row.status !== "rejected")
     .reduce((sum: number, row: { amount: number }) => sum + Number(row.amount ?? 0), 0);
 
+  // Platform komisyonu: siparişe kaydedilen oranla aynı kural (plan oranı, yoksa %2).
+  let commissionRate = 0.02;
+  const { data: storePlan } = await supabase
+    .from("stores")
+    .select("plan_id")
+    .eq("id", storeId)
+    .maybeSingle();
+  if (storePlan?.plan_id) {
+    const { data: plan } = await supabase
+      .from("plans")
+      .select("commission_rate")
+      .eq("id", storePlan.plan_id)
+      .maybeSingle();
+    if (plan?.commission_rate != null) commissionRate = Number(plan.commission_rate);
+  }
+  const commission = Math.round(paidTotal * commissionRate * 100) / 100;
+  const netTotal = paidTotal - commission;
+
   return {
     currency: String(store.currency ?? "TRY"),
     today: Number(today.toFixed(2)),
     paidTotal: Number(paidTotal.toFixed(2)),
+    commission: Number(commission.toFixed(2)),
+    commissionRate,
     requested: Number(requested.toFixed(2)),
-    withdrawable: Number(Math.max(0, paidTotal - requested).toFixed(2)),
+    withdrawable: Number(Math.max(0, netTotal - requested).toFixed(2)),
   };
 }
 
