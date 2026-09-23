@@ -26,6 +26,7 @@ import { ManualOrderSheet } from "@/components/homemaker/manual-order-sheet";
 import { refreshArasTracking, sendOrderToAras } from "@/lib/aras.functions";
 import { createPickupCode } from "@/lib/homemaker.functions";
 import type { SimpleOrder, SimpleProduct } from "@/lib/homemaker-queries";
+import { DigitalOrderBadge, DigitalRevenueCard } from "@/components/homemaker/digital-product";
 import { delegationsQuery } from "@/lib/kolay-v4-queries";
 import { formatMoney } from "@/lib/mefti";
 import { startOrderPayment } from "@/lib/order-payment.functions";
@@ -234,6 +235,7 @@ export function OrdersTab({
   return (
     <div className="grid gap-4">
       <SplitInvitesCard storeId={storeId} />
+      <DigitalRevenueCard orders={orders} currency={orders[0]?.currency ?? "TRY"} />
       <div className="grid grid-cols-3 gap-2">
         <SoftCard className="text-center">
           <p className="text-xs text-hm-ink-soft">Bugün</p>
@@ -334,6 +336,11 @@ export function OrdersTab({
                     <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-hm-emerald-soft px-2 py-0.5 text-[11px] font-semibold text-hm-emerald">
                       <MessageCircle className="size-3" /> WhatsApp'tan otomatik geldi
                     </span>
+                  ) : null}
+                  {order.is_digital ? (
+                    <div className="mt-1">
+                      <DigitalOrderBadge />
+                    </div>
                   ) : null}
                 </div>
                 <div className="text-right">

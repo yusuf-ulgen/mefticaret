@@ -28,13 +28,16 @@ export const placeOrderSchema = z.object({
     phone: z.string().trim().min(5).max(40),
     acceptsMarketing: z.boolean().default(false),
   }),
-  address: z.object({
-    country: z.string().trim().min(2).max(60),
-    city: z.string().trim().min(1).max(80),
-    district: z.string().trim().max(80).optional(),
-    line1: z.string().trim().min(5).max(240),
-    postalCode: z.string().trim().max(20).optional(),
-  }),
+  /** Yalnız dijital ürünlü sepetlerde boş bırakılabilir; sunucu doğrular. */
+  address: z
+    .object({
+      country: z.string().trim().min(2).max(60),
+      city: z.string().trim().min(1).max(80),
+      district: z.string().trim().max(80).optional(),
+      line1: z.string().trim().min(5).max(240),
+      postalCode: z.string().trim().max(20).optional(),
+    })
+    .optional(),
   billingAddress: z
     .object({
       recipient: z.string().trim().max(120).optional(),
@@ -154,13 +157,13 @@ async function priceCart(
   const variantIds = [...new Set(input.items.map((item) => item.variantId))];
   const { data: variants, error: variantsError } = await supabase
     .from("product_variants")
-    .select("id, product_id, title, sku, price, stock, products!inner(id, title, status, base_price, store_id)")
+    .select("id, product_id, title, sku, price, stock, products!inner(id, title, status, base_price, store_id, is_digital)")
     .eq("store_id", store.id)
     .in("id", variantIds);
   if (variantsError) throw new Error(variantsError.message);
 
   type VariantRow = NonNullable<typeof variants>[number] & {
-    products: { id: string; title: string; status: string; base_price: number; store_id: string };
+    products: { id: string; title: string; status: string; base_price: number; store_id: string; is_digital: boolean };
   };
   const rows = (variants ?? []) as VariantRow[];
 
@@ -213,10 +216,13 @@ async function priceCart(
     discountRow = { id: discount.id, code: discount.code, used_count: discount.used_count };
   }
 
+  // Yalnız dijital ürünlerden oluşan sepet kargo gerektirmez.
+  const digitalOnly = lines.length > 0 && lines.every((line) => line.variant.products.is_digital === true);
+
   // Kargo
   let shippingTotal = 0;
   let shippingTitle: string | null = null;
-  if (input.shippingRateId) {
+  if (input.shippingRateId && !digitalOnly) {
     const { data: rate, error: rateError } = await supabase
       .from("shipping_rates")
       .select("id, title, price, free_over, eta_days, is_active")
@@ -297,6 +303,7 @@ async function priceCart(
     giftCard,
     giftCardApplied,
     grandTotal,
+    digitalOnly,
     currency: store.currency,
   };
 }
@@ -348,6 +355,7 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
       paymentFee: quote.extraFee,
       giftCardApplied: quote.giftCardApplied,
       grandTotal: quote.grandTotal,
+      digitalOnly: quote.digitalOnly,
     };
   } catch (error) {
     return {
@@ -368,6 +376,7 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
       paymentFee: 0,
       giftCardApplied: 0,
       grandTotal: 0,
+      digitalOnly: false,
     };
   }
 }
@@ -433,7 +442,11 @@ export async function createStorefrontOrder(
     giftCard,
     giftCardApplied,
     grandTotal,
+    digitalOnly,
   } = priced;
+  // Fiziki ürün içeren sepetlerde teslimat adresi zorunludur (sunucu karar verir).
+  if (!digitalOnly && !input.address) throw new Error("Teslimat adresi gerekli.");
+
 
 
   // Müşteri kaydı (e-posta ile tekilleştirilir)
@@ -465,15 +478,17 @@ export async function createStorefrontOrder(
     await supabase.from("customers").update({ user_id: auth.userId }).eq("id", customerId).is("user_id", null);
   }
 
-  const addressJson = {
-    recipient: input.customer.fullName,
-    phone: input.customer.phone,
-    country: input.address.country,
-    city: input.address.city,
-    district: input.address.district ?? null,
-    line1: input.address.line1,
-    postal_code: input.address.postalCode ?? null,
-  };
+  const addressJson = input.address
+    ? {
+        recipient: input.customer.fullName,
+        phone: input.customer.phone,
+        country: input.address.country,
+        city: input.address.city,
+        district: input.address.district ?? null,
+        line1: input.address.line1,
+        postal_code: input.address.postalCode ?? null,
+      }
+    : { recipient: input.customer.fullName, phone: input.customer.phone, digital_delivery: true };
 
   const billingJson = input.billingAddress
     ? {
@@ -535,9 +550,11 @@ export async function createStorefrontOrder(
       discount_code: discountRow?.code ?? null,
       customer_email: input.customer.email.toLowerCase(),
       customer_name: input.customer.fullName,
+      customer_phone: input.customer.phone,
+      is_digital: digitalOnly,
       shipping_address: addressJson,
       billing_address: billingJson,
-      shipping_carrier: shippingTitle,
+      shipping_carrier: digitalOnly ? null : shippingTitle,
       note: input.note?.length ? input.note : null,
       gift_wrap: input.giftWrap === true,
       gift_message: input.giftWrap && input.giftMessage?.length ? input.giftMessage : null,
@@ -670,7 +687,7 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
   const { data: order, error } = await supabase
     .from("orders")
     .select(
-      "id, order_number, status, payment_status, fulfillment_status, currency, subtotal, discount_total, shipping_total, tax_total, grand_total, customer_name, shipping_address, shipping_carrier, tracking_number, placed_at",
+      "id, order_number, status, payment_status, fulfillment_status, currency, subtotal, discount_total, shipping_total, tax_total, grand_total, customer_name, customer_phone, is_digital, shipping_address, shipping_carrier, tracking_number, placed_at",
     )
     .eq("store_id", store.id)
     .eq("order_number", input.orderNumber)
@@ -681,7 +698,7 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
 
   const { data: items } = await supabase
     .from("order_items")
-    .select("id, title, variant_title, unit_price, quantity, line_total")
+    .select("id, product_id, title, variant_title, unit_price, quantity, line_total")
     .eq("order_id", order.id);
 
   const { data: shipments } = await supabase
@@ -706,11 +723,54 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
     cardAvailable = await cardPaymentAvailable();
   }
 
+  // Dijital teslimat: dosya/bağlantı yalnız ödeme onaylandıktan sonra ve
+  // kısa ömürlü imzalı adresle verilir.
+  const digitalProductIds = [
+    ...new Set((items ?? []).map((item) => item.product_id).filter((id): id is string => Boolean(id))),
+  ];
+  let digital: {
+    productId: string;
+    title: string;
+    downloadUrl: string | null;
+    fileName: string | null;
+    accessUrl: string | null;
+    deliveryNote: string | null;
+  }[] = [];
+  if (digitalProductIds.length > 0) {
+    const { data: assets } = await supabase
+      .from("kolay_digital_assets")
+      .select("product_id, file_path, file_name, access_url, delivery_note")
+      .eq("store_id", store.id)
+      .in("product_id", digitalProductIds);
+    if (assets?.length && order.payment_status === "paid") {
+      digital = await Promise.all(
+        assets.map(async (asset) => {
+          let downloadUrl: string | null = null;
+          if (asset.file_path) {
+            const { data: signed } = await supabase.storage
+              .from("digital-assets")
+              .createSignedUrl(asset.file_path, 60 * 60, { download: asset.file_name ?? true });
+            downloadUrl = signed?.signedUrl ?? null;
+          }
+          return {
+            productId: asset.product_id,
+            title: (items ?? []).find((item) => item.product_id === asset.product_id)?.title ?? "Dijital ürün",
+            downloadUrl,
+            fileName: asset.file_name,
+            accessUrl: asset.access_url,
+            deliveryNote: asset.delivery_note,
+          };
+        }),
+      );
+    }
+  }
+
   return {
     store: { name: store.name, slug: store.slug },
     order,
-    items: items ?? [],
+    items: (items ?? []).map(({ product_id: _p, ...rest }) => rest),
     shipments: shipments ?? [],
+    digital,
     payment: {
       mode: paymentMode,
       cardAvailable,

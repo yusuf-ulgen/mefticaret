@@ -43,6 +43,13 @@ import { uploadProductImage } from "@/lib/media";
 import { cleanProductPhoto } from "@/lib/photo-ai.functions";
 import { formatMoney } from "@/lib/mefti";
 import { SmartCategoryPicker } from "@/components/homemaker/category-picker";
+import {
+  DigitalAssetFields,
+  ProductKindToggle,
+  emptyDigitalDraft,
+  saveDigitalAsset,
+  validateDigitalDraft,
+} from "@/components/homemaker/digital-product";
 
 
 /** Bu adede kadar düşen stok "az kaldı" sayılır. */
@@ -568,6 +575,8 @@ function AddProductSheet({
   const [cleanBusy, setCleanBusy] = useState(false);
   const [photoMode, setPhotoMode] = useState<"background" | "studio" | "lifestyle" | "model">("background");
   const [saving, setSaving] = useState(false);
+  const [isDigital, setIsDigital] = useState(false);
+  const [digitalDraft, setDigitalDraft] = useState(emptyDigitalDraft);
   const previewUrl = useRef<string>("");
 
   if (file) previewUrl.current = URL.createObjectURL(file);
@@ -624,6 +633,8 @@ function AddProductSheet({
     setFile(null);
     setOptionOne({ name: "Renk", values: "" });
     setOptionTwo({ name: "Boyut", values: "" });
+    setIsDigital(false);
+    setDigitalDraft(emptyDigitalDraft());
   };
 
   const submit = async () => {
@@ -636,6 +647,13 @@ function AddProductSheet({
       toast.error("Geçerli bir fiyat yazın.");
       return;
     }
+    if (isDigital) {
+      const problem = validateDigitalDraft(digitalDraft);
+      if (problem) {
+        toast.error(problem);
+        return;
+      }
+    }
     setSaving(true);
     try {
       const product = await add({
@@ -645,10 +663,16 @@ function AddProductSheet({
           description: description.trim() || undefined,
           productType: category || undefined,
           basePrice: priceValue,
-          stock: Math.max(0, Number(stock) || 0),
-          status: "active",
+          // Dijital ürün tükenmez: stok üst sınırda tutulur.
+          stock: isDigital ? 1_000_000 : Math.max(0, Number(stock) || 0),
+          status: isDigital ? "draft" : "active",
         },
       });
+
+      if (isDigital) {
+        await saveDigitalAsset(storeId, product.id, digitalDraft);
+        await patchProduct({ data: { productId: product.id, patch: { status: "active" } } });
+      }
 
       if (file) {
         const path = await uploadProductImage(storeId, product.id, file);
@@ -685,7 +709,7 @@ function AddProductSheet({
       }
 
       await queryClient.invalidateQueries({ queryKey: ["kolay-products", storeId] });
-      toast.success("Ürün eklendi ve yayında");
+      toast.success(isDigital ? "Dijital ürün yayında — alıcılar anında indirebilir" : "Ürün eklendi ve yayında");
       reset();
       onClose();
     } catch (error) {
@@ -698,8 +722,10 @@ function AddProductSheet({
   return (
     <Sheet open={open} title="Yeni ürün" onClose={onClose}>
       <div className="grid gap-4">
+        <ProductKindToggle digital={isDigital} onChange={setIsDigital} />
+        {isDigital ? <DigitalAssetFields draft={digitalDraft} onChange={setDigitalDraft} /> : null}
         <label className="grid gap-2">
-          <span className="text-sm font-semibold text-hm-ink">Ürün fotoğrafı</span>
+          <span className="text-sm font-semibold text-hm-ink">{isDigital ? "Kapak görseli" : "Ürün fotoğrafı"}</span>
           <span className="grid h-40 place-items-center overflow-hidden rounded-3xl border border-dashed border-hm-line bg-hm-sand text-hm-ink-soft">
             {file ? (
               <img src={previewUrl.current} alt="" className="size-full object-cover" />
@@ -792,14 +818,22 @@ function AddProductSheet({
               placeholder="120"
             />
           </Field>
-          <Field label="Kaç adet var?">
-            <input
-              className={inputClass}
-              value={stock}
-              inputMode="numeric"
-              onChange={(event) => setStock(event.target.value)}
-            />
-          </Field>
+          {isDigital ? (
+            <Field label="Stok">
+              <p className="flex min-h-12 items-center rounded-2xl bg-hm-teal-soft px-3 text-sm font-semibold text-hm-teal">
+                Sınırsız
+              </p>
+            </Field>
+          ) : (
+            <Field label="Kaç adet var?">
+              <input
+                className={inputClass}
+                value={stock}
+                inputMode="numeric"
+                onChange={(event) => setStock(event.target.value)}
+              />
+            </Field>
+          )}
         </div>
 
         <SmartCategoryPicker storeId={storeId} title={title} value={category} onChange={setCategory} />

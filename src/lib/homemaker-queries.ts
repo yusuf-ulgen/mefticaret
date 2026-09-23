@@ -101,6 +101,7 @@ export const simpleProductsQuery = (storeId: string) =>
 
 export type SimpleOrder = {
   gift_wrap?: boolean;
+  is_digital?: boolean;
   gift_message?: string | null;
   id: string;
   order_number: string;
@@ -128,7 +129,7 @@ export const simpleOrdersQuery = (storeId: string) =>
       const { data, error } = await supabase
         .from("orders")
         .select(
-          "id, order_number, status, payment_status, grand_total, currency, customer_name, customer_phone, customer_email, shipping_address, tracking_number, shipping_carrier, note, gift_wrap, gift_message, placed_at, order_items(id, title, variant_title, quantity)",
+          "id, order_number, status, payment_status, grand_total, currency, customer_name, customer_phone, customer_email, shipping_address, tracking_number, shipping_carrier, note, gift_wrap, gift_message, is_digital, placed_at, order_items(id, title, variant_title, quantity)",
         )
         .eq("store_id", storeId)
         .order("placed_at", { ascending: false })
@@ -149,6 +150,7 @@ export const simpleOrdersQuery = (storeId: string) =>
         shipping_carrier: row.shipping_carrier,
         note: row.note ?? null,
         gift_wrap: row.gift_wrap === true,
+        is_digital: row.is_digital === true,
         gift_message: row.gift_message ?? null,
         placed_at: row.placed_at,
         items: (row.order_items ?? []).map((item) => ({

@@ -6581,6 +6581,57 @@ export type Database = {
           },
         ]
       }
+      kolay_digital_assets: {
+        Row: {
+          access_url: string | null
+          created_at: string
+          delivery_note: string | null
+          file_name: string | null
+          file_path: string | null
+          product_id: string
+          store_id: string
+          sub_type: string
+          updated_at: string
+        }
+        Insert: {
+          access_url?: string | null
+          created_at?: string
+          delivery_note?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          product_id: string
+          store_id: string
+          sub_type: string
+          updated_at?: string
+        }
+        Update: {
+          access_url?: string | null
+          created_at?: string
+          delivery_note?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          product_id?: string
+          store_id?: string
+          sub_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kolay_digital_assets_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kolay_digital_assets_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kolay_mentor_points: {
         Row: {
           created_at: string
@@ -10015,6 +10066,7 @@ export type Database = {
           id: string
           invoice_number: string | null
           invoiced_at: string | null
+          is_digital: boolean
           market_id: string | null
           note: string | null
           order_number: string
@@ -10051,6 +10103,7 @@ export type Database = {
           id?: string
           invoice_number?: string | null
           invoiced_at?: string | null
+          is_digital?: boolean
           market_id?: string | null
           note?: string | null
           order_number: string
@@ -10087,6 +10140,7 @@ export type Database = {
           id?: string
           invoice_number?: string | null
           invoiced_at?: string | null
+          is_digital?: boolean
           market_id?: string | null
           note?: string | null
           order_number?: string
@@ -12340,6 +12394,7 @@ export type Database = {
           description: string | null
           height_cm: number | null
           id: string
+          is_digital: boolean
           length_cm: number | null
           made_to_order: boolean
           prep_days: number
@@ -12378,6 +12433,7 @@ export type Database = {
           description?: string | null
           height_cm?: number | null
           id?: string
+          is_digital?: boolean
           length_cm?: number | null
           made_to_order?: boolean
           prep_days?: number
@@ -12416,6 +12472,7 @@ export type Database = {
           description?: string | null
           height_cm?: number | null
           id?: string
+          is_digital?: boolean
           length_cm?: number | null
           made_to_order?: boolean
           prep_days?: number
