@@ -237,7 +237,9 @@ export const deletePlatformStore = createServerFn({ method: "POST" })
       old_value: { name: store.name, slug: store.slug } as never,
     });
 
-    const { error } = await supabase.from("stores").delete().eq("id", data.storeId);
+    // Yetki yukarıda doğrulandı; mağaza ve bağlı tüm veriler kalıcı olarak silinir.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.rpc("purge_store_completely" as never, { _store_id: data.storeId } as never);
     if (error) throw new Error(error.message);
 
     return { storeId: data.storeId, slug: store.slug };
