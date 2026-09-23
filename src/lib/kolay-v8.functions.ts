@@ -414,8 +414,6 @@ export const getStoreBoosters = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ slug: z.string().trim().min(1).max(120) }).parse(data))
   .handler(async ({ data }) => {
     const { createClient } = await import("@supabase/supabase-js");
-    const { default: type } = { default: null as never };
-    void type;
     const client = createClient(
       process.env["SUPABASE_URL"]!,
       process.env["SUPABASE_PUBLISHABLE_KEY"]!,
