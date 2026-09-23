@@ -28,13 +28,16 @@ export const placeOrderSchema = z.object({
     phone: z.string().trim().min(5).max(40),
     acceptsMarketing: z.boolean().default(false),
   }),
-  address: z.object({
-    country: z.string().trim().min(2).max(60),
-    city: z.string().trim().min(1).max(80),
-    district: z.string().trim().max(80).optional(),
-    line1: z.string().trim().min(5).max(240),
-    postalCode: z.string().trim().max(20).optional(),
-  }),
+  /** Yalnız dijital ürünlü sepetlerde boş bırakılabilir; sunucu doğrular. */
+  address: z
+    .object({
+      country: z.string().trim().min(2).max(60),
+      city: z.string().trim().min(1).max(80),
+      district: z.string().trim().max(80).optional(),
+      line1: z.string().trim().min(5).max(240),
+      postalCode: z.string().trim().max(20).optional(),
+    })
+    .optional(),
   billingAddress: z
     .object({
       recipient: z.string().trim().max(120).optional(),
@@ -154,13 +157,13 @@ async function priceCart(
   const variantIds = [...new Set(input.items.map((item) => item.variantId))];
   const { data: variants, error: variantsError } = await supabase
     .from("product_variants")
-    .select("id, product_id, title, sku, price, stock, products!inner(id, title, status, base_price, store_id)")
+    .select("id, product_id, title, sku, price, stock, products!inner(id, title, status, base_price, store_id, is_digital)")
     .eq("store_id", store.id)
     .in("id", variantIds);
   if (variantsError) throw new Error(variantsError.message);
 
   type VariantRow = NonNullable<typeof variants>[number] & {
-    products: { id: string; title: string; status: string; base_price: number; store_id: string };
+    products: { id: string; title: string; status: string; base_price: number; store_id: string; is_digital: boolean };
   };
   const rows = (variants ?? []) as VariantRow[];
 
@@ -213,10 +216,13 @@ async function priceCart(
     discountRow = { id: discount.id, code: discount.code, used_count: discount.used_count };
   }
 
+  // Yalnız dijital ürünlerden oluşan sepet kargo gerektirmez.
+  const digitalOnly = lines.length > 0 && lines.every((line) => line.variant.products.is_digital === true);
+
   // Kargo
   let shippingTotal = 0;
   let shippingTitle: string | null = null;
-  if (input.shippingRateId) {
+  if (input.shippingRateId && !digitalOnly) {
     const { data: rate, error: rateError } = await supabase
       .from("shipping_rates")
       .select("id, title, price, free_over, eta_days, is_active")
@@ -297,6 +303,7 @@ async function priceCart(
     giftCard,
     giftCardApplied,
     grandTotal,
+    digitalOnly,
     currency: store.currency,
   };
 }
@@ -348,6 +355,7 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
       paymentFee: quote.extraFee,
       giftCardApplied: quote.giftCardApplied,
       grandTotal: quote.grandTotal,
+      digitalOnly: quote.digitalOnly,
     };
   } catch (error) {
     return {
@@ -368,6 +376,7 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
       paymentFee: 0,
       giftCardApplied: 0,
       grandTotal: 0,
+      digitalOnly: false,
     };
   }
 }
