@@ -3,6 +3,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { StoreBoosters } from "@/components/homemaker/store-boosters";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { markCartRecovered, syncAbandonedCart } from "@/lib/abandoned.functions";
 import { useCart } from "@/lib/cart";
