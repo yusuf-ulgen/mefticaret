@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { LayoutTemplate } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   AlertTriangle,
@@ -219,6 +220,9 @@ function KolayPanel() {
             <GraduationCap className="size-5" />
           </button>
           <KitchenModeButton storeId={storeId} />
+          <Link to="/ev-hanimlari/sablonlar" aria-label="Hazır şablonlar" className="grid size-11 place-items-center rounded-2xl bg-hm-amber-soft text-hm-amber">
+            <LayoutTemplate className="size-5" />
+          </Link>
         </div>
       </header>
 
