@@ -53,6 +53,7 @@ import { Route as EnIndexRouteImport } from './routes/en.index'
 import { Route as EnHowToStartAnOnlineStoreRouteImport } from './routes/en.how-to-start-an-online-store'
 import { Route as EvHanimlariIndexRouteImport } from './routes/ev-hanimlari.index'
 import { Route as EvHanimlariKurulumRouteImport } from './routes/ev-hanimlari.kurulum'
+import { Route as EvHanimlariSablonlarRouteImport } from './routes/ev-hanimlari.sablonlar'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as FrIndexRouteImport } from './routes/fr.index'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
@@ -537,6 +538,11 @@ const EvHanimlariIndexRoute = EvHanimlariIndexRouteImport.update({
 const EvHanimlariKurulumRoute = EvHanimlariKurulumRouteImport.update({
   id: '/ev-hanimlari/kurulum',
   path: '/ev-hanimlari/kurulum',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvHanimlariSablonlarRoute = EvHanimlariSablonlarRouteImport.update({
+  id: '/ev-hanimlari/sablonlar',
+  path: '/ev-hanimlari/sablonlar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaturaTokenRoute = FaturaTokenRouteImport.update({
@@ -2092,6 +2098,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
+  '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
@@ -2399,6 +2406,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
+  '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar': typeof ArIndexRoute
@@ -2707,6 +2715,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
+  '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
@@ -3017,6 +3026,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
+    | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
     | '/sayfa/$slug'
     | '/ar/'
@@ -3324,6 +3334,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
+    | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
     | '/sayfa/$slug'
     | '/ar'
@@ -3631,6 +3642,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
+    | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
     | '/sayfa/$slug'
     | '/ar/'
@@ -3936,6 +3948,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   EnHowToStartAnOnlineStoreRoute: typeof EnHowToStartAnOnlineStoreRoute
   EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
+  EvHanimlariSablonlarRoute: typeof EvHanimlariSablonlarRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
   ArIndexRoute: typeof ArIndexRoute
@@ -4323,6 +4336,13 @@ declare module '@tanstack/react-router' {
       path: '/ev-hanimlari/kurulum'
       fullPath: '/ev-hanimlari/kurulum'
       preLoaderRoute: typeof EvHanimlariKurulumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ev-hanimlari/sablonlar': {
+      id: '/ev-hanimlari/sablonlar'
+      path: '/ev-hanimlari/sablonlar'
+      fullPath: '/ev-hanimlari/sablonlar'
+      preLoaderRoute: typeof EvHanimlariSablonlarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fatura/$token': {
@@ -6782,6 +6802,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   EnHowToStartAnOnlineStoreRoute: EnHowToStartAnOnlineStoreRoute,
   EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,
+  EvHanimlariSablonlarRoute: EvHanimlariSablonlarRoute,
   FaturaTokenRoute: FaturaTokenRoute,
   SayfaSlugRoute: SayfaSlugRoute,
   ArIndexRoute: ArIndexRoute,
