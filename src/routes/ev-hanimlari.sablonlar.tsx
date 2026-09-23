@@ -270,6 +270,7 @@ function esc(s: string) {
 
 function CardBuilder({ store, storeUrl }: { store: Store; storeUrl: string }) {
   const [name, setName] = useState(store.name);
+  const { data: thanks } = useSystemTemplates("thank_you");
   const [message, setMessage] = useState("Beni tercih ettiğiniz için çok teşekkür ederim! Afiyet olsun 💛");
   const [care, setCare] = useState("Serin ve kuru yerde saklayınız. 3 gün içinde tüketiniz.");
   const [link, setLink] = useState(storeUrl);
@@ -308,6 +309,15 @@ function CardBuilder({ store, storeUrl }: { store: Store; storeUrl: string }) {
     <>
       <SoftCard className="grid gap-3">
         <Field label="Mağaza adı"><input className={inputClass} maxLength={60} value={name} onChange={(e) => setName(e.target.value)} /></Field>
+        {thanks && thanks.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {thanks.map((t) => (
+              <button key={t.id} type="button" onClick={() => { setMessage(t.body.slice(0, 200)); toast.success("Metin seçildi"); }} className="min-h-10 rounded-2xl bg-hm-amber-soft px-3 text-xs font-semibold text-hm-amber">
+                {t.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
         <Field label="Teşekkür mesajı"><textarea className={`${inputClass} min-h-20`} maxLength={200} value={message} onChange={(e) => setMessage(e.target.value)} /></Field>
         <Field label="Saklama / yıkama talimatı"><input className={inputClass} maxLength={150} value={care} onChange={(e) => setCare(e.target.value)} /></Field>
         <Field label="QR kod bağlantısı" hint="Mağazanız, Instagram veya yorum sayfanız"><input className={inputClass} value={link} onChange={(e) => setLink(e.target.value)} /></Field>
@@ -330,17 +340,44 @@ function CardBuilder({ store, storeUrl }: { store: Store; storeUrl: string }) {
 
 /* ------------------------------ WhatsApp ------------------------------ */
 
+/** Süper admin'in yönettiği hazır metinler; boşsa sayfadaki varsayılanlar kullanılır. */
+function useSystemTemplates(kind: "whatsapp" | "thank_you") {
+  return useQuery({
+    queryKey: ["kolay-system-templates", kind],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("kolay_system_templates")
+        .select("id, label, body")
+        .eq("kind", kind)
+        .eq("is_active", true)
+        .order("sort_order");
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+}
+
 function QuickReplies({ store, storeUrl }: { store: Store; storeUrl: string }) {
   const [phone, setPhone] = useState("");
   const [customer, setCustomer] = useState("");
   const [code, setCode] = useState("");
   const [detail, setDetail] = useState("");
   const hi = customer.trim() ? `Merhaba ${customer.trim()}` : "Merhaba";
-  const presets = [
+  const { data: sys } = useSystemTemplates("whatsapp");
+  const fill = (body: string) =>
+    body
+      .replaceAll("{selam}", hi)
+      .replaceAll("{magaza}", store.name)
+      .replaceAll("{link}", storeUrl)
+      .replaceAll("{kargo}", code.trim() || "[kod]")
+      .replaceAll("{detay}", detail.trim() || "[detay]");
+  const fallback = [
     { key: "welcome", label: "Hoş Geldin Mesajı", text: `${hi} 🌸 ${store.name}'a hoş geldiniz! Tüm ürünlerimi buradan görebilirsiniz: ${storeUrl} Sorunuz olursa yazmanız yeterli.` },
     { key: "cargo", label: "Kargo Kodu Gönderimi", text: `${hi} 📦 Siparişiniz yola çıktı! Kargo takip kodunuz: ${code.trim() || "[kod]"}. Güzel günlerde kullanın 💛 — ${store.name}` },
     { key: "custom", label: "Özel Sipariş Detayı", text: `${hi} 👩‍🍳 Özel siparişinizin detayları: ${detail.trim() || "[detay]"}. Onaylarsanız hemen hazırlamaya başlıyorum. — ${store.name}` },
   ];
+  const presets = sys && sys.length > 0 ? sys.map((t) => ({ key: t.id, label: t.label, text: fill(t.body) })) : fallback;
 
   function open(text: string) {
     const digits = phone.replace(/\D/g, "");
