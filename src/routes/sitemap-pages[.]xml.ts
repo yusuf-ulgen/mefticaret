@@ -19,7 +19,8 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
             },
           });
         } catch (cause) {
-          return new Response(cause instanceof Error ? cause.message : "error", { status: 500 });
+          console.error("sitemap build failed", cause);
+          return new Response("Sitemap unavailable", { status: 500 });
         }
       },
     },
