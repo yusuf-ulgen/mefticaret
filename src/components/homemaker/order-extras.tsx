@@ -153,7 +153,10 @@ function SplitSheet({ storeId, order, onClose }: { storeId: string; order: Simpl
   });
 
   async function submit() {
-    if (!picked) return toast.error("Birlikte çalışacağınız ev hanımını seçin");
+    if (!picked) {
+      toast.error("Birlikte çalışacağınız ev hanımını seçin");
+      return;
+    }
     setBusy(true);
     try {
       await create({
