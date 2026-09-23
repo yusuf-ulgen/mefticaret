@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { checkKolayAccess } from "@/lib/home-maker.functions";
 import { LayoutTemplate } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -59,6 +60,11 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/kolay")({
       { name: "theme-color", content: "#ffffff" },
     ],
   }),
+  // Sunucuda rol, mikro mağaza ve mağaza üyeliği doğrulanmadan panel açılmaz.
+  beforeLoad: async ({ params }) => {
+    const access = await checkKolayAccess({ data: { storeId: params.storeId } });
+    if (!access.ok) throw redirect({ to: access.reason === "role" ? "/ev-hanimlari" : "/ev-hanimlari/kurulum" });
+  },
   component: KolayPanel,
 });
 
