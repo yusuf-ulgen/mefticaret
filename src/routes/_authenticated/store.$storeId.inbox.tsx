@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Bot, Gift, Link2, MessageSquare, Package, Send, Settings } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
+import { InboxOnboarding } from "@/components/inbox-onboarding";
 import { SocialCrmPanel } from "@/components/social-crm-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -258,6 +259,7 @@ function InboxPage() {
       title="Omni-Channel Mesaj Merkezi"
       description="Instagram, TikTok, Messenger, Telegram, canlı destek, e-posta, pazaryeri ve WhatsApp mesajlarını tek yerden yönet."
     >
+      <InboxOnboarding storeId={storeId} accounts={channelAccounts} onOpenChannels={() => setTab("channels")} />
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="Günlük mesaj" value={stats?.todayMessages ?? "—"} />
         <StatCard label="Cevaplanmamış" value={stats?.unanswered ?? "—"} />
