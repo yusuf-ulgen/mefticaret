@@ -128,7 +128,7 @@ export const simpleOrdersQuery = (storeId: string) =>
       const { data, error } = await supabase
         .from("orders")
         .select(
-          "id, order_number, status, payment_status, grand_total, currency, customer_name, customer_phone, customer_email, shipping_address, tracking_number, shipping_carrier, note, gift_wrap, gift_message, placed_at, order_items(id, title, variant_title, quantity)",
+          "id, order_number, status, payment_status, grand_total, currency, customer_name, customer_phone, customer_email, shipping_address, tracking_number, shipping_carrier, note, gift_wrap, gift_message, is_digital, placed_at, order_items(id, title, variant_title, quantity)",
         )
         .eq("store_id", storeId)
         .order("placed_at", { ascending: false })
