@@ -53,7 +53,7 @@ export async function saveDigitalAsset(storeId: string, productId: string, draft
     fileName = draft.file.name.slice(0, 120);
     const { error } = await supabase.storage
       .from("digital-assets")
-      .upload(filePath, draft.file, { upsert: false, contentType: draft.file.type || undefined });
+      .upload(filePath, draft.file, { upsert: false, contentType: draft.file.type || "application/octet-stream" });
     if (error) throw new Error(`Dosya yüklenemedi: ${error.message}`);
   }
   const { error: assetError } = await supabase.from("kolay_digital_assets").upsert({
@@ -66,15 +66,8 @@ export async function saveDigitalAsset(storeId: string, productId: string, draft
     delivery_note: draft.deliveryNote.trim().slice(0, 1000) || null,
   });
   if (assetError) throw new Error(assetError.message);
-  const { error: productError } = await supabase
-    .from("products")
-    .update({ is_digital: true, requires_shipping: false } as never)
-    .eq("id", productId);
-  if (productError) {
-    // requires_shipping sütunu olmayan şemalarda yalnız is_digital yazılır.
-    const { error: retry } = await supabase.from("products").update({ is_digital: true }).eq("id", productId);
-    if (retry) throw new Error(retry.message);
-  }
+  const { error: productError } = await supabase.from("products").update({ is_digital: true }).eq("id", productId);
+  if (productError) throw new Error(productError.message);
 }
 
 /** "Fiziki / Dijital" seçici. */

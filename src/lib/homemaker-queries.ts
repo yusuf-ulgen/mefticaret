@@ -149,6 +149,7 @@ export const simpleOrdersQuery = (storeId: string) =>
         shipping_carrier: row.shipping_carrier,
         note: row.note ?? null,
         gift_wrap: row.gift_wrap === true,
+        is_digital: row.is_digital === true,
         gift_message: row.gift_message ?? null,
         placed_at: row.placed_at,
         items: (row.order_items ?? []).map((item) => ({
