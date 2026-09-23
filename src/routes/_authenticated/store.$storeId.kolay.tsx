@@ -17,6 +17,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { KitchenModeButton, MentorCard } from "@/components/homemaker/kitchen-mentor";
 import { AcademyDrawer } from "@/components/homemaker/academy-drawer";
 import { CampaignSheet, type CampaignBanner } from "@/components/homemaker/campaign-sheet";
 import { CustomersTab } from "@/components/homemaker/customers-tab";
@@ -217,6 +218,7 @@ function KolayPanel() {
           >
             <GraduationCap className="size-5" />
           </button>
+          <KitchenModeButton storeId={storeId} />
         </div>
       </header>
 
@@ -265,6 +267,9 @@ function KolayPanel() {
               />
             </div>
             <StoreTab store={store} settings={settings ?? null} storeUrl={storeUrl} />
+            <div className="mt-4">
+              <MentorCard storeId={storeId} storeSlug={store.slug} />
+            </div>
             <div className="mt-4">
               <ShopPageCard
                 storeUrl={storeUrl}

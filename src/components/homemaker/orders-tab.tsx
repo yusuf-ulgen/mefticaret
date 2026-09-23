@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { AbandonedCard } from "@/components/homemaker/abandoned-card";
 import { DelegateSheet } from "@/components/homemaker/delegate-sheet";
 import { BigButton, Sheet, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
+import { OrderExtras, SplitInvitesCard } from "@/components/homemaker/order-extras";
 import { ManualOrderSheet } from "@/components/homemaker/manual-order-sheet";
 import { refreshArasTracking, sendOrderToAras } from "@/lib/aras.functions";
 import { createPickupCode } from "@/lib/homemaker.functions";
@@ -232,6 +233,7 @@ export function OrdersTab({
 
   return (
     <div className="grid gap-4">
+      <SplitInvitesCard storeId={storeId} />
       <div className="grid grid-cols-3 gap-2">
         <SoftCard className="text-center">
           <p className="text-xs text-hm-ink-soft">Bugün</p>
@@ -374,6 +376,8 @@ export function OrdersTab({
                   </li>
                 ))}
               </ul>
+
+              <OrderExtras storeId={storeId} order={order} />
 
               {addressText(order) ? (
                 <p className="text-sm text-hm-ink-soft">{addressText(order)}</p>

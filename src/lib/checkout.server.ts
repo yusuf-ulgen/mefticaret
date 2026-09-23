@@ -54,6 +54,8 @@ export const placeOrderSchema = z.object({
   discountCode: z.string().trim().max(60).optional(),
   giftCardCode: z.string().trim().max(60).optional(),
   note: z.string().trim().max(500).optional(),
+  giftWrap: z.boolean().optional(),
+  giftMessage: z.string().trim().max(300).optional(),
 });
 
 export const orderStatusSchema = z.object({
@@ -537,6 +539,8 @@ export async function createStorefrontOrder(
       billing_address: billingJson,
       shipping_carrier: shippingTitle,
       note: input.note?.length ? input.note : null,
+      gift_wrap: input.giftWrap === true,
+      gift_message: input.giftWrap && input.giftMessage?.length ? input.giftMessage : null,
     })
     .select("id, order_number, grand_total, currency")
     .single();
