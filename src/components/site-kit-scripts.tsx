@@ -46,6 +46,13 @@ export function SiteKitScripts({ storeSlug }: { storeSlug: string }) {
     const w = window as unknown as Record<string, unknown> & { dataLayer?: unknown[] };
     w.dataLayer = w.dataLayer ?? [];
 
+    // Doğrulama etiketi hemen; analitik/reklam kodları ana iş parçacığı boşalınca.
+    for (const entry of data) {
+      const code = entry.provider === "google_search_console" ? entry.config["verification"] : null;
+      if (code) injectMeta("sk-gsc", "google-site-verification", code);
+    }
+
+    const inject = () => {
     for (const entry of data) {
       const cfg = entry.config;
       try {
@@ -116,6 +123,21 @@ export function SiteKitScripts({ storeSlug }: { storeSlug: string }) {
         /* etiket hatası vitrini bozmaz */
       }
     }
+    };
+
+    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number })
+      .requestIdleCallback;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const start = () => {
+      if (idle) idle(inject, { timeout: 4000 });
+      else timer = setTimeout(inject, 2000);
+    };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+    return () => {
+      window.removeEventListener("load", start);
+      if (timer) clearTimeout(timer);
+    };
   }, [data]);
 
   return null;

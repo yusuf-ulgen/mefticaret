@@ -28,6 +28,7 @@ import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { missingHead, storefrontHead } from "@/lib/storefront-seo";
 import { absoluteUrl, plainText, productSchema, readSeo } from "@/lib/seo";
+import { imageSrcSet, isTransformable, optimizedImageUrl } from "@/lib/image";
 import { useStorefrontLive } from "@/hooks/use-storefront-live";
 
 /** YouTube/Vimeo adreslerini gömme adresine çevirir. */
@@ -162,8 +163,15 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
       ],
     });
 
+    const lcp = image ? optimizedImageUrl(image, { width: 720 }) : null;
     return {
       ...head,
+      links: [
+        ...(head.links ?? []),
+        ...(lcp && image
+          ? [{ rel: "preload", as: "image", href: lcp, fetchpriority: "high", ...(isTransformable(image) ? { imagesrcset: imageSrcSet(image) ?? undefined, imagesizes: "(max-width: 768px) 100vw, 50vw" } : {}) }]
+          : []),
+      ],
       meta: [
         ...head.meta,
         { property: "product:price:amount", content: String(loaderData.price) },
