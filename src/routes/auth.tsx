@@ -55,9 +55,11 @@ function AuthPage() {
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/stores";
   const openAdminPanel = useServerFn(openAdminPanelSession);
   const [routing, setRouting] = useState(false);
+  // Kayıt akışı kendi yönlendirmesini yapar; genel yönlendirme onu ezmemeli.
+  const signingUpRef = useRef(false);
 
   useEffect(() => {
-    if (loading || !session || routing) return;
+    if (loading || !session || routing || signingUpRef.current) return;
     setRouting(true);
     void (async () => {
       // Süper yönetici hesapları doğrudan platform paneline gider; yetki
@@ -93,6 +95,7 @@ function AuthPage() {
   async function handleRegister(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
+    signingUpRef.current = true;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -103,15 +106,18 @@ function AuthPage() {
     });
     setBusy(false);
     if (error) {
+      signingUpRef.current = false;
       toast.error(error.message);
       return;
     }
     if (data.session) {
+      setRouting(true);
       void logAuthEvent({ data: { event: "login", method: "signup" } }).catch(() => {});
       toast.success("Hesabın hazır, ilk mağazanı kuralım.");
       void navigate({ to: "/onboarding", replace: true });
       return;
     }
+    signingUpRef.current = false;
     toast.success("Hesabını doğrulamak için e-postanı kontrol et.");
   }
 
