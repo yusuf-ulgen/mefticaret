@@ -249,7 +249,7 @@ function CollectionProducts({ storeId, collectionId, smart }: { storeId: string;
   );
 }
 
-function Row({ p, draggable, onRemove }: { p: { id: string; title: string; base_price: number }; draggable: boolean; onRemove?: () => void }) {
+function Row({ p, draggable, onRemove }: { p: { id: string; title: string; base_price: number }; draggable: boolean; onRemove?: (() => void) | undefined }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: p.id, disabled: !draggable });
   return (
     <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }} className="flex min-h-12 items-center gap-2 bg-card px-2 py-2">

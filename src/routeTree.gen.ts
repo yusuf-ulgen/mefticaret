@@ -234,6 +234,7 @@ import { Route as AuthenticatedStoreStoreIdReviewImpactRouteImport } from './rou
 import { Route as AuthenticatedStoreStoreIdReviewsRouteImport } from './routes/_authenticated/store.$storeId.reviews'
 import { Route as AuthenticatedStoreStoreIdSecurityRouteImport } from './routes/_authenticated/store.$storeId.security'
 import { Route as AuthenticatedStoreStoreIdSegmentsRouteImport } from './routes/_authenticated/store.$storeId.segments'
+import { Route as AuthenticatedStoreStoreIdSegmentsV2RouteImport } from './routes/_authenticated/store.$storeId.segments-v2'
 import { Route as AuthenticatedStoreStoreIdSellersRouteImport } from './routes/_authenticated/store.$storeId.sellers'
 import { Route as AuthenticatedStoreStoreIdSeoRouteImport } from './routes/_authenticated/store.$storeId.seo'
 import { Route as AuthenticatedStoreStoreIdSeoEditorRouteImport } from './routes/_authenticated/store.$storeId.seo-editor'
@@ -313,6 +314,7 @@ import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pa
 import { Route as AuthenticatedStoreStoreIdCatalogV2IndexRouteImport } from './routes/_authenticated/store.$storeId.catalog-v2.index'
 import { Route as AuthenticatedStoreStoreIdCatalogV2ProductIdRouteImport } from './routes/_authenticated/store.$storeId.catalog-v2.$productId'
 import { Route as AuthenticatedStoreStoreIdCustomersV2IndexRouteImport } from './routes/_authenticated/store.$storeId.customers-v2.index'
+import { Route as AuthenticatedStoreStoreIdCustomersV2CustomerIdRouteImport } from './routes/_authenticated/store.$storeId.customers-v2.$customerId'
 import { Route as AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport } from './routes/_authenticated/store.$storeId.customers.$customerId'
 import { Route as AuthenticatedStoreStoreIdOrdersOrderIdRouteImport } from './routes/_authenticated/store.$storeId.orders.$orderId'
 import { Route as AuthenticatedStoreStoreIdOrdersNewRouteImport } from './routes/_authenticated/store.$storeId.orders.new'
@@ -1588,6 +1590,12 @@ const AuthenticatedStoreStoreIdSegmentsRoute =
     path: '/segments',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdSegmentsV2Route =
+  AuthenticatedStoreStoreIdSegmentsV2RouteImport.update({
+    id: '/segments-v2',
+    path: '/segments-v2',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdSellersRoute =
   AuthenticatedStoreStoreIdSellersRouteImport.update({
     id: '/sellers',
@@ -2044,6 +2052,12 @@ const AuthenticatedStoreStoreIdCustomersV2IndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedStoreStoreIdCustomersV2Route,
   } as any)
+const AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute =
+  AuthenticatedStoreStoreIdCustomersV2CustomerIdRouteImport.update({
+    id: '/$customerId',
+    path: '/$customerId',
+    getParentRoute: () => AuthenticatedStoreStoreIdCustomersV2Route,
+  } as any)
 const AuthenticatedStoreStoreIdCustomersCustomerIdRoute =
   AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport.update({
     id: '/$customerId',
@@ -2370,6 +2384,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
   '/store/$storeId/security': typeof AuthenticatedStoreStoreIdSecurityRoute
   '/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
+  '/store/$storeId/segments-v2': typeof AuthenticatedStoreStoreIdSegmentsV2Route
   '/store/$storeId/sellers': typeof AuthenticatedStoreStoreIdSellersRoute
   '/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/store/$storeId/seo-editor': typeof AuthenticatedStoreStoreIdSeoEditorRoute
@@ -2448,6 +2463,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId/catalog-v2/$productId': typeof AuthenticatedStoreStoreIdCatalogV2ProductIdRoute
+  '/store/$storeId/customers-v2/$customerId': typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute
   '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
@@ -2688,6 +2704,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
   '/store/$storeId/security': typeof AuthenticatedStoreStoreIdSecurityRoute
   '/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
+  '/store/$storeId/segments-v2': typeof AuthenticatedStoreStoreIdSegmentsV2Route
   '/store/$storeId/sellers': typeof AuthenticatedStoreStoreIdSellersRoute
   '/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/store/$storeId/seo-editor': typeof AuthenticatedStoreStoreIdSeoEditorRoute
@@ -2765,6 +2782,7 @@ export interface FileRoutesByTo {
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/admin/frontend': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId/catalog-v2/$productId': typeof AuthenticatedStoreStoreIdCatalogV2ProductIdRoute
+  '/store/$storeId/customers-v2/$customerId': typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute
   '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
@@ -3011,6 +3029,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/reviews': typeof AuthenticatedStoreStoreIdReviewsRoute
   '/_authenticated/store/$storeId/security': typeof AuthenticatedStoreStoreIdSecurityRoute
   '/_authenticated/store/$storeId/segments': typeof AuthenticatedStoreStoreIdSegmentsRoute
+  '/_authenticated/store/$storeId/segments-v2': typeof AuthenticatedStoreStoreIdSegmentsV2Route
   '/_authenticated/store/$storeId/sellers': typeof AuthenticatedStoreStoreIdSellersRoute
   '/_authenticated/store/$storeId/seo': typeof AuthenticatedStoreStoreIdSeoRoute
   '/_authenticated/store/$storeId/seo-editor': typeof AuthenticatedStoreStoreIdSeoEditorRoute
@@ -3089,6 +3108,7 @@ export interface FileRoutesById {
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/_authenticated/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/_authenticated/store/$storeId/catalog-v2/$productId': typeof AuthenticatedStoreStoreIdCatalogV2ProductIdRoute
+  '/_authenticated/store/$storeId/customers-v2/$customerId': typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute
   '/_authenticated/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
   '/_authenticated/store/$storeId/orders/$orderId': typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   '/_authenticated/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
@@ -3335,6 +3355,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/reviews'
     | '/store/$storeId/security'
     | '/store/$storeId/segments'
+    | '/store/$storeId/segments-v2'
     | '/store/$storeId/sellers'
     | '/store/$storeId/seo'
     | '/store/$storeId/seo-editor'
@@ -3413,6 +3434,7 @@ export interface FileRouteTypes {
     | '/s/$slug/page/$pageSlug'
     | '/admin/frontend/'
     | '/store/$storeId/catalog-v2/$productId'
+    | '/store/$storeId/customers-v2/$customerId'
     | '/store/$storeId/customers/$customerId'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/orders/new'
@@ -3653,6 +3675,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/reviews'
     | '/store/$storeId/security'
     | '/store/$storeId/segments'
+    | '/store/$storeId/segments-v2'
     | '/store/$storeId/sellers'
     | '/store/$storeId/seo'
     | '/store/$storeId/seo-editor'
@@ -3730,6 +3753,7 @@ export interface FileRouteTypes {
     | '/s/$slug/page/$pageSlug'
     | '/admin/frontend'
     | '/store/$storeId/catalog-v2/$productId'
+    | '/store/$storeId/customers-v2/$customerId'
     | '/store/$storeId/customers/$customerId'
     | '/store/$storeId/orders/$orderId'
     | '/store/$storeId/orders/new'
@@ -3975,6 +3999,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/reviews'
     | '/_authenticated/store/$storeId/security'
     | '/_authenticated/store/$storeId/segments'
+    | '/_authenticated/store/$storeId/segments-v2'
     | '/_authenticated/store/$storeId/sellers'
     | '/_authenticated/store/$storeId/seo'
     | '/_authenticated/store/$storeId/seo-editor'
@@ -4053,6 +4078,7 @@ export interface FileRouteTypes {
     | '/s/$slug/page/$pageSlug'
     | '/_authenticated/admin/frontend/'
     | '/_authenticated/store/$storeId/catalog-v2/$productId'
+    | '/_authenticated/store/$storeId/customers-v2/$customerId'
     | '/_authenticated/store/$storeId/customers/$customerId'
     | '/_authenticated/store/$storeId/orders/$orderId'
     | '/_authenticated/store/$storeId/orders/new'
@@ -5771,6 +5797,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSegmentsRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/segments-v2': {
+      id: '/_authenticated/store/$storeId/segments-v2'
+      path: '/segments-v2'
+      fullPath: '/store/$storeId/segments-v2'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSegmentsV2RouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/sellers': {
       id: '/_authenticated/store/$storeId/sellers'
       path: '/sellers'
@@ -6324,6 +6357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCustomersV2IndexRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdCustomersV2Route
     }
+    '/_authenticated/store/$storeId/customers-v2/$customerId': {
+      id: '/_authenticated/store/$storeId/customers-v2/$customerId'
+      path: '/$customerId'
+      fullPath: '/store/$storeId/customers-v2/$customerId'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdCustomersV2Route
+    }
     '/_authenticated/store/$storeId/customers/$customerId': {
       id: '/_authenticated/store/$storeId/customers/$customerId'
       path: '/$customerId'
@@ -6595,11 +6635,14 @@ const AuthenticatedStoreStoreIdCustomersRouteWithChildren =
   )
 
 interface AuthenticatedStoreStoreIdCustomersV2RouteChildren {
+  AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute: typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute
   AuthenticatedStoreStoreIdCustomersV2IndexRoute: typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
 }
 
 const AuthenticatedStoreStoreIdCustomersV2RouteChildren: AuthenticatedStoreStoreIdCustomersV2RouteChildren =
   {
+    AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute:
+      AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute,
     AuthenticatedStoreStoreIdCustomersV2IndexRoute:
       AuthenticatedStoreStoreIdCustomersV2IndexRoute,
   }
@@ -6773,6 +6816,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdReviewsRoute: typeof AuthenticatedStoreStoreIdReviewsRoute
   AuthenticatedStoreStoreIdSecurityRoute: typeof AuthenticatedStoreStoreIdSecurityRoute
   AuthenticatedStoreStoreIdSegmentsRoute: typeof AuthenticatedStoreStoreIdSegmentsRoute
+  AuthenticatedStoreStoreIdSegmentsV2Route: typeof AuthenticatedStoreStoreIdSegmentsV2Route
   AuthenticatedStoreStoreIdSellersRoute: typeof AuthenticatedStoreStoreIdSellersRoute
   AuthenticatedStoreStoreIdSeoRoute: typeof AuthenticatedStoreStoreIdSeoRoute
   AuthenticatedStoreStoreIdSeoEditorRoute: typeof AuthenticatedStoreStoreIdSeoEditorRoute
@@ -6970,6 +7014,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdSecurityRoute,
     AuthenticatedStoreStoreIdSegmentsRoute:
       AuthenticatedStoreStoreIdSegmentsRoute,
+    AuthenticatedStoreStoreIdSegmentsV2Route:
+      AuthenticatedStoreStoreIdSegmentsV2Route,
     AuthenticatedStoreStoreIdSellersRoute:
       AuthenticatedStoreStoreIdSellersRoute,
     AuthenticatedStoreStoreIdSeoRoute: AuthenticatedStoreStoreIdSeoRoute,
