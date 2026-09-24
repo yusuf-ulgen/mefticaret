@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { openAdminPanelSession } from "@/lib/admin-auth.functions";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Eye, EyeOff, Lock, Mail, Rocket, User } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
