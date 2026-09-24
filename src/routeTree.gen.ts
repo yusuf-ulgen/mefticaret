@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BildirimIptalRouteImport } from './routes/bildirim-iptal'
 import { Route as DropshippingNasilYapilirRouteImport } from './routes/dropshipping-nasil-yapilir'
 import { Route as ETicaretNasilYapilirRouteImport } from './routes/e-ticaret-nasil-yapilir'
 import { Route as ETicaretPaketleriRouteImport } from './routes/e-ticaret-paketleri'
@@ -56,6 +57,7 @@ import { Route as EvHanimlariKurulumRouteImport } from './routes/ev-hanimlari.ku
 import { Route as EvHanimlariSablonlarRouteImport } from './routes/ev-hanimlari.sablonlar'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as FrIndexRouteImport } from './routes/fr.index'
+import { Route as KargoTakipTrackingRouteImport } from './routes/kargo-takip.$tracking'
 import { Route as MagazaSlugRouteImport } from './routes/magaza.$slug'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -334,6 +336,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BildirimIptalRoute = BildirimIptalRouteImport.update({
+  id: '/bildirim-iptal',
+  path: '/bildirim-iptal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DropshippingNasilYapilirRoute =
   DropshippingNasilYapilirRouteImport.update({
     id: '/dropshipping-nasil-yapilir',
@@ -555,6 +562,11 @@ const FaturaTokenRoute = FaturaTokenRouteImport.update({
 const FrIndexRoute = FrIndexRouteImport.update({
   id: '/fr/',
   path: '/fr/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KargoTakipTrackingRoute = KargoTakipTrackingRouteImport.update({
+  id: '/kargo-takip/$tracking',
+  path: '/kargo-takip/$tracking',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MagazaSlugRoute = MagazaSlugRouteImport.update({
@@ -2075,6 +2087,7 @@ const AuthenticatedStoreStoreIdXmlIntegratorFeedsFeedIdMapperRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/bildirim-iptal': typeof BildirimIptalRoute
   '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
   '/e-ticaret-nasil-yapilir': typeof ETicaretNasilYapilirRoute
   '/e-ticaret-paketleri': typeof ETicaretPaketleriRoute
@@ -2113,6 +2126,7 @@ export interface FileRoutesByFullPath {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
@@ -2386,6 +2400,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/bildirim-iptal': typeof BildirimIptalRoute
   '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
   '/e-ticaret-nasil-yapilir': typeof ETicaretNasilYapilirRoute
   '/e-ticaret-paketleri': typeof ETicaretPaketleriRoute
@@ -2423,6 +2438,7 @@ export interface FileRoutesByTo {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar': typeof ArIndexRoute
@@ -2696,6 +2712,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/bildirim-iptal': typeof BildirimIptalRoute
   '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
   '/e-ticaret-nasil-yapilir': typeof ETicaretNasilYapilirRoute
   '/e-ticaret-paketleri': typeof ETicaretPaketleriRoute
@@ -2734,6 +2751,7 @@ export interface FileRoutesById {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
@@ -3009,6 +3027,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/bildirim-iptal'
     | '/dropshipping-nasil-yapilir'
     | '/e-ticaret-nasil-yapilir'
     | '/e-ticaret-paketleri'
@@ -3047,6 +3066,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/sayfa/$slug'
     | '/ar/'
@@ -3320,6 +3340,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/bildirim-iptal'
     | '/dropshipping-nasil-yapilir'
     | '/e-ticaret-nasil-yapilir'
     | '/e-ticaret-paketleri'
@@ -3357,6 +3378,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/sayfa/$slug'
     | '/ar'
@@ -3629,6 +3651,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/bildirim-iptal'
     | '/dropshipping-nasil-yapilir'
     | '/e-ticaret-nasil-yapilir'
     | '/e-ticaret-paketleri'
@@ -3667,6 +3690,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/sayfa/$slug'
     | '/ar/'
@@ -3942,6 +3966,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BildirimIptalRoute: typeof BildirimIptalRoute
   DropshippingNasilYapilirRoute: typeof DropshippingNasilYapilirRoute
   ETicaretNasilYapilirRoute: typeof ETicaretNasilYapilirRoute
   ETicaretPaketleriRoute: typeof ETicaretPaketleriRoute
@@ -3975,6 +4000,7 @@ export interface RootRouteChildren {
   EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
   EvHanimlariSablonlarRoute: typeof EvHanimlariSablonlarRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
+  KargoTakipTrackingRoute: typeof KargoTakipTrackingRoute
   MagazaSlugRoute: typeof MagazaSlugRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
   ArIndexRoute: typeof ArIndexRoute
@@ -4075,6 +4101,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bildirim-iptal': {
+      id: '/bildirim-iptal'
+      path: '/bildirim-iptal'
+      fullPath: '/bildirim-iptal'
+      preLoaderRoute: typeof BildirimIptalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dropshipping-nasil-yapilir': {
@@ -4383,6 +4416,13 @@ declare module '@tanstack/react-router' {
       path: '/fr'
       fullPath: '/fr/'
       preLoaderRoute: typeof FrIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kargo-takip/$tracking': {
+      id: '/kargo-takip/$tracking'
+      path: '/kargo-takip/$tracking'
+      fullPath: '/kargo-takip/$tracking'
+      preLoaderRoute: typeof KargoTakipTrackingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/magaza/$slug': {
@@ -6812,6 +6852,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  BildirimIptalRoute: BildirimIptalRoute,
   DropshippingNasilYapilirRoute: DropshippingNasilYapilirRoute,
   ETicaretNasilYapilirRoute: ETicaretNasilYapilirRoute,
   ETicaretPaketleriRoute: ETicaretPaketleriRoute,
@@ -6846,6 +6887,7 @@ const rootRouteChildren: RootRouteChildren = {
   EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,
   EvHanimlariSablonlarRoute: EvHanimlariSablonlarRoute,
   FaturaTokenRoute: FaturaTokenRoute,
+  KargoTakipTrackingRoute: KargoTakipTrackingRoute,
   MagazaSlugRoute: MagazaSlugRoute,
   SayfaSlugRoute: SayfaSlugRoute,
   ArIndexRoute: ArIndexRoute,

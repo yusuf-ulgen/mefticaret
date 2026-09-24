@@ -8,14 +8,15 @@ import { Button } from "@/components/ui/button";
 import { SHIPMENT_STATUS_LABELS, carrierName, carrierTrackUrl } from "@/lib/carriers";
 import { getPublicTracking } from "@/lib/tracking-public.functions";
 
+const VALID = /^[A-Za-z0-9-_]{6,120}$/;
+
 const trackingQuery = (tracking: string) =>
   queryOptions({
     queryKey: ["public-tracking", tracking],
-    queryFn: () => getPublicTracking({ data: { tracking } }),
+    queryFn: () => (VALID.test(tracking) ? getPublicTracking({ data: { tracking } }) : Promise.resolve(null)),
     staleTime: 60_000,
   });
 
-const VALID = /^[A-Za-z0-9-_]{6,120}$/;
 
 export const Route = createFileRoute("/kargo-takip/$tracking")({
   loader: async ({ context, params }) => {
@@ -62,7 +63,7 @@ function NotFound() {
 function TrackingPage() {
   const { tracking } = Route.useParams();
   const valid = VALID.test(tracking);
-  const { data } = useSuspenseQuery({ ...trackingQuery(tracking), enabled: valid });
+  const { data } = useSuspenseQuery(trackingQuery(tracking));
   if (!valid || !data) return <NotFound />;
 
   const brand = data.brandColor ?? undefined;
