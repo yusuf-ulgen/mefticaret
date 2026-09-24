@@ -163,6 +163,7 @@ import { Route as AuthenticatedStoreStoreIdChannelsRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdCohortsRouteImport } from './routes/_authenticated/store.$storeId.cohorts'
 import { Route as AuthenticatedStoreStoreIdCollectionsRouteImport } from './routes/_authenticated/store.$storeId.collections'
 import { Route as AuthenticatedStoreStoreIdCopilotRouteImport } from './routes/_authenticated/store.$storeId.copilot'
+import { Route as AuthenticatedStoreStoreIdCustomerNotificationsRouteImport } from './routes/_authenticated/store.$storeId.customer-notifications'
 import { Route as AuthenticatedStoreStoreIdCustomerSegmentsRouteImport } from './routes/_authenticated/store.$storeId.customer-segments'
 import { Route as AuthenticatedStoreStoreIdCustomersRouteImport } from './routes/_authenticated/store.$storeId.customers'
 import { Route as AuthenticatedStoreStoreIdCustomizerRouteImport } from './routes/_authenticated/store.$storeId.customizer'
@@ -1152,6 +1153,12 @@ const AuthenticatedStoreStoreIdCopilotRoute =
   AuthenticatedStoreStoreIdCopilotRouteImport.update({
     id: '/copilot',
     path: '/copilot',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
+const AuthenticatedStoreStoreIdCustomerNotificationsRoute =
+  AuthenticatedStoreStoreIdCustomerNotificationsRouteImport.update({
+    id: '/customer-notifications',
+    path: '/customer-notifications',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCustomerSegmentsRoute =
@@ -2237,6 +2244,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
+  '/store/$storeId/customer-notifications': typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   '/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   '/store/$storeId/customizer': typeof AuthenticatedStoreStoreIdCustomizerRoute
@@ -2549,6 +2557,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
+  '/store/$storeId/customer-notifications': typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   '/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   '/store/$storeId/customizer': typeof AuthenticatedStoreStoreIdCustomizerRoute
@@ -2862,6 +2871,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/_authenticated/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/_authenticated/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
+  '/_authenticated/store/$storeId/customer-notifications': typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   '/_authenticated/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   '/_authenticated/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   '/_authenticated/store/$storeId/customizer': typeof AuthenticatedStoreStoreIdCustomizerRoute
@@ -3177,6 +3187,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/cohorts'
     | '/store/$storeId/collections'
     | '/store/$storeId/copilot'
+    | '/store/$storeId/customer-notifications'
     | '/store/$storeId/customer-segments'
     | '/store/$storeId/customers'
     | '/store/$storeId/customizer'
@@ -3489,6 +3500,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/cohorts'
     | '/store/$storeId/collections'
     | '/store/$storeId/copilot'
+    | '/store/$storeId/customer-notifications'
     | '/store/$storeId/customer-segments'
     | '/store/$storeId/customers'
     | '/store/$storeId/customizer'
@@ -3801,6 +3813,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/cohorts'
     | '/_authenticated/store/$storeId/collections'
     | '/_authenticated/store/$storeId/copilot'
+    | '/_authenticated/store/$storeId/customer-notifications'
     | '/_authenticated/store/$storeId/customer-segments'
     | '/_authenticated/store/$storeId/customers'
     | '/_authenticated/store/$storeId/customizer'
@@ -5160,6 +5173,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCopilotRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/customer-notifications': {
+      id: '/_authenticated/store/$storeId/customer-notifications'
+      path: '/customer-notifications'
+      fullPath: '/store/$storeId/customer-notifications'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdCustomerNotificationsRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/customer-segments': {
       id: '/_authenticated/store/$storeId/customer-segments'
       path: '/customer-segments'
@@ -6493,6 +6513,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdCohortsRoute: typeof AuthenticatedStoreStoreIdCohortsRoute
   AuthenticatedStoreStoreIdCollectionsRoute: typeof AuthenticatedStoreStoreIdCollectionsRoute
   AuthenticatedStoreStoreIdCopilotRoute: typeof AuthenticatedStoreStoreIdCopilotRoute
+  AuthenticatedStoreStoreIdCustomerNotificationsRoute: typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   AuthenticatedStoreStoreIdCustomerSegmentsRoute: typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   AuthenticatedStoreStoreIdCustomersRoute: typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   AuthenticatedStoreStoreIdCustomizerRoute: typeof AuthenticatedStoreStoreIdCustomizerRoute
@@ -6634,6 +6655,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdCollectionsRoute,
     AuthenticatedStoreStoreIdCopilotRoute:
       AuthenticatedStoreStoreIdCopilotRoute,
+    AuthenticatedStoreStoreIdCustomerNotificationsRoute:
+      AuthenticatedStoreStoreIdCustomerNotificationsRoute,
     AuthenticatedStoreStoreIdCustomerSegmentsRoute:
       AuthenticatedStoreStoreIdCustomerSegmentsRoute,
     AuthenticatedStoreStoreIdCustomersRoute:

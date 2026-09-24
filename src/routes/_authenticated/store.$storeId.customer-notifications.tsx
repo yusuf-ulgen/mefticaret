@@ -147,7 +147,7 @@ function Templates({ storeId, templates, channels, storeName }: { storeId: strin
   );
 }
 
-function Editor({ storeId, event, channel, row, connected, storeName }: { storeId: string; event: NotifyEvent; channel: NotifyChannel; row?: Tpl; connected: boolean; storeName: string }) {
+function Editor({ storeId, event, channel, row, connected, storeName }: { storeId: string; event: NotifyEvent; channel: NotifyChannel; row?: Tpl | undefined; connected: boolean; storeName: string }) {
   const qc = useQueryClient();
   const save = useServerFn(saveNotificationTemplate);
   const test = useServerFn(sendTestNotification);
@@ -319,7 +319,7 @@ function Carriers({ storeId, rows }: { storeId: string; rows: CarrierRow[] }) {
   );
 }
 
-function CarrierCard({ storeId, carrierKey, name, row }: { storeId: string; carrierKey: CarrierKey; name: string; row?: CarrierRow }) {
+function CarrierCard({ storeId, carrierKey, name, row }: { storeId: string; carrierKey: CarrierKey; name: string; row?: CarrierRow | undefined }) {
   const qc = useQueryClient();
   const save = useServerFn(saveCarrierSetting);
   const [active, setActive] = useState(row?.is_active ?? false);
