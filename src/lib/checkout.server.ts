@@ -147,6 +147,7 @@ type PricingInput = {
   paymentMethodId?: string | undefined;
   discountCode?: string | undefined;
   giftCardCode?: string | undefined;
+  giftWrap?: boolean | undefined;
 };
 
 async function priceCart(
@@ -235,7 +236,22 @@ async function priceCart(
     shippingTotal = Number(rate.price);
     if (rate.free_over !== null && subtotal - discountTotal >= Number(rate.free_over)) shippingTotal = 0;
   }
+  // Kolay Panel promosyonları: kargo bedava eşiği ve hediye paketi ücreti
+  const { data: promo } = await supabase
+    .from("kolay_promo_settings")
+    .select("free_shipping_enabled, free_shipping_threshold, gift_wrap_enabled, gift_wrap_fee")
+    .eq("store_id", store.id)
+    .maybeSingle();
+  if (
+    promo?.free_shipping_enabled &&
+    Number(promo.free_shipping_threshold ?? 0) > 0 &&
+    subtotal - discountTotal >= Number(promo.free_shipping_threshold)
+  ) {
+    shippingTotal = 0;
+  }
   if (freeShipping) shippingTotal = 0;
+  const giftWrapFee =
+    input.giftWrap && promo?.gift_wrap_enabled ? Math.max(0, Number(promo.gift_wrap_fee ?? 0)) : 0;
 
   // Vergi
   const { data: settings } = await supabase
@@ -263,7 +279,7 @@ async function priceCart(
     extraFee = Number((((taxable + shippingTotal) * Number(method.extra_fee_rate ?? 0)) / 100).toFixed(2));
   }
 
-  const orderTotal = Number((taxable + shippingTotal + taxTotal + extraFee).toFixed(2));
+  const orderTotal = Number((taxable + shippingTotal + taxTotal + extraFee + giftWrapFee).toFixed(2));
 
   // Hediye kartı: kod, aktiflik, son kullanma ve bakiye sunucuda doğrulanır
   let giftCardApplied = 0;
@@ -299,6 +315,7 @@ async function priceCart(
     taxTotal,
     paymentLabel,
     extraFee,
+    giftWrapFee,
     orderTotal,
     giftCard,
     giftCardApplied,
@@ -318,6 +335,7 @@ export const quoteCheckoutSchema = z.object({
   paymentMethodId: z.guid().optional(),
   discountCode: z.string().trim().max(60).optional(),
   giftCardCode: z.string().trim().max(60).optional(),
+  giftWrap: z.boolean().optional(),
 });
 
 /**
@@ -353,6 +371,7 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
       taxTotal: quote.taxTotal,
       paymentLabel: quote.paymentLabel,
       paymentFee: quote.extraFee,
+      giftWrapFee: quote.giftWrapFee,
       giftCardApplied: quote.giftCardApplied,
       grandTotal: quote.grandTotal,
       digitalOnly: quote.digitalOnly,
@@ -374,6 +393,7 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
       taxTotal: 0,
       paymentLabel: null,
       paymentFee: 0,
+      giftWrapFee: 0,
       giftCardApplied: 0,
       grandTotal: 0,
       digitalOnly: false,

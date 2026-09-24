@@ -257,6 +257,7 @@ function CheckoutPage() {
       appliedGiftCard?.code ?? "",
       shippingRateId,
       paymentMethodId,
+      gift.wrap,
     ],
     enabled: lines.length > 0,
     staleTime: 5_000,
@@ -269,6 +270,7 @@ function CheckoutPage() {
           paymentMethodId: paymentMethodId || undefined,
           discountCode: appliedDiscount?.code || undefined,
           giftCardCode: appliedGiftCard?.code || undefined,
+          giftWrap: gift.wrap || undefined,
         },
       }),
   });
@@ -848,6 +850,9 @@ function CheckoutPage() {
                 />
               ) : q?.taxIncluded ? (
                 <SummaryRow label="Vergi" value="Fiyatlara dahil" muted={muted} />
+              ) : null}
+              {q && q.giftWrapFee > 0 ? (
+                <SummaryRow label="Hediye paketi" value={formatMoney(q.giftWrapFee, store.currency)} muted={muted} />
               ) : null}
               {q && q.paymentFee > 0 ? (
                 <SummaryRow label="Ödeme farkı" value={formatMoney(q.paymentFee, store.currency)} muted={muted} />
