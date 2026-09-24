@@ -7,3 +7,10 @@
 - [x] Raporlar: şablonlar, CSV/Excel/PDF, zamanlanmış e-posta
 - [x] API v2 analytics uçları + cache
 - [x] Süper admin mağaza karşılaştırma
+
+## Ürün & Müşteri Yönetimi v2
+- [x] Şema eklemeleri, customer_notes, 3 paket anahtarı (varsayılan kapalı)
+- [x] /api/v2 ürün/varyant/koleksiyon/müşteri/adres/not/segment uçları
+- [x] Ürünler v2 listesi + formu, Koleksiyonlar v2, Müşteriler v2 liste/detay, Segment Oluşturucu
+- [ ] Kurumsal mağaza hesabıyla tarayıcıda uçtan uca test (test hesabında yalnız Kolay Panel mağazası var)
+- [ ] Gerçek API anahtarıyla /api/v2 uç testleri

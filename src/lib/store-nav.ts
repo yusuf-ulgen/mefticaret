@@ -114,6 +114,8 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       items: [
         { label: "Ürünler", to: p("products"), icon: Package, keywords: "product varyant" },
         { label: "Koleksiyonlar", to: p("collections"), icon: Boxes, keywords: "kategori" },
+        { label: "Ürünler v2", to: p("catalog-v2"), icon: Package, keywords: "product varyant seçenek v2" },
+        { label: "Koleksiyonlar v2", to: p("collections-v2"), icon: Boxes, keywords: "akıllı koleksiyon kural v2" },
         { label: "Medya", to: p("media"), icon: Images, keywords: "görsel resim" },
         { label: "Fiyatlandırma", to: p("pricing"), icon: Tags },
         { label: "Barkod Etiketi", to: p("barcodes"), icon: Barcode },
@@ -167,6 +169,8 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Müşteriler", to: p("customers"), icon: Users },
         { label: "Segmentler", to: p("segments"), icon: UsersRound },
         { label: "Müşteri Segmentleri", to: p("customer-segments"), icon: Users },
+        { label: "Müşteriler v2", to: p("customers-v2"), icon: Users, keywords: "müşteri adres not v2" },
+        { label: "Segment Oluşturucu", to: p("segments-v2"), icon: UsersRound, keywords: "segment kural v2" },
         { label: "Değerlendirmeler", to: p("reviews"), icon: Star, keywords: "yorum" },
         { label: "Soru & Cevap", to: p("questions"), icon: HelpCircle },
         { label: "Destek Talepleri", to: p("support"), icon: MessageSquare, keywords: "ticket" },
