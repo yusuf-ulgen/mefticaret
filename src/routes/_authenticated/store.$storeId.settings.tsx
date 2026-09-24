@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
-import { SettingsHub } from "@/components/settings-hub";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -119,7 +118,6 @@ function SettingsPage() {
       title="Ayarlar"
       description="Mağaza kimliği, yerelleştirme ve fatura bilgileri."
     >
-      <div className="mb-6"><SettingsHub storeId={storeId} /></div>
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <form
           className="surface-card space-y-5 p-6"
