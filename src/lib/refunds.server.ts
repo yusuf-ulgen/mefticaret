@@ -155,26 +155,14 @@ const METHOD_LABEL: Record<string, string> = {
 };
 
 async function notifyCustomer(db: Db, refundId: string) {
-  const { data } = await db
-    .from("refunds")
-    .select("amount, currency, refund_method, refund_number, orders(order_number, customer_email, customer_name), stores(name)")
-    .eq("id", refundId)
-    .maybeSingle();
-  const order = (data as any)?.orders;
-  if (!data || !order?.customer_email) return;
+  const { data } = await db.from("refunds").select("order_id, amount, currency").eq("id", refundId).maybeSingle();
+  if (!data?.order_id) return;
   const { formatMoney } = await import("@/lib/mefti");
-  const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
-  await sendTemplateEmail("refund-processed", order.customer_email, {
-    idempotencyKey: `refund-${refundId}`,
-    templateData: {
-      storeName: (data as any).stores?.name ?? "",
-      customerName: order.customer_name ?? "",
-      orderNumber: order.order_number,
-      refundNumber: data.refund_number,
-      amount: formatMoney(Number(data.amount), data.currency),
-      method: METHOD_LABEL[data.refund_method] ?? data.refund_method,
-    },
-  });
+  const { dispatchCustomerEvent } = await import("@/lib/customer-notify.server");
+  await dispatchCustomerEvent(data.order_id, "REFUND_PROCESSED", {
+    refundAmount: formatMoney(Number(data.amount), data.currency),
+    dedupe: refundId,
+  }, db);
 }
 
 export async function cancelRefund(user: Db, userId: string, storeId: string, refundId: string) {

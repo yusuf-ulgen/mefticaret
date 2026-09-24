@@ -169,6 +169,7 @@ function mapStatus(text: string | null): Database["public"]["Enums"]["shipment_s
   if (DELIVERED.test(text)) return "delivered";
   if (RETURNED.test(text)) return "returned";
   if (CANCELLED.test(text)) return "cancelled";
+  if (/dağıtım|dagitim|kuryede|out for delivery/i.test(text)) return "out_for_delivery";
   if (TRANSIT.test(text)) return "in_transit";
   return "pending";
 }

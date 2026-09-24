@@ -128,5 +128,8 @@ export async function markOrderPaidFromTransaction(
   const { notifyDigitalOrderPaid } = await import("@/lib/digital-delivery.server");
   await notifyDigitalOrderPaid(db as never, order.id);
 
+  const { dispatchCustomerEvent } = await import("@/lib/customer-notify.server");
+  await dispatchCustomerEvent(order.id, "ORDER_CONFIRMED", {}, db as never);
+
   return { handled: true };
 }

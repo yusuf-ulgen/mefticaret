@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BildirimIptalRouteImport } from './routes/bildirim-iptal'
 import { Route as DropshippingNasilYapilirRouteImport } from './routes/dropshipping-nasil-yapilir'
 import { Route as ETicaretNasilYapilirRouteImport } from './routes/e-ticaret-nasil-yapilir'
 import { Route as ETicaretPaketleriRouteImport } from './routes/e-ticaret-paketleri'
@@ -56,6 +57,7 @@ import { Route as EvHanimlariKurulumRouteImport } from './routes/ev-hanimlari.ku
 import { Route as EvHanimlariSablonlarRouteImport } from './routes/ev-hanimlari.sablonlar'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as FrIndexRouteImport } from './routes/fr.index'
+import { Route as KargoTakipTrackingRouteImport } from './routes/kargo-takip.$tracking'
 import { Route as MagazaSlugRouteImport } from './routes/magaza.$slug'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -161,6 +163,7 @@ import { Route as AuthenticatedStoreStoreIdChannelsRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdCohortsRouteImport } from './routes/_authenticated/store.$storeId.cohorts'
 import { Route as AuthenticatedStoreStoreIdCollectionsRouteImport } from './routes/_authenticated/store.$storeId.collections'
 import { Route as AuthenticatedStoreStoreIdCopilotRouteImport } from './routes/_authenticated/store.$storeId.copilot'
+import { Route as AuthenticatedStoreStoreIdCustomerNotificationsRouteImport } from './routes/_authenticated/store.$storeId.customer-notifications'
 import { Route as AuthenticatedStoreStoreIdCustomerSegmentsRouteImport } from './routes/_authenticated/store.$storeId.customer-segments'
 import { Route as AuthenticatedStoreStoreIdCustomersRouteImport } from './routes/_authenticated/store.$storeId.customers'
 import { Route as AuthenticatedStoreStoreIdCustomizerRouteImport } from './routes/_authenticated/store.$storeId.customizer'
@@ -332,6 +335,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BildirimIptalRoute = BildirimIptalRouteImport.update({
+  id: '/bildirim-iptal',
+  path: '/bildirim-iptal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DropshippingNasilYapilirRoute =
@@ -555,6 +563,11 @@ const FaturaTokenRoute = FaturaTokenRouteImport.update({
 const FrIndexRoute = FrIndexRouteImport.update({
   id: '/fr/',
   path: '/fr/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KargoTakipTrackingRoute = KargoTakipTrackingRouteImport.update({
+  id: '/kargo-takip/$tracking',
+  path: '/kargo-takip/$tracking',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MagazaSlugRoute = MagazaSlugRouteImport.update({
@@ -1140,6 +1153,12 @@ const AuthenticatedStoreStoreIdCopilotRoute =
   AuthenticatedStoreStoreIdCopilotRouteImport.update({
     id: '/copilot',
     path: '/copilot',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
+const AuthenticatedStoreStoreIdCustomerNotificationsRoute =
+  AuthenticatedStoreStoreIdCustomerNotificationsRouteImport.update({
+    id: '/customer-notifications',
+    path: '/customer-notifications',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCustomerSegmentsRoute =
@@ -2075,6 +2094,7 @@ const AuthenticatedStoreStoreIdXmlIntegratorFeedsFeedIdMapperRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/bildirim-iptal': typeof BildirimIptalRoute
   '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
   '/e-ticaret-nasil-yapilir': typeof ETicaretNasilYapilirRoute
   '/e-ticaret-paketleri': typeof ETicaretPaketleriRoute
@@ -2113,6 +2133,7 @@ export interface FileRoutesByFullPath {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
@@ -2223,6 +2244,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
+  '/store/$storeId/customer-notifications': typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   '/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   '/store/$storeId/customizer': typeof AuthenticatedStoreStoreIdCustomizerRoute
@@ -2386,6 +2408,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/bildirim-iptal': typeof BildirimIptalRoute
   '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
   '/e-ticaret-nasil-yapilir': typeof ETicaretNasilYapilirRoute
   '/e-ticaret-paketleri': typeof ETicaretPaketleriRoute
@@ -2423,6 +2446,7 @@ export interface FileRoutesByTo {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar': typeof ArIndexRoute
@@ -2533,6 +2557,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
+  '/store/$storeId/customer-notifications': typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   '/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   '/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   '/store/$storeId/customizer': typeof AuthenticatedStoreStoreIdCustomizerRoute
@@ -2696,6 +2721,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/bildirim-iptal': typeof BildirimIptalRoute
   '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
   '/e-ticaret-nasil-yapilir': typeof ETicaretNasilYapilirRoute
   '/e-ticaret-paketleri': typeof ETicaretPaketleriRoute
@@ -2734,6 +2760,7 @@ export interface FileRoutesById {
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
@@ -2844,6 +2871,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/_authenticated/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/_authenticated/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
+  '/_authenticated/store/$storeId/customer-notifications': typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   '/_authenticated/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   '/_authenticated/store/$storeId/customers': typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   '/_authenticated/store/$storeId/customizer': typeof AuthenticatedStoreStoreIdCustomizerRoute
@@ -3009,6 +3037,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/bildirim-iptal'
     | '/dropshipping-nasil-yapilir'
     | '/e-ticaret-nasil-yapilir'
     | '/e-ticaret-paketleri'
@@ -3047,6 +3076,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/sayfa/$slug'
     | '/ar/'
@@ -3157,6 +3187,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/cohorts'
     | '/store/$storeId/collections'
     | '/store/$storeId/copilot'
+    | '/store/$storeId/customer-notifications'
     | '/store/$storeId/customer-segments'
     | '/store/$storeId/customers'
     | '/store/$storeId/customizer'
@@ -3320,6 +3351,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/bildirim-iptal'
     | '/dropshipping-nasil-yapilir'
     | '/e-ticaret-nasil-yapilir'
     | '/e-ticaret-paketleri'
@@ -3357,6 +3389,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/sayfa/$slug'
     | '/ar'
@@ -3467,6 +3500,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/cohorts'
     | '/store/$storeId/collections'
     | '/store/$storeId/copilot'
+    | '/store/$storeId/customer-notifications'
     | '/store/$storeId/customer-segments'
     | '/store/$storeId/customers'
     | '/store/$storeId/customizer'
@@ -3629,6 +3663,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/bildirim-iptal'
     | '/dropshipping-nasil-yapilir'
     | '/e-ticaret-nasil-yapilir'
     | '/e-ticaret-paketleri'
@@ -3667,6 +3702,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/sayfa/$slug'
     | '/ar/'
@@ -3777,6 +3813,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/cohorts'
     | '/_authenticated/store/$storeId/collections'
     | '/_authenticated/store/$storeId/copilot'
+    | '/_authenticated/store/$storeId/customer-notifications'
     | '/_authenticated/store/$storeId/customer-segments'
     | '/_authenticated/store/$storeId/customers'
     | '/_authenticated/store/$storeId/customizer'
@@ -3942,6 +3979,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BildirimIptalRoute: typeof BildirimIptalRoute
   DropshippingNasilYapilirRoute: typeof DropshippingNasilYapilirRoute
   ETicaretNasilYapilirRoute: typeof ETicaretNasilYapilirRoute
   ETicaretPaketleriRoute: typeof ETicaretPaketleriRoute
@@ -3975,6 +4013,7 @@ export interface RootRouteChildren {
   EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
   EvHanimlariSablonlarRoute: typeof EvHanimlariSablonlarRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
+  KargoTakipTrackingRoute: typeof KargoTakipTrackingRoute
   MagazaSlugRoute: typeof MagazaSlugRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
   ArIndexRoute: typeof ArIndexRoute
@@ -4075,6 +4114,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bildirim-iptal': {
+      id: '/bildirim-iptal'
+      path: '/bildirim-iptal'
+      fullPath: '/bildirim-iptal'
+      preLoaderRoute: typeof BildirimIptalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dropshipping-nasil-yapilir': {
@@ -4383,6 +4429,13 @@ declare module '@tanstack/react-router' {
       path: '/fr'
       fullPath: '/fr/'
       preLoaderRoute: typeof FrIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kargo-takip/$tracking': {
+      id: '/kargo-takip/$tracking'
+      path: '/kargo-takip/$tracking'
+      fullPath: '/kargo-takip/$tracking'
+      preLoaderRoute: typeof KargoTakipTrackingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/magaza/$slug': {
@@ -5118,6 +5171,13 @@ declare module '@tanstack/react-router' {
       path: '/copilot'
       fullPath: '/store/$storeId/copilot'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCopilotRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
+    '/_authenticated/store/$storeId/customer-notifications': {
+      id: '/_authenticated/store/$storeId/customer-notifications'
+      path: '/customer-notifications'
+      fullPath: '/store/$storeId/customer-notifications'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdCustomerNotificationsRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/customer-segments': {
@@ -6453,6 +6513,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdCohortsRoute: typeof AuthenticatedStoreStoreIdCohortsRoute
   AuthenticatedStoreStoreIdCollectionsRoute: typeof AuthenticatedStoreStoreIdCollectionsRoute
   AuthenticatedStoreStoreIdCopilotRoute: typeof AuthenticatedStoreStoreIdCopilotRoute
+  AuthenticatedStoreStoreIdCustomerNotificationsRoute: typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   AuthenticatedStoreStoreIdCustomerSegmentsRoute: typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
   AuthenticatedStoreStoreIdCustomersRoute: typeof AuthenticatedStoreStoreIdCustomersRouteWithChildren
   AuthenticatedStoreStoreIdCustomizerRoute: typeof AuthenticatedStoreStoreIdCustomizerRoute
@@ -6594,6 +6655,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdCollectionsRoute,
     AuthenticatedStoreStoreIdCopilotRoute:
       AuthenticatedStoreStoreIdCopilotRoute,
+    AuthenticatedStoreStoreIdCustomerNotificationsRoute:
+      AuthenticatedStoreStoreIdCustomerNotificationsRoute,
     AuthenticatedStoreStoreIdCustomerSegmentsRoute:
       AuthenticatedStoreStoreIdCustomerSegmentsRoute,
     AuthenticatedStoreStoreIdCustomersRoute:
@@ -6812,6 +6875,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  BildirimIptalRoute: BildirimIptalRoute,
   DropshippingNasilYapilirRoute: DropshippingNasilYapilirRoute,
   ETicaretNasilYapilirRoute: ETicaretNasilYapilirRoute,
   ETicaretPaketleriRoute: ETicaretPaketleriRoute,
@@ -6846,6 +6910,7 @@ const rootRouteChildren: RootRouteChildren = {
   EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,
   EvHanimlariSablonlarRoute: EvHanimlariSablonlarRoute,
   FaturaTokenRoute: FaturaTokenRoute,
+  KargoTakipTrackingRoute: KargoTakipTrackingRoute,
   MagazaSlugRoute: MagazaSlugRoute,
   SayfaSlugRoute: SayfaSlugRoute,
   ArIndexRoute: ArIndexRoute,
