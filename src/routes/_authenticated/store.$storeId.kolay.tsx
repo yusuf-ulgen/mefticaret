@@ -35,6 +35,7 @@ import { ReceiptVerifier } from "@/components/homemaker/receipt-verifier";
 import { RemindersCard } from "@/components/homemaker/reminders-card";
 import { ShopPageCard } from "@/components/homemaker/shop-page-card";
 import { GooglePreviewCard } from "@/components/homemaker/google-preview-card";
+import { SeoDashboardCard } from "@/components/homemaker/seo-dashboard-card";
 import { SetupGuide } from "@/components/homemaker/setup-guide";
 import { StoreTab } from "@/components/homemaker/store-tab";
 import { useStoreRealtime } from "@/hooks/use-store-realtime";
@@ -288,6 +289,9 @@ function KolayPanel() {
                 storeSlug={store.slug}
                 city={(settings as { city?: string | null } | null)?.city ?? null}
               />
+            </div>
+            <div className="mt-4">
+              <SeoDashboardCard storeId={storeId} />
             </div>
             <div className="mt-4">
               <ShopPageCard
