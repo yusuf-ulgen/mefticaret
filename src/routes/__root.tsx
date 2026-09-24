@@ -108,6 +108,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "google-site-verification",
         content: "jClDOjn42c5a7nqHlx8LDKO5vK9QAfq8TSdrOGcqzuc",
       },
+      {
+        name: "strix-verification",
+        content: "strix-verify-e2df2dce799345923c84988a2b4bf8e4",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
