@@ -61,7 +61,7 @@ export function RichTextEditor({
             {btn(editor.isActive("orderedList"), "Numaralı liste", () => editor.chain().focus().toggleOrderedList().run(), ListOrdered)}
             {btn(editor.isActive("blockquote"), "Alıntı", () => editor.chain().focus().toggleBlockquote().run(), Quote)}
             {btn(editor.isActive("link"), "Bağlantı", () => {
-              const prev = editor.getAttributes("link").href as string | undefined;
+              const prev = editor.getAttributes("link")["href"] as string | undefined;
               const url = window.prompt("Bağlantı adresi", prev ?? "https://");
               if (url === null) return;
               if (!url) editor.chain().focus().unsetLink().run();

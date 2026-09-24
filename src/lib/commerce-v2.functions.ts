@@ -41,7 +41,7 @@ export const v2ListProducts = createServerFn({ method: "POST" })
         types: uniq((meta ?? []).map((m) => m.product_type)),
         tags: uniq((meta ?? []).flatMap((m) => m.tags ?? [])),
       },
-    } as never as { data: Record<string, any>[]; meta: { total: number }; facets: { vendors: string[]; types: string[]; tags: string[] } };
+    } as never as { data: any[]; meta: { total: number }; facets: { vendors: string[]; types: string[]; tags: string[] } };
   });
 
 export const v2GetProduct = createServerFn({ method: "POST" })
@@ -50,7 +50,7 @@ export const v2GetProduct = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const db = await guard(context.supabase, data.storeId, context.userId, "module_v2_products");
     const { getProduct } = await import("@/lib/commerce-v2.server");
-    return (await getProduct(db, data.storeId, data.productId)) as never as Record<string, any> | null;
+    return (await getProduct(db, data.storeId, data.productId)) as never as any | null;
   });
 
 export const v2SaveProduct = createServerFn({ method: "POST" })
@@ -103,7 +103,7 @@ export const v2ListCollections = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const db = await guard(context.supabase, data.storeId, context.userId, data.module === "products" ? "module_v2_products" : "module_v2_collections");
     const { listCollections } = await import("@/lib/commerce-v2.server");
-    return (await listCollections(db, data.storeId)) as never as Record<string, any>[];
+    return (await listCollections(db, data.storeId)) as never as any[];
   });
 
 export const v2CollectionProducts = createServerFn({ method: "POST" })
@@ -167,7 +167,7 @@ export const v2ListCustomers = createServerFn({ method: "POST" })
       data: res.data.map((c) => ({ ...c, city: cityOf.get(c.id as string) ?? null })),
       meta: res.meta,
       cities,
-    } as never as { data: Record<string, any>[]; meta: { total: number }; cities: string[] };
+    } as never as { data: any[]; meta: { total: number }; cities: string[] };
   });
 
 export const v2CustomerDetail = createServerFn({ method: "POST" })
@@ -184,7 +184,7 @@ export const v2CustomerDetail = createServerFn({ method: "POST" })
       svc.listNotes(db, data.storeId, data.customerId),
     ]);
     return { customer, addresses, orders, notes } as never as {
-      customer: Record<string, any>; addresses: Record<string, any>[]; orders: Record<string, any>[]; notes: Record<string, any>[];
+      customer: any; addresses: any[]; orders: any[]; notes: any[];
     };
   });
 
@@ -261,7 +261,7 @@ export const v2ListSegments = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const db = await guard(context.supabase, data.storeId, context.userId, "module_v2_customers");
     const { listSegments } = await import("@/lib/commerce-v2.server");
-    return (await listSegments(db, data.storeId)) as never as Record<string, any>[];
+    return (await listSegments(db, data.storeId)) as never as any[];
   });
 
 export const v2PreviewSegment = createServerFn({ method: "POST" })
