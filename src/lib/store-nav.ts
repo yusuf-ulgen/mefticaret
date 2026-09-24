@@ -103,6 +103,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Canlı İzleme", to: p("live"), icon: Radio, keywords: "live gerçek zamanlı" },
         { label: "Operasyon Merkezi", to: p("tasks"), icon: ClipboardList, keywords: "görev" },
         { label: "Bildirimler", to: p("notifications"), icon: Bell },
+        { label: "Müşteri Bildirimleri", to: p("customer-notifications"), icon: Bell, keywords: "sms whatsapp e-posta kargo şablon" },
         { label: "Yayına Hazırlık", to: p("health"), icon: ShieldCheck, keywords: "kontrol" },
         { label: "Kuyruk & Önbellek", to: p("jobs"), icon: Timer, keywords: "queue cache" },
       ],

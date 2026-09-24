@@ -114,6 +114,12 @@ export const MODULE_CATALOG: PlanModule[] = [
     routes: ["markets-pricing", "localization"],
   },
   {
+    key: "module_notification_v2",
+    label: "Müşteri Bildirimleri v2",
+    description: "Sipariş, kargo ve iade bildirimleri (e-posta, SMS, WhatsApp).",
+    routes: ["customer-notifications"],
+  },
+  {
     key: "module_api",
     label: "API & Webhook",
     description: "Genel API anahtarları, webhook ve OAuth uygulamaları.",
