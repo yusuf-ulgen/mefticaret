@@ -113,6 +113,7 @@ import { Route as ApiAiExecuteRouteImport } from './routes/api/ai/execute'
 import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
 import { Route as ApiPublicOdealCallbackRouteImport } from './routes/api/public/odeal-callback'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
+import { Route as ApiV2SplatRouteImport } from './routes/api/v2/$'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
 import { Route as SSlugAboutRouteImport } from './routes/s.$slug.about'
 import { Route as SSlugAccountRouteImport } from './routes/s.$slug.account'
@@ -877,6 +878,11 @@ const ApiPublicOdealCallbackRoute = ApiPublicOdealCallbackRouteImport.update({
 const ApiV1SplatRoute = ApiV1SplatRouteImport.update({
   id: '/api/v1/$',
   path: '/api/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV2SplatRoute = ApiV2SplatRouteImport.update({
+  id: '/api/v2/$',
+  path: '/api/v2/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugIndexRoute = SSlugIndexRouteImport.update({
@@ -2201,6 +2207,7 @@ export interface FileRoutesByFullPath {
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
+  '/api/v2/$': typeof ApiV2SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -2515,6 +2522,7 @@ export interface FileRoutesByTo {
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
+  '/api/v2/$': typeof ApiV2SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -2830,6 +2838,7 @@ export interface FileRoutesById {
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
+  '/api/v2/$': typeof ApiV2SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
   '/s/$slug/account': typeof SSlugAccountRoute
   '/s/$slug/blog': typeof SSlugBlogRoute
@@ -3147,6 +3156,7 @@ export interface FileRouteTypes {
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
     | '/api/v1/$'
+    | '/api/v2/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -3461,6 +3471,7 @@ export interface FileRouteTypes {
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
     | '/api/v1/$'
+    | '/api/v2/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -3775,6 +3786,7 @@ export interface FileRouteTypes {
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
     | '/api/v1/$'
+    | '/api/v2/$'
     | '/s/$slug/about'
     | '/s/$slug/account'
     | '/s/$slug/blog'
@@ -4040,6 +4052,7 @@ export interface RootRouteChildren {
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
   ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
   ApiV1SplatRoute: typeof ApiV1SplatRoute
+  ApiV2SplatRoute: typeof ApiV2SplatRoute
   SSlugAboutRoute: typeof SSlugAboutRoute
   SSlugAccountRoute: typeof SSlugAccountRoute
   SSlugBlogRoute: typeof SSlugBlogRoute
@@ -4835,6 +4848,13 @@ declare module '@tanstack/react-router' {
       path: '/api/v1/$'
       fullPath: '/api/v1/$'
       preLoaderRoute: typeof ApiV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v2/$': {
+      id: '/api/v2/$'
+      path: '/api/v2/$'
+      fullPath: '/api/v2/$'
+      preLoaderRoute: typeof ApiV2SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/': {
@@ -6945,6 +6965,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
   ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
   ApiV1SplatRoute: ApiV1SplatRoute,
+  ApiV2SplatRoute: ApiV2SplatRoute,
   SSlugAboutRoute: SSlugAboutRoute,
   SSlugAccountRoute: SSlugAccountRoute,
   SSlugBlogRoute: SSlugBlogRoute,
