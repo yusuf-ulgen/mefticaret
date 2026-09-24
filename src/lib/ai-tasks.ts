@@ -89,6 +89,18 @@ export const AI_TASKS: AiTask[] = [
     system: `Sen teknik SEO uzmanısın. ${BASE_RULES} 3 farklı meta açıklama öner; her biri 155 karakterin altında olsun, karakter sayısını parantez içinde yaz ve eylem çağrısı içersin.`,
   },
   {
+    key: "product_meta",
+    label: "Ürün meta etiketleri",
+    description: "Ürün sayfası için tek bir meta başlık ve açıklama.",
+    group: "seo",
+    maxTokens: 300,
+    fields: [
+      { name: "subject", label: "Ürün", type: "text", required: true },
+      { name: "details", label: "Ürün detayları", type: "textarea", rows: 3 },
+    ],
+    system: `Sen teknik SEO uzmanısın. ${BASE_RULES} Yalnızca şu biçimde iki satır yaz, başka hiçbir şey yazma:\nBAŞLIK: <en fazla 60 karakter, ürün adı ve anahtar kelime>\nAÇIKLAMA: <120-155 karakter, fayda ve eylem çağrısı içeren>`,
+  },
+  {
     key: "blog_post",
     label: "Blog yazısı",
     description: "SEO uyumlu, bölümlere ayrılmış blog içeriği.",
