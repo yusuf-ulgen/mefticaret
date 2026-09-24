@@ -11,6 +11,13 @@ import { startPlanCardPayment } from "@/lib/plan-checkout.functions";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -112,12 +119,22 @@ function BillingPage() {
 
   // Ücretli paketler QNBpay tahsilat sayfasından geçer; fiyat sunucuda belirlenir.
   const startPlanPaymentFn = useServerFn(startPlanCardPayment);
+  const [pendingCheckout, setPendingCheckout] = useState<{
+    link: string;
+    amount: number | string;
+    currency: string;
+    planName: string;
+  } | null>(null);
   const checkoutMutation = useMutation({
     mutationFn: (planId: string) =>
       startPlanPaymentFn({ data: { storeId, planId, billingInterval: interval } }),
     onSuccess: (result) => {
-      toast.success(`${result.planName} için ödeme sayfası açılıyor`);
-      window.location.href = result.link;
+      setPendingCheckout({
+        link: result.link,
+        amount: result.amount,
+        currency: result.currency,
+        planName: result.planName,
+      });
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -600,6 +617,65 @@ function BillingPage() {
           </TabsContent>
         </Tabs>
       </div>
+      <Dialog open={!!pendingCheckout} onOpenChange={(open) => !open && setPendingCheckout(null)}>
+        <DialogContent className="w-[calc(100%-1.5rem)] max-w-md rounded-3xl p-0 sm:rounded-3xl">
+          <div className="brand-gradient rounded-t-3xl px-6 py-5">
+            <p className="font-display text-2xl font-extrabold tracking-tight text-primary-foreground">
+              mefticaret
+            </p>
+            <p className="mt-1 text-sm text-primary-foreground/80">Güvenli paket ödemesi</p>
+          </div>
+          <div className="space-y-5 px-6 pb-6">
+            <DialogHeader className="text-left">
+              <DialogTitle className="text-lg">Ödeme özeti</DialogTitle>
+              <DialogDescription>
+                Kart bilgilerinizi bir sonraki adımda bankanın güvenli ödeme sayfasına gireceksiniz.
+              </DialogDescription>
+            </DialogHeader>
+            {pendingCheckout ? (
+              <div className="space-y-3 rounded-2xl border border-border bg-muted/40 p-4 text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Paket</span>
+                  <span className="font-semibold">{pendingCheckout.planName}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Dönem</span>
+                  <span className="font-medium">{BILLING_INTERVAL_LABELS[interval] ?? interval}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
+                  <span className="font-semibold">Ödenecek tutar</span>
+                  <span className="text-xl font-bold tabular-nums">
+                    {formatMoney(Number(pendingCheckout.amount), pendingCheckout.currency)}
+                  </span>
+                </div>
+              </div>
+            ) : null}
+            <p className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Lock className="size-4 shrink-0" /> Kart bilgileriniz Mefticaret'e iletilmez; ödeme QNBpay
+              güvencesiyle 3D Secure ile alınır.
+            </p>
+            <div className="grid gap-2">
+              <Button
+                size="lg"
+                className="h-12 w-full rounded-full text-base"
+                onClick={() => {
+                  if (pendingCheckout) window.location.href = pendingCheckout.link;
+                }}
+              >
+                <Lock className="size-4" /> Güvenli ödemeye geç
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-12 w-full rounded-full"
+                onClick={() => setPendingCheckout(null)}
+              >
+                Vazgeç
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
