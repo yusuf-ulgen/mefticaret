@@ -46,7 +46,8 @@ import {
   saveMyStoreAddress,
   updateMyStoreProfile,
 } from "@/lib/account.functions";
-import { myAddressesQuery, myLoyaltyQuery, myOrdersQuery, myReturnsQuery } from "@/lib/account-queries";
+import { myAddressesQuery, myLoyaltyQuery, myOrdersQuery, myRefundsQuery, myReturnsQuery } from "@/lib/account-queries";
+import { REFUND_METHOD_LABELS, REFUND_STATUS_LABELS } from "@/lib/refund-schema";
 import { TIER_LABELS } from "@/lib/loyalty-labels";
 import type { MyAddress, MyCustomer, MyOrder } from "@/lib/account.server";
 import type { MyReturn } from "@/lib/account-returns.server";
@@ -291,6 +292,7 @@ function AccountDashboard({ storeId, slug, storeName }: { storeId: string; slug:
   const { data: addressesData } = useQuery(myAddressesQuery(storeId, claimed));
   const { data: returnsData } = useQuery(myReturnsQuery(storeId, claimed));
   const { data: loyaltyData } = useQuery(myLoyaltyQuery(storeId, claimed));
+  const { data: refundData } = useQuery(myRefundsQuery(storeId, claimed));
 
   const customer = ordersData?.customer ?? addressesData?.customer ?? null;
   const orders = useMemo(() => ordersData?.orders ?? [], [ordersData]);
@@ -377,6 +379,9 @@ function AccountDashboard({ storeId, slug, storeName }: { storeId: string; slug:
                 label="Puanım"
                 value={String(loyaltyData?.account.points_balance ?? 0)}
               />
+              {refundData && refundData.credit > 0 ? (
+                <MetricCard icon={Wallet} label="Mağaza kredim" value={formatMoney(refundData.credit, currency)} />
+              ) : null}
             </div>
 
             <Card>
@@ -517,6 +522,7 @@ function AccountDashboard({ storeId, slug, storeName }: { storeId: string; slug:
         storeName={storeName}
         onClose={() => setDetailOrder(null)}
         onRequestReturn={openReturn}
+        refunds={(refundData?.refunds ?? []).filter((r) => r.order_id === detailOrder?.id)}
       />
     </div>
   );
@@ -686,6 +692,7 @@ function OrderDetailDialog({
   storeName,
   onClose,
   onRequestReturn,
+  refunds = [],
 }: {
   order: MyOrder | null;
   slug: string;
@@ -693,6 +700,7 @@ function OrderDetailDialog({
   storeName: string;
   onClose: () => void;
   onRequestReturn: (orderId: string) => void;
+  refunds?: Array<{ id: string; refund_number: string | null; amount: number; currency: string; status: string; refund_method: string; reason: string | null; created_at: string }>;
 }) {
   const cart = useCart();
   const reorderFn = useServerFn(reorderMyStoreOrder);
@@ -768,6 +776,24 @@ function OrderDetailDialog({
 
         <div className="grid gap-5">
           <TrackSteps order={order} />
+          {refunds.length ? (
+            <div className="grid gap-2 rounded-lg border border-border p-3">
+              <p className="text-sm font-semibold">İade geçmişi</p>
+              {refunds.map((r) => (
+                <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span>
+                    {r.refund_number ?? "İade"} · {formatMoney(Number(r.amount), r.currency)}
+                    <span className="block text-xs text-muted-foreground">
+                      {REFUND_METHOD_LABELS[r.refund_method as keyof typeof REFUND_METHOD_LABELS] ?? r.refund_method} · {formatDateTime(r.created_at)}
+                    </span>
+                  </span>
+                  <Badge variant={r.status === "processed" ? "secondary" : r.status === "failed" ? "destructive" : "outline"}>
+                    {REFUND_STATUS_LABELS[r.status] ?? r.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          ) : null}
           <Separator />
           <div className="grid gap-3">
             {order.order_items.map((item) => {

@@ -18,6 +18,7 @@ import { AppShell } from "@/components/app-shell";
 import { ShipmentsPanel } from "@/components/shipments-panel";
 import { DropshipPanel } from "@/components/dropship-panel";
 import { OrderPrintDialog } from "@/components/order-print";
+import { OrderActionsMenu, OrderRefundHistory, RefundDrawer } from "@/components/refunds/order-refund-panel";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -125,6 +126,7 @@ function OrderDetailPage() {
   const update = useServerFn(updateOrder);
   const addNote = useServerFn(addOrderNote);
 
+  const [refundOpen, setRefundOpen] = useState(false);
   const [status, setStatus] = useState("pending");
   const [paymentStatus, setPaymentStatus] = useState("pending");
   const [fulfillment, setFulfillment] = useState("unfulfilled");
@@ -268,9 +270,14 @@ function OrderDetailPage() {
               <ArrowLeft className="mr-2 size-4" /> Siparişler
             </Link>
           </Button>
+          <OrderActionsMenu
+            disabled={!["paid", "partially_refunded"].includes(order.payment_status)}
+            onRefund={() => setRefundOpen(true)}
+          />
         </div>
       }
     >
+      <RefundDrawer storeId={storeId} orderId={order.id} open={refundOpen} onOpenChange={setRefundOpen} />
       <div className="mb-6 flex flex-wrap items-center gap-2">
         {ORDER_STATUS_FLOW.map((step, index) => (
           <Badge
@@ -289,6 +296,10 @@ function OrderDetailPage() {
         {["cancelled", "returned", "refunded"].includes(order.status) ? (
           <Badge variant="destructive">{ORDER_STATUS_LABELS[order.status]}</Badge>
         ) : null}
+      </div>
+
+      <div className="mb-6">
+        <OrderRefundHistory storeId={storeId} orderId={order.id} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

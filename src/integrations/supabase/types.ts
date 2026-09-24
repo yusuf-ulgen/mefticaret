@@ -3036,6 +3036,71 @@ export type Database = {
           },
         ]
       }
+      customer_store_credits: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_id: string
+          id: string
+          note: string | null
+          order_id: string | null
+          refund_id: string | null
+          store_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          customer_id: string
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          refund_id?: string | null
+          store_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_id?: string
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          refund_id?: string | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_store_credits_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_store_credits_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_store_credits_refund_id_fkey"
+            columns: ["refund_id"]
+            isOneToOne: false
+            referencedRelation: "refunds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_store_credits_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_subscriptions: {
         Row: {
           created_at: string
@@ -10218,6 +10283,110 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_installments: {
+        Row: {
+          created_at: string
+          extra_rate: number
+          id: string
+          installment_count: number
+          is_active: boolean
+          min_amount: number
+          payment_provider_id: string
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          extra_rate?: number
+          id?: string
+          installment_count: number
+          is_active?: boolean
+          min_amount?: number
+          payment_provider_id: string
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          extra_rate?: number
+          id?: string
+          installment_count?: number
+          is_active?: boolean
+          min_amount?: number
+          payment_provider_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_installments_payment_provider_id_fkey"
+            columns: ["payment_provider_id"]
+            isOneToOne: false
+            referencedRelation: "payment_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_installments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_providers: {
+        Row: {
+          created_at: string
+          credential_hint: Json
+          credentials_encrypted: string | null
+          display_name: string
+          id: string
+          instructions: string | null
+          is_active: boolean
+          is_test_mode: boolean
+          position: number
+          provider_key: string
+          store_id: string
+          supported_currencies: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credential_hint?: Json
+          credentials_encrypted?: string | null
+          display_name: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          is_test_mode?: boolean
+          position?: number
+          provider_key: string
+          store_id: string
+          supported_currencies?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credential_hint?: Json
+          credentials_encrypted?: string | null
+          display_name?: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          is_test_mode?: boolean
+          position?: number
+          provider_key?: string
+          store_id?: string
+          supported_currencies?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_providers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_route_decisions: {
         Row: {
           amount: number
@@ -12981,53 +13150,189 @@ export type Database = {
         }
         Relationships: []
       }
-      refunds: {
+      refund_line_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_item_id: string
+          quantity: number
+          refund_id: string
+          restock: boolean
+          store_id: string
+          subtotal: number
+          total_tax: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_item_id: string
+          quantity: number
+          refund_id: string
+          restock?: boolean
+          store_id: string
+          subtotal?: number
+          total_tax?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_item_id?: string
+          quantity?: number
+          refund_id?: string
+          restock?: boolean
+          store_id?: string
+          subtotal?: number
+          total_tax?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_line_items_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_line_items_refund_id_fkey"
+            columns: ["refund_id"]
+            isOneToOne: false
+            referencedRelation: "refunds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_line_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      refund_transactions: {
         Row: {
           amount: number
+          attempts: number
           created_at: string
-          currency: string
           id: string
-          order_id: string | null
-          payment_id: string | null
-          processed_at: string | null
-          processed_by: string | null
-          provider_reference: string | null
-          reason: string | null
-          return_request_id: string | null
+          payment_reference: string | null
+          provider: string
+          provider_refund_id: string | null
+          provider_response: Json
+          refund_id: string
           status: string
           store_id: string
           updated_at: string
         }
         Insert: {
-          amount?: number
+          amount: number
+          attempts?: number
           created_at?: string
-          currency?: string
           id?: string
-          order_id?: string | null
-          payment_id?: string | null
-          processed_at?: string | null
-          processed_by?: string | null
-          provider_reference?: string | null
-          reason?: string | null
-          return_request_id?: string | null
+          payment_reference?: string | null
+          provider: string
+          provider_refund_id?: string | null
+          provider_response?: Json
+          refund_id: string
           status?: string
           store_id: string
           updated_at?: string
         }
         Update: {
           amount?: number
+          attempts?: number
           created_at?: string
+          id?: string
+          payment_reference?: string | null
+          provider?: string
+          provider_refund_id?: string | null
+          provider_response?: Json
+          refund_id?: string
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_transactions_refund_id_fkey"
+            columns: ["refund_id"]
+            isOneToOne: false
+            referencedRelation: "refunds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_transactions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      refunds: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          idempotency_key: string | null
+          note: string | null
+          order_id: string | null
+          payment_id: string | null
+          processed_at: string | null
+          processed_by: string | null
+          provider_reference: string | null
+          reason: string | null
+          refund_method: string
+          refund_number: string | null
+          return_request_id: string | null
+          status: string
+          store_id: string
+          total_tax: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
           currency?: string
           id?: string
+          idempotency_key?: string | null
+          note?: string | null
           order_id?: string | null
           payment_id?: string | null
           processed_at?: string | null
           processed_by?: string | null
           provider_reference?: string | null
           reason?: string | null
+          refund_method?: string
+          refund_number?: string | null
+          return_request_id?: string | null
+          status?: string
+          store_id: string
+          total_tax?: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          idempotency_key?: string | null
+          note?: string | null
+          order_id?: string | null
+          payment_id?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          provider_reference?: string | null
+          reason?: string | null
+          refund_method?: string
+          refund_number?: string | null
           return_request_id?: string | null
           status?: string
           store_id?: string
+          total_tax?: number
           updated_at?: string
         }
         Relationships: [
@@ -19610,6 +19915,10 @@ export type Database = {
         Args: { _hits: number; _misses: number }
         Returns: undefined
       }
+      cancel_order_refund: {
+        Args: { p_actor: string; p_refund_id: string }
+        Returns: undefined
+      }
       claim_jobs: {
         Args: {
           _kinds?: Database["public"]["Enums"]["job_kind"][]
@@ -19683,6 +19992,19 @@ export type Database = {
           store_slug: string
         }[]
       }
+      create_order_refund: {
+        Args: {
+          p_actor: string
+          p_amount: number
+          p_idempotency_key: string
+          p_lines: Json
+          p_method: string
+          p_note: string
+          p_order_id: string
+          p_reason: string
+        }
+        Returns: string
+      }
       customer_fts_text: {
         Args: { _email: string; _full_name: string; _phone: string }
         Returns: string
@@ -19724,6 +20046,15 @@ export type Database = {
         Returns: string
       }
       fail_job: { Args: { _error: string; _id: string }; Returns: undefined }
+      finalize_order_refund: {
+        Args: {
+          p_actor: string
+          p_message: string
+          p_refund_id: string
+          p_success: boolean
+        }
+        Returns: undefined
+      }
       fts_simple: { Args: { _text: string }; Returns: unknown }
       grant_ai_credits: {
         Args: {
