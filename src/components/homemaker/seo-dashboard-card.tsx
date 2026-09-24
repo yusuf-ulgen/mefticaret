@@ -135,7 +135,7 @@ function ProductRow({ storeId, row, speedReady, onChanged }: { storeId: string; 
           </BigButton>
         )}
         <BigButton
-          variant="outline"
+          tone="ghost"
           disabled={busy !== null || !speedReady || !row.published}
           onClick={() => run("speed", async () => { await speed({ data: { storeId, productId: row.id } }); toast.success("Hız ölçüldü"); onChanged(); })}
         >
