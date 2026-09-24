@@ -4,6 +4,7 @@ import {
   getMyStoreAddresses,
   getMyStoreLoyalty,
   getMyStoreOrders,
+  getMyStoreRefunds,
   getMyStoreReturns,
 } from "@/lib/account.functions";
 
@@ -35,6 +36,14 @@ export const myReturnsQuery = (storeId: string, enabled: boolean) =>
   queryOptions({
     queryKey: ["storefront", storeId, "my-returns"],
     queryFn: () => getMyStoreReturns({ data: { storeId } }),
+    staleTime: 30_000,
+    enabled,
+  });
+
+export const myRefundsQuery = (storeId: string, enabled: boolean) =>
+  queryOptions({
+    queryKey: ["storefront", storeId, "my-refunds"],
+    queryFn: () => getMyStoreRefunds({ data: { storeId } }),
     staleTime: 30_000,
     enabled,
   });
