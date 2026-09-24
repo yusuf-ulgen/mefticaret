@@ -10,7 +10,7 @@ import { z } from "zod";
 const bodySchema = z.object({
   visitorId: z.string().min(6).max(64),
   sessionId: z.string().min(6).max(64),
-  kind: z.enum(["page_view", "product_view", "add_to_cart", "checkout", "purchase", "search"]),
+  kind: z.enum(["page_view", "page_leave", "product_view", "add_to_cart", "checkout", "purchase", "search"]),
   searchTerm: z.string().trim().min(1).max(120).optional(),
   searchResults: z.number().int().min(0).max(100_000).optional(),
   path: z.string().max(300).optional(),
@@ -20,6 +20,8 @@ const bodySchema = z.object({
   value: z.number().finite().min(0).max(10_000_000).optional(),
   quantity: z.number().int().min(0).max(10_000).optional(),
   currency: z.string().max(8).optional(),
+  pageTitle: z.string().trim().max(200).optional(),
+  timeOnPageMs: z.number().int().min(0).max(86_400_000).optional(),
   referrer: z.string().max(500).optional(),
   source: z.string().max(120).optional(),
   medium: z.string().max(120).optional(),
@@ -94,6 +96,8 @@ export const Route = createFileRoute("/api/public/track/$slug")({
           search_term: payload.searchTerm ?? null,
           search_results: payload.searchResults ?? null,
           user_agent: userAgent.slice(0, 400),
+          page_title: payload.pageTitle ?? null,
+          time_on_page_ms: payload.timeOnPageMs ?? null,
         });
         if (error) return Response.json({ error: "Olay kaydedilemedi" }, { status: 500 });
 

@@ -119,6 +119,7 @@ export const statisticsQuery = (storeId: string, days: number) =>
           .select(
             "kind, visitor_id, session_id, path, product_id, source, device, country, search_term, search_results, created_at",
           )
+        .neq("kind", "page_leave")
           .eq("store_id", storeId)
           .gte("created_at", previousFrom)
           .order("created_at", { ascending: true })

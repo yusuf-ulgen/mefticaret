@@ -1098,6 +1098,7 @@ export async function platformLive(input: z.infer<typeof liveInputSchema>) {
     db
       .from("analytics_events")
       .select("id, store_id, kind, visitor_id, session_id, path, city, country, device, value, currency, created_at")
+        .neq("kind", "page_leave")
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(4000),

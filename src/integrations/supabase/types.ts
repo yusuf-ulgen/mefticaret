@@ -664,6 +664,59 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_daily_summary: {
+        Row: {
+          avg_order_value: number
+          conversion_rate: number
+          date: string
+          id: string
+          orders: number
+          page_views: number
+          returning_customers: number
+          revenue: number
+          sessions: number
+          store_id: string
+          updated_at: string
+          visitors: number
+        }
+        Insert: {
+          avg_order_value?: number
+          conversion_rate?: number
+          date: string
+          id?: string
+          orders?: number
+          page_views?: number
+          returning_customers?: number
+          revenue?: number
+          sessions?: number
+          store_id: string
+          updated_at?: string
+          visitors?: number
+        }
+        Update: {
+          avg_order_value?: number
+          conversion_rate?: number
+          date?: string
+          id?: string
+          orders?: number
+          page_views?: number
+          returning_customers?: number
+          revenue?: number
+          sessions?: number
+          store_id?: string
+          updated_at?: string
+          visitors?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_daily_summary_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analytics_events: {
         Row: {
           campaign: string | null
@@ -676,6 +729,7 @@ export type Database = {
           kind: string
           medium: string | null
           order_id: string | null
+          page_title: string | null
           path: string | null
           product_id: string | null
           quantity: number
@@ -686,6 +740,7 @@ export type Database = {
           session_id: string
           source: string | null
           store_id: string
+          time_on_page_ms: number | null
           user_agent: string | null
           value: number
           variant_id: string | null
@@ -702,6 +757,7 @@ export type Database = {
           kind: string
           medium?: string | null
           order_id?: string | null
+          page_title?: string | null
           path?: string | null
           product_id?: string | null
           quantity?: number
@@ -712,6 +768,7 @@ export type Database = {
           session_id: string
           source?: string | null
           store_id: string
+          time_on_page_ms?: number | null
           user_agent?: string | null
           value?: number
           variant_id?: string | null
@@ -728,6 +785,7 @@ export type Database = {
           kind?: string
           medium?: string | null
           order_id?: string | null
+          page_title?: string | null
           path?: string | null
           product_id?: string | null
           quantity?: number
@@ -738,6 +796,7 @@ export type Database = {
           session_id?: string
           source?: string | null
           store_id?: string
+          time_on_page_ms?: number | null
           user_agent?: string | null
           value?: number
           variant_id?: string | null
@@ -770,6 +829,53 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics_report_schedules: {
+        Row: {
+          created_at: string
+          frequency: string
+          id: string
+          is_active: boolean
+          last_error: string | null
+          last_sent_at: string | null
+          recipients: string[]
+          report_key: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          frequency: string
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_sent_at?: string | null
+          recipients?: string[]
+          report_key: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_sent_at?: string | null
+          recipients?: string[]
+          report_key?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_report_schedules_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]
@@ -20203,9 +20309,57 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      analytics_sessions_v: {
+        Row: {
+          campaign: string | null
+          city: string | null
+          country: string | null
+          device_type: string | null
+          ended_at: string | null
+          landing_page: string | null
+          medium: string | null
+          page_views: number | null
+          referrer: string | null
+          session_id: string | null
+          source: string | null
+          started_at: string | null
+          store_id: string | null
+          visitor_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      analytics_v2: {
+        Args: {
+          _bucket?: string
+          _from: string
+          _section: string
+          _store_id: string
+          _to: string
+        }
+        Returns: Json
+      }
+      analytics_v2_compare: {
+        Args: { _from: string; _to: string }
+        Returns: {
+          conversion_rate: number
+          name: string
+          orders: number
+          revenue: number
+          slug: string
+          store_id: string
+          visitors: number
+        }[]
+      }
       cache_get: { Args: { _key: string }; Returns: Json }
       cache_invalidate: {
         Args: { _namespace?: string; _prefix?: string; _store_id?: string }
@@ -20467,6 +20621,11 @@ export type Database = {
           occurrences: number
         }[]
       }
+      refresh_analytics_daily: {
+        Args: { _date: string; _store_id: string }
+        Returns: undefined
+      }
+      refresh_analytics_daily_all: { Args: { _date: string }; Returns: number }
       release_variant_stock: {
         Args: { _qty: number; _variant_id: string }
         Returns: {

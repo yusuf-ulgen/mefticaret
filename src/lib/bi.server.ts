@@ -100,6 +100,7 @@ export async function collectBusinessIntelligence(client: Client, storeId: strin
     db
       .from("analytics_events")
       .select("kind, session_id, visitor_id, source, medium, referrer_host, device, country, city, path, value, created_at")
+        .neq("kind", "page_leave")
       .eq("store_id", storeId)
       .gte("created_at", range.fromIso)
       .lte("created_at", range.toIso)
@@ -107,6 +108,7 @@ export async function collectBusinessIntelligence(client: Client, storeId: strin
     db
       .from("analytics_events")
       .select("kind, session_id, value, created_at")
+        .neq("kind", "page_leave")
       .eq("store_id", storeId)
       .gte("created_at", liveSince)
       .limit(2000),

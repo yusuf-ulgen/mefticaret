@@ -36,6 +36,7 @@ export const analyticsEventsQuery = (storeId: string, range: DateRange) =>
         .select(
           "id, kind, visitor_id, session_id, path, product_id, value, quantity, currency, source, medium, campaign, referrer_host, device, country, created_at",
         )
+        .neq("kind", "page_leave")
         .eq("store_id", storeId)
         .gte("created_at", range.fromIso)
         .lte("created_at", range.toIso)
