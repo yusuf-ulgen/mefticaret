@@ -57,6 +57,7 @@ export const saveNotificationTemplate = createServerFn({ method: "POST" })
     }).refine((v) => v.channel !== "sms" || v.body.length <= 160, { message: "SMS en fazla 160 karakter olabilir" }).parse(d),
   )
   .handler(async ({ data, context }) => {
+    await assertManage(context.supabase, context.userId, data.storeId);
     const { error } = await context.supabase.from("customer_notification_templates").upsert(
       {
         store_id: data.storeId, event_key: data.eventKey, channel: data.channel, language: data.language,
@@ -111,6 +112,7 @@ export const listNotificationLogs = createServerFn({ method: "GET" })
     q: z.string().trim().max(100).optional(),
   }).parse(d))
   .handler(async ({ data, context }) => {
+    await assertManage(context.supabase, context.userId, data.storeId);
     let q = context.supabase
       .from("customer_notification_logs")
       .select("id, order_id, channel, event_key, recipient, status, error, sent_at, created_at, orders(order_number, customer_name)")
@@ -159,6 +161,7 @@ export const saveCarrierSetting = createServerFn({ method: "POST" })
     isTestMode: z.boolean(),
   }).parse(d))
   .handler(async ({ data, context }) => {
+    await assertManage(context.supabase, context.userId, data.storeId);
     const row: Record<string, unknown> = {
       store_id: data.storeId, carrier_key: data.carrierKey, customer_number: data.customerNumber || null,
       is_active: data.isActive, is_test_mode: data.isTestMode,
