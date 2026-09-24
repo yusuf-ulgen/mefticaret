@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 
+import { template as customerNotificationTemplate } from './customer-notification'
 import { template as refundProcessedTemplate } from './refund-processed'
 
 export interface TemplateEntry {
@@ -20,5 +21,6 @@ export interface TemplateEntry {
  *   // then add to TEMPLATES: 'welcome': welcomeTemplate
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
+  'customer-notification': customerNotificationTemplate,
   'refund-processed': refundProcessedTemplate,
 }

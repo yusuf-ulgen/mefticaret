@@ -2007,6 +2007,53 @@ export type Database = {
           },
         ]
       }
+      carrier_settings: {
+        Row: {
+          carrier_key: string
+          created_at: string
+          credential_hint: Json
+          credentials_encrypted: string | null
+          customer_number: string | null
+          id: string
+          is_active: boolean
+          is_test_mode: boolean
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          carrier_key: string
+          created_at?: string
+          credential_hint?: Json
+          credentials_encrypted?: string | null
+          customer_number?: string | null
+          id?: string
+          is_active?: boolean
+          is_test_mode?: boolean
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          carrier_key?: string
+          created_at?: string
+          credential_hint?: Json
+          credentials_encrypted?: string | null
+          customer_number?: string | null
+          id?: string
+          is_active?: boolean
+          is_test_mode?: boolean
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carrier_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_items: {
         Row: {
           cart_id: string
@@ -2974,6 +3021,171 @@ export type Database = {
           },
         ]
       }
+      customer_notification_logs: {
+        Row: {
+          channel: string
+          created_at: string
+          customer_id: string | null
+          delivered_at: string | null
+          error: string | null
+          event_key: string
+          id: string
+          idempotency_key: string
+          order_id: string | null
+          payload: Json
+          recipient: string | null
+          sent_at: string | null
+          status: string
+          store_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          customer_id?: string | null
+          delivered_at?: string | null
+          error?: string | null
+          event_key: string
+          id?: string
+          idempotency_key: string
+          order_id?: string | null
+          payload?: Json
+          recipient?: string | null
+          sent_at?: string | null
+          status?: string
+          store_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          customer_id?: string | null
+          delivered_at?: string | null
+          error?: string | null
+          event_key?: string
+          id?: string
+          idempotency_key?: string
+          order_id?: string | null
+          payload?: Json
+          recipient?: string | null
+          sent_at?: string | null
+          status?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_notification_logs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_notification_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_notification_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_notification_prefs: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          marketing_email: boolean
+          prefs: Json
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          marketing_email?: boolean
+          prefs?: Json
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          marketing_email?: boolean
+          prefs?: Json
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_notification_prefs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: true
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_notification_prefs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_notification_templates: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string
+          event_key: string
+          id: string
+          is_active: boolean
+          language: string
+          store_id: string
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          channel: string
+          created_at?: string
+          event_key: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          store_id: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string
+          event_key?: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          store_id?: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_notification_templates_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_segments: {
         Row: {
           color: string
@@ -3200,6 +3412,41 @@ export type Database = {
           },
           {
             foreignKeyName: "customer_tags_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_unsubscribes: {
+        Row: {
+          channel: string
+          created_at: string
+          id: string
+          recipient: string
+          source: string
+          store_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          id?: string
+          recipient: string
+          source?: string
+          store_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          id?: string
+          recipient?: string
+          source?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_unsubscribes_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -14367,6 +14614,57 @@ export type Database = {
           },
         ]
       }
+      shipment_events: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_at: string
+          id: string
+          location: string | null
+          shipment_id: string
+          source: string
+          status: string
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_at?: string
+          id?: string
+          location?: string | null
+          shipment_id: string
+          source?: string
+          status: string
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_at?: string
+          id?: string
+          location?: string | null
+          shipment_id?: string
+          source?: string
+          status?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_events_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipment_events_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shipment_items: {
         Row: {
           created_at: string
@@ -14409,9 +14707,13 @@ export type Database = {
       shipments: {
         Row: {
           carrier: string
+          carrier_key: string | null
           created_at: string
           delivered_at: string | null
+          estimated_delivery_date: string | null
           id: string
+          last_sync_error: string | null
+          last_synced_at: string | null
           note: string | null
           order_id: string
           shipped_at: string | null
@@ -14423,9 +14725,13 @@ export type Database = {
         }
         Insert: {
           carrier: string
+          carrier_key?: string | null
           created_at?: string
           delivered_at?: string | null
+          estimated_delivery_date?: string | null
           id?: string
+          last_sync_error?: string | null
+          last_synced_at?: string | null
           note?: string | null
           order_id: string
           shipped_at?: string | null
@@ -14437,9 +14743,13 @@ export type Database = {
         }
         Update: {
           carrier?: string
+          carrier_key?: string | null
           created_at?: string
           delivered_at?: string | null
+          estimated_delivery_date?: string | null
           id?: string
+          last_sync_error?: string | null
+          last_synced_at?: string | null
           note?: string | null
           order_id?: string
           shipped_at?: string | null
@@ -20128,6 +20438,7 @@ export type Database = {
         }
         Returns: string
       }
+      public_track_shipment: { Args: { p_tracking: string }; Returns: Json }
       publish_due_blog_posts: { Args: never; Returns: number }
       publish_theme_version: {
         Args: { _label?: string; _store_id: string }
@@ -20436,6 +20747,9 @@ export type Database = {
         | "delivered"
         | "returned"
         | "cancelled"
+        | "picked_up"
+        | "out_for_delivery"
+        | "failed"
       stock_transfer_status: "draft" | "in_transit" | "received" | "cancelled"
       store_role:
         | "owner"
@@ -20883,6 +21197,9 @@ export const Constants = {
         "delivered",
         "returned",
         "cancelled",
+        "picked_up",
+        "out_for_delivery",
+        "failed",
       ],
       stock_transfer_status: ["draft", "in_transit", "received", "cancelled"],
       store_role: [

@@ -2,20 +2,8 @@ import { queryOptions } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 
-export type ShipmentStatus =
-  | "pending"
-  | "in_transit"
-  | "delivered"
-  | "returned"
-  | "cancelled";
-
-export const SHIPMENT_STATUS_LABELS: Record<ShipmentStatus, string> = {
-  pending: "Hazırlanıyor",
-  in_transit: "Yolda",
-  delivered: "Teslim edildi",
-  returned: "İade edildi",
-  cancelled: "İptal edildi",
-};
+export { SHIPMENT_STATUS_LABELS, type ShipmentStatus } from "@/lib/carriers";
+import type { ShipmentStatus } from "@/lib/carriers";
 
 export const orderShipmentsQuery = (orderId: string) =>
   queryOptions({

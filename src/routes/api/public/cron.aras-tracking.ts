@@ -15,8 +15,8 @@ export const Route = createFileRoute("/api/public/cron/aras-tracking")({
 
         try {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-          const { syncArasShipments } = await import("@/lib/aras.server");
-          const result = await syncArasShipments(supabaseAdmin, { limit: 100 });
+          const { syncActiveShipments } = await import("@/lib/shipment-tracking.server");
+          const result = await syncActiveShipments(supabaseAdmin as never, { limit: 100 });
           return Response.json({ ok: true, ...result });
         } catch (cause) {
           return Response.json(

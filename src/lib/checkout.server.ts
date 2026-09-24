@@ -648,6 +648,11 @@ export async function createStorefrontOrder(
     meta: { source: "storefront", payment_method: paymentLabel, shipping: shippingTitle },
   });
 
+  {
+    const { dispatchCustomerEvent } = await import("@/lib/customer-notify.server");
+    await dispatchCustomerEvent(order.id, "ORDER_CREATED");
+  }
+
   if (discountRow) {
     await supabase
       .from("discounts")
