@@ -39,6 +39,7 @@ export const liveEventsQuery = (storeId: string, minutes = 60) =>
       const { data, error } = await supabase
         .from("analytics_events")
         .select(LIVE_COLUMNS)
+        .neq("kind", "page_leave")
         .eq("store_id", storeId)
         .gte("created_at", since)
         .order("created_at", { ascending: false })

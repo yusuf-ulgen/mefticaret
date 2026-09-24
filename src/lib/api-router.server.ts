@@ -5,7 +5,7 @@ import { authenticateApiKey, logApiRequest, type AuthedApiKey } from "@/lib/api-
 
 /** Mefticaret REST API yönlendiricisi (/api/v1/... ve gelecekte /api/v2/...). */
 
-const SUPPORTED_VERSIONS = new Set(["v1"]);
+const SUPPORTED_VERSIONS = new Set(["v1", "v2"]);
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -243,6 +243,19 @@ export async function handleApiRequest(request: Request, splat: string): Promise
         resources: Object.keys(RESOURCES).map((name) => `/api/${version}/${name}`),
       }),
     );
+  }
+
+  if (version === "v2" && resourceName === "analytics") {
+    if (method !== "GET") return finish(json({ error: "method_not_allowed" }, 405));
+    const { RATE_LIMITS, consumeRateLimit, rateLimitResponse } = await import("@/lib/rate-limit.server");
+    const lim = await consumeRateLimit(`api:${authKind}:${auth.id}:read`, RATE_LIMITS.api);
+    if (!lim.allowed) return finish(rateLimitResponse(lim), "rate_limited");
+    if (!auth.scopes.includes("read_analytics")) {
+      return finish(json({ error: "insufficient_scope", required: "read_analytics" }, 403), "insufficient_scope");
+    }
+    const { handleAnalyticsApi } = await import("@/lib/analytics-api.server");
+    const res = await handleAnalyticsApi(auth.storeId, segments.slice(2).join("/"), url.searchParams);
+    return finish(json(res.body, res.status), res.status >= 400 ? String((res.body as { error?: string }).error) : undefined);
   }
 
   const resource = RESOURCES[resourceName];

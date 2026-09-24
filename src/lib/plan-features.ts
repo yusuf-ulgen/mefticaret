@@ -114,6 +114,12 @@ export const MODULE_CATALOG: PlanModule[] = [
     routes: ["markets-pricing", "localization"],
   },
   {
+    key: "module_analytics_v2",
+    label: "Analitik Paneli v2",
+    description: "Satış, trafik, dönüşüm hunisi, canlı ziyaretçi ve zamanlanmış raporlar.",
+    routes: ["analytics"],
+  },
+  {
     key: "module_notification_v2",
     label: "Müşteri Bildirimleri v2",
     description: "Sipariş, kargo ve iade bildirimleri (e-posta, SMS, WhatsApp).",

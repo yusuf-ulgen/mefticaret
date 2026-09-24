@@ -250,8 +250,23 @@ export function StorefrontChrome({
 
   // Analitik: her vitrin sayfası görüntülemesini ziyaretçi/oturum bazında kaydet.
   useEffect(() => {
-    trackEvent(storeSlug, "page_view", { path: pathname });
+    const started = Date.now();
+    let sent = false;
+    const leave = () => {
+      if (sent) return;
+      sent = true;
+      trackEvent(storeSlug, "page_leave", { path: pathname, timeOnPageMs: Math.min(Date.now() - started, 86_400_000) });
+    };
+    const onVis = () => { if (document.visibilityState === "hidden") leave(); };
+    // Başlık, sayfanın head() güncellemesinden sonra okunur.
+    const t = window.setTimeout(() => trackEvent(storeSlug, "page_view", { path: pathname, pageTitle: document.title.slice(0, 200) }), 50);
+    document.addEventListener("visibilitychange", onVis);
     setMenuOpen(false);
+    return () => {
+      window.clearTimeout(t);
+      document.removeEventListener("visibilitychange", onVis);
+      leave();
+    };
   }, [storeSlug, pathname]);
 
   // Özel JavaScript, mağaza sahibinin bilinçli tercihidir; yalnızca istemcide çalışır.

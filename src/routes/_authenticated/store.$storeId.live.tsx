@@ -1,3 +1,4 @@
+import { LivePagesPanel } from "@/components/analytics/live-pages";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -224,6 +225,8 @@ function LiveViewPage() {
         </div>
       </div>
 
+
+      <LivePagesPanel storeId={storeId} />
 
       <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.4fr_0.8fr]">
         <section className="surface-card overflow-hidden">

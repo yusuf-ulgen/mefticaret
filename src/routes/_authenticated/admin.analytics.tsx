@@ -1,3 +1,4 @@
+import { StoreComparison } from "@/components/analytics/store-comparison";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -308,6 +309,8 @@ function AdminAnalyticsPage() {
           </div>
         </Panel>
       </div>
+
+      <div className="mb-5"><StoreComparison /></div>
 
       <Panel title="Mağaza bazlı günlük veriler">
         <PlatformDataTable dataset="analytics" />

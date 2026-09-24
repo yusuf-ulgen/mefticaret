@@ -11,7 +11,7 @@ const SESSION_KEY = "mefti-session-id";
 const SESSION_TS_KEY = "mefti-session-ts";
 const SESSION_TTL_MS = 30 * 60 * 1000;
 
-export type TrackKind = "page_view" | "product_view" | "add_to_cart" | "checkout" | "purchase" | "search";
+export type TrackKind = "page_view" | "page_leave" | "product_view" | "add_to_cart" | "checkout" | "purchase" | "search";
 
 export type TrackPayload = {
   path?: string;
@@ -24,6 +24,8 @@ export type TrackPayload = {
   /** Arama olayları: aranan terim ve bulunan sonuç sayısı. */
   searchTerm?: string;
   searchResults?: number;
+  pageTitle?: string;
+  timeOnPageMs?: number;
 };
 
 function randomId() {
@@ -69,6 +71,7 @@ function campaignParams() {
 
 const SITE_KIT_EVENT_MAP: Record<TrackKind, SiteKitEventName> = {
   page_view: "page_view",
+  page_leave: "page_view",
   product_view: "view_item",
   add_to_cart: "add_to_cart",
   checkout: "begin_checkout",
@@ -83,7 +86,7 @@ export function trackEvent(storeSlug: string, kind: TrackKind, payload: TrackPay
   if (typeof window === "undefined" || !storeSlug) return;
   try {
     const dedupeKey = `${kind}:${payload.path ?? ""}:${payload.productId ?? ""}:${payload.variantId ?? ""}:${payload.orderId ?? ""}:${payload.searchTerm ?? ""}`;
-    if (kind !== "add_to_cart" && recent.has(dedupeKey)) return;
+    if (kind !== "add_to_cart" && kind !== "page_leave" && recent.has(dedupeKey)) return;
     recent.add(dedupeKey);
     setTimeout(() => recent.delete(dedupeKey), 1500);
 
@@ -97,6 +100,7 @@ export function trackEvent(storeSlug: string, kind: TrackKind, payload: TrackPay
       ...payload,
     });
 
+    if (kind !== "page_leave") {
     // Site Kit: aynı olayı bağlı reklam/analitik servislerine de yayınla.
     pushSiteKitEvent(SITE_KIT_EVENT_MAP[kind], {
       path: payload.path ?? window.location.pathname,
@@ -108,6 +112,7 @@ export function trackEvent(storeSlug: string, kind: TrackKind, payload: TrackPay
       searchTerm: payload.searchTerm,
       eventId: `${kind}-${payload.orderId ?? payload.productId ?? sessionId()}`,
     });
+    }
 
     const url = `/api/public/track/${encodeURIComponent(storeSlug)}`;
     if (navigator.sendBeacon) {
