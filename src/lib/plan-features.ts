@@ -131,6 +131,24 @@ export const MODULE_CATALOG: PlanModule[] = [
     description: "Genel API anahtarları, webhook ve OAuth uygulamaları.",
     routes: ["api", "webhooks", "oauth"],
   },
+  {
+    key: "module_v2_products",
+    label: "Ürünler v2",
+    description: "Shopify benzeri ürün listesi, zengin editör, seçenek/varyant ve v2 ürün API'si.",
+    routes: ["catalog-v2"],
+  },
+  {
+    key: "module_v2_collections",
+    label: "Koleksiyonlar v2",
+    description: "Manuel sıralı ve kurallı (akıllı) koleksiyonlar.",
+    routes: ["collections-v2"],
+  },
+  {
+    key: "module_v2_customers",
+    label: "Müşteriler v2",
+    description: "Müşteri listesi/detayı, adresler, yönetici notları ve kural tabanlı segmentler.",
+    routes: ["customers-v2", "segments-v2"],
+  },
 ];
 
 export const MODULE_BY_KEY: Record<string, PlanModule> = Object.fromEntries(

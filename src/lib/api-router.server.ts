@@ -15,7 +15,7 @@ function json(body: unknown, status = 200) {
       "cache-control": "no-store",
       "access-control-allow-origin": "*",
       "access-control-allow-headers": "authorization, x-api-key, content-type",
-      "access-control-allow-methods": "GET, POST, PATCH, DELETE, OPTIONS",
+      "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     },
   });
 }
@@ -256,6 +256,34 @@ export async function handleApiRequest(request: Request, splat: string): Promise
     const { handleAnalyticsApi } = await import("@/lib/analytics-api.server");
     const res = await handleAnalyticsApi(auth.storeId, segments.slice(2).join("/"), url.searchParams);
     return finish(json(res.body, res.status), res.status >= 400 ? String((res.body as { error?: string }).error) : undefined);
+  }
+
+  if (version === "v2") {
+    const { COMMERCE_V2_RESOURCES } = await import("@/lib/commerce-v2-api.server");
+    if (COMMERCE_V2_RESOURCES.has(resourceName)) {
+      const v2 = await import("@/lib/commerce-v2-api.server");
+      const admin = (await import("@/integrations/supabase/client.server")).supabaseAdmin as unknown as SupabaseClient;
+      // Modül kapalıysa mevcut genel v2 davranışı sürer (products/customers); diğerleri 404/403.
+      if (await v2.isCommerceModuleEnabled(admin, auth.storeId, resourceName)) {
+        const writing = method !== "GET";
+        const { RATE_LIMITS, consumeRateLimit, rateLimitResponse } = await import("@/lib/rate-limit.server");
+        const lim = await consumeRateLimit(`api:${authKind}:${auth.id}:${writing ? "write" : "read"}`, writing ? RATE_LIMITS.api_write : RATE_LIMITS.api);
+        if (!lim.allowed) return finish(rateLimitResponse(lim), "rate_limited");
+        const scope = v2.requiredScope(resourceName, writing);
+        if (!auth.scopes.includes(scope)) {
+          return finish(json({ error: "insufficient_scope", required: scope }, 403), "insufficient_scope");
+        }
+        try {
+          const res = await v2.handleCommerceV2(admin, auth.storeId, method, segments.slice(1), url, request);
+          return finish(json(res.body, res.status), res.status >= 400 ? String((res.body as { error?: string }).error) : undefined);
+        } catch (cause) {
+          return finish(json({ error: "server_error" }, 500), cause instanceof Error ? cause.message : "unknown_error");
+        }
+      }
+      if (!RESOURCES[resourceName]) {
+        return finish(json({ error: "feature_disabled", resource: resourceName }, 403), "feature_disabled");
+      }
+    }
   }
 
   const resource = RESOURCES[resourceName];

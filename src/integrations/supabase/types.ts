@@ -2506,9 +2506,13 @@ export type Database = {
       }
       collections: {
         Row: {
+          collection_type: string
           created_at: string
           description: string | null
           id: string
+          image_url: string | null
+          published_at: string | null
+          rules: Json
           seo: Json
           slug: string
           sort_order: number
@@ -2517,9 +2521,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          collection_type?: string
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
+          published_at?: string | null
+          rules?: Json
           seo?: Json
           slug: string
           sort_order?: number
@@ -2528,9 +2536,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          collection_type?: string
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
+          published_at?: string | null
+          rules?: Json
           seo?: Json
           slug?: string
           sort_order?: number
@@ -3061,51 +3073,63 @@ export type Database = {
       customer_addresses: {
         Row: {
           city: string | null
+          company: string | null
           country: string
           created_at: string
           customer_id: string
           district: string | null
+          first_name: string | null
           id: string
           is_default: boolean
           label: string | null
+          last_name: string | null
           line1: string
           line2: string | null
           phone: string | null
           postal_code: string | null
+          province: string | null
           recipient: string
           store_id: string
           updated_at: string
         }
         Insert: {
           city?: string | null
+          company?: string | null
           country?: string
           created_at?: string
           customer_id: string
           district?: string | null
+          first_name?: string | null
           id?: string
           is_default?: boolean
           label?: string | null
+          last_name?: string | null
           line1: string
           line2?: string | null
           phone?: string | null
           postal_code?: string | null
+          province?: string | null
           recipient: string
           store_id: string
           updated_at?: string
         }
         Update: {
           city?: string | null
+          company?: string | null
           country?: string
           created_at?: string
           customer_id?: string
           district?: string | null
+          first_name?: string | null
           id?: string
           is_default?: boolean
           label?: string | null
+          last_name?: string | null
           line1?: string
           line2?: string | null
           phone?: string | null
           postal_code?: string | null
+          province?: string | null
           recipient?: string
           store_id?: string
           updated_at?: string
@@ -3120,6 +3144,48 @@ export type Database = {
           },
           {
             foreignKeyName: "customer_addresses_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_notes: {
+        Row: {
+          admin_user_id: string | null
+          created_at: string
+          customer_id: string
+          id: string
+          note: string
+          store_id: string
+        }
+        Insert: {
+          admin_user_id?: string | null
+          created_at?: string
+          customer_id: string
+          id?: string
+          note: string
+          store_id: string
+        }
+        Update: {
+          admin_user_id?: string | null
+          created_at?: string
+          customer_id?: string
+          id?: string
+          note?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_notes_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_notes_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -3296,6 +3362,7 @@ export type Database = {
         Row: {
           color: string
           created_at: string
+          customer_count: number
           description: string | null
           id: string
           inactive_days: number | null
@@ -3304,6 +3371,7 @@ export type Database = {
           min_spent: number
           name: string
           new_within_days: number | null
+          query: Json | null
           required_tags: string[]
           slug: string
           sort_order: number
@@ -3313,6 +3381,7 @@ export type Database = {
         Insert: {
           color?: string
           created_at?: string
+          customer_count?: number
           description?: string | null
           id?: string
           inactive_days?: number | null
@@ -3321,6 +3390,7 @@ export type Database = {
           min_spent?: number
           name: string
           new_within_days?: number | null
+          query?: Json | null
           required_tags?: string[]
           slug: string
           sort_order?: number
@@ -3330,6 +3400,7 @@ export type Database = {
         Update: {
           color?: string
           created_at?: string
+          customer_count?: number
           description?: string | null
           id?: string
           inactive_days?: number | null
@@ -3338,6 +3409,7 @@ export type Database = {
           min_spent?: number
           name?: string
           new_within_days?: number | null
+          query?: Json | null
           required_tags?: string[]
           slug?: string
           sort_order?: number
@@ -3615,6 +3687,7 @@ export type Database = {
           email: string | null
           first_name: string | null
           full_name: string
+          gender: string | null
           id: string
           last_activity_at: string | null
           last_name: string | null
@@ -3623,9 +3696,11 @@ export type Database = {
           phone: string | null
           store_id: string
           tags: string[]
+          tax_exempt: boolean
           total_spent: number
           updated_at: string
           user_id: string | null
+          verified_email: boolean
         }
         Insert: {
           accepts_marketing?: boolean
@@ -3636,6 +3711,7 @@ export type Database = {
           email?: string | null
           first_name?: string | null
           full_name: string
+          gender?: string | null
           id?: string
           last_activity_at?: string | null
           last_name?: string | null
@@ -3644,9 +3720,11 @@ export type Database = {
           phone?: string | null
           store_id: string
           tags?: string[]
+          tax_exempt?: boolean
           total_spent?: number
           updated_at?: string
           user_id?: string | null
+          verified_email?: boolean
         }
         Update: {
           accepts_marketing?: boolean
@@ -3657,6 +3735,7 @@ export type Database = {
           email?: string | null
           first_name?: string | null
           full_name?: string
+          gender?: string | null
           id?: string
           last_activity_at?: string | null
           last_name?: string | null
@@ -3665,9 +3744,11 @@ export type Database = {
           phone?: string | null
           store_id?: string
           tags?: string[]
+          tax_exempt?: boolean
           total_spent?: number
           updated_at?: string
           user_id?: string | null
+          verified_email?: boolean
         }
         Relationships: [
           {
@@ -12226,14 +12307,17 @@ export type Database = {
       product_collections: {
         Row: {
           collection_id: string
+          position: number
           product_id: string
         }
         Insert: {
           collection_id: string
+          position?: number
           product_id: string
         }
         Update: {
           collection_id?: string
+          position?: number
           product_id?: string
         }
         Relationships: [
@@ -12304,33 +12388,51 @@ export type Database = {
       product_images: {
         Row: {
           alt: string | null
+          cdn_url: string | null
           created_at: string
+          height: number | null
           id: string
+          media_type: string
           position: number
           product_id: string
+          size_bytes: number | null
           storage_path: string | null
           store_id: string
           url: string
+          variant_id: string | null
+          width: number | null
         }
         Insert: {
           alt?: string | null
+          cdn_url?: string | null
           created_at?: string
+          height?: number | null
           id?: string
+          media_type?: string
           position?: number
           product_id: string
+          size_bytes?: number | null
           storage_path?: string | null
           store_id: string
           url: string
+          variant_id?: string | null
+          width?: number | null
         }
         Update: {
           alt?: string | null
+          cdn_url?: string | null
           created_at?: string
+          height?: number | null
           id?: string
+          media_type?: string
           position?: number
           product_id?: string
+          size_bytes?: number | null
           storage_path?: string | null
           store_id?: string
           url?: string
+          variant_id?: string | null
+          width?: number | null
         }
         Relationships: [
           {
@@ -12345,6 +12447,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_images_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
         ]
@@ -12827,7 +12936,12 @@ export type Database = {
           created_at: string
           id: string
           image_id: string | null
+          inventory_policy: string
+          is_default: boolean
           low_stock_threshold: number
+          option1: string | null
+          option2: string | null
+          option3: string | null
           options: Json
           position: number
           price: number
@@ -12838,6 +12952,7 @@ export type Database = {
           title: string
           updated_at: string
           weight_grams: number | null
+          weight_unit: string
         }
         Insert: {
           barcode?: string | null
@@ -12846,7 +12961,12 @@ export type Database = {
           created_at?: string
           id?: string
           image_id?: string | null
+          inventory_policy?: string
+          is_default?: boolean
           low_stock_threshold?: number
+          option1?: string | null
+          option2?: string | null
+          option3?: string | null
           options?: Json
           position?: number
           price?: number
@@ -12857,6 +12977,7 @@ export type Database = {
           title?: string
           updated_at?: string
           weight_grams?: number | null
+          weight_unit?: string
         }
         Update: {
           barcode?: string | null
@@ -12865,7 +12986,12 @@ export type Database = {
           created_at?: string
           id?: string
           image_id?: string | null
+          inventory_policy?: string
+          is_default?: boolean
           low_stock_threshold?: number
+          option1?: string | null
+          option2?: string | null
+          option3?: string | null
           options?: Json
           position?: number
           price?: number
@@ -12876,6 +13002,7 @@ export type Database = {
           title?: string
           updated_at?: string
           weight_grams?: number | null
+          weight_unit?: string
         }
         Relationships: [
           {
@@ -12921,9 +13048,12 @@ export type Database = {
           made_to_order: boolean
           prep_days: number
           product_type: string | null
+          published_at: string | null
           seller_id: string | null
           seller_name: string | null
           seo: Json
+          seo_description: string | null
+          seo_title: string | null
           sku: string | null
           slug: string
           status: Database["public"]["Enums"]["product_status"]
@@ -12960,9 +13090,12 @@ export type Database = {
           made_to_order?: boolean
           prep_days?: number
           product_type?: string | null
+          published_at?: string | null
           seller_id?: string | null
           seller_name?: string | null
           seo?: Json
+          seo_description?: string | null
+          seo_title?: string | null
           sku?: string | null
           slug: string
           status?: Database["public"]["Enums"]["product_status"]
@@ -12999,9 +13132,12 @@ export type Database = {
           made_to_order?: boolean
           prep_days?: number
           product_type?: string | null
+          published_at?: string | null
           seller_id?: string | null
           seller_name?: string | null
           seo?: Json
+          seo_description?: string | null
+          seo_title?: string | null
           sku?: string | null
           slug?: string
           status?: Database["public"]["Enums"]["product_status"]
