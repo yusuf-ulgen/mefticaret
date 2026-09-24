@@ -13,6 +13,7 @@ export type PublicTracking = {
   delivered_at: string | null;
   estimated_delivery_date: string | null;
   store: { name: string; slug: string; logo_url: string | null };
+  brandColor?: string | null;
   events: { status: string; description: string | null; location: string | null; event_at: string }[];
 };
 
@@ -25,7 +26,14 @@ export const getPublicTracking = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: res, error } = await supabaseAdmin.rpc("public_track_shipment", { p_tracking: data.tracking });
     if (error) throw new Error("Takip bilgisi alınamadı");
-    return (res ?? null) as PublicTracking | null;
+    const t = (res ?? null) as PublicTracking | null;
+    if (!t) return null;
+    const { data: st } = await supabaseAdmin.from("stores").select("id").eq("slug", t.store.slug).maybeSingle();
+    const { data: theme } = st
+      ? await supabaseAdmin.from("store_themes").select("primary_color, logo_url").eq("store_id", st.id).maybeSingle()
+      : { data: null };
+    const color = /^#[0-9a-f]{6}$/i.test(theme?.primary_color ?? "") ? theme!.primary_color : null;
+    return { ...t, store: { ...t.store, logo_url: theme?.logo_url || t.store.logo_url }, brandColor: color };
   });
 
 /** Abonelikten çıkma (imzalı bağlantı). */
