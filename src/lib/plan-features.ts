@@ -215,7 +215,7 @@ export const MODULE_BY_ROUTE: Record<string, string> = Object.fromEntries(
 );
 
 export function isModuleKey(key: string): boolean {
-  return key.startsWith(MODULE_PREFIX);
+  return key.startsWith(MODULE_PREFIX) || key in MODULE_BY_KEY;
 }
 
 /** `/store/:id/<suffix>` yolundaki modül anahtarını çözer. */
