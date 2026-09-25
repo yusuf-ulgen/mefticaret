@@ -31,6 +31,7 @@ import { designCss, resolveDesignTokens } from "@/lib/theme-design";
 import { trackEvent } from "@/lib/track";
 import type { ResolvedSection } from "@/lib/theme-sections";
 import { storefrontQuery } from "@/lib/storefront-queries";
+import { CoutureFooter, CoutureHeader } from "@/components/storefront/couture-chrome";
 
 
 /** Menü bağlantısını vitrin adresine çevirir. */
@@ -317,6 +318,36 @@ export function StorefrontChrome({
         <QuickViewModal theme={t} storeSlug={storeSlug} />
         <StorefrontSupportChat slug={storeSlug} locale={supportLocale} />
         <GamificationPopup storeSlug={storeSlug} />
+      </div>
+    );
+  }
+
+  const coutureFlags = (storefront as { couture?: Record<string, boolean> } | undefined)?.couture ?? {};
+  if (coutureFlags["enabled"]) {
+    const social = (["instagram", "facebook", "tiktok", "youtube", "pinterest"] as const)
+      .map((k) => ({ label: k[0]!.toUpperCase() + k.slice(1), url: value(footerCfg, k) }))
+      .filter((s) => /^https:\/\//.test(s.url));
+    return (
+      <div className="sf-root" style={{ background: t.background_color, color: text, fontFamily: fonts.body, minHeight: "100vh" }}>
+        {t.font_pair?.startsWith("v2:") ? (
+          <link rel="stylesheet" href={`https://fonts.googleapis.com/css2?${[...new Set(t.font_pair.slice(3).split("|"))].filter((f) => /^[a-zA-Z0-9 ]+$/.test(f)).map((f) => `family=${encodeURIComponent(f)}:wght@400;500;600;700`).join("&")}&display=swap`} />
+        ) : null}
+        <style dangerouslySetInnerHTML={{ __html: designCss(design) + "@media (max-width:720px){.sf-bottom-nav{display:grid!important}}" }} />
+        {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: customCss }} /> : null}
+        <a href="#ct-main" className="sr-only focus:not-sr-only">İçeriğe geç</a>
+        <CookieConsent storeSlug={storeSlug} />
+        <SiteKitScripts storeSlug={storeSlug} />
+        <CampaignBanner slug={storeSlug} />
+        <CoutureHeader storeSlug={storeSlug} storeName={storeName} logoUrl={logoUrl} announcement={barText} flags={coutureFlags} />
+        <main id="ct-main" className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>{children}</main>
+        <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
+        <QuickViewModal theme={t} storeSlug={storeSlug} />
+        <MobileBottomNav theme={t} storeSlug={storeSlug} />
+        <StorefrontSupportChat slug={storeSlug} locale={supportLocale} />
+        <GamificationPopup storeSlug={storeSlug} />
+        <CoutureFooter storeSlug={storeSlug} storeName={storeName} about={value(footerCfg, "about")} commerce={commerce} social={social}>
+          <NewsletterSignup slug={storeSlug} muted={muted} />
+        </CoutureFooter>
       </div>
     );
   }
