@@ -118,6 +118,7 @@ function StorefrontProductsPage() {
   const [color, setColor] = useState("all");
   const [columns, setColumns] = useState<2 | 3 | 4>(4);
   const [page, setPage] = useState(1);
+  const [sheet, setSheet] = useState(false);
   const pageSize = 24;
 
   const products = useMemo(() => data?.products ?? [], [data]);
@@ -134,7 +135,7 @@ function StorefrontProductsPage() {
     const max = maxPrice.trim() ? Number(maxPrice) : null;
     const list = products.filter((product) => {
       if (type !== "all" && product.product_type !== type) return false;
-      const price = Number(product.base_price);
+      const price = Number(product.livePrice ?? product.base_price);
       if (min !== null && Number.isFinite(min) && price < min) return false;
       if (max !== null && Number.isFinite(max) && price > max) return false;
       if (inStock && (product.stockTotal ?? 0) <= 0) return false;
@@ -144,8 +145,8 @@ function StorefrontProductsPage() {
       return true;
     });
     const sorted = [...list];
-    if (sort === "price_asc") sorted.sort((a, b) => Number(a.base_price) - Number(b.base_price));
-    else if (sort === "price_desc") sorted.sort((a, b) => Number(b.base_price) - Number(a.base_price));
+    if (sort === "price_asc") sorted.sort((a, b) => Number(a.livePrice ?? a.base_price) - Number(b.livePrice ?? b.base_price));
+    else if (sort === "price_desc") sorted.sort((a, b) => Number(b.livePrice ?? b.base_price) - Number(a.livePrice ?? a.base_price));
     else if (sort === "title") sorted.sort((a, b) => a.title.localeCompare(b.title, "tr"));
     return sorted;
   }, [products, term, type, minPrice, maxPrice, sort, inStock, color]);
@@ -161,6 +162,15 @@ function StorefrontProductsPage() {
   const { store, theme } = data;
   const { t, fonts, muted, cardBg, border, radius } = storefrontTokens(theme);
 
+  const chips: { label: string; clear: () => void }[] = [
+    ...(term ? [{ label: `“${term}”`, clear: () => setTerm("") }] : []),
+    ...(type !== "all" ? [{ label: type, clear: () => setType("all") }] : []),
+    ...(color !== "all" ? [{ label: color, clear: () => setColor("all") }] : []),
+    ...(minPrice ? [{ label: `Min ${minPrice} ₺`, clear: () => setMinPrice("") }] : []),
+    ...(maxPrice ? [{ label: `Maks ${maxPrice} ₺`, clear: () => setMaxPrice("") }] : []),
+    ...(inStock ? [{ label: "Stoktakiler", clear: () => setInStock(false) }] : []),
+  ];
+
   const controlStyle = {
     background: "transparent",
     color: "inherit",
@@ -171,29 +181,8 @@ function StorefrontProductsPage() {
     fontFamily: "inherit",
   } as const;
 
-  return (
-    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
-      <nav style={{ marginTop: 28, fontSize: 13, color: muted }}>
-        <Link to="/s/$slug" params={{ slug }} style={{ color: "inherit" }}>
-          {store.name}
-        </Link>
-        {" / "}
-        <span>Tüm ürünler</span>
-      </nav>
-
-      <header style={{ padding: "20px 0 24px", maxWidth: 640 }}>
-        <h1 className="sf-page-title" style={{ fontFamily: fonts.heading, fontSize: 34, fontWeight: 700, margin: 0 }}>
-          Tüm ürünler
-        </h1>
-        <p style={{ color: muted, marginTop: 10, fontSize: 15 }}>
-          {store.name} kataloğundaki ürünleri arayabilir, tür ve fiyata göre filtreleyebilirsin.
-        </p>
-        <div style={{ marginTop: 12 }}>
-          <StorefrontAdminLink storeId={store.id} border={border} muted={muted} />
-        </div>
-      </header>
-
-      <div className="sf-filters" style={{ marginBottom: 20 }}>
+  const filterControls = (
+    <>
         <input
           value={term}
           onChange={(event) => { setTerm(event.target.value); setPage(1); }}
@@ -263,7 +252,68 @@ function StorefrontProductsPage() {
             Temizle
           </button>
         ) : null}
+    </>
+  );
+
+  return (
+    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug}>
+      <nav style={{ marginTop: 28, fontSize: 13, color: muted }}>
+        <Link to="/s/$slug" params={{ slug }} style={{ color: "inherit" }}>
+          {store.name}
+        </Link>
+        {" / "}
+        <span>Tüm ürünler</span>
+      </nav>
+
+      <header style={{ padding: "20px 0 24px", maxWidth: 640 }}>
+        <h1 className="sf-page-title" style={{ fontFamily: fonts.heading, fontSize: 34, fontWeight: 700, margin: 0 }}>
+          Tüm ürünler
+        </h1>
+        <p style={{ color: muted, marginTop: 10, fontSize: 15 }}>
+          {store.name} kataloğundaki ürünleri arayabilir, tür ve fiyata göre filtreleyebilirsin.
+        </p>
+        <div style={{ marginTop: 12 }}>
+          <StorefrontAdminLink storeId={store.id} border={border} muted={muted} />
+        </div>
+      </header>
+
+      <div className="sf-filters sf-filters-desktop" style={{ marginBottom: 20 }}>
+        {filterControls}
       </div>
+      <div className="sf-filters-mobile" style={{ display: "none", gap: 8, marginBottom: 14, position: "sticky", top: 56, zIndex: 15, background: t.background_color, padding: "8px 0" }}>
+        <button type="button" onClick={() => setSheet(true)} style={{ ...controlStyle, flex: 1, minHeight: 44, cursor: "pointer" }}>Filtrele{chips.length ? ` (${chips.length})` : ""}</button>
+        <select value={sort} onChange={(event) => { setSort(event.target.value as SortKey); setPage(1); }} style={{ ...controlStyle, flex: 1, minHeight: 44 }} aria-label="Sırala">
+          <option value="newest">Yeni eklenenler</option>
+          <option value="price_asc">Fiyat: artan</option>
+          <option value="price_desc">Fiyat: azalan</option>
+          <option value="title">İsim: A-Z</option>
+        </select>
+      </div>
+      <style>{`@media (max-width:720px){.sf-filters-desktop{display:none!important}.sf-filters-mobile{display:flex!important}}`}</style>
+      {sheet ? (
+        <div role="dialog" aria-modal="true" aria-label="Filtreler" onClick={() => setSheet(false)} style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(0,0,0,.4)", display: "flex", alignItems: "flex-end" }}>
+          <div onClick={(event) => event.stopPropagation()} style={{ background: t.background_color, width: "100%", maxHeight: "85vh", overflowY: "auto", borderRadius: "16px 16px 0 0", padding: "18px 16px 16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <strong style={{ fontFamily: fonts.heading, fontSize: 18 }}>Filtreler</strong>
+              <button type="button" onClick={() => setSheet(false)} aria-label="Kapat" style={{ ...controlStyle, minWidth: 44, minHeight: 44, cursor: "pointer" }}>✕</button>
+            </div>
+            <div className="sf-sheet-controls" style={{ display: "grid", gap: 10 }}>{filterControls}</div>
+            <button type="button" onClick={() => setSheet(false)} style={{ marginTop: 16, width: "100%", minHeight: 50, border: 0, borderRadius: radius, background: t.primary_color, color: "#fff", fontWeight: 600, fontFamily: "inherit", cursor: "pointer", position: "sticky", bottom: 0 }}>
+              {visible.length} ürünü göster
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {chips.length ? (
+        <div className="sf-chips" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+          {chips.map((chip) => (
+            <button key={chip.label} type="button" onClick={() => { chip.clear(); setPage(1); }} aria-label={`${chip.label} filtresini kaldır`} style={{ ...controlStyle, borderRadius: 999, cursor: "pointer", minHeight: 36 }}>
+              {chip.label} ✕
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {visible.length === 0 ? (
         <p style={{ color: muted, paddingBottom: 60 }}>Aramanla eşleşen ürün bulunamadı.</p>
