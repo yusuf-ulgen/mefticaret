@@ -511,7 +511,7 @@ function PresetDialog({ storeId, ctx, load, onApply, onClose }: {
         {parsed ? (
           <div className="max-h-[45dvh] overflow-y-auto rounded-xl border border-border">
             <div className="pointer-events-none origin-top scale-[.6]" style={{ width: "166%" }}>
-              <PageRenderer sections={parsed.pages.home ?? []} settings={parsed.settings} ctx={ctx} />
+              <PageRenderer sections={parsed.pages["home"] ?? []} settings={parsed.settings} ctx={ctx} />
             </div>
           </div>
         ) : null}

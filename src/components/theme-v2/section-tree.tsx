@@ -93,7 +93,7 @@ function BlockList({ section, props }: { section: V2Section; props: Props }) {
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onEnd}>
         <SortableContext items={section.blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
           {section.blocks.map((b) => (
-            <Row key={b.id} id={b.id} depth={1} label={V2_BLOCKS[b.type].label + (b.type === "heading" && b.settings.text ? ` · ${String(b.settings.text).slice(0, 24)}` : "")}
+            <Row key={b.id} id={b.id} depth={1} label={V2_BLOCKS[b.type].label + (b.type === "heading" && b.settings["text"] ? ` · ${String(b.settings["text"]).slice(0, 24)}` : "")}
               selected={props.selectedId === b.id} visible={b.visible}
               onSelect={() => props.onSelect(b.id)} onToggle={() => props.onToggle(b.id)} onDelete={() => props.onDelete(b.id, V2_BLOCKS[b.type].label)} />
           ))}

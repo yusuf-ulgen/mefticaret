@@ -363,14 +363,14 @@ export function v2CssVars(settings: V2Settings, scope = ".v2-theme"): string {
   const s = globalSettings(settings);
   const n = (k: string) => Number(s[k]) || 0;
   const vars = [
-    `--color-primary:${safeColor(s.color_primary, "#111111")}`,
-    `--color-secondary:${safeColor(s.color_secondary, "#6b7280")}`,
-    `--color-background:${safeColor(s.color_background, "#ffffff")}`,
-    `--color-text:${safeColor(s.color_text, "#111111")}`,
-    `--color-error:${safeColor(s.color_error, "#dc2626")}`,
-    `--color-success:${safeColor(s.color_success, "#16a34a")}`,
-    `--font-heading:'${safeFont(s.font_heading)}',system-ui,sans-serif`,
-    `--font-body:'${safeFont(s.font_body)}',system-ui,sans-serif`,
+    `--color-primary:${safeColor(s["color_primary"], "#111111")}`,
+    `--color-secondary:${safeColor(s["color_secondary"], "#6b7280")}`,
+    `--color-background:${safeColor(s["color_background"], "#ffffff")}`,
+    `--color-text:${safeColor(s["color_text"], "#111111")}`,
+    `--color-error:${safeColor(s["color_error"], "#dc2626")}`,
+    `--color-success:${safeColor(s["color_success"], "#16a34a")}`,
+    `--font-heading:'${safeFont(s["font_heading"])}',system-ui,sans-serif`,
+    `--font-body:'${safeFont(s["font_body"])}',system-ui,sans-serif`,
     ...["h1", "h2", "h3", "h4", "h5", "h6", "p"].map((t) => `--size-${t}:${n(`${t}_size`)}px`),
     `--border-radius:${n("button_radius")}px`,
     `--button-padding:${n("button_padding")}px`,
@@ -378,7 +378,7 @@ export function v2CssVars(settings: V2Settings, scope = ".v2-theme"): string {
     `--grid-gap:${n("grid_gap")}px`,
     `--section-padding:${n("section_padding")}px`,
   ];
-  const hover = s.button_hover === "lift" ? "transform:translateY(-2px);" : s.button_hover === "darken" ? "filter:brightness(.9);" : "";
+  const hover = s["button_hover"] === "lift" ? "transform:translateY(-2px);" : s["button_hover"] === "darken" ? "filter:brightness(.9);" : "";
   return `${scope}{${vars.join(";")};background:var(--color-background);color:var(--color-text);font-family:var(--font-body);font-size:var(--size-p)}` +
     `${scope} h1,${scope} h2,${scope} h3,${scope} h4,${scope} h5,${scope} h6{font-family:var(--font-heading);margin:0;line-height:1.15}` +
     ["h1", "h2", "h3", "h4", "h5", "h6"].map((t) => `${scope} ${t}{font-size:var(--size-${t})}`).join("") +

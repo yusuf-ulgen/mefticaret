@@ -44,13 +44,13 @@ export const THEME_COLS = "id, store_id, name, status, settings, created_at, upd
 function cleanSection(type: V2SectionType, settings: Record<string, unknown> | null | undefined, allowHtml: boolean) {
   if (type === "custom_html" && !allowHtml) throw new V2Error("custom_html_disabled", 403, "Özel HTML bu pakette kapalı.");
   const out = sectionSettings(type, settings);
-  if (type === "custom_html") out.html = stripDangerousHtml(String(out.html));
+  if (type === "custom_html") out["html"] = stripDangerousHtml(String(out["html"]));
   return out;
 }
 function cleanBlock(type: V2BlockType, settings: Record<string, unknown> | null | undefined, allowHtml: boolean) {
   if (type === "custom_html" && !allowHtml) throw new V2Error("custom_html_disabled", 403, "Özel HTML bu pakette kapalı.");
   const out = blockSettings(type, settings);
-  if (type === "custom_html") out.html = stripDangerousHtml(String(out.html));
+  if (type === "custom_html") out["html"] = stripDangerousHtml(String(out["html"]));
   return out;
 }
 
@@ -78,8 +78,8 @@ export async function createTheme(db: Db, storeId: string, name: string, setting
 export async function updateThemeSettings(db: Db, storeId: string, themeId: string, input: { name?: string | undefined; settings?: Record<string, unknown> | undefined }) {
   await getTheme(db, storeId, themeId);
   const patch: Record<string, unknown> = {};
-  if (input.name) patch.name = input.name;
-  if (input.settings) patch.settings = globalSettings(input.settings);
+  if (input.name) patch["name"] = input.name;
+  if (input.settings) patch["settings"] = globalSettings(input.settings);
   must(await t(db, "v2_themes").update(patch).eq("id", themeId).eq("store_id", storeId));
   return getTheme(db, storeId, themeId);
 }
@@ -203,9 +203,9 @@ export async function createSection(db: Db, storeId: string, input: { theme_page
 export async function updateSection(db: Db, storeId: string, id: string, input: { is_visible?: boolean | undefined; position?: number | undefined; settings?: Record<string, unknown> | undefined }, allowHtml: boolean) {
   const row = await sectionRow(db, storeId, id);
   const patch: Record<string, unknown> = {};
-  if (input.is_visible !== undefined) patch.is_visible = input.is_visible;
-  if (input.position !== undefined) patch.position = input.position;
-  if (input.settings) patch.settings = cleanSection(row.section_type, { ...row.settings, ...input.settings }, allowHtml);
+  if (input.is_visible !== undefined) patch["is_visible"] = input.is_visible;
+  if (input.position !== undefined) patch["position"] = input.position;
+  if (input.settings) patch["settings"] = cleanSection(row.section_type, { ...row.settings, ...input.settings }, allowHtml);
   return must(await t(db, "v2_sections").update(patch).eq("id", id).eq("store_id", storeId).select("*").single());
 }
 
@@ -236,9 +236,9 @@ export async function updateBlock(db: Db, storeId: string, id: string, input: { 
   const row = must(await t(db, "v2_blocks").select("id, block_type, settings").eq("store_id", storeId).eq("id", id).maybeSingle()) as { block_type: V2BlockType; settings: V2Settings } | null;
   if (!row) throw new V2Error("not_found", 404);
   const patch: Record<string, unknown> = {};
-  if (input.is_visible !== undefined) patch.is_visible = input.is_visible;
-  if (input.position !== undefined) patch.position = input.position;
-  if (input.settings) patch.settings = cleanBlock(row.block_type, { ...row.settings, ...input.settings }, allowHtml);
+  if (input.is_visible !== undefined) patch["is_visible"] = input.is_visible;
+  if (input.position !== undefined) patch["position"] = input.position;
+  if (input.settings) patch["settings"] = cleanBlock(row.block_type, { ...row.settings, ...input.settings }, allowHtml);
   return must(await t(db, "v2_blocks").update(patch).eq("id", id).eq("store_id", storeId).select("*").single());
 }
 
