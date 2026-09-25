@@ -280,9 +280,9 @@ function OnboardingPage() {
                       template.theme.primaryColor,
                       template.theme.accentColor,
                       template.theme.backgroundColor,
-                    ].map((color) => (
+                    ].map((color, i) => (
                       <span
-                        key={color}
+                        key={`${i}-${color}`}
                         className="size-4 rounded-full border"
                         style={{ backgroundColor: color }}
                       />
