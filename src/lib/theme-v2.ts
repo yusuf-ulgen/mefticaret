@@ -26,6 +26,7 @@ export const V2_SECTION_TYPES = [
   "image_with_text", "video", "custom_html", "newsletter", "collection_list", "rich_text",
   "marquee", "flash_sale", "trust_badges", "stats_counter", "icon_features", "faq",
   "comparison_table", "logo_strip", "instagram_grid", "lookbook", "featured_product",
+  "hero_slider", "before_after", "skin_quiz", "routine_builder", "video_testimonials", "product_tabs", "community",
 ] as const;
 export type V2SectionType = (typeof V2_SECTION_TYPES)[number];
 
@@ -201,6 +202,48 @@ export const V2_SECTIONS: Record<V2SectionType, V2SectionDefinition> = {
       f("max_width", "Maks. genişlik (px)", "number", { min: 320, max: 1400 }),
     ],
     blocks: CONTENT_BLOCKS, maxBlocks: 16,
+  },
+  hero_slider: {
+    label: "Kayan hero", description: "Otomatik geçen 1–5 slayt; mobilde parmakla kaydırılır.",
+    defaults: { slides: "Yeni sezon|%50'ye varan indirim|Alışverişe başla|/products|https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1600&q=70&fm=webp", interval: 5, height: "medium" },
+    fields: [f("slides", "Slaytlar", "lines", { help: "Her satır: başlık|alt başlık|buton|link|görsel URL" }), f("interval", "Geçiş süresi (sn)", "number", { min: 3, max: 15 }), f("height", "Yükseklik", "select", { options: opt(["small", "Küçük"], ["medium", "Orta"], ["large", "Büyük"]) })],
+    blocks: [], maxBlocks: 0,
+  },
+  before_after: {
+    label: "Önce / sonra", description: "Sürüklenebilir karşılaştırma görseli.",
+    defaults: { title: "Farkı gör", before_url: "", after_url: "", before_label: "Önce", after_label: "Sonra", caption: "" },
+    fields: [f("title", "Başlık", "text"), f("before_url", "Önce görseli", "image"), f("after_url", "Sonra görseli", "image"), f("before_label", "Önce etiketi", "text"), f("after_label", "Sonra etiketi", "text"), f("caption", "Açıklama", "text")],
+    blocks: [], maxBlocks: 0,
+  },
+  skin_quiz: {
+    label: "Bul testi", description: "Kısa soru → sonuca göre ürün araması (ör. cilt tipi).",
+    defaults: { title: "Cilt tipini bul", question: "Gün ortasında cildin nasıl hissediyor?", options: "Parlıyor|yağlı\nGergin|kuru\nT bölgesi parlak|karma\nKızarıyor|hassas", result_prefix: "Senin için öneriler:" },
+    fields: [f("title", "Başlık", "text"), f("question", "Soru", "text"), f("options", "Seçenekler", "lines", { help: "Her satır: seçenek|arama etiketi" }), f("result_prefix", "Sonuç metni", "text")],
+    blocks: [], maxBlocks: 0,
+  },
+  routine_builder: {
+    label: "Rutin oluşturucu", description: "Sabah / gece sekmeli adım adım rutin.",
+    defaults: { title: "Rutinini oluştur", morning: "Temizle|Nazik jel temizleyici\nTonikle|Nem dengeleyici tonik\nKoru|SPF 50 güneş kremi", night: "Makyaj temizle|Temizleme yağı\nOnar|Gece serumu\nBesle|Yoğun nem kremi" },
+    fields: [f("title", "Başlık", "text"), f("morning", "Sabah adımları", "lines", { help: "Her satır: adım|ürün/açıklama" }), f("night", "Gece adımları", "lines", { help: "Her satır: adım|ürün/açıklama" })],
+    blocks: [], maxBlocks: 0,
+  },
+  video_testimonials: {
+    label: "Video yorumlar", description: "Müşteri video yorum kartları (YouTube/Vimeo/MP4).",
+    defaults: { title: "Müşterilerimiz anlatıyor", items: "" },
+    fields: [f("title", "Başlık", "text"), f("items", "Videolar", "lines", { help: "Her satır: isim|video URL|kısa not" })],
+    blocks: [], maxBlocks: 0,
+  },
+  product_tabs: {
+    label: "Sekmeli ürünler", description: "Koleksiyonlara göre sekmeli ürün listesi.",
+    defaults: { title: "Çok satanlar", tabs: "", products_count: 8, columns: 4, card_style: "minimal" },
+    fields: [f("title", "Başlık", "text"), f("tabs", "Sekmeler", "lines", { help: "Her satır: sekme adı|koleksiyon adresi (boşsa tüm ürünler)" }), f("products_count", "Ürün sayısı", "number", { min: 2, max: 16 }), f("columns", "Sütun", "select", { options: COLS }), f("card_style", "Kart stili", "select", { options: opt(["minimal", "Minimal"], ["bold", "Cesur"], ["organic", "Organik"], ["boutique", "Butik"], ["tech", "Teknoloji"]) })],
+    blocks: [], maxBlocks: 0,
+  },
+  community: {
+    label: "Topluluk", description: "Discord, Twitch, YouTube, Instagram bağlantı kartları.",
+    defaults: { title: "Topluluğa katıl", subtitle: "", links: "Discord|https://discord.com\nTwitch|https://twitch.tv\nYouTube|https://youtube.com" },
+    fields: [f("title", "Başlık", "text"), f("subtitle", "Alt başlık", "text"), f("links", "Bağlantılar", "lines", { help: "Her satır: ad|URL" })],
+    blocks: [], maxBlocks: 0,
   },
   marquee: {
     label: "Kayan şerit", description: "Hızlı kayan kategori / kampanya metinleri.",
@@ -389,8 +432,8 @@ export const V2_BLOCKS: Record<V2BlockType, V2Definition> = {
 };
 
 /** Global tema ayarları: renkler, tipografi, düzen, butonlar, görseller, koyu mod, logo. */
-export const V2_FONTS = ["Inter", "Geist", "Manrope", "DM Sans", "Plus Jakarta Sans", "Outfit", "Sora", "Work Sans", "Poppins", "Playfair Display", "Cormorant Garamond", "Lora", "Libre Baskerville", "Space Grotesk", "Bebas Neue", "Source Sans 3", "Jost", "Caveat"] as const;
-export const V2_MONO_FONTS = ["JetBrains Mono", "Space Mono", "IBM Plex Mono", "Fira Code"] as const;
+export const V2_FONTS = ["Inter", "Geist", "Manrope", "DM Sans", "Plus Jakarta Sans", "Outfit", "Sora", "Work Sans", "Poppins", "Playfair Display", "Cormorant Garamond", "Lora", "Libre Baskerville", "Space Grotesk", "Bebas Neue", "Source Sans 3", "Jost", "Caveat", "Nunito", "Dancing Script", "Roboto Condensed", "Noto Serif", "Noto Sans", "Shippori Mincho", "Orbitron", "Exo 2"] as const;
+export const V2_MONO_FONTS = ["JetBrains Mono", "Share Tech Mono", "Space Mono", "IBM Plex Mono", "Fira Code"] as const;
 
 export const V2_GLOBAL_DEFAULTS: V2Settings = {
   color_primary: "#111111", color_secondary: "#6b7280", color_accent: "#e8c547", gradient_from: "", gradient_to: "", color_background: "#ffffff", color_surface: "#f9fafb",
@@ -405,6 +448,7 @@ export const V2_GLOBAL_DEFAULTS: V2Settings = {
   image_ratio: "square", image_fit: "cover", image_placeholder: "color",
   dark_mode: "off", dark_color_background: "#0f172a", dark_color_surface: "#1e293b", dark_color_text: "#f1f5f9", dark_color_border: "#334155",
   logo_url: "", favicon_url: "", logo_width: 140, logo_position: "left",
+  style_preset: "none", heading_case: "none", heading_tracking: 0,
 };
 
 const FONT_OPTS = V2_FONTS.map((x) => ({ value: x, label: x }));
@@ -421,10 +465,15 @@ export const V2_GLOBAL_GROUPS: { id: string; label: string; flag?: string; field
     f("font_mono", "Mono font", "select", { options: V2_MONO_FONTS.map((x) => ({ value: x, label: x })) }),
     f("font_accent", "Vurgu / el yazısı fontu", "select", { options: FONT_OPTS }),
     f("letter_spacing", "Harf aralığı (em × 100)", "number", { min: -5, max: 20 }),
+    f("heading_case", "Başlık harfleri", "select", { options: opt(["none", "Normal"], ["uppercase", "TÜMÜ BÜYÜK"]) }),
+    f("heading_tracking", "Başlık harf aralığı (em × 100)", "number", { min: -5, max: 30 }),
     f("font_size_base", "Temel boyut (px)", "number", { min: 12, max: 22 }),
     f("line_height_base", "Satır yüksekliği", "number", { min: 1, max: 2.2 }),
     f("font_weight_heading", "Başlık ağırlığı", "select", { options: opt(["400", "400"], ["500", "500"], ["600", "600"], ["700", "700"], ["800", "800"], ["900", "900"]) }),
     ...(["h1", "h2", "h3", "h4", "h5", "h6"] as const).map((t) => f(`${t}_size`, `${t.toUpperCase()} boyutu`, "number", { min: 10, max: 96 })),
+  ] },
+  { id: "effects", label: "Efektler", fields: [
+    f("style_preset", "Efekt paketi", "select", { options: opt(["none", "Yok"], ["obsidian", "Obsidyen: altın parıltı, paralaks, imleç"], ["aurora", "Aurora: hareketli geçiş, cam kartlar, ilerleme çubuğu"], ["atlas", "Atlas: pazar yeri yoğun düzen"], ["zen", "Zen: mürekkep açılış, ince çizgiler, grenli görseller"], ["nexus", "Nexus: neon, tarama çizgisi, glitch, nişangâh"]) }),
   ] },
   { id: "layout", label: "Düzen", fields: [
     f("max_width", "Maks. genişlik (px)", "number", { min: 720, max: 1920 }),
@@ -524,6 +573,8 @@ export function v2CssVars(settings: V2Settings, scope = ".v2-theme"): string {
     `--color-accent:${safeColor(s["color_accent"], primary)}`,
     `--gradient-primary:linear-gradient(135deg,${safeColor(s["gradient_from"], primary)},${safeColor(s["gradient_to"], safeColor(s["color_secondary"], "#6b7280"))})`,
     `--letter-spacing:${clamp(n("letter_spacing"), -5, 20) / 100}em`,
+    `--heading-case:${s["heading_case"] === "uppercase" ? "uppercase" : "none"}`,
+    `--heading-tracking:${clamp(n("heading_tracking"), -5, 30) / 100}em`,
     `--font-size-base:${clamp(n("font_size_base"), 12, 22)}px`,
     `--line-height-base:${clamp(Number(s["line_height_base"]) || 1.5, 1, 2.2)}`,
     `--font-weight-heading:${/^[4-9]00$/.test(String(s["font_weight_heading"])) ? s["font_weight_heading"] : "700"}`,
