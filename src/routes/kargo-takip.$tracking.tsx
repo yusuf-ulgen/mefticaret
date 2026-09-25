@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SHIPMENT_STATUS_LABELS, carrierName, carrierTrackUrl } from "@/lib/carriers";
+import { fontStack } from "@/lib/theme-presets";
 import { getPublicTracking } from "@/lib/tracking-public.functions";
 
 const VALID = /^[A-Za-z0-9-_]{6,120}$/;
@@ -44,8 +45,8 @@ export const Route = createFileRoute("/kargo-takip/$tracking")({
   component: TrackingPage,
 });
 
-function Shell({ children }: { children: React.ReactNode }) {
-  return <main className="min-h-screen bg-background px-4 py-8 text-foreground"><div className="mx-auto w-full max-w-md space-y-5">{children}</div></main>;
+function Shell({ children, style }: { children: React.ReactNode; style?: React.CSSProperties | undefined }) {
+  return <main className="min-h-screen bg-background px-4 py-8 text-foreground" style={style}><div className="mx-auto w-full max-w-md space-y-5">{children}</div></main>;
 }
 
 function NotFound() {
@@ -67,6 +68,23 @@ function TrackingPage() {
   if (!valid || !data) return <NotFound />;
 
   const brand = data.brandColor ?? undefined;
+  const th = data.theme;
+  const dark = th?.background ? parseInt(th.background.slice(1, 3), 16) * 0.299 + parseInt(th.background.slice(3, 5), 16) * 0.587 + parseInt(th.background.slice(5, 7), 16) * 0.114 < 128 : false;
+  const fonts = th?.fontPair ? fontStack(th.fontPair) : null;
+  const themed: React.CSSProperties | undefined = th
+    ? ({
+        ...(th.background ? { background: th.background } : {}),
+        color: dark ? "#f8fafc" : th.primary ?? undefined,
+        ...(fonts ? { fontFamily: fonts.body } : {}),
+        "--card": dark ? "rgba(255,255,255,.06)" : "#ffffff",
+        "--muted": dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.04)",
+        "--muted-foreground": dark ? "rgba(248,250,252,.72)" : "rgba(31,41,51,.68)",
+        "--border": dark ? "rgba(255,255,255,.14)" : "rgba(31,41,51,.12)",
+        "--background": th.background ?? undefined,
+        "--foreground": dark ? "#f8fafc" : th.primary ?? undefined,
+        ...(th.radius != null ? { "--radius": `${th.radius}rem` } : {}),
+      } as React.CSSProperties)
+    : undefined;
   const external = data.tracking_url || carrierTrackUrl(data.carrier_key, data.tracking_number);
   const delivered = data.status === "delivered";
 
@@ -79,7 +97,7 @@ function TrackingPage() {
   };
 
   return (
-    <Shell>
+    <Shell style={themed}>
       <header className="flex items-center justify-between gap-3">
         <Link to="/s/$slug" params={{ slug: data.store.slug }} className="flex min-h-11 items-center gap-2">
           {data.store.logo_url ? (

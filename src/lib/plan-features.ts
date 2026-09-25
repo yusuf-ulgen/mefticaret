@@ -135,7 +135,7 @@ export const MODULE_CATALOG: PlanModule[] = [
     key: "v2_theme_presets",
     label: "Hazır Tema Tasarımları",
     description: "Minimal, Bold, Boutique, Tech ve Nature hazır tasarımları.",
-    routes: [],
+    routes: ["theme-presets"],
   },
   {
     key: "v2_custom_html",

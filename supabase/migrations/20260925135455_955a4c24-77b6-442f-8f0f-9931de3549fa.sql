@@ -1,0 +1,1 @@
+UPDATE public.plan_features SET is_enabled = true WHERE metric_key IN ('v2_theme_editor','v2_theme_presets','v2_custom_html');
