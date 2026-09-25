@@ -202,6 +202,8 @@ export const getStorefront = createServerFn({ method: "GET" })
 
     // Tema Editörü v2 yayındaysa tüm vitrin sayfaları (liste, ürün, sepet, ödeme) aynı renk/yazı tiplerini kullanır.
     let theme = themeRes.data;
+    let stylePreset: string | null = null;
+    let couture: Record<string, boolean> = {};
     if (store.store_kind !== "micro") {
       try {
         const { loadEntitlements } = await import("@/lib/entitlements.server");
@@ -214,6 +216,11 @@ export const getStorefront = createServerFn({ method: "GET" })
             const { v2ToLegacyTheme, globalSettings } = await import("@/lib/theme-v2");
             const over = v2ToLegacyTheme(globalSettings(snap.settings));
             theme = { ...(theme ?? {}), ...Object.fromEntries(Object.entries(over).filter(([, v]) => v !== undefined)) } as typeof theme;
+            stylePreset = typeof snap.settings["style_preset"] === "string" ? (snap.settings["style_preset"] as string) : null;
+            if (stylePreset === "couture" && ent.modules["theme_couture"] === true) {
+              couture = Object.fromEntries(["wishlist", "quick_view", "size_guide", "reviews", "instagram", "compare", "back_in_stock"].map((k) => [k, ent.modules[`couture_${k}`] === true]));
+              couture["enabled"] = true;
+            }
           }
         }
       } catch {
@@ -224,6 +231,8 @@ export const getStorefront = createServerFn({ method: "GET" })
     return {
       campaign,
       isHomeMakerStorefront: store.store_kind === "micro",
+      stylePreset,
+      couture,
       profile: (profileRes.data ?? null) as {
         bio?: string | null;
         contact_email?: string | null;
