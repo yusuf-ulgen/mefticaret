@@ -247,7 +247,7 @@ export function ThemeFx({ fx, rootRef, editing }: { fx: FxPreset | null; rootRef
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const y = window.scrollY;
-        if (fx === "obsidian") parallax.forEach((img) => { img.style.transform = `translate3d(0, ${Math.min(240, y * 0.25)}px, 0) scale(1.08)`; });
+        if (fx === "obsidian") parallax.forEach((img) => { img.style.transform = `translate3d(0, ${Math.min(60, y * 0.12)}px, 0) scale(1.08)`; });
         if (barRef.current) { const h = document.documentElement.scrollHeight - window.innerHeight; barRef.current.style.transform = `scaleX(${h > 0 ? y / h : 0})`; }
       });
     };
