@@ -213,7 +213,7 @@ export const V2_SECTIONS: Record<V2SectionType, V2SectionDefinition> = {
   before_after: {
     label: "Önce / sonra", description: "Sürüklenebilir karşılaştırma görseli.",
     defaults: { title: "Farkı gör", before_url: "", after_url: "", before_label: "Önce", after_label: "Sonra", caption: "" },
-    fields: [f("title", "Başlık", "text"), f("before_url", "Önce görseli", "image"), f("after_url", "Sonra görseli", "image"), f("before_label", "Önce etiketi", "text"), f("after_label", "Sonra etiketi", "text"), f("caption", "Açıklama", "text")],
+    fields: [f("title", "Başlık", "text"), f("before_url", "Önce görseli URL", "text"), f("after_url", "Sonra görseli URL", "text"), f("before_label", "Önce etiketi", "text"), f("after_label", "Sonra etiketi", "text"), f("caption", "Açıklama", "text")],
     blocks: [], maxBlocks: 0,
   },
   skin_quiz: {
