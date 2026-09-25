@@ -106,5 +106,13 @@ export const FONT_STACKS: Record<string, { heading: string; body: string }> = {
   },
 };
 
+/** "v2:Başlık|Gövde" biçimi Tema Editörü v2 yazı tiplerini taşır. */
+const v2Stack = (pair: string) => {
+  if (!pair?.startsWith("v2:")) return null;
+  const [h, b] = pair.slice(3).split("|").map((x) => x.replace(/[^a-zA-Z0-9 ]/g, "").trim());
+  if (!h || !b) return null;
+  return { heading: `'${h}', system-ui, sans-serif`, body: `'${b}', system-ui, sans-serif` };
+};
+
 export const fontStack = (pair: string) =>
-  FONT_STACKS[pair] ?? { heading: "Sora, system-ui, sans-serif", body: "Manrope, system-ui, sans-serif" };
+  v2Stack(pair) ?? FONT_STACKS[pair] ?? { heading: "Sora, system-ui, sans-serif", body: "Manrope, system-ui, sans-serif" };

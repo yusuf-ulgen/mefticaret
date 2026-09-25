@@ -126,6 +126,7 @@ export const getStorefront = createServerFn({ method: "GET" })
     // Ürün kartları için kapak görselleri (imzalı adres).
     const products = productsRes.data ?? [];
     const coverByProduct: Record<string, string> = {};
+    const secondByProduct: Record<string, string> = {};
     if (products.length) {
       const { data: coverRows } = await supabase
         .from("product_images")
@@ -146,9 +147,10 @@ export const getStorefront = createServerFn({ method: "GET" })
         }
       }
       for (const row of coverRows ?? []) {
-        if (coverByProduct[row.product_id]) continue;
         const url = row.storage_path ? (signed[row.storage_path] ?? row.url) : row.url;
-        if (url) coverByProduct[row.product_id] = url;
+        if (!url) continue;
+        if (!coverByProduct[row.product_id]) coverByProduct[row.product_id] = url;
+        else if (!secondByProduct[row.product_id]) secondByProduct[row.product_id] = url;
       }
     }
 
@@ -198,6 +200,27 @@ export const getStorefront = createServerFn({ method: "GET" })
       message?: string;
     } | null;
 
+    // Tema Editörü v2 yayındaysa tüm vitrin sayfaları (liste, ürün, sepet, ödeme) aynı renk/yazı tiplerini kullanır.
+    let theme = themeRes.data;
+    if (store.store_kind !== "micro") {
+      try {
+        const { loadEntitlements } = await import("@/lib/entitlements.server");
+        const ent = await loadEntitlements(supabaseAdmin as never, store.id);
+        if (ent.modules["v2_theme_editor"] === true) {
+          const { data: v2Row } = await (supabaseAdmin as unknown as import("@supabase/supabase-js").SupabaseClient)
+            .from("v2_themes").select("published_snapshot").eq("store_id", store.id).eq("status", "active").maybeSingle();
+          const snap = (v2Row as { published_snapshot?: { settings?: Record<string, unknown> } } | null)?.published_snapshot;
+          if (snap?.settings) {
+            const { v2ToLegacyTheme, globalSettings } = await import("@/lib/theme-v2");
+            const over = v2ToLegacyTheme(globalSettings(snap.settings));
+            theme = { ...(theme ?? {}), ...Object.fromEntries(Object.entries(over).filter(([, v]) => v !== undefined)) } as typeof theme;
+          }
+        }
+      } catch {
+        // v2 okunamazsa eski tema kullanılır.
+      }
+    }
+
     return {
       campaign,
       isHomeMakerStorefront: store.store_kind === "micro",
@@ -208,12 +231,13 @@ export const getStorefront = createServerFn({ method: "GET" })
       } | null,
       commerce,
       store,
-      theme: themeRes.data,
+      theme,
       products: products.map((product) => {
         const summary = variantSummary[product.id];
         return {
           ...product,
           coverUrl: coverByProduct[product.id] ?? null,
+          secondUrl: secondByProduct[product.id] ?? null,
           // Panel verisiyle birebir: satış fiyatı varyanttan, stok toplamı envanterden.
           livePrice: summary?.minPrice ?? Number(product.base_price),
           stockTotal: summary ? summary.stockTotal : null,
