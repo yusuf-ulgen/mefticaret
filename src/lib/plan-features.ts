@@ -126,6 +126,24 @@ export const MODULE_CATALOG: PlanModule[] = [
     routes: ["customer-notifications"],
   },
   {
+    key: "v2_theme_editor",
+    label: "Tema Editörü v2",
+    description: "Bölüm/blok tabanlı sürükle-bırak tema editörü ve canlı önizleme.",
+    routes: ["theme-editor-v2"],
+  },
+  {
+    key: "v2_theme_presets",
+    label: "Hazır Tema Tasarımları",
+    description: "Minimal, Bold, Boutique, Tech ve Nature hazır tasarımları.",
+    routes: [],
+  },
+  {
+    key: "v2_custom_html",
+    label: "Özel HTML Bölümü",
+    description: "Tema editöründe temizlenmiş özel HTML bölümü ve bloğu.",
+    routes: [],
+  },
+  {
     key: "module_api",
     label: "API & Webhook",
     description: "Genel API anahtarları, webhook ve OAuth uygulamaları.",
