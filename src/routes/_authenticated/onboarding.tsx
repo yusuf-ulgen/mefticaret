@@ -147,7 +147,7 @@ function OnboardingPage() {
       } else {
         toast.success("Mağazan hazır — panele yönlendiriliyorsun.");
       }
-      void navigate({ to: "/store/$storeId", params: { storeId: store.id } });
+      void navigate({ to: "/store/$storeId/dashboard", params: { storeId: store.id } });
     },
     onError: (error: Error) => toast.error(error.message),
   });
