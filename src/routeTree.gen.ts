@@ -50,6 +50,7 @@ import { Route as ArIndexRouteImport } from './routes/ar.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as DeIndexRouteImport } from './routes/de.index'
+import { Route as DemoSlugRouteImport } from './routes/demo.$slug'
 import { Route as EnIndexRouteImport } from './routes/en.index'
 import { Route as EnHowToStartAnOnlineStoreRouteImport } from './routes/en.how-to-start-an-online-store'
 import { Route as EvHanimlariIndexRouteImport } from './routes/ev-hanimlari.index'
@@ -545,6 +546,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
 const DeIndexRoute = DeIndexRouteImport.update({
   id: '/de/',
   path: '/de/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoSlugRoute = DemoSlugRouteImport.update({
+  id: '/demo/$slug',
+  path: '/demo/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EnIndexRoute = EnIndexRouteImport.update({
@@ -2253,6 +2259,7 @@ export interface FileRoutesByFullPath {
   '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/demo/$slug': typeof DemoSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
@@ -2584,6 +2591,7 @@ export interface FileRoutesByTo {
   '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/demo/$slug': typeof DemoSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
@@ -2913,6 +2921,7 @@ export interface FileRoutesById {
   '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/demo/$slug': typeof DemoSlugRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
@@ -3247,6 +3256,7 @@ export interface FileRouteTypes {
     | '/supplier'
     | '/admin/login'
     | '/blog/$slug'
+    | '/demo/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
@@ -3578,6 +3588,7 @@ export interface FileRouteTypes {
     | '/supplier'
     | '/admin/login'
     | '/blog/$slug'
+    | '/demo/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
@@ -3906,6 +3917,7 @@ export interface FileRouteTypes {
     | '/_authenticated/supplier'
     | '/admin/login'
     | '/blog/$slug'
+    | '/demo/$slug'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
@@ -4235,6 +4247,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminLoginRoute: typeof AdminLoginRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  DemoSlugRoute: typeof DemoSlugRoute
   EnHowToStartAnOnlineStoreRoute: typeof EnHowToStartAnOnlineStoreRoute
   EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
   EvHanimlariSablonlarRoute: typeof EvHanimlariSablonlarRoute
@@ -4609,6 +4622,13 @@ declare module '@tanstack/react-router' {
       path: '/de'
       fullPath: '/de/'
       preLoaderRoute: typeof DeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/$slug': {
+      id: '/demo/$slug'
+      path: '/demo/$slug'
+      fullPath: '/demo/$slug'
+      preLoaderRoute: typeof DemoSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/en/': {
@@ -7329,6 +7349,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminLoginRoute: AdminLoginRoute,
   BlogSlugRoute: BlogSlugRoute,
+  DemoSlugRoute: DemoSlugRoute,
   EnHowToStartAnOnlineStoreRoute: EnHowToStartAnOnlineStoreRoute,
   EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,
   EvHanimlariSablonlarRoute: EvHanimlariSablonlarRoute,
