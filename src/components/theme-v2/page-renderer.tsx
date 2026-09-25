@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 
 import type { SectionProduct } from "@/components/storefront-sections";
 import { formatMoney } from "@/lib/mefti";
-import { v2CssVars, type V2Block, type V2Section, type V2Settings } from "@/lib/theme-v2";
+import { darkModeOf, v2CssVars, type V2Block, type V2Section, type V2Settings } from "@/lib/theme-v2";
 
 export type V2RenderContext = {
   storeSlug: string;
@@ -118,7 +118,7 @@ function ProductCard({ product, ctx, s, showPrice = true, showCart = false }: { 
           {s["show_compare_price"] !== false && compare > price ? <s style={{ marginLeft: 6, opacity: 0.5, fontSize: 12 }}>{formatMoney(compare, product.currency ?? ctx.currency)}</s> : null}
         </p>
       ) : null}
-      {showCart ? <span className="v2-btn" style={{ display: "inline-block", marginTop: 8, fontSize: 12, padding: "6px 12px", borderRadius: "var(--border-radius)", border: "1px solid var(--color-text)" }}>Sepete ekle</span> : null}
+      {showCart ? <span className="v2-btn" style={{ display: "inline-block", marginTop: 8, fontSize: 12, padding: "6px 12px", borderRadius: "var(--btn-border-radius)", border: "1px solid var(--color-text)" }}>Sepete ekle</span> : null}
     </a>
   );
 }
@@ -147,13 +147,13 @@ export function BlockRenderer({ block, ctx, index = 0, parentProducts = [] }: { 
       node = <div className="v2-rich" style={{ textAlign: align, color: color(s["color"]), fontSize: num(s["font_size"], 16), maxWidth: num(s["max_width"]) > 0 ? num(s["max_width"]) : undefined, margin: align === "center" ? "0 auto 12px" : "0 0 12px", lineHeight: 1.6 }}><SafeHtml html={str(s["richtext"])} /></div>;
       break;
     case "button": {
-      const size = s["size"] === "small" ? { padding: "6px 14px", fontSize: 13 } : s["size"] === "large" ? { padding: "14px 28px", fontSize: 16 } : { padding: "var(--button-padding) 22px", fontSize: 14 };
+      const size = s["size"] === "small" ? { padding: "6px 14px", fontSize: 13 } : s["size"] === "large" ? { padding: "14px 28px", fontSize: 16 } : { padding: "var(--btn-padding-y) var(--btn-padding-x)", fontSize: 14 };
       const style = str(s["style"]);
       const look: CSSProperties = style === "secondary" ? { background: "var(--color-secondary)", color: "var(--color-background)" }
         : style === "outline" ? { border: "1.5px solid currentColor", background: "transparent", color: "inherit" }
         : style === "ghost" ? { background: "transparent", color: "inherit", textDecoration: "underline" }
-        : { background: "var(--color-primary)", color: "var(--color-background)" };
-      node = <a className="v2-btn" href={href(ctx, s["link_url"])} style={{ display: s["full_width"] ? "flex" : "inline-flex", justifyContent: "center", alignItems: "center", gap: 6, minHeight: 44, borderRadius: "var(--border-radius)", fontWeight: 600, textDecoration: "none", margin: "4px 4px 4px 0", ...size, ...look }}>{str(s["icon"]) ? <span aria-hidden>{str(s["icon"])}</span> : null}{str(s["text"])}</a>;
+        : { background: "var(--btn-bg)", color: "var(--btn-text)" };
+      node = <a className="v2-btn" href={href(ctx, s["link_url"])} style={{ display: s["full_width"] ? "flex" : "inline-flex", justifyContent: "center", alignItems: "center", gap: 6, minHeight: 44, borderRadius: "var(--btn-border-radius)", fontWeight: 600, textDecoration: "none", margin: "4px 4px 4px 0", ...size, ...look }}>{str(s["icon"]) ? <span aria-hidden>{str(s["icon"])}</span> : null}{str(s["text"])}</a>;
       break;
     }
     case "image": {
@@ -343,7 +343,7 @@ export function SectionRenderer({ section, ctx, children }: { section: V2Section
             <p style={{ opacity: 0.75, margin: "8px 0 16px" }}>{str(s["description"])}</p>
             <form onSubmit={(e) => e.preventDefault()} style={{ display: "flex", gap: 8, flexDirection: s["layout"] === "stacked" ? "column" : "row", flexWrap: "wrap" }}>
               <input type="email" required aria-label={str(s["placeholder_text"])} placeholder={str(s["placeholder_text"])} style={{ flex: 1, minWidth: 200, minHeight: 44, padding: "0 14px", borderRadius: "var(--border-radius)", border: "1px solid color-mix(in srgb, var(--color-text) 25%, transparent)", background: "var(--color-background)", color: "var(--color-text)" }} />
-              <button type="submit" className="v2-btn" style={{ minHeight: 44, padding: "0 22px", borderRadius: "var(--border-radius)", background: "var(--color-primary)", color: "var(--color-background)", border: 0, fontWeight: 600 }}>{str(s["button_text"])}</button>
+              <button type="submit" className="v2-btn" style={{ minHeight: 44, padding: "0 22px", borderRadius: "var(--btn-border-radius)", background: "var(--btn-bg)", color: "var(--btn-text)", border: 0, fontWeight: 600 }}>{str(s["button_text"])}</button>
             </form>
           </Container>
         </section>
@@ -404,9 +404,9 @@ const EDIT_CSS =
 
 /** Sayfa → bölümler → bloklar. Global ayarlar CSS değişkenlerine dönüşür. */
 export function PageRenderer({ sections, settings, ctx, className }: { sections: V2Section[]; settings: V2Settings; ctx: V2RenderContext; className?: string }) {
-  const fonts = [str(settings["font_heading"]), str(settings["font_body"])].filter((font) => font && font !== "Inter" && /^[a-zA-Z0-9 ]+$/.test(font));
+  const fonts = [str(settings["font_heading"]), str(settings["font_body"]), str(settings["font_mono"])].filter((font) => font && font !== "Inter" && /^[a-zA-Z0-9 ]+$/.test(font));
   return (
-    <div className={`v2-theme${ctx.editing ? " v2-edit" : ""}${className ? ` ${className}` : ""}`}>
+    <div className={`v2-theme${ctx.editing ? " v2-edit" : ""}${className ? ` ${className}` : ""}`} data-theme={darkModeOf(settings) === "on" ? "dark" : undefined}>
       {fonts.length ? <link rel="stylesheet" href={`https://fonts.googleapis.com/css2?${[...new Set(fonts)].map((font) => `family=${encodeURIComponent(font)}:wght@400;600;700`).join("&")}&display=swap`} /> : null}
       <style dangerouslySetInnerHTML={{ __html: v2CssVars(settings) + RESPONSIVE_CSS + (ctx.editing ? EDIT_CSS : "") }} />
       {sections.filter((s) => s.visible).map((section) => <SectionRenderer key={section.id} section={section} ctx={ctx} />)}

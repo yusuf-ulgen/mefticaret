@@ -8,7 +8,7 @@ import * as svc from "@/lib/theme-v2.server";
  * /api/v2/themes, /api/v2/sections, /api/v2/blocks, /api/v2/theme-presets.
  * Yalnız `v2_theme_editor` açık mağazalarda; tüm sorgular store_id ile sınırlı.
  */
-export const THEME_V2_RESOURCES = new Set(["themes", "sections", "blocks", "theme-presets"]);
+export const THEME_V2_RESOURCES = new Set(["themes", "sections", "blocks", "theme-presets", "theme-templates"]);
 
 type Out = { status: number; body: unknown };
 const ok = (body: unknown, status = 200): Out => ({ status, body: { data: body } });
@@ -24,6 +24,11 @@ export async function themeV2Flags(admin: SupabaseClient, storeId: string) {
     editor: ent.modules["v2_theme_editor"] === true,
     presets: ent.modules["v2_theme_presets"] === true,
     customHtml: ent.modules["v2_custom_html"] === true,
+    system: ent.modules["v2_theme_system"] === true,
+    marketplace: ent.modules["v2_theme_marketplace"] === true,
+    versions: ent.modules["v2_theme_versions"] === true,
+    exportZip: ent.modules["v2_theme_export"] === true,
+    importZip: ent.modules["v2_theme_import"] === true,
   };
 }
 
@@ -41,11 +46,68 @@ export async function handleThemeV2(
   request: Request,
 ): Promise<Out> {
   const flags = await themeV2Flags(admin, storeId);
-  if (!flags.editor) return err("feature_disabled", 403);
   const [resource, id, sub, subId] = segments;
   const html = flags.customHtml;
+  const sys = await import("@/lib/theme-system-v2.server");
+  const { themeManifestSchema, themeAssetSchema, THEME_ZIP_LIMITS } = await import("@/lib/theme-system-v2");
 
   try {
+    // ── Tema Sistemi v2 (marketplace + kütüphane uçları) ──
+    if (resource === "theme-templates") {
+      if (!flags.system || !flags.marketplace) return err("feature_disabled", 403);
+      if (!id && method === "GET") {
+        const u = new URL(request.url).searchParams;
+        const price = u.get("price");
+        return ok(await sys.listTemplates(admin, { q: u.get("q")?.slice(0, 80) ?? undefined, category: u.get("category")?.slice(0, 20) ?? undefined, price: price === "free" || price === "paid" ? price : "all" }));
+      }
+      if (!id || !guid.safeParse(id).success) return err("invalid_id", 400);
+      if (!sub && method === "GET") return ok(await sys.getTemplate(admin, id));
+      if (sub === "install" && method === "POST") return ok(await sys.installTemplate(admin, storeId, id, null as unknown as string, html), 201);
+      return err("not_found", 404);
+    }
+    if (resource === "themes" && flags.system) {
+      if (id === "import" && method === "POST") {
+        if (!flags.importZip) return err("feature_disabled", 403);
+        const b = await parse(request, z.object({ manifest: themeManifestSchema, assets: z.array(themeAssetSchema).max(THEME_ZIP_LIMITS.maxFiles).default([]), rename: z.string().trim().min(1).max(120).optional() }));
+        if (!b) return err("invalid_body", 400);
+        if (!html && JSON.stringify(b.manifest.snapshot).includes("custom_html")) return err("custom_html_disabled", 403);
+        return ok(await sys.importTheme(admin, storeId, b.manifest, b.assets, null as unknown as string, html, b.rename), 201);
+      }
+      if (id && guid.safeParse(id).success) {
+        if (!sub && method === "PUT") {
+          const b = await parse(request, z.object({ name: z.string().trim().min(1).max(120).optional(), settings: settings.optional() }));
+          if (!b) return err("invalid_body", 400);
+          const r = await svc.updateThemeSettings(admin, storeId, id, b);
+          if (flags.versions) await sys.recordVersion(admin, storeId, id, null, "API").catch(() => undefined);
+          await sys.invalidateThemeCss(storeId, id);
+          return ok(r);
+        }
+        if (!sub && method === "DELETE") return ok(await sys.deleteTheme(admin, storeId, id));
+        if (sub === "publish" && method === "POST") return ok(await sys.publish(admin, storeId, id, null));
+        if (sub === "settings" && method === "GET") return ok((await svc.getTheme(admin, storeId, id)).settings);
+        if (sub === "css" && method === "GET") return { status: 200, body: { data: { css: await sys.getThemeCss(admin, storeId, id) } } };
+        if (sub === "versions" && method === "GET") {
+          if (!flags.versions) return err("feature_disabled", 403);
+          return ok(await sys.listVersions(admin, storeId, id));
+        }
+        if (sub === "restore" && method === "POST" && subId) {
+          if (!flags.versions) return err("feature_disabled", 403);
+          if (!guid.safeParse(subId).success) return err("invalid_id", 400);
+          await sys.recordVersion(admin, storeId, id, null, "Geri dönüş öncesi yedek", "Geri dönüş öncesi otomatik yedek");
+          const v = await sys.getVersion(admin, storeId, id, subId);
+          await sys.applySnapshot(admin, storeId, id, v.snapshot, html);
+          await sys.invalidateThemeCss(storeId, id);
+          return ok({ restored: subId });
+        }
+        if (sub === "preview-token" && method === "GET") return ok(await sys.createPreviewToken(admin, storeId, id, null as unknown as string));
+        if (sub === "export" && method === "POST") {
+          if (!flags.exportZip) return err("feature_disabled", 403);
+          return ok(await sys.exportTheme(admin, storeId, id));
+        }
+      }
+    }
+
+    if (!flags.editor) return err("feature_disabled", 403);
     if (resource === "theme-presets") {
       if (method !== "GET") return err("method_not_allowed", 405);
       if (!flags.presets) return err("feature_disabled", 403);

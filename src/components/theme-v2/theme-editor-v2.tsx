@@ -50,7 +50,8 @@ import { PageRenderer, type V2RenderContext } from "./page-renderer";
 import { SectionTree, arrayMove } from "./section-tree";
 
 type Doc = { settings: V2Settings; sections: V2Section[] };
-const IMAGE_KEYS = new Set(["background_url", "image_url", "src_url"]);
+const IMAGE_KEYS = new Set(["background_url", "image_url", "src_url", "logo_url", "favicon_url"]);
+const isColorKey = (k: string) => k.startsWith("color_") || k.startsWith("dark_color_") || k === "button_bg" || k === "button_text";
 const EDITOR_PAGES: V2PageType[] = ["home", "product", "collection", "cart", "blog", "article", "custom"];
 const uid = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `n${Date.now()}${Math.random().toString(36).slice(2)}`);
 
@@ -80,6 +81,18 @@ function SettingsForm({ fields, values, idPrefix, onChange }: { fields: typeof V
         const value = values[field.key] ?? "";
         if (IMAGE_KEYS.has(field.key)) {
           return <ImagePickerField key={field.key} id={id} label={field.label} help={field.help} value={String(value)} onChange={(v) => onChange(field.key, v)} />;
+        }
+        if (isColorKey(field.key)) {
+          const hex = /^#[0-9a-f]{6}$/i.test(String(value)) ? String(value) : "#000000";
+          return (
+            <div key={field.key} className="flex items-center justify-between gap-3">
+              <label htmlFor={id} className="text-sm">{field.label}</label>
+              <div className="flex items-center gap-2">
+                <input id={id} type="color" value={hex} onChange={(e) => onChange(field.key, e.target.value)} className="size-9 cursor-pointer rounded-md border bg-transparent p-0.5" aria-label={field.label} />
+                <input value={String(value)} onChange={(e) => onChange(field.key, e.target.value)} className="h-9 w-24 rounded-md border bg-background px-2 font-mono text-xs" aria-label={`${field.label} kodu`} placeholder="#000000" />
+              </div>
+            </div>
+          );
         }
         const f = field.key === "product_id" ? { ...field, key: "product_handle" } : field;
         return <StudioField key={field.key} id={id} field={f} value={value} onChange={(v) => onChange(field.key, v)} />;
@@ -293,13 +306,25 @@ export function ThemeEditorV2({ storeId }: { storeId: string }) {
   );
 
   const globalPanel = doc ? (
-    <div className="space-y-5">
-      {V2_GLOBAL_GROUPS.map((group) => (
-        <section key={group.label} className="space-y-3">
-          <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{group.label}</h3>
-          <SettingsForm idPrefix={`g-${group.label}`} fields={group.fields} values={doc.settings} onChange={(k, v) => setValue("__global", k, v)} />
-        </section>
-      ))}
+    <div className="space-y-2">
+      {V2_GLOBAL_GROUPS.map((group) => {
+        const locked = group.flag === "v2_dark_mode" && !boot.data?.flags.darkMode;
+        return (
+          <details key={group.id} className="group rounded-lg border" open={group.id === "colors"}>
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 text-sm font-medium">
+              {group.label}
+              <span className="text-xs text-muted-foreground group-open:rotate-180">▾</span>
+            </summary>
+            <div className="border-t p-3">
+              {locked ? (
+                <p className="text-xs text-muted-foreground">Koyu mod paketinde kapalı.</p>
+              ) : (
+                <SettingsForm idPrefix={`g-${group.id}`} fields={group.fields} values={doc.settings} onChange={(k, v) => setValue("__global", k, v)} />
+              )}
+            </div>
+          </details>
+        );
+      })}
     </div>
   ) : null;
 
