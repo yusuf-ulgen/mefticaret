@@ -59,6 +59,7 @@ import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as FrIndexRouteImport } from './routes/fr.index'
 import { Route as KargoTakipTrackingRouteImport } from './routes/kargo-takip.$tracking'
 import { Route as MagazaSlugRouteImport } from './routes/magaza.$slug'
+import { Route as PreviewSlugRouteImport } from './routes/preview.$slug'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -324,6 +325,9 @@ import { Route as AuthenticatedStoreStoreIdOrdersNewRouteImport } from './routes
 import { Route as AuthenticatedStoreStoreIdProductsIndexRouteImport } from './routes/_authenticated/store.$storeId.products.index'
 import { Route as AuthenticatedStoreStoreIdProductsProductIdRouteImport } from './routes/_authenticated/store.$storeId.products.$productId'
 import { Route as AuthenticatedStoreStoreIdProductsNewRouteImport } from './routes/_authenticated/store.$storeId.products.new'
+import { Route as AuthenticatedStoreStoreIdThemeLibraryIndexRouteImport } from './routes/_authenticated/store.$storeId.theme-library.index'
+import { Route as AuthenticatedStoreStoreIdThemeMarketplaceIndexRouteImport } from './routes/_authenticated/store.$storeId.theme-marketplace.index'
+import { Route as AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRouteImport } from './routes/_authenticated/store.$storeId.theme-marketplace.$templateId'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorIndexRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.index'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.analytics'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorLogsRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.logs'
@@ -332,6 +336,7 @@ import { Route as ApiPublicEmailClickTokenRouteImport } from './routes/api/publi
 import { Route as ApiPublicEmailOpenTokenRouteImport } from './routes/api/public/email.open.$token'
 import { Route as ApiPublicEmailUnsubscribeTokenRouteImport } from './routes/api/public/email.unsubscribe.$token'
 import { Route as ApiPublicFeedStoreSlugKindRouteImport } from './routes/api/public/feed.$storeSlug.$kind'
+import { Route as AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRouteImport } from './routes/_authenticated/store.$storeId.theme-library.$themeId.versions'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorFeedsIndexRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.feeds.index'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorFeedsNewRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.feeds.new'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorFeedsFeedIdMapperRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.feeds.$feedId.mapper'
@@ -586,6 +591,11 @@ const KargoTakipTrackingRoute = KargoTakipTrackingRouteImport.update({
 const MagazaSlugRoute = MagazaSlugRouteImport.update({
   id: '/magaza/$slug',
   path: '/magaza/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewSlugRoute = PreviewSlugRouteImport.update({
+  id: '/preview/$slug',
+  path: '/preview/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SayfaSlugRoute = SayfaSlugRouteImport.update({
@@ -2115,6 +2125,24 @@ const AuthenticatedStoreStoreIdProductsNewRoute =
     path: '/new',
     getParentRoute: () => AuthenticatedStoreStoreIdProductsRoute,
   } as any)
+const AuthenticatedStoreStoreIdThemeLibraryIndexRoute =
+  AuthenticatedStoreStoreIdThemeLibraryIndexRouteImport.update({
+    id: '/theme-library/',
+    path: '/theme-library/',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
+const AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute =
+  AuthenticatedStoreStoreIdThemeMarketplaceIndexRouteImport.update({
+    id: '/theme-marketplace/',
+    path: '/theme-marketplace/',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
+const AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute =
+  AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRouteImport.update({
+    id: '/theme-marketplace/$templateId',
+    path: '/theme-marketplace/$templateId',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdXmlIntegratorIndexRoute =
   AuthenticatedStoreStoreIdXmlIntegratorIndexRouteImport.update({
     id: '/',
@@ -2161,6 +2189,12 @@ const ApiPublicFeedStoreSlugKindRoute =
     id: '/api/public/feed/$storeSlug/$kind',
     path: '/api/public/feed/$storeSlug/$kind',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRoute =
+  AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRouteImport.update({
+    id: '/theme-library/$themeId/versions',
+    path: '/theme-library/$themeId/versions',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdXmlIntegratorFeedsIndexRoute =
   AuthenticatedStoreStoreIdXmlIntegratorFeedsIndexRouteImport.update({
@@ -2225,6 +2259,7 @@ export interface FileRoutesByFullPath {
   '/fatura/$token': typeof FaturaTokenRoute
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
+  '/preview/$slug': typeof PreviewSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -2493,6 +2528,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/store/$storeId/theme-marketplace/$templateId': typeof AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute
   '/store/$storeId/xml-integrator/analytics': typeof AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute
   '/store/$storeId/xml-integrator/logs': typeof AuthenticatedStoreStoreIdXmlIntegratorLogsRoute
   '/store/$storeId/xml-integrator/quarantine': typeof AuthenticatedStoreStoreIdXmlIntegratorQuarantineRoute
@@ -2503,7 +2539,10 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/catalog-v2/': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/store/$storeId/customers-v2/': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
   '/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
+  '/store/$storeId/theme-library/': typeof AuthenticatedStoreStoreIdThemeLibraryIndexRoute
+  '/store/$storeId/theme-marketplace/': typeof AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute
   '/store/$storeId/xml-integrator/': typeof AuthenticatedStoreStoreIdXmlIntegratorIndexRoute
+  '/store/$storeId/theme-library/$themeId/versions': typeof AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRoute
   '/store/$storeId/xml-integrator/feeds/new': typeof AuthenticatedStoreStoreIdXmlIntegratorFeedsNewRoute
   '/store/$storeId/xml-integrator/feeds/': typeof AuthenticatedStoreStoreIdXmlIntegratorFeedsIndexRoute
   '/store/$storeId/xml-integrator/feeds/$feedId/mapper': typeof AuthenticatedStoreStoreIdXmlIntegratorFeedsFeedIdMapperRoute
@@ -2551,6 +2590,7 @@ export interface FileRoutesByTo {
   '/fatura/$token': typeof FaturaTokenRoute
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
+  '/preview/$slug': typeof PreviewSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar': typeof ArIndexRoute
   '/blog': typeof BlogIndexRoute
@@ -2814,6 +2854,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/store/$storeId/theme-marketplace/$templateId': typeof AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute
   '/store/$storeId/xml-integrator/analytics': typeof AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute
   '/store/$storeId/xml-integrator/logs': typeof AuthenticatedStoreStoreIdXmlIntegratorLogsRoute
   '/store/$storeId/xml-integrator/quarantine': typeof AuthenticatedStoreStoreIdXmlIntegratorQuarantineRoute
@@ -2824,7 +2865,10 @@ export interface FileRoutesByTo {
   '/store/$storeId/catalog-v2': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/store/$storeId/customers-v2': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsIndexRoute
+  '/store/$storeId/theme-library': typeof AuthenticatedStoreStoreIdThemeLibraryIndexRoute
+  '/store/$storeId/theme-marketplace': typeof AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute
   '/store/$storeId/xml-integrator': typeof AuthenticatedStoreStoreIdXmlIntegratorIndexRoute
+  '/store/$storeId/theme-library/$themeId/versions': typeof AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRoute
   '/store/$storeId/xml-integrator/feeds/new': typeof AuthenticatedStoreStoreIdXmlIntegratorFeedsNewRoute
   '/store/$storeId/xml-integrator/feeds': typeof AuthenticatedStoreStoreIdXmlIntegratorFeedsIndexRoute
   '/store/$storeId/xml-integrator/feeds/$feedId/mapper': typeof AuthenticatedStoreStoreIdXmlIntegratorFeedsFeedIdMapperRoute
@@ -2875,6 +2919,7 @@ export interface FileRoutesById {
   '/fatura/$token': typeof FaturaTokenRoute
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
+  '/preview/$slug': typeof PreviewSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -3143,6 +3188,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/orders/new': typeof AuthenticatedStoreStoreIdOrdersNewRoute
   '/_authenticated/store/$storeId/products/$productId': typeof AuthenticatedStoreStoreIdProductsProductIdRoute
   '/_authenticated/store/$storeId/products/new': typeof AuthenticatedStoreStoreIdProductsNewRoute
+  '/_authenticated/store/$storeId/theme-marketplace/$templateId': typeof AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute
   '/_authenticated/store/$storeId/xml-integrator/analytics': typeof AuthenticatedStoreStoreIdXmlIntegratorAnalyticsRoute
   '/_authenticated/store/$storeId/xml-integrator/logs': typeof AuthenticatedStoreStoreIdXmlIntegratorLogsRoute
   '/_authenticated/store/$storeId/xml-integrator/quarantine': typeof AuthenticatedStoreStoreIdXmlIntegratorQuarantineRoute
@@ -3153,7 +3199,10 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/catalog-v2/': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/_authenticated/store/$storeId/customers-v2/': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
   '/_authenticated/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
+  '/_authenticated/store/$storeId/theme-library/': typeof AuthenticatedStoreStoreIdThemeLibraryIndexRoute
+  '/_authenticated/store/$storeId/theme-marketplace/': typeof AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute
   '/_authenticated/store/$storeId/xml-integrator/': typeof AuthenticatedStoreStoreIdXmlIntegratorIndexRoute
+  '/_authenticated/store/$storeId/theme-library/$themeId/versions': typeof AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRoute
   '/_authenticated/store/$storeId/xml-integrator/feeds/new': typeof AuthenticatedStoreStoreIdXmlIntegratorFeedsNewRoute
   '/_authenticated/store/$storeId/xml-integrator/feeds/': typeof AuthenticatedStoreStoreIdXmlIntegratorFeedsIndexRoute
   '/_authenticated/store/$storeId/xml-integrator/feeds/$feedId/mapper': typeof AuthenticatedStoreStoreIdXmlIntegratorFeedsFeedIdMapperRoute
@@ -3204,6 +3253,7 @@ export interface FileRouteTypes {
     | '/fatura/$token'
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
+    | '/preview/$slug'
     | '/sayfa/$slug'
     | '/ar/'
     | '/blog/'
@@ -3472,6 +3522,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
     | '/store/$storeId/products/new'
+    | '/store/$storeId/theme-marketplace/$templateId'
     | '/store/$storeId/xml-integrator/analytics'
     | '/store/$storeId/xml-integrator/logs'
     | '/store/$storeId/xml-integrator/quarantine'
@@ -3482,7 +3533,10 @@ export interface FileRouteTypes {
     | '/store/$storeId/catalog-v2/'
     | '/store/$storeId/customers-v2/'
     | '/store/$storeId/products/'
+    | '/store/$storeId/theme-library/'
+    | '/store/$storeId/theme-marketplace/'
     | '/store/$storeId/xml-integrator/'
+    | '/store/$storeId/theme-library/$themeId/versions'
     | '/store/$storeId/xml-integrator/feeds/new'
     | '/store/$storeId/xml-integrator/feeds/'
     | '/store/$storeId/xml-integrator/feeds/$feedId/mapper'
@@ -3530,6 +3584,7 @@ export interface FileRouteTypes {
     | '/fatura/$token'
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
+    | '/preview/$slug'
     | '/sayfa/$slug'
     | '/ar'
     | '/blog'
@@ -3793,6 +3848,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders/new'
     | '/store/$storeId/products/$productId'
     | '/store/$storeId/products/new'
+    | '/store/$storeId/theme-marketplace/$templateId'
     | '/store/$storeId/xml-integrator/analytics'
     | '/store/$storeId/xml-integrator/logs'
     | '/store/$storeId/xml-integrator/quarantine'
@@ -3803,7 +3859,10 @@ export interface FileRouteTypes {
     | '/store/$storeId/catalog-v2'
     | '/store/$storeId/customers-v2'
     | '/store/$storeId/products'
+    | '/store/$storeId/theme-library'
+    | '/store/$storeId/theme-marketplace'
     | '/store/$storeId/xml-integrator'
+    | '/store/$storeId/theme-library/$themeId/versions'
     | '/store/$storeId/xml-integrator/feeds/new'
     | '/store/$storeId/xml-integrator/feeds'
     | '/store/$storeId/xml-integrator/feeds/$feedId/mapper'
@@ -3853,6 +3912,7 @@ export interface FileRouteTypes {
     | '/fatura/$token'
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
+    | '/preview/$slug'
     | '/sayfa/$slug'
     | '/ar/'
     | '/blog/'
@@ -4121,6 +4181,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/orders/new'
     | '/_authenticated/store/$storeId/products/$productId'
     | '/_authenticated/store/$storeId/products/new'
+    | '/_authenticated/store/$storeId/theme-marketplace/$templateId'
     | '/_authenticated/store/$storeId/xml-integrator/analytics'
     | '/_authenticated/store/$storeId/xml-integrator/logs'
     | '/_authenticated/store/$storeId/xml-integrator/quarantine'
@@ -4131,7 +4192,10 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/catalog-v2/'
     | '/_authenticated/store/$storeId/customers-v2/'
     | '/_authenticated/store/$storeId/products/'
+    | '/_authenticated/store/$storeId/theme-library/'
+    | '/_authenticated/store/$storeId/theme-marketplace/'
     | '/_authenticated/store/$storeId/xml-integrator/'
+    | '/_authenticated/store/$storeId/theme-library/$themeId/versions'
     | '/_authenticated/store/$storeId/xml-integrator/feeds/new'
     | '/_authenticated/store/$storeId/xml-integrator/feeds/'
     | '/_authenticated/store/$storeId/xml-integrator/feeds/$feedId/mapper'
@@ -4177,6 +4241,7 @@ export interface RootRouteChildren {
   FaturaTokenRoute: typeof FaturaTokenRoute
   KargoTakipTrackingRoute: typeof KargoTakipTrackingRoute
   MagazaSlugRoute: typeof MagazaSlugRoute
+  PreviewSlugRoute: typeof PreviewSlugRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
   ArIndexRoute: typeof ArIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -4607,6 +4672,13 @@ declare module '@tanstack/react-router' {
       path: '/magaza/$slug'
       fullPath: '/magaza/$slug'
       preLoaderRoute: typeof MagazaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview/$slug': {
+      id: '/preview/$slug'
+      path: '/preview/$slug'
+      fullPath: '/preview/$slug'
+      preLoaderRoute: typeof PreviewSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sayfa/$slug': {
@@ -6464,6 +6536,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdProductsNewRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdProductsRoute
     }
+    '/_authenticated/store/$storeId/theme-library/': {
+      id: '/_authenticated/store/$storeId/theme-library/'
+      path: '/theme-library'
+      fullPath: '/store/$storeId/theme-library/'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeLibraryIndexRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
+    '/_authenticated/store/$storeId/theme-marketplace/': {
+      id: '/_authenticated/store/$storeId/theme-marketplace/'
+      path: '/theme-marketplace'
+      fullPath: '/store/$storeId/theme-marketplace/'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeMarketplaceIndexRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
+    '/_authenticated/store/$storeId/theme-marketplace/$templateId': {
+      id: '/_authenticated/store/$storeId/theme-marketplace/$templateId'
+      path: '/theme-marketplace/$templateId'
+      fullPath: '/store/$storeId/theme-marketplace/$templateId'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/xml-integrator/': {
       id: '/_authenticated/store/$storeId/xml-integrator/'
       path: '/'
@@ -6519,6 +6612,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/feed/$storeSlug/$kind'
       preLoaderRoute: typeof ApiPublicFeedStoreSlugKindRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/store/$storeId/theme-library/$themeId/versions': {
+      id: '/_authenticated/store/$storeId/theme-library/$themeId/versions'
+      path: '/theme-library/$themeId/versions'
+      fullPath: '/store/$storeId/theme-library/$themeId/versions'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/xml-integrator/feeds/': {
       id: '/_authenticated/store/$storeId/xml-integrator/feeds/'
@@ -6916,6 +7016,10 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdWhatsappRoute: typeof AuthenticatedStoreStoreIdWhatsappRoute
   AuthenticatedStoreStoreIdXmlIntegratorRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRouteWithChildren
   AuthenticatedStoreStoreIdIndexRoute: typeof AuthenticatedStoreStoreIdIndexRoute
+  AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute: typeof AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute
+  AuthenticatedStoreStoreIdThemeLibraryIndexRoute: typeof AuthenticatedStoreStoreIdThemeLibraryIndexRoute
+  AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute: typeof AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute
+  AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRoute: typeof AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRoute
 }
 
 const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChildren =
@@ -7150,6 +7254,14 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdXmlIntegratorRoute:
       AuthenticatedStoreStoreIdXmlIntegratorRouteWithChildren,
     AuthenticatedStoreStoreIdIndexRoute: AuthenticatedStoreStoreIdIndexRoute,
+    AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute:
+      AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute,
+    AuthenticatedStoreStoreIdThemeLibraryIndexRoute:
+      AuthenticatedStoreStoreIdThemeLibraryIndexRoute,
+    AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute:
+      AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute,
+    AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRoute:
+      AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRoute,
   }
 
 const AuthenticatedStoreStoreIdRouteWithChildren =
@@ -7223,6 +7335,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaturaTokenRoute: FaturaTokenRoute,
   KargoTakipTrackingRoute: KargoTakipTrackingRoute,
   MagazaSlugRoute: MagazaSlugRoute,
+  PreviewSlugRoute: PreviewSlugRoute,
   SayfaSlugRoute: SayfaSlugRoute,
   ArIndexRoute: ArIndexRoute,
   BlogIndexRoute: BlogIndexRoute,

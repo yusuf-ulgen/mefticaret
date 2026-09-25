@@ -19232,6 +19232,57 @@ export type Database = {
           },
         ]
       }
+      v2_theme_assets: {
+        Row: {
+          asset_type: string
+          created_at: string
+          id: string
+          key: string
+          store_id: string
+          tenant_theme_id: string
+          updated_at: string
+          url: string | null
+          value: string | null
+        }
+        Insert: {
+          asset_type: string
+          created_at?: string
+          id?: string
+          key: string
+          store_id: string
+          tenant_theme_id: string
+          updated_at?: string
+          url?: string | null
+          value?: string | null
+        }
+        Update: {
+          asset_type?: string
+          created_at?: string
+          id?: string
+          key?: string
+          store_id?: string
+          tenant_theme_id?: string
+          updated_at?: string
+          url?: string | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_theme_assets_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "v2_theme_assets_tenant_theme_id_fkey"
+            columns: ["tenant_theme_id"]
+            isOneToOne: false
+            referencedRelation: "v2_themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v2_theme_pages: {
         Row: {
           created_at: string
@@ -19304,39 +19355,322 @@ export type Database = {
         }
         Relationships: []
       }
+      v2_theme_preview_tokens: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          store_id: string
+          tenant_theme_id: string
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at: string
+          id?: string
+          store_id: string
+          tenant_theme_id: string
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          store_id?: string
+          tenant_theme_id?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_theme_preview_tokens_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "v2_theme_preview_tokens_tenant_theme_id_fkey"
+            columns: ["tenant_theme_id"]
+            isOneToOne: false
+            referencedRelation: "v2_themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_theme_template_reviews: {
+        Row: {
+          author_name: string
+          comment: string
+          created_at: string
+          id: string
+          rating: number
+          store_id: string
+          template_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          author_name?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          rating: number
+          store_id: string
+          template_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          store_id?: string
+          template_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_theme_template_reviews_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "v2_theme_template_reviews_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "v2_theme_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_theme_template_screenshots: {
+        Row: {
+          created_at: string
+          device_type: string
+          id: string
+          position: number
+          template_id: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          device_type?: string
+          id?: string
+          position?: number
+          template_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          device_type?: string
+          id?: string
+          position?: number
+          template_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_theme_template_screenshots_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "v2_theme_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_theme_templates: {
+        Row: {
+          assets_zip_url: string | null
+          author: string
+          category: string
+          created_at: string
+          currency: string
+          description: string
+          downloads_count: number
+          features: Json
+          id: string
+          is_featured: boolean
+          is_official: boolean
+          is_published: boolean
+          license_theme_id: string | null
+          name: string
+          preview_image_url: string | null
+          preview_url: string | null
+          price: number
+          rating_avg: number
+          rating_count: number
+          slug: string
+          structure_json: Json
+          tags: Json
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          assets_zip_url?: string | null
+          author?: string
+          category?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          downloads_count?: number
+          features?: Json
+          id?: string
+          is_featured?: boolean
+          is_official?: boolean
+          is_published?: boolean
+          license_theme_id?: string | null
+          name: string
+          preview_image_url?: string | null
+          preview_url?: string | null
+          price?: number
+          rating_avg?: number
+          rating_count?: number
+          slug: string
+          structure_json?: Json
+          tags?: Json
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          assets_zip_url?: string | null
+          author?: string
+          category?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          downloads_count?: number
+          features?: Json
+          id?: string
+          is_featured?: boolean
+          is_official?: boolean
+          is_published?: boolean
+          license_theme_id?: string | null
+          name?: string
+          preview_image_url?: string | null
+          preview_url?: string | null
+          price?: number
+          rating_avg?: number
+          rating_count?: number
+          slug?: string
+          structure_json?: Json
+          tags?: Json
+          updated_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_theme_templates_license_theme_id_fkey"
+            columns: ["license_theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_theme_versions: {
+        Row: {
+          created_at: string
+          created_by_name: string
+          created_by_user_id: string | null
+          id: string
+          label: string
+          snapshot: Json
+          store_id: string
+          summary: string
+          tenant_theme_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by_name?: string
+          created_by_user_id?: string | null
+          id?: string
+          label?: string
+          snapshot: Json
+          store_id: string
+          summary?: string
+          tenant_theme_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by_name?: string
+          created_by_user_id?: string | null
+          id?: string
+          label?: string
+          snapshot?: Json
+          store_id?: string
+          summary?: string
+          tenant_theme_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_theme_versions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "v2_theme_versions_tenant_theme_id_fkey"
+            columns: ["tenant_theme_id"]
+            isOneToOne: false
+            referencedRelation: "v2_themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v2_themes: {
         Row: {
           created_at: string
+          customizations: Json
           id: string
+          installed_at: string
           name: string
           published_at: string | null
           published_snapshot: Json | null
           settings: Json
           status: string
           store_id: string
+          template_id: string | null
           updated_at: string
+          version: string
         }
         Insert: {
           created_at?: string
+          customizations?: Json
           id?: string
+          installed_at?: string
           name: string
           published_at?: string | null
           published_snapshot?: Json | null
           settings?: Json
           status?: string
           store_id: string
+          template_id?: string | null
           updated_at?: string
+          version?: string
         }
         Update: {
           created_at?: string
+          customizations?: Json
           id?: string
+          installed_at?: string
           name?: string
           published_at?: string | null
           published_snapshot?: Json | null
           settings?: Json
           status?: string
           store_id?: string
+          template_id?: string | null
           updated_at?: string
+          version?: string
         }
         Relationships: [
           {
@@ -19344,6 +19678,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "v2_themes_template_fk"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "v2_theme_templates"
             referencedColumns: ["id"]
           },
         ]

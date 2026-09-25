@@ -138,6 +138,42 @@ export const MODULE_CATALOG: PlanModule[] = [
     routes: ["theme-presets"],
   },
   {
+    key: "v2_theme_system",
+    label: "Tema Sistemi v2",
+    description: "Tema kütüphanesi, yayınlama, kopyalama ve paylaşılabilir önizleme bağlantısı.",
+    routes: ["theme-library"],
+  },
+  {
+    key: "v2_theme_marketplace",
+    label: "Tema Marketi",
+    description: "Ücretsiz ve ücretli marketplace temalarını önizleme, yükleme ve puanlama.",
+    routes: ["theme-marketplace"],
+  },
+  {
+    key: "v2_theme_versions",
+    label: "Tema Sürüm Geçmişi",
+    description: "Her kayıtta otomatik tema yedeği ve eski sürüme geri dönme.",
+    routes: [],
+  },
+  {
+    key: "v2_theme_export",
+    label: "Tema İndirme (.zip)",
+    description: "Temayı theme.json + assets + README olarak zip indirme.",
+    routes: [],
+  },
+  {
+    key: "v2_theme_import",
+    label: "Tema Yükleme (.zip)",
+    description: "Zip tema paketini doğrulayıp taslak olarak yükleme.",
+    routes: [],
+  },
+  {
+    key: "v2_dark_mode",
+    label: "Koyu Mod",
+    description: "Vitrinde otomatik veya manuel koyu mod ve ayrı koyu renkler.",
+    routes: [],
+  },
+  {
     key: "v2_custom_html",
     label: "Özel HTML Bölümü",
     description: "Tema editöründe temizlenmiş özel HTML bölümü ve bloğu.",

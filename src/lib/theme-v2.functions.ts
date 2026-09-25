@@ -16,7 +16,12 @@ async function gate(db: SupabaseClient, storeId: string) {
   const { loadEntitlements, requirePlanModule } = await import("@/lib/entitlements.server");
   await requirePlanModule(db as never, storeId, "v2_theme_editor");
   const ent = await loadEntitlements(db as never, storeId);
-  return { presets: ent.modules["v2_theme_presets"] === true, customHtml: ent.modules["v2_custom_html"] === true };
+  return { presets: ent.modules["v2_theme_presets"] === true, customHtml: ent.modules["v2_custom_html"] === true, darkMode: ent.modules["v2_dark_mode"] === true, versions: ent.modules["v2_theme_versions"] === true };
+}
+
+async function sys2Invalidate(storeId: string, themeId: string) {
+  const sys = await import("@/lib/theme-system-v2.server");
+  await sys.invalidateThemeCss(storeId, themeId).catch(() => undefined);
 }
 
 async function wrap<T>(fn: () => Promise<T>): Promise<T> {
@@ -62,8 +67,14 @@ export const v2SavePage = createServerFn({ method: "POST" })
     const db = context.supabase as unknown as SupabaseClient;
     const flags = await gate(db, data.storeId);
     const svc = await import("@/lib/theme-v2.server");
-    await svc.updateThemeSettings(db, data.storeId, data.themeId, { settings: data.settings });
+    const nextSettings = flags.darkMode ? data.settings : { ...data.settings, dark_mode: "off" };
+    await svc.updateThemeSettings(db, data.storeId, data.themeId, { settings: nextSettings });
     await svc.replacePageTree(db, data.storeId, data.pageId, data.sections as V2Section[], flags.customHtml);
+    if (flags.versions) {
+      const sys = await import("@/lib/theme-system-v2.server");
+      await sys.recordVersion(db, data.storeId, data.themeId, context.userId, "Editör kaydı").catch(() => undefined);
+    }
+    await sys2Invalidate(data.storeId, data.themeId);
     return { ok: true };
   }));
 
