@@ -148,8 +148,9 @@ export const V2_SECTIONS: Record<V2SectionType, V2SectionDefinition> = {
   },
   image_with_text: {
     label: "Görsel ve metin", description: "Yan yana görsel ve içerik.",
-    defaults: { image_url: "", image_position: "left", image_ratio: "square", content_width: "medium" },
+    defaults: { image_url: "", image_position: "left", image_ratio: "square", content_width: "medium", image_filter: "none" },
     fields: [
+      f("image_filter", "Görsel filtresi", "select", { options: opt(["none", "Yok"], ["grayscale", "Siyah beyaz"], ["sepia", "Sepya / grenli"]) }),
       f("image_url", "Görsel", "text"),
       f("image_position", "Görsel konumu", "select", { options: opt(["left", "Sol"], ["right", "Sağ"]) }),
       f("image_ratio", "Görsel oranı", "select", { options: RATIO }),
