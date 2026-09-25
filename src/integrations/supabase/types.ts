@@ -14406,6 +14406,912 @@ export type Database = {
         }
         Relationships: []
       }
+      sec_attack_logs: {
+        Row: {
+          action_taken: string
+          attack_type: string
+          country_code: string | null
+          created_at: string
+          id: string
+          ip_address: unknown
+          is_false_positive: boolean
+          request_method: string | null
+          request_payload: string | null
+          request_url: string | null
+          severity: string
+          store_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_taken?: string
+          attack_type: string
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          is_false_positive?: boolean
+          request_method?: string | null
+          request_payload?: string | null
+          request_url?: string | null
+          severity?: string
+          store_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_taken?: string
+          attack_type?: string
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          is_false_positive?: boolean
+          request_method?: string | null
+          request_payload?: string | null
+          request_url?: string | null
+          severity?: string
+          store_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_attack_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_blocked_countries: {
+        Row: {
+          country_code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          reason: string | null
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          reason?: string | null
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          reason?: string | null
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_blocked_countries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_data_retention_policies: {
+        Row: {
+          auto_delete: boolean
+          created_at: string
+          data_type: string
+          id: string
+          last_run_at: string | null
+          retention_days: number
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          auto_delete?: boolean
+          created_at?: string
+          data_type: string
+          id?: string
+          last_run_at?: string | null
+          retention_days: number
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          auto_delete?: boolean
+          created_at?: string
+          data_type?: string
+          id?: string
+          last_run_at?: string | null
+          retention_days?: number
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_data_retention_policies_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_fraud_rules: {
+        Row: {
+          action: string
+          conditions: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          risk_score_weight: number
+          rule_name: string
+          rule_type: string
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          action?: string
+          conditions?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          risk_score_weight?: number
+          rule_name: string
+          rule_type: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          conditions?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          risk_score_weight?: number
+          rule_name?: string
+          rule_type?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_fraud_rules_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_fraud_scores: {
+        Row: {
+          action_taken: string
+          created_at: string
+          customer_id: string | null
+          id: string
+          ip_address: unknown
+          order_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          store_id: string | null
+          total_risk_score: number
+          triggered_rules: Json
+          updated_at: string
+        }
+        Insert: {
+          action_taken?: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          ip_address?: unknown
+          order_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          store_id?: string | null
+          total_risk_score?: number
+          triggered_rules?: Json
+          updated_at?: string
+        }
+        Update: {
+          action_taken?: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          ip_address?: unknown
+          order_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          store_id?: string | null
+          total_risk_score?: number
+          triggered_rules?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_fraud_scores_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_fraud_signals: {
+        Row: {
+          created_at: string
+          details: Json
+          fraud_score_id: string
+          id: string
+          risk_contribution: number
+          rule_id: string | null
+          signal_type: string
+          signal_value: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          fraud_score_id: string
+          id?: string
+          risk_contribution?: number
+          rule_id?: string | null
+          signal_type: string
+          signal_value?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          fraud_score_id?: string
+          id?: string
+          risk_contribution?: number
+          rule_id?: string | null
+          signal_type?: string
+          signal_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_fraud_signals_fraud_score_id_fkey"
+            columns: ["fraud_score_id"]
+            isOneToOne: false
+            referencedRelation: "sec_fraud_scores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sec_fraud_signals_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "sec_fraud_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_ip_reputation: {
+        Row: {
+          country_code: string | null
+          created_at: string
+          id: string
+          ip_address: unknown
+          is_datacenter: boolean
+          is_tor: boolean
+          is_vpn: boolean
+          isp: string | null
+          last_checked_at: string
+          reputation_score: number
+          threat_types: Json
+          updated_at: string
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          ip_address: unknown
+          is_datacenter?: boolean
+          is_tor?: boolean
+          is_vpn?: boolean
+          isp?: string | null
+          last_checked_at?: string
+          reputation_score?: number
+          threat_types?: Json
+          updated_at?: string
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          is_datacenter?: boolean
+          is_tor?: boolean
+          is_vpn?: boolean
+          isp?: string | null
+          last_checked_at?: string
+          reputation_score?: number
+          threat_types?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sec_ip_rules: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          hits_count: number
+          id: string
+          ip_address: unknown
+          ip_range: unknown
+          is_active: boolean
+          rate_limit_per_minute: number | null
+          reason: string | null
+          rule_type: string
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          hits_count?: number
+          id?: string
+          ip_address?: unknown
+          ip_range?: unknown
+          is_active?: boolean
+          rate_limit_per_minute?: number | null
+          reason?: string | null
+          rule_type: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          hits_count?: number
+          id?: string
+          ip_address?: unknown
+          ip_range?: unknown
+          is_active?: boolean
+          rate_limit_per_minute?: number | null
+          reason?: string | null
+          rule_type?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_ip_rules_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_lockouts: {
+        Row: {
+          created_at: string
+          id: string
+          identifier_type: string
+          identifier_value: string
+          locked_until: string
+          lockout_count: number
+          lockout_reason: string | null
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identifier_type: string
+          identifier_value: string
+          locked_until: string
+          lockout_count?: number
+          lockout_reason?: string | null
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identifier_type?: string
+          identifier_value?: string
+          locked_until?: string
+          lockout_count?: number
+          lockout_reason?: string | null
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_lockouts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_login_attempts: {
+        Row: {
+          attempt_type: string
+          created_at: string
+          failure_reason: string | null
+          id: string
+          identifier: string
+          ip_address: unknown
+          status: string
+          store_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          attempt_type?: string
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          identifier: string
+          ip_address?: unknown
+          status: string
+          store_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          attempt_type?: string
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          identifier?: string
+          ip_address?: unknown
+          status?: string
+          store_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_login_attempts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_rate_limit_rules: {
+        Row: {
+          action: string
+          created_at: string
+          endpoint_pattern: string
+          id: string
+          is_active: boolean
+          max_requests: number
+          rule_name: string
+          store_id: string | null
+          updated_at: string
+          window_seconds: number
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          endpoint_pattern: string
+          id?: string
+          is_active?: boolean
+          max_requests: number
+          rule_name: string
+          store_id?: string | null
+          updated_at?: string
+          window_seconds: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          endpoint_pattern?: string
+          id?: string
+          is_active?: boolean
+          max_requests?: number
+          rule_name?: string
+          store_id?: string | null
+          updated_at?: string
+          window_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_rate_limit_rules_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_sessions: {
+        Row: {
+          city: string | null
+          country_code: string | null
+          created_at: string
+          device_fingerprint: string | null
+          device_name: string | null
+          expires_at: string | null
+          id: string
+          ip_address: unknown
+          is_trusted_device: boolean
+          last_activity_at: string
+          revoked_at: string | null
+          session_token_hash: string
+          store_id: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          country_code?: string | null
+          created_at?: string
+          device_fingerprint?: string | null
+          device_name?: string | null
+          expires_at?: string | null
+          id?: string
+          ip_address?: unknown
+          is_trusted_device?: boolean
+          last_activity_at?: string
+          revoked_at?: string | null
+          session_token_hash: string
+          store_id?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          country_code?: string | null
+          created_at?: string
+          device_fingerprint?: string | null
+          device_name?: string | null
+          expires_at?: string | null
+          id?: string
+          ip_address?: unknown
+          is_trusted_device?: boolean
+          last_activity_at?: string
+          revoked_at?: string | null
+          session_token_hash?: string
+          store_id?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_sessions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_settings: {
+        Row: {
+          admin_2fa: string
+          admin_session_hours: number
+          alert_email: string | null
+          alert_webhook_url: string | null
+          bot_detection_enabled: boolean
+          brute_force_ip_ban_attempts: number
+          brute_force_lock_minutes: number
+          brute_force_max_attempts: number
+          country_block_enabled: boolean
+          created_at: string
+          customer_2fa: string
+          customer_session_days: number
+          firewall_enabled: boolean
+          fraud_detection_enabled: boolean
+          id: string
+          max_body_bytes: number
+          password_max_age_days: number | null
+          password_min_length: number
+          password_require_digit: boolean
+          password_require_symbol: boolean
+          password_require_upper: boolean
+          rate_limit_enabled: boolean
+          seller_2fa: string
+          seller_session_hours: number
+          store_id: string | null
+          updated_at: string
+          waf_mode: string
+        }
+        Insert: {
+          admin_2fa?: string
+          admin_session_hours?: number
+          alert_email?: string | null
+          alert_webhook_url?: string | null
+          bot_detection_enabled?: boolean
+          brute_force_ip_ban_attempts?: number
+          brute_force_lock_minutes?: number
+          brute_force_max_attempts?: number
+          country_block_enabled?: boolean
+          created_at?: string
+          customer_2fa?: string
+          customer_session_days?: number
+          firewall_enabled?: boolean
+          fraud_detection_enabled?: boolean
+          id?: string
+          max_body_bytes?: number
+          password_max_age_days?: number | null
+          password_min_length?: number
+          password_require_digit?: boolean
+          password_require_symbol?: boolean
+          password_require_upper?: boolean
+          rate_limit_enabled?: boolean
+          seller_2fa?: string
+          seller_session_hours?: number
+          store_id?: string | null
+          updated_at?: string
+          waf_mode?: string
+        }
+        Update: {
+          admin_2fa?: string
+          admin_session_hours?: number
+          alert_email?: string | null
+          alert_webhook_url?: string | null
+          bot_detection_enabled?: boolean
+          brute_force_ip_ban_attempts?: number
+          brute_force_lock_minutes?: number
+          brute_force_max_attempts?: number
+          country_block_enabled?: boolean
+          created_at?: string
+          customer_2fa?: string
+          customer_session_days?: number
+          firewall_enabled?: boolean
+          fraud_detection_enabled?: boolean
+          id?: string
+          max_body_bytes?: number
+          password_max_age_days?: number | null
+          password_min_length?: number
+          password_require_digit?: boolean
+          password_require_symbol?: boolean
+          password_require_upper?: boolean
+          rate_limit_enabled?: boolean
+          seller_2fa?: string
+          seller_session_hours?: number
+          store_id?: string | null
+          updated_at?: string
+          waf_mode?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_ssl_certificates: {
+        Row: {
+          auto_renew: boolean
+          created_at: string
+          domain: string
+          expires_at: string | null
+          id: string
+          issued_at: string | null
+          issuer: string | null
+          last_checked_at: string | null
+          status: string
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          auto_renew?: boolean
+          created_at?: string
+          domain: string
+          expires_at?: string | null
+          id?: string
+          issued_at?: string | null
+          issuer?: string | null
+          last_checked_at?: string | null
+          status?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          auto_renew?: boolean
+          created_at?: string
+          domain?: string
+          expires_at?: string | null
+          id?: string
+          issued_at?: string | null
+          issuer?: string | null
+          last_checked_at?: string | null
+          status?: string
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_ssl_certificates_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_threat_intelligence: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          description: string | null
+          expires_at: string | null
+          first_seen: string
+          id: string
+          indicator: string
+          indicator_value: string
+          last_seen: string
+          source: string | null
+          threat_type: string
+        }
+        Insert: {
+          confidence_score?: number
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          first_seen?: string
+          id?: string
+          indicator: string
+          indicator_value: string
+          last_seen?: string
+          source?: string | null
+          threat_type: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          first_seen?: string
+          id?: string
+          indicator?: string
+          indicator_value?: string
+          last_seen?: string
+          source?: string | null
+          threat_type?: string
+        }
+        Relationships: []
+      }
+      sec_trusted_devices: {
+        Row: {
+          browser: string | null
+          device_fingerprint: string
+          device_name: string | null
+          device_type: string | null
+          first_seen_at: string
+          id: string
+          is_active: boolean
+          last_seen_at: string
+          os: string | null
+          trusted_until: string | null
+          user_id: string
+        }
+        Insert: {
+          browser?: string | null
+          device_fingerprint: string
+          device_name?: string | null
+          device_type?: string | null
+          first_seen_at?: string
+          id?: string
+          is_active?: boolean
+          last_seen_at?: string
+          os?: string | null
+          trusted_until?: string | null
+          user_id: string
+        }
+        Update: {
+          browser?: string | null
+          device_fingerprint?: string
+          device_name?: string | null
+          device_type?: string | null
+          first_seen_at?: string
+          id?: string
+          is_active?: boolean
+          last_seen_at?: string
+          os?: string | null
+          trusted_until?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sec_waf_exceptions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          path_pattern: string
+          reason: string | null
+          store_id: string | null
+          waf_rule_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          path_pattern: string
+          reason?: string | null
+          store_id?: string | null
+          waf_rule_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          path_pattern?: string
+          reason?: string | null
+          store_id?: string | null
+          waf_rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sec_waf_exceptions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sec_waf_exceptions_waf_rule_id_fkey"
+            columns: ["waf_rule_id"]
+            isOneToOne: false
+            referencedRelation: "sec_waf_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sec_waf_rules: {
+        Row: {
+          action: string
+          created_at: string
+          hits_count: number
+          id: string
+          is_active: boolean
+          last_hit_at: string | null
+          pattern: string
+          rule_name: string
+          rule_type: string
+          severity: string
+          updated_at: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          hits_count?: number
+          id?: string
+          is_active?: boolean
+          last_hit_at?: string | null
+          pattern: string
+          rule_name: string
+          rule_type: string
+          severity?: string
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          hits_count?: number
+          id?: string
+          is_active?: boolean
+          last_hit_at?: string | null
+          pattern?: string
+          rule_name?: string
+          rule_type?: string
+          severity?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       security_events: {
         Row: {
           created_at: string
@@ -21358,6 +22264,9 @@ export type Database = {
           title: string
         }[]
       }
+      sec_bump_ip_rule_hit: { Args: { _rule_id: string }; Returns: undefined }
+      sec_bump_waf_hit: { Args: { _rule_id: string }; Returns: undefined }
+      sec_cleanup: { Args: never; Returns: Json }
       seller_order_lines: {
         Args: { _seller_id: string; _store_id: string }
         Returns: {
