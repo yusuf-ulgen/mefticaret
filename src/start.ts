@@ -13,6 +13,19 @@ const securityHeadersMiddleware = createMiddleware().server(async ({ next }) => 
   return result;
 });
 
+// Güvenlik duvarı: IP/ülke engeli, hız limiti, WAF desenleri ve bot tespiti.
+// Ayar kapalıyken hiçbir kontrol yapılmaz (varsayılan kapalı).
+const firewallMiddleware = createMiddleware().server(async ({ next, request }) => {
+  try {
+    const { evaluateRequest, firewallBlockResponse } = await import("@/lib/security-firewall.server");
+    const decision = await evaluateRequest(request);
+    if (decision.action === "block") return firewallBlockResponse(decision);
+  } catch {
+    /* güvenlik katmanı hata verirse istek normal akışına devam eder */
+  }
+  return next();
+});
+
 // CDN/tarayıcı önbellek politikası: vitrin kısa süreli, panel/API önbelleksiz.
 const cacheHeadersMiddleware = createMiddleware().server(async ({ next, request }) => {
   const result = await next();
@@ -20,6 +33,7 @@ const cacheHeadersMiddleware = createMiddleware().server(async ({ next, request 
   if (response instanceof Response) applyCacheHeaders(response, request.url, request.method);
   return result;
 });
+
 
 // Tarayıcı sayfayı terk ettiğinde bağlantı kopar ("aborted"); bu bir uygulama
 // hatası değildir, hata olarak raporlanmamalı.
@@ -75,5 +89,6 @@ const csrfMiddleware = createCsrfMiddleware({
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [securityHeadersMiddleware, cacheHeadersMiddleware, errorMiddleware, csrfMiddleware],
+  requestMiddleware: [securityHeadersMiddleware, cacheHeadersMiddleware, errorMiddleware, csrfMiddleware, firewallMiddleware],
 }));
+
