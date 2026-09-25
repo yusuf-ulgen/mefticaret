@@ -143,6 +143,7 @@ import { Route as AuthenticatedAdminFrontendLandingRouteImport } from './routes/
 import { Route as AuthenticatedAdminSettingsAiEngineRouteImport } from './routes/_authenticated/admin.settings_.ai-engine'
 import { Route as AuthenticatedAdminStoreStoreIdRouteImport } from './routes/_authenticated/admin.store.$storeId'
 import { Route as AuthenticatedAdminThemeStudioStoreIdRouteImport } from './routes/_authenticated/admin.theme-studio.$storeId'
+import { Route as AuthenticatedStoreStoreIdIndexRouteImport } from './routes/_authenticated/store.$storeId.index'
 import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_authenticated/store.$storeId.abc'
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
 import { Route as AuthenticatedStoreStoreIdAgingRouteImport } from './routes/_authenticated/store.$storeId.aging'
@@ -1045,6 +1046,12 @@ const AuthenticatedAdminThemeStudioStoreIdRoute =
     id: '/theme-studio/$storeId',
     path: '/theme-studio/$storeId',
     getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedStoreStoreIdIndexRoute =
+  AuthenticatedStoreStoreIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdAbcRoute =
   AuthenticatedStoreStoreIdAbcRouteImport.update({
@@ -2478,6 +2485,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
+  '/store/$storeId/': typeof AuthenticatedStoreStoreIdIndexRoute
   '/store/$storeId/catalog-v2/$productId': typeof AuthenticatedStoreStoreIdCatalogV2ProductIdRoute
   '/store/$storeId/customers-v2/$customerId': typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute
   '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
@@ -2597,7 +2605,6 @@ export interface FileRoutesByTo {
   '/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
-  '/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
   '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
@@ -2799,6 +2806,7 @@ export interface FileRoutesByTo {
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/admin/frontend': typeof AuthenticatedAdminFrontendIndexRoute
+  '/store/$storeId': typeof AuthenticatedStoreStoreIdIndexRoute
   '/store/$storeId/catalog-v2/$productId': typeof AuthenticatedStoreStoreIdCatalogV2ProductIdRoute
   '/store/$storeId/customers-v2/$customerId': typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute
   '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
@@ -3127,6 +3135,7 @@ export interface FileRoutesById {
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/_authenticated/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
+  '/_authenticated/store/$storeId/': typeof AuthenticatedStoreStoreIdIndexRoute
   '/_authenticated/store/$storeId/catalog-v2/$productId': typeof AuthenticatedStoreStoreIdCatalogV2ProductIdRoute
   '/_authenticated/store/$storeId/customers-v2/$customerId': typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute
   '/_authenticated/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
@@ -3455,6 +3464,7 @@ export interface FileRouteTypes {
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
     | '/admin/frontend/'
+    | '/store/$storeId/'
     | '/store/$storeId/catalog-v2/$productId'
     | '/store/$storeId/customers-v2/$customerId'
     | '/store/$storeId/customers/$customerId'
@@ -3574,7 +3584,6 @@ export interface FileRouteTypes {
     | '/admin/webhooks'
     | '/oauth/authorize'
     | '/seller/$sellerId'
-    | '/store/$storeId'
     | '/api/ai/execute'
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
@@ -3776,6 +3785,7 @@ export interface FileRouteTypes {
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
     | '/admin/frontend'
+    | '/store/$storeId'
     | '/store/$storeId/catalog-v2/$productId'
     | '/store/$storeId/customers-v2/$customerId'
     | '/store/$storeId/customers/$customerId'
@@ -4103,6 +4113,7 @@ export interface FileRouteTypes {
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
     | '/_authenticated/admin/frontend/'
+    | '/_authenticated/store/$storeId/'
     | '/_authenticated/store/$storeId/catalog-v2/$productId'
     | '/_authenticated/store/$storeId/customers-v2/$customerId'
     | '/_authenticated/store/$storeId/customers/$customerId'
@@ -5185,6 +5196,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/theme-studio/$storeId'
       preLoaderRoute: typeof AuthenticatedAdminThemeStudioStoreIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/store/$storeId/': {
+      id: '/_authenticated/store/$storeId/'
+      path: '/'
+      fullPath: '/store/$storeId/'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdIndexRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/abc': {
       id: '/_authenticated/store/$storeId/abc'
@@ -6897,6 +6915,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdWebhooksRoute: typeof AuthenticatedStoreStoreIdWebhooksRoute
   AuthenticatedStoreStoreIdWhatsappRoute: typeof AuthenticatedStoreStoreIdWhatsappRoute
   AuthenticatedStoreStoreIdXmlIntegratorRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRouteWithChildren
+  AuthenticatedStoreStoreIdIndexRoute: typeof AuthenticatedStoreStoreIdIndexRoute
 }
 
 const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChildren =
@@ -7130,6 +7149,7 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdWhatsappRoute,
     AuthenticatedStoreStoreIdXmlIntegratorRoute:
       AuthenticatedStoreStoreIdXmlIntegratorRouteWithChildren,
+    AuthenticatedStoreStoreIdIndexRoute: AuthenticatedStoreStoreIdIndexRoute,
   }
 
 const AuthenticatedStoreStoreIdRouteWithChildren =

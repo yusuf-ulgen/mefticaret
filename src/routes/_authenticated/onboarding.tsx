@@ -147,7 +147,7 @@ function OnboardingPage() {
       } else {
         toast.success("Mağazan hazır — panele yönlendiriliyorsun.");
       }
-      void navigate({ to: "/store/$storeId", params: { storeId: store.id } });
+      void navigate({ to: "/store/$storeId/dashboard", params: { storeId: store.id } });
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -280,9 +280,9 @@ function OnboardingPage() {
                       template.theme.primaryColor,
                       template.theme.accentColor,
                       template.theme.backgroundColor,
-                    ].map((color) => (
+                    ].map((color, i) => (
                       <span
-                        key={color}
+                        key={`${i}-${color}`}
                         className="size-4 rounded-full border"
                         style={{ backgroundColor: color }}
                       />
