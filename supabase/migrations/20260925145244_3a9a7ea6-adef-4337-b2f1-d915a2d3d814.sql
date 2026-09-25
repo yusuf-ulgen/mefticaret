@@ -1,0 +1,2 @@
+alter table public.v2_sections drop constraint if exists v2_sections_section_type_check;
+alter table public.v2_sections add constraint v2_sections_section_type_check check (section_type in ('hero','featured_products','banner','announcement','testimonials','blog_posts','image_with_text','video','custom_html','newsletter','collection_list','rich_text','marquee','flash_sale','trust_badges','stats_counter','icon_features','faq','comparison_table','logo_strip','instagram_grid','lookbook','featured_product'));

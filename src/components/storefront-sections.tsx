@@ -25,6 +25,9 @@ export type SectionProduct = {
   product_type?: string | null;
   tags?: string[] | null;
   coverUrl?: string | null;
+  /** Hover'da gösterilecek ikinci görsel. */
+  secondUrl?: string | null;
+  stockTotal?: number | null;
 };
 
 export type SectionCollection = { id: string; title: string; slug: string; description?: string | null };

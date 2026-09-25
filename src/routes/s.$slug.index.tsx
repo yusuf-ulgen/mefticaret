@@ -91,7 +91,9 @@ function StorefrontHome() {
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   useStorefrontLive(slug, data?.store?.id);
   // Customizer canlı önizlemesi: ?preview_token ile kaydedilmemiş ayarlar uygulanır.
-  const previewTheme = usePreviewTheme(data?.store?.id, data?.theme ?? null);
+  const previewedTheme = usePreviewTheme(data?.store?.id, data?.theme ?? null);
+  // Hook temayı her zaman döndürür; yalnız eski customizer önizlemesinde farklı nesne gelir.
+  const previewTheme = previewedTheme && previewedTheme !== (data?.theme ?? null) ? previewedTheme : null;
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
 
   const { store, products, collections, footerPages } = data;
@@ -136,7 +138,7 @@ function StorefrontHome() {
       storeSlug={store.slug}
       footerPages={footerPages}
       commerce={data.commerce}
-      sections={sections}
+      sections={v2Home && !previewTheme && !isHomeMakerStorefront ? sections.filter((s) => s.definition.type !== "hero") : sections}
       customCss={data.theme?.custom_css ?? null}
       customJs={data.theme?.custom_js ?? null}
       simpleStorefront={isHomeMakerStorefront}

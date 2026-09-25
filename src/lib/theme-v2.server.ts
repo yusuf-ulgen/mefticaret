@@ -57,6 +57,8 @@ function cleanBlock(type: V2BlockType, settings: Record<string, unknown> | null 
 export async function invalidateV2Cache(storeId: string) {
   const { cacheInvalidate, CACHE_NAMESPACES } = await import("@/lib/cache.server");
   await cacheInvalidate({ namespace: CACHE_NAMESPACES.storeSettings, storeId });
+  // Vitrin kabuğu (ürün/sepet/ödeme sayfaları) v2 renklerini katalog önbelleğinden okur.
+  await cacheInvalidate({ namespace: CACHE_NAMESPACES.catalog, storeId });
 }
 
 export async function listThemes(db: Db, storeId: string) {

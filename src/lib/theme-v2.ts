@@ -24,6 +24,8 @@ export const V2_PAGE_LABELS: Record<V2PageType, string> = {
 export const V2_SECTION_TYPES = [
   "hero", "featured_products", "banner", "announcement", "testimonials", "blog_posts",
   "image_with_text", "video", "custom_html", "newsletter", "collection_list", "rich_text",
+  "marquee", "flash_sale", "trust_badges", "stats_counter", "icon_features", "faq",
+  "comparison_table", "logo_strip", "instagram_grid", "lookbook", "featured_product",
 ] as const;
 export type V2SectionType = (typeof V2_SECTION_TYPES)[number];
 
@@ -56,8 +58,12 @@ const CONTENT_BLOCKS: V2BlockType[] = ["heading", "paragraph", "button", "image"
 export const V2_SECTIONS: Record<V2SectionType, V2SectionDefinition> = {
   hero: {
     label: "Hero", description: "Büyük karşılama alanı: görsel/video/renk arka plan.",
-    defaults: { background_type: "color", background_url: "", bg_color: "", overlay_opacity: 30, height: "medium", content_position: "center", text_color: "", padding: 48 },
+    defaults: { background_type: "color", background_url: "", bg_color: "", overlay_opacity: 30, height: "medium", content_position: "center", text_color: "", padding: 48, layout: "overlay", side_image_url: "", organic_shape: false, bg_style: "solid" },
     fields: [
+      f("layout", "Düzen", "select", { options: opt(["overlay", "Tam genişlik"], ["split", "Metin + yan görsel"]) }),
+      f("side_image_url", "Yan görsel / mockup", "text"),
+      f("organic_shape", "Organik (blob) görsel şekli", "boolean"),
+      f("bg_style", "Arka plan stili", "select", { options: opt(["solid", "Düz"], ["gradient", "Geçişli (tema)"]) }),
       f("background_type", "Arka plan", "select", { options: opt(["image", "Görsel"], ["video", "Video"], ["color", "Renk"]) }),
       f("background_url", "Arka plan görseli / video adresi", "text"),
       f("bg_color", "Arka plan rengi", "text"),
@@ -71,8 +77,19 @@ export const V2_SECTIONS: Record<V2SectionType, V2SectionDefinition> = {
   },
   featured_products: {
     label: "Öne çıkan ürünler", description: "Koleksiyondan ya da en yeni ürünlerden ızgara.",
-    defaults: { title: "Öne çıkan ürünler", collection_id: "", products_count: 4, columns: "4", show_price: true, show_rating: false, show_add_to_cart: true },
+    defaults: { title: "Öne çıkan ürünler", collection_id: "", products_count: 4, columns: "4", show_price: true, show_rating: false, show_add_to_cart: true,
+      card_style: "minimal", layout: "grid", hover_image: true, quick_view: false, stock_bar: false, wishlist: false, swatches: false, origin_tag: false, ingredients: false, badges: true },
     fields: [
+      f("card_style", "Kart stili", "select", { options: opt(["minimal", "Sade"], ["bold", "Cesur (koyu)"], ["organic", "Doğa (krem)"], ["boutique", "Butik"], ["tech", "Tech"]) }),
+      f("layout", "Düzen", "select", { options: opt(["grid", "Izgara"], ["scroll", "Yatay kaydırma"]) }),
+      f("hover_image", "Üzerine gelince 2. görsel", "boolean"),
+      f("quick_view", "Hızlı bakış", "boolean"),
+      f("stock_bar", "Az stok göstergesi", "boolean"),
+      f("wishlist", "Favori kalbi", "boolean"),
+      f("swatches", "Renk seçenekleri (etiket: renk:#hex)", "boolean"),
+      f("origin_tag", "Üretim yeri (etiket: köken:Ege)", "boolean"),
+      f("ingredients", "Malzemeler / sertifikalar (etiket: malzeme:…, sertifika:…)", "boolean"),
+      f("badges", "Rozetler (İndirim/Yeni/Çok Satan)", "boolean"),
       f("title", "Başlık", "text"),
       f("collection_id", "Koleksiyon", "text", { help: "Boşsa en yeni ürünler gösterilir." }),
       f("products_count", "Ürün sayısı", "number", { min: 2, max: 12 }),
@@ -85,8 +102,9 @@ export const V2_SECTIONS: Record<V2SectionType, V2SectionDefinition> = {
   },
   banner: {
     label: "Banner", description: "Görsel üzerine kısa metin ve buton.",
-    defaults: { image_url: "", bg_color: "", text_color: "", height: "medium", content_position: "center" },
+    defaults: { image_url: "", bg_color: "", text_color: "", height: "medium", content_position: "center", bg_style: "solid" },
     fields: [
+      f("bg_style", "Arka plan stili", "select", { options: opt(["solid", "Düz"], ["gradient", "Geçişli (tema)"]) }),
       f("image_url", "Görsel", "text"),
       f("bg_color", "Arka plan rengi", "text"),
       f("text_color", "Metin rengi", "text"),
@@ -163,8 +181,10 @@ export const V2_SECTIONS: Record<V2SectionType, V2SectionDefinition> = {
   },
   collection_list: {
     label: "Koleksiyon listesi", description: "Seçili koleksiyon kartları.",
-    defaults: { title: "Koleksiyonlar", collections: "", columns: "3", image_ratio: "square" },
+    defaults: { title: "Koleksiyonlar", collections: "", columns: "3", image_ratio: "square", shape: "square", hover_zoom: true },
     fields: [
+      f("shape", "Şekil", "select", { options: opt(["square", "Kare"], ["circle", "Yuvarlak"], ["tile", "Büyük görsel"]) }),
+      f("hover_zoom", "Üzerine gelince yakınlaş", "boolean"),
       f("title", "Başlık", "text"),
       f("collections", "Koleksiyonlar", "text", { help: "Boşsa ilk koleksiyonlar gösterilir." }),
       f("columns", "Sütun", "select", { options: COLS }),
@@ -182,16 +202,83 @@ export const V2_SECTIONS: Record<V2SectionType, V2SectionDefinition> = {
     ],
     blocks: CONTENT_BLOCKS, maxBlocks: 16,
   },
+  marquee: {
+    label: "Kayan şerit", description: "Hızlı kayan kategori / kampanya metinleri.",
+    defaults: { items: "YENİ SEZON\nÜCRETSİZ KARGO\nFLASH İNDİRİM\nSPOR\nELEKTRONİK", speed: 25, bg_color: "", text_color: "", separator: "✦" },
+    fields: [f("items", "Metinler", "lines"), f("speed", "Tur süresi (sn)", "number", { min: 5, max: 90 }), f("separator", "Ayırıcı", "text"), f("bg_color", "Arka plan", "text"), f("text_color", "Metin rengi", "text")],
+    blocks: [], maxBlocks: 0,
+  },
+  flash_sale: {
+    label: "Flash indirim", description: "Geri sayım + indirimli ürün kartları.",
+    defaults: { title: "FLASH İNDİRİM", subtitle: "Stoklarla sınırlı", end_date: "", end_time: "23:59", products_count: 4, bg_color: "" },
+    fields: [f("title", "Başlık", "text"), f("subtitle", "Alt başlık", "text"), f("end_date", "Bitiş tarihi (YYYY-AA-GG, boşsa gün sonu)", "text"), f("end_time", "Bitiş saati", "text"), f("products_count", "Ürün sayısı", "number", { min: 2, max: 12 }), f("bg_color", "Arka plan", "text")],
+    blocks: [], maxBlocks: 0,
+  },
+  trust_badges: {
+    label: "Güven rozetleri", description: "Kargo, iade, güvenli ödeme.",
+    defaults: { items: "🚚|Ücretsiz Kargo|500 TL üzeri siparişlerde\n↩️|14 Gün İade|Koşulsuz iade hakkı\n🔒|Güvenli Ödeme|256-bit SSL ve 3D Secure", bg_color: "" },
+    fields: [f("items", "Rozetler", "lines", { help: "Her satır: ikon|başlık|açıklama" }), f("bg_color", "Arka plan", "text")],
+    blocks: [], maxBlocks: 0,
+  },
+  stats_counter: {
+    label: "Sayaçlar", description: "Animasyonlu rakamlar (müşteri, ürün, yıl).",
+    defaults: { title: "", items: "10000+|Mutlu müşteri\n500+|Ürün\n8|Yıllık tecrübe", bg_color: "" },
+    fields: [f("title", "Başlık", "text"), f("items", "Sayaçlar", "lines", { help: "Her satır: değer|etiket (ör. 10000+|Müşteri)" }), f("bg_color", "Arka plan", "text")],
+    blocks: [], maxBlocks: 0,
+  },
+  icon_features: {
+    label: "İkonlu özellikler", description: "Değerlerimiz / özellik kartları.",
+    defaults: { title: "Değerlerimiz", items: "🌿|Doğal|Katkısız, katkı maddesiz\n🌱|Organik|Sertifikalı üretim\n🏡|Yerel|Küçük üreticilerden", style: "plain", columns: "3", bg_color: "" },
+    fields: [f("title", "Başlık", "text"), f("items", "Öğeler", "lines", { help: "Her satır: ikon|başlık|açıklama" }), f("style", "Stil", "select", { options: opt(["plain", "Sade"], ["card", "Kart"]) }), f("columns", "Sütun", "select", { options: COLS }), f("bg_color", "Arka plan", "text")],
+    blocks: [], maxBlocks: 0,
+  },
+  faq: {
+    label: "SSS", description: "Açılır-kapanır sık sorulan sorular.",
+    defaults: { title: "Sık sorulan sorular", items: "Kargo ne kadar sürer?|Siparişler 1-3 iş günü içinde kargoya verilir.\nİade nasıl yapılır?|Hesabım > Siparişlerim üzerinden 14 gün içinde iade talebi oluşturabilirsiniz.\nTaksit var mı?|Tüm kredi kartlarına taksit seçenekleri sunuyoruz." },
+    fields: [f("title", "Başlık", "text"), f("items", "Sorular", "lines", { help: "Her satır: soru|cevap" })],
+    blocks: [], maxBlocks: 0,
+  },
+  comparison_table: {
+    label: "Karşılaştırma tablosu", description: "Paket / ürün karşılaştırması (fiyat planları gibi).",
+    defaults: { title: "Size uygun paketi seçin", items: "Başlangıç|₺499|1 kullanıcı;E-posta destek;Temel özellikler||/products\nPro|₺999|5 kullanıcı;Öncelikli destek;Tüm özellikler|öne çıkan|/products\nKurumsal|Teklif alın|Sınırsız kullanıcı;Uzman desteği;Özel entegrasyon||/contact" },
+    fields: [f("title", "Başlık", "text"), f("items", "Kolonlar", "lines", { help: "Her satır: ad|fiyat|özellik;özellik|öne çıkan (boş/öne çıkan)|bağlantı" })],
+    blocks: [], maxBlocks: 0,
+  },
+  logo_strip: {
+    label: "Logo şeridi", description: "Basında biz / markalar.",
+    defaults: { title: "Basında biz", items: "Vogue\nElle\nHarper's Bazaar\nMarie Claire\nL'Officiel", grayscale: true },
+    fields: [f("title", "Başlık", "text"), f("items", "Logolar", "lines", { help: "Her satır: görsel adresi ya da metin" }), f("grayscale", "Gri tonlama", "boolean")],
+    blocks: [], maxBlocks: 0,
+  },
+  instagram_grid: {
+    label: "Instagram ızgarası", description: "9 fotoğraflık akış.",
+    defaults: { title: "Bizi takip edin", handle: "@magazaniz", profile_url: "", images: "" },
+    fields: [f("title", "Başlık", "text"), f("handle", "Kullanıcı adı", "text"), f("profile_url", "Profil bağlantısı", "text"), f("images", "Görseller", "lines", { help: "Her satır bir görsel adresi; boşsa ürün görselleri kullanılır." })],
+    blocks: [], maxBlocks: 0,
+  },
+  lookbook: {
+    label: "Lookbook", description: "Dağınık ızgara; fotoğraftaki ürüne dokununca ürün etiketi.",
+    defaults: { title: "Lookbook", items: "" },
+    fields: [f("title", "Başlık", "text"), f("items", "Kareler", "lines", { help: "Her satır: görsel adresi|ürün slug|x%|y% (boşsa ürünlerden üretilir)" })],
+    blocks: [], maxBlocks: 0,
+  },
+  featured_product: {
+    label: "Tek öne çıkan ürün", description: "Büyük görsel + detaylı ürün tanıtımı.",
+    defaults: { product_id: "", eyebrow: "Öne çıkan", model_info: "", button_text: "Ürünü incele", image_position: "left" },
+    fields: [f("product_id", "Ürün (slug ya da id; boşsa ilk ürün)", "text"), f("eyebrow", "Üst etiket", "text"), f("model_info", "Model bilgisi (ör. Model 170cm, S giyiyor)", "text"), f("button_text", "Buton metni", "text"), f("image_position", "Görsel konumu", "select", { options: opt(["left", "Sol"], ["right", "Sağ"]) })],
+    blocks: [], maxBlocks: 0,
+  },
 };
 
 export const V2_BLOCKS: Record<V2BlockType, V2Definition> = {
   heading: {
     label: "Başlık", description: "Başlık metni",
-    defaults: { text: "Başlık", tag: "h2", font_size: 0, font_weight: "700", color: "", alignment: "inherit", margin_top: 0, margin_bottom: 12 },
+    defaults: { text: "Başlık", tag: "h2", font_size: 0, font_weight: "700", color: "", alignment: "inherit", margin_top: 0, margin_bottom: 12, font: "heading" },
     fields: [
       f("text", "Metin", "text"),
       f("tag", "Etiket", "select", { options: opt(["h1", "H1"], ["h2", "H2"], ["h3", "H3"], ["h4", "H4"]) }),
       f("font_size", "Yazı boyutu (0 = tema)", "number", { min: 0, max: 96 }),
+      f("font", "Yazı tipi", "select", { options: opt(["heading", "Başlık fontu"], ["accent", "El yazısı / vurgu fontu"]) }),
       f("font_weight", "Kalınlık", "select", { options: opt(["400", "Normal"], ["600", "Yarı kalın"], ["700", "Kalın"], ["800", "Çok kalın"]) }),
       f("color", "Renk", "text"),
       f("alignment", "Hizalama", "select", { options: [{ value: "inherit", label: "Bölüm" }, ...ALIGN] }),
@@ -302,14 +389,14 @@ export const V2_BLOCKS: Record<V2BlockType, V2Definition> = {
 };
 
 /** Global tema ayarları: renkler, tipografi, düzen, butonlar, görseller, koyu mod, logo. */
-export const V2_FONTS = ["Inter", "Geist", "Manrope", "DM Sans", "Plus Jakarta Sans", "Outfit", "Sora", "Work Sans", "Poppins", "Playfair Display", "Cormorant Garamond", "Lora", "Libre Baskerville", "Space Grotesk", "Bebas Neue"] as const;
+export const V2_FONTS = ["Inter", "Geist", "Manrope", "DM Sans", "Plus Jakarta Sans", "Outfit", "Sora", "Work Sans", "Poppins", "Playfair Display", "Cormorant Garamond", "Lora", "Libre Baskerville", "Space Grotesk", "Bebas Neue", "Source Sans 3", "Jost", "Caveat"] as const;
 export const V2_MONO_FONTS = ["JetBrains Mono", "Space Mono", "IBM Plex Mono", "Fira Code"] as const;
 
 export const V2_GLOBAL_DEFAULTS: V2Settings = {
-  color_primary: "#111111", color_secondary: "#6b7280", color_background: "#ffffff", color_surface: "#f9fafb",
+  color_primary: "#111111", color_secondary: "#6b7280", color_accent: "#e8c547", gradient_from: "", gradient_to: "", color_background: "#ffffff", color_surface: "#f9fafb",
   color_text: "#111111", color_text_muted: "#6b7280", color_border: "#e5e7eb",
   color_error: "#dc2626", color_success: "#16a34a",
-  font_heading: "Inter", font_body: "Inter", font_mono: "JetBrains Mono",
+  font_heading: "Inter", font_body: "Inter", font_mono: "JetBrains Mono", font_accent: "Caveat", letter_spacing: 0,
   font_size_base: 16, line_height_base: 1.5, font_weight_heading: "700",
   h1_size: 48, h2_size: 36, h3_size: 28, h4_size: 22, h5_size: 18, h6_size: 16, p_size: 16,
   max_width: 1200, content_padding: 16, section_padding: 64, grid_gap: 24, border_radius: 8,
@@ -323,7 +410,8 @@ export const V2_GLOBAL_DEFAULTS: V2Settings = {
 const FONT_OPTS = V2_FONTS.map((x) => ({ value: x, label: x }));
 export const V2_GLOBAL_GROUPS: { id: string; label: string; flag?: string; fields: SectionField[] }[] = [
   { id: "colors", label: "Renkler", fields: [
-    f("color_primary", "Ana renk", "text"), f("color_secondary", "İkincil renk", "text"),
+    f("color_primary", "Ana renk", "text"), f("color_secondary", "İkincil renk", "text"), f("color_accent", "Vurgu rengi", "text"),
+    f("gradient_from", "Geçiş başlangıcı (boşsa ana renk)", "text"), f("gradient_to", "Geçiş bitişi (boşsa ikincil)", "text"),
     f("color_background", "Arka plan", "text"), f("color_surface", "Yüzey", "text"),
     f("color_text", "Metin", "text"), f("color_text_muted", "Soluk metin", "text"),
     f("color_error", "Hata", "text"), f("color_success", "Başarı", "text"), f("color_border", "Kenarlık", "text"),
@@ -331,9 +419,11 @@ export const V2_GLOBAL_GROUPS: { id: string; label: string; flag?: string; field
   { id: "typography", label: "Tipografi", fields: [
     f("font_heading", "Başlık fontu", "select", { options: FONT_OPTS }), f("font_body", "Gövde fontu", "select", { options: FONT_OPTS }),
     f("font_mono", "Mono font", "select", { options: V2_MONO_FONTS.map((x) => ({ value: x, label: x })) }),
+    f("font_accent", "Vurgu / el yazısı fontu", "select", { options: FONT_OPTS }),
+    f("letter_spacing", "Harf aralığı (em × 100)", "number", { min: -5, max: 20 }),
     f("font_size_base", "Temel boyut (px)", "number", { min: 12, max: 22 }),
     f("line_height_base", "Satır yüksekliği", "number", { min: 1, max: 2.2 }),
-    f("font_weight_heading", "Başlık ağırlığı", "select", { options: opt(["400", "400"], ["500", "500"], ["600", "600"], ["700", "700"], ["800", "800"]) }),
+    f("font_weight_heading", "Başlık ağırlığı", "select", { options: opt(["400", "400"], ["500", "500"], ["600", "600"], ["700", "700"], ["800", "800"], ["900", "900"]) }),
     ...(["h1", "h2", "h3", "h4", "h5", "h6"] as const).map((t) => f(`${t}_size`, `${t.toUpperCase()} boyutu`, "number", { min: 10, max: 96 })),
   ] },
   { id: "layout", label: "Düzen", fields: [
@@ -430,9 +520,13 @@ export function v2CssVars(settings: V2Settings, scope = ".v2-theme"): string {
     `--font-heading:'${safeFont(s["font_heading"])}',system-ui,sans-serif`,
     `--font-body:'${safeFont(s["font_body"])}',system-ui,sans-serif`,
     `--font-mono:'${safeFont(s["font_mono"], "JetBrains Mono")}',ui-monospace,monospace`,
+    `--font-accent:'${safeFont(s["font_accent"], "Caveat")}',cursive`,
+    `--color-accent:${safeColor(s["color_accent"], primary)}`,
+    `--gradient-primary:linear-gradient(135deg,${safeColor(s["gradient_from"], primary)},${safeColor(s["gradient_to"], safeColor(s["color_secondary"], "#6b7280"))})`,
+    `--letter-spacing:${clamp(n("letter_spacing"), -5, 20) / 100}em`,
     `--font-size-base:${clamp(n("font_size_base"), 12, 22)}px`,
     `--line-height-base:${clamp(Number(s["line_height_base"]) || 1.5, 1, 2.2)}`,
-    `--font-weight-heading:${/^[4-8]00$/.test(String(s["font_weight_heading"])) ? s["font_weight_heading"] : "700"}`,
+    `--font-weight-heading:${/^[4-9]00$/.test(String(s["font_weight_heading"])) ? s["font_weight_heading"] : "700"}`,
     ...["h1", "h2", "h3", "h4", "h5", "h6", "p"].map((t) => `--size-${t}:${n(`${t}_size`)}px`),
     `--max-width:${n("max_width")}px`,
     `--content-padding:${clamp(n("content_padding"), 0, 64)}px`,
@@ -467,12 +561,29 @@ export function v2CssVars(settings: V2Settings, scope = ".v2-theme"): string {
     : s["button_hover"] === "scale" ? "transform:scale(1.03);"
     : s["button_hover"] === "lighten" ? "filter:brightness(1.1);"
     : s["button_hover"] === "darken" ? "filter:brightness(.9);" : "";
-  return `${scope}{${vars.join(";")};background:var(--color-background);color:var(--color-text);font-family:var(--font-body);font-size:var(--font-size-base);line-height:var(--line-height-base)}` +
+  return `${scope}{${vars.join(";")};background:var(--color-background);color:var(--color-text);font-family:var(--font-body);font-size:var(--font-size-base);line-height:var(--line-height-base);letter-spacing:var(--letter-spacing)}` +
     darkCss +
     `${scope} h1,${scope} h2,${scope} h3,${scope} h4,${scope} h5,${scope} h6{font-family:var(--font-heading);font-weight:var(--font-weight-heading);margin:0;line-height:1.15}` +
     ["h1", "h2", "h3", "h4", "h5", "h6"].map((t) => `${scope} ${t}{font-size:var(--size-${t})}`).join("") +
     `${scope} code,${scope} pre{font-family:var(--font-mono)}` +
     `${scope} .v2-btn{transition:all var(--btn-transition)}${scope} .v2-btn:hover{${hover}}`;
+}
+
+/** Yayınlanmış v2 temasını eski vitrin kabuğunun (ürün, liste, sepet, ödeme sayfaları) tema alanlarına çevirir. */
+export function v2ToLegacyTheme(settings: V2Settings) {
+  const s = globalSettings(settings);
+  const dark = darkModeOf(s) === "on";
+  const bg = dark ? safeColor(s["dark_color_background"], "#0f172a") : safeColor(s["color_background"], "#ffffff");
+  const primary = safeColor(s["color_primary"], "#111111");
+  return {
+    primary_color: dark ? primary : safeColor(s["color_text"], "#111111"),
+    accent_color: safeColor(s["button_bg"], primary),
+    background_color: bg,
+    font_pair: `v2:${safeFont(s["font_heading"])}|${safeFont(s["font_body"])}`,
+    radius: clamp(Number(s["border_radius"]) || 0, 0, 32) / 16,
+    button_style: Number(s["button_radius"]) >= 99 ? "pill" : Number(s["button_radius"]) === 0 ? "square" : "solid",
+    logo_url: typeof s["logo_url"] === "string" && /^https?:\/\//.test(s["logo_url"]) ? s["logo_url"] : undefined,
+  };
 }
 
 /** Bağımsız `:root` stil dosyası (API `/css` ucu ve dışa aktarma için). */

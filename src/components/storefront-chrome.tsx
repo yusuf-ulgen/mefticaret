@@ -331,6 +331,9 @@ export function StorefrontChrome({
         minHeight: "100vh",
       }}
     >
+      {t.font_pair?.startsWith("v2:") ? (
+        <link rel="stylesheet" href={`https://fonts.googleapis.com/css2?${[...new Set(t.font_pair.slice(3).split("|"))].filter((f) => /^[a-zA-Z0-9 ]+$/.test(f)).map((f) => `family=${encodeURIComponent(f)}:wght@400;600;700`).join("&")}&display=swap`} />
+      ) : null}
       <style dangerouslySetInnerHTML={{ __html: designCss(design) }} />
       <style
         dangerouslySetInnerHTML={{

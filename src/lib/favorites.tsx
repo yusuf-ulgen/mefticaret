@@ -103,6 +103,11 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
 }
 
+/** Sağlayıcı yoksa (editör önizlemesi) null döner. */
+export function useOptionalFavorites() {
+  return useContext(FavoritesContext);
+}
+
 export function useFavorites() {
   const context = useContext(FavoritesContext);
   if (!context) throw new Error("useFavorites, FavoritesProvider içinde kullanılmalı");
