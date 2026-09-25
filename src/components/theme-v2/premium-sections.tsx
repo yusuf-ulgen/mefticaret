@@ -162,10 +162,11 @@ function ProductTabs({ s, ctx, pad, Card }: { s: V2Settings; ctx: Ctx; pad: CSSP
   const list = tabs.length ? tabs : [["Tümü", ""]];
   const [tab, setTab] = useState(0);
   const count = Math.max(2, Math.min(16, num(s["products_count"], 8)));
-  // Koleksiyon ürünleri vitrin verisinde ayrı gelmediği için sekme, koleksiyon sayfasına bağlantı verir.
+  // Sekme, ürün etiketine göre süzer (ör. "çok satan"); etiket yoksa tüm ürünler.
   const current = list[tab] ?? list[0]!;
-  const col = current[1] ? ctx.collections.find((c) => c.slug === current[1] || c.id === current[1]) : undefined;
-  const products = ctx.products.slice(tab * 2 % Math.max(1, ctx.products.length)).concat(ctx.products).slice(0, count);
+  const tag = (current[1] ?? "").toLocaleLowerCase("tr");
+  const col = tag ? ctx.collections.find((c) => c.slug === tag) : undefined;
+  const products = (tag ? ctx.products.filter((p) => (p.tags ?? []).some((t) => t.toLocaleLowerCase("tr") === tag)) : ctx.products).slice(0, count);
   const cols = num(s["columns"], 4);
   return (
     <Wrap pad={pad}>

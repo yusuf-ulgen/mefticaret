@@ -4,6 +4,7 @@ import type { SectionProduct } from "@/components/storefront-sections";
 import { useOptionalFavorites } from "@/lib/favorites";
 import { formatMoney } from "@/lib/mefti";
 import { storefrontUI } from "@/lib/storefront-ui";
+import { FX_CSS, ThemeFx, fxOf, renderPremiumSection } from "@/components/theme-v2/premium-sections";
 import { darkModeOf, v2CssVars, type V2Block, type V2Section, type V2Settings } from "@/lib/theme-v2";
 
 export type V2RenderContext = {
@@ -288,8 +289,8 @@ export function SectionRenderer({ section, ctx, children }: { section: V2Section
       const bg = gradient ? "var(--gradient-primary)" : color(s["bg_color"]) ?? "color-mix(in srgb, var(--color-primary) 8%, var(--color-background))";
       node = (
         <section style={{ position: "relative", minHeight: section.type === "banner" ? `calc(${h} * .7)` : split ? undefined : h, display: "flex", alignItems: "center", overflow: "hidden", color: color(s["text_color"]) ?? (isImage || isVideo || gradient ? "#fff" : undefined), background: bg }}>
-          {isImage ? <img src={bgUrl} alt="" fetchPriority="high" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-          {isVideo ? <video src={bgUrl} autoPlay muted loop playsInline preload="metadata" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+          {isImage ? <img className={section.type === "hero" ? "v2-parallax" : undefined} src={bgUrl} alt="" fetchPriority="high" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+          {isVideo ? <video className="v2-parallax" src={bgUrl} autoPlay muted loop playsInline preload="metadata" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
           {isImage || isVideo ? <div style={{ position: "absolute", inset: 0, background: "#000", opacity: num(s["overlay_opacity"], 30) / 100 }} /> : null}
           {organic ? <svg aria-hidden viewBox="0 0 200 200" style={{ position: "absolute", right: "-8%", top: "-12%", width: "45%", opacity: 0.18, fill: "var(--color-secondary)" }}><path d="M45.6,-58.1C58.2,-47.5,67.1,-32.4,70.7,-16.1C74.3,0.2,72.6,17.8,64.4,31.4C56.2,45,41.5,54.7,25.6,61.3C9.7,67.9,-7.4,71.5,-23.6,67.2C-39.8,62.9,-55.1,50.7,-64.3,34.9C-73.5,19.1,-76.6,-0.3,-70.9,-16.6C-65.2,-32.9,-50.7,-46.1,-35.5,-56C-20.3,-65.9,-4.4,-72.4,10.4,-72.6C25.2,-72.8,33,-68.7,45.6,-58.1Z" transform="translate(100 100)" /></svg> : null}
           <Container style={{ position: "relative", width: "100%", padding: `${num(s["padding"], 48)}px 20px`, display: "flex", justifyContent: justify(s["content_position"]) }}>
@@ -384,7 +385,7 @@ export function SectionRenderer({ section, ctx, children }: { section: V2Section
           <Container>
             <div className="v2-split" style={{ display: "flex", gap: 32, alignItems: "center", flexDirection: s["image_position"] === "right" ? "row-reverse" : "row", ["--v2-content" as string]: width }}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                {img ? <img src={img} alt="" loading="lazy" decoding="async" style={{ width: "100%", aspectRatio: ratio, objectFit: "cover", borderRadius: 16 }} /> : <div style={{ aspectRatio: ratio, borderRadius: 16, background: "color-mix(in srgb, var(--color-primary) 10%, transparent)" }} />}
+                {img ? <img src={img} alt="" loading="lazy" decoding="async" style={{ width: "100%", aspectRatio: ratio, objectFit: "cover", borderRadius: "var(--border-radius-lg)", filter: s["image_filter"] === "grayscale" ? "grayscale(1) contrast(1.05)" : s["image_filter"] === "sepia" ? "sepia(.45) saturate(.8) contrast(1.05)" : undefined }} /> : <div style={{ aspectRatio: ratio, borderRadius: 16, background: "color-mix(in srgb, var(--color-primary) 10%, transparent)" }} />}
               </div>
               <div style={{ flex: `0 0 ${width}`, minWidth: 0 }}>{blocks()}</div>
             </div>
@@ -614,8 +615,10 @@ export function SectionRenderer({ section, ctx, children }: { section: V2Section
       );
       break;
     }
+    default:
+      node = renderPremiumSection(section, ctx, pad, ({ product, s: cs }) => <ProductCard product={product} ctx={ctx} s={cs} showPrice />);
   }
-  return <div {...pickable(ctx, "section", section.id)}>{node}</div>;
+  return <div className="v2-sec" {...pickable(ctx, "section", section.id)}>{node}</div>;
 }
 
 /** Görünür olunca hedef sayıya kadar sayar; hareket azaltma tercihine saygı gösterir. */
@@ -708,17 +711,21 @@ const EDIT_CSS =
   ".v2-edit [data-v2-selected]{outline:2px solid var(--color-primary) !important;outline-offset:-2px}";
 
 /** Google Fonts yalnız desteklenen ağırlıkları kabul eder; desteklenmeyen istek tüm dosyayı düşürür. */
-const HEAVY_FONTS = new Set(["Inter", "Plus Jakarta Sans", "Playfair Display", "Jost", "DM Sans", "Source Sans 3", "Manrope", "Outfit", "Sora", "Work Sans", "Poppins"]);
-const fontWeights = (font: string) => (font === "Bebas Neue" ? "400" : font === "Libre Baskerville" ? "400;700" : HEAVY_FONTS.has(font) ? "400;500;600;700;800" : "400;500;600;700");
+const HEAVY_FONTS = new Set(["Nunito", "Noto Serif", "Noto Sans", "Orbitron", "Exo 2", "Roboto Condensed", "Shippori Mincho", "Inter", "Plus Jakarta Sans", "Playfair Display", "Jost", "DM Sans", "Source Sans 3", "Manrope", "Outfit", "Sora", "Work Sans", "Poppins"]);
+const fontWeights = (font: string) => (font === "Bebas Neue" || font === "Share Tech Mono" ? "400" : font === "Cormorant Garamond" ? "300;400;500;600;700" : font === "Libre Baskerville" ? "400;700" : HEAVY_FONTS.has(font) ? "400;500;600;700;800" : "400;500;600;700");
 
 /** Sayfa → bölümler → bloklar. Global ayarlar CSS değişkenlerine dönüşür. */
 export function PageRenderer({ sections, settings, ctx, className }: { sections: V2Section[]; settings: V2Settings; ctx: V2RenderContext; className?: string }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const fx = fxOf(settings);
   const usesAccent = sections.some((sec) => sec.blocks.some((b) => b.settings["font"] === "accent"));
-  const fonts = [str(settings["font_heading"]), str(settings["font_body"]), ...(usesAccent ? [str(settings["font_accent"]) || "Caveat"] : [])].filter((font) => font && font !== "Inter" && /^[a-zA-Z0-9 ]+$/.test(font));
+  const usesMono = sections.some((sec) => sec.type === "comparison_table") || fx === "nexus";
+  const fonts = [str(settings["font_heading"]), str(settings["font_body"]), ...(usesAccent ? [str(settings["font_accent"]) || "Caveat"] : []), ...(usesMono ? [str(settings["font_mono"])] : [])].filter((font) => font && font !== "Inter" && /^[a-zA-Z0-9 ]+$/.test(font));
   return (
-    <div className={`v2-theme${ctx.editing ? " v2-edit" : ""}${className ? ` ${className}` : ""}`} data-theme={darkModeOf(settings) === "on" ? "dark" : undefined}>
+    <div ref={rootRef} className={`v2-theme${fx ? ` v2-fx-${fx}` : ""}${ctx.editing ? " v2-edit" : ""}${className ? ` ${className}` : ""}`} data-theme={darkModeOf(settings) === "on" ? "dark" : undefined}>
       {fonts.length ? <link rel="stylesheet" href={`https://fonts.googleapis.com/css2?${[...new Set(fonts)].map((font) => `family=${encodeURIComponent(font)}:wght@${fontWeights(font)}`).join("&")}&display=swap`} /> : null}
-      <style dangerouslySetInnerHTML={{ __html: v2CssVars(settings) + RESPONSIVE_CSS + (ctx.editing ? EDIT_CSS : "") }} />
+      <style dangerouslySetInnerHTML={{ __html: v2CssVars(settings) + RESPONSIVE_CSS + (fx ? FX_CSS : "") + (ctx.editing ? EDIT_CSS : "") }} />
+      <ThemeFx fx={fx} rootRef={rootRef} editing={Boolean(ctx.editing)} />
       {sections.filter((s) => s.visible).map((section) => <SectionRenderer key={section.id} section={section} ctx={ctx} />)}
       {sections.length === 0 ? <div style={{ padding: 64, textAlign: "center", opacity: 0.6 }}>Bu sayfada henüz bölüm yok.</div> : null}
     </div>

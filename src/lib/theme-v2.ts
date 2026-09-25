@@ -235,9 +235,9 @@ export const V2_SECTIONS: Record<V2SectionType, V2SectionDefinition> = {
     blocks: [], maxBlocks: 0,
   },
   product_tabs: {
-    label: "Sekmeli ürünler", description: "Koleksiyonlara göre sekmeli ürün listesi.",
+    label: "Sekmeli ürünler", description: "Ürün etiketlerine göre sekmeli ürün listesi.",
     defaults: { title: "Çok satanlar", tabs: "", products_count: 8, columns: 4, card_style: "minimal" },
-    fields: [f("title", "Başlık", "text"), f("tabs", "Sekmeler", "lines", { help: "Her satır: sekme adı|koleksiyon adresi (boşsa tüm ürünler)" }), f("products_count", "Ürün sayısı", "number", { min: 2, max: 16 }), f("columns", "Sütun", "select", { options: COLS }), f("card_style", "Kart stili", "select", { options: opt(["minimal", "Minimal"], ["bold", "Cesur"], ["organic", "Organik"], ["boutique", "Butik"], ["tech", "Teknoloji"]) })],
+    fields: [f("title", "Başlık", "text"), f("tabs", "Sekmeler", "lines", { help: "Her satır: sekme adı|ürün etiketi (boşsa tüm ürünler)" }), f("products_count", "Ürün sayısı", "number", { min: 2, max: 16 }), f("columns", "Sütun", "select", { options: COLS }), f("card_style", "Kart stili", "select", { options: opt(["minimal", "Minimal"], ["bold", "Cesur"], ["organic", "Organik"], ["boutique", "Butik"], ["tech", "Teknoloji"]) })],
     blocks: [], maxBlocks: 0,
   },
   community: {
