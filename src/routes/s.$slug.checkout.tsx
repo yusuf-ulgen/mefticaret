@@ -1,3 +1,4 @@
+import { TR_PROVINCES, maskTrPhone } from "@/lib/tr-provinces";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
@@ -456,6 +457,15 @@ function CheckoutPage() {
           </Link>
         </div>
       ) : (
+        <>
+        <ol aria-label="Ödeme adımları" style={{ display: "flex", gap: 8, listStyle: "none", padding: 0, margin: "0 0 18px", fontSize: 12, letterSpacing: ".08em", textTransform: "uppercase" }}>
+          {[{ n: 1, l: "Sepet", done: true }, { n: 2, l: "Bilgiler", done: Boolean(fullName && email && phone) }, { n: 3, l: digitalOnly ? "Ödeme" : "Teslimat ve ödeme", done: false }].map((s, i) => (
+            <li key={s.n} aria-current={i === 1 ? "step" : undefined} style={{ flex: 1, display: "grid", gap: 6, color: i <= 1 ? "inherit" : muted }}>
+              <span style={{ height: 3, borderRadius: 3, background: i <= 1 || s.done ? t.primary_color : border }} />
+              <span>{s.done && i < 2 ? "✓ " : `${s.n}. `}{s.l}</span>
+            </li>
+          ))}
+        </ol>
         <div className="sf-cart-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.4fr) minmax(280px,.9fr)", gap: 24, paddingBottom: 8 }}>
           <div style={{ display: "grid", gap: 20 }}>
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
@@ -512,13 +522,13 @@ function CheckoutPage() {
               ) : null}
               <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
                 <Field label="Ad soyad *" muted={muted}>
-                  <input style={inputStyle} value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                  <input style={inputStyle} autoComplete="name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
                 </Field>
                 <Field label="E-posta *" muted={muted}>
-                  <input style={inputStyle} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <input style={inputStyle} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
                 <Field label="Telefon *" muted={muted}>
-                  <input style={inputStyle} value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <input style={inputStyle} type="tel" inputMode="tel" autoComplete="tel" placeholder="0 5XX XXX XX XX" value={phone} onChange={(e) => setPhone(maskTrPhone(e.target.value))} />
                 </Field>
                 {digitalOnly ? null : (
                   <>
@@ -526,10 +536,18 @@ function CheckoutPage() {
                       <input style={inputStyle} value={country} onChange={(e) => setCountry(e.target.value)} />
                     </Field>
                     <Field label="Şehir *" muted={muted}>
-                      <input style={inputStyle} value={city} onChange={(e) => setCity(e.target.value)} />
+                      {/^(tr|türkiye|turkiye|turkey)$/i.test(country.trim()) || !country.trim() ? (
+                        <select style={inputStyle} autoComplete="address-level1" value={city} onChange={(e) => setCity(e.target.value)}>
+                          <option value="">İl seçin</option>
+                          {city && !(TR_PROVINCES as readonly string[]).includes(city) ? <option value={city}>{city}</option> : null}
+                          {TR_PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                      ) : (
+                        <input style={inputStyle} value={city} onChange={(e) => setCity(e.target.value)} />
+                      )}
                     </Field>
                     <Field label="İlçe" muted={muted}>
-                      <input style={inputStyle} value={district} onChange={(e) => setDistrict(e.target.value)} />
+                      <input style={inputStyle} autoComplete="address-level2" placeholder="İlçe" value={district} onChange={(e) => setDistrict(e.target.value)} />
                     </Field>
                     <Field label="Posta kodu" muted={muted}>
                       <input style={inputStyle} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
@@ -946,6 +964,7 @@ function CheckoutPage() {
             </button>
           </div>
         </div>
+        </>
       )}
     </StorefrontChrome>
   );
