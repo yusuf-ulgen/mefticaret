@@ -12,6 +12,9 @@ export const TEMPLATE_CATEGORIES = [
   { value: "fashion", label: "Moda" },
   { value: "electronics", label: "Elektronik" },
   { value: "food", label: "Yiyecek" },
+  { value: "jewelry", label: "Mücevher & Saat" },
+  { value: "beauty", label: "Güzellik" },
+  { value: "home", label: "Ev & Dekor" },
   { value: "general", label: "Genel" },
   { value: "featured", label: "Öne Çıkan" },
 ] as const;
