@@ -104,7 +104,7 @@ export const v2ListPresets = createServerFn({ method: "POST" })
     const flags = await gate(db, data.storeId);
     if (!flags.presets) return [];
     const svc = await import("@/lib/theme-v2.server");
-    return (await svc.listPresets(db)) as Array<{ id: string; name: string; structure: Record<string, unknown> }>;
+    return (await svc.listPresets(db)) as unknown as Array<{ id: string; name: string; structure: import("@/integrations/supabase/types").Json }>;
   }));
 
 export const v2ApplyPreset = createServerFn({ method: "POST" })

@@ -238,7 +238,7 @@ export function ThemeEditorV2({ storeId }: { storeId: string }) {
     currency: store?.currency ?? "TRY",
     products: products as V2RenderContext["products"],
     collections,
-    blogPages: (storefront?.blogPages ?? []) as V2RenderContext["blogPages"],
+    blogPages: (storefront?.blogPages ?? []) as NonNullable<V2RenderContext["blogPages"]>,
     editing: { selectedId },
   };
 
@@ -473,7 +473,7 @@ export function ThemeEditorV2({ storeId }: { storeId: string }) {
 
 function PresetDialog({ storeId, ctx, load, onApply, onClose }: {
   storeId: string; ctx: V2RenderContext;
-  load: () => Promise<Array<{ id: string; name: string; structure: Record<string, unknown> }>>;
+  load: () => Promise<Array<{ id: string; name: string; structure: unknown }>>;
   onApply: (presetId: string, mode: "style" | "full") => Promise<void>;
   onClose: () => void;
 }) {
