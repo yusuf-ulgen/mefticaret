@@ -42,7 +42,7 @@ export const Route = createFileRoute("/demo/$slug")({
 
 function DemoPage() {
   const tpl = Route.useLoaderData();
-  const { settings, pages } = presetToPages(tpl.structure_json, () => crypto.randomUUID());
+  const { settings, pages } = presetToPages(JSON.parse(tpl.structure_json), () => crypto.randomUUID());
   const ctx: V2RenderContext = { storeSlug: "demo", currency: "TRY", products: PRODUCTS, collections: COLLECTIONS };
   return (
     <div>
