@@ -433,7 +433,7 @@ export const V2_BLOCKS: Record<V2BlockType, V2Definition> = {
 };
 
 /** Global tema ayarları: renkler, tipografi, düzen, butonlar, görseller, koyu mod, logo. */
-export const V2_FONTS = ["Inter", "Geist", "Manrope", "DM Sans", "Plus Jakarta Sans", "Outfit", "Sora", "Work Sans", "Poppins", "Playfair Display", "Cormorant Garamond", "Lora", "Libre Baskerville", "Space Grotesk", "Bebas Neue", "Source Sans 3", "Jost", "Caveat", "Nunito", "Dancing Script", "Roboto Condensed", "Noto Serif", "Noto Sans", "Shippori Mincho", "Orbitron", "Exo 2"] as const;
+export const V2_FONTS = ["Inter", "Geist", "Manrope", "DM Sans", "Plus Jakarta Sans", "Outfit", "Sora", "Work Sans", "Poppins", "Playfair Display", "Cormorant Garamond", "Lora", "Libre Baskerville", "Space Grotesk", "Bebas Neue", "Source Sans 3", "Jost", "Caveat", "Nunito", "Dancing Script", "Roboto Condensed", "Noto Serif", "Noto Sans", "Shippori Mincho", "Orbitron", "Exo 2", "Cormorant"] as const;
 export const V2_MONO_FONTS = ["JetBrains Mono", "Share Tech Mono", "Space Mono", "IBM Plex Mono", "Fira Code"] as const;
 
 export const V2_GLOBAL_DEFAULTS: V2Settings = {
@@ -474,7 +474,7 @@ export const V2_GLOBAL_GROUPS: { id: string; label: string; flag?: string; field
     ...(["h1", "h2", "h3", "h4", "h5", "h6"] as const).map((t) => f(`${t}_size`, `${t.toUpperCase()} boyutu`, "number", { min: 10, max: 96 })),
   ] },
   { id: "effects", label: "Efektler", fields: [
-    f("style_preset", "Efekt paketi", "select", { options: opt(["none", "Yok"], ["obsidian", "Obsidyen: altın parıltı, paralaks, imleç"], ["aurora", "Aurora: hareketli geçiş, cam kartlar, ilerleme çubuğu"], ["atlas", "Atlas: pazar yeri yoğun düzen"], ["zen", "Zen: mürekkep açılış, ince çizgiler, grenli görseller"], ["nexus", "Nexus: neon, tarama çizgisi, glitch, nişangâh"]) }),
+    f("style_preset", "Efekt paketi", "select", { options: opt(["none", "Yok"], ["obsidian", "Obsidyen: altın parıltı, paralaks, imleç"], ["aurora", "Aurora: hareketli geçiş, cam kartlar, ilerleme çubuğu"], ["atlas", "Atlas: pazar yeri yoğun düzen"], ["zen", "Zen: mürekkep açılış, ince çizgiler, grenli görseller"], ["nexus", "Nexus: neon, tarama çizgisi, glitch, nişangâh"], ["couture", "Couture: moda butik, yavaş yakınlaşma, sıralı kartlar"]) }),
   ] },
   { id: "layout", label: "Düzen", fields: [
     f("max_width", "Maks. genişlik (px)", "number", { min: 720, max: 1920 }),
