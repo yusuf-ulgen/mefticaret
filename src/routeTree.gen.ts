@@ -263,6 +263,7 @@ import { Route as AuthenticatedStoreStoreIdTeamPerformanceRouteImport } from './
 import { Route as AuthenticatedStoreStoreIdThemeDesignRouteImport } from './routes/_authenticated/store.$storeId.theme-design'
 import { Route as AuthenticatedStoreStoreIdThemeEditorRouteImport } from './routes/_authenticated/store.$storeId.theme-editor'
 import { Route as AuthenticatedStoreStoreIdThemeEditorV2RouteImport } from './routes/_authenticated/store.$storeId.theme-editor-v2'
+import { Route as AuthenticatedStoreStoreIdThemePresetsRouteImport } from './routes/_authenticated/store.$storeId.theme-presets'
 import { Route as AuthenticatedStoreStoreIdThemeSectionsRouteImport } from './routes/_authenticated/store.$storeId.theme-sections'
 import { Route as AuthenticatedStoreStoreIdThemeStoreRouteImport } from './routes/_authenticated/store.$storeId.theme-store'
 import { Route as AuthenticatedStoreStoreIdThemesRouteImport } from './routes/_authenticated/store.$storeId.themes'
@@ -1765,6 +1766,12 @@ const AuthenticatedStoreStoreIdThemeEditorV2Route =
     path: '/theme-editor-v2',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdThemePresetsRoute =
+  AuthenticatedStoreStoreIdThemePresetsRouteImport.update({
+    id: '/theme-presets',
+    path: '/theme-presets',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdThemeSectionsRoute =
   AuthenticatedStoreStoreIdThemeSectionsRouteImport.update({
     id: '/theme-sections',
@@ -2420,6 +2427,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/theme-design': typeof AuthenticatedStoreStoreIdThemeDesignRoute
   '/store/$storeId/theme-editor': typeof AuthenticatedStoreStoreIdThemeEditorRoute
   '/store/$storeId/theme-editor-v2': typeof AuthenticatedStoreStoreIdThemeEditorV2Route
+  '/store/$storeId/theme-presets': typeof AuthenticatedStoreStoreIdThemePresetsRoute
   '/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
@@ -2741,6 +2749,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/theme-design': typeof AuthenticatedStoreStoreIdThemeDesignRoute
   '/store/$storeId/theme-editor': typeof AuthenticatedStoreStoreIdThemeEditorRoute
   '/store/$storeId/theme-editor-v2': typeof AuthenticatedStoreStoreIdThemeEditorV2Route
+  '/store/$storeId/theme-presets': typeof AuthenticatedStoreStoreIdThemePresetsRoute
   '/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
   '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
@@ -3067,6 +3076,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/theme-design': typeof AuthenticatedStoreStoreIdThemeDesignRoute
   '/_authenticated/store/$storeId/theme-editor': typeof AuthenticatedStoreStoreIdThemeEditorRoute
   '/_authenticated/store/$storeId/theme-editor-v2': typeof AuthenticatedStoreStoreIdThemeEditorV2Route
+  '/_authenticated/store/$storeId/theme-presets': typeof AuthenticatedStoreStoreIdThemePresetsRoute
   '/_authenticated/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   '/_authenticated/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
   '/_authenticated/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
@@ -3394,6 +3404,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/theme-design'
     | '/store/$storeId/theme-editor'
     | '/store/$storeId/theme-editor-v2'
+    | '/store/$storeId/theme-presets'
     | '/store/$storeId/theme-sections'
     | '/store/$storeId/theme-store'
     | '/store/$storeId/themes'
@@ -3715,6 +3726,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/theme-design'
     | '/store/$storeId/theme-editor'
     | '/store/$storeId/theme-editor-v2'
+    | '/store/$storeId/theme-presets'
     | '/store/$storeId/theme-sections'
     | '/store/$storeId/theme-store'
     | '/store/$storeId/themes'
@@ -4040,6 +4052,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/theme-design'
     | '/_authenticated/store/$storeId/theme-editor'
     | '/_authenticated/store/$storeId/theme-editor-v2'
+    | '/_authenticated/store/$storeId/theme-presets'
     | '/_authenticated/store/$storeId/theme-sections'
     | '/_authenticated/store/$storeId/theme-store'
     | '/_authenticated/store/$storeId/themes'
@@ -6013,6 +6026,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeEditorV2RouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/theme-presets': {
+      id: '/_authenticated/store/$storeId/theme-presets'
+      path: '/theme-presets'
+      fullPath: '/store/$storeId/theme-presets'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemePresetsRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/theme-sections': {
       id: '/_authenticated/store/$storeId/theme-sections'
       path: '/theme-sections'
@@ -6865,6 +6885,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdThemeDesignRoute: typeof AuthenticatedStoreStoreIdThemeDesignRoute
   AuthenticatedStoreStoreIdThemeEditorRoute: typeof AuthenticatedStoreStoreIdThemeEditorRoute
   AuthenticatedStoreStoreIdThemeEditorV2Route: typeof AuthenticatedStoreStoreIdThemeEditorV2Route
+  AuthenticatedStoreStoreIdThemePresetsRoute: typeof AuthenticatedStoreStoreIdThemePresetsRoute
   AuthenticatedStoreStoreIdThemeSectionsRoute: typeof AuthenticatedStoreStoreIdThemeSectionsRoute
   AuthenticatedStoreStoreIdThemeStoreRoute: typeof AuthenticatedStoreStoreIdThemeStoreRoute
   AuthenticatedStoreStoreIdThemesRoute: typeof AuthenticatedStoreStoreIdThemesRoute
@@ -7087,6 +7108,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdThemeEditorRoute,
     AuthenticatedStoreStoreIdThemeEditorV2Route:
       AuthenticatedStoreStoreIdThemeEditorV2Route,
+    AuthenticatedStoreStoreIdThemePresetsRoute:
+      AuthenticatedStoreStoreIdThemePresetsRoute,
     AuthenticatedStoreStoreIdThemeSectionsRoute:
       AuthenticatedStoreStoreIdThemeSectionsRoute,
     AuthenticatedStoreStoreIdThemeStoreRoute:

@@ -14,6 +14,7 @@ export type PublicTracking = {
   estimated_delivery_date: string | null;
   store: { name: string; slug: string; logo_url: string | null };
   brandColor?: string | null;
+  theme?: { primary: string | null; accent: string | null; background: string | null; fontPair: string | null; radius: number | null } | null;
   events: { status: string; description: string | null; location: string | null; event_at: string }[];
 };
 
@@ -30,10 +31,17 @@ export const getPublicTracking = createServerFn({ method: "GET" })
     if (!t) return null;
     const { data: st } = await supabaseAdmin.from("stores").select("id").eq("slug", t.store.slug).maybeSingle();
     const { data: theme } = st
-      ? await supabaseAdmin.from("store_themes").select("primary_color, logo_url").eq("store_id", st.id).maybeSingle()
+      ? await supabaseAdmin.from("store_themes").select("primary_color, accent_color, background_color, font_pair, radius, logo_url").eq("store_id", st.id).maybeSingle()
       : { data: null };
-    const color = /^#[0-9a-f]{6}$/i.test(theme?.primary_color ?? "") ? theme!.primary_color : null;
-    return { ...t, store: { ...t.store, logo_url: theme?.logo_url || t.store.logo_url }, brandColor: color };
+    const hex = (v: string | null | undefined) => (/^#[0-9a-f]{6}$/i.test(v ?? "") ? v! : null);
+    const color = hex(theme?.primary_color);
+    const accent = hex(theme?.accent_color);
+    return {
+      ...t,
+      store: { ...t.store, logo_url: theme?.logo_url || t.store.logo_url },
+      brandColor: accent ?? color,
+      theme: theme ? { primary: color, accent, background: hex(theme.background_color), fontPair: theme.font_pair ?? null, radius: typeof theme.radius === "number" ? theme.radius : null } : null,
+    };
   });
 
 /** Abonelikten çıkma (imzalı bağlantı). */
