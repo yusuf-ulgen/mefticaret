@@ -17,6 +17,8 @@ export const API_SCOPES = [
   "read_payments",
   "read_shipping",
   "read_analytics",
+  "read_themes",
+  "write_themes",
 ] as const;
 
 export type ApiScope = (typeof API_SCOPES)[number];
@@ -35,6 +37,8 @@ export const API_SCOPE_LABELS: Record<ApiScope, string> = {
   read_payments: "Ödeme yöntemlerini oku",
   read_shipping: "Kargo tarifelerini oku",
   read_analytics: "Analitik verilerini oku",
+  read_themes: "Temaları oku (v2)",
+  write_themes: "Temaları düzenle (v2)",
 };
 
 export const API_RESOURCES = [

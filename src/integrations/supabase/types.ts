@@ -19130,6 +19130,224 @@ export type Database = {
         }
         Relationships: []
       }
+      v2_blocks: {
+        Row: {
+          block_type: string
+          created_at: string
+          id: string
+          is_visible: boolean
+          position: number
+          section_id: string
+          settings: Json
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          block_type: string
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          position?: number
+          section_id: string
+          settings?: Json
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          block_type?: string
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          position?: number
+          section_id?: string
+          settings?: Json
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_blocks_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "v2_sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "v2_blocks_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_sections: {
+        Row: {
+          created_at: string
+          id: string
+          is_visible: boolean
+          position: number
+          section_type: string
+          settings: Json
+          store_id: string
+          theme_page_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          position?: number
+          section_type: string
+          settings?: Json
+          store_id: string
+          theme_page_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          position?: number
+          section_type?: string
+          settings?: Json
+          store_id?: string
+          theme_page_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_sections_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "v2_sections_theme_page_id_fkey"
+            columns: ["theme_page_id"]
+            isOneToOne: false
+            referencedRelation: "v2_theme_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_theme_pages: {
+        Row: {
+          created_at: string
+          custom_handle: string | null
+          id: string
+          page_type: string
+          store_id: string
+          theme_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_handle?: string | null
+          id?: string
+          page_type: string
+          store_id: string
+          theme_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_handle?: string | null
+          id?: string
+          page_type?: string
+          store_id?: string
+          theme_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_theme_pages_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "v2_theme_pages_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "v2_themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v2_theme_presets: {
+        Row: {
+          created_at: string
+          id: string
+          is_official: boolean
+          name: string
+          preview_image_url: string | null
+          structure: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_official?: boolean
+          name: string
+          preview_image_url?: string | null
+          structure?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_official?: boolean
+          name?: string
+          preview_image_url?: string | null
+          structure?: Json
+        }
+        Relationships: []
+      }
+      v2_themes: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          published_at: string | null
+          published_snapshot: Json | null
+          settings: Json
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          published_at?: string | null
+          published_snapshot?: Json | null
+          settings?: Json
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          published_at?: string | null
+          published_snapshot?: Json | null
+          settings?: Json
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v2_themes_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       variant_customs_profiles: {
         Row: {
           created_at: string

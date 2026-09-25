@@ -259,6 +259,25 @@ export async function handleApiRequest(request: Request, splat: string): Promise
   }
 
   if (version === "v2") {
+    const { THEME_V2_RESOURCES } = await import("@/lib/theme-v2-api.server");
+    if (THEME_V2_RESOURCES.has(resourceName)) {
+      const tv2 = await import("@/lib/theme-v2-api.server");
+      const admin = (await import("@/integrations/supabase/client.server")).supabaseAdmin as unknown as SupabaseClient;
+      const writing = method !== "GET";
+      const { RATE_LIMITS, consumeRateLimit, rateLimitResponse } = await import("@/lib/rate-limit.server");
+      const lim = await consumeRateLimit(`api:${authKind}:${auth.id}:${writing ? "write" : "read"}`, writing ? RATE_LIMITS.api_write : RATE_LIMITS.api);
+      if (!lim.allowed) return finish(rateLimitResponse(lim), "rate_limited");
+      const scope = writing ? "write_themes" : "read_themes";
+      if (!auth.scopes.includes(scope)) {
+        return finish(json({ error: "insufficient_scope", required: scope }, 403), "insufficient_scope");
+      }
+      try {
+        const res = await tv2.handleThemeV2(admin, auth.storeId, method, segments.slice(1), request);
+        return finish(json(res.body, res.status), res.status >= 400 ? String((res.body as { error?: string }).error) : undefined);
+      } catch (cause) {
+        return finish(json({ error: "server_error" }, 500), cause instanceof Error ? cause.message : "unknown_error");
+      }
+    }
     const { COMMERCE_V2_RESOURCES } = await import("@/lib/commerce-v2-api.server");
     if (COMMERCE_V2_RESOURCES.has(resourceName)) {
       const v2 = await import("@/lib/commerce-v2-api.server");
