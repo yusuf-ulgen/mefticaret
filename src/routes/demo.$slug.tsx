@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
+import { getThemeDemo } from "@/lib/theme-demo.functions";
 import { PageRenderer, type V2RenderContext } from "@/components/theme-v2/page-renderer";
 import { presetToPages } from "@/lib/theme-v2";
 
@@ -19,7 +19,7 @@ const COLLECTIONS = ["Kadın", "Erkek", "Çocuk", "Spor", "Sale"].map((t, i) => 
 
 export const Route = createFileRoute("/demo/$slug")({
   loader: async ({ params }) => {
-    const { data } = await supabase.from("v2_theme_templates").select("name, slug, description, structure_json").eq("slug", params.slug).eq("is_published", true).maybeSingle();
+    const data = await getThemeDemo({ data: { slug: params.slug } });
     if (!data) throw notFound();
     return data;
   },
