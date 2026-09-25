@@ -221,7 +221,7 @@ export function renderPremiumSection(section: V2Section, ctx: Ctx, pad: CSSPrope
 
 /* ───────────── Efekt katmanı ───────────── */
 
-export const FX_PRESETS = ["obsidian", "aurora", "atlas", "zen", "nexus"] as const;
+export const FX_PRESETS = ["obsidian", "aurora", "atlas", "zen", "nexus", "couture"] as const;
 export type FxPreset = (typeof FX_PRESETS)[number];
 export const fxOf = (s: V2Settings): FxPreset | null => (FX_PRESETS as readonly string[]).includes(str(s["style_preset"])) ? (s["style_preset"] as FxPreset) : null;
 
@@ -280,6 +280,17 @@ export function ThemeFx({ fx, rootRef, editing }: { fx: FxPreset | null; rootRef
 const G = (fx: string) => `.v2-theme.v2-fx-${fx}`;
 /** Efekt paketlerinin CSS'i; hareket azaltma tercihinde tümü kapanır. */
 export const FX_CSS =
+  // Couture: sıcak kırık beyaz, ince gölgeler, sıralı kart açılışı, hero yavaş yakınlaşma
+  `@keyframes v2-kenburns{from{transform:scale(1)}to{transform:scale(1.05)}}@keyframes v2-heart{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}` +
+  `${G("couture")}{--ease:cubic-bezier(.4,0,.2,1);--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}` +
+  `${G("couture")} .v2-parallax{animation:v2-kenburns 8s var(--ease) forwards;transform-origin:center}` +
+  `${G("couture")} .v2-card-media img{transition:transform .4s var(--ease),opacity .3s var(--ease)}${G("couture")} .v2-card:hover .v2-card-media img{transform:scale(1.04)}${G("couture")} .v2-card:hover{transform:none;box-shadow:none}` +
+  `${G("couture")} .v2-btn{transition:transform .15s var(--ease),background .3s var(--ease);letter-spacing:.08em;text-transform:uppercase;font-size:13px}${G("couture")} .v2-btn:active{transform:scale(.98)}` +
+  `${G("couture")} a:not(.v2-btn):not(.v2-card a){background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .3s var(--ease)}${G("couture")} a:not(.v2-btn):hover{background-size:100% 1px}` +
+  `${G("couture")} button[aria-pressed="true"]{animation:v2-heart .45s var(--ease)}` +
+  `${G("couture")}.v2-fx-js .v2-sec.v2-in .v2-card{animation:v2-rise .6s var(--ease) both}${[1,2,3,4,5,6,7,8].map((n) => `${G("couture")} .v2-in .v2-card:nth-child(${n}){animation-delay:${(n - 1) * 100}ms}`).join("")}@keyframes v2-rise{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}` +
+  `${G("couture")} h1,${G("couture")} h2{font-weight:300}${G("couture")} h1 em,${G("couture")} h2 em{font-family:'Cormorant',serif;font-style:italic}` +
+  `@media (max-width:767px){${G("couture")} .v2-grid:has(> a[href*="/c/"]){display:grid!important;grid-auto-flow:column;grid-template-columns:none!important;grid-auto-columns:42%;overflow-x:auto;scroll-snap-type:x mandatory}${G("couture")} .v2-grid:has(> a[href*="/c/"])>*{scroll-snap-align:start}}` +
   // Ortak: kaydırmayla açılma (JS yoksa içerik hep görünür)
   ".v2-theme.v2-fx-js>.v2-sec{opacity:0;transform:translateY(24px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1)}.v2-theme.v2-fx-js>.v2-sec.v2-in{opacity:1;transform:none}" +
   ".v2-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:60;transform-origin:0 50%;transform:scaleX(0);background:var(--gradient-primary)}" +

@@ -1,0 +1,2 @@
+update v2_theme_presets set structure = replace(structure::text, '1515886657613-9f3515b0c78f', '1483985988355-763728e1935b')::jsonb where name='Couture';
+update v2_theme_templates set structure_json = replace(structure_json::text, '1515886657613-9f3515b0c78f', '1483985988355-763728e1935b')::jsonb where slug='couture';
