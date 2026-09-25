@@ -10,6 +10,8 @@ import { themeAssetSchema, themeManifestSchema, THEME_ZIP_LIMITS } from "@/lib/t
 const base = { storeId: z.guid() };
 const themeInput = z.object({ ...base, themeId: z.guid() });
 
+type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
+
 export type ThemeSystemFlags = { system: boolean; marketplace: boolean; versions: boolean; exportZip: boolean; importZip: boolean; darkMode: boolean; customHtml: boolean; editor: boolean };
 
 async function flagsFor(db: SupabaseClient, storeId: string): Promise<ThemeSystemFlags> {
@@ -53,7 +55,7 @@ export const tsListTemplates = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ ...base, q: z.string().max(80).optional(), category: z.string().max(20).optional(), price: z.enum(["all", "free", "paid"]).optional() }).parse(d))
   .handler(async ({ data, context }) => run(async () => {
     await gate(db(context), data.storeId, "marketplace");
-    return (await sys()).listTemplates(db(context), data) as Promise<Array<{ id: string; name: string; slug: string; description: string; preview_image_url: string | null; price: number; currency: string; category: string; rating_avg: number; rating_count: number; downloads_count: number; is_featured: boolean; is_official: boolean; author: string; version: string; structure_json: unknown }>>;
+    return (await sys()).listTemplates(db(context), data) as Promise<Array<{ id: string; name: string; slug: string; description: string; preview_image_url: string | null; price: number; currency: string; category: string; rating_avg: number; rating_count: number; downloads_count: number; is_featured: boolean; is_official: boolean; author: string; version: string; structure_json: Json }>>;
   }));
 
 export const tsGetTemplate = createServerFn({ method: "POST" })
@@ -64,7 +66,7 @@ export const tsGetTemplate = createServerFn({ method: "POST" })
     const res = await (await sys()).getTemplate(db(context), data.templateId);
     const mine = res.reviews.find((r) => r["store_id"] === data.storeId) ?? null;
     return { ...res, myReview: mine as { rating: number; comment: string } | null } as {
-      template: Record<string, unknown> & { id: string; name: string; description: string; price: number; currency: string; features: string[]; tags: string[]; structure_json: unknown; preview_url: string | null; rating_avg: number; rating_count: number; downloads_count: number; author: string; version: string; category: string };
+      template: { id: string; name: string; description: string; price: number; currency: string; features: string[]; tags: string[]; structure_json: Json; preview_url: string | null; rating_avg: number; rating_count: number; downloads_count: number; author: string; version: string; category: string };
       screenshots: Array<{ id: string; url: string; device_type: string }>;
       reviews: Array<{ id: string; author_name: string; rating: number; comment: string; created_at: string }>;
       myReview: { rating: number; comment: string } | null;
@@ -159,7 +161,7 @@ export const tsExport = createServerFn({ method: "POST" })
   .inputValidator((d) => themeInput.parse(d))
   .handler(async ({ data, context }) => run(async () => {
     await gate(db(context), data.storeId, "exportZip");
-    return (await sys()).exportTheme(db(context), data.storeId, data.themeId) as unknown as Promise<{ manifest: Record<string, unknown> & { name: string }; assets: Array<{ key: string; type: string; value: string | null; url: string | null }>; css: string }>;
+    return (await sys()).exportTheme(db(context), data.storeId, data.themeId) as unknown as Promise<{ manifest: { [k: string]: Json } & { name: string }; assets: Array<{ key: string; type: string; value: string | null; url: string | null }>; css: string }>;
   }));
 
 const importInput = z.object({

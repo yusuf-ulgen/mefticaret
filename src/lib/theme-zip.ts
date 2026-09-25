@@ -4,7 +4,7 @@ import { assetTypeFor, themeManifestSchema, themeReadme, THEME_ZIP_LIMITS, type 
 
 /** Tarayıcı tarafı zip üretimi / çözümü (sunucu içeriği ayrıca doğrular). */
 
-export function buildThemeZip(input: { manifest: { name: string } & Record<string, unknown>; assets: Array<{ key: string; type: string; value: string | null; url: string | null }>; css: string }): Blob {
+export function buildThemeZip(input: { manifest: { name: string }; assets: Array<{ key: string; type: string; value: string | null; url: string | null }>; css: string }): Blob {
   const files: Record<string, Uint8Array> = {
     "theme.json": strToU8(JSON.stringify(input.manifest, null, 2)),
     "README.md": strToU8(themeReadme(input.manifest.name)),
