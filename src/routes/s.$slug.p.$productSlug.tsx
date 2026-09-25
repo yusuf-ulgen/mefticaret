@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
@@ -220,6 +220,17 @@ function ProductPage() {
   const [activeImage, setActiveImage] = useState(0);
 
   const [zoomOpen, setZoomOpen] = useState(false);
+  const [lens, setLens] = useState<string | null>(null);
+  const [showSticky, setShowSticky] = useState(false);
+  const touchX = useRef<number | null>(null);
+  const buyRef = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    const el = buyRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setShowSticky(!entry!.isIntersecting && entry!.boundingClientRect.top < 0));
+    io.observe(el);
+    return () => io.disconnect();
+  });
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const cart = useCart();
   const favorites = useFavorites();
@@ -395,16 +406,46 @@ function ProductPage() {
       ) : null}
 
 
+      {showSticky && inStock && !salesPaused ? (
+        <div className="pdp-sticky" role="region" aria-label="Hızlı sepete ekle" style={{ position: "fixed", left: 0, right: 0, bottom: 64, zIndex: 45, background: t.background_color, borderTop: `1px solid ${border}`, boxShadow: "0 -4px 16px rgba(0,0,0,.08)", padding: "10px 16px", display: "none", alignItems: "center", gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{displayTitle}</div>
+            <strong style={{ fontSize: 16 }}>{formatMoney(price, product.currency)}</strong>
+          </div>
+          <button type="button" onClick={addToCart} style={{ minHeight: 48, padding: "0 22px", border: 0, borderRadius: radius, background: t.primary_color, color: "#fff", fontWeight: 600, fontFamily: "inherit", cursor: "pointer" }}>Sepete ekle</button>
+        </div>
+      ) : null}
+      <style>{`@media (max-width:767px){.pdp-sticky{display:flex!important}}`}</style>
       <section className="sf-detail-grid">
         <div>
           {heroImage ? (
-            <button type="button" onClick={() => setZoomOpen(true)} aria-label="Ürün görselini büyüt" style={{ display: "block", width: "100%", padding: 0, border: 0, background: "transparent", cursor: "zoom-in" }}>
+            <button
+              type="button"
+              onClick={() => setZoomOpen(true)}
+              aria-label="Ürün görselini büyüt"
+              onMouseMove={(e) => { if (!window.matchMedia("(hover: hover)").matches) return; const r = e.currentTarget.getBoundingClientRect(); setLens(`${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`); }}
+              onMouseLeave={() => setLens(null)}
+              onTouchStart={(e) => { touchX.current = e.touches[0]?.clientX ?? null; }}
+              onTouchEnd={(e) => {
+                const start = touchX.current; touchX.current = null;
+                const end = e.changedTouches[0]?.clientX;
+                if (start == null || end == null || images.length < 2 || Math.abs(end - start) < 40) return;
+                e.preventDefault();
+                setActiveImage((i) => (i + (end < start ? 1 : -1) + images.length) % images.length);
+              }}
+              style={{ display: "block", width: "100%", padding: 0, border: `1px solid ${border}`, borderRadius: radius, overflow: "hidden", background: "transparent", cursor: "zoom-in", position: "relative" }}
+            >
               <img
                 src={heroImage.url}
                 alt={heroImage.alt ?? product.title}
                 loading="eager"
-                style={{ width: "100%", borderRadius: radius, border: `1px solid ${border}` }}
+                style={{ width: "100%", display: "block", transition: "transform 200ms ease", transform: lens ? "scale(2)" : "none", transformOrigin: lens ?? "center" }}
               />
+              {images.length > 1 ? (
+                <span className="pdp-dots" aria-hidden style={{ position: "absolute", left: 0, right: 0, bottom: 10, display: "flex", justifyContent: "center", gap: 6 }}>
+                  {images.map((image, index) => <i key={image.id} style={{ width: 7, height: 7, borderRadius: 999, background: index === Math.min(activeImage, images.length - 1) ? t.primary_color : "rgba(255,255,255,.8)", boxShadow: "0 0 0 1px rgba(0,0,0,.15)" }} />)}
+                </span>
+              ) : null}
             </button>
           ) : (
             <div
@@ -714,7 +755,11 @@ function ProductPage() {
           ) : null}
 
 
+          <p style={{ marginTop: 18, fontSize: 13, color: muted }}>
+            Taksit seçenekleri, ödeme adımında kartınıza göre gösterilir.
+          </p>
           <button
+            ref={buyRef}
             type="button"
             disabled={!inStock}
             onClick={addToCart}
