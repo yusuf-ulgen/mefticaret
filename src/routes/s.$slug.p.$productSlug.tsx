@@ -423,7 +423,7 @@ function ProductPage() {
               type="button"
               onClick={() => setZoomOpen(true)}
               aria-label="Ürün görselini büyüt"
-              onMouseMove={(e) => { if (e.nativeEvent.pointerType === "touch") return; const r = e.currentTarget.getBoundingClientRect(); setLens(`${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`); }}
+              onMouseMove={(e) => { if (!window.matchMedia("(hover: hover)").matches) return; const r = e.currentTarget.getBoundingClientRect(); setLens(`${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`); }}
               onMouseLeave={() => setLens(null)}
               onTouchStart={(e) => { touchX.current = e.touches[0]?.clientX ?? null; }}
               onTouchEnd={(e) => {
