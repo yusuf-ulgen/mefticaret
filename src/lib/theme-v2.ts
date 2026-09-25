@@ -469,7 +469,7 @@ export const V2_GLOBAL_GROUPS: { id: string; label: string; flag?: string; field
     f("heading_tracking", "Başlık harf aralığı (em × 100)", "number", { min: -5, max: 30 }),
     f("font_size_base", "Temel boyut (px)", "number", { min: 12, max: 22 }),
     f("line_height_base", "Satır yüksekliği", "number", { min: 1, max: 2.2 }),
-    f("font_weight_heading", "Başlık ağırlığı", "select", { options: opt(["400", "400"], ["500", "500"], ["600", "600"], ["700", "700"], ["800", "800"], ["900", "900"]) }),
+    f("font_weight_heading", "Başlık ağırlığı", "select", { options: opt(["200", "200"], ["300", "300"], ["400", "400"], ["500", "500"], ["600", "600"], ["700", "700"], ["800", "800"], ["900", "900"]) }),
     ...(["h1", "h2", "h3", "h4", "h5", "h6"] as const).map((t) => f(`${t}_size`, `${t.toUpperCase()} boyutu`, "number", { min: 10, max: 96 })),
   ] },
   { id: "effects", label: "Efektler", fields: [
@@ -577,7 +577,7 @@ export function v2CssVars(settings: V2Settings, scope = ".v2-theme"): string {
     `--heading-tracking:${clamp(n("heading_tracking"), -5, 30) / 100}em`,
     `--font-size-base:${clamp(n("font_size_base"), 12, 22)}px`,
     `--line-height-base:${clamp(Number(s["line_height_base"]) || 1.5, 1, 2.2)}`,
-    `--font-weight-heading:${/^[4-9]00$/.test(String(s["font_weight_heading"])) ? s["font_weight_heading"] : "700"}`,
+    `--font-weight-heading:${/^[2-9]00$/.test(String(s["font_weight_heading"])) ? s["font_weight_heading"] : "700"}`,
     ...["h1", "h2", "h3", "h4", "h5", "h6", "p"].map((t) => `--size-${t}:${n(`${t}_size`)}px`),
     `--max-width:${n("max_width")}px`,
     `--content-padding:${clamp(n("content_padding"), 0, 64)}px`,
@@ -614,7 +614,7 @@ export function v2CssVars(settings: V2Settings, scope = ".v2-theme"): string {
     : s["button_hover"] === "darken" ? "filter:brightness(.9);" : "";
   return `${scope}{${vars.join(";")};background:var(--color-background);color:var(--color-text);font-family:var(--font-body);font-size:var(--font-size-base);line-height:var(--line-height-base);letter-spacing:var(--letter-spacing)}` +
     darkCss +
-    `${scope} h1,${scope} h2,${scope} h3,${scope} h4,${scope} h5,${scope} h6{font-family:var(--font-heading);font-weight:var(--font-weight-heading);margin:0;line-height:1.15}` +
+    `${scope} h1,${scope} h2,${scope} h3,${scope} h4,${scope} h5,${scope} h6{font-family:var(--font-heading);font-weight:var(--font-weight-heading);margin:0;line-height:1.15;text-transform:var(--heading-case);letter-spacing:var(--heading-tracking)}` +
     ["h1", "h2", "h3", "h4", "h5", "h6"].map((t) => `${scope} ${t}{font-size:var(--size-${t})}`).join("") +
     `${scope} code,${scope} pre{font-family:var(--font-mono)}` +
     `${scope} .v2-btn{transition:all var(--btn-transition)}${scope} .v2-btn:hover{${hover}}`;
