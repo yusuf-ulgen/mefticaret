@@ -97,7 +97,7 @@ function ConversationItem({ chat, active, onOpen }: { chat: ChatSummary; active:
         <div className="min-w-0 flex-1 border-b pb-3">
           <div className="flex items-center gap-2">
             <p className="truncate font-semibold">{title}</p>
-            {!isMultiChat(chat.kind) && peer ? <RoleBadge role={peer.role} /> : <RoleBadge role="Grup" />}
+            {!isMultiChat(chat.kind) && peer ? <RoleBadge role={peer.role} /> : <RoleBadge role={chat.kind === "group" ? "Grup" : "Mağaza"} />}
             <span className={cn("ml-auto shrink-0 text-xs", chat.unread ? "font-semibold text-chat-unread" : "text-muted-foreground")}>
               {timeLabel(chat.lastMessageAt)}
             </span>
