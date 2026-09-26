@@ -1,5 +1,6 @@
 // Web Push (RFC 8291 aes128gcm + RFC 8292 VAPID) — yalnız WebCrypto, Worker uyumlu.
-const enc = new TextEncoder();
+const te = new TextEncoder();
+const enc = { encode: (s: string) => new Uint8Array(te.encode(s)) as Uint8Array<ArrayBuffer> };
 
 const b64u = (buf: ArrayBuffer | Uint8Array) => {
   const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
@@ -7,11 +8,11 @@ const b64u = (buf: ArrayBuffer | Uint8Array) => {
   for (const b of bytes) s += String.fromCharCode(b);
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 };
-const fromB64u = (s: string) => {
+const fromB64u = (s: string): Uint8Array<ArrayBuffer> => {
   const bin = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (s.length % 4)) % 4));
   return Uint8Array.from(bin, (c) => c.charCodeAt(0));
 };
-const concat = (...parts: Uint8Array[]) => {
+const concat = (...parts: Uint8Array[]): Uint8Array<ArrayBuffer> => {
   const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
   let o = 0;
   for (const p of parts) {
@@ -21,7 +22,7 @@ const concat = (...parts: Uint8Array[]) => {
   return out;
 };
 
-async function hkdf(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, len: number) {
+async function hkdf(salt: Uint8Array<ArrayBuffer>, ikm: Uint8Array<ArrayBuffer>, info: Uint8Array<ArrayBuffer>, len: number) {
   const key = await crypto.subtle.importKey("raw", ikm, "HKDF", false, ["deriveBits"]);
   return new Uint8Array(await crypto.subtle.deriveBits({ name: "HKDF", hash: "SHA-256", salt, info }, key, len * 8));
 }
