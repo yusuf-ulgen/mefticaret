@@ -41,6 +41,7 @@ import { Route as TedarikciGirisRouteImport } from './routes/tedarikci-giris'
 import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedMesajlarRouteImport } from './routes/_authenticated/mesajlar'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
@@ -501,6 +502,11 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMesajlarRoute = AuthenticatedMesajlarRouteImport.update({
+  id: '/mesajlar',
+  path: '/mesajlar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
@@ -2253,6 +2259,7 @@ export interface FileRoutesByFullPath {
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/mesajlar': typeof AuthenticatedMesajlarRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
@@ -2585,6 +2592,7 @@ export interface FileRoutesByTo {
   '/tedarikci-giris': typeof TedarikciGirisRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/mesajlar': typeof AuthenticatedMesajlarRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
@@ -2915,6 +2923,7 @@ export interface FileRoutesById {
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/mesajlar': typeof AuthenticatedMesajlarRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
@@ -3250,6 +3259,7 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/mesajlar'
     | '/onboarding'
     | '/sellers'
     | '/stores'
@@ -3582,6 +3592,7 @@ export interface FileRouteTypes {
     | '/tedarikci-giris'
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
+    | '/mesajlar'
     | '/onboarding'
     | '/sellers'
     | '/stores'
@@ -3911,6 +3922,7 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
+    | '/_authenticated/mesajlar'
     | '/_authenticated/onboarding'
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
@@ -4559,6 +4571,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mesajlar': {
+      id: '/_authenticated/mesajlar'
+      path: '/mesajlar'
+      fullPath: '/mesajlar'
+      preLoaderRoute: typeof AuthenticatedMesajlarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/onboarding': {
@@ -7291,6 +7310,7 @@ const AuthenticatedStoreStoreIdRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedMesajlarRoute: typeof AuthenticatedMesajlarRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
@@ -7302,6 +7322,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedMesajlarRoute: AuthenticatedMesajlarRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,

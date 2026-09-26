@@ -19,3 +19,8 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [ ] Adım 5: Gerçek zamanlı uyarılar (e-posta/webhook) + haftalık özet
 - [ ] Adım 6: Oturum/cihaz güvenliği, parola politikası, 2FA zorunluluk uygulaması
 
+
+## Mesajlar (WhatsApp benzeri)
+- [x] Tablolar/RLS/depo, liste, sohbet, anlık mesaj, medya/ses/tepki/yanıt/silme, yeni sohbet/grup, profil/durum, tablet düzeni, çevrimdışı önbellek, sayfa içi + arka plan bildirimi
+- [ ] Uygulama tamamen kapalıyken telefon bildirimi (web push) — ayrı adım
+- [ ] module_chat paket anahtarı ile açma/kapama
