@@ -11,9 +11,11 @@
 - [ ] Tema, efekt paketi, bölümler, chrome, /demo/mystique
 
 ## Güvenlik & güvenlik duvarı (v2_security, varsayılan kapalı)
-- [ ] Adım 1: sec_ tabloları (IP kuralları, itibar, ülke engeli, saldırı kayıtları, tehdit istihbaratı, giriş denemeleri, kilitler, WAF kuralları/istisnaları, hız limitleri, dolandırıcılık kuralları/skorları/sinyalleri, oturumlar, güvenilir cihazlar, SSL, saklama politikaları) + RLS/GRANT + varsayılan WAF/fraud kuralları
-- [ ] Adım 2: Güvenlik katmanı sunucu kodu: IP/ülke kontrolü, hız limiti, WAF (SQLi/XSS/path traversal/başlık/gövde), bot tespiti, brute-force kilitleri, saldırı kaydı
-- [ ] Adım 3: Dolandırıcılık risk skoru motoru (hız, coğrafya, sipariş, cihaz, e-posta/telefon) ve inceleme kuyruğu
-- [ ] Adım 4: /admin/security paneli (Genel bakış, Saldırılar, IP kuralları, Fraud, Oturumlar, API anahtarları, KVKK, Ayarlar)
-- [ ] Adım 5: Süper admin platform güvenlik görünümü + gerçek zamanlı uyarılar (e-posta/webhook) + haftalık özet
-- [ ] Adım 6: Oturum/cihaz güvenliği, parola politikası, 2FA zorunluluk ayarları
+Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu fonksiyonlarıyla.
+- [x] Adım 1: sec_ tabloları + RLS/GRANT + varsayılan WAF/fraud kuralları
+- [x] Adım 2: Güvenlik katmanı sunucu kodu: IP/ülke kontrolü, hız limiti, WAF, bot tespiti, brute-force kilitleri, saldırı kaydı
+- [x] Adım 3: Dolandırıcılık risk skoru motoru (hız, coğrafya, sipariş, cihaz, e-posta/telefon) ve inceleme kuyruğu
+- [x] Adım 4: /admin/security paneli (Genel bakış, Saldırılar, IP kuralları, WAF, Fraud, Oturumlar, KVKK, Ayarlar)
+- [ ] Adım 5: Gerçek zamanlı uyarılar (e-posta/webhook) + haftalık özet
+- [ ] Adım 6: Oturum/cihaz güvenliği, parola politikası, 2FA zorunluluk uygulaması
+
