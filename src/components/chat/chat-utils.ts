@@ -30,6 +30,7 @@ export function others(chat: ChatSummary, me: string): ChatMember[] {
 }
 
 export function chatTitle(chat: ChatSummary, me: string) {
+  if (chat.kind === "store_team" || chat.kind === "store_inbox") return chat.title || "Mağaza";
   if (chat.kind === "group") return chat.title || others(chat, me).map((m) => m.name).join(", ");
   return others(chat, me)[0]?.name ?? "Sohbet";
 }
