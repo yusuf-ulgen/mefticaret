@@ -213,7 +213,8 @@ function ChatList({ onNew, onProfile }: { onNew: () => void; onProfile: () => vo
 
 function NewConversation({ onBack, handle }: { onBack: () => void; handle: string | null }) {
   const [qrOpen, setQrOpen] = useState(false);
-  const [card, setCard] = useState<ChatUserCard | null>(null);
+  const [card, setCardState] = useState<{ c: ChatUserCard; full: boolean } | null>(null);
+  const setCard = (c: ChatUserCard | null, full = true) => setCardState(c ? { c, full } : null);
   const [fromContacts, setFromContacts] = useState<ChatUserCard[]>([]);
   const search = useServerFn(searchChatContacts);
   const start = useServerFn(startChatConversation);
@@ -287,7 +288,7 @@ function NewConversation({ onBack, handle }: { onBack: () => void; handle: strin
           return (
             <li key={c.id}>
               <div className={cn("flex w-full items-center gap-3 px-4 py-3 text-left", sel && "bg-muted")}>
-                <button type="button" aria-label={`${c.name} profilini aç`} onClick={() => setCard({ id: c.id, name: c.name, avatarUrl: c.avatarUrl, role: c.role, handle: null, bio: null, storeName: c.storeName, storeUrl: null, blocked: false })}>
+                <button type="button" aria-label={`${c.name} profilini aç`} onClick={() => setCard({ id: c.id, name: c.name, avatarUrl: c.avatarUrl, role: c.role, handle: null, bio: null, storeName: c.storeName, storeUrl: null, blocked: false }, false)}>
                   <PersonAvatar name={c.name} url={c.avatarUrl} online={online.has(c.id)} size="size-11" />
                 </button>
                 <button type="button" onClick={() => toggle(c)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
@@ -312,10 +313,10 @@ function NewConversation({ onBack, handle }: { onBack: () => void; handle: strin
           {create.isPending ? "Başlatılıyor…" : picked.length > 1 ? `Grup başlat (${picked.length})` : "Sohbet Başlat"}
         </Button>
       </div>
-      <QrSheet open={qrOpen} onOpenChange={setQrOpen} handle={handle} onFound={setCard} />
+      <QrSheet open={qrOpen} onOpenChange={setQrOpen} handle={handle} onFound={(c) => setCard(c)} />
       <UserCardSheet
-        userId={card?.id ?? null}
-        preset={card?.handle || card?.bio ? card : null}
+        userId={card?.c.id ?? null}
+        preset={card?.full ? card.c : null}
         onClose={() => setCard(null)}
         onOpenChat={(id) => {
           setActiveId(id);
