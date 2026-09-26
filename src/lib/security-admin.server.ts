@@ -480,11 +480,15 @@ export async function saveSettings(userId: string, input: z.infer<typeof setting
 
   const existing = await getSettingsRow();
   if (existing) {
-    const { error } = await db.from("sec_settings").update(patch).eq("id", (existing as { id: string }).id);
+    const { error } = await db
+      .from("sec_settings")
+      .update(patch as never)
+      .eq("id", String((existing as { id: string }).id));
     if (error) throw new Error(error.message);
   } else {
-    const { error } = await db.from("sec_settings").insert({ store_id: null, ...patch });
+    const { error } = await db.from("sec_settings").insert({ store_id: null, ...patch } as never);
     if (error) throw new Error(error.message);
+
   }
   invalidateSecurityCache();
   await insertAuditRow(db as never, {
