@@ -255,7 +255,7 @@ function ChatAuthPage() {
                   <label className="flex items-start gap-3 text-sm">
                     <input type="checkbox" className="mt-1 size-4" checked={f.terms} onChange={(e) => upd("terms", e.target.checked)} />
                     <span>
-                      <Link to="/mesajlar-kosullar" className="underline">Kullanım Koşulları</Link> ve <Link to="/mesajlar-gizlilik" className="underline">Gizlilik Politikası</Link> — {t.terms}
+                      <Link to="/mesajlar-kosullar" className="underline">Kullanım Koşulları</Link> ve <Link to="/mesajlar-gizlilik" className="underline">Gizlilik Politikası</Link>: {t === T.tr ? "okudum, kabul ediyorum." : "I accept."}
                     </span>
                   </label>
                 </>

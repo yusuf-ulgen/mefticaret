@@ -24,3 +24,6 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [x] Tablolar/RLS/depo, liste, sohbet, anlık mesaj, medya/ses/tepki/yanıt/silme, yeni sohbet/grup, profil/durum, tablet düzeni, çevrimdışı önbellek, sayfa içi + arka plan bildirimi
 - [ ] Uygulama tamamen kapalıyken telefon bildirimi (web push) — ayrı adım
 - [ ] module_chat paket anahtarı ile açma/kapama
+- [x] Kayıt/giriş (tanıtım, 6 haneli kod, Google/Apple, şifre sıfırlama), mağaza bağlama, QR/rehber, profil kartı, engelle/şikayet, gizlilik, bildirim ayarları, KVKK indir/sil, açık rıza, TR/EN giriş
+- [ ] Şikayet moderasyon ekranı (Süper Admin)
+- [ ] App Store / Google Play: yerel uygulama derlemesi burada yapılamaz
