@@ -112,7 +112,7 @@ export const listMyChats = createServerFn({ method: "GET" })
     const admin = await adminClient();
     const { data: mine } = await admin
       .from("chat_participants")
-      .select("conversation_id, muted, archived, last_read_at, chat_conversations(id, kind, title, last_message_at, last_message_preview, store_id)")
+      .select("conversation_id, muted, mute_until, archived, last_read_at, chat_conversations(id, kind, title, last_message_at, last_message_preview, store_id)")
       .eq("user_id", me);
     const rows = (mine ?? []).filter((r: any) => r.chat_conversations);
     const ids = rows.map((r: any) => r.conversation_id);
@@ -122,12 +122,17 @@ export const listMyChats = createServerFn({ method: "GET" })
       .select("conversation_id, user_id, display_role, last_read_at")
       .in("conversation_id", ids);
     const userIds = [...new Set((parts ?? []).map((p: any) => p.user_id))];
-    const [{ data: profiles }, { data: presence }] = await Promise.all([
+    const [{ data: profiles }, { data: presence }, { data: privacyRows }, { data: blockRows }] = await Promise.all([
       admin.from("profiles").select("id, full_name, email, avatar_url").in("id", userIds),
       admin.from("chat_presence").select("user_id, status, last_seen_at").in("user_id", userIds),
+      admin.from("chat_user_settings").select("user_id, last_seen_privacy, photo_privacy, online_privacy").in("user_id", userIds),
+      admin.from("chat_blocks").select("blocked_id").eq("blocker_id", me),
     ]);
     const prof = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
     const pres = new Map<string, any>((presence ?? []).map((p: any) => [p.user_id, p]));
+    const priv = new Map<string, any>((privacyRows ?? []).map((p: any) => [p.user_id, p]));
+    const blocked = new Set<string>((blockRows ?? []).map((b: any) => b.blocked_id));
+    const now = new Date().toISOString();
     const unread = await Promise.all(
       rows.map(async (r: any) => {
         const { count } = await admin
@@ -146,14 +151,18 @@ export const listMyChats = createServerFn({ method: "GET" })
         .map((p: any) => {
           const pr = prof.get(p.user_id);
           const ps = pres.get(p.user_id);
+          // "Kişilerim" = sohbet paylaştığınız kişiler; burada herkes o kapsamda.
+          const pv = p.user_id === me ? null : priv.get(p.user_id);
+          const hideSeen = ps?.status === "invisible" || pv?.last_seen_privacy === "nobody";
           return {
             id: p.user_id as string,
             name: (pr?.full_name || (pr?.email ? String(pr.email).split("@")[0] : "Kullanıcı")) as string,
-            avatarUrl: (pr?.avatar_url ?? null) as string | null,
+            avatarUrl: (pv?.photo_privacy === "nobody" ? null : pr?.avatar_url ?? null) as string | null,
             role: p.display_role as "admin" | "seller" | "customer",
             lastReadAt: p.last_read_at as string,
-            status: (ps?.status === "invisible" ? null : ps?.status ?? null) as string | null,
-            lastSeenAt: (ps?.status === "invisible" ? null : ps?.last_seen_at ?? null) as string | null,
+            status: (ps?.status === "invisible" || pv?.online_privacy === "nobody" ? null : ps?.status ?? null) as string | null,
+            lastSeenAt: (hideSeen ? null : ps?.last_seen_at ?? null) as string | null,
+            hidesOnline: pv?.online_privacy === "nobody",
           };
         });
       return {
@@ -162,14 +171,16 @@ export const listMyChats = createServerFn({ method: "GET" })
         title: c.title,
         lastMessageAt: c.last_message_at,
         preview: c.last_message_preview,
-        muted: r.muted,
+        muted: r.mute_until ? r.mute_until > now : r.muted,
+        muteUntil: r.mute_until && r.mute_until > now ? (r.mute_until as string) : null,
         archived: r.archived,
         unread: unread[i] ?? 0,
         members,
       };
     });
-    chats.sort((a, b) => b.lastMessageAt.localeCompare(a.lastMessageAt));
-    return { me, chats };
+    const visible = chats.filter((c) => c.kind === "group" || !c.members.some((m) => m.id !== me && blocked.has(m.id)));
+    visible.sort((a, b) => b.lastMessageAt.localeCompare(a.lastMessageAt));
+    return { me, chats: visible };
   });
 
 export type ChatMember = {
@@ -180,6 +191,7 @@ export type ChatMember = {
   lastReadAt: string;
   status: string | null;
   lastSeenAt: string | null;
+  hidesOnline: boolean;
 };
 export type ChatSummary = {
   id: string;
@@ -188,6 +200,7 @@ export type ChatSummary = {
   lastMessageAt: string;
   preview: string | null;
   muted: boolean;
+  muteUntil: string | null;
   archived: boolean;
   unread: number;
   members: ChatMember[];
