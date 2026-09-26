@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
-import { Archive, ArrowLeft, BellOff, LogOut, MessageSquarePlus, Search, User, WifiOff, X } from "lucide-react";
+import { Archive, ArrowLeft, BellOff, Download, LogOut, MessageSquarePlus, QrCode, Search, Trash2, User, WifiOff, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,6 +13,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { searchChatContacts, startChatConversation, type ChatSummary } from "@/lib/chat.functions";
 import { cn } from "@/lib/utils";
 import { ChatProvider, useChat } from "./chat-context";
+import { ContactsButton, MuteSheet, QrButton, QrSheet, UserCardSheet } from "./chat-extras";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  deleteMyChatAccount,
+  exportMyChatData,
+  findChatUserByHandle,
+  getChatSettings,
+  listChatBlocks,
+  saveChatSettings,
+  setChatBlock,
+  type ChatSettings,
+  type ChatUserCard,
+} from "@/lib/chat-account.functions";
 import { chatTitle, initials, others, ROLE_LABEL, timeLabel } from "./chat-utils";
 import { ConversationView } from "./conversation-view";
 
@@ -42,19 +56,20 @@ function ConversationItem({ chat, active, onOpen }: { chat: ChatSummary; active:
   const { me, online } = useChat();
   const qc = useQueryClient();
   const [dx, setDx] = useState(0);
+  const [muteOpen, setMuteOpen] = useState(false);
   const start = useRef<number | null>(null);
   const peer = others(chat, me)[0];
   const title = chatTitle(chat, me);
-  const update = async (patch: { muted?: boolean; archived?: boolean }) => {
+  const update = async (patch: { archived?: boolean }) => {
     setDx(0);
     await supabase.from("chat_participants").update(patch).eq("conversation_id", chat.id).eq("user_id", me);
     qc.invalidateQueries({ queryKey: ["chat", "list"] });
-    toast.success(patch.archived ? "Sohbet arşivlendi" : patch.muted ? "Sessize alındı" : "Bildirimler açıldı");
+    toast.success("Sohbet arşivlendi");
   };
   return (
     <li className="relative overflow-hidden">
       <div className="absolute inset-y-0 right-0 flex">
-        <button type="button" onClick={() => void update({ muted: !chat.muted })} className="w-20 bg-muted text-xs font-medium">
+        <button type="button" onClick={() => { setDx(0); setMuteOpen(true); }} className="w-20 bg-muted text-xs font-medium">
           {chat.muted ? "Sesi aç" : "Sessize al"}
         </button>
         <button type="button" onClick={() => void update({ archived: true })} className="w-20 bg-destructive text-xs font-medium text-destructive-foreground">
@@ -99,6 +114,7 @@ function ConversationItem({ chat, active, onOpen }: { chat: ChatSummary; active:
           </div>
         </div>
       </button>
+      <MuteSheet open={muteOpen} onOpenChange={setMuteOpen} conversationId={chat.id} me={me} muted={chat.muted} onDone={() => void qc.invalidateQueries({ queryKey: ["chat", "list"] })} />
     </li>
   );
 }
@@ -195,7 +211,10 @@ function ChatList({ onNew, onProfile }: { onNew: () => void; onProfile: () => vo
   );
 }
 
-function NewConversation({ onBack }: { onBack: () => void }) {
+function NewConversation({ onBack, handle }: { onBack: () => void; handle: string | null }) {
+  const [qrOpen, setQrOpen] = useState(false);
+  const [card, setCard] = useState<ChatUserCard | null>(null);
+  const [fromContacts, setFromContacts] = useState<ChatUserCard[]>([]);
   const search = useServerFn(searchChatContacts);
   const start = useServerFn(startChatConversation);
   const { online, setActiveId, refresh } = useChat();
@@ -239,9 +258,26 @@ function NewConversation({ onBack }: { onBack: () => void }) {
             ))}
           </div>
         ) : null}
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <QrButton onClick={() => setQrOpen(true)} />
+          <ContactsButton onResults={setFromContacts} />
+        </div>
         {picked.length > 1 ? <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} placeholder="Grup adı" aria-label="Grup adı" /> : null}
       </div>
       <ul className="min-h-0 flex-1 overflow-y-auto">
+        {fromContacts.length ? <li className="px-4 pb-1 pt-3 text-xs font-medium uppercase text-muted-foreground">Rehberdekiler</li> : null}
+        {fromContacts.map((c) => (
+          <li key={`r-${c.id}`}>
+            <button type="button" onClick={() => setCard(c)} className="flex w-full items-center gap-3 px-4 py-3 text-left">
+              <PersonAvatar name={c.name} url={c.avatarUrl} size="size-11" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{c.name}</p>
+                <p className="truncate text-xs text-muted-foreground">{c.handle ? `@${c.handle}` : ROLE_LABEL[c.role]}</p>
+              </div>
+            </button>
+          </li>
+        ))}
+        {fromContacts.length ? <li className="px-4 pb-1 pt-3 text-xs font-medium uppercase text-muted-foreground">Kişileriniz</li> : null}
         {results.isLoading ? <p className="p-6 text-center text-sm text-muted-foreground">Aranıyor…</p> : null}
         {results.data && !results.data.length ? (
           <p className="p-6 text-center text-sm text-muted-foreground">Konuşabileceğiniz kişi bulunamadı.</p>
@@ -250,8 +286,11 @@ function NewConversation({ onBack }: { onBack: () => void }) {
           const sel = picked.some((p) => p.id === c.id);
           return (
             <li key={c.id}>
-              <button type="button" onClick={() => toggle(c)} className={cn("flex w-full items-center gap-3 px-4 py-3 text-left", sel && "bg-muted")}>
-                <PersonAvatar name={c.name} url={c.avatarUrl} online={online.has(c.id)} size="size-11" />
+              <div className={cn("flex w-full items-center gap-3 px-4 py-3 text-left", sel && "bg-muted")}>
+                <button type="button" aria-label={`${c.name} profilini aç`} onClick={() => setCard({ id: c.id, name: c.name, avatarUrl: c.avatarUrl, role: c.role, handle: null, bio: null, storeName: c.storeName, storeUrl: null, blocked: false })}>
+                  <PersonAvatar name={c.name} url={c.avatarUrl} online={online.has(c.id)} size="size-11" />
+                </button>
+                <button type="button" onClick={() => toggle(c)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate font-medium">{c.name}</p>
@@ -262,7 +301,8 @@ function NewConversation({ onBack }: { onBack: () => void }) {
                   </p>
                 </div>
                 <span className={cn("size-5 rounded-full border-2", sel ? "border-chat-unread bg-chat-unread" : "border-muted-foreground/40")} />
-              </button>
+                </button>
+              </div>
             </li>
           );
         })}
@@ -272,6 +312,16 @@ function NewConversation({ onBack }: { onBack: () => void }) {
           {create.isPending ? "Başlatılıyor…" : picked.length > 1 ? `Grup başlat (${picked.length})` : "Sohbet Başlat"}
         </Button>
       </div>
+      <QrSheet open={qrOpen} onOpenChange={setQrOpen} handle={handle} onFound={setCard} />
+      <UserCardSheet
+        userId={card?.id ?? null}
+        preset={card?.handle || card?.bio ? card : null}
+        onClose={() => setCard(null)}
+        onOpenChat={(id) => {
+          setActiveId(id);
+          onBack();
+        }}
+      />
     </div>
   );
 }
