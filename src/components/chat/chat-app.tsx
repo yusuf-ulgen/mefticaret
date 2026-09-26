@@ -687,9 +687,11 @@ function ConsentDialog({ open, onAccept }: { open: boolean; onAccept: () => void
           <input type="checkbox" className="mt-1 size-4" checked={ok} onChange={(e) => setOk(e.target.checked)} />
           Okudum, kişisel verilerimin bu kapsamda işlenmesine açık rıza veriyorum.
         </label>
-        <Button className="h-11" disabled={!ok} onClick={onAccept}>
-          Devam et
-        </Button>
+        <div>
+          <Button className="h-11 w-full" disabled={!ok} onClick={onAccept}>
+            Devam et
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
