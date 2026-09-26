@@ -1,0 +1,1 @@
+DELETE FROM public.chat_conversations WHERE id IN (SELECT conversation_id FROM public.chat_messages WHERE body = 'Merhaba, test mesajı https://mefticaret.com');
