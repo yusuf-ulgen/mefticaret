@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, BellOff, Bell, Copy, Reply, SmilePlus, Trash2 } from "lucide-react";
+import { ArrowLeft, BellOff, Bell, Copy, Flag, Reply, SmilePlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,6 +10,7 @@ import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { supabase } from "@/integrations/supabase/client";
 import { checkChatSendLimit, deleteChatMessage, type ChatSummary } from "@/lib/chat.functions";
 import { useChat } from "./chat-context";
+import { MuteSheet, ReportSheet, UserCardSheet } from "./chat-extras";
 import {
   cacheMessages,
   cachedMessages,
@@ -28,7 +29,10 @@ import { MessageInput, type Outgoing } from "./message-input";
 const PAGE = 40;
 
 export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: () => void }) {
-  const { me, online, offline } = useChat();
+  const { me, online, offline, setActiveId } = useChat();
+  const [muteOpen, setMuteOpen] = useState(false);
+  const [reportId, setReportId] = useState<string | null>(null);
+  const [cardId, setCardId] = useState<string | null>(null);
   const qc = useQueryClient();
   const del = useServerFn(deleteChatMessage);
   const sendLimit = useServerFn(checkChatSendLimit);
@@ -251,11 +255,6 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
     qc.invalidateQueries({ queryKey: ["chat", "reactions", chat.id] });
   };
 
-  const toggleMute = async () => {
-    await supabase.from("chat_participants").update({ muted: !chat.muted }).eq("conversation_id", chat.id).eq("user_id", me);
-    qc.invalidateQueries({ queryKey: ["chat", "list"] });
-    toast.success(chat.muted ? "Bildirimler açıldı" : "Sohbet sessize alındı");
-  };
 
   const typingNames = Object.keys(typing).map(nameOf);
   const title = chatTitle(chat, me);
@@ -269,6 +268,7 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
         <button type="button" onClick={onBack} aria-label="Geri" className="flex size-10 items-center justify-center md:hidden">
           <ArrowLeft className="size-5" />
         </button>
+        <button type="button" aria-label="Profili göster" onClick={() => chat.kind !== "group" && peer && setCardId(peer.id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
         <Avatar className="size-10">
           {chat.kind !== "group" && peer?.avatarUrl ? <AvatarImage src={peer.avatarUrl} alt="" /> : null}
           <AvatarFallback className="bg-chat-header-foreground/20 text-sm">{initials(title)}</AvatarFallback>
@@ -283,7 +283,8 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
                 : lastSeen(peer, peerOnline)}
           </p>
         </div>
-        <button type="button" onClick={() => void toggleMute()} aria-label={chat.muted ? "Sesi aç" : "Sessize al"} className="flex size-10 items-center justify-center">
+        </button>
+        <button type="button" onClick={() => setMuteOpen(true)} aria-label={chat.muted ? "Sesi aç" : "Sessize al"} className="flex size-10 items-center justify-center">
           {chat.muted ? <BellOff className="size-5" /> : <Bell className="size-5" />}
         </button>
       </header>
@@ -358,6 +359,7 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
                 ...(menu.body
                   ? [{ icon: Copy, label: "Kopyala", run: () => void navigator.clipboard.writeText(menu.body ?? "").then(() => toast.success("Kopyalandı")) }]
                   : []),
+                ...(menu.sender_id !== me ? [{ icon: Flag, label: "Şikayet et", run: () => setReportId(menu.id) }] : []),
                 ...(menu.sender_id === me
                   ? [
                       {
@@ -387,6 +389,10 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
           ) : null}
         </DrawerContent>
       </Drawer>
+
+      <MuteSheet open={muteOpen} onOpenChange={setMuteOpen} conversationId={chat.id} me={me} muted={chat.muted} onDone={() => void qc.invalidateQueries({ queryKey: ["chat", "list"] })} />
+      <ReportSheet messageId={reportId} onClose={() => setReportId(null)} />
+      <UserCardSheet userId={cardId} onClose={() => setCardId(null)} onOpenChat={(id) => setActiveId(id)} />
 
       <Dialog open={Boolean(lightbox)} onOpenChange={(o) => !o && setLightbox(null)}>
         <DialogContent className="max-w-[96vw] border-0 bg-background p-1">
