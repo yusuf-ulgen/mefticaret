@@ -176,6 +176,13 @@ export const MODULE_CATALOG: PlanModule[] = [
   { key: "couture_compare", label: "Couture: Ürün Karşılaştırma", description: "Couture vitrininde ürün karşılaştırma.", routes: [] },
   { key: "couture_back_in_stock", label: "Couture: Stok Bildirimi", description: "Tükenen ürün için gelince haber ver.", routes: [] },
   {
+    key: "v2_security",
+    label: "Güvenlik ve Güvenlik Duvarı",
+    description: "IP/ülke engeli, WAF, hız limiti, bot tespiti, dolandırıcılık incelemesi ve oturum güvenliği.",
+    routes: [],
+  },
+
+  {
     key: "v2_dark_mode",
     label: "Koyu Mod",
     description: "Vitrinde otomatik veya manuel koyu mod ve ayrı koyu renkler.",
