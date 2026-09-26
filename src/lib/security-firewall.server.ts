@@ -547,7 +547,12 @@ export async function checkLockout(identifiers: { email?: string; ip?: string })
       .limit(1);
     const row = data?.[0];
     if (!row) return { locked: false };
-    return { locked: true, until: row.locked_until, reason: row.lockout_reason ?? undefined };
+    return {
+      locked: true,
+      until: row.locked_until,
+      ...(row.lockout_reason ? { reason: row.lockout_reason } : {}),
+    };
+
   } catch {
     return { locked: false };
   }
