@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -66,7 +66,10 @@ export function ChatProvider({ children, myStatus }: { children: ReactNode; mySt
   }, [me, myStatus]);
 
   // Yeni mesajlar — liste güncellenir, başka sohbetse bildirim gösterilir.
-  const chatsRef = useMemo(() => ({ current: q.data?.chats ?? [] }), [q.data]);
+  const chatsRef = useRef<ChatSummary[]>([]);
+  chatsRef.current = q.data?.chats ?? [];
+  const activeIdRef = useRef<string | null>(null);
+  activeIdRef.current = activeId;
   useEffect(() => {
     if (!me) return;
     const ch = supabase
@@ -96,9 +99,8 @@ export function ChatProvider({ children, myStatus }: { children: ReactNode; mySt
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [me, qc, chatsRef, myStatus]);
+  }, [me, qc, myStatus]);
 
-  const activeIdRef = useMemo(() => ({ current: activeId }), [activeId]);
 
   // Sekme başlığında okunmamış sayısı
   const unread = (q.data?.chats ?? []).reduce((s, c) => s + (c.muted ? 0 : c.unread), 0);
