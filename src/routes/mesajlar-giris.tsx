@@ -298,7 +298,7 @@ function ChatAuthPage() {
             onSubmit={async (e) => {
               e.preventDefault();
               setBusy(true);
-              const { error } = await supabase.auth.resetPasswordForEmail(f.email.trim(), { redirectTo: `${window.location.origin}/reset-password` });
+              const { error } = await supabase.auth.resetPasswordForEmail(f.email.trim(), { redirectTo: `${window.location.origin}/auth` });
               setBusy(false);
               if (error) return void toast.error(error.message);
               setStep("resetOtp");
@@ -434,7 +434,7 @@ function ResetWithCode({ t, email, onDone }: { t: Dict; email: string; onDone: (
         t={t}
         email={email}
         type="recovery"
-        onResend={() => supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` })}
+        onResend={() => supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth` })}
         onVerified={() => setVerified(true)}
       />
     );
