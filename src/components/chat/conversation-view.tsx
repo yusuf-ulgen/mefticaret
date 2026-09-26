@@ -1,3 +1,4 @@
+import { isMultiChat } from "./chat-utils";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -268,9 +269,9 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
         <button type="button" onClick={onBack} aria-label="Geri" className="flex size-10 items-center justify-center md:hidden">
           <ArrowLeft className="size-5" />
         </button>
-        <button type="button" aria-label="Profili göster" onClick={() => chat.kind !== "group" && peer && setCardId(peer.id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+        <button type="button" aria-label="Profili göster" onClick={() => !isMultiChat(chat.kind) && peer && setCardId(peer.id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
         <Avatar className="size-10">
-          {chat.kind !== "group" && peer?.avatarUrl ? <AvatarImage src={peer.avatarUrl} alt="" /> : null}
+          {!isMultiChat(chat.kind) && peer?.avatarUrl ? <AvatarImage src={peer.avatarUrl} alt="" /> : null}
           <AvatarFallback className="bg-chat-header-foreground/20 text-sm">{initials(title)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
@@ -278,7 +279,7 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
           <p className="truncate text-xs opacity-80">
             {typingNames.length
               ? "yazıyor…"
-              : chat.kind === "group"
+              : isMultiChat(chat.kind)
                 ? otherMembers.map((m) => m.name).join(", ")
                 : lastSeen(peer, peerOnline)}
           </p>
@@ -310,7 +311,7 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
                 m={m}
                 mine={m.sender_id === me}
                 senderName={nameOf(m.sender_id)}
-                showSender={chat.kind === "group" && prev?.sender_id !== m.sender_id}
+                showSender={isMultiChat(chat.kind) && prev?.sender_id !== m.sender_id}
                 replied={m.reply_to_id ? byId.get(m.reply_to_id) : undefined}
                 reactions={reactionsBy.get(m.id) ?? []}
                 status={statusOf(m)}

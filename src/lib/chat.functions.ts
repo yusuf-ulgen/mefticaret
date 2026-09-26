@@ -48,6 +48,12 @@ export const startChatConversation = createServerFn({ method: "POST" })
     if (!targets.length || targets.some((id) => !allowed.has(id))) throw new Error("Bu kişilerle sohbet başlatamazsınız.");
 
     const group = targets.length > 1;
+    const myRole0 = await myDisplayRole(admin, me);
+    const t0 = allowed.get(targets[0]!)!;
+    if (!group && myRole0 === "customer" && t0.role === "seller" && t0.storeId) {
+      const { openStoreInbox } = await import("./chat-store.server");
+      return { id: await openStoreInbox(admin, me, t0.storeId) };
+    }
     if (!group) {
       const { data: mine } = await admin.from("chat_participants").select("conversation_id").eq("user_id", me);
       const convIds = (mine ?? []).map((r: any) => r.conversation_id);
@@ -57,7 +63,7 @@ export const startChatConversation = createServerFn({ method: "POST" })
           .select("conversation_id, chat_conversations!inner(kind)")
           .eq("user_id", targets[0]!)
           .in("conversation_id", convIds)
-          .neq("chat_conversations.kind", "group");
+          .in("chat_conversations.kind", ["direct", "support"]);
         if (shared?.length) return { id: shared[0].conversation_id as string };
       }
     }
@@ -110,6 +116,12 @@ export const listMyChats = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const me = context.userId;
     const admin = await adminClient();
+    try {
+      const { syncStoreChannels } = await import("./chat-store.server");
+      await syncStoreChannels(admin, me);
+    } catch (e) {
+      console.error("syncStoreChannels", e);
+    }
     const { data: mine } = await admin
       .from("chat_participants")
       .select("conversation_id, muted, mute_until, archived, last_read_at, chat_conversations(id, kind, title, last_message_at, last_message_preview, store_id)")
@@ -132,6 +144,11 @@ export const listMyChats = createServerFn({ method: "GET" })
     const pres = new Map<string, any>((presence ?? []).map((p: any) => [p.user_id, p]));
     const priv = new Map<string, any>((privacyRows ?? []).map((p: any) => [p.user_id, p]));
     const blocked = new Set<string>((blockRows ?? []).map((b: any) => b.blocked_id));
+    const storeIds = [...new Set(rows.map((r: any) => r.chat_conversations.store_id).filter(Boolean))];
+    const { data: storeRows } = storeIds.length
+      ? await admin.from("stores").select("id, name").in("id", storeIds)
+      : { data: [] };
+    const storeName = new Map<string, string>((storeRows ?? []).map((s: any) => [s.id, s.name]));
     const now = new Date().toISOString();
     const unread = await Promise.all(
       rows.map(async (r: any) => {
@@ -165,10 +182,17 @@ export const listMyChats = createServerFn({ method: "GET" })
             hidesOnline: pv?.online_privacy === "nobody",
           };
         });
+      const sName = c.store_id ? storeName.get(c.store_id) ?? "Mağaza" : "Mağaza";
+      let title = c.title as string | null;
+      if (c.kind === "store_team") title = `${sName} · Ekip`;
+      if (c.kind === "store_inbox") {
+        const customer = members.find((m: any) => m.role === "customer");
+        title = customer && customer.id !== me ? `${customer.name} · ${sName}` : sName;
+      }
       return {
         id: c.id,
         kind: c.kind,
-        title: c.title,
+        title,
         lastMessageAt: c.last_message_at,
         preview: c.last_message_preview,
         muted: r.mute_until ? r.mute_until > now : r.muted,
@@ -178,7 +202,7 @@ export const listMyChats = createServerFn({ method: "GET" })
         members,
       };
     });
-    const visible = chats.filter((c) => c.kind === "group" || !c.members.some((m) => m.id !== me && blocked.has(m.id)));
+    const visible = chats.filter((c) => c.kind !== "direct" && c.kind !== "support" || !c.members.some((m) => m.id !== me && blocked.has(m.id)));
     visible.sort((a, b) => b.lastMessageAt.localeCompare(a.lastMessageAt));
     return { me, chats: visible };
   });

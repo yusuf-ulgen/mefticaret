@@ -1,3 +1,4 @@
+import { isMultiChat } from "./chat-utils";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -92,11 +93,11 @@ function ConversationItem({ chat, active, onOpen }: { chat: ChatSummary; active:
         style={{ transform: `translateX(${dx}px)` }}
         className={cn("relative flex w-full items-center gap-3 bg-background px-4 py-3 text-left transition-transform", active && "bg-muted")}
       >
-        <PersonAvatar name={title} url={chat.kind === "group" ? null : peer?.avatarUrl ?? null} online={chat.kind !== "group" && peer ? online.has(peer.id) : false} />
+        <PersonAvatar name={title} url={isMultiChat(chat.kind) ? null : peer?.avatarUrl ?? null} online={!isMultiChat(chat.kind) && peer ? online.has(peer.id) : false} />
         <div className="min-w-0 flex-1 border-b pb-3">
           <div className="flex items-center gap-2">
             <p className="truncate font-semibold">{title}</p>
-            {chat.kind !== "group" && peer ? <RoleBadge role={peer.role} /> : <RoleBadge role="Grup" />}
+            {!isMultiChat(chat.kind) && peer ? <RoleBadge role={peer.role} /> : <RoleBadge role={chat.kind === "group" ? "Grup" : "Mağaza"} />}
             <span className={cn("ml-auto shrink-0 text-xs", chat.unread ? "font-semibold text-chat-unread" : "text-muted-foreground")}>
               {timeLabel(chat.lastMessageAt)}
             </span>

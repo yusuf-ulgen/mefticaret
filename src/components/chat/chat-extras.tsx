@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Ban, Camera, Contact, MessageCircle, QrCode, Store } from "lucide-react";
-import QRCode from "qrcode";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -246,7 +245,7 @@ export function QrSheet({
       setImg(null);
       return;
     }
-    void QRCode.toDataURL(`https://mefticaret.com/mesajlar?u=${encodeURIComponent(handle)}`, { width: 480, margin: 1 }).then(setImg);
+    void import("qrcode").then(({ default: QRCode }) => QRCode.toDataURL(`https://mefticaret.com/mesajlar?u=${encodeURIComponent(handle)}`, { width: 480, margin: 1 })).then(setImg);
   }, [handle]);
 
   const lookup = async (raw: string) => {
