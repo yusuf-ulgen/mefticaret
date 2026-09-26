@@ -407,7 +407,7 @@ function Profile({
   const name = profile.data?.full_name || profile.data?.email || "Kullanıcı";
 
   const patch = useMutation({
-    mutationFn: (d: Parameters<typeof save>[0]["data"]) => save({ data: d }),
+    mutationFn: (d: Record<string, unknown>) => save({ data: d as never }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["chat", "settings"] }),
     onError: (e: Error) => toast.error(e.message),
   });
@@ -594,7 +594,7 @@ function Profile({
             onClick={async () => {
               try {
                 const data = await exportData();
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+                const blob = new Blob([data], { type: "application/json" });
                 const a = document.createElement("a");
                 a.href = URL.createObjectURL(blob);
                 a.download = `mefticaret-mesajlar-verilerim-${new Date().toISOString().slice(0, 10)}.json`;

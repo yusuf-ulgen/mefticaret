@@ -104,10 +104,10 @@ function ChatAuthPage() {
 
   async function register(e: React.FormEvent) {
     e.preventDefault();
-    if (!PASS_RE.test(f.pass)) return toast.error("Şifre en az 8 karakter olmalı; büyük harf, küçük harf ve rakam içermeli.");
-    if (f.pass !== f.pass2) return toast.error("Şifreler eşleşmiyor.");
-    if (!f.terms) return toast.error("Devam etmek için Kullanım Koşulları'nı kabul edin.");
-    if (f.phone.replace(/\D/g, "").length < 7) return toast.error("Geçerli bir telefon numarası girin.");
+    if (!PASS_RE.test(f.pass)) return void toast.error("Şifre en az 8 karakter olmalı; büyük harf, küçük harf ve rakam içermeli.");
+    if (f.pass !== f.pass2) return void toast.error("Şifreler eşleşmiyor.");
+    if (!f.terms) return void toast.error("Devam etmek için Kullanım Koşulları'nı kabul edin.");
+    if (f.phone.replace(/\D/g, "").length < 7) return void toast.error("Geçerli bir telefon numarası girin.");
     setBusy(true);
     signingUp.current = true;
     const { data, error } = await supabase.auth.signUp({
@@ -121,7 +121,7 @@ function ChatAuthPage() {
     setBusy(false);
     if (error) {
       signingUp.current = false;
-      return toast.error(error.message);
+      return void toast.error(error.message);
     }
     if (data.session) return afterSignup();
     setStep("otp");
@@ -132,7 +132,7 @@ function ChatAuthPage() {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email: f.email.trim(), password: f.pass });
     setBusy(false);
-    if (error) return toast.error(error.message === "Invalid login credentials" ? "E-posta veya şifre hatalı" : error.message);
+    if (error) return void toast.error(error.message === "Invalid login credentials" ? "E-posta veya şifre hatalı" : error.message);
     void navigate({ to: "/mesajlar", replace: true });
   }
 
@@ -141,7 +141,7 @@ function ChatAuthPage() {
     const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: `${window.location.origin}/mesajlar-giris` });
     if (r.error) {
       setBusy(false);
-      return toast.error(provider === "google" ? "Google ile giriş başarısız oldu" : "Apple ile giriş başarısız oldu");
+      return void toast.error(provider === "google" ? "Google ile giriş başarısız oldu" : "Apple ile giriş başarısız oldu");
     }
     if (r.redirected) return;
     void navigate({ to: "/mesajlar", replace: true });
@@ -166,9 +166,9 @@ function ChatAuthPage() {
           <div className="flex flex-1 flex-col">
             <div
               className="flex flex-1 flex-col items-center justify-center gap-5 text-center"
-              onTouchStart={(e) => ((e.currentTarget as HTMLElement).dataset.x = String(e.touches[0]!.clientX))}
+              onTouchStart={(e) => ((e.currentTarget as HTMLElement).dataset["x"] = String(e.touches[0]!.clientX))}
               onTouchEnd={(e) => {
-                const x0 = Number((e.currentTarget as HTMLElement).dataset.x);
+                const x0 = Number((e.currentTarget as HTMLElement).dataset["x"]);
                 const dx = e.changedTouches[0]!.clientX - x0;
                 if (dx < -50) setSlide((s) => Math.min(2, s + 1));
                 if (dx > 50) setSlide((s) => Math.max(0, s - 1));
@@ -300,7 +300,7 @@ function ChatAuthPage() {
               setBusy(true);
               const { error } = await supabase.auth.resetPasswordForEmail(f.email.trim(), { redirectTo: `${window.location.origin}/reset-password` });
               setBusy(false);
-              if (error) return toast.error(error.message);
+              if (error) return void toast.error(error.message);
               setStep("resetOtp");
             }}
           >
@@ -402,7 +402,7 @@ function OtpStep({
           setBusy(true);
           const { error } = await supabase.auth.verifyOtp({ email, token: code.replace(/\s/g, ""), type });
           setBusy(false);
-          if (error) return toast.error("Kod hatalı veya süresi dolmuş.");
+          if (error) return void toast.error("Kod hatalı veya süresi dolmuş.");
           onVerified();
         }}
       >
@@ -414,7 +414,7 @@ function OtpStep({
         disabled={left > 0}
         onClick={async () => {
           const { error } = await onResend();
-          if (error) return toast.error(error.message);
+          if (error) return void toast.error(error.message);
           restart();
           toast.success("Kod yeniden gönderildi");
         }}
@@ -443,9 +443,9 @@ function ResetWithCode({ t, email, onDone }: { t: Dict; email: string; onDone: (
       className="space-y-3"
       onSubmit={async (e) => {
         e.preventDefault();
-        if (!PASS_RE.test(pass)) return toast.error("Şifre en az 8 karakter olmalı; büyük harf, küçük harf ve rakam içermeli.");
+        if (!PASS_RE.test(pass)) return void toast.error("Şifre en az 8 karakter olmalı; büyük harf, küçük harf ve rakam içermeli.");
         const { error } = await supabase.auth.updateUser({ password: pass });
-        if (error) return toast.error(error.message);
+        if (error) return void toast.error(error.message);
         toast.success("Şifreniz güncellendi");
         onDone();
       }}

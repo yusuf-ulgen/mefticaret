@@ -101,12 +101,12 @@ export const saveChatSettings = createServerFn({ method: "POST" })
     for (const [k, v] of Object.entries(rest)) if (v !== undefined) row[k] = v === "" ? null : v;
     if (phone !== undefined) {
       const n = normalizePhone(phone);
-      row.phone_hash = n.length >= 10 ? await sha256(n) : null;
+      row["phone_hash"] = n.length >= 10 ? await sha256(n) : null;
     }
-    if (consent) row.consent_at = new Date().toISOString();
+    if (consent) row["consent_at"] = new Date().toISOString();
     const admin = await adminClient();
-    if (row.handle) {
-      const { data: taken } = await admin.from("chat_user_settings").select("user_id").eq("handle", row.handle).maybeSingle();
+    if (row["handle"]) {
+      const { data: taken } = await admin.from("chat_user_settings").select("user_id").eq("handle", row["handle"]).maybeSingle();
       if (taken && taken.user_id !== context.userId) throw new Error("Bu kullanıcı adı alınmış.");
     }
     const { error } = await admin.from("chat_user_settings").upsert(row, { onConflict: "user_id" });
@@ -339,8 +339,8 @@ export const exportMyChatData = createServerFn({ method: "POST" })
       admin.from("chat_blocks").select("blocked_id, created_at").eq("blocker_id", me),
       admin.from("chat_reports").select("message_id, reason, note, status, created_at").eq("reporter_id", me),
     ]);
-    return JSON.parse(
-      JSON.stringify({
+    return JSON.stringify(
+      {
         generated_at: new Date().toISOString(),
         note: "KVKK md. 11 kapsamında Mefticaret Mesajlar verileriniz.",
         profile: profile.data,
@@ -349,8 +349,10 @@ export const exportMyChatData = createServerFn({ method: "POST" })
         sent_messages: messages.data ?? [],
         blocked_users: blocks.data ?? [],
         reports: reports.data ?? [],
-      }),
-    ) as Record<string, unknown>;
+      },
+      null,
+      2,
+    );
   });
 
 /** Hesabı ve tüm mesajları kalıcı siler. Mağaza sahipleri önce mağazayı devretmeli/silmeli. */

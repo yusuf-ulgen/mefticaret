@@ -242,13 +242,16 @@ export function QrSheet({
   const [manual, setManual] = useState("");
 
   useEffect(() => {
-    if (!handle) return setImg(null);
+    if (!handle) {
+      setImg(null);
+      return;
+    }
     void QRCode.toDataURL(`https://mefticaret.com/mesajlar?u=${encodeURIComponent(handle)}`, { width: 480, margin: 1 }).then(setImg);
   }, [handle]);
 
   const lookup = async (raw: string) => {
     const m = raw.match(/[?&]u=([a-z0-9_.]{3,24})/i) ?? raw.match(/^@?([a-z0-9_.]{3,24})$/i);
-    if (!m) return toast.error("Geçerli bir Mefticaret QR kodu değil.");
+    if (!m) return void toast.error("Geçerli bir Mefticaret QR kodu değil.");
     try {
       const card = await find({ data: { handle: m[1]!.toLowerCase() } });
       onOpenChange(false);
