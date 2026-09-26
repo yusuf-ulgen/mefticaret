@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.chat_after_message() FROM PUBLIC, anon, authenticated;
