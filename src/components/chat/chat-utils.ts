@@ -101,3 +101,4 @@ export function cachedMessages(convId: string): ChatMessage[] {
 }
 
 export const URL_RE = /(https?:\/\/[^\s]+)/g;
+export const isMultiChat = (kind: string) => kind === "group" || kind === "store_team" || kind === "store_inbox";
