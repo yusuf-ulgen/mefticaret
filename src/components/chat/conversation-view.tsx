@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { supabase } from "@/integrations/supabase/client";
 import { checkChatSendLimit, deleteChatMessage, type ChatSummary } from "@/lib/chat.functions";
+import { sendChatPush } from "@/lib/chat-push.functions";
 import { useChat } from "./chat-context";
 import { MuteSheet, ReportSheet, UserCardSheet } from "./chat-extras";
 import {
@@ -37,6 +38,7 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
   const qc = useQueryClient();
   const del = useServerFn(deleteChatMessage);
   const sendLimit = useServerFn(checkChatSendLimit);
+  const pushNotify = useServerFn(sendChatPush);
   const scroller = useRef<HTMLDivElement>(null);
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [menu, setMenu] = useState<ChatMessage | null>(null);
@@ -242,6 +244,7 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
       const { pending: _p, created_at: _c, ...row } = base;
       const { error } = await supabase.from("chat_messages").insert({ ...row, attachment_path: path });
       if (error) throw error;
+      void pushNotify({ data: { messageId: id } }).catch(() => undefined);
     } catch (e) {
       setPending((p) => p.filter((x) => x.id !== id));
       toast.error(e instanceof Error ? e.message : "Mesaj gönderilemedi.");

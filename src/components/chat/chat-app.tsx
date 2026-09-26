@@ -15,6 +15,8 @@ import { searchChatContacts, startChatConversation, type ChatSummary } from "@/l
 import { cn } from "@/lib/utils";
 import { ChatProvider, useChat } from "./chat-context";
 import { ContactsButton, MuteSheet, QrButton, QrSheet, UserCardSheet } from "./chat-extras";
+import { PushToggle } from "./push-toggle";
+import { startChatByHandle } from "@/lib/chat-account.functions";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -219,7 +221,17 @@ function NewConversation({ onBack, handle }: { onBack: () => void; handle: strin
   const [fromContacts, setFromContacts] = useState<ChatUserCard[]>([]);
   const search = useServerFn(searchChatContacts);
   const start = useServerFn(startChatConversation);
+  const startByUser = useServerFn(startChatByHandle);
   const { online, setActiveId, refresh } = useChat();
+  const startDirect = useMutation({
+    mutationFn: (userId: string) => startByUser({ data: { userId } }),
+    onSuccess: async (r) => {
+      await refresh();
+      setActiveId(r.id);
+      onBack();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
   const [q, setQ] = useState("");
   const [dq, setDq] = useState("");
   const [picked, setPicked] = useState<{ id: string; name: string }[]>([]);
@@ -269,14 +281,22 @@ function NewConversation({ onBack, handle }: { onBack: () => void; handle: strin
       <ul className="min-h-0 flex-1 overflow-y-auto">
         {fromContacts.length ? <li className="px-4 pb-1 pt-3 text-xs font-medium uppercase text-muted-foreground">Rehberdekiler</li> : null}
         {fromContacts.map((c) => (
-          <li key={`r-${c.id}`}>
-            <button type="button" onClick={() => setCard(c)} className="flex w-full items-center gap-3 px-4 py-3 text-left">
+          <li key={`r-${c.id}`} className="flex items-center gap-2 pr-3">
+            <button type="button" onClick={() => setCard(c)} className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left">
               <PersonAvatar name={c.name} url={c.avatarUrl} size="size-11" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{c.name}</p>
                 <p className="truncate text-xs text-muted-foreground">{c.handle ? `@${c.handle}` : ROLE_LABEL[c.role]}</p>
               </div>
             </button>
+            <Button
+              size="sm"
+              className="h-9 shrink-0 rounded-full"
+              disabled={c.blocked || startDirect.isPending}
+              onClick={() => startDirect.mutate(c.id)}
+            >
+              Mesaj Gönder
+            </Button>
           </li>
         ))}
         {fromContacts.length ? <li className="px-4 pb-1 pt-3 text-xs font-medium uppercase text-muted-foreground">Kişileriniz</li> : null}
@@ -543,6 +563,7 @@ function Profile({
               }}
             />
           </div>
+          <PushToggle />
           <div className="space-y-1.5">
             <p className="text-sm">Bildirim sesi</p>
             <Segmented
