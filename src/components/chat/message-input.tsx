@@ -52,7 +52,7 @@ export function MessageInput({
   const submit = () => {
     const body = text.trim();
     if (!body) return;
-    if (body.length > 4000) return toast.error("Mesaj en fazla 4000 karakter olabilir.");
+    if (body.length > 4000) { toast.error("Mesaj en fazla 4000 karakter olabilir."); return; }
     onSend({ kind: "text", body });
     setText("");
   };
@@ -62,8 +62,8 @@ export function MessageInput({
     e.target.value = "";
     if (!file) return;
     const isImage = kind === "image" && file.type.startsWith("image/");
-    if (isImage && file.size > IMAGE_MAX) return toast.error("Fotoğraf en fazla 10 MB olabilir.");
-    if (file.size > FILE_MAX) return toast.error("Dosya en fazla 25 MB olabilir.");
+    if (isImage && file.size > IMAGE_MAX) { toast.error("Fotoğraf en fazla 10 MB olabilir."); return; }
+    if (file.size > FILE_MAX) { toast.error("Dosya en fazla 25 MB olabilir."); return; }
     onSend({ kind: isImage ? "image" : "file", file });
   };
 

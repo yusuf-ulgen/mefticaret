@@ -55,7 +55,7 @@ export const startChatConversation = createServerFn({ method: "POST" })
         const { data: shared } = await admin
           .from("chat_participants")
           .select("conversation_id, chat_conversations!inner(kind)")
-          .eq("user_id", targets[0])
+          .eq("user_id", targets[0]!)
           .in("conversation_id", convIds)
           .neq("chat_conversations.kind", "group");
         if (shared?.length) return { id: shared[0].conversation_id as string };

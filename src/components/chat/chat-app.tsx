@@ -431,7 +431,7 @@ function Shell({ status, setStatus }: { status: string; setStatus: (s: string) =
   );
 }
 
-export function ChatApp({ initialConversation }: { initialConversation?: string }) {
+export function ChatApp({ initialConversation }: { initialConversation?: string | undefined }) {
   const [status, setStatus] = useState("online");
   useEffect(() => {
     const s = localStorage.getItem("mefti-chat-status");
@@ -445,7 +445,7 @@ export function ChatApp({ initialConversation }: { initialConversation?: string 
   );
 }
 
-function InitialOpen({ id }: { id?: string }) {
+function InitialOpen({ id }: { id?: string | undefined }) {
   const { setActiveId } = useChat();
   useEffect(() => {
     if (id) setActiveId(id);

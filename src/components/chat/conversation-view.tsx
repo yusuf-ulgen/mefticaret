@@ -201,7 +201,10 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
   };
 
   const send = async (o: Outgoing) => {
-    if (offline) return toast.error("Çevrimdışısınız. Bağlantı gelince tekrar deneyin.");
+    if (offline) {
+      toast.error("Çevrimdışısınız. Bağlantı gelince tekrar deneyin.");
+      return;
+    }
     const id = crypto.randomUUID();
     const base: ChatMessage = {
       id,
@@ -228,7 +231,7 @@ export function ConversationView({ chat, onBack }: { chat: ChatSummary; onBack: 
       if ("file" in o) {
         const ext = (o.file.name.split(".").pop() ?? "bin").replace(/[^a-z0-9]/gi, "").slice(0, 8) || "bin";
         path = `${chat.id}/${id}.${ext}`;
-        const up = await supabase.storage.from("chat-media").upload(path, o.file, { contentType: o.file.type || undefined });
+        const up = await supabase.storage.from("chat-media").upload(path, o.file, o.file.type ? { contentType: o.file.type } : {});
         if (up.error) throw up.error;
       }
       const { pending: _p, created_at: _c, ...row } = base;
