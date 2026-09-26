@@ -62,7 +62,7 @@ export const startChatConversation = createServerFn({ method: "POST" })
       }
     }
 
-    const first = allowed.get(targets[0])!;
+    const first = allowed.get(targets[0]!)!;
     const myRole = await myDisplayRole(admin, me);
     const kind = group ? "group" : first.role === "admin" || myRole === "admin" ? "support" : "direct";
     const { data: conv, error } = await admin
