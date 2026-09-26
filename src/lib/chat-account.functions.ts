@@ -166,13 +166,12 @@ export const getChatUserCard = createServerFn({ method: "POST" })
     const { allowedContacts } = await import("./chat.server");
     const allowed = await allowedContacts(admin, context.userId);
     if (!allowed.has(data.userId)) {
-      const { data: shares } = await (context.supabase as any).rpc("chat_shares_with", { _other: data.userId }).maybeSingle?.() ?? { data: null };
       const { data: mine } = await admin.from("chat_participants").select("conversation_id").eq("user_id", context.userId);
       const ids = (mine ?? []).map((r: any) => r.conversation_id);
       const { count } = ids.length
         ? await admin.from("chat_participants").select("user_id", { count: "exact", head: true }).eq("user_id", data.userId).in("conversation_id", ids)
         : { count: 0 };
-      if (!count && !shares) throw new Error("Bu kişinin profiline erişemezsiniz.");
+      if (!count) throw new Error("Bu kişinin profiline erişemezsiniz.");
     }
     const [card] = await buildCards(admin, context.userId, [data.userId]);
     if (!card) throw new Error("Kullanıcı bulunamadı.");
