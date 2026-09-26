@@ -245,7 +245,7 @@ export function QrSheet({
       setImg(null);
       return;
     }
-    void import("qrcode").then(({ default: QRCode }) => QRCode.toDataURL(`https://mefticaret.com/mesajlar?u=${encodeURIComponent(handle)}`, { width: 480, margin: 1 }).then(setImg);
+    void import("qrcode").then(({ default: QRCode }) => QRCode.toDataURL(`https://mefticaret.com/mesajlar?u=${encodeURIComponent(handle)}`, { width: 480, margin: 1 })).then(setImg);
   }, [handle]);
 
   const lookup = async (raw: string) => {
