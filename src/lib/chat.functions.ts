@@ -103,3 +103,92 @@ export const checkChatSendLimit = createServerFn({ method: "POST" })
     await limit(`chat_send:${context.userId}`, 60, 60);
     return { ok: true };
   });
+
+/** Sohbet listesi: katılımcı adları, okunmamış sayıları ve ayarlarla. */
+export const listMyChats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const me = context.userId;
+    const admin = await adminClient();
+    const { data: mine } = await admin
+      .from("chat_participants")
+      .select("conversation_id, muted, archived, last_read_at, chat_conversations(id, kind, title, last_message_at, last_message_preview, store_id)")
+      .eq("user_id", me);
+    const rows = (mine ?? []).filter((r: any) => r.chat_conversations);
+    const ids = rows.map((r: any) => r.conversation_id);
+    if (!ids.length) return { me, chats: [] as ChatSummary[] };
+    const { data: parts } = await admin
+      .from("chat_participants")
+      .select("conversation_id, user_id, display_role, last_read_at")
+      .in("conversation_id", ids);
+    const userIds = [...new Set((parts ?? []).map((p: any) => p.user_id))];
+    const [{ data: profiles }, { data: presence }] = await Promise.all([
+      admin.from("profiles").select("id, full_name, email, avatar_url").in("id", userIds),
+      admin.from("chat_presence").select("user_id, status, last_seen_at").in("user_id", userIds),
+    ]);
+    const prof = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
+    const pres = new Map<string, any>((presence ?? []).map((p: any) => [p.user_id, p]));
+    const unread = await Promise.all(
+      rows.map(async (r: any) => {
+        const { count } = await admin
+          .from("chat_messages")
+          .select("id", { count: "exact", head: true })
+          .eq("conversation_id", r.conversation_id)
+          .neq("sender_id", me)
+          .gt("created_at", r.last_read_at);
+        return count ?? 0;
+      }),
+    );
+    const chats: ChatSummary[] = rows.map((r: any, i: number) => {
+      const c = r.chat_conversations;
+      const members = (parts ?? [])
+        .filter((p: any) => p.conversation_id === c.id)
+        .map((p: any) => {
+          const pr = prof.get(p.user_id);
+          const ps = pres.get(p.user_id);
+          return {
+            id: p.user_id as string,
+            name: (pr?.full_name || (pr?.email ? String(pr.email).split("@")[0] : "Kullanıcı")) as string,
+            avatarUrl: (pr?.avatar_url ?? null) as string | null,
+            role: p.display_role as "admin" | "seller" | "customer",
+            lastReadAt: p.last_read_at as string,
+            status: (ps?.status === "invisible" ? null : ps?.status ?? null) as string | null,
+            lastSeenAt: (ps?.status === "invisible" ? null : ps?.last_seen_at ?? null) as string | null,
+          };
+        });
+      return {
+        id: c.id,
+        kind: c.kind,
+        title: c.title,
+        lastMessageAt: c.last_message_at,
+        preview: c.last_message_preview,
+        muted: r.muted,
+        archived: r.archived,
+        unread: unread[i] ?? 0,
+        members,
+      };
+    });
+    chats.sort((a, b) => b.lastMessageAt.localeCompare(a.lastMessageAt));
+    return { me, chats };
+  });
+
+export type ChatMember = {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  role: "admin" | "seller" | "customer";
+  lastReadAt: string;
+  status: string | null;
+  lastSeenAt: string | null;
+};
+export type ChatSummary = {
+  id: string;
+  kind: string;
+  title: string | null;
+  lastMessageAt: string;
+  preview: string | null;
+  muted: boolean;
+  archived: boolean;
+  unread: number;
+  members: ChatMember[];
+};
