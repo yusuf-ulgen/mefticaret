@@ -35,6 +35,7 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
                   siteUrl: SITE_URL,
                   recipient: data.email,
                   confirmationUrl: data.url,
+                  token: data.token ?? '',
                 }),
             },
             invite: {
@@ -60,6 +61,7 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
                 React.createElement(RecoveryEmail, {
                   siteName: SITE_NAME,
                   confirmationUrl: data.url,
+                  token: data.token ?? '',
                 }),
             },
             email_change: {
