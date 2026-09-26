@@ -11,6 +11,15 @@ import { invalidateSecurityCache } from "@/lib/security-firewall.server";
 
 type SupabaseLike = { from: (table: string) => any };
 
+/** Ağ üzerinden taşınabilir JSON değeri. */
+export type SecValue = string | number | boolean | null | SecValue[] | { [key: string]: SecValue };
+export type SecRow = { [key: string]: SecValue };
+
+/** Postgres inet/jsonb gibi tipleri düz JSON'a çevirir. */
+function plain(data: unknown): SecRow[] {
+  return JSON.parse(JSON.stringify(data ?? [])) as SecRow[];
+}
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
@@ -189,7 +198,7 @@ export async function listAttacks(input: z.infer<typeof attackListSchema>) {
   if (input.ip) query = query.eq("ip_address", input.ip);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return plain(data);
 }
 
 export const falsePositiveSchema = z.object({ id: z.string().uuid(), isFalsePositive: z.boolean() });
@@ -230,7 +239,7 @@ export async function listIpRules() {
     .order("created_at", { ascending: false })
     .limit(500);
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return plain(data);
 }
 
 export async function createIpRule(userId: string, input: z.infer<typeof ipRuleSchema>) {
@@ -290,7 +299,7 @@ export async function listBlockedCountries() {
     .select("*")
     .order("country_code");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return plain(data);
 }
 
 export async function addBlockedCountry(userId: string, input: z.infer<typeof countrySchema>) {
@@ -330,7 +339,7 @@ export async function listFraudQueue() {
     .order("created_at", { ascending: false })
     .limit(100);
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return plain(data);
 }
 
 export const fraudReviewSchema = z.object({
@@ -362,7 +371,7 @@ export async function listLockouts() {
     .order("locked_until", { ascending: false })
     .limit(200);
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return plain(data);
 }
 
 export async function releaseLockout(userId: string, input: z.infer<typeof idSchema>) {
@@ -386,7 +395,7 @@ export async function listWafRules() {
     .order("severity", { ascending: false })
     .order("rule_name");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return plain(data);
 }
 
 export const wafToggleSchema = z.object({ id: z.string().uuid(), isActive: z.boolean() });
@@ -434,7 +443,7 @@ export async function getSettingsRow() {
   const db = await admin();
   const { data, error } = await db.from("sec_settings").select("*").is("store_id", null).maybeSingle();
   if (error) throw new Error(error.message);
-  return data;
+  return (data ? (JSON.parse(JSON.stringify(data)) as SecRow) : null);
 }
 
 export async function saveSettings(userId: string, input: z.infer<typeof settingsSchema>) {
@@ -496,7 +505,7 @@ export async function listSessions() {
     .order("last_activity_at", { ascending: false })
     .limit(200);
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return plain(data);
 }
 
 export async function revokeSession(userId: string, input: z.infer<typeof idSchema>) {
@@ -523,7 +532,7 @@ export async function listRetentionPolicies() {
     .is("store_id", null)
     .order("data_type");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return plain(data);
 }
 
 export const retentionSchema = z.object({
