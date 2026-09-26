@@ -22,6 +22,9 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as KolayPanelRehberiRouteImport } from './routes/kolay-panel-rehberi'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as MesajlarGirisRouteImport } from './routes/mesajlar-giris'
+import { Route as MesajlarGizlilikRouteImport } from './routes/mesajlar-gizlilik'
+import { Route as MesajlarKosullarRouteImport } from './routes/mesajlar-kosullar'
 import { Route as OdemeTamamRouteImport } from './routes/odeme-tamam'
 import { Route as PazaryeriEntegrasyonuRouteImport } from './routes/pazaryeri-entegrasyonu'
 import { Route as RegisterRouteImport } from './routes/register'
@@ -406,6 +409,21 @@ const LoginRoute = LoginRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MesajlarGirisRoute = MesajlarGirisRouteImport.update({
+  id: '/mesajlar-giris',
+  path: '/mesajlar-giris',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MesajlarGizlilikRoute = MesajlarGizlilikRouteImport.update({
+  id: '/mesajlar-gizlilik',
+  path: '/mesajlar-gizlilik',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MesajlarKosullarRoute = MesajlarKosullarRouteImport.update({
+  id: '/mesajlar-kosullar',
+  path: '/mesajlar-kosullar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OdemeTamamRoute = OdemeTamamRouteImport.update({
@@ -2240,6 +2258,9 @@ export interface FileRoutesByFullPath {
   '/kolay-panel-rehberi': typeof KolayPanelRehberiRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/mesajlar-giris': typeof MesajlarGirisRoute
+  '/mesajlar-gizlilik': typeof MesajlarGizlilikRoute
+  '/mesajlar-kosullar': typeof MesajlarKosullarRoute
   '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
@@ -2574,6 +2595,9 @@ export interface FileRoutesByTo {
   '/kolay-panel-rehberi': typeof KolayPanelRehberiRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/mesajlar-giris': typeof MesajlarGirisRoute
+  '/mesajlar-gizlilik': typeof MesajlarGizlilikRoute
+  '/mesajlar-kosullar': typeof MesajlarKosullarRoute
   '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
@@ -2904,6 +2928,9 @@ export interface FileRoutesById {
   '/kolay-panel-rehberi': typeof KolayPanelRehberiRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/mesajlar-giris': typeof MesajlarGirisRoute
+  '/mesajlar-gizlilik': typeof MesajlarGizlilikRoute
+  '/mesajlar-kosullar': typeof MesajlarKosullarRoute
   '/odeme-tamam': typeof OdemeTamamRoute
   '/pazaryeri-entegrasyonu': typeof PazaryeriEntegrasyonuRoute
   '/register': typeof RegisterRoute
@@ -3240,6 +3267,9 @@ export interface FileRouteTypes {
     | '/kolay-panel-rehberi'
     | '/login'
     | '/mcp'
+    | '/mesajlar-giris'
+    | '/mesajlar-gizlilik'
+    | '/mesajlar-kosullar'
     | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
@@ -3574,6 +3604,9 @@ export interface FileRouteTypes {
     | '/kolay-panel-rehberi'
     | '/login'
     | '/mcp'
+    | '/mesajlar-giris'
+    | '/mesajlar-gizlilik'
+    | '/mesajlar-kosullar'
     | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
@@ -3903,6 +3936,9 @@ export interface FileRouteTypes {
     | '/kolay-panel-rehberi'
     | '/login'
     | '/mcp'
+    | '/mesajlar-giris'
+    | '/mesajlar-gizlilik'
+    | '/mesajlar-kosullar'
     | '/odeme-tamam'
     | '/pazaryeri-entegrasyonu'
     | '/register'
@@ -4239,6 +4275,9 @@ export interface RootRouteChildren {
   KolayPanelRehberiRoute: typeof KolayPanelRehberiRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
+  MesajlarGirisRoute: typeof MesajlarGirisRoute
+  MesajlarGizlilikRoute: typeof MesajlarGizlilikRoute
+  MesajlarKosullarRoute: typeof MesajlarKosullarRoute
   OdemeTamamRoute: typeof OdemeTamamRoute
   PazaryeriEntegrasyonuRoute: typeof PazaryeriEntegrasyonuRoute
   RegisterRoute: typeof RegisterRoute
@@ -4438,6 +4477,27 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mesajlar-giris': {
+      id: '/mesajlar-giris'
+      path: '/mesajlar-giris'
+      fullPath: '/mesajlar-giris'
+      preLoaderRoute: typeof MesajlarGirisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mesajlar-gizlilik': {
+      id: '/mesajlar-gizlilik'
+      path: '/mesajlar-gizlilik'
+      fullPath: '/mesajlar-gizlilik'
+      preLoaderRoute: typeof MesajlarGizlilikRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mesajlar-kosullar': {
+      id: '/mesajlar-kosullar'
+      path: '/mesajlar-kosullar'
+      fullPath: '/mesajlar-kosullar'
+      preLoaderRoute: typeof MesajlarKosullarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/odeme-tamam': {
@@ -7349,6 +7409,9 @@ const rootRouteChildren: RootRouteChildren = {
   KolayPanelRehberiRoute: KolayPanelRehberiRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
+  MesajlarGirisRoute: MesajlarGirisRoute,
+  MesajlarGizlilikRoute: MesajlarGizlilikRoute,
+  MesajlarKosullarRoute: MesajlarKosullarRoute,
   OdemeTamamRoute: OdemeTamamRoute,
   PazaryeriEntegrasyonuRoute: PazaryeriEntegrasyonuRoute,
   RegisterRoute: RegisterRoute,
