@@ -1,0 +1,1 @@
+UPDATE public.plan_features SET is_enabled = true, updated_at = now() WHERE metric_key = 'module_api' AND plan_id IN ('9912c2ac-c5d6-471f-8e7b-2642ba8b3dd5','3f9882b0-15d4-48c9-88c0-07078b61468f');
