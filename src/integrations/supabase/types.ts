@@ -2448,6 +2448,24 @@ export type Database = {
           },
         ]
       }
+      chat_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       chat_conversations: {
         Row: {
           created_at: string
@@ -2562,6 +2580,7 @@ export type Database = {
           display_role: string
           joined_at: string
           last_read_at: string
+          mute_until: string | null
           muted: boolean
           role: string
           user_id: string
@@ -2572,6 +2591,7 @@ export type Database = {
           display_role?: string
           joined_at?: string
           last_read_at?: string
+          mute_until?: string | null
           muted?: boolean
           role?: string
           user_id: string
@@ -2582,6 +2602,7 @@ export type Database = {
           display_role?: string
           joined_at?: string
           last_read_at?: string
+          mute_until?: string | null
           muted?: boolean
           role?: string
           user_id?: string
@@ -2645,6 +2666,107 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      chat_reports: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          message_snapshot: string | null
+          note: string | null
+          reason: string
+          reported_user_id: string | null
+          reporter_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          message_snapshot?: string | null
+          note?: string | null
+          reason: string
+          reported_user_id?: string | null
+          reporter_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          message_snapshot?: string | null
+          note?: string | null
+          reason?: string
+          reported_user_id?: string | null
+          reporter_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_reports_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_user_settings: {
+        Row: {
+          bio: string | null
+          consent_at: string | null
+          created_at: string
+          handle: string | null
+          last_seen_privacy: string
+          notifications_enabled: boolean
+          online_privacy: string
+          phone_hash: string | null
+          photo_privacy: string
+          sound: string
+          store_url: string | null
+          updated_at: string
+          user_id: string
+          user_type: string
+          vibrate: boolean
+        }
+        Insert: {
+          bio?: string | null
+          consent_at?: string | null
+          created_at?: string
+          handle?: string | null
+          last_seen_privacy?: string
+          notifications_enabled?: boolean
+          online_privacy?: string
+          phone_hash?: string | null
+          photo_privacy?: string
+          sound?: string
+          store_url?: string | null
+          updated_at?: string
+          user_id: string
+          user_type?: string
+          vibrate?: boolean
+        }
+        Update: {
+          bio?: string | null
+          consent_at?: string | null
+          created_at?: string
+          handle?: string | null
+          last_seen_privacy?: string
+          notifications_enabled?: boolean
+          online_privacy?: string
+          phone_hash?: string | null
+          photo_privacy?: string
+          sound?: string
+          store_url?: string | null
+          updated_at?: string
+          user_id?: string
+          user_type?: string
+          vibrate?: boolean
+        }
+        Relationships: []
       }
       checkout_addons: {
         Row: {

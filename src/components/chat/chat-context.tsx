@@ -6,6 +6,10 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { listMyChats, type ChatSummary } from "@/lib/chat.functions";
 import { chatTitle } from "./chat-utils";
+import { playTone } from "./chat-extras";
+
+export type ChatPrefs = { hideOnline: boolean; notifications: boolean; sound: string; vibrate: boolean };
+const DEFAULT_PREFS: ChatPrefs = { hideOnline: false, notifications: true, sound: "pop", vibrate: true };
 
 type Ctx = {
   me: string;
@@ -25,7 +29,9 @@ export const useChat = () => {
   return c;
 };
 
-export function ChatProvider({ children, myStatus }: { children: ReactNode; myStatus: string }) {
+export function ChatProvider({ children, myStatus, prefs = DEFAULT_PREFS }: { children: ReactNode; myStatus: string; prefs?: ChatPrefs }) {
+  const prefsRef = useRef(prefs);
+  prefsRef.current = prefs;
   const list = useServerFn(listMyChats);
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ["chat", "list"], queryFn: () => list(), staleTime: 10_000 });
@@ -52,7 +58,7 @@ export function ChatProvider({ children, myStatus }: { children: ReactNode; mySt
     ch.on("presence", { event: "sync" }, () => {
       setOnline(new Set(Object.keys(ch.presenceState())));
     }).subscribe(async (s) => {
-      if (s === "SUBSCRIBED" && myStatus !== "invisible") await ch.track({ status: myStatus });
+      if (s === "SUBSCRIBED" && myStatus !== "invisible" && !prefs.hideOnline) await ch.track({ status: myStatus });
     });
     const beat = () =>
       supabase.from("chat_presence").upsert({ user_id: me, status: myStatus as never, last_seen_at: new Date().toISOString() });
@@ -63,7 +69,7 @@ export function ChatProvider({ children, myStatus }: { children: ReactNode; mySt
       void beat();
       supabase.removeChannel(ch);
     };
-  }, [me, myStatus]);
+  }, [me, myStatus, prefs.hideOnline]);
 
   // Yeni mesajlar — liste güncellenir, başka sohbetse bildirim gösterilir.
   const chatsRef = useRef<ChatSummary[]>([]);
@@ -79,7 +85,9 @@ export function ChatProvider({ children, myStatus }: { children: ReactNode; mySt
         qc.invalidateQueries({ queryKey: ["chat", "list"] });
         if (m.sender_id === me) return;
         const chat = chatsRef.current.find((c) => c.id === m.conversation_id);
-        if (chat?.muted || myStatus === "dnd") return;
+        if (chat?.muted || myStatus === "dnd" || !prefsRef.current.notifications) return;
+        if (prefsRef.current.sound !== "none") playTone(prefsRef.current.sound);
+        if (prefsRef.current.vibrate && "vibrate" in navigator) navigator.vibrate?.(120);
         const title = chat ? chatTitle(chat, me) : "Yeni mesaj";
         const body = m.kind === "text" ? (m.body ?? "") : m.kind === "image" ? "📷 Fotoğraf" : m.kind === "audio" ? "🎤 Sesli mesaj" : "📎 Dosya";
         if (document.hidden && "Notification" in window && Notification.permission === "granted") {
