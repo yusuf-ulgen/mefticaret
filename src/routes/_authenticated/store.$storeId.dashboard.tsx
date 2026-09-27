@@ -48,7 +48,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/dashboard")
 
 const HIGHLIGHTS = [
   {
-    to: "/store/$storeId/themes" as const,
+    to: "/store/$storeId/theme-editor-v2" as const,
     tag: "Vitrin",
     title: "Tema ve tasarım",
     description: "Vitrini bölüm bölüm düzenle, canlı önizle ve yayınla.",
@@ -90,7 +90,7 @@ function DashboardPage() {
     { key: "product", label: "Aktif ürün ekle", done: checklist?.hasActiveProduct ?? false, to: "/store/$storeId/products" as const },
     { key: "payment", label: "Ödeme yöntemi aç", done: checklist?.hasPaymentMethod ?? false, to: "/store/$storeId/payments" as const },
     { key: "shipping", label: "Kargo tarifesi tanımla", done: checklist?.hasShippingRate ?? false, to: "/store/$storeId/shipping" as const },
-    { key: "theme", label: "Temayı yayınla", done: checklist?.themePublished ?? false, to: "/store/$storeId/themes" as const },
+    { key: "theme", label: "Temayı yayınla", done: checklist?.themePublished ?? false, to: "/store/$storeId/theme-editor-v2" as const },
     { key: "contact", label: "İletişim e-postası gir", done: checklist?.hasContactEmail ?? false, to: "/store/$storeId/settings" as const },
     { key: "domain", label: "Alan adı doğrula", done: checklist?.hasVerifiedDomain ?? false, to: "/store/$storeId/domains" as const },
   ];

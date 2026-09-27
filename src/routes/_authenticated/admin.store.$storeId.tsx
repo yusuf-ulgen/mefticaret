@@ -483,8 +483,8 @@ const CONTROL_GROUPS = [
       { to: "/admin/frontend/$storeId", label: "Ön uç kontrol paneli" },
       { to: "/store/$storeId/theme-editor-v2", label: "Tema editörü" },
 
-      { to: "/store/$storeId/themes", label: "Tema mağazası" },
-      { to: "/store/$storeId/theme-sections", label: "Tema bölümleri" },
+      { to: "/store/$storeId/theme-editor-v2", label: "Tema mağazası" },
+      { to: "/store/$storeId/theme-editor-v2", label: "Tema bölümleri" },
       { to: "/store/$storeId/pages", label: "Sayfalar" },
       { to: "/store/$storeId/navigation", label: "Menüler" },
       { to: "/store/$storeId/media", label: "Medya" },
