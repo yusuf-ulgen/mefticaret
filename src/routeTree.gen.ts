@@ -66,6 +66,8 @@ import { Route as FrIndexRouteImport } from './routes/fr.index'
 import { Route as KargoTakipTrackingRouteImport } from './routes/kargo-takip.$tracking'
 import { Route as MagazaSlugRouteImport } from './routes/magaza.$slug'
 import { Route as PreviewSlugRouteImport } from './routes/preview.$slug'
+import { Route as RehberlerIndexRouteImport } from './routes/rehberler.index'
+import { Route as RehberlerSlugRouteImport } from './routes/rehberler.$slug'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -637,6 +639,16 @@ const MagazaSlugRoute = MagazaSlugRouteImport.update({
 const PreviewSlugRoute = PreviewSlugRouteImport.update({
   id: '/preview/$slug',
   path: '/preview/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RehberlerIndexRoute = RehberlerIndexRouteImport.update({
+  id: '/rehberler/',
+  path: '/rehberler/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RehberlerSlugRoute = RehberlerSlugRouteImport.update({
+  id: '/rehberler/$slug',
+  path: '/rehberler/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SayfaSlugRoute = SayfaSlugRouteImport.update({
@@ -2336,6 +2348,7 @@ export interface FileRoutesByFullPath {
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/preview/$slug': typeof PreviewSlugRoute
+  '/rehberler/$slug': typeof RehberlerSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -2343,6 +2356,7 @@ export interface FileRoutesByFullPath {
   '/en/': typeof EnIndexRoute
   '/ev-hanimlari/': typeof EvHanimlariIndexRoute
   '/fr/': typeof FrIndexRoute
+  '/rehberler/': typeof RehberlerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2678,6 +2692,7 @@ export interface FileRoutesByTo {
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/preview/$slug': typeof PreviewSlugRoute
+  '/rehberler/$slug': typeof RehberlerSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar': typeof ArIndexRoute
   '/blog': typeof BlogIndexRoute
@@ -2685,6 +2700,7 @@ export interface FileRoutesByTo {
   '/en': typeof EnIndexRoute
   '/ev-hanimlari': typeof EvHanimlariIndexRoute
   '/fr': typeof FrIndexRoute
+  '/rehberler': typeof RehberlerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -3018,6 +3034,7 @@ export interface FileRoutesById {
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/preview/$slug': typeof PreviewSlugRoute
+  '/rehberler/$slug': typeof RehberlerSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
   '/ar/': typeof ArIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -3025,6 +3042,7 @@ export interface FileRoutesById {
   '/en/': typeof EnIndexRoute
   '/ev-hanimlari/': typeof EvHanimlariIndexRoute
   '/fr/': typeof FrIndexRoute
+  '/rehberler/': typeof RehberlerIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
@@ -3363,6 +3381,7 @@ export interface FileRouteTypes {
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/preview/$slug'
+    | '/rehberler/$slug'
     | '/sayfa/$slug'
     | '/ar/'
     | '/blog/'
@@ -3370,6 +3389,7 @@ export interface FileRouteTypes {
     | '/en/'
     | '/ev-hanimlari/'
     | '/fr/'
+    | '/rehberler/'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -3705,6 +3725,7 @@ export interface FileRouteTypes {
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/preview/$slug'
+    | '/rehberler/$slug'
     | '/sayfa/$slug'
     | '/ar'
     | '/blog'
@@ -3712,6 +3733,7 @@ export interface FileRouteTypes {
     | '/en'
     | '/ev-hanimlari'
     | '/fr'
+    | '/rehberler'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -4044,6 +4066,7 @@ export interface FileRouteTypes {
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/preview/$slug'
+    | '/rehberler/$slug'
     | '/sayfa/$slug'
     | '/ar/'
     | '/blog/'
@@ -4051,6 +4074,7 @@ export interface FileRouteTypes {
     | '/en/'
     | '/ev-hanimlari/'
     | '/fr/'
+    | '/rehberler/'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
@@ -4382,6 +4406,7 @@ export interface RootRouteChildren {
   KargoTakipTrackingRoute: typeof KargoTakipTrackingRoute
   MagazaSlugRoute: typeof MagazaSlugRoute
   PreviewSlugRoute: typeof PreviewSlugRoute
+  RehberlerSlugRoute: typeof RehberlerSlugRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
   ArIndexRoute: typeof ArIndexRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -4389,6 +4414,7 @@ export interface RootRouteChildren {
   EnIndexRoute: typeof EnIndexRoute
   EvHanimlariIndexRoute: typeof EvHanimlariIndexRoute
   FrIndexRoute: typeof FrIndexRoute
+  RehberlerIndexRoute: typeof RehberlerIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiAiExecuteRoute: typeof ApiAiExecuteRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
@@ -4861,6 +4887,20 @@ declare module '@tanstack/react-router' {
       path: '/preview/$slug'
       fullPath: '/preview/$slug'
       preLoaderRoute: typeof PreviewSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rehberler/': {
+      id: '/rehberler/'
+      path: '/rehberler'
+      fullPath: '/rehberler/'
+      preLoaderRoute: typeof RehberlerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rehberler/$slug': {
+      id: '/rehberler/$slug'
+      path: '/rehberler/$slug'
+      fullPath: '/rehberler/$slug'
+      preLoaderRoute: typeof RehberlerSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sayfa/$slug': {
@@ -7572,6 +7612,7 @@ const rootRouteChildren: RootRouteChildren = {
   KargoTakipTrackingRoute: KargoTakipTrackingRoute,
   MagazaSlugRoute: MagazaSlugRoute,
   PreviewSlugRoute: PreviewSlugRoute,
+  RehberlerSlugRoute: RehberlerSlugRoute,
   SayfaSlugRoute: SayfaSlugRoute,
   ArIndexRoute: ArIndexRoute,
   BlogIndexRoute: BlogIndexRoute,
@@ -7579,6 +7620,7 @@ const rootRouteChildren: RootRouteChildren = {
   EnIndexRoute: EnIndexRoute,
   EvHanimlariIndexRoute: EvHanimlariIndexRoute,
   FrIndexRoute: FrIndexRoute,
+  RehberlerIndexRoute: RehberlerIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiAiExecuteRoute: ApiAiExecuteRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
