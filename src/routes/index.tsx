@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Boxes, Check, Heart, Menu, PackagePlus, Smartphone, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Boxes, Check, Heart, Menu, MessageCircle, PackagePlus, Smartphone, X } from "lucide-react";
 
 import gdprBadge from "@/assets/gdpr-badge.webp.asset.json";
 import { CommerceFlowAnimation } from "@/components/commerce-flow-animation";
@@ -648,6 +648,15 @@ function LandingPage() {
           </section>
         ) : null}
       </main>
+
+      <Link
+        to="/mesajlar-giris"
+        aria-label="Mefticaret Mesajlar"
+        className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition hover:scale-105"
+      >
+        <MessageCircle className="h-5 w-5" />
+        <span className="hidden sm:inline">Mesajlar</span>
+      </Link>
 
       {footer ? (
         <footer className="border-t border-border py-14">
