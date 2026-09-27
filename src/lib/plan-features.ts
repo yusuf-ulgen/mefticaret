@@ -117,7 +117,8 @@ export const MODULE_CATALOG: PlanModule[] = [
     key: "module_analytics_v2",
     label: "Analitik Paneli v2",
     description: "Satış, trafik, dönüşüm hunisi, canlı ziyaretçi ve zamanlanmış raporlar.",
-    routes: ["analytics"],
+    // Analitik sayfası her mağazada menüde kalır; rota eşlemesi yok.
+    routes: [],
   },
   {
     key: "module_notification_v2",

@@ -528,7 +528,7 @@ function CheckoutPage() {
                   <input style={inputStyle} type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 </Field>
                 <Field label="Telefon *" muted={muted}>
-                  <input style={inputStyle} type="tel" inputMode="tel" autoComplete="tel" placeholder="0 5XX XXX XX XX" value={phone} onChange={(e) => setPhone(maskTrPhone(e.target.value))} />
+                  <input style={inputStyle} type="tel" inputMode="tel" autoComplete="tel" placeholder={/^(tr|türkiye|turkiye|turkey)$/i.test(country.trim()) || !country.trim() ? "0 5XX XXX XX XX" : "+49 151 23456789"} value={phone} onChange={(e) => { const v = e.target.value; const isTr = (/^(tr|türkiye|turkiye|turkey)$/i.test(country.trim()) || !country.trim()) && !/^\s*(\+|00)(?!90)/.test(v); setPhone(isTr ? maskTrPhone(v) : v.replace(/[^\d+\s()-]/g, "").slice(0, 20)); }} />
                 </Field>
                 {digitalOnly ? null : (
                   <>
