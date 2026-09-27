@@ -178,7 +178,7 @@ function AdminFrontendPage() {
             </Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link to="/store/$storeId/theme-editor" params={{ storeId }}>
+            <Link to="/store/$storeId/theme-editor-v2" params={{ storeId }}>
               Tema editörü
             </Link>
           </Button>

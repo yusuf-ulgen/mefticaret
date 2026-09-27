@@ -155,7 +155,6 @@ import { Route as AuthenticatedAdminFrontendStoreIdRouteImport } from './routes/
 import { Route as AuthenticatedAdminFrontendLandingRouteImport } from './routes/_authenticated/admin.frontend.landing'
 import { Route as AuthenticatedAdminSettingsAiEngineRouteImport } from './routes/_authenticated/admin.settings_.ai-engine'
 import { Route as AuthenticatedAdminStoreStoreIdRouteImport } from './routes/_authenticated/admin.store.$storeId'
-import { Route as AuthenticatedAdminThemeStudioStoreIdRouteImport } from './routes/_authenticated/admin.theme-studio.$storeId'
 import { Route as AuthenticatedStoreStoreIdIndexRouteImport } from './routes/_authenticated/store.$storeId.index'
 import { Route as AuthenticatedStoreStoreIdAbcRouteImport } from './routes/_authenticated/store.$storeId.abc'
 import { Route as AuthenticatedStoreStoreIdActivityRouteImport } from './routes/_authenticated/store.$storeId.activity'
@@ -275,13 +274,8 @@ import { Route as AuthenticatedStoreStoreIdTasksRouteImport } from './routes/_au
 import { Route as AuthenticatedStoreStoreIdTaxRouteImport } from './routes/_authenticated/store.$storeId.tax'
 import { Route as AuthenticatedStoreStoreIdTeamRouteImport } from './routes/_authenticated/store.$storeId.team'
 import { Route as AuthenticatedStoreStoreIdTeamPerformanceRouteImport } from './routes/_authenticated/store.$storeId.team-performance'
-import { Route as AuthenticatedStoreStoreIdThemeDesignRouteImport } from './routes/_authenticated/store.$storeId.theme-design'
-import { Route as AuthenticatedStoreStoreIdThemeEditorRouteImport } from './routes/_authenticated/store.$storeId.theme-editor'
 import { Route as AuthenticatedStoreStoreIdThemeEditorV2RouteImport } from './routes/_authenticated/store.$storeId.theme-editor-v2'
 import { Route as AuthenticatedStoreStoreIdThemePresetsRouteImport } from './routes/_authenticated/store.$storeId.theme-presets'
-import { Route as AuthenticatedStoreStoreIdThemeSectionsRouteImport } from './routes/_authenticated/store.$storeId.theme-sections'
-import { Route as AuthenticatedStoreStoreIdThemeStoreRouteImport } from './routes/_authenticated/store.$storeId.theme-store'
-import { Route as AuthenticatedStoreStoreIdThemesRouteImport } from './routes/_authenticated/store.$storeId.themes'
 import { Route as AuthenticatedStoreStoreIdTiktokRouteImport } from './routes/_authenticated/store.$storeId.tiktok'
 import { Route as AuthenticatedStoreStoreIdTransfersRouteImport } from './routes/_authenticated/store.$storeId.transfers'
 import { Route as AuthenticatedStoreStoreIdValuationRouteImport } from './routes/_authenticated/store.$storeId.valuation'
@@ -1127,12 +1121,6 @@ const AuthenticatedAdminStoreStoreIdRoute =
     path: '/store/$storeId',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminThemeStudioStoreIdRoute =
-  AuthenticatedAdminThemeStudioStoreIdRouteImport.update({
-    id: '/theme-studio/$storeId',
-    path: '/theme-studio/$storeId',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedStoreStoreIdIndexRoute =
   AuthenticatedStoreStoreIdIndexRouteImport.update({
     id: '/',
@@ -1847,18 +1835,6 @@ const AuthenticatedStoreStoreIdTeamPerformanceRoute =
     path: '/team-performance',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
-const AuthenticatedStoreStoreIdThemeDesignRoute =
-  AuthenticatedStoreStoreIdThemeDesignRouteImport.update({
-    id: '/theme-design',
-    path: '/theme-design',
-    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
-  } as any)
-const AuthenticatedStoreStoreIdThemeEditorRoute =
-  AuthenticatedStoreStoreIdThemeEditorRouteImport.update({
-    id: '/theme-editor',
-    path: '/theme-editor',
-    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
-  } as any)
 const AuthenticatedStoreStoreIdThemeEditorV2Route =
   AuthenticatedStoreStoreIdThemeEditorV2RouteImport.update({
     id: '/theme-editor-v2',
@@ -1869,24 +1845,6 @@ const AuthenticatedStoreStoreIdThemePresetsRoute =
   AuthenticatedStoreStoreIdThemePresetsRouteImport.update({
     id: '/theme-presets',
     path: '/theme-presets',
-    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
-  } as any)
-const AuthenticatedStoreStoreIdThemeSectionsRoute =
-  AuthenticatedStoreStoreIdThemeSectionsRouteImport.update({
-    id: '/theme-sections',
-    path: '/theme-sections',
-    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
-  } as any)
-const AuthenticatedStoreStoreIdThemeStoreRoute =
-  AuthenticatedStoreStoreIdThemeStoreRouteImport.update({
-    id: '/theme-store',
-    path: '/theme-store',
-    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
-  } as any)
-const AuthenticatedStoreStoreIdThemesRoute =
-  AuthenticatedStoreStoreIdThemesRouteImport.update({
-    id: '/themes',
-    path: '/themes',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdTiktokRoute =
@@ -2442,7 +2400,6 @@ export interface FileRoutesByFullPath {
   '/admin/frontend/landing': typeof AuthenticatedAdminFrontendLandingRoute
   '/admin/settings/ai-engine': typeof AuthenticatedAdminSettingsAiEngineRoute
   '/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
-  '/admin/theme-studio/$storeId': typeof AuthenticatedAdminThemeStudioStoreIdRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
@@ -2561,13 +2518,8 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/team-performance': typeof AuthenticatedStoreStoreIdTeamPerformanceRoute
-  '/store/$storeId/theme-design': typeof AuthenticatedStoreStoreIdThemeDesignRoute
-  '/store/$storeId/theme-editor': typeof AuthenticatedStoreStoreIdThemeEditorRoute
   '/store/$storeId/theme-editor-v2': typeof AuthenticatedStoreStoreIdThemeEditorV2Route
   '/store/$storeId/theme-presets': typeof AuthenticatedStoreStoreIdThemePresetsRoute
-  '/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
-  '/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
-  '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/store/$storeId/tiktok': typeof AuthenticatedStoreStoreIdTiktokRoute
   '/store/$storeId/transfers': typeof AuthenticatedStoreStoreIdTransfersRoute
   '/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
@@ -2785,7 +2737,6 @@ export interface FileRoutesByTo {
   '/admin/frontend/landing': typeof AuthenticatedAdminFrontendLandingRoute
   '/admin/settings/ai-engine': typeof AuthenticatedAdminSettingsAiEngineRoute
   '/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
-  '/admin/theme-studio/$storeId': typeof AuthenticatedAdminThemeStudioStoreIdRoute
   '/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
@@ -2901,13 +2852,8 @@ export interface FileRoutesByTo {
   '/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/store/$storeId/team-performance': typeof AuthenticatedStoreStoreIdTeamPerformanceRoute
-  '/store/$storeId/theme-design': typeof AuthenticatedStoreStoreIdThemeDesignRoute
-  '/store/$storeId/theme-editor': typeof AuthenticatedStoreStoreIdThemeEditorRoute
   '/store/$storeId/theme-editor-v2': typeof AuthenticatedStoreStoreIdThemeEditorV2Route
   '/store/$storeId/theme-presets': typeof AuthenticatedStoreStoreIdThemePresetsRoute
-  '/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
-  '/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
-  '/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/store/$storeId/tiktok': typeof AuthenticatedStoreStoreIdTiktokRoute
   '/store/$storeId/transfers': typeof AuthenticatedStoreStoreIdTransfersRoute
   '/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
@@ -3128,7 +3074,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/frontend/landing': typeof AuthenticatedAdminFrontendLandingRoute
   '/_authenticated/admin/settings_/ai-engine': typeof AuthenticatedAdminSettingsAiEngineRoute
   '/_authenticated/admin/store/$storeId': typeof AuthenticatedAdminStoreStoreIdRoute
-  '/_authenticated/admin/theme-studio/$storeId': typeof AuthenticatedAdminThemeStudioStoreIdRoute
   '/_authenticated/store/$storeId/abc': typeof AuthenticatedStoreStoreIdAbcRoute
   '/_authenticated/store/$storeId/activity': typeof AuthenticatedStoreStoreIdActivityRoute
   '/_authenticated/store/$storeId/aging': typeof AuthenticatedStoreStoreIdAgingRoute
@@ -3247,13 +3192,8 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/tax': typeof AuthenticatedStoreStoreIdTaxRoute
   '/_authenticated/store/$storeId/team': typeof AuthenticatedStoreStoreIdTeamRoute
   '/_authenticated/store/$storeId/team-performance': typeof AuthenticatedStoreStoreIdTeamPerformanceRoute
-  '/_authenticated/store/$storeId/theme-design': typeof AuthenticatedStoreStoreIdThemeDesignRoute
-  '/_authenticated/store/$storeId/theme-editor': typeof AuthenticatedStoreStoreIdThemeEditorRoute
   '/_authenticated/store/$storeId/theme-editor-v2': typeof AuthenticatedStoreStoreIdThemeEditorV2Route
   '/_authenticated/store/$storeId/theme-presets': typeof AuthenticatedStoreStoreIdThemePresetsRoute
-  '/_authenticated/store/$storeId/theme-sections': typeof AuthenticatedStoreStoreIdThemeSectionsRoute
-  '/_authenticated/store/$storeId/theme-store': typeof AuthenticatedStoreStoreIdThemeStoreRoute
-  '/_authenticated/store/$storeId/themes': typeof AuthenticatedStoreStoreIdThemesRoute
   '/_authenticated/store/$storeId/tiktok': typeof AuthenticatedStoreStoreIdTiktokRoute
   '/_authenticated/store/$storeId/transfers': typeof AuthenticatedStoreStoreIdTransfersRoute
   '/_authenticated/store/$storeId/valuation': typeof AuthenticatedStoreStoreIdValuationRoute
@@ -3475,7 +3415,6 @@ export interface FileRouteTypes {
     | '/admin/frontend/landing'
     | '/admin/settings/ai-engine'
     | '/admin/store/$storeId'
-    | '/admin/theme-studio/$storeId'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
     | '/store/$storeId/aging'
@@ -3594,13 +3533,8 @@ export interface FileRouteTypes {
     | '/store/$storeId/tax'
     | '/store/$storeId/team'
     | '/store/$storeId/team-performance'
-    | '/store/$storeId/theme-design'
-    | '/store/$storeId/theme-editor'
     | '/store/$storeId/theme-editor-v2'
     | '/store/$storeId/theme-presets'
-    | '/store/$storeId/theme-sections'
-    | '/store/$storeId/theme-store'
-    | '/store/$storeId/themes'
     | '/store/$storeId/tiktok'
     | '/store/$storeId/transfers'
     | '/store/$storeId/valuation'
@@ -3818,7 +3752,6 @@ export interface FileRouteTypes {
     | '/admin/frontend/landing'
     | '/admin/settings/ai-engine'
     | '/admin/store/$storeId'
-    | '/admin/theme-studio/$storeId'
     | '/store/$storeId/abc'
     | '/store/$storeId/activity'
     | '/store/$storeId/aging'
@@ -3934,13 +3867,8 @@ export interface FileRouteTypes {
     | '/store/$storeId/tax'
     | '/store/$storeId/team'
     | '/store/$storeId/team-performance'
-    | '/store/$storeId/theme-design'
-    | '/store/$storeId/theme-editor'
     | '/store/$storeId/theme-editor-v2'
     | '/store/$storeId/theme-presets'
-    | '/store/$storeId/theme-sections'
-    | '/store/$storeId/theme-store'
-    | '/store/$storeId/themes'
     | '/store/$storeId/tiktok'
     | '/store/$storeId/transfers'
     | '/store/$storeId/valuation'
@@ -4160,7 +4088,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/frontend/landing'
     | '/_authenticated/admin/settings_/ai-engine'
     | '/_authenticated/admin/store/$storeId'
-    | '/_authenticated/admin/theme-studio/$storeId'
     | '/_authenticated/store/$storeId/abc'
     | '/_authenticated/store/$storeId/activity'
     | '/_authenticated/store/$storeId/aging'
@@ -4279,13 +4206,8 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/tax'
     | '/_authenticated/store/$storeId/team'
     | '/_authenticated/store/$storeId/team-performance'
-    | '/_authenticated/store/$storeId/theme-design'
-    | '/_authenticated/store/$storeId/theme-editor'
     | '/_authenticated/store/$storeId/theme-editor-v2'
     | '/_authenticated/store/$storeId/theme-presets'
-    | '/_authenticated/store/$storeId/theme-sections'
-    | '/_authenticated/store/$storeId/theme-store'
-    | '/_authenticated/store/$storeId/themes'
     | '/_authenticated/store/$storeId/tiktok'
     | '/_authenticated/store/$storeId/transfers'
     | '/_authenticated/store/$storeId/valuation'
@@ -5512,13 +5434,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminStoreStoreIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/theme-studio/$storeId': {
-      id: '/_authenticated/admin/theme-studio/$storeId'
-      path: '/theme-studio/$storeId'
-      fullPath: '/admin/theme-studio/$storeId'
-      preLoaderRoute: typeof AuthenticatedAdminThemeStudioStoreIdRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/store/$storeId/': {
       id: '/_authenticated/store/$storeId/'
       path: '/'
@@ -6352,20 +6267,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdTeamPerformanceRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
-    '/_authenticated/store/$storeId/theme-design': {
-      id: '/_authenticated/store/$storeId/theme-design'
-      path: '/theme-design'
-      fullPath: '/store/$storeId/theme-design'
-      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeDesignRouteImport
-      parentRoute: typeof AuthenticatedStoreStoreIdRoute
-    }
-    '/_authenticated/store/$storeId/theme-editor': {
-      id: '/_authenticated/store/$storeId/theme-editor'
-      path: '/theme-editor'
-      fullPath: '/store/$storeId/theme-editor'
-      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeEditorRouteImport
-      parentRoute: typeof AuthenticatedStoreStoreIdRoute
-    }
     '/_authenticated/store/$storeId/theme-editor-v2': {
       id: '/_authenticated/store/$storeId/theme-editor-v2'
       path: '/theme-editor-v2'
@@ -6378,27 +6279,6 @@ declare module '@tanstack/react-router' {
       path: '/theme-presets'
       fullPath: '/store/$storeId/theme-presets'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdThemePresetsRouteImport
-      parentRoute: typeof AuthenticatedStoreStoreIdRoute
-    }
-    '/_authenticated/store/$storeId/theme-sections': {
-      id: '/_authenticated/store/$storeId/theme-sections'
-      path: '/theme-sections'
-      fullPath: '/store/$storeId/theme-sections'
-      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeSectionsRouteImport
-      parentRoute: typeof AuthenticatedStoreStoreIdRoute
-    }
-    '/_authenticated/store/$storeId/theme-store': {
-      id: '/_authenticated/store/$storeId/theme-store'
-      path: '/theme-store'
-      fullPath: '/store/$storeId/theme-store'
-      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemeStoreRouteImport
-      parentRoute: typeof AuthenticatedStoreStoreIdRoute
-    }
-    '/_authenticated/store/$storeId/themes': {
-      id: '/_authenticated/store/$storeId/themes'
-      path: '/themes'
-      fullPath: '/store/$storeId/themes'
-      preLoaderRoute: typeof AuthenticatedStoreStoreIdThemesRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/tiktok': {
@@ -6952,7 +6832,6 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminFrontendLandingRoute: typeof AuthenticatedAdminFrontendLandingRoute
   AuthenticatedAdminSettingsAiEngineRoute: typeof AuthenticatedAdminSettingsAiEngineRoute
   AuthenticatedAdminStoreStoreIdRoute: typeof AuthenticatedAdminStoreStoreIdRoute
-  AuthenticatedAdminThemeStudioStoreIdRoute: typeof AuthenticatedAdminThemeStudioStoreIdRoute
   AuthenticatedAdminFrontendIndexRoute: typeof AuthenticatedAdminFrontendIndexRoute
 }
 
@@ -7010,8 +6889,6 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSettingsAiEngineRoute:
     AuthenticatedAdminSettingsAiEngineRoute,
   AuthenticatedAdminStoreStoreIdRoute: AuthenticatedAdminStoreStoreIdRoute,
-  AuthenticatedAdminThemeStudioStoreIdRoute:
-    AuthenticatedAdminThemeStudioStoreIdRoute,
   AuthenticatedAdminFrontendIndexRoute: AuthenticatedAdminFrontendIndexRoute,
 }
 
@@ -7260,13 +7137,8 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdTaxRoute: typeof AuthenticatedStoreStoreIdTaxRoute
   AuthenticatedStoreStoreIdTeamRoute: typeof AuthenticatedStoreStoreIdTeamRoute
   AuthenticatedStoreStoreIdTeamPerformanceRoute: typeof AuthenticatedStoreStoreIdTeamPerformanceRoute
-  AuthenticatedStoreStoreIdThemeDesignRoute: typeof AuthenticatedStoreStoreIdThemeDesignRoute
-  AuthenticatedStoreStoreIdThemeEditorRoute: typeof AuthenticatedStoreStoreIdThemeEditorRoute
   AuthenticatedStoreStoreIdThemeEditorV2Route: typeof AuthenticatedStoreStoreIdThemeEditorV2Route
   AuthenticatedStoreStoreIdThemePresetsRoute: typeof AuthenticatedStoreStoreIdThemePresetsRoute
-  AuthenticatedStoreStoreIdThemeSectionsRoute: typeof AuthenticatedStoreStoreIdThemeSectionsRoute
-  AuthenticatedStoreStoreIdThemeStoreRoute: typeof AuthenticatedStoreStoreIdThemeStoreRoute
-  AuthenticatedStoreStoreIdThemesRoute: typeof AuthenticatedStoreStoreIdThemesRoute
   AuthenticatedStoreStoreIdTiktokRoute: typeof AuthenticatedStoreStoreIdTiktokRoute
   AuthenticatedStoreStoreIdTransfersRoute: typeof AuthenticatedStoreStoreIdTransfersRoute
   AuthenticatedStoreStoreIdValuationRoute: typeof AuthenticatedStoreStoreIdValuationRoute
@@ -7487,19 +7359,10 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdTeamRoute: AuthenticatedStoreStoreIdTeamRoute,
     AuthenticatedStoreStoreIdTeamPerformanceRoute:
       AuthenticatedStoreStoreIdTeamPerformanceRoute,
-    AuthenticatedStoreStoreIdThemeDesignRoute:
-      AuthenticatedStoreStoreIdThemeDesignRoute,
-    AuthenticatedStoreStoreIdThemeEditorRoute:
-      AuthenticatedStoreStoreIdThemeEditorRoute,
     AuthenticatedStoreStoreIdThemeEditorV2Route:
       AuthenticatedStoreStoreIdThemeEditorV2Route,
     AuthenticatedStoreStoreIdThemePresetsRoute:
       AuthenticatedStoreStoreIdThemePresetsRoute,
-    AuthenticatedStoreStoreIdThemeSectionsRoute:
-      AuthenticatedStoreStoreIdThemeSectionsRoute,
-    AuthenticatedStoreStoreIdThemeStoreRoute:
-      AuthenticatedStoreStoreIdThemeStoreRoute,
-    AuthenticatedStoreStoreIdThemesRoute: AuthenticatedStoreStoreIdThemesRoute,
     AuthenticatedStoreStoreIdTiktokRoute: AuthenticatedStoreStoreIdTiktokRoute,
     AuthenticatedStoreStoreIdTransfersRoute:
       AuthenticatedStoreStoreIdTransfersRoute,

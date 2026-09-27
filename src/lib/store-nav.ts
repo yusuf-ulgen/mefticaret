@@ -212,13 +212,10 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       group: "Vitrin & Tema",
       icon: Palette,
       items: [
-        { label: "Tema", to: p("theme-editor"), icon: Palette, keywords: "tema düzenleyici şablon blok bileşen vitrin" },
         { label: "Tema Editörü v2", to: p("theme-editor-v2"), icon: Palette, keywords: "tema v2 bölüm blok sürükle bırak hazır tasarım" },
         { label: "Hazır Temalar", to: p("theme-presets"), icon: Palette, keywords: "hazır tema preset şablon marketplace hızlı kurulum" },
         { label: "Tema Kütüphanesi", to: p("theme-library"), icon: Palette, keywords: "tema kütüphane aktif yayınla kopyala sürüm zip indir yükle" },
         { label: "Tema Marketi", to: p("theme-marketplace"), icon: Palette, keywords: "tema market marketplace satın al ücretsiz yükle puan" },
-        { label: "Tasarım Sistemi", to: p("theme-design"), icon: Palette, keywords: "tasarım sistemi renk tipografi boşluk token buton kart animasyon mobil tablet" },
-        { label: "Tema Mağazası", to: p("theme-store"), icon: Palette, keywords: "tema mağazası şablon satın al wokiee premium hazır tema" },
         {
           label: "Mobil Uygulama",
           to: p("mobile-app"),
@@ -343,7 +340,6 @@ export function storeQuickLinks(storeId: string): StoreNavItem[] {
     { label: "Siparişler", to: p("orders"), icon: ShoppingBag },
     { label: "Ürünler", to: p("products"), icon: Package },
     { label: "Müşteriler", to: p("customers"), icon: Users },
-    { label: "Tema", to: p("theme-editor"), icon: Palette, keywords: "tema blok vitrin" },
     {
       label: "Mağaza Taşıma",
       to: p("migration"),

@@ -143,16 +143,15 @@ export async function getTemplate(db: Db, templateId: string) {
 }
 
 async function hasLicense(db: Db, storeId: string, licenseThemeId: string | null) {
-  if (!licenseThemeId) return false;
-  const { data } = await t(db, "store_theme_purchases").select("id").eq("store_id", storeId).eq("theme_id", licenseThemeId).eq("status", "paid").limit(1).maybeSingle();
-  return Boolean(data);
+  void db; void storeId; void licenseThemeId;
+  return false; // Tema Mağazası kaldırıldı; ücretli lisans satın alınamaz.
 }
 
 export async function installTemplate(db: Db, storeId: string, templateId: string, userId: string, allowHtml: boolean) {
   const tpl = must(await t(db, "v2_theme_templates").select("id, name, version, price, structure_json, license_theme_id").eq("id", templateId).eq("is_published", true).maybeSingle()) as { id: string; name: string; version: string; price: number; structure_json: unknown; license_theme_id: string | null } | null;
   if (!tpl) throw new V2Error("not_found", 404, "Tema bulunamadı.");
   if (Number(tpl.price) > 0 && !(await hasLicense(db, storeId, tpl.license_theme_id))) {
-    throw new V2Error("license_required", 402, "Bu tema ücretli. Önce Tema Mağazası'ndan satın almalısın.");
+    throw new V2Error("license_required", 402, "Bu tema ücretli. Ücretli temalar şu an kullanılamıyor.");
   }
   const parsed = presetToPages(tpl.structure_json, () => crypto.randomUUID());
   const theme = must(await t(db, "v2_themes").insert({

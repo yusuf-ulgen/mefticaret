@@ -27,7 +27,6 @@ function AdminContentPage() {
           { path: "/store/:id/media", label: "Medya" },
           { path: "/store/:id/campaigns", label: "Kampanyalar" },
           { path: "/store/:id/marketing", label: "Pazarlama" },
-          { path: "/store/:id/theme-store", label: "Tema mağazası" },
         ]}
       />
     </AdminShell>

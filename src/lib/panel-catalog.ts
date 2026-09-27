@@ -31,7 +31,7 @@ export type PanelSection = {
 const MERGE: Record<string, string[]> = {
   segments: ["customer-segments"],
   seo: ["seo-editor"],
-  "theme-editor": ["theme-design", "theme-sections", "themes", "theme-store"],
+  "theme-editor-v2": [],
   statistics: ["analytics", "reports", "report-monthly"],
   finance: ["ledger", "cashflow", "receivables"],
   inventory: ["stock-count", "valuation", "aging"],
@@ -89,7 +89,7 @@ const DESCRIPTIONS: Record<string, string> = {
   "facebook-marketplace": "Facebook Marketplace ilan aktarımı.",
   languages: "Dil, çeviri ve hreflang yönetimi.",
   "site-kit": "GA4, GTM, Meta Pixel ve dönüşüm takibi.",
-  "theme-editor": "Vitrin teması, tasarım sistemi ve tema mağazası.",
+  "theme-editor-v2": "Vitrin teması.",
   "mobile-app": "iOS/Android uygulama tasarımı ve push.",
   navigation: "Vitrin menüleri ve bağlantılar.",
   pages: "İçerik sayfaları.",

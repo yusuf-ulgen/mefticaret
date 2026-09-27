@@ -143,7 +143,7 @@ function TemplateDetail() {
               <dt>Kurulum</dt><dd className="text-foreground">{tpl.downloads_count}</dd>
             </dl>
             {paid ? (
-              <Button asChild className="h-11 w-full"><Link to="/store/$storeId/theme-store" params={{ storeId }}><ShoppingBag className="mr-1 size-4" />Satın al</Link></Button>
+              <Button asChild className="h-11 w-full"><Link to="/store/$storeId/theme-marketplace" params={{ storeId }}><ShoppingBag className="mr-1 size-4" />Satın al</Link></Button>
             ) : (
               <Button className="h-11 w-full" disabled={install$.isPending} onClick={() => install$.mutate()}>
                 {install$.isPending ? <Loader2 className="mr-1 size-4 animate-spin" /> : <Download className="mr-1 size-4" />}Kütüphaneye yükle
