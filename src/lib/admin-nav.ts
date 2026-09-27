@@ -104,6 +104,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         keywords: "ev hanımları akademi video ambalaj kategori şablon whatsapp",
       },
       {
+        to: "/admin/control",
+        label: "Kontrol Merkezi",
+        icon: ShieldCheck,
+        hint: "Şikayet, hesap askıya alma, ödeme talepleri, AI paketleri",
+        keywords: "şikayet rapor moderasyon ban askıya şifre sıfırla ödeme talebi payout iban ai kredi paket",
+      },
+      {
         to: "/admin/users",
         label: "Kullanıcılar",
         icon: Users,
