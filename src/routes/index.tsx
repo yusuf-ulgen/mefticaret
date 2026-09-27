@@ -71,12 +71,22 @@ async function loadFaqItems(): Promise<FaqItem[]> {
   }
 }
 
+function withTimeout<T>(p: Promise<T>, fallback: T, ms = 1500): Promise<T> {
+  return Promise.race([
+    p.catch(() => fallback),
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+
 export const Route = createFileRoute("/")({
-  loader: async () => ({
-    homeSeo: await fetchHomeSeo(),
-    planOffers: await loadPlanOffers(),
-    faqItems: await loadFaqItems(),
-  }),
+  loader: async () => {
+    const [homeSeo, planOffers, faqItems] = await Promise.all([
+      withTimeout(fetchHomeSeo(), null as Awaited<ReturnType<typeof fetchHomeSeo>> | null),
+      withTimeout(loadPlanOffers(), [] as PlanOffer[]),
+      withTimeout(loadFaqItems(), [] as FaqItem[]),
+    ]);
+    return { homeSeo, planOffers, faqItems };
+  },
   head: ({ loaderData }) => ({
     meta: [
       { title: loaderData?.homeSeo?.title || FALLBACK_TITLE },
