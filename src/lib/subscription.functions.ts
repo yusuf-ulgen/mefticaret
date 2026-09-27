@@ -171,7 +171,11 @@ export const upsertSubscription = createServerFn({ method: "POST" })
       currency: plan.currency ?? "TRY",
     });
 
-    await supabase.from("stores").update({ plan_id: plan.id }).eq("id", data.storeId);
+    {
+      // Yetki ve ödeme kontrolü yukarıda yapıldı; ücretli paket yalnız sunucu tarafından uygulanır.
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("stores").update({ plan_id: plan.id }).eq("id", data.storeId);
+    }
 
     await supabase.from("billing_cycles").insert({
       subscription_id: saved.id,

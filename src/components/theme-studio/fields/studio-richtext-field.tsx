@@ -3,6 +3,8 @@ import { Bold, Italic, Link2, List, ListOrdered, RemoveFormatting, Strikethrough
 
 import { Button } from "@/components/ui/button";
 
+import { sanitizeHtml } from "@/lib/theme-sections";
+
 import { FieldShell } from "./field-shell";
 
 type Command = { icon: typeof Bold; label: string; run: () => void };
@@ -29,7 +31,8 @@ export function RichtextField({
 
   useEffect(() => {
     const node = ref.current;
-    if (node && node.innerHTML !== value) node.innerHTML = value;
+    const safe = sanitizeHtml(value ?? "");
+    if (node && node.innerHTML !== safe) node.innerHTML = safe;
   }, [value]);
 
   const exec = (command: string, argument?: string) => {

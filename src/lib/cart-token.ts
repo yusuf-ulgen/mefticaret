@@ -8,7 +8,14 @@ export function getCartToken(storeSlug: string): string {
     window.localStorage.setItem(key, token);
     return token;
   } catch {
-    return " ephemeral-token-placeholder";
+    // Depolama kapalıysa her yüklemede yeni, tahmin edilemez bir token üret.
+    try {
+      return crypto.randomUUID().replaceAll("-", "") + crypto.randomUUID().replaceAll("-", "").slice(0, 8);
+    } catch {
+      const bytes = new Uint8Array(20);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    }
   }
 }
 

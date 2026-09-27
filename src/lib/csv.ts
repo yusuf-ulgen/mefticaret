@@ -62,8 +62,10 @@ export function parseCsvObjects(input: string): Record<string, string>[] {
 }
 
 function escapeCell(value: unknown): string {
-  const text = value === null || value === undefined ? "" : String(value);
-  return /[",\n;]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  let text = value === null || value === undefined ? "" : String(value);
+  // Hesap tablosu formül enjeksiyonunu engelle (=, +, -, @, tab, CR ile başlayan metin).
+  if (typeof value === "string" && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+  return /[",\n;\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
 export function toCsv(headers: string[], rows: (unknown[])[]): string {

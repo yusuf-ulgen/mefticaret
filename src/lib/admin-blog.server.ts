@@ -57,7 +57,10 @@ export async function listPosts(input: z.infer<typeof listSchema>) {
 
   if (input.storeId) query = query.eq("store_id", input.storeId);
   if (input.status !== "all") query = query.eq("status", input.status);
-  if (input.search) query = query.or(`title.ilike.%${input.search}%,slug.ilike.%${input.search}%`);
+  if (input.search) {
+    const term = input.search.replace(/[^\p{L}\p{N} _-]/gu, "").trim();
+    if (term) query = query.or(`title.ilike.%${term}%,slug.ilike.%${term}%`);
+  }
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);
