@@ -375,7 +375,7 @@ export const deleteMyChatAccount = createServerFn({ method: "POST" })
       const { data: others } = await admin.from("chat_messages").select("attachment_path").in("attachment_path", candidates.slice(i, i + 100)).neq("sender_id", me);
       for (const o of others ?? []) if ((o as any).attachment_path) shared.add((o as any).attachment_path);
     }
-    const paths = candidates.filter((p) => !shared.has(p));
+    const paths = candidates.filter((p) => !shared.has(p as string)) as string[];
     for (let i = 0; i < paths.length; i += 100) await admin.storage.from("chat-media").remove(paths.slice(i, i + 100));
     await admin.from("chat_messages").delete().eq("sender_id", me);
     await admin.from("chat_participants").delete().eq("user_id", me);
