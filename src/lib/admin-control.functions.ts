@@ -117,7 +117,7 @@ export const setPayoutRequestStatus = createServerFn({ method: "POST" })
     const db = await admin(context);
     const patch: Record<string, unknown> = { status: data.status };
     if (data.note) patch["note"] = data.note;
-    const { error } = await db.from("payout_requests").update(patch).eq("id", data.id);
+    const { error } = await db.from("payout_requests").update(patch as never).eq("id", data.id);
     if (error) throw new Error(error.message);
     await audit(db, context.userId, `payout_request.${data.status}`, "payout_request", data.id, { note: data.note ?? null });
     return { ok: true };
@@ -151,7 +151,7 @@ export const saveAiCreditPackage = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const db = await admin(context);
     const { id, ...row } = data;
-    const q = id ? db.from("ai_credit_packages").update(row).eq("id", id) : db.from("ai_credit_packages").insert(row);
+    const q = id ? db.from("ai_credit_packages").update(row as never).eq("id", id) : db.from("ai_credit_packages").insert(row as never);
     const { error } = await q;
     if (error) throw new Error(error.message);
     await audit(db, context.userId, "ai_credit_package.save", "ai_credit_package", id ?? null, row);

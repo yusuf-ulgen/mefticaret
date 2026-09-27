@@ -193,7 +193,7 @@ function Payouts() {
   const save = useServerFn(setPayoutRequestStatus);
   const q = useQuery({ queryKey: ["ctl-payouts", status], queryFn: () => list({ data: { status } }) });
   const m = useMutation({
-    mutationFn: (v: { id: string; status: "approved" | "paid" | "rejected"; note?: string }) => save({ data: v }),
+    mutationFn: (v: { id: string; status: "approved" | "paid" | "rejected"; note?: string | undefined }) => save({ data: v }),
     onSuccess: () => { toast.success("Talep güncellendi"); qc.invalidateQueries({ queryKey: ["ctl-payouts"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -213,7 +213,7 @@ function Payouts() {
             {status === "pending" && <Button size="sm" onClick={() => m.mutate({ id: p.id, status: "approved" })}>Onayla</Button>}
             {(status === "pending" || status === "approved") && <Button size="sm" variant="outline" onClick={() => m.mutate({ id: p.id, status: "paid" })}>Ödendi işaretle</Button>}
             {status !== "rejected" && status !== "paid" && (
-              <Button size="sm" variant="destructive" onClick={() => { const note = prompt("Red sebebi (isteğe bağlı)") ?? undefined; m.mutate({ id: p.id, status: "rejected", note: note || undefined }); }}>Reddet</Button>
+              <Button size="sm" variant="destructive" onClick={() => { const note = prompt("Red sebebi (isteğe bağlı)") ?? undefined; m.mutate(note ? { id: p.id, status: "rejected", note } : { id: p.id, status: "rejected" }); }}>Reddet</Button>
             )}
           </div>
         </div>
