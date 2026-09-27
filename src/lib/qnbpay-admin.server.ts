@@ -384,15 +384,6 @@ export async function settleTransaction(db: Admin, transactionId: string) {
     if (handled.handled) return;
   }
 
-  // Tema lisansı ödemesi: lisans mağazaya tanımlanır ve tema kurulur.
-  if (summary["purpose"] === "theme_license") {
-    const { fulfillThemeLicense } = await import("@/lib/theme-market.server");
-    const handled = await fulfillThemeLicense(db as never, transaction as never);
-    if (handled.handled) return;
-  }
-
-
-
   if (transaction.purpose === "plan") {
     const { activatePlanFromTransaction } = await import("@/lib/plan-checkout.server");
     await activatePlanFromTransaction(db as never, transaction as never);
