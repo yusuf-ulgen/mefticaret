@@ -333,7 +333,7 @@ export function StorefrontChrome({
           <link rel="stylesheet" href={`https://fonts.googleapis.com/css2?${[...new Set(t.font_pair.slice(3).split("|"))].filter((f) => /^[a-zA-Z0-9 ]+$/.test(f)).map((f) => `family=${encodeURIComponent(f)}:wght@400;500;600;700`).join("&")}&display=swap`} />
         ) : null}
         <style dangerouslySetInnerHTML={{ __html: designCss(design) + "@media (max-width:720px){.sf-bottom-nav{display:grid!important}}" }} />
-        {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: customCss }} /> : null}
+        {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: safeCss(customCss) }} /> : null}
         <a href="#ct-main" className="sr-only focus:not-sr-only">İçeriğe geç</a>
         <CookieConsent storeSlug={storeSlug} />
         <SiteKitScripts storeSlug={storeSlug} />
@@ -390,7 +390,7 @@ export function StorefrontChrome({
 `,
         }}
       />
-      {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: customCss }} /> : null}
+      {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: safeCss(customCss) }} /> : null}
 
       <CookieConsent storeSlug={storeSlug} />
       <SiteKitScripts storeSlug={storeSlug} />
@@ -858,4 +858,9 @@ export function StorefrontChrome({
 
     </div>
   );
+}
+
+/** Özel CSS'in <style> etiketinden kaçıp HTML/script eklemesini engeller. */
+function safeCss(css: string): string {
+  return css.replace(/</g, "\\3C ").replace(/>/g, "\\3E ");
 }

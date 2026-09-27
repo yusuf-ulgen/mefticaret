@@ -739,16 +739,18 @@ function OrderDetailDialog({
   };
 
   const printInvoice = () => {
+    const esc = (v: unknown) =>
+      String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
     const rows = order.order_items
       .map(
         (item) =>
-          `<tr><td>${item.title}${item.variant_title ? ` — ${item.variant_title}` : ""}</td><td style="text-align:center">${item.quantity}</td><td style="text-align:right">${formatMoney(Number(item.line_total), order.currency)}</td></tr>`,
+          `<tr><td>${esc(item.title)}${item.variant_title ? ` — ${esc(item.variant_title)}` : ""}</td><td style="text-align:center">${item.quantity}</td><td style="text-align:right">${formatMoney(Number(item.line_total), order.currency)}</td></tr>`,
       )
       .join("");
-    const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>${order.order_number}</title>
+    const html = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>${esc(order.order_number)}</title>
       <style>body{font-family:system-ui,sans-serif;padding:32px;color:#111}h1{font-size:20px}table{width:100%;border-collapse:collapse;margin-top:16px}td,th{border-bottom:1px solid #ddd;padding:8px;font-size:13px}</style>
-      </head><body><h1>${storeName}</h1>
-      <p>Sipariş: <strong>${order.order_number}</strong><br>Tarih: ${formatDateTime(order.placed_at)}</p>
+      </head><body><h1>${esc(storeName)}</h1>
+      <p>Sipariş: <strong>${esc(order.order_number)}</strong><br>Tarih: ${formatDateTime(order.placed_at)}</p>
       <table><thead><tr><th style="text-align:left">Ürün</th><th>Adet</th><th style="text-align:right">Tutar</th></tr></thead><tbody>${rows}</tbody></table>
       <p style="margin-top:16px;text-align:right;font-size:16px"><strong>Genel toplam: ${formatMoney(Number(order.grand_total), order.currency)}</strong></p>
       <script>window.onload=()=>window.print()</script></body></html>`;

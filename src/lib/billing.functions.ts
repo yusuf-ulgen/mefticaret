@@ -35,7 +35,9 @@ export const changeStorePlan = createServerFn({ method: "POST" })
     const { assertPlanEntitlement } = await import("./plan-entitlement.server");
     await assertPlanEntitlement(supabase, data.storeId, plan.id, userId);
 
-    const { error: updateError } = await supabase
+    // Yetki ve ödeme kontrolü yukarıda yapıldı; ücretli paket veritabanında yalnız sunucu tarafından uygulanabilir.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: updateError } = await supabaseAdmin
       .from("stores")
       .update({ plan_id: plan.id })
       .eq("id", data.storeId);

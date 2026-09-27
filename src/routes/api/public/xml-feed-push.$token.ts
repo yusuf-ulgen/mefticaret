@@ -111,7 +111,8 @@ export const Route = createFileRoute("/api/public/xml-feed-push/$token")({
             errorCount: result.errorCount,
           });
         } catch (cause) {
-          const message = cause instanceof Error ? cause.message : "İçe aktarım başarısız";
+          console.error("xml-feed-push failed", cause);
+          const message = "İçe aktarım başarısız";
           return Response.json({ ok: false, error: message }, { status: 422 });
         }
       },

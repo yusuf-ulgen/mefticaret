@@ -14,7 +14,7 @@ const cartItemSchema = z.object({
 
 const syncSchema = z.object({
   slug: z.string().trim().min(1).max(120),
-  cartToken: z.string().trim().min(16).max(128),
+  cartToken: z.string().trim().regex(/^[a-f0-9]{32,128}$/i, "Geçersiz sepet kimliği"),
   customerEmail: z.string().trim().email().max(200).optional().or(z.literal("")),
   customerName: z.string().trim().max(200).optional(),
   items: z.array(cartItemSchema).max(200),

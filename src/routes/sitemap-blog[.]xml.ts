@@ -19,7 +19,8 @@ export const Route = createFileRoute("/sitemap-blog.xml")({
             },
           });
         } catch (cause) {
-          return new Response(cause instanceof Error ? cause.message : "error", { status: 500 });
+          console.error(cause);
+          return new Response("error", { status: 500 });
         }
       },
     },
