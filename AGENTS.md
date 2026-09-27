@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 - Mesajlar (/mesajlar): chat_* tabloları + RLS (app_private.is_chat_member), anlık katman realtime; kişi kapsamı ve sohbet açma yalnız chat.functions.ts sunucu işlevlerinde — neden: kiracılar arası sızıntıyı önlemek.
 - Mağaza sohbet kanalları (store_team, store_inbox) üyeliği yalnız chat-store.server.ts içinde store_users/customers kayıtlarından eşitlenir — neden: satıcı yalnız kendi mağazasının mesajlarını görsün.
+- AI Anahtar Kelime Üreticisi (/store/$storeId/keywords) yalnız keyword-generator.functions.ts sunucu işlevleriyle merkezî callProvider'ı kullanır — neden: kredi kontrolü/düşümü tek yerde, yeni genel API açılmaz.
