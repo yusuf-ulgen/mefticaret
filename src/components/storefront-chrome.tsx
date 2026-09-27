@@ -862,5 +862,5 @@ export function StorefrontChrome({
 
 /** Özel CSS'in <style> etiketinden kaçıp HTML/script eklemesini engeller. */
 function safeCss(css: string): string {
-  return css.replace(/</g, "\\3C ").replace(/>/g, "\\3E ");
+  return css.replace(/</g, "\\3C ");
 }

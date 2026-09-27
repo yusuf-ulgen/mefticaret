@@ -176,7 +176,7 @@ export const saveThemeCode = createServerFn({ method: "POST" })
     }
 
     const update: { custom_css: string | null; custom_js?: string | null } = {
-      custom_css: data.customCss ? data.customCss.replace(/</g, "\\3C ").replace(/>/g, "\\3E ") : null,
+      custom_css: data.customCss ? data.customCss.replace(/</g, "\\3C ") : null,
     };
     if (data.customJs === null || data.customJs?.trim()) {
       update.custom_js = data.customJs?.trim() ? data.customJs : null;
