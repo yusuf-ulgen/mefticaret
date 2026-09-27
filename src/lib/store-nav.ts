@@ -284,6 +284,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Copilot", to: p("copilot"), icon: Bot },
         { label: "AI Asistan", to: p("ai"), icon: Sparkles },
         { label: "AI İçerik Stüdyosu", to: p("ai-studio"), icon: Wand2 },
+        { label: "Anahtar Kelime Üreticisi", to: p("keywords"), icon: Tags },
 
       ],
     },
