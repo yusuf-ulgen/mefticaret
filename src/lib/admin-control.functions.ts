@@ -16,8 +16,8 @@ async function admin(context: { supabase: any; userId: string }) {
   return supabaseAdmin;
 }
 
-async function audit(db: any, actor: string, action: string, entity: string, entityId: string, meta: object) {
-  await db.from("audit_logs").insert({ actor_id: actor, action, entity_type: entity, entity_id: entityId, metadata: meta } as never);
+async function audit(db: any, actor: string, action: string, entity: string, entityId: string | null, meta: object) {
+  await db.from("audit_logs").insert({ actor_id: actor, action, entity, entity_id: entityId, new_value: meta } as never);
 }
 
 async function emailsFor(db: any, ids: string[]) {
@@ -86,7 +86,7 @@ export const sendUserPasswordReset = createServerFn({ method: "POST" })
     const db = await admin(context);
     const { data: res, error } = await db.auth.admin.getUserById(data.userId);
     if (error || !res.user?.email) throw new Error("Kullanıcının e-postası bulunamadı");
-    const { error: sendError } = await db.auth.resetPasswordForEmail(res.user.email, { redirectTo: `${data.origin}/reset-password` });
+    const { error: sendError } = await db.auth.resetPasswordForEmail(res.user.email, { redirectTo: `${data.origin}/auth` });
     if (sendError) throw new Error(sendError.message);
     await audit(db, context.userId, "user.password_reset_sent", "user", data.userId, {});
     return { ok: true, email: res.user.email };
@@ -154,6 +154,6 @@ export const saveAiCreditPackage = createServerFn({ method: "POST" })
     const q = id ? db.from("ai_credit_packages").update(row).eq("id", id) : db.from("ai_credit_packages").insert(row);
     const { error } = await q;
     if (error) throw new Error(error.message);
-    await audit(db, context.userId, "ai_credit_package.save", "ai_credit_package", id ?? row.code, row);
+    await audit(db, context.userId, "ai_credit_package.save", "ai_credit_package", id ?? null, row);
     return { ok: true };
   });
