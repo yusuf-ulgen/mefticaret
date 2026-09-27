@@ -387,7 +387,7 @@ export function ThemeEditorV2({ storeId }: { storeId: string }) {
             {flags.presets ? <Button variant="ghost" size="icon" className="size-11" onClick={() => setPresetOpen(true)} aria-label="Hazır tasarımlar"><Sparkles className="size-4" /></Button> : null}
             <Button variant="ghost" size="icon" className="size-11" onClick={() => action.mutate("duplicate")} disabled={!themeId || action.isPending} aria-label="Temayı kopyala"><Copy className="size-4" /></Button>
             <Button variant="ghost" size="icon" className="hidden size-11 sm:inline-flex" onClick={() => action.mutate("create")} disabled={action.isPending} aria-label="Yeni tema"><Plus className="size-4" /></Button>
-            {store?.slug ? <Button asChild variant="ghost" size="icon" className="hidden size-11 sm:inline-flex" aria-label="Vitrini aç"><a href={`/s/${store.slug}`} target="_blank" rel="noreferrer"><ExternalLink className="size-4" /></a></Button> : null}
+            {store?.slug ? <Button asChild variant="ghost" size="icon" className="size-11" aria-label="Vitrini aç" title="Vitrini aç"><a href={`/s/${store.slug}?v=${Date.now()}`} target="_blank" rel="noreferrer"><ExternalLink className="size-4" /></a></Button> : null}
             <Button variant="outline" className="h-11" onClick={() => save.mutate()} disabled={!dirty || save.isPending}>
               {save.isPending ? <Loader2 className="mr-1.5 size-4 animate-spin" /> : <Save className="mr-1.5 size-4" />}<span className="hidden sm:inline">Kaydet</span>
             </Button>
