@@ -44,6 +44,7 @@ import { Route as TedarikciGirisRouteImport } from './routes/tedarikci-giris'
 import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMesajlarRouteImport } from './routes/_authenticated/mesajlar'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
@@ -113,9 +114,12 @@ import { Route as AuthenticatedAdminTicketsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin.transactions'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminWebhooksRouteImport } from './routes/_authenticated/admin.webhooks'
+import { Route as AuthenticatedEvHanimlariPanelRouteImport } from './routes/_authenticated/ev-hanimlari.panel'
+import { Route as AuthenticatedInboxPanelRouteImport } from './routes/_authenticated/inbox.panel'
 import { Route as AuthenticatedOauthAuthorizeRouteImport } from './routes/_authenticated/oauth.authorize'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
 import { Route as AuthenticatedStoreStoreIdRouteImport } from './routes/_authenticated/store.$storeId'
+import { Route as AuthenticatedTedarikciPanelRouteImport } from './routes/_authenticated/tedarikci.panel'
 import { Route as ApiAiExecuteRouteImport } from './routes/api/ai/execute'
 import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
 import { Route as ApiPublicOdealCallbackRouteImport } from './routes/api/public/odeal-callback'
@@ -523,6 +527,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMesajlarRoute = AuthenticatedMesajlarRouteImport.update({
   id: '/mesajlar',
   path: '/mesajlar',
@@ -900,6 +909,17 @@ const AuthenticatedAdminWebhooksRoute =
     path: '/webhooks',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedEvHanimlariPanelRoute =
+  AuthenticatedEvHanimlariPanelRouteImport.update({
+    id: '/ev-hanimlari/panel',
+    path: '/ev-hanimlari/panel',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInboxPanelRoute = AuthenticatedInboxPanelRouteImport.update({
+  id: '/inbox/panel',
+  path: '/inbox/panel',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOauthAuthorizeRoute =
   AuthenticatedOauthAuthorizeRouteImport.update({
     id: '/oauth/authorize',
@@ -916,6 +936,12 @@ const AuthenticatedStoreStoreIdRoute =
   AuthenticatedStoreStoreIdRouteImport.update({
     id: '/store/$storeId',
     path: '/store/$storeId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTedarikciPanelRoute =
+  AuthenticatedTedarikciPanelRouteImport.update({
+    id: '/tedarikci/panel',
+    path: '/tedarikci/panel',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const ApiAiExecuteRoute = ApiAiExecuteRouteImport.update({
@@ -2287,6 +2313,7 @@ export interface FileRoutesByFullPath {
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/mesajlar': typeof AuthenticatedMesajlarRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
@@ -2355,9 +2382,12 @@ export interface FileRoutesByFullPath {
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
+  '/ev-hanimlari/panel': typeof AuthenticatedEvHanimlariPanelRoute
+  '/inbox/panel': typeof AuthenticatedInboxPanelRoute
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
+  '/tedarikci/panel': typeof AuthenticatedTedarikciPanelRoute
   '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
@@ -2624,6 +2654,7 @@ export interface FileRoutesByTo {
   '/tedarikci-giris': typeof TedarikciGirisRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/mesajlar': typeof AuthenticatedMesajlarRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
@@ -2692,8 +2723,11 @@ export interface FileRoutesByTo {
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
+  '/ev-hanimlari/panel': typeof AuthenticatedEvHanimlariPanelRoute
+  '/inbox/panel': typeof AuthenticatedInboxPanelRoute
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/tedarikci/panel': typeof AuthenticatedTedarikciPanelRoute
   '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
@@ -2959,6 +2993,7 @@ export interface FileRoutesById {
   '/unauthorized': typeof UnauthorizedRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/mesajlar': typeof AuthenticatedMesajlarRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
@@ -3027,9 +3062,12 @@ export interface FileRoutesById {
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/webhooks': typeof AuthenticatedAdminWebhooksRoute
+  '/_authenticated/ev-hanimlari/panel': typeof AuthenticatedEvHanimlariPanelRoute
+  '/_authenticated/inbox/panel': typeof AuthenticatedInboxPanelRoute
   '/_authenticated/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/_authenticated/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
+  '/_authenticated/tedarikci/panel': typeof AuthenticatedTedarikciPanelRoute
   '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
   '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
@@ -3299,6 +3337,7 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/dashboard'
     | '/mesajlar'
     | '/onboarding'
     | '/sellers'
@@ -3367,9 +3406,12 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/webhooks'
+    | '/ev-hanimlari/panel'
+    | '/inbox/panel'
     | '/oauth/authorize'
     | '/seller/$sellerId'
     | '/store/$storeId'
+    | '/tedarikci/panel'
     | '/api/ai/execute'
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
@@ -3636,6 +3678,7 @@ export interface FileRouteTypes {
     | '/tedarikci-giris'
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
+    | '/dashboard'
     | '/mesajlar'
     | '/onboarding'
     | '/sellers'
@@ -3704,8 +3747,11 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/users'
     | '/admin/webhooks'
+    | '/ev-hanimlari/panel'
+    | '/inbox/panel'
     | '/oauth/authorize'
     | '/seller/$sellerId'
+    | '/tedarikci/panel'
     | '/api/ai/execute'
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
@@ -3970,6 +4016,7 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
+    | '/_authenticated/dashboard'
     | '/_authenticated/mesajlar'
     | '/_authenticated/onboarding'
     | '/_authenticated/sellers'
@@ -4038,9 +4085,12 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/transactions'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/webhooks'
+    | '/_authenticated/ev-hanimlari/panel'
+    | '/_authenticated/inbox/panel'
     | '/_authenticated/oauth/authorize'
     | '/_authenticated/seller/$sellerId'
     | '/_authenticated/store/$storeId'
+    | '/_authenticated/tedarikci/panel'
     | '/api/ai/execute'
     | '/api/public/indexnow'
     | '/api/public/odeal-callback'
@@ -4646,6 +4696,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/mesajlar': {
       id: '/_authenticated/mesajlar'
       path: '/mesajlar'
@@ -5129,6 +5186,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWebhooksRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/ev-hanimlari/panel': {
+      id: '/_authenticated/ev-hanimlari/panel'
+      path: '/ev-hanimlari/panel'
+      fullPath: '/ev-hanimlari/panel'
+      preLoaderRoute: typeof AuthenticatedEvHanimlariPanelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inbox/panel': {
+      id: '/_authenticated/inbox/panel'
+      path: '/inbox/panel'
+      fullPath: '/inbox/panel'
+      preLoaderRoute: typeof AuthenticatedInboxPanelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/oauth/authorize': {
       id: '/_authenticated/oauth/authorize'
       path: '/oauth/authorize'
@@ -5148,6 +5219,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId'
       fullPath: '/store/$storeId'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tedarikci/panel': {
+      id: '/_authenticated/tedarikci/panel'
+      path: '/tedarikci/panel'
+      fullPath: '/tedarikci/panel'
+      preLoaderRoute: typeof AuthenticatedTedarikciPanelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/ai/execute': {
@@ -7392,26 +7470,34 @@ const AuthenticatedStoreStoreIdRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMesajlarRoute: typeof AuthenticatedMesajlarRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
   AuthenticatedSupplierRoute: typeof AuthenticatedSupplierRoute
+  AuthenticatedEvHanimlariPanelRoute: typeof AuthenticatedEvHanimlariPanelRoute
+  AuthenticatedInboxPanelRoute: typeof AuthenticatedInboxPanelRoute
   AuthenticatedOauthAuthorizeRoute: typeof AuthenticatedOauthAuthorizeRoute
   AuthenticatedSellerSellerIdRoute: typeof AuthenticatedSellerSellerIdRoute
   AuthenticatedStoreStoreIdRoute: typeof AuthenticatedStoreStoreIdRouteWithChildren
+  AuthenticatedTedarikciPanelRoute: typeof AuthenticatedTedarikciPanelRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMesajlarRoute: AuthenticatedMesajlarRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,
   AuthenticatedSupplierRoute: AuthenticatedSupplierRoute,
+  AuthenticatedEvHanimlariPanelRoute: AuthenticatedEvHanimlariPanelRoute,
+  AuthenticatedInboxPanelRoute: AuthenticatedInboxPanelRoute,
   AuthenticatedOauthAuthorizeRoute: AuthenticatedOauthAuthorizeRoute,
   AuthenticatedSellerSellerIdRoute: AuthenticatedSellerSellerIdRoute,
   AuthenticatedStoreStoreIdRoute: AuthenticatedStoreStoreIdRouteWithChildren,
+  AuthenticatedTedarikciPanelRoute: AuthenticatedTedarikciPanelRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
