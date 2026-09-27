@@ -77,6 +77,7 @@ import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminCmsRouteImport } from './routes/_authenticated/admin.cms'
 import { Route as AuthenticatedAdminCommissionsRouteImport } from './routes/_authenticated/admin.commissions'
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
+import { Route as AuthenticatedAdminControlRouteImport } from './routes/_authenticated/admin.control'
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin.coupons'
 import { Route as AuthenticatedAdminEinvoiceRouteImport } from './routes/_authenticated/admin.einvoice'
 import { Route as AuthenticatedAdminEvHanimlariRouteImport } from './routes/_authenticated/admin.ev-hanimlari'
@@ -690,6 +691,12 @@ const AuthenticatedAdminContentRoute =
   AuthenticatedAdminContentRouteImport.update({
     id: '/content',
     path: '/content',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminControlRoute =
+  AuthenticatedAdminControlRouteImport.update({
+    id: '/control',
+    path: '/control',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminCouponsRoute =
@@ -2312,6 +2319,7 @@ export interface FileRoutesByFullPath {
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/admin/commissions': typeof AuthenticatedAdminCommissionsRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
+  '/admin/control': typeof AuthenticatedAdminControlRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
   '/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
@@ -2648,6 +2656,7 @@ export interface FileRoutesByTo {
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/admin/commissions': typeof AuthenticatedAdminCommissionsRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
+  '/admin/control': typeof AuthenticatedAdminControlRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
   '/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
@@ -2982,6 +2991,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/_authenticated/admin/commissions': typeof AuthenticatedAdminCommissionsRoute
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
+  '/_authenticated/admin/control': typeof AuthenticatedAdminControlRoute
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
   '/_authenticated/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
@@ -3321,6 +3331,7 @@ export interface FileRouteTypes {
     | '/admin/cms'
     | '/admin/commissions'
     | '/admin/content'
+    | '/admin/control'
     | '/admin/coupons'
     | '/admin/einvoice'
     | '/admin/ev-hanimlari'
@@ -3657,6 +3668,7 @@ export interface FileRouteTypes {
     | '/admin/cms'
     | '/admin/commissions'
     | '/admin/content'
+    | '/admin/control'
     | '/admin/coupons'
     | '/admin/einvoice'
     | '/admin/ev-hanimlari'
@@ -3990,6 +4002,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/cms'
     | '/_authenticated/admin/commissions'
     | '/_authenticated/admin/content'
+    | '/_authenticated/admin/control'
     | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/einvoice'
     | '/_authenticated/admin/ev-hanimlari'
@@ -4862,6 +4875,13 @@ declare module '@tanstack/react-router' {
       path: '/content'
       fullPath: '/admin/content'
       preLoaderRoute: typeof AuthenticatedAdminContentRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/control': {
+      id: '/_authenticated/admin/control'
+      path: '/control'
+      fullPath: '/admin/control'
+      preLoaderRoute: typeof AuthenticatedAdminControlRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/coupons': {
@@ -6753,6 +6773,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCmsRoute: typeof AuthenticatedAdminCmsRoute
   AuthenticatedAdminCommissionsRoute: typeof AuthenticatedAdminCommissionsRoute
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
+  AuthenticatedAdminControlRoute: typeof AuthenticatedAdminControlRoute
   AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
   AuthenticatedAdminEinvoiceRoute: typeof AuthenticatedAdminEinvoiceRoute
   AuthenticatedAdminEvHanimlariRoute: typeof AuthenticatedAdminEvHanimlariRoute
@@ -6807,6 +6828,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCmsRoute: AuthenticatedAdminCmsRoute,
   AuthenticatedAdminCommissionsRoute: AuthenticatedAdminCommissionsRoute,
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
+  AuthenticatedAdminControlRoute: AuthenticatedAdminControlRoute,
   AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
   AuthenticatedAdminEinvoiceRoute: AuthenticatedAdminEinvoiceRoute,
   AuthenticatedAdminEvHanimlariRoute: AuthenticatedAdminEvHanimlariRoute,
