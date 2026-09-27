@@ -80,6 +80,20 @@ export const sendTestNotification = createServerFn({ method: "POST" })
     const { renderTemplate, SAMPLE_VARS } = await import("@/lib/customer-notify");
     const vars = { ...SAMPLE_VARS, store_name: store.name, store_logo_url: store.logo_url ?? "" };
     const body = renderTemplate(data.body, vars);
+    // Test mesajı yalnız işlemi yapan kişinin kendi e-postasına / telefonuna gönderilebilir.
+    const claims = (context as { claims?: { email?: string; phone?: string } }).claims ?? {};
+    const digits = (v: string | undefined | null) => (v ?? "").replace(/\D/g, "").replace(/^0/, "90");
+    if (data.channel === "email") {
+      if (!claims.email || claims.email.toLowerCase() !== data.to.toLowerCase()) {
+        throw new Error("Test e-postası yalnız kendi hesap e-postanıza gönderilebilir");
+      }
+    } else {
+      const { data: profile } = await context.supabase.from("profiles").select("phone").eq("id", context.userId).maybeSingle();
+      const own = [digits(claims.phone), digits((profile as { phone?: string | null } | null)?.phone)].filter((p) => p.length >= 8);
+      if (!own.includes(digits(data.to))) {
+        throw new Error("Test mesajı yalnız profilinizdeki kendi telefon numaranıza gönderilebilir");
+      }
+    }
     const { admin } = await import("@/lib/shipment-tracking.server");
     const db = await admin();
     if (data.channel === "email") {

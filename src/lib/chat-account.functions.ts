@@ -365,8 +365,17 @@ export const deleteMyChatAccount = createServerFn({ method: "POST" })
     const admin = await adminClient();
     const { data: owned } = await admin.from("store_users").select("store_id").eq("user_id", me).eq("role", "owner").limit(1);
     if (owned?.length) throw new Error("Sahibi olduğunuz bir mağaza var. Önce mağazayı silin veya devredin.");
-    const { data: files } = await admin.from("chat_messages").select("attachment_path").eq("sender_id", me).not("attachment_path", "is", null).limit(5000);
-    const paths = (files ?? []).map((f: any) => f.attachment_path).filter(Boolean);
+    const { data: files } = await admin.from("chat_messages").select("attachment_path, conversation_id").eq("sender_id", me).not("attachment_path", "is", null).limit(5000);
+    // Yalnız bu kullanıcının kendi sohbet klasöründeki ve başka kimsenin mesajında geçmeyen dosyaları sil.
+    const candidates = [...new Set((files ?? [])
+      .filter((f: any) => typeof f.attachment_path === "string" && f.attachment_path.startsWith(`${f.conversation_id}/`) && !f.attachment_path.includes(".."))
+      .map((f: any) => f.attachment_path as string))];
+    const shared = new Set<string>();
+    for (let i = 0; i < candidates.length; i += 100) {
+      const { data: others } = await admin.from("chat_messages").select("attachment_path").in("attachment_path", candidates.slice(i, i + 100)).neq("sender_id", me);
+      for (const o of others ?? []) if ((o as any).attachment_path) shared.add((o as any).attachment_path);
+    }
+    const paths = candidates.filter((p) => !shared.has(p));
     for (let i = 0; i < paths.length; i += 100) await admin.storage.from("chat-media").remove(paths.slice(i, i + 100));
     await admin.from("chat_messages").delete().eq("sender_id", me);
     await admin.from("chat_participants").delete().eq("user_id", me);

@@ -109,7 +109,18 @@ export const trackStorefrontPopupEvent = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const column = data.kind === "impression" ? "impressions" : "clicks";
-    const { data: current } = await supabaseAdmin.from("store_popups").select(column).eq("id", data.id).maybeSingle();
+    // Yalnız vitrinde gerçekten yayında olan popup'lar sayılır.
+    const nowIso = new Date().toISOString();
+    const { data: current } = await supabaseAdmin
+      .from("store_popups")
+      .select(`${column}, is_active, starts_at, ends_at`)
+      .eq("id", data.id)
+      .eq("is_active", true)
+      .maybeSingle();
+    const row = current as { starts_at?: string | null; ends_at?: string | null } | null;
+    if (!row || (row.starts_at && row.starts_at > nowIso) || (row.ends_at && row.ends_at < nowIso)) {
+      return { ok: true as const };
+    }
     const value = Number((current as Record<string, number> | null)?.[column] ?? 0) + 1;
     await supabaseAdmin.from("store_popups").update({ [column]: value } as never).eq("id", data.id);
     return { ok: true as const };
