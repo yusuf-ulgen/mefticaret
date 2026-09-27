@@ -26,7 +26,7 @@ function AdminFrontendIndexPage() {
         links={[
           { path: "/admin/frontend/:id", label: "Vitrin editörü" },
           { path: "/admin/theme-studio/:id", label: "Tema Stüdyosu" },
-          { path: "/store/:id/theme-editor", label: "Tema & metinler" },
+          { path: "/store/:id/theme-editor-v2", label: "Tema & metinler" },
           { path: "/store/:id/pages", label: "Sayfalar" },
           { path: "/store/:id/blog", label: "Blog" },
           { path: "/store/:id/navigation", label: "Menüler" },

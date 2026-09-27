@@ -129,7 +129,7 @@ function TemplateCard({ tpl, storeId, ctx, busy, onInstall }: { tpl: Template; s
         <div className="flex gap-2">
           <Button asChild variant="outline" className="h-11 flex-1"><Link to="/store/$storeId/theme-marketplace/$templateId" params={{ storeId, templateId: tpl.id }}><Eye className="mr-1 size-4" />Önizle</Link></Button>
           {paid ? (
-            <Button asChild className="h-11 flex-1"><Link to="/store/$storeId/theme-store" params={{ storeId }}><ShoppingBag className="mr-1 size-4" />Satın al</Link></Button>
+            <Button asChild className="h-11 flex-1"><Link to="/store/$storeId/theme-marketplace" params={{ storeId }}><ShoppingBag className="mr-1 size-4" />Satın al</Link></Button>
           ) : (
             <Button className="h-11 flex-1" disabled={busy} onClick={onInstall}><Download className="mr-1 size-4" />Yükle</Button>
           )}
