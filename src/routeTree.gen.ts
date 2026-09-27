@@ -205,6 +205,7 @@ import { Route as AuthenticatedStoreStoreIdInnovationRouteImport } from './route
 import { Route as AuthenticatedStoreStoreIdInstagramRouteImport } from './routes/_authenticated/store.$storeId.instagram'
 import { Route as AuthenticatedStoreStoreIdInventoryRouteImport } from './routes/_authenticated/store.$storeId.inventory'
 import { Route as AuthenticatedStoreStoreIdJobsRouteImport } from './routes/_authenticated/store.$storeId.jobs'
+import { Route as AuthenticatedStoreStoreIdKeywordsRouteImport } from './routes/_authenticated/store.$storeId.keywords'
 import { Route as AuthenticatedStoreStoreIdKolayRouteImport } from './routes/_authenticated/store.$storeId.kolay'
 import { Route as AuthenticatedStoreStoreIdLanguagesRouteImport } from './routes/_authenticated/store.$storeId.languages'
 import { Route as AuthenticatedStoreStoreIdLedgerRouteImport } from './routes/_authenticated/store.$storeId.ledger'
@@ -1426,6 +1427,12 @@ const AuthenticatedStoreStoreIdJobsRoute =
     path: '/jobs',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdKeywordsRoute =
+  AuthenticatedStoreStoreIdKeywordsRouteImport.update({
+    id: '/keywords',
+    path: '/keywords',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdKolayRoute =
   AuthenticatedStoreStoreIdKolayRouteImport.update({
     id: '/kolay',
@@ -2472,6 +2479,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
+  '/store/$storeId/keywords': typeof AuthenticatedStoreStoreIdKeywordsRoute
   '/store/$storeId/kolay': typeof AuthenticatedStoreStoreIdKolayRoute
   '/store/$storeId/languages': typeof AuthenticatedStoreStoreIdLanguagesRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -2810,6 +2818,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
+  '/store/$storeId/keywords': typeof AuthenticatedStoreStoreIdKeywordsRoute
   '/store/$storeId/kolay': typeof AuthenticatedStoreStoreIdKolayRoute
   '/store/$storeId/languages': typeof AuthenticatedStoreStoreIdLanguagesRoute
   '/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -3152,6 +3161,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/instagram': typeof AuthenticatedStoreStoreIdInstagramRoute
   '/_authenticated/store/$storeId/inventory': typeof AuthenticatedStoreStoreIdInventoryRoute
   '/_authenticated/store/$storeId/jobs': typeof AuthenticatedStoreStoreIdJobsRoute
+  '/_authenticated/store/$storeId/keywords': typeof AuthenticatedStoreStoreIdKeywordsRoute
   '/_authenticated/store/$storeId/kolay': typeof AuthenticatedStoreStoreIdKolayRoute
   '/_authenticated/store/$storeId/languages': typeof AuthenticatedStoreStoreIdLanguagesRoute
   '/_authenticated/store/$storeId/ledger': typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -3496,6 +3506,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/instagram'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
+    | '/store/$storeId/keywords'
     | '/store/$storeId/kolay'
     | '/store/$storeId/languages'
     | '/store/$storeId/ledger'
@@ -3834,6 +3845,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/instagram'
     | '/store/$storeId/inventory'
     | '/store/$storeId/jobs'
+    | '/store/$storeId/keywords'
     | '/store/$storeId/kolay'
     | '/store/$storeId/languages'
     | '/store/$storeId/ledger'
@@ -4175,6 +4187,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/instagram'
     | '/_authenticated/store/$storeId/inventory'
     | '/_authenticated/store/$storeId/jobs'
+    | '/_authenticated/store/$storeId/keywords'
     | '/_authenticated/store/$storeId/kolay'
     | '/_authenticated/store/$storeId/languages'
     | '/_authenticated/store/$storeId/ledger'
@@ -5823,6 +5836,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdJobsRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/keywords': {
+      id: '/_authenticated/store/$storeId/keywords'
+      path: '/keywords'
+      fullPath: '/store/$storeId/keywords'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdKeywordsRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/kolay': {
       id: '/_authenticated/store/$storeId/kolay'
       path: '/kolay'
@@ -7132,6 +7152,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdInstagramRoute: typeof AuthenticatedStoreStoreIdInstagramRoute
   AuthenticatedStoreStoreIdInventoryRoute: typeof AuthenticatedStoreStoreIdInventoryRoute
   AuthenticatedStoreStoreIdJobsRoute: typeof AuthenticatedStoreStoreIdJobsRoute
+  AuthenticatedStoreStoreIdKeywordsRoute: typeof AuthenticatedStoreStoreIdKeywordsRoute
   AuthenticatedStoreStoreIdKolayRoute: typeof AuthenticatedStoreStoreIdKolayRoute
   AuthenticatedStoreStoreIdLanguagesRoute: typeof AuthenticatedStoreStoreIdLanguagesRoute
   AuthenticatedStoreStoreIdLedgerRoute: typeof AuthenticatedStoreStoreIdLedgerRoute
@@ -7307,6 +7328,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdInventoryRoute:
       AuthenticatedStoreStoreIdInventoryRoute,
     AuthenticatedStoreStoreIdJobsRoute: AuthenticatedStoreStoreIdJobsRoute,
+    AuthenticatedStoreStoreIdKeywordsRoute:
+      AuthenticatedStoreStoreIdKeywordsRoute,
     AuthenticatedStoreStoreIdKolayRoute: AuthenticatedStoreStoreIdKolayRoute,
     AuthenticatedStoreStoreIdLanguagesRoute:
       AuthenticatedStoreStoreIdLanguagesRoute,
