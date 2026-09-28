@@ -65,7 +65,8 @@ export const getFirewallDashboard = createServerFn({ method: "GET" })
     const ipCounts = new Map<string, number>();
     for (const v of violations.data ?? []) ipCounts.set(v.ip_address, (ipCounts.get(v.ip_address) ?? 0) + 1);
     const topIps = [...ipCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([ip, count]) => ({ ip, count }));
-    return {
+    type Row = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const out = {
       settings: settings.data,
       snapshots: snaps.data ?? [],
       events: events.data ?? [],
@@ -76,6 +77,10 @@ export const getFirewallDashboard = createServerFn({ method: "GET" })
       ipRules: bans.data ?? [],
       captcha: capStats,
       topIps,
+    };
+    return JSON.parse(JSON.stringify(out)) as {
+      settings: Row | null; snapshots: Row[]; events: Row[]; countries: Row[]; asns: Row[]; endpoints: Row[];
+      violations: Row[]; ipRules: Row[]; captcha: Record<string, number>; topIps: { ip: string; count: number }[];
     };
   });
 
@@ -112,7 +117,7 @@ export const upsertCountryRule = createServerFn({ method: "POST" })
   .inputValidator((d) => countrySchema.parse(d))
   .handler(async ({ data, context }) => {
     await guard(context);
-    const { error } = await context.supabase.from("fw_country_rules").upsert({ ...data, added_by_user_id: context.userId, is_active: true }, { onConflict: "country_code" });
+    const { error } = await context.supabase.from("fw_country_rules").upsert({ ...data, reason: data.reason ?? null, added_by_user_id: context.userId, is_active: true }, { onConflict: "country_code" });
     if (error) throw new Error(error.message);
     await audit(context, "firewall.country", data);
     return { ok: true };
@@ -129,7 +134,7 @@ export const upsertAsnRule = createServerFn({ method: "POST" })
   .inputValidator((d) => asnSchema.parse(d))
   .handler(async ({ data, context }) => {
     await guard(context);
-    const { error } = await context.supabase.from("fw_asn_rules").upsert({ ...data, is_active: true }, { onConflict: "asn_number" });
+    const { error } = await context.supabase.from("fw_asn_rules").upsert({ ...data, reason: data.reason ?? null, is_active: true }, { onConflict: "asn_number" });
     if (error) throw new Error(error.message);
     await audit(context, "firewall.asn", data);
     return { ok: true };
