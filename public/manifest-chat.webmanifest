@@ -37,8 +37,54 @@
   ],
   "dir": "ltr",
   "display_override": [
+    "window-controls-overlay",
     "standalone",
     "minimal-ui"
   ],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Sohbetler",
+      "short_name": "Sohbetler",
+      "url": "/mesajlar",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Giriş",
+      "short_name": "Giriş",
+      "url": "/mesajlar-giris",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "focus-existing",
+      "auto"
+    ]
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "related_applications": [],
+  "share_target": {
+    "action": "/mesajlar",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }

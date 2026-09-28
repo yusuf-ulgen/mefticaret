@@ -35,8 +35,57 @@
   ],
   "dir": "ltr",
   "display_override": [
+    "window-controls-overlay",
     "standalone",
     "minimal-ui"
   ],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Mağaza Aç",
+      "short_name": "Mağaza Aç",
+      "url": "/auth",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Mesajlar",
+      "short_name": "Mesajlar",
+      "url": "/mesajlar",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Rehberler",
+      "short_name": "Rehberler",
+      "url": "/rehberler",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "focus-existing",
+      "auto"
+    ]
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "related_applications": []
 }
