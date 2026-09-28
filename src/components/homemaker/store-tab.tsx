@@ -550,7 +550,7 @@ export function StoreTab({
           >
             <ShieldCheck className="mt-0.5 size-5 text-hm-emerald" />
             <span>
-              <span className="block font-semibold text-hm-ink">Mefpay ile kartla tahsilat</span>
+              <span className="block font-semibold text-hm-ink">Kartla ödeme</span>
               <span className="block text-sm text-hm-ink-soft">
                 Müşteri kredi kartıyla öder, para hesabınıza geçer. Vergi muafiyeti belgeniz varsa
                 da kullanabilirsiniz.
