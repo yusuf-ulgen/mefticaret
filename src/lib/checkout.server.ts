@@ -744,7 +744,9 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
   const paymentMode = (settings?.payment_mode ?? null) as string | null;
   const unpaid = order.payment_status !== "paid" && !["cancelled", "refunded"].includes(order.status);
   let cardAvailable = false;
-  if (unpaid && paymentMode === "mefpay" && Number(order.grand_total) > 0) {
+  const { data: kindRow } = await supabase.from("stores").select("store_kind").eq("id", store.id).maybeSingle();
+  // QNBpay yalnız Kolay Panel mağazalarında kullanılır.
+  if (unpaid && paymentMode === "mefpay" && kindRow?.store_kind === "micro" && Number(order.grand_total) > 0) {
     const { cardPaymentAvailable } = await import("@/lib/qnbpay-admin.server");
     cardAvailable = await cardPaymentAvailable();
   }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, CreditCard, ExternalLink, Loader2, RefreshCw, XCircle } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 import { AdminShell } from "@/components/admin-shell";
@@ -12,10 +12,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  fetchOdealSettings,
   fetchPlatformInvoices,
   markInvoicePaidManually,
-  testOdealConnection,
 } from "@/lib/admin-billing.functions";
 
 /** Süper admin: ödeme sağlayıcısı ayarları ve tüm mağazaların fatura tahsilat takibi. */
@@ -26,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/admin/billing")({
       { title: "Ödeme & Tahsilat — Süper Admin" },
       {
         name: "description",
-        content: "Ödeal ödeme bağlantısını yönet, tüm mağazaların faturalarını ve tahsilat durumunu takip et.",
+        content: "Tüm mağazaların faturalarını ve tahsilat durumunu takip et.",
       },
       { property: "og:title", content: "Ödeme & Tahsilat — Süper Admin" },
       { property: "og:description", content: "Ödeme sağlayıcısı ayarları ve platform genelinde fatura tahsilatı." },
@@ -54,77 +52,6 @@ function formatMoney(amount: number, currency: string) {
 
 function formatDate(value: string | null) {
   return value ? new Date(value).toLocaleDateString("tr-TR") : "—";
-}
-
-function ProviderPanel() {
-  const settings = useServerFn(fetchOdealSettings);
-  const test = useServerFn(testOdealConnection);
-  const settingsQuery = useQuery({ queryKey: ["admin", "odeal-settings"], queryFn: () => settings() });
-  const testMutation = useMutation({
-    mutationFn: () => test(),
-    onSuccess: (result) => (result.ok ? toast.success(result.message) : toast.error(result.message)),
-    onError: (error: Error) => toast.error(error.message),
-  });
-
-  const data = settingsQuery.data;
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <CreditCard className="size-4" /> Ödeal kart ödemesi
-        </CardTitle>
-        <CardDescription>
-          Fatura hatırlatıcılarındaki ödeme linkleri bu bağlantı üzerinden kartla tahsil edilir. Kart bilgileri
-          Ödeal'in güvenli sayfasında girilir, bizim sistemimize hiç gelmez.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {settingsQuery.isLoading ? (
-          <p className="text-sm text-muted-foreground">Yükleniyor…</p>
-        ) : (
-          <>
-            <div className="flex flex-wrap items-center gap-2">
-              {data?.configured ? (
-                <Badge className="gap-1">
-                  <CheckCircle2 className="size-3.5" /> Bilgiler kayıtlı
-                </Badge>
-              ) : (
-                <Badge variant="destructive" className="gap-1">
-                  <XCircle className="size-3.5" /> Bilgiler eksik
-                </Badge>
-              )}
-              <Badge variant="secondary">
-                {data?.environment === "live" ? "Canlı ortam" : "Test ortamı"}
-              </Badge>
-            </div>
-
-            <div className="rounded-lg border border-border p-3 text-sm">
-              <p className="font-medium">Ödeal'e vermeniz gereken sonuç adresi</p>
-              <p className="mt-1 break-all text-muted-foreground">{data?.callbackUrl}</p>
-            </div>
-
-            {!data?.configured ? (
-              <p className="text-sm text-muted-foreground">
-                Ödeal'den aldığınız müşteri numarası ve gizli anahtarı kaydetmemi isterseniz sohbette söyleyin;
-                güvenli formu açıp saklayayım.
-              </p>
-            ) : null}
-
-            <div className="flex gap-2">
-              <Button onClick={() => testMutation.mutate()} disabled={testMutation.isPending}>
-                {testMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
-                Bağlantıyı test et
-              </Button>
-              <Button variant="outline" onClick={() => settingsQuery.refetch()}>
-                Durumu yenile
-              </Button>
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
-  );
 }
 
 function InvoicesPanel() {
@@ -261,18 +188,14 @@ function AdminBillingPage() {
   return (
     <AdminShell
       title="Ödeme & Tahsilat"
-      description="Ödeal kart ödeme bağlantısı ve tüm mağazaların fatura tahsilat takibi."
+      description="Tüm mağazaların fatura tahsilat takibi."
     >
       <Tabs defaultValue="invoices">
         <TabsList>
           <TabsTrigger value="invoices">Faturalar & tahsilat</TabsTrigger>
-          <TabsTrigger value="provider">Ödeme sağlayıcısı</TabsTrigger>
         </TabsList>
         <TabsContent value="invoices" className="mt-4">
           <InvoicesPanel />
-        </TabsContent>
-        <TabsContent value="provider" className="mt-4">
-          <ProviderPanel />
         </TabsContent>
       </Tabs>
     </AdminShell>

@@ -190,7 +190,6 @@ const CHECKS: Record<
         "Meta işletme hesabı doğrulandı",
       ),
   },
-  // Ödeal yalnızca süper yönetici panelinden yönetilir (platform faturalandırma).
 
   "hepsiburada-marketplace": {
     required: ["merchant_id", "username", "password"],

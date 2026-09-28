@@ -33,10 +33,12 @@ export async function startOrderCardPayment(
 
   const { data: store } = await db
     .from("stores")
-    .select("id, name, status")
+    .select("id, name, status, store_kind")
     .eq("slug", input.slug)
     .maybeSingle();
   if (!store || store.status !== "active") throw new Error("Mağaza bulunamadı veya yayında değil");
+  // QNBpay yalnız Kolay Panel (ev hanımı) mağazaları ve platform tahsilatları içindir.
+  if (store.store_kind !== "micro") throw new Error("Bu mağazada kartla ödeme kapalı");
 
   const { data: settings } = await db
     .from("store_settings")
