@@ -95,6 +95,7 @@ export async function installApp(
 
   const check = await runConnectionCheck(app.code, input.settings ?? {});
   await persistConnection(supabase, input.storeId, app.id, input.settings ?? {}, check);
+  await syncGateway(supabase, input.storeId, app.code, check.status !== "error");
 
   return { ok: true as const, appName: app.name, connection: check };
 }
@@ -113,6 +114,9 @@ export async function setInstallStatus(
     .eq("store_id", input.storeId)
     .eq("app_id", input.appId);
   if (error) throw new Error(error.message);
+
+  const { data: appRow } = await supabase.from("apps").select("code").eq("id", input.appId).maybeSingle();
+  if (appRow) await syncGateway(supabase, input.storeId, appRow.code, input.status === "installed");
 
   await insertAuditRow(supabase, {
     store_id: input.storeId,
@@ -178,5 +182,13 @@ export async function testAppConnection(
   const code = (data.apps as { code?: string } | null)?.code ?? "";
   const check = await runConnectionCheck(code, settings);
   await persistConnection(supabase, input.storeId, input.appId, settings, check);
+  await syncGateway(supabase, input.storeId, code, check.status !== "error");
   return check;
+}
+
+/** iyzico / PayTR kurulumunu vitrin ödeme seçeneklerine yansıtır. */
+async function syncGateway(supabase: Client, storeId: string, appCode: string, active: boolean) {
+  const { isGatewayApp, syncGatewayPaymentMethod } = await import("./store-gateways.server");
+  if (!isGatewayApp(appCode)) return;
+  await syncGatewayPaymentMethod(supabase, storeId, appCode, active);
 }

@@ -345,6 +345,8 @@ import { Route as ApiPublicEmailClickTokenRouteImport } from './routes/api/publi
 import { Route as ApiPublicEmailOpenTokenRouteImport } from './routes/api/public/email.open.$token'
 import { Route as ApiPublicEmailUnsubscribeTokenRouteImport } from './routes/api/public/email.unsubscribe.$token'
 import { Route as ApiPublicFeedStoreSlugKindRouteImport } from './routes/api/public/feed.$storeSlug.$kind'
+import { Route as ApiPublicPayIyzicoOrderIdRouteImport } from './routes/api/public/pay.iyzico.$orderId'
+import { Route as ApiPublicPayPaytrStoreIdRouteImport } from './routes/api/public/pay.paytr.$storeId'
 import { Route as AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRouteImport } from './routes/_authenticated/store.$storeId.theme-library.$themeId.versions'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorFeedsIndexRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.feeds.index'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorFeedsNewRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.feeds.new'
@@ -2243,6 +2245,18 @@ const ApiPublicFeedStoreSlugKindRoute =
     path: '/api/public/feed/$storeSlug/$kind',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPayIyzicoOrderIdRoute =
+  ApiPublicPayIyzicoOrderIdRouteImport.update({
+    id: '/api/public/pay/iyzico/$orderId',
+    path: '/api/public/pay/iyzico/$orderId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicPayPaytrStoreIdRoute =
+  ApiPublicPayPaytrStoreIdRouteImport.update({
+    id: '/api/public/pay/paytr/$storeId',
+    path: '/api/public/pay/paytr/$storeId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRoute =
   AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRouteImport.update({
     id: '/theme-library/$themeId/versions',
@@ -2598,6 +2612,8 @@ export interface FileRoutesByFullPath {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
+  '/api/public/pay/iyzico/$orderId': typeof ApiPublicPayIyzicoOrderIdRoute
+  '/api/public/pay/paytr/$storeId': typeof ApiPublicPayPaytrStoreIdRoute
   '/store/$storeId/catalog-v2/': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/store/$storeId/customers-v2/': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
   '/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
@@ -2933,6 +2949,8 @@ export interface FileRoutesByTo {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
+  '/api/public/pay/iyzico/$orderId': typeof ApiPublicPayIyzicoOrderIdRoute
+  '/api/public/pay/paytr/$storeId': typeof ApiPublicPayPaytrStoreIdRoute
   '/store/$storeId/catalog-v2': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/store/$storeId/customers-v2': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsIndexRoute
@@ -3276,6 +3294,8 @@ export interface FileRoutesById {
   '/api/public/email/open/$token': typeof ApiPublicEmailOpenTokenRoute
   '/api/public/email/unsubscribe/$token': typeof ApiPublicEmailUnsubscribeTokenRoute
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
+  '/api/public/pay/iyzico/$orderId': typeof ApiPublicPayIyzicoOrderIdRoute
+  '/api/public/pay/paytr/$storeId': typeof ApiPublicPayPaytrStoreIdRoute
   '/_authenticated/store/$storeId/catalog-v2/': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/_authenticated/store/$storeId/customers-v2/': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
   '/_authenticated/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
@@ -3619,6 +3639,8 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
+    | '/api/public/pay/iyzico/$orderId'
+    | '/api/public/pay/paytr/$storeId'
     | '/store/$storeId/catalog-v2/'
     | '/store/$storeId/customers-v2/'
     | '/store/$storeId/products/'
@@ -3954,6 +3976,8 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
+    | '/api/public/pay/iyzico/$orderId'
+    | '/api/public/pay/paytr/$storeId'
     | '/store/$storeId/catalog-v2'
     | '/store/$storeId/customers-v2'
     | '/store/$storeId/products'
@@ -4296,6 +4320,8 @@ export interface FileRouteTypes {
     | '/api/public/email/open/$token'
     | '/api/public/email/unsubscribe/$token'
     | '/api/public/feed/$storeSlug/$kind'
+    | '/api/public/pay/iyzico/$orderId'
+    | '/api/public/pay/paytr/$storeId'
     | '/_authenticated/store/$storeId/catalog-v2/'
     | '/_authenticated/store/$storeId/customers-v2/'
     | '/_authenticated/store/$storeId/products/'
@@ -4434,6 +4460,8 @@ export interface RootRouteChildren {
   ApiPublicEmailOpenTokenRoute: typeof ApiPublicEmailOpenTokenRoute
   ApiPublicEmailUnsubscribeTokenRoute: typeof ApiPublicEmailUnsubscribeTokenRoute
   ApiPublicFeedStoreSlugKindRoute: typeof ApiPublicFeedStoreSlugKindRoute
+  ApiPublicPayIyzicoOrderIdRoute: typeof ApiPublicPayIyzicoOrderIdRoute
+  ApiPublicPayPaytrStoreIdRoute: typeof ApiPublicPayPaytrStoreIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -6790,6 +6818,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFeedStoreSlugKindRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/pay/iyzico/$orderId': {
+      id: '/api/public/pay/iyzico/$orderId'
+      path: '/api/public/pay/iyzico/$orderId'
+      fullPath: '/api/public/pay/iyzico/$orderId'
+      preLoaderRoute: typeof ApiPublicPayIyzicoOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/pay/paytr/$storeId': {
+      id: '/api/public/pay/paytr/$storeId'
+      path: '/api/public/pay/paytr/$storeId'
+      fullPath: '/api/public/pay/paytr/$storeId'
+      preLoaderRoute: typeof ApiPublicPayPaytrStoreIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/store/$storeId/theme-library/$themeId/versions': {
       id: '/_authenticated/store/$storeId/theme-library/$themeId/versions'
       path: '/theme-library/$themeId/versions'
@@ -7598,6 +7640,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicEmailOpenTokenRoute: ApiPublicEmailOpenTokenRoute,
   ApiPublicEmailUnsubscribeTokenRoute: ApiPublicEmailUnsubscribeTokenRoute,
   ApiPublicFeedStoreSlugKindRoute: ApiPublicFeedStoreSlugKindRoute,
+  ApiPublicPayIyzicoOrderIdRoute: ApiPublicPayIyzicoOrderIdRoute,
+  ApiPublicPayPaytrStoreIdRoute: ApiPublicPayPaytrStoreIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
