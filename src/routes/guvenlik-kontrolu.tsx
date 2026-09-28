@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { getFwCaptcha, solveFwCaptcha } from "@/lib/ddos-firewall.functions";
 
 export const Route = createFileRoute("/guvenlik-kontrolu")({
-  validateSearch: (s: Record<string, unknown>) => ({ r: typeof s.r === "string" ? s.r : "/" }),
+  validateSearch: (s: Record<string, unknown>) => ({ r: typeof s['r'] === "string" ? s['r'] : "/" }),
   head: () => ({
     meta: [
       { title: "Güvenlik Kontrolü — Mefticaret" },
