@@ -14,6 +14,20 @@ const GRAPH_VERSION = "v20.0";
 
 export type WhatsAppAccount = Database["public"]["Tables"]["whatsapp_accounts"]["Row"];
 
+/** Her mağaza kendi WhatsApp Business bilgilerini "WhatsApp CRM" uygulama kurulumuna girer. */
+export async function loadStoreWhatsAppSetting(storeId: string, key: "token" | "app_secret") {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("app_installations")
+    .select("settings, status, apps!inner(code)")
+    .eq("store_id", storeId)
+    .eq("apps.code", "whatsapp-crm")
+    .maybeSingle();
+  if (data?.status !== "installed") return null;
+  const value = String(((data.settings ?? {}) as Record<string, unknown>)[key] ?? "").trim();
+  return value || null;
+}
+
 export async function getAccount(supabase: Client, storeId: string) {
   const { data, error } = await supabase
     .from("whatsapp_accounts")
@@ -109,7 +123,7 @@ export async function sendWhatsAppMessage(
     input.contactName ?? null,
   );
 
-  const token = process.env["WHATSAPP_ACCESS_TOKEN"];
+  const token = await loadStoreWhatsAppSetting(input.storeId, "token");
   let status: Database["public"]["Enums"]["message_delivery_status"] = "queued";
   let waMessageId: string | null = null;
   let error: string | null = null;
@@ -135,7 +149,7 @@ export async function sendWhatsAppMessage(
     }
   } else {
     error = account
-      ? "WhatsApp erişim anahtarı tanımlı değil, mesaj kuyruğa alındı"
+      ? "WhatsApp erişim jetonunuz girilmemiş (Uygulama Mağazası → WhatsApp CRM), mesaj kuyruğa alındı"
       : "WhatsApp Business hesabı bağlı değil, mesaj kuyruğa alındı";
   }
 
