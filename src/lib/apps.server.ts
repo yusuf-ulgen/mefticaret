@@ -134,13 +134,29 @@ export async function saveAppSettings(
   supabase: Client,
   input: z.infer<typeof appSettingsSchema>,
 ) {
-  const { error } = await supabase
+  const { data: row, error: rowError } = await supabase
     .from("app_installations")
-    .update({ settings: input.settings as never })
+    .select("status, apps(code)")
     .eq("store_id", input.storeId)
-    .eq("app_id", input.appId);
-  if (error) throw new Error(error.message);
-  return { ok: true as const };
+    .eq("app_id", input.appId)
+    .maybeSingle();
+  if (rowError) throw new Error(rowError.message);
+  if (!row) throw new Error("Uygulama bu mağazada kurulu değil");
+
+  // Bağlantı durum alanları istemciden gelemez; sunucu yeniden hesaplar.
+  const clean = Object.fromEntries(
+    Object.entries(input.settings).filter(([k]) => !k.startsWith("_connection")),
+  );
+  const code = (row.apps as { code?: string } | null)?.code ?? "";
+  const check = await runConnectionCheck(code, clean);
+  await persistConnection(supabase, input.storeId, input.appId, clean, check);
+  await syncGateway(
+    supabase,
+    input.storeId,
+    code,
+    row.status === "installed" && check.status !== "error",
+  );
+  return { ok: true as const, connection: check };
 }
 
 async function persistConnection(
