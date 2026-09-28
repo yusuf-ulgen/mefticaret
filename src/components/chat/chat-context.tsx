@@ -87,7 +87,7 @@ export function ChatProvider({ children, myStatus, prefs = DEFAULT_PREFS }: { ch
         if (m.sender_id === me) return;
         const chat = chatsRef.current.find((c) => c.id === m.conversation_id);
         if (chat?.muted || myStatus === "dnd" || !prefsRef.current.notifications) return;
-        if (prefsRef.current.sound === "hola") playNotifySound("message");
+        if (prefsRef.current.sound === "pop") playNotifySound("message");
         else if (prefsRef.current.sound !== "none") playTone(prefsRef.current.sound);
         if (prefsRef.current.vibrate && "vibrate" in navigator) navigator.vibrate?.(120);
         const title = chat ? chatTitle(chat, me) : "Yeni mesaj";
