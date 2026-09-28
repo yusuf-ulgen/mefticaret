@@ -124,7 +124,6 @@ import { Route as AuthenticatedStoreStoreIdRouteImport } from './routes/_authent
 import { Route as AuthenticatedTedarikciPanelRouteImport } from './routes/_authenticated/tedarikci.panel'
 import { Route as ApiAiExecuteRouteImport } from './routes/api/ai/execute'
 import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
-import { Route as ApiPublicOdealCallbackRouteImport } from './routes/api/public/odeal-callback'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as ApiV2SplatRouteImport } from './routes/api/v2/$'
 import { Route as SSlugIndexRouteImport } from './routes/s.$slug.index'
@@ -959,11 +958,6 @@ const ApiAiExecuteRoute = ApiAiExecuteRouteImport.update({
 const ApiPublicIndexnowRoute = ApiPublicIndexnowRouteImport.update({
   id: '/api/public/indexnow',
   path: '/api/public/indexnow',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicOdealCallbackRoute = ApiPublicOdealCallbackRouteImport.update({
-  id: '/api/public/odeal-callback',
-  path: '/api/public/odeal-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiV1SplatRoute = ApiV1SplatRouteImport.update({
@@ -2369,7 +2363,6 @@ export interface FileRoutesByFullPath {
   '/tedarikci/panel': typeof AuthenticatedTedarikciPanelRoute
   '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
-  '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/api/v2/$': typeof ApiV2SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -2706,7 +2699,6 @@ export interface FileRoutesByTo {
   '/tedarikci/panel': typeof AuthenticatedTedarikciPanelRoute
   '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
-  '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/api/v2/$': typeof ApiV2SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -3043,7 +3035,6 @@ export interface FileRoutesById {
   '/_authenticated/tedarikci/panel': typeof AuthenticatedTedarikciPanelRoute
   '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
-  '/api/public/odeal-callback': typeof ApiPublicOdealCallbackRoute
   '/api/v1/$': typeof ApiV1SplatRoute
   '/api/v2/$': typeof ApiV2SplatRoute
   '/s/$slug/about': typeof SSlugAboutRoute
@@ -3384,7 +3375,6 @@ export interface FileRouteTypes {
     | '/tedarikci/panel'
     | '/api/ai/execute'
     | '/api/public/indexnow'
-    | '/api/public/odeal-callback'
     | '/api/v1/$'
     | '/api/v2/$'
     | '/s/$slug/about'
@@ -3721,7 +3711,6 @@ export interface FileRouteTypes {
     | '/tedarikci/panel'
     | '/api/ai/execute'
     | '/api/public/indexnow'
-    | '/api/public/odeal-callback'
     | '/api/v1/$'
     | '/api/v2/$'
     | '/s/$slug/about'
@@ -4057,7 +4046,6 @@ export interface FileRouteTypes {
     | '/_authenticated/tedarikci/panel'
     | '/api/ai/execute'
     | '/api/public/indexnow'
-    | '/api/public/odeal-callback'
     | '/api/v1/$'
     | '/api/v2/$'
     | '/s/$slug/about'
@@ -4340,7 +4328,6 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiAiExecuteRoute: typeof ApiAiExecuteRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
-  ApiPublicOdealCallbackRoute: typeof ApiPublicOdealCallbackRoute
   ApiV1SplatRoute: typeof ApiV1SplatRoute
   ApiV2SplatRoute: typeof ApiV2SplatRoute
   SSlugAboutRoute: typeof SSlugAboutRoute
@@ -5215,13 +5202,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/indexnow'
       fullPath: '/api/public/indexnow'
       preLoaderRoute: typeof ApiPublicIndexnowRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/odeal-callback': {
-      id: '/api/public/odeal-callback'
-      path: '/api/public/odeal-callback'
-      fullPath: '/api/public/odeal-callback'
-      preLoaderRoute: typeof ApiPublicOdealCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/v1/$': {
@@ -7487,7 +7467,6 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiAiExecuteRoute: ApiAiExecuteRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
-  ApiPublicOdealCallbackRoute: ApiPublicOdealCallbackRoute,
   ApiV1SplatRoute: ApiV1SplatRoute,
   ApiV2SplatRoute: ApiV2SplatRoute,
   SSlugAboutRoute: SSlugAboutRoute,
