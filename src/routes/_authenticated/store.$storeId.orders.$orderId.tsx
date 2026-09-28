@@ -1,24 +1,27 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
   CreditCard,
   FileText,
+  Mail,
   Percent,
+  Phone,
   Save,
-  StickyNote,
   Truck,
   User,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { ShipmentsPanel } from "@/components/shipments-panel";
 import { DropshipPanel } from "@/components/dropship-panel";
 import { OrderPrintDialog } from "@/components/order-print";
-import { OrderActionsMenu, OrderRefundHistory, RefundDrawer } from "@/components/refunds/order-refund-panel";
+import { OrderRefundHistory, RefundDrawer } from "@/components/refunds/order-refund-panel";
+import { OrderActionsSheet } from "@/components/orders/order-actions-sheet";
+import { OrderTimeline } from "@/components/orders/order-timeline";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -121,6 +124,8 @@ function SectionCard({
 
 function OrderDetailPage() {
   const { storeId, orderId } = Route.useParams();
+  const navigate = useNavigate();
+  const commentRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { data: order, isLoading } = useQuery(orderQuery(orderId));
   const update = useServerFn(updateOrder);
@@ -253,9 +258,36 @@ function OrderDetailPage() {
     );
   }
 
-  const notes = events.filter((event) => event.kind === "note");
-  const history = events.filter((event) => event.kind !== "note");
   const flowIndex = ORDER_STATUS_FLOW.indexOf(order.status as (typeof ORDER_STATUS_FLOW)[number]);
+  const customerId = order.customers?.id ?? null;
+
+  const shareOrder = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) await navigator.share({ title: `Sipariş ${order.order_number}`, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Sipariş bağlantısı kopyalandı");
+      }
+    } catch {
+      /* kullanıcı paylaşımı iptal etti */
+    }
+  };
+
+  const emailReceipt = order.customer_email
+    ? () => {
+        const lines = items.map((i) => `${i.quantity} x ${i.title} — ${formatMoney(Number(i.line_total), order.currency)}`);
+        const body = [
+          `Merhaba ${order.customer_name ?? ""},`,
+          "",
+          `${order.order_number} numaralı siparişinizin özeti:`,
+          ...lines,
+          "",
+          `Toplam: ${formatMoney(Number(order.grand_total), order.currency)}`,
+        ].join("\n");
+        window.location.href = `mailto:${order.customer_email}?subject=${encodeURIComponent(`Sipariş makbuzu ${order.order_number}`)}&body=${encodeURIComponent(body)}`;
+      }
+    : null;
 
   return (
     <AppShell
@@ -270,9 +302,21 @@ function OrderDetailPage() {
               <ArrowLeft className="mr-2 size-4" /> Siparişler
             </Link>
           </Button>
-          <OrderActionsMenu
-            disabled={!["paid", "partially_refunded"].includes(order.payment_status)}
+          <OrderActionsSheet
+            canRefund={["paid", "partially_refunded"].includes(order.payment_status)}
             onRefund={() => setRefundOpen(true)}
+            onAddNote={() => {
+              document.getElementById("order-timeline")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              setTimeout(() => commentRef.current?.focus(), 350);
+            }}
+            onPrint={() => window.print()}
+            onShare={shareOrder}
+            onEmailReceipt={emailReceipt}
+            onOpenCustomer={
+              customerId
+                ? () => navigate({ to: "/store/$storeId/customers/$customerId", params: { storeId, customerId } })
+                : null
+            }
           />
         </div>
       }
@@ -384,63 +428,21 @@ function OrderDetailPage() {
             )}
           </SectionCard>
 
-          <SectionCard title="Notlar" icon={StickyNote}>
-            <form
-              className="flex flex-col gap-3 sm:flex-row"
-              onSubmit={(event) => {
-                event.preventDefault();
-                noteMutation.mutate();
-              }}
-            >
-              <Textarea
-                rows={2}
-                required
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Sipariş notu ekle (ekip içi)"
-              />
-              <Button type="submit" className="gap-2" disabled={noteMutation.isPending}>
-                <StickyNote className="size-4" /> Ekle
-              </Button>
-            </form>
-            <ul className="space-y-3">
-              {notes.length === 0 ? (
-                <li className="text-sm text-muted-foreground">Henüz not yok.</li>
-              ) : (
-                notes.map((event) => (
-                  <li key={event.id} className="rounded-lg border border-border/50 px-4 py-3">
-                    <p className="text-sm">{event.message}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDateTime(event.created_at)}
-                    </p>
-                  </li>
-                ))
-              )}
-            </ul>
-            {order.note ? (
-              <p className="rounded-lg bg-muted/40 px-4 py-3 text-sm">
-                <span className="text-muted-foreground">Müşteri notu: </span>
-                {order.note}
-              </p>
-            ) : null}
-          </SectionCard>
+          {order.note ? (
+            <p className="surface-card px-5 py-4 text-sm">
+              <span className="text-muted-foreground">Müşteri notu: </span>
+              {order.note}
+            </p>
+          ) : null}
 
-          <SectionCard title="Sipariş geçmişi" icon={FileText}>
-            <ul className="space-y-3">
-              {history.length === 0 ? (
-                <li className="text-sm text-muted-foreground">Kayıt yok.</li>
-              ) : (
-                history.map((event) => (
-                  <li key={event.id} className="border-l-2 border-border pl-3">
-                    <p className="text-sm">{event.message ?? event.kind}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDateTime(event.created_at)}
-                    </p>
-                  </li>
-                ))
-              )}
-            </ul>
-          </SectionCard>
+          <OrderTimeline
+            ref={commentRef}
+            events={events}
+            comment={note}
+            onCommentChange={setNote}
+            onSubmit={() => noteMutation.mutate()}
+            pending={noteMutation.isPending}
+          />
 
           <ShipmentsPanel storeId={storeId} orderId={orderId} items={items} />
 
@@ -508,6 +510,22 @@ function OrderDetailPage() {
             <div>
               <p className="font-medium">{order.customer_name ?? "Misafir"}</p>
               <p className="text-sm text-muted-foreground">{order.customer_email ?? "—"}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Button asChild={Boolean(order.customer_email)} variant="outline" size="sm" className="h-11 gap-2 rounded-full" disabled={!order.customer_email}>
+                {order.customer_email ? (
+                  <a href={`mailto:${order.customer_email}`}><Mail className="size-4" /> E-posta</a>
+                ) : (
+                  <span><Mail className="size-4" /> E-posta</span>
+                )}
+              </Button>
+              <Button asChild={Boolean(phone)} variant="outline" size="sm" className="h-11 gap-2 rounded-full" disabled={!phone}>
+                {phone ? (
+                  <a href={`tel:${phone.replace(/\s/g, "")}`}><Phone className="size-4" /> Telefon</a>
+                ) : (
+                  <span><Phone className="size-4" /> Telefon</span>
+                )}
+              </Button>
             </div>
             <div className="space-y-2">
               <Label htmlFor="order-phone">Telefon</Label>
