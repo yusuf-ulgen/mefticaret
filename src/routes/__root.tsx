@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -140,7 +141,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 
       { rel: "icon", href: "/favicon.png", type: "image/png" },
-      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/favicon.png" },
 
     ],
@@ -151,11 +151,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+function manifestFor(path: string): string {
+  if (path.startsWith("/mesaj")) return "/manifest-chat.webmanifest";
+  if (path.startsWith("/tedarikci") || path.startsWith("/supplier")) return "/manifest-supplier.webmanifest";
+  if (path.startsWith("/ev-hanimlari") || path.includes("/kolay")) return "/manifest-handmade.webmanifest";
+  if (path.startsWith("/auth") || path.startsWith("/stores") || path.startsWith("/store/") || path.startsWith("/dashboard"))
+    return "/manifest-merchant.webmanifest";
+  return "/manifest-main.webmanifest";
+}
+
 function RootShell({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <html lang="tr">
       <head>
         <HeadContent />
+        <link rel="manifest" href={manifestFor(pathname)} />
       </head>
       <body>
         {children}
