@@ -391,6 +391,49 @@ const CHECKS: Record<
         "Ozon satıcı hesabı doğrulandı",
       ),
   },
+  "iyzico-pay": {
+    required: ["api_key", "secret_key"],
+    run: async (s) => {
+      const { createHmac, randomBytes } = await import("crypto");
+      const host = s["sandbox"] === false || str(s, "sandbox") === "false"
+        ? "api.iyzipay.com"
+        : "sandbox-api.iyzipay.com";
+      const path = "/payment/bin/check";
+      const body = JSON.stringify({ locale: "tr", conversationId: "mef-check", binNumber: "552879" });
+      const rnd = `${Date.now()}${randomBytes(4).toString("hex")}`;
+      const sig = createHmac("sha256", str(s, "secret_key")).update(rnd + path + body).digest("hex");
+      const auth = Buffer.from(
+        `apiKey:${str(s, "api_key")}&randomKey:${rnd}&signature:${sig}`,
+      ).toString("base64");
+      try {
+        const res = await fetch(`https://${host}${path}`, {
+          method: "POST",
+          headers: {
+            Authorization: `IYZWSv2 ${auth}`,
+            "x-iyzi-rnd": rnd,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body,
+        });
+        const json = (await res.json().catch(() => ({}))) as { status?: string; errorMessage?: string };
+        if (json.status === "success") return { status: "connected", message: "iyzico hesabı doğrulandı" };
+        return { status: "error", message: `iyzico: ${json.errorMessage ?? `yanıt ${res.status}`}` };
+      } catch (error) {
+        return { status: "error", message: `iyzico'ya ulaşılamadı: ${(error as Error).message}` };
+      }
+    },
+  },
+  "paytr-pay": {
+    required: ["merchant_id", "merchant_key", "merchant_salt"],
+    run: async (s) =>
+      /^\d+$/.test(str(s, "merchant_id"))
+        ? {
+            status: "configured",
+            message: "PayTR bilgileri kaydedildi. İlk ödemede PayTR tarafından doğrulanır.",
+          }
+        : { status: "error", message: "PayTR mağaza numarası yalnız rakamlardan oluşmalı." },
+  },
 };
 
 
