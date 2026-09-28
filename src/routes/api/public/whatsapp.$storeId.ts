@@ -32,7 +32,8 @@ export const Route = createFileRoute("/api/public/whatsapp/$storeId")({
 
         // Meta imza doğrulaması (X-Hub-Signature-256). İmza doğrulanmadan hiçbir
         // yük işlenmez; böylece sahte mesaj/durum enjeksiyonu engellenir.
-        const appSecret = process.env["WHATSAPP_APP_SECRET"];
+        const { loadStoreWhatsAppSetting } = await import("@/lib/whatsapp.server");
+        const appSecret = await loadStoreWhatsAppSetting(params.storeId, "app_secret");
         if (!appSecret) {
           return new Response("Webhook not configured", { status: 503 });
         }
