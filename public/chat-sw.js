@@ -14,8 +14,8 @@ self.addEventListener("push", (event) => {
       body: d.body || "Yeni mesaj",
       tag: d.tag,
       renotify: true,
-      icon: "/favicon.png",
-      badge: "/favicon.png",
+      icon: "/icon-192.png",
+      badge: "/icon-192.png",
       vibrate: [120, 60, 120],
       data: { url: d.url || "/mesajlar" },
     }),
@@ -35,5 +35,15 @@ self.addEventListener("notificationclick", (event) => {
       }
       return self.clients.openWindow(target);
     }),
+  );
+});
+
+/* Çevrimdışı destek: ağ yoksa açık sayfalar için basit yedek yanıt */
+self.addEventListener("fetch", (event) => {
+  if (event.request.mode !== "navigate") return;
+  event.respondWith(
+    fetch(event.request).catch(
+      () => new Response("<meta charset=utf-8><h1 style='font-family:sans-serif'>İnternet bağlantısı yok</h1><p>Bağlantı gelince tekrar deneyin.</p>", { headers: { "Content-Type": "text/html; charset=utf-8" } }),
+    ),
   );
 });

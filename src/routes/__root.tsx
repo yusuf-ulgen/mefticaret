@@ -179,6 +179,9 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   useEffect(() => {
     installClientErrorReporting();
+    if ("serviceWorker" in navigator && !window.location.hostname.includes("id-preview")) {
+      void navigator.serviceWorker.register("/chat-sw.js", { scope: "/" }).catch(() => {});
+    }
   }, []);
 
   const { queryClient } = Route.useRouteContext();
