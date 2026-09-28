@@ -290,6 +290,7 @@ import { Route as ApiPublicCronAutomationTickRouteImport } from './routes/api/pu
 import { Route as ApiPublicCronDailyRollupRouteImport } from './routes/api/public/cron.daily-rollup'
 import { Route as ApiPublicCronExchangeRatesRouteImport } from './routes/api/public/cron.exchange-rates'
 import { Route as ApiPublicCronFbMarketplaceSyncRouteImport } from './routes/api/public/cron.fb-marketplace-sync'
+import { Route as ApiPublicCronFirewallRouteImport } from './routes/api/public/cron.firewall'
 import { Route as ApiPublicCronInstagramEventsRouteImport } from './routes/api/public/cron.instagram-events'
 import { Route as ApiPublicCronLoadtestRouteImport } from './routes/api/public/cron.loadtest'
 import { Route as ApiPublicCronQueueWorkerRouteImport } from './routes/api/public/cron.queue-worker'
@@ -1930,6 +1931,11 @@ const ApiPublicCronFbMarketplaceSyncRoute =
     path: '/api/public/cron/fb-marketplace-sync',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronFirewallRoute = ApiPublicCronFirewallRouteImport.update({
+  id: '/api/public/cron/firewall',
+  path: '/api/public/cron/firewall',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronInstagramEventsRoute =
   ApiPublicCronInstagramEventsRouteImport.update({
     id: '/api/public/cron/instagram-events',
@@ -2528,6 +2534,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
+  '/api/public/cron/firewall': typeof ApiPublicCronFirewallRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -2860,6 +2867,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
+  '/api/public/cron/firewall': typeof ApiPublicCronFirewallRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -3200,6 +3208,7 @@ export interface FileRoutesById {
   '/api/public/cron/daily-rollup': typeof ApiPublicCronDailyRollupRoute
   '/api/public/cron/exchange-rates': typeof ApiPublicCronExchangeRatesRoute
   '/api/public/cron/fb-marketplace-sync': typeof ApiPublicCronFbMarketplaceSyncRoute
+  '/api/public/cron/firewall': typeof ApiPublicCronFirewallRoute
   '/api/public/cron/instagram-events': typeof ApiPublicCronInstagramEventsRoute
   '/api/public/cron/loadtest': typeof ApiPublicCronLoadtestRoute
   '/api/public/cron/queue-worker': typeof ApiPublicCronQueueWorkerRoute
@@ -3540,6 +3549,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
     | '/api/public/cron/fb-marketplace-sync'
+    | '/api/public/cron/firewall'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
@@ -3872,6 +3882,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
     | '/api/public/cron/fb-marketplace-sync'
+    | '/api/public/cron/firewall'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
@@ -4211,6 +4222,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/daily-rollup'
     | '/api/public/cron/exchange-rates'
     | '/api/public/cron/fb-marketplace-sync'
+    | '/api/public/cron/firewall'
     | '/api/public/cron/instagram-events'
     | '/api/public/cron/loadtest'
     | '/api/public/cron/queue-worker'
@@ -4360,6 +4372,7 @@ export interface RootRouteChildren {
   ApiPublicCronDailyRollupRoute: typeof ApiPublicCronDailyRollupRoute
   ApiPublicCronExchangeRatesRoute: typeof ApiPublicCronExchangeRatesRoute
   ApiPublicCronFbMarketplaceSyncRoute: typeof ApiPublicCronFbMarketplaceSyncRoute
+  ApiPublicCronFirewallRoute: typeof ApiPublicCronFirewallRoute
   ApiPublicCronInstagramEventsRoute: typeof ApiPublicCronInstagramEventsRoute
   ApiPublicCronLoadtestRoute: typeof ApiPublicCronLoadtestRoute
   ApiPublicCronQueueWorkerRoute: typeof ApiPublicCronQueueWorkerRoute
@@ -6366,6 +6379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronFbMarketplaceSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/firewall': {
+      id: '/api/public/cron/firewall'
+      path: '/api/public/cron/firewall'
+      fullPath: '/api/public/cron/firewall'
+      preLoaderRoute: typeof ApiPublicCronFirewallRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/instagram-events': {
       id: '/api/public/cron/instagram-events'
       path: '/api/public/cron/instagram-events'
@@ -7499,6 +7519,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronDailyRollupRoute: ApiPublicCronDailyRollupRoute,
   ApiPublicCronExchangeRatesRoute: ApiPublicCronExchangeRatesRoute,
   ApiPublicCronFbMarketplaceSyncRoute: ApiPublicCronFbMarketplaceSyncRoute,
+  ApiPublicCronFirewallRoute: ApiPublicCronFirewallRoute,
   ApiPublicCronInstagramEventsRoute: ApiPublicCronInstagramEventsRoute,
   ApiPublicCronLoadtestRoute: ApiPublicCronLoadtestRoute,
   ApiPublicCronQueueWorkerRoute: ApiPublicCronQueueWorkerRoute,

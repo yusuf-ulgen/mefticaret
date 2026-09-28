@@ -17,6 +17,14 @@ const securityHeadersMiddleware = createMiddleware().server(async ({ next }) => 
 // Ayar kapalıyken hiçbir kontrol yapılmaz (varsayılan kapalı).
 const firewallMiddleware = createMiddleware().server(async ({ next, request }) => {
   try {
+    // DDoS / ülke / ASN / uç nokta katmanı (fw_settings.enabled kapalıyken işlem yapmaz).
+    const { evaluateDdos } = await import("@/lib/ddos-firewall.server");
+    const ddos = await evaluateDdos(request);
+    if (ddos) return ddos;
+  } catch {
+    /* katman hata verirse istek devam eder */
+  }
+  try {
     const { evaluateRequest, firewallBlockResponse } = await import("@/lib/security-firewall.server");
     const decision = await evaluateRequest(request);
     if (decision.action === "block") return firewallBlockResponse(decision);
