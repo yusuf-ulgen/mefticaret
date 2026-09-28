@@ -42,6 +42,7 @@ import {
   saveEmailDesign,
   seedEmailFlow,
   sendEmailCampaign,
+  syncSubscribersToKlaviyo,
   setSubscriberStatus,
   syncCampaignRevenue,
 } from "@/lib/email-marketing.functions";
@@ -99,6 +100,12 @@ function EmailMarketingPage() {
   const seedFlow = useServerFn(seedEmailFlow);
   const importList = useServerFn(importSubscribers);
   const setStatus = useServerFn(setSubscriberStatus);
+  const klaviyoSyncFn = useServerFn(syncSubscribersToKlaviyo);
+  const klaviyoSync = useMutation({
+    mutationFn: () => klaviyoSyncFn({ data: { storeId } }),
+    onSuccess: (r) => toast.success(`${r.count} abone Klaviyo listesine gönderildi`),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Klaviyo aktarımı başarısız"),
+  });
 
   const [draft, setDraft] = useState<DesignDraft>(EMPTY_DESIGN);
   const [editingDesignId, setEditingDesignId] = useState<string | null>(null);
@@ -257,6 +264,8 @@ function EmailMarketingPage() {
       toast.success(
         result.test
           ? "Test e-postası gönderildi"
+          : result.via === "klaviyo"
+            ? "Kampanya Klaviyo üzerinden gönderime alındı"
           : `${result.sent} gönderim tamamlandı${result.failed > 0 ? `, ${result.failed} başarısız` : ""}`,
       );
       await invalidate();
@@ -768,6 +777,9 @@ function EmailMarketingPage() {
                 />
                 <Button className="w-full" onClick={() => importMutation.mutate()} disabled={importMutation.isPending || importRaw.trim().length < 3}>
                   <Plus className="mr-2 size-4" /> Aboneleri ekle
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => klaviyoSync.mutate()} disabled={klaviyoSync.isPending}>
+                  Aboneleri Klaviyo'ya aktar
                 </Button>
               </div>
               <div className="rounded-xl border border-border bg-card">
