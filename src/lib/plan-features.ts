@@ -182,6 +182,14 @@ export const MODULE_CATALOG: PlanModule[] = [
     description: "IP/ülke engeli, WAF, hız limiti, bot tespiti, dolandırıcılık incelemesi ve oturum güvenliği.",
     routes: [],
   },
+  {
+    key: "v2_ddos_protection",
+    label: "DDoS, IP ve Ülke Engeli",
+    description: "DDoS seviye izleme, ülke/ASN kuralları, uç nokta hız limitleri ve doğrulama sayfası (platform geneli, süper yönetici açar).",
+    routes: [],
+  },
+
+
 
   {
     key: "v2_dark_mode",

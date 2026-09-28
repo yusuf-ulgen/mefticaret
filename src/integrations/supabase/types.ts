@@ -5771,6 +5771,345 @@ export type Database = {
           },
         ]
       }
+      fw_asn_rules: {
+        Row: {
+          asn_name: string
+          asn_number: number
+          created_at: string
+          hits_count: number
+          id: string
+          is_active: boolean
+          reason: string | null
+          rule_type: string
+        }
+        Insert: {
+          asn_name: string
+          asn_number: number
+          created_at?: string
+          hits_count?: number
+          id?: string
+          is_active?: boolean
+          reason?: string | null
+          rule_type: string
+        }
+        Update: {
+          asn_name?: string
+          asn_number?: number
+          created_at?: string
+          hits_count?: number
+          id?: string
+          is_active?: boolean
+          reason?: string | null
+          rule_type?: string
+        }
+        Relationships: []
+      }
+      fw_captcha_challenges: {
+        Row: {
+          answer: number
+          attempts_count: number
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: string
+          passed_at: string | null
+          status: string
+        }
+        Insert: {
+          answer: number
+          attempts_count?: number
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address: string
+          passed_at?: string | null
+          status?: string
+        }
+        Update: {
+          answer?: number
+          attempts_count?: number
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string
+          passed_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      fw_captcha_passes: {
+        Row: {
+          expires_at: string
+          ip_address: string
+        }
+        Insert: {
+          expires_at: string
+          ip_address: string
+        }
+        Update: {
+          expires_at?: string
+          ip_address?: string
+        }
+        Relationships: []
+      }
+      fw_country_rules: {
+        Row: {
+          added_by_user_id: string | null
+          country_code: string
+          country_name: string
+          created_at: string
+          hits_count: number
+          id: string
+          is_active: boolean
+          last_hit_at: string | null
+          reason: string | null
+          rule_type: string
+        }
+        Insert: {
+          added_by_user_id?: string | null
+          country_code: string
+          country_name: string
+          created_at?: string
+          hits_count?: number
+          id?: string
+          is_active?: boolean
+          last_hit_at?: string | null
+          reason?: string | null
+          rule_type: string
+        }
+        Update: {
+          added_by_user_id?: string | null
+          country_code?: string
+          country_name?: string
+          created_at?: string
+          hits_count?: number
+          id?: string
+          is_active?: boolean
+          last_hit_at?: string | null
+          reason?: string | null
+          rule_type?: string
+        }
+        Relationships: []
+      }
+      fw_ddos_events: {
+        Row: {
+          blocked_requests: number
+          ended_at: string | null
+          event_type: string
+          id: string
+          is_active: boolean
+          mitigation_action: string | null
+          peak_level: number
+          peak_rpm: number
+          severity: string
+          source_countries: Json
+          started_at: string
+          targeted_endpoints: Json
+          total_requests: number
+        }
+        Insert: {
+          blocked_requests?: number
+          ended_at?: string | null
+          event_type?: string
+          id?: string
+          is_active?: boolean
+          mitigation_action?: string | null
+          peak_level?: number
+          peak_rpm?: number
+          severity: string
+          source_countries?: Json
+          started_at?: string
+          targeted_endpoints?: Json
+          total_requests?: number
+        }
+        Update: {
+          blocked_requests?: number
+          ended_at?: string | null
+          event_type?: string
+          id?: string
+          is_active?: boolean
+          mitigation_action?: string | null
+          peak_level?: number
+          peak_rpm?: number
+          severity?: string
+          source_countries?: Json
+          started_at?: string
+          targeted_endpoints?: Json
+          total_requests?: number
+        }
+        Relationships: []
+      }
+      fw_endpoint_limits: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          limit_count: number
+          on_exceed: string
+          path_prefix: string
+          window_seconds: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          limit_count: number
+          on_exceed?: string
+          path_prefix: string
+          window_seconds: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          limit_count?: number
+          on_exceed?: string
+          path_prefix?: string
+          window_seconds?: number
+        }
+        Relationships: []
+      }
+      fw_rate_limit_violations: {
+        Row: {
+          action_taken: string
+          created_at: string
+          endpoint: string
+          id: string
+          ip_address: string
+          limit_threshold: number
+          requests_in_window: number
+          window_seconds: number
+        }
+        Insert: {
+          action_taken: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          ip_address: string
+          limit_threshold: number
+          requests_in_window: number
+          window_seconds: number
+        }
+        Update: {
+          action_taken?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          ip_address?: string
+          limit_threshold?: number
+          requests_in_window?: number
+          window_seconds?: number
+        }
+        Relationships: []
+      }
+      fw_settings: {
+        Row: {
+          auto_ban_minutes: number
+          auto_ban_per_minute: number
+          auto_mitigation: boolean
+          current_level: number
+          enabled: boolean
+          id: boolean
+          level_changed_at: string
+          level1_rpm: number
+          level2_rpm: number
+          level3_rpm: number
+          level4_rpm: number
+          updated_at: string
+        }
+        Insert: {
+          auto_ban_minutes?: number
+          auto_ban_per_minute?: number
+          auto_mitigation?: boolean
+          current_level?: number
+          enabled?: boolean
+          id?: boolean
+          level_changed_at?: string
+          level1_rpm?: number
+          level2_rpm?: number
+          level3_rpm?: number
+          level4_rpm?: number
+          updated_at?: string
+        }
+        Update: {
+          auto_ban_minutes?: number
+          auto_ban_per_minute?: number
+          auto_mitigation?: boolean
+          current_level?: number
+          enabled?: boolean
+          id?: boolean
+          level_changed_at?: string
+          level1_rpm?: number
+          level2_rpm?: number
+          level3_rpm?: number
+          level4_rpm?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fw_traffic_minutes: {
+        Row: {
+          blocked: number
+          challenged: number
+          countries: Json
+          minute: string
+          paths: Json
+          requests: number
+        }
+        Insert: {
+          blocked?: number
+          challenged?: number
+          countries?: Json
+          minute: string
+          paths?: Json
+          requests?: number
+        }
+        Update: {
+          blocked?: number
+          challenged?: number
+          countries?: Json
+          minute?: string
+          paths?: Json
+          requests?: number
+        }
+        Relationships: []
+      }
+      fw_traffic_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          level: number
+          requests_blocked: number
+          requests_challenged: number
+          requests_total: number
+          snapshot_at: string
+          top_countries: Json
+          top_endpoints: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          level?: number
+          requests_blocked?: number
+          requests_challenged?: number
+          requests_total?: number
+          snapshot_at: string
+          top_countries?: Json
+          top_endpoints?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          level?: number
+          requests_blocked?: number
+          requests_challenged?: number
+          requests_total?: number
+          snapshot_at?: string
+          top_countries?: Json
+          top_endpoints?: Json
+        }
+        Relationships: []
+      }
       gamification_campaigns: {
         Row: {
           body: string | null
@@ -22220,6 +22559,16 @@ export type Database = {
         Returns: undefined
       }
       fts_simple: { Args: { _text: string }; Returns: unknown }
+      fw_bump_traffic: {
+        Args: {
+          _blocked: number
+          _challenged: number
+          _country: string
+          _minute: string
+          _path: string
+        }
+        Returns: undefined
+      }
       grant_ai_credits: {
         Args: {
           _credits: number

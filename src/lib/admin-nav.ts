@@ -401,6 +401,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         keywords: "güvenlik olay",
       },
       {
+        to: "/admin/firewall",
+        label: "DDoS & Güvenlik Duvarı",
+        icon: ShieldAlert,
+        hint: "IP, ülke, ASN, hız limiti",
+        keywords: "ddos firewall ip ülke asn captcha",
+      },
+      {
         to: "/admin/system",
         label: "Sistem Durumu",
         icon: Activity,
