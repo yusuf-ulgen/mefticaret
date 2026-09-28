@@ -11,6 +11,14 @@ type Client = SupabaseClient<Database>;
 
 export const storeIdSchema = z.object({ storeId: z.guid() });
 
+/** Paket gerektiren uygulamalar: kurulum yalnız ilgili modül paketinde açıksa yapılır. */
+const APP_REQUIRED_MODULE: Record<string, string> = {
+  "xml-integrator": "module_xml_integrator",
+  "facebook-marketplace": "module_marketplace",
+  "language-center": "module_multi_language",
+  "keyword-generator": "module_ai",
+};
+
 const settingsValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
 
 export const installAppSchema = z.object({
@@ -68,6 +76,12 @@ export async function installApp(
     .maybeSingle();
   if (appError) throw new Error(appError.message);
   if (!app || !app.is_active) throw new Error("Uygulama bulunamadı veya yayında değil");
+
+  const requiredModule = APP_REQUIRED_MODULE[app.code];
+  if (requiredModule) {
+    const { requirePlanModule } = await import("./entitlements.server");
+    await requirePlanModule(supabase, input.storeId, requiredModule);
+  }
 
   const { error } = await supabase.from("app_installations").upsert(
     {

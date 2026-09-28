@@ -24,6 +24,12 @@ const APP_MODULE_ROUTES: Record<string, string | undefined> = {
   "language-center": "/store/$storeId/languages",
   "mobile-app-builder": "/store/$storeId/mobile-app",
   "store-migration": "/store/$storeId/migration",
+  "xml-integrator": "/store/$storeId/xml-integrator",
+  "email-marketing": "/store/$storeId/email-marketing",
+  "site-kit": "/store/$storeId/site-kit",
+  "keyword-generator": "/store/$storeId/keywords",
+  "global-export": "/store/$storeId/global",
+
 
 
   "whatsapp-crm": "/store/$storeId/inbox",
