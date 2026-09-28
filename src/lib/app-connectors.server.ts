@@ -424,6 +424,24 @@ const CHECKS: Record<
       }
     },
   },
+  klaviyo: {
+    required: ["private_api_key", "list_id"],
+    run: async (s) => {
+      const { verifyKlaviyo } = await import("./klaviyo.server");
+      try {
+        const info = await verifyKlaviyo(str(s, "private_api_key"), str(s, "list_id"));
+        if ((s["send_campaigns"] === true || str(s, "send_campaigns") === "true") && !str(s, "from_email")) {
+          return { status: "error", message: "Kampanyaları Klaviyo'dan göndermek için gönderen e-posta gerekli." };
+        }
+        return {
+          status: "connected",
+          message: `Klaviyo bağlandı${info.organization ? ` (${info.organization})` : ""} · liste: ${info.listName ?? str(s, "list_id")}`,
+        };
+      } catch (error) {
+        return { status: "error", message: (error as Error).message };
+      }
+    },
+  },
   "paytr-pay": {
     required: ["merchant_id", "merchant_key", "merchant_salt"],
     run: async (s) =>

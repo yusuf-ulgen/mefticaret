@@ -816,7 +816,41 @@ export const subscribeToNewsletter = createServerFn({ method: "POST" })
       { onConflict: "store_id,email" },
     );
     if (error) throw new Error(error.message);
+
+    // Mağazada Klaviyo kuruluysa aboneyi Klaviyo listesine de ekle (hata kaydı engellemez).
+    const { loadStoreKlaviyo, subscribeProfiles } = await import("@/lib/klaviyo.server");
+    const klaviyo = await loadStoreKlaviyo(supabaseAdmin, store.id);
+    if (klaviyo) {
+      await subscribeProfiles(klaviyo.apiKey, klaviyo.listId, [
+        { email: data.email.toLowerCase(), firstName: data.fullName?.trim() || null },
+      ]).catch((err) => console.error("klaviyo newsletter sync", err));
+    }
     return { ok: true };
+  });
+
+/** Tüm izinli aboneleri mağazanın Klaviyo listesine aktarır. */
+export const syncSubscribersToKlaviyo = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    await guard(context.supabase, data.storeId, context.userId);
+    const { loadStoreKlaviyo, subscribeProfiles } = await import("@/lib/klaviyo.server");
+    const klaviyo = await loadStoreKlaviyo(context.supabase, data.storeId);
+    if (!klaviyo) throw new Error("Önce Uygulama Mağazası'ndan Klaviyo'yu kurup bağlayın");
+    const { data: rows, error } = await context.supabase
+      .from("email_subscribers")
+      .select("email, full_name")
+      .eq("store_id", data.storeId)
+      .eq("status", "subscribed")
+      .limit(10000);
+    if (error) throw new Error(error.message);
+    if (!rows?.length) throw new Error("Aktarılacak abone yok");
+    const result = await subscribeProfiles(
+      klaviyo.apiKey,
+      klaviyo.listId,
+      rows.map((r) => ({ email: r.email, firstName: r.full_name })),
+    );
+    return { count: result.count };
   });
 
 /**
