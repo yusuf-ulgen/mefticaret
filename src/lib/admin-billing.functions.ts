@@ -3,13 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-/** Süper admin: Ödeal ödeme sağlayıcısı durumu ile platform faturalarının tahsilat takibi. */
-
-export type OdealSettingsView = {
-  configured: boolean;
-  environment: "sandbox" | "live";
-  callbackUrl: string;
-};
+/** Süper admin: Platform faturalarının tahsilat takibi. */
 
 export type PlatformInvoiceRow = {
   id: string;
@@ -28,34 +22,6 @@ async function guard(supabase: unknown, userId: string) {
   const mod = await import("@/lib/platform-admin.server");
   await mod.assertPlatformAdmin(supabase as never, userId);
 }
-
-export const fetchOdealSettings = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<OdealSettingsView> => {
-    await guard(context.supabase, context.userId);
-    const odeal = await import("@/lib/odeal.server");
-    return {
-      configured: odeal.isOdealConfigured(),
-      environment: odeal.odealEnvironment(),
-      callbackUrl: odeal.odealReturnUrl(),
-    };
-  });
-
-export const testOdealConnection = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ ok: boolean; message: string }> => {
-    await guard(context.supabase, context.userId);
-    const odeal = await import("@/lib/odeal.server");
-    if (!odeal.isOdealConfigured()) {
-      return { ok: false, message: "Ödeal müşteri numarası ve gizli anahtarı henüz kaydedilmemiş." };
-    }
-    try {
-      await odeal.verifyOdealCredentials();
-      return { ok: true, message: `Bağlantı başarılı (${odeal.odealEnvironment() === "live" ? "canlı" : "test"} ortamı).` };
-    } catch (error) {
-      return { ok: false, message: error instanceof Error ? error.message : "Bağlantı kurulamadı." };
-    }
-  });
 
 export const fetchPlatformInvoices = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
