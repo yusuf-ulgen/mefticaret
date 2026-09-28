@@ -36,8 +36,45 @@
   ],
   "dir": "ltr",
   "display_override": [
+    "window-controls-overlay",
     "standalone",
     "minimal-ui"
   ],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Tedarikçi Paneli",
+      "short_name": "Tedarikçi Paneli",
+      "url": "/supplier",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Giriş",
+      "short_name": "Giriş",
+      "url": "/tedarikci-giris?mode=login",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "focus-existing",
+      "auto"
+    ]
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "related_applications": []
 }
