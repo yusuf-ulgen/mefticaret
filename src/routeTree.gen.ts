@@ -19,6 +19,7 @@ import { Route as ETicaretPaketleriRouteImport } from './routes/e-ticaret-paketl
 import { Route as ETicaretSitesiKurmaRouteImport } from './routes/e-ticaret-sitesi-kurma'
 import { Route as EnIyiETicaretAltyapisiRouteImport } from './routes/en-iyi-e-ticaret-altyapisi'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as GuvenlikKontroluRouteImport } from './routes/guvenlik-kontrolu'
 import { Route as KolayPanelRehberiRouteImport } from './routes/kolay-panel-rehberi'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -85,6 +86,7 @@ import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminEinvoiceRouteImport } from './routes/_authenticated/admin.einvoice'
 import { Route as AuthenticatedAdminEvHanimlariRouteImport } from './routes/_authenticated/admin.ev-hanimlari'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
+import { Route as AuthenticatedAdminFirewallRouteImport } from './routes/_authenticated/admin.firewall'
 import { Route as AuthenticatedAdminKolayRouteImport } from './routes/_authenticated/admin.kolay'
 import { Route as AuthenticatedAdminLanguagesRouteImport } from './routes/_authenticated/admin.languages'
 import { Route as AuthenticatedAdminLiveRouteImport } from './routes/_authenticated/admin.live'
@@ -396,6 +398,11 @@ const EnIyiETicaretAltyapisiRoute = EnIyiETicaretAltyapisiRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuvenlikKontroluRoute = GuvenlikKontroluRouteImport.update({
+  id: '/guvenlik-kontrolu',
+  path: '/guvenlik-kontrolu',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KolayPanelRehberiRoute = KolayPanelRehberiRouteImport.update({
@@ -737,6 +744,12 @@ const AuthenticatedAdminFinanceRoute =
   AuthenticatedAdminFinanceRouteImport.update({
     id: '/finance',
     path: '/finance',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminFirewallRoute =
+  AuthenticatedAdminFirewallRouteImport.update({
+    id: '/firewall',
+    path: '/firewall',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminKolayRoute = AuthenticatedAdminKolayRouteImport.update({
@@ -2265,6 +2278,7 @@ export interface FileRoutesByFullPath {
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
   '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/guvenlik-kontrolu': typeof GuvenlikKontroluRoute
   '/kolay-panel-rehberi': typeof KolayPanelRehberiRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -2330,6 +2344,7 @@ export interface FileRoutesByFullPath {
   '/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
   '/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/firewall': typeof AuthenticatedAdminFirewallRoute
   '/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
@@ -2604,6 +2619,7 @@ export interface FileRoutesByTo {
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
   '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/guvenlik-kontrolu': typeof GuvenlikKontroluRoute
   '/kolay-panel-rehberi': typeof KolayPanelRehberiRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -2668,6 +2684,7 @@ export interface FileRoutesByTo {
   '/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
   '/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/firewall': typeof AuthenticatedAdminFirewallRoute
   '/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
@@ -2939,6 +2956,7 @@ export interface FileRoutesById {
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
   '/en-iyi-e-ticaret-altyapisi': typeof EnIyiETicaretAltyapisiRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/guvenlik-kontrolu': typeof GuvenlikKontroluRoute
   '/kolay-panel-rehberi': typeof KolayPanelRehberiRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -3004,6 +3022,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
   '/_authenticated/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/_authenticated/admin/firewall': typeof AuthenticatedAdminFirewallRoute
   '/_authenticated/admin/kolay': typeof AuthenticatedAdminKolayRoute
   '/_authenticated/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/_authenticated/admin/live': typeof AuthenticatedAdminLiveRoute
@@ -3280,6 +3299,7 @@ export interface FileRouteTypes {
     | '/e-ticaret-sitesi-kurma'
     | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
+    | '/guvenlik-kontrolu'
     | '/kolay-panel-rehberi'
     | '/login'
     | '/mcp'
@@ -3345,6 +3365,7 @@ export interface FileRouteTypes {
     | '/admin/einvoice'
     | '/admin/ev-hanimlari'
     | '/admin/finance'
+    | '/admin/firewall'
     | '/admin/kolay'
     | '/admin/languages'
     | '/admin/live'
@@ -3619,6 +3640,7 @@ export interface FileRouteTypes {
     | '/e-ticaret-sitesi-kurma'
     | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
+    | '/guvenlik-kontrolu'
     | '/kolay-panel-rehberi'
     | '/login'
     | '/mcp'
@@ -3683,6 +3705,7 @@ export interface FileRouteTypes {
     | '/admin/einvoice'
     | '/admin/ev-hanimlari'
     | '/admin/finance'
+    | '/admin/firewall'
     | '/admin/kolay'
     | '/admin/languages'
     | '/admin/live'
@@ -3953,6 +3976,7 @@ export interface FileRouteTypes {
     | '/e-ticaret-sitesi-kurma'
     | '/en-iyi-e-ticaret-altyapisi'
     | '/forgot-password'
+    | '/guvenlik-kontrolu'
     | '/kolay-panel-rehberi'
     | '/login'
     | '/mcp'
@@ -4018,6 +4042,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/einvoice'
     | '/_authenticated/admin/ev-hanimlari'
     | '/_authenticated/admin/finance'
+    | '/_authenticated/admin/firewall'
     | '/_authenticated/admin/kolay'
     | '/_authenticated/admin/languages'
     | '/_authenticated/admin/live'
@@ -4294,6 +4319,7 @@ export interface RootRouteChildren {
   ETicaretSitesiKurmaRoute: typeof ETicaretSitesiKurmaRoute
   EnIyiETicaretAltyapisiRoute: typeof EnIyiETicaretAltyapisiRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  GuvenlikKontroluRoute: typeof GuvenlikKontroluRoute
   KolayPanelRehberiRoute: typeof KolayPanelRehberiRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
@@ -4480,6 +4506,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guvenlik-kontrolu': {
+      id: '/guvenlik-kontrolu'
+      path: '/guvenlik-kontrolu'
+      fullPath: '/guvenlik-kontrolu'
+      preLoaderRoute: typeof GuvenlikKontroluRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kolay-panel-rehberi': {
@@ -4942,6 +4975,13 @@ declare module '@tanstack/react-router' {
       path: '/finance'
       fullPath: '/admin/finance'
       preLoaderRoute: typeof AuthenticatedAdminFinanceRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/firewall': {
+      id: '/_authenticated/admin/firewall'
+      path: '/firewall'
+      fullPath: '/admin/firewall'
+      preLoaderRoute: typeof AuthenticatedAdminFirewallRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/kolay': {
@@ -6796,6 +6836,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminEinvoiceRoute: typeof AuthenticatedAdminEinvoiceRoute
   AuthenticatedAdminEvHanimlariRoute: typeof AuthenticatedAdminEvHanimlariRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
+  AuthenticatedAdminFirewallRoute: typeof AuthenticatedAdminFirewallRoute
   AuthenticatedAdminKolayRoute: typeof AuthenticatedAdminKolayRoute
   AuthenticatedAdminLanguagesRoute: typeof AuthenticatedAdminLanguagesRoute
   AuthenticatedAdminLiveRoute: typeof AuthenticatedAdminLiveRoute
@@ -6850,6 +6891,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminEinvoiceRoute: AuthenticatedAdminEinvoiceRoute,
   AuthenticatedAdminEvHanimlariRoute: AuthenticatedAdminEvHanimlariRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
+  AuthenticatedAdminFirewallRoute: AuthenticatedAdminFirewallRoute,
   AuthenticatedAdminKolayRoute: AuthenticatedAdminKolayRoute,
   AuthenticatedAdminLanguagesRoute: AuthenticatedAdminLanguagesRoute,
   AuthenticatedAdminLiveRoute: AuthenticatedAdminLiveRoute,
@@ -7440,6 +7482,7 @@ const rootRouteChildren: RootRouteChildren = {
   ETicaretSitesiKurmaRoute: ETicaretSitesiKurmaRoute,
   EnIyiETicaretAltyapisiRoute: EnIyiETicaretAltyapisiRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  GuvenlikKontroluRoute: GuvenlikKontroluRoute,
   KolayPanelRehberiRoute: KolayPanelRehberiRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
