@@ -37,7 +37,8 @@ export const Route = createFileRoute("/api/public/pay/iyzico/$orderId")({
             }
           }
         }
-        return Response.redirect(back, 303);
+        // Response.redirect değişmez başlık üretir; güvenlik başlığı eklenince 500 veriyordu.
+        return new Response(null, { status: 303, headers: { Location: back } });
       },
     },
   },
