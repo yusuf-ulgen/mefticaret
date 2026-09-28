@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { listMyChats, type ChatSummary } from "@/lib/chat.functions";
 import { chatTitle } from "./chat-utils";
 import { playTone } from "./chat-extras";
+import { playNotifySound } from "@/lib/notify-sounds";
 
 export type ChatPrefs = { hideOnline: boolean; notifications: boolean; sound: string; vibrate: boolean };
 const DEFAULT_PREFS: ChatPrefs = { hideOnline: false, notifications: true, sound: "pop", vibrate: true };
@@ -86,7 +87,8 @@ export function ChatProvider({ children, myStatus, prefs = DEFAULT_PREFS }: { ch
         if (m.sender_id === me) return;
         const chat = chatsRef.current.find((c) => c.id === m.conversation_id);
         if (chat?.muted || myStatus === "dnd" || !prefsRef.current.notifications) return;
-        if (prefsRef.current.sound !== "none") playTone(prefsRef.current.sound);
+        if (prefsRef.current.sound === "pop") playNotifySound("message");
+        else if (prefsRef.current.sound !== "none") playTone(prefsRef.current.sound);
         if (prefsRef.current.vibrate && "vibrate" in navigator) navigator.vibrate?.(120);
         const title = chat ? chatTitle(chat, me) : "Yeni mesaj";
         const body = m.kind === "text" ? (m.body ?? "") : m.kind === "image" ? "📷 Fotoğraf" : m.kind === "audio" ? "🎤 Sesli mesaj" : "📎 Dosya";

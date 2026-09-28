@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import { playNotifySound } from "@/lib/notify-sounds";
 import { formatMoney } from "@/lib/mefti";
 
 type LiveEvent = {
@@ -60,7 +61,10 @@ export function useStoreRealtime(storeId: string, options?: { notify?: boolean }
               ...current,
             ].slice(0, 10),
           );
-          if (notify) toast.success(`Yeni sipariş ${row.order_number}`, { description: detail });
+          if (notify) {
+            toast.success(`Yeni sipariş ${row.order_number}`, { description: detail });
+            playNotifySound("order");
+          }
           void queryClient.invalidateQueries({ queryKey: ["store", storeId] });
         },
       )
@@ -93,6 +97,7 @@ export function useStoreRealtime(storeId: string, options?: { notify?: boolean }
               ...current,
             ].slice(0, 10),
           );
+          if (notify) playNotifySound("info");
           void queryClient.invalidateQueries({ queryKey: ["store", storeId, "notifications"] });
         },
       )
