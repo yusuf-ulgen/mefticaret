@@ -331,6 +331,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         keywords: "app store entegrasyon kategori",
       },
       {
+        to: "/admin/klaviyo",
+        label: "Klaviyo",
+        icon: Blocks,
+        hint: "E-posta pazarlama senkronu",
+        keywords: "klaviyo email e-posta liste abone",
+      },
+      {
         to: "/admin/marketplace",
         label: "Pazaryerleri",
         icon: Globe,
