@@ -85,7 +85,7 @@ export const getFirewallDashboard = createServerFn({ method: "GET" })
       snapshots: (Omit<T<"fw_traffic_snapshots">, "top_countries" | "top_endpoints"> & { top_countries: { key: string; count: number }[]; top_endpoints: { key: string; count: number }[] })[];
       events: T<"fw_ddos_events">[]; countries: T<"fw_country_rules">[]; asns: T<"fw_asn_rules">[];
       endpoints: T<"fw_endpoint_limits">[]; violations: T<"fw_rate_limit_violations">[];
-      ipRules: Pick<T<"sec_ip_rules">, "id" | "ip_address" | "ip_range" | "rule_type" | "reason" | "expires_at" | "is_active" | "created_at">[];
+      ipRules: (Pick<T<"sec_ip_rules">, "id" | "rule_type" | "reason" | "expires_at" | "is_active" | "created_at"> & { ip_address: string | null; ip_range: string | null })[];
       captcha: Record<string, number>; topIps: { ip: string; count: number }[];
     };
   });
