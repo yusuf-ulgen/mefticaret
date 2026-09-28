@@ -2,6 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
+
+type T<N extends keyof Database["public"]["Tables"]> = Database["public"]["Tables"][N]["Row"];
 
 // ===== Herkese açık: doğrulama sayfası =====
 
@@ -65,7 +68,6 @@ export const getFirewallDashboard = createServerFn({ method: "GET" })
     const ipCounts = new Map<string, number>();
     for (const v of violations.data ?? []) ipCounts.set(v.ip_address, (ipCounts.get(v.ip_address) ?? 0) + 1);
     const topIps = [...ipCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([ip, count]) => ({ ip, count }));
-    type Row = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     const out = {
       settings: settings.data,
       snapshots: snaps.data ?? [],
@@ -79,8 +81,12 @@ export const getFirewallDashboard = createServerFn({ method: "GET" })
       topIps,
     };
     return JSON.parse(JSON.stringify(out)) as {
-      settings: Row | null; snapshots: Row[]; events: Row[]; countries: Row[]; asns: Row[]; endpoints: Row[];
-      violations: Row[]; ipRules: Row[]; captcha: Record<string, number>; topIps: { ip: string; count: number }[];
+      settings: T<"fw_settings"> | null;
+      snapshots: (Omit<T<"fw_traffic_snapshots">, "top_countries" | "top_endpoints"> & { top_countries: { key: string; count: number }[]; top_endpoints: { key: string; count: number }[] })[];
+      events: T<"fw_ddos_events">[]; countries: T<"fw_country_rules">[]; asns: T<"fw_asn_rules">[];
+      endpoints: T<"fw_endpoint_limits">[]; violations: T<"fw_rate_limit_violations">[];
+      ipRules: Pick<T<"sec_ip_rules">, "id" | "ip_address" | "ip_range" | "rule_type" | "reason" | "expires_at" | "is_active" | "created_at">[];
+      captcha: Record<string, number>; topIps: { ip: string; count: number }[];
     };
   });
 

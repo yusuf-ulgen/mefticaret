@@ -89,7 +89,7 @@ function Body({ d }: { d: Dash }) {
           <Stat label="Son dakika istek" value={fmt(Number(last?.requests_total ?? 0))} />
           <Stat label="Engellenen (son dk)" value={fmt(Number(last?.requests_blocked ?? 0))} />
           <Stat label="Aktif ban" value={fmt(bans)} />
-          <Stat label="Bekleyen doğrulama (24s)" value={fmt(d.captcha.pending ?? 0)} />
+          <Stat label="Bekleyen doğrulama (24s)" value={fmt(d.captcha['pending'] ?? 0)} />
         </div>
       </div>
 
@@ -352,13 +352,13 @@ function TrafficTab({ d }: { d: Dash }) {
   const countries = new Map<string, number>();
   const paths = new Map<string, number>();
   for (const s of d.snapshots) {
-    for (const c of (s.top_countries as { key: string; count: number }[]) ?? []) countries.set(c.key, (countries.get(c.key) ?? 0) + c.count);
-    for (const p of (s.top_endpoints as { key: string; count: number }[]) ?? []) paths.set(p.key, (paths.get(p.key) ?? 0) + p.count);
+    for (const c of s.top_countries ?? []) countries.set(c.key, (countries.get(c.key) ?? 0) + c.count);
+    for (const p of s.top_endpoints ?? []) paths.set(p.key, (paths.get(p.key) ?? 0) + p.count);
   }
   const topC = [...countries.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
   const topP = [...paths.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
   const cap = d.captcha;
-  const capTotal = (cap.passed ?? 0) + (cap.failed ?? 0) + (cap.expired ?? 0);
+  const capTotal = (cap['passed'] ?? 0) + (cap['failed'] ?? 0) + (cap['expired'] ?? 0);
   const pct = (n: number) => (totals.req ? `%${((n / totals.req) * 100).toFixed(1)}` : "—");
   return (
     <>
@@ -367,7 +367,7 @@ function TrafficTab({ d }: { d: Dash }) {
           <Stat label="Toplam istek" value={fmt(totals.req)} />
           <Stat label="Engellenen" value={`${fmt(totals.bl)} (${pct(totals.bl)})`} />
           <Stat label="Doğrulama istenen" value={`${fmt(totals.ch)} (${pct(totals.ch)})`} />
-          <Stat label="Doğrulama geçme (24s)" value={capTotal ? `%${Math.round(((cap.passed ?? 0) / capTotal) * 100)}` : "—"} />
+          <Stat label="Doğrulama geçme (24s)" value={capTotal ? `%${Math.round(((cap['passed'] ?? 0) / capTotal) * 100)}` : "—"} />
         </div>
       </Card>
       <div className="grid gap-4 md:grid-cols-2">
