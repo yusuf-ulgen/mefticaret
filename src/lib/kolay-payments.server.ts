@@ -43,7 +43,7 @@ export async function syncKolayPaymentMethods(
     {
       connectorId: mefpayId,
       active: input.mode === "mefpay",
-      displayName: "Kredi / banka kartı (Mefpay)",
+      displayName: "Kredi / banka kartı",
       instructions: "Sipariş sonrası güvenli ödeme sayfasında kartınızla ödeyin.",
       installments: true,
     },
