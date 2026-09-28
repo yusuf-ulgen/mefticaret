@@ -1,5 +1,5 @@
 {
-  "name": "Mefticaret Mesajlar",
+  "name": "Mefticaret Chat",
   "short_name": "Mesajlar",
   "description": "Mefticaret gerçek zamanlı mesajlaşma.",
   "start_url": "/mesajlar-giris",
@@ -11,19 +11,19 @@
   "lang": "tr",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/chat-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/chat-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/chat-icon-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -49,7 +49,7 @@
       "url": "/mesajlar",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "/chat-icon-192.png",
           "sizes": "192x192",
           "type": "image/png"
         }
@@ -61,7 +61,7 @@
       "url": "/mesajlar-giris",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "/chat-icon-192.png",
           "sizes": "192x192",
           "type": "image/png"
         }
