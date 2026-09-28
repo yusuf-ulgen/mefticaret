@@ -645,7 +645,12 @@ export async function createStorefrontOrder(
     store_id: store.id,
     kind: "created",
     message: `Vitrinden sipariş alındı${paymentLabel ? ` · ${paymentLabel}` : ""}`,
-    meta: { source: "storefront", payment_method: paymentLabel, shipping: shippingTitle },
+    meta: {
+      source: "storefront",
+      payment_method: paymentLabel,
+      payment_method_id: input.paymentMethodId ?? null,
+      shipping: shippingTitle,
+    },
   });
 
   {
@@ -745,8 +750,18 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
   const unpaid = order.payment_status !== "paid" && !["cancelled", "refunded"].includes(order.status);
   let cardAvailable = false;
   const { data: kindRow } = await supabase.from("stores").select("store_kind").eq("id", store.id).maybeSingle();
+  // Satıcının kurduğu iyzico / PayTR ile seçilmiş siparişler kartla ödenebilir.
+  if (unpaid && Number(order.grand_total) > 0) {
+    const { orderPaymentMethodId, resolveOrderGateway } = await import("@/lib/store-gateways.server");
+    const gateway = await resolveOrderGateway(
+      supabase as never,
+      store.id,
+      await orderPaymentMethodId(supabase as never, order.id),
+    );
+    if (gateway) cardAvailable = true;
+  }
   // QNBpay yalnız Kolay Panel mağazalarında kullanılır.
-  if (unpaid && paymentMode === "mefpay" && kindRow?.store_kind === "micro" && Number(order.grand_total) > 0) {
+  if (!cardAvailable && unpaid && paymentMode === "mefpay" && kindRow?.store_kind === "micro" && Number(order.grand_total) > 0) {
     const { cardPaymentAvailable } = await import("@/lib/qnbpay-admin.server");
     cardAvailable = await cardPaymentAvailable();
   }

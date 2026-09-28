@@ -25,9 +25,10 @@ async function admin(): Promise<Admin> {
   return supabaseAdmin as unknown as Admin;
 }
 
-/** Sipariş için QNBpay ödeme bağlantısı üretir. */
+/** Sipariş için kart ödeme bağlantısı üretir (iyzico / PayTR / QNBpay). */
 export async function startOrderCardPayment(
   input: z.infer<typeof orderCardPaymentSchema>,
+  ctx: { origin: string; ip: string } = { origin: "https://mefticaret.com", ip: "127.0.0.1" },
 ): Promise<{ link: string }> {
   const db = await admin();
 
@@ -37,19 +38,10 @@ export async function startOrderCardPayment(
     .eq("slug", input.slug)
     .maybeSingle();
   if (!store || store.status !== "active") throw new Error("Mağaza bulunamadı veya yayında değil");
-  // QNBpay yalnız Kolay Panel (ev hanımı) mağazaları ve platform tahsilatları içindir.
-  if (store.store_kind !== "micro") throw new Error("Bu mağazada kartla ödeme kapalı");
-
-  const { data: settings } = await db
-    .from("store_settings")
-    .select("payment_mode")
-    .eq("store_id", store.id)
-    .maybeSingle();
-  if (settings?.payment_mode !== "mefpay") throw new Error("Bu mağazada kartla ödeme kapalı");
 
   const { data: order, error } = await db
     .from("orders")
-    .select("id, order_number, grand_total, currency, payment_status, customer_name")
+    .select("id, order_number, grand_total, currency, payment_status, customer_name, customer_email, customer_phone, shipping_address")
     .eq("store_id", store.id)
     .eq("order_number", input.orderNumber)
     .ilike("customer_email", input.email)
@@ -60,6 +52,46 @@ export async function startOrderCardPayment(
 
   const amount = Number(order.grand_total);
   if (!(amount > 0)) throw new Error("Bu sipariş için çevrimiçi ödeme alınamıyor");
+
+  // Satıcının Uygulama Mağazası'ndan kurduğu sağlayıcı (iyzico / PayTR)
+  const gw = await import("@/lib/store-gateways.server");
+  const gateway = await gw.resolveOrderGateway(db, store.id, await gw.orderPaymentMethodId(db, order.id));
+  if (gateway) {
+    const gatewayOrder = {
+      id: order.id,
+      storeId: store.id,
+      slug: input.slug,
+      orderNumber: order.order_number,
+      amount,
+      currency: order.currency,
+      email: order.customer_email ?? input.email,
+      name: order.customer_name ?? "Müşteri",
+      phone: order.customer_phone ?? "",
+      address: (order.shipping_address ?? {}) as Record<string, unknown>,
+    };
+    const link =
+      gateway.connector === "iyzico"
+        ? await gw.createIyzicoPayment(gateway.settings, gatewayOrder, ctx)
+        : await gw.createPaytrPayment(gateway.settings, gatewayOrder, ctx);
+    await db.from("order_events").insert({
+      order_id: order.id,
+      store_id: store.id,
+      kind: "payment",
+      message: "Kart ile ödeme bağlantısı oluşturuldu",
+      meta: { provider: gateway.connector },
+    });
+    return { link };
+  }
+
+  // QNBpay yalnız Kolay Panel (ev hanımı) mağazaları ve platform tahsilatları içindir.
+  if (store.store_kind !== "micro") throw new Error("Bu mağazada kartla ödeme kapalı");
+
+  const { data: settings } = await db
+    .from("store_settings")
+    .select("payment_mode")
+    .eq("store_id", store.id)
+    .maybeSingle();
+  if (settings?.payment_mode !== "mefpay") throw new Error("Bu mağazada kartla ödeme kapalı");
 
   const { createOrderCheckout } = await import("@/lib/qnbpay-admin.server");
   const result = await createOrderCheckout({
