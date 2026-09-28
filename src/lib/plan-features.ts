@@ -227,6 +227,24 @@ export const MODULE_CATALOG: PlanModule[] = [
     description: "Müşteri listesi/detayı, adresler, yönetici notları ve kural tabanlı segmentler.",
     routes: ["customers-v2", "segments-v2"],
   },
+  {
+    key: "module_email_marketing",
+    label: "E-posta Pazarlama",
+    description: "Bülten, e-posta kampanyaları ve Klaviyo entegrasyonu.",
+    routes: [],
+  },
+  {
+    key: "module_site_kit",
+    label: "Site Kit",
+    description: "Analitik/piksel kodları ve site doğrulama araçları.",
+    routes: [],
+  },
+  {
+    key: "module_global_export",
+    label: "E-İhracat & Global",
+    description: "Uluslararası kargo, gümrük, bölgesel katalog ve ihracat belgeleri.",
+    routes: [],
+  },
 ];
 
 export const MODULE_BY_KEY: Record<string, PlanModule> = Object.fromEntries(
