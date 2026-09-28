@@ -26,7 +26,7 @@ export async function klaviyoFetch<T = any>(
         Accept: "application/vnd.api+json",
         ...(init.body ? { "Content-Type": "application/vnd.api+json" } : {}),
       },
-      body: init.body ? JSON.stringify(init.body) : undefined,
+      body: init.body ? JSON.stringify(init.body) : null,
       signal: controller.signal,
     });
     const text = await res.text();
