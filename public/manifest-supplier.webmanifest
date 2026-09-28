@@ -1,0 +1,27 @@
+{
+  "name": "Mefticaret Tedarikçi Portalı",
+  "short_name": "Tedarikçi",
+  "description": "B2B tedarikçi portalı.",
+  "start_url": "/tedarikci-giris?mode=login",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "mefticaret-supplier"
+}
