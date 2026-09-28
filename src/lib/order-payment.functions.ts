@@ -16,6 +16,13 @@ export const startOrderPayment = createServerFn({ method: "POST" })
     });
     if (!limit.allowed) throw new Error("Çok fazla deneme yapıldı, biraz sonra tekrar deneyin.");
 
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { clientIp } = await import("@/lib/rate-limit.server");
+    const request = getRequest();
+    const url = new URL(request.url);
+    const proto = request.headers.get("x-forwarded-proto") ?? url.protocol.replace(":", "");
+    const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? url.host;
+    const ip = clientIp(request) || "127.0.0.1";
     const { startOrderCardPayment } = await import("@/lib/order-payment.server");
-    return startOrderCardPayment(data);
+    return startOrderCardPayment(data, { origin: `${proto}://${host}`, ip });
   });
