@@ -257,6 +257,20 @@ export function normalizeRows(
       return mode === "sum" ? values.reduce((a, b) => a + b, 0) : values[0]!;
     };
 
+    /** Liste alanları (görseller): indeksli tüm değerleri toplar. */
+    const readAll = (field: string, source: Record<string, string> = row, path = mapping[field]): string => {
+      if (!path) return "";
+      if (source[path] !== undefined || transforms[field]?.length) {
+        return applyTransforms(readMapped(source, path).trim(), transforms[field], source).trim();
+      }
+      const generic = path.replace(/\[\d*\]/g, "");
+      const values: string[] = [];
+      for (const [k, v] of Object.entries(source)) {
+        if (k.replace(/\[\d+\]/g, "") === generic && String(v).trim()) values.push(String(v).trim());
+      }
+      return values.join(",");
+    };
+
     const sku = read("sku");
     const barcode = read("barcode");
     const title = read("title");
@@ -358,7 +372,7 @@ export function normalizeRows(
           weightGrams:
             variantWeight === null ? null : Math.round(variantWeight < 100 ? variantWeight * 1000 : variantWeight),
           options: variantOptions,
-          images: parseUrlList(readVariant("images")),
+          images: parseUrlList(readAll("images", variantRow, options.variantMapping?.["images"] || mapping["images"])),
         });
       }
     }
@@ -384,7 +398,7 @@ export function normalizeRows(
             : Math.max(0, Math.round(stockValue)),
       weightGrams: weight === null ? null : Math.round(weight < 100 ? weight * 1000 : weight),
       videoUrl: videos[0] ?? null,
-      images: parseUrlList(read("images")),
+      images: parseUrlList(readAll("images")),
       options: options_,
       variants,
     });
