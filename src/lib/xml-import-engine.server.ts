@@ -257,6 +257,20 @@ export function normalizeRows(
       return mode === "sum" ? values.reduce((a, b) => a + b, 0) : values[0]!;
     };
 
+    /** Liste alanları (görseller): indeksli tüm değerleri toplar. */
+    const readAll = (field: string, source: Record<string, string> = row, path = mapping[field]): string => {
+      if (!path) return "";
+      if (source[path] !== undefined || transforms[field]?.length) {
+        return applyTransforms(readMapped(source, path).trim(), transforms[field], source).trim();
+      }
+      const generic = path.replace(/\[\d*\]/g, "");
+      const values: string[] = [];
+      for (const [k, v] of Object.entries(source)) {
+        if (k.replace(/\[\d+\]/g, "") === generic && String(v).trim()) values.push(String(v).trim());
+      }
+      return values.join(",");
+    };
+
     const sku = read("sku");
     const barcode = read("barcode");
     const title = read("title");
@@ -358,7 +372,7 @@ export function normalizeRows(
           weightGrams:
             variantWeight === null ? null : Math.round(variantWeight < 100 ? variantWeight * 1000 : variantWeight),
           options: variantOptions,
-          images: parseUrlList(readVariant("images")),
+          images: parseUrlList(readAll("images", variantRow, options.variantMapping?.["images"] || mapping["images"])),
         });
       }
     }
@@ -384,7 +398,7 @@ export function normalizeRows(
             : Math.max(0, Math.round(stockValue)),
       weightGrams: weight === null ? null : Math.round(weight < 100 ? weight * 1000 : weight),
       videoUrl: videos[0] ?? null,
-      images: parseUrlList(read("images")),
+      images: parseUrlList(readAll("images")),
       options: options_,
       variants,
     });
@@ -658,6 +672,29 @@ export async function upsertProducts(
         }
       }
 
+      /* --- görseller: beslemedeki eksik görseller eklenir, mevcutlar korunur --- */
+      if (item.images.length) {
+        const { data: currentImages } = await admin
+          .from("product_images")
+          .select("url, position")
+          .eq("product_id", productId);
+        const existingImages = (currentImages ?? []) as Array<{ url: string; position: number | null }>;
+        const have = new Set(existingImages.map((img) => img.url));
+        let position = existingImages.reduce((max, img) => Math.max(max, img.position ?? 0), 0);
+        const add = item.images
+          .slice(0, MAX_PRODUCT_IMAGES)
+          .filter((url) => !have.has(url))
+          .slice(0, Math.max(0, MAX_PRODUCT_IMAGES - have.size))
+          .map((url) => ({
+            store_id: input.storeId,
+            product_id: productId,
+            url,
+            alt: item.title.slice(0, 120),
+            position: ++position,
+          }));
+        if (add.length) await admin.from("product_images").insert(add);
+      }
+
       result.updated += 1;
     }
 
@@ -728,6 +765,9 @@ export async function upsertProducts(
 }
 
 /** Yeni ürünün varyantları (varyasyonlu ürünlerde hepsi) ve görselleri. */
+/** Ürün başına aktarılan en çok görsel. */
+const MAX_PRODUCT_IMAGES = 20;
+
 async function insertChildren(admin: Client, storeId: string, productId: string, item: NormalizedProduct) {
   const optionEntries = Object.entries(item.options);
   const rows = item.variants.length
@@ -766,7 +806,7 @@ async function insertChildren(admin: Client, storeId: string, productId: string,
 
   if (item.images.length) {
     await admin.from("product_images").insert(
-      item.images.slice(0, 8).map((url, index) => ({
+      item.images.slice(0, MAX_PRODUCT_IMAGES).map((url, index) => ({
         store_id: storeId,
         product_id: productId,
         url,
