@@ -238,6 +238,8 @@ export const getStorefront = createServerFn({ method: "GET" })
       campaign,
       isHomeMakerStorefront: store.store_kind === "micro",
       stylePreset,
+      themeFeatures,
+      themeTexts,
       couture,
       profile: (profileRes.data ?? null) as {
         bio?: string | null;
