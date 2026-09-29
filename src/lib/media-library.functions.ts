@@ -25,7 +25,7 @@ export const registerMediaAsset = createServerFn({ method: "POST" })
         folderId: z.guid().nullable().optional(),
         fileName: z.string().trim().min(1).max(200),
         mimeType: z.string().trim().min(3).max(100),
-        kind: z.enum(["image", "video", "document"]),
+        kind: z.enum(["image", "video", "document", "audio", "model", "other"]),
         extension: z.string().trim().max(10).optional(),
         storagePath: z.string().trim().min(3).max(400),
         bucket: z.string().trim().min(1).max(63).default("store-media"),
@@ -38,6 +38,26 @@ export const registerMediaAsset = createServerFn({ method: "POST" })
         optimized: z.boolean().default(false),
         convertedToWebp: z.boolean().default(false),
         variants: z.array(variantSchema).max(12).default([]),
+        v2: z
+          .object({
+            originalFilename: z.string().max(300),
+            originalFormat: z.string().max(20),
+            thumbSm: z.string().max(400).nullable(),
+            thumbMd: z.string().max(400).nullable(),
+            thumbLg: z.string().max(400).nullable(),
+            poster: z.string().max(400).nullable(),
+            blurhash: z.string().max(100).nullable(),
+            dominantColor: z.string().regex(/^#[0-9a-f]{6}$/i).nullable(),
+            palette: z.array(z.string().regex(/^#[0-9a-f]{6}$/i)).max(5),
+            hasTransparency: z.boolean(),
+            isAnimated: z.boolean(),
+            metadataStripped: z.boolean(),
+            watermarkApplied: z.boolean(),
+            durationSeconds: z.number().int().nonnegative().nullable(),
+            sourceAssetId: z.guid().nullable().optional(),
+            extraBytes: z.number().int().nonnegative(),
+          })
+          .optional(),
       })
       .parse(data),
   )
@@ -45,6 +65,26 @@ export const registerMediaAsset = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     if (!data.storagePath.startsWith(`${data.storeId}/`)) {
       throw new Error("Geçersiz dosya yolu");
+    }
+    const v2 = data.v2;
+    const extraPaths = v2 ? [v2.thumbSm, v2.thumbMd, v2.thumbLg, v2.poster] : [];
+    if (extraPaths.some((p) => p && !p.startsWith(`${data.storeId}/`))) throw new Error("Geçersiz dosya yolu");
+    if (!v2 && !["image", "video", "document"].includes(data.kind)) throw new Error("Bu dosya türü paketinizde kapalı");
+    if (v2) {
+      const { mediaEntitlement, consumeMediaQuota } = await import("@/lib/media-v2.functions");
+      const ent = await mediaEntitlement(supabase, data.storeId);
+      if (!ent.enabled) throw new Error("Medya Sistemi v2 paketinizde kapalı.");
+      const total =
+        data.sizeBytes + v2.extraBytes + data.variants.reduce((s, v) => s + v.size_bytes, 0);
+      try {
+        await consumeMediaQuota(data.storeId, total, ent.limitBytes);
+      } catch (error) {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        await supabaseAdmin.storage
+          .from(data.bucket)
+          .remove([data.storagePath, ...data.variants.map((v) => v.path), ...(extraPaths.filter(Boolean) as string[])]);
+        throw error;
+      }
     }
     if (data.folderId) {
       const { data: folder, error } = await supabase
@@ -79,6 +119,26 @@ export const registerMediaAsset = createServerFn({ method: "POST" })
         converted_to_webp: data.convertedToWebp,
         variants: data.variants,
         created_by: userId,
+        ...(v2
+          ? {
+              original_filename: v2.originalFilename,
+              original_format: v2.originalFormat,
+              thumbnail_sm_path: v2.thumbSm,
+              thumbnail_md_path: v2.thumbMd,
+              thumbnail_lg_path: v2.thumbLg,
+              poster_path: v2.poster,
+              blurhash: v2.blurhash,
+              dominant_color: v2.dominantColor,
+              color_palette: v2.palette,
+              has_transparency: v2.hasTransparency,
+              is_animated: v2.isAnimated,
+              metadata_stripped: v2.metadataStripped,
+              watermark_applied: v2.watermarkApplied,
+              duration_seconds: v2.durationSeconds,
+              source_asset_id: v2.sourceAssetId ?? null,
+              processing_status: "ready",
+            }
+          : {}),
       } as never)
       .select("id, file_name")
       .maybeSingle();
