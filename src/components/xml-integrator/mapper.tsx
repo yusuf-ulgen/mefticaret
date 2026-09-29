@@ -209,6 +209,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
           storeId,
           feedId,
           fieldMapping: mapping,
+          fieldRules: fieldRules as never,
           transformRules: effectiveTransforms as never,
           variantMode,
           variantConfig,
@@ -319,8 +320,8 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         mapping={mapping}
         rules={fieldRules}
         onApply={(nextMapping, nextRules) => {
-          setMapping((current) => ({ ...current, ...nextMapping }));
-          setFieldRules((current) => ({ ...current, ...nextRules }));
+          setMapping(nextMapping);
+          setFieldRules(nextRules);
         }}
         onReset={() => {
           setMapping({});
@@ -624,17 +625,22 @@ function TargetSlot({
           )}
         </div>
       ) : (
-        <select
-          aria-label={`${label} kaynak alanı`}
-          className="h-8 w-full rounded-md border bg-background px-2 text-xs"
-          value=""
-          onChange={(event) => onSelect(event.target.value)}
-        >
-          <option value="">Sürükleyin veya seçin</option>
-          {columns.map((column) => (
-            <option key={column} value={column}>{column}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-1">
+          <select
+            aria-label={`${label} kaynak alanı`}
+            className="h-8 min-w-0 flex-1 rounded-md border bg-background px-2 text-xs"
+            value=""
+            onChange={(event) => onSelect(event.target.value)}
+          >
+            <option value="">Sürükleyin veya seçin</option>
+            {columns.map((column) => (
+              <option key={column} value={column}>{column}</option>
+            ))}
+          </select>
+          <Button size="icon" variant="ghost" aria-label={`${label} alan ayarları`} onClick={onOpenRules}>
+            <Settings2 className="size-3" />
+          </Button>
+        </div>
       )}
     </div>
   );

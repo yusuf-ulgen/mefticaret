@@ -191,11 +191,11 @@ const MEDIA_SPLIT = /[\s,;|]+/;
 
 /** Görsel/video alanlarını bağlantı listesine çevirir. */
 function parseUrlList(raw: string): string[] {
-  return raw
+  return [...new Set(raw
     .split(MEDIA_SPLIT)
     .map((item) => item.trim())
-    .filter((item) => /^https?:\/\//i.test(item))
-    .slice(0, 10);
+    .filter((item) => /^https?:\/\//i.test(item)))]
+    .slice(0, 20);
 }
 
 /**
@@ -260,15 +260,13 @@ export function normalizeRows(
     /** Liste alanları (görseller): indeksli tüm değerleri toplar. */
     const readAll = (field: string, source: Record<string, string> = row, path = mapping[field]): string => {
       if (!path) return "";
-      if (source[path] !== undefined || transforms[field]?.length) {
-        return applyTransforms(readMapped(source, path).trim(), transforms[field], source).trim();
-      }
       const generic = path.replace(/\[\d*\]/g, "");
       const values: string[] = [];
       for (const [k, v] of Object.entries(source)) {
         if (k.replace(/\[\d+\]/g, "") === generic && String(v).trim()) values.push(String(v).trim());
       }
-      return values.join(",");
+      const joined = values.length ? values.join(",") : readMapped(source, path).trim();
+      return applyTransforms(joined, transforms[field], source).trim();
     };
 
     const sku = read("sku");
@@ -994,10 +992,11 @@ export async function runImportFeed(
     const maxErrors = Math.max(1, Number(extra.max_errors_before_pause ?? 100));
 
     const baseMapping = feed.fieldMapping ?? {};
-    if (!baseMapping["sku"] && !baseMapping["barcode"]) {
+    const canResolve = (field: string) => Boolean(baseMapping[field] || fieldRules[field]?.fallback || fieldRules[field]?.defaultValue);
+    if (!canResolve("sku") && !canResolve("barcode")) {
       throw new Error("Alan eşleme eksik: stok kodu veya barkod alanı eşleştirilmeli");
     }
-    if (!baseMapping["title"] || !baseMapping["price"]) {
+    if (!canResolve("title") || !canResolve("price")) {
       throw new Error("Alan eşleme eksik: ürün adı ve satış fiyatı alanları eşleştirilmeli");
     }
 

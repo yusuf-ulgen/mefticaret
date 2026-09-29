@@ -112,14 +112,17 @@ export function testFormula(formula: string, value: string, row: Record<string, 
 }
 
 /** Yolu okur; dizi/indeksiz yollarda ilk dolu değeri döndürür. */
-function readPath(row: Record<string, string>, path: string | undefined): string {
+function readPath(row: Record<string, string>, path: string | undefined, collectAll = false): string {
   if (!path) return "";
-  if (row[path] !== undefined) return String(row[path]).trim();
+  if (!collectAll && row[path] !== undefined) return String(row[path]).trim();
   const generic = path.replace(/\[\d*\]/g, "");
+  const values: string[] = [];
   for (const [k, v] of Object.entries(row)) {
-    if (k.replace(/\[\d+\]/g, "") === generic && String(v).trim()) return String(v).trim();
+    if (k.replace(/\[\d+\]/g, "") !== generic || !String(v).trim()) continue;
+    if (!collectAll) return String(v).trim();
+    values.push(String(v).trim());
   }
-  return "";
+  return collectAll ? values.join(",") : "";
 }
 
 /** Tek hedef alanın kurallı değerini hesaplar. */
@@ -127,9 +130,10 @@ export function resolveRuleValue(
   row: Record<string, string>,
   sourcePath: string | undefined,
   rule: FieldRule,
+  collectAll = false,
 ): string {
-  let value = readPath(row, sourcePath);
-  if (!value && rule.fallback) value = readPath(row, rule.fallback);
+  let value = readPath(row, sourcePath, collectAll);
+  if (!value && rule.fallback) value = readPath(row, rule.fallback, collectAll);
   if (checkCondition(row, rule.condition)) {
     if (rule.formula && value) {
       const out = testFormula(rule.formula, value, row);
@@ -164,7 +168,7 @@ export function applyFieldRules(
     const copy = { ...row };
     for (const key of keys) {
       const rule = rules[key]!;
-      const value = resolveRuleValue(row, mapping[key], rule);
+      const value = resolveRuleValue(row, mapping[key], rule, key === "images" || key === "videos");
       copy[`${RULE_PREFIX}${key}`] = value;
       if (rule.required && !value) missing.push({ row: index, field: key });
     }

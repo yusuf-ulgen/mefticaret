@@ -473,13 +473,14 @@ export function missingRequiredFields(mapping: FieldMapping): TargetField[] {
 /** Bir satırdan eşleştirilmiş değeri okur (dizi indeksli yollar dahil). */
 export function readMapped(row: Record<string, string>, path: string | undefined): string {
   if (!path) return "";
-  if (row[path] !== undefined) return row[path];
-  if (!path.includes("[]")) return "";
-  const prefix = path.split("[]")[0] ?? "";
-  const suffix = path.split("[]").slice(1).join("[]");
-  const values: string[] = [];
+  if (row[path] !== undefined) return String(row[path] ?? "").trim();
+  // Eski eşlemeler `variation.price`, yeni alan envanteri ise
+  // `variation[].price` taşıyabilir. Her iki biçimi indekslerden bağımsız oku.
+  const wanted = path.replace(/\[\d*\]/g, "");
   for (const [key, value] of Object.entries(row)) {
-    if (key.startsWith(prefix) && key.replace(/\[\d+\]/g, "[]") === path) values.push(value);
+    if (key.replace(/\[\d+\]/g, "") === wanted && String(value ?? "").trim()) {
+      return String(value).trim();
+    }
   }
-  return values.join(suffix ? "," : ",");
+  return "";
 }
