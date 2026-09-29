@@ -1,4 +1,6 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { PolicyArticle } from "@/components/policy-view";
+import { getStorePublicPolicy } from "@/lib/policies-public.functions";
 import { notFound } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
 
@@ -69,19 +71,32 @@ export function InfoPage({
   slug,
   content,
   extra,
+  policySlug,
 }: {
+  /** Mağaza bu politikayı Politika Sistemi'nden yayınladıysa o metin gösterilir. */
+  policySlug?: string;
   slug: string;
   content: InfoContent;
   /** Sayfa altına eklenecek ek içerik (örn. KVKK veri talebi formu). */
   extra?: React.ReactNode;
 }) {
   const { data } = useSuspenseQuery(storefrontQuery(slug));
+  const published = useQuery({
+    queryKey: ["store-policy", slug, policySlug],
+    enabled: Boolean(policySlug),
+    queryFn: () => getStorePublicPolicy({ data: { slug, policy: policySlug! } }),
+  });
+  const policy = published.data?.policy ?? null;
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
   const { store, theme, footerPages } = data;
   return (
     <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} footerPages={footerPages}>
       <Breadcrumb theme={theme} slug={slug} storeName={store.name} current={content.title} />
-      <InfoSections theme={theme} title={content.title} intro={content.intro} sections={content.sections} />
+      {policy ? (
+        <PolicyArticle policy={policy} />
+      ) : (
+        <InfoSections theme={theme} title={content.title} intro={content.intro} sections={content.sections} />
+      )}
       {extra ? <div className="mx-auto w-full max-w-3xl px-4 pb-12">{extra}</div> : null}
     </StorefrontChrome>
   );

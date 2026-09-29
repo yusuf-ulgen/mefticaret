@@ -66,6 +66,7 @@ import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as FrIndexRouteImport } from './routes/fr.index'
 import { Route as KargoTakipTrackingRouteImport } from './routes/kargo-takip.$tracking'
 import { Route as MagazaSlugRouteImport } from './routes/magaza.$slug'
+import { Route as PolitikaPolicySlugRouteImport } from './routes/politika.$policySlug'
 import { Route as PreviewSlugRouteImport } from './routes/preview.$slug'
 import { Route as RehberlerIndexRouteImport } from './routes/rehberler.index'
 import { Route as RehberlerSlugRouteImport } from './routes/rehberler.$slug'
@@ -99,6 +100,7 @@ import { Route as AuthenticatedAdminNotificationsRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authenticated/admin.pages'
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin.payments'
 import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
+import { Route as AuthenticatedAdminPoliciesRouteImport } from './routes/_authenticated/admin.policies'
 import { Route as AuthenticatedAdminPushRouteImport } from './routes/_authenticated/admin.push'
 import { Route as AuthenticatedAdminQnbpayRouteImport } from './routes/_authenticated/admin.qnbpay'
 import { Route as AuthenticatedAdminSecurityRouteImport } from './routes/_authenticated/admin.security'
@@ -146,6 +148,7 @@ import { Route as SSlugGiftCardRouteImport } from './routes/s.$slug.gift-card'
 import { Route as SSlugLoginRouteImport } from './routes/s.$slug.login'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
 import { Route as SSlugOrdersRouteImport } from './routes/s.$slug.orders'
+import { Route as SSlugPolitikalarRouteImport } from './routes/s.$slug.politikalar'
 import { Route as SSlugPrivacyRouteImport } from './routes/s.$slug.privacy'
 import { Route as SSlugProductsRouteImport } from './routes/s.$slug.products'
 import { Route as SSlugRegisterRouteImport } from './routes/s.$slug.register'
@@ -233,6 +236,7 @@ import { Route as AuthenticatedStoreStoreIdOrdersRouteImport } from './routes/_a
 import { Route as AuthenticatedStoreStoreIdPagesRouteImport } from './routes/_authenticated/store.$storeId.pages'
 import { Route as AuthenticatedStoreStoreIdPanelsRouteImport } from './routes/_authenticated/store.$storeId.panels'
 import { Route as AuthenticatedStoreStoreIdPaymentsRouteImport } from './routes/_authenticated/store.$storeId.payments'
+import { Route as AuthenticatedStoreStoreIdPoliciesRouteImport } from './routes/_authenticated/store.$storeId.policies'
 import { Route as AuthenticatedStoreStoreIdPopupsRouteImport } from './routes/_authenticated/store.$storeId.popups'
 import { Route as AuthenticatedStoreStoreIdPricingRouteImport } from './routes/_authenticated/store.$storeId.pricing'
 import { Route as AuthenticatedStoreStoreIdProductsRouteImport } from './routes/_authenticated/store.$storeId.products'
@@ -326,6 +330,7 @@ import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$co
 import { Route as SSlugKampanyaCampaignSlugRouteImport } from './routes/s.$slug.kampanya.$campaignSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
+import { Route as SSlugPolitikaPolicySlugRouteImport } from './routes/s.$slug.politika.$policySlug'
 import { Route as AuthenticatedStoreStoreIdBlogEditorPageIdRouteImport } from './routes/_authenticated/store.$storeId.blog-editor.$pageId'
 import { Route as AuthenticatedStoreStoreIdCatalogV2IndexRouteImport } from './routes/_authenticated/store.$storeId.catalog-v2.index'
 import { Route as AuthenticatedStoreStoreIdCatalogV2ProductIdRouteImport } from './routes/_authenticated/store.$storeId.catalog-v2.$productId'
@@ -642,6 +647,11 @@ const MagazaSlugRoute = MagazaSlugRouteImport.update({
   path: '/magaza/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PolitikaPolicySlugRoute = PolitikaPolicySlugRouteImport.update({
+  id: '/politika/$policySlug',
+  path: '/politika/$policySlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PreviewSlugRoute = PreviewSlugRouteImport.update({
   id: '/preview/$slug',
   path: '/preview/$slug',
@@ -824,6 +834,12 @@ const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
   path: '/plans',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminPoliciesRoute =
+  AuthenticatedAdminPoliciesRouteImport.update({
+    id: '/policies',
+    path: '/policies',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPushRoute = AuthenticatedAdminPushRouteImport.update({
   id: '/push',
   path: '/push',
@@ -1078,6 +1094,11 @@ const SSlugOrderRoute = SSlugOrderRouteImport.update({
 const SSlugOrdersRoute = SSlugOrdersRouteImport.update({
   id: '/s/$slug/orders',
   path: '/s/$slug/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugPolitikalarRoute = SSlugPolitikalarRouteImport.update({
+  id: '/s/$slug/politikalar',
+  path: '/s/$slug/politikalar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugPrivacyRoute = SSlugPrivacyRouteImport.update({
@@ -1594,6 +1615,12 @@ const AuthenticatedStoreStoreIdPaymentsRoute =
   AuthenticatedStoreStoreIdPaymentsRouteImport.update({
     id: '/payments',
     path: '/payments',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
+const AuthenticatedStoreStoreIdPoliciesRoute =
+  AuthenticatedStoreStoreIdPoliciesRouteImport.update({
+    id: '/policies',
+    path: '/policies',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdPopupsRoute =
@@ -2135,6 +2162,11 @@ const SSlugPagePageSlugRoute = SSlugPagePageSlugRouteImport.update({
   path: '/s/$slug/page/$pageSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugPolitikaPolicySlugRoute = SSlugPolitikaPolicySlugRouteImport.update({
+  id: '/s/$slug/politika/$policySlug',
+  path: '/s/$slug/politika/$policySlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedStoreStoreIdBlogEditorPageIdRoute =
   AuthenticatedStoreStoreIdBlogEditorPageIdRouteImport.update({
     id: '/blog-editor/$pageId',
@@ -2354,6 +2386,7 @@ export interface FileRoutesByFullPath {
   '/fatura/$token': typeof FaturaTokenRoute
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
+  '/politika/$policySlug': typeof PolitikaPolicySlugRoute
   '/preview/$slug': typeof PreviewSlugRoute
   '/rehberler/$slug': typeof RehberlerSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
@@ -2392,6 +2425,7 @@ export interface FileRoutesByFullPath {
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
+  '/admin/policies': typeof AuthenticatedAdminPoliciesRoute
   '/admin/push': typeof AuthenticatedAdminPushRoute
   '/admin/qnbpay': typeof AuthenticatedAdminQnbpayRoute
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
@@ -2438,6 +2472,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/orders': typeof SSlugOrdersRoute
+  '/s/$slug/politikalar': typeof SSlugPolitikalarRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/register': typeof SSlugRegisterRoute
@@ -2525,6 +2560,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/panels': typeof AuthenticatedStoreStoreIdPanelsRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
+  '/store/$storeId/policies': typeof AuthenticatedStoreStoreIdPoliciesRoute
   '/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
   '/store/$storeId/pricing': typeof AuthenticatedStoreStoreIdPricingRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
@@ -2618,6 +2654,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/s/$slug/politika/$policySlug': typeof SSlugPolitikaPolicySlugRoute
   '/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId/': typeof AuthenticatedStoreStoreIdIndexRoute
   '/store/$storeId/blog-editor/$pageId': typeof AuthenticatedStoreStoreIdBlogEditorPageIdRoute
@@ -2699,6 +2736,7 @@ export interface FileRoutesByTo {
   '/fatura/$token': typeof FaturaTokenRoute
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
+  '/politika/$policySlug': typeof PolitikaPolicySlugRoute
   '/preview/$slug': typeof PreviewSlugRoute
   '/rehberler/$slug': typeof RehberlerSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
@@ -2737,6 +2775,7 @@ export interface FileRoutesByTo {
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/plans': typeof AuthenticatedAdminPlansRoute
+  '/admin/policies': typeof AuthenticatedAdminPoliciesRoute
   '/admin/push': typeof AuthenticatedAdminPushRoute
   '/admin/qnbpay': typeof AuthenticatedAdminQnbpayRoute
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
@@ -2782,6 +2821,7 @@ export interface FileRoutesByTo {
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/orders': typeof SSlugOrdersRoute
+  '/s/$slug/politikalar': typeof SSlugPolitikalarRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/register': typeof SSlugRegisterRoute
@@ -2867,6 +2907,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/panels': typeof AuthenticatedStoreStoreIdPanelsRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
+  '/store/$storeId/policies': typeof AuthenticatedStoreStoreIdPoliciesRoute
   '/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
   '/store/$storeId/pricing': typeof AuthenticatedStoreStoreIdPricingRoute
   '/store/$storeId/profit': typeof AuthenticatedStoreStoreIdProfitRoute
@@ -2958,6 +2999,7 @@ export interface FileRoutesByTo {
   '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/s/$slug/politika/$policySlug': typeof SSlugPolitikaPolicySlugRoute
   '/admin/frontend': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId': typeof AuthenticatedStoreStoreIdIndexRoute
   '/store/$storeId/blog-editor/$pageId': typeof AuthenticatedStoreStoreIdBlogEditorPageIdRoute
@@ -3042,6 +3084,7 @@ export interface FileRoutesById {
   '/fatura/$token': typeof FaturaTokenRoute
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
+  '/politika/$policySlug': typeof PolitikaPolicySlugRoute
   '/preview/$slug': typeof PreviewSlugRoute
   '/rehberler/$slug': typeof RehberlerSlugRoute
   '/sayfa/$slug': typeof SayfaSlugRoute
@@ -3080,6 +3123,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
+  '/_authenticated/admin/policies': typeof AuthenticatedAdminPoliciesRoute
   '/_authenticated/admin/push': typeof AuthenticatedAdminPushRoute
   '/_authenticated/admin/qnbpay': typeof AuthenticatedAdminQnbpayRoute
   '/_authenticated/admin/security': typeof AuthenticatedAdminSecurityRoute
@@ -3126,6 +3170,7 @@ export interface FileRoutesById {
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/orders': typeof SSlugOrdersRoute
+  '/s/$slug/politikalar': typeof SSlugPolitikalarRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/register': typeof SSlugRegisterRoute
@@ -3213,6 +3258,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/_authenticated/store/$storeId/panels': typeof AuthenticatedStoreStoreIdPanelsRoute
   '/_authenticated/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
+  '/_authenticated/store/$storeId/policies': typeof AuthenticatedStoreStoreIdPoliciesRoute
   '/_authenticated/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
   '/_authenticated/store/$storeId/pricing': typeof AuthenticatedStoreStoreIdPricingRoute
   '/_authenticated/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
@@ -3306,6 +3352,7 @@ export interface FileRoutesById {
   '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/s/$slug/politika/$policySlug': typeof SSlugPolitikaPolicySlugRoute
   '/_authenticated/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/_authenticated/store/$storeId/': typeof AuthenticatedStoreStoreIdIndexRoute
   '/_authenticated/store/$storeId/blog-editor/$pageId': typeof AuthenticatedStoreStoreIdBlogEditorPageIdRoute
@@ -3390,6 +3437,7 @@ export interface FileRouteTypes {
     | '/fatura/$token'
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
+    | '/politika/$policySlug'
     | '/preview/$slug'
     | '/rehberler/$slug'
     | '/sayfa/$slug'
@@ -3428,6 +3476,7 @@ export interface FileRouteTypes {
     | '/admin/pages'
     | '/admin/payments'
     | '/admin/plans'
+    | '/admin/policies'
     | '/admin/push'
     | '/admin/qnbpay'
     | '/admin/security'
@@ -3474,6 +3523,7 @@ export interface FileRouteTypes {
     | '/s/$slug/login'
     | '/s/$slug/order'
     | '/s/$slug/orders'
+    | '/s/$slug/politikalar'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
     | '/s/$slug/register'
@@ -3561,6 +3611,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/pages'
     | '/store/$storeId/panels'
     | '/store/$storeId/payments'
+    | '/store/$storeId/policies'
     | '/store/$storeId/popups'
     | '/store/$storeId/pricing'
     | '/store/$storeId/products'
@@ -3654,6 +3705,7 @@ export interface FileRouteTypes {
     | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/s/$slug/politika/$policySlug'
     | '/admin/frontend/'
     | '/store/$storeId/'
     | '/store/$storeId/blog-editor/$pageId'
@@ -3735,6 +3787,7 @@ export interface FileRouteTypes {
     | '/fatura/$token'
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
+    | '/politika/$policySlug'
     | '/preview/$slug'
     | '/rehberler/$slug'
     | '/sayfa/$slug'
@@ -3773,6 +3826,7 @@ export interface FileRouteTypes {
     | '/admin/pages'
     | '/admin/payments'
     | '/admin/plans'
+    | '/admin/policies'
     | '/admin/push'
     | '/admin/qnbpay'
     | '/admin/security'
@@ -3818,6 +3872,7 @@ export interface FileRouteTypes {
     | '/s/$slug/login'
     | '/s/$slug/order'
     | '/s/$slug/orders'
+    | '/s/$slug/politikalar'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
     | '/s/$slug/register'
@@ -3903,6 +3958,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/pages'
     | '/store/$storeId/panels'
     | '/store/$storeId/payments'
+    | '/store/$storeId/policies'
     | '/store/$storeId/popups'
     | '/store/$storeId/pricing'
     | '/store/$storeId/profit'
@@ -3994,6 +4050,7 @@ export interface FileRouteTypes {
     | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/s/$slug/politika/$policySlug'
     | '/admin/frontend'
     | '/store/$storeId'
     | '/store/$storeId/blog-editor/$pageId'
@@ -4077,6 +4134,7 @@ export interface FileRouteTypes {
     | '/fatura/$token'
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
+    | '/politika/$policySlug'
     | '/preview/$slug'
     | '/rehberler/$slug'
     | '/sayfa/$slug'
@@ -4115,6 +4173,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/pages'
     | '/_authenticated/admin/payments'
     | '/_authenticated/admin/plans'
+    | '/_authenticated/admin/policies'
     | '/_authenticated/admin/push'
     | '/_authenticated/admin/qnbpay'
     | '/_authenticated/admin/security'
@@ -4161,6 +4220,7 @@ export interface FileRouteTypes {
     | '/s/$slug/login'
     | '/s/$slug/order'
     | '/s/$slug/orders'
+    | '/s/$slug/politikalar'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
     | '/s/$slug/register'
@@ -4248,6 +4308,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/pages'
     | '/_authenticated/store/$storeId/panels'
     | '/_authenticated/store/$storeId/payments'
+    | '/_authenticated/store/$storeId/policies'
     | '/_authenticated/store/$storeId/popups'
     | '/_authenticated/store/$storeId/pricing'
     | '/_authenticated/store/$storeId/products'
@@ -4341,6 +4402,7 @@ export interface FileRouteTypes {
     | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/s/$slug/politika/$policySlug'
     | '/_authenticated/admin/frontend/'
     | '/_authenticated/store/$storeId/'
     | '/_authenticated/store/$storeId/blog-editor/$pageId'
@@ -4418,6 +4480,7 @@ export interface RootRouteChildren {
   FaturaTokenRoute: typeof FaturaTokenRoute
   KargoTakipTrackingRoute: typeof KargoTakipTrackingRoute
   MagazaSlugRoute: typeof MagazaSlugRoute
+  PolitikaPolicySlugRoute: typeof PolitikaPolicySlugRoute
   PreviewSlugRoute: typeof PreviewSlugRoute
   RehberlerSlugRoute: typeof RehberlerSlugRoute
   SayfaSlugRoute: typeof SayfaSlugRoute
@@ -4449,6 +4512,7 @@ export interface RootRouteChildren {
   SSlugLoginRoute: typeof SSlugLoginRoute
   SSlugOrderRoute: typeof SSlugOrderRoute
   SSlugOrdersRoute: typeof SSlugOrdersRoute
+  SSlugPolitikalarRoute: typeof SSlugPolitikalarRoute
   SSlugPrivacyRoute: typeof SSlugPrivacyRoute
   SSlugProductsRoute: typeof SSlugProductsRoute
   SSlugRegisterRoute: typeof SSlugRegisterRoute
@@ -4495,6 +4559,7 @@ export interface RootRouteChildren {
   SSlugKampanyaCampaignSlugRoute: typeof SSlugKampanyaCampaignSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
+  SSlugPolitikaPolicySlugRoute: typeof SSlugPolitikaPolicySlugRoute
   ApiPublicEmailClickTokenRoute: typeof ApiPublicEmailClickTokenRoute
   ApiPublicEmailOpenTokenRoute: typeof ApiPublicEmailOpenTokenRoute
   ApiPublicEmailUnsubscribeTokenRoute: typeof ApiPublicEmailUnsubscribeTokenRoute
@@ -4904,6 +4969,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MagazaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/politika/$policySlug': {
+      id: '/politika/$policySlug'
+      path: '/politika/$policySlug'
+      fullPath: '/politika/$policySlug'
+      preLoaderRoute: typeof PolitikaPolicySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/preview/$slug': {
       id: '/preview/$slug'
       path: '/preview/$slug'
@@ -5133,6 +5205,13 @@ declare module '@tanstack/react-router' {
       path: '/plans'
       fullPath: '/admin/plans'
       preLoaderRoute: typeof AuthenticatedAdminPlansRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/policies': {
+      id: '/_authenticated/admin/policies'
+      path: '/policies'
+      fullPath: '/admin/policies'
+      preLoaderRoute: typeof AuthenticatedAdminPoliciesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/push': {
@@ -5462,6 +5541,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug/orders'
       fullPath: '/s/$slug/orders'
       preLoaderRoute: typeof SSlugOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/politikalar': {
+      id: '/s/$slug/politikalar'
+      path: '/s/$slug/politikalar'
+      fullPath: '/s/$slug/politikalar'
+      preLoaderRoute: typeof SSlugPolitikalarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/privacy': {
@@ -6071,6 +6157,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/store/$storeId/payments'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdPaymentsRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
+    '/_authenticated/store/$storeId/policies': {
+      id: '/_authenticated/store/$storeId/policies'
+      path: '/policies'
+      fullPath: '/store/$storeId/policies'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdPoliciesRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
     '/_authenticated/store/$storeId/popups': {
@@ -6724,6 +6817,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugPagePageSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug/politika/$policySlug': {
+      id: '/s/$slug/politika/$policySlug'
+      path: '/s/$slug/politika/$policySlug'
+      fullPath: '/s/$slug/politika/$policySlug'
+      preLoaderRoute: typeof SSlugPolitikaPolicySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/store/$storeId/blog-editor/$pageId': {
       id: '/_authenticated/store/$storeId/blog-editor/$pageId'
       path: '/blog-editor/$pageId'
@@ -6951,6 +7051,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPagesRoute: typeof AuthenticatedAdminPagesRoute
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
   AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
+  AuthenticatedAdminPoliciesRoute: typeof AuthenticatedAdminPoliciesRoute
   AuthenticatedAdminPushRoute: typeof AuthenticatedAdminPushRoute
   AuthenticatedAdminQnbpayRoute: typeof AuthenticatedAdminQnbpayRoute
   AuthenticatedAdminSecurityRoute: typeof AuthenticatedAdminSecurityRoute
@@ -7007,6 +7108,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPagesRoute: AuthenticatedAdminPagesRoute,
   AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
   AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
+  AuthenticatedAdminPoliciesRoute: AuthenticatedAdminPoliciesRoute,
   AuthenticatedAdminPushRoute: AuthenticatedAdminPushRoute,
   AuthenticatedAdminQnbpayRoute: AuthenticatedAdminQnbpayRoute,
   AuthenticatedAdminSecurityRoute: AuthenticatedAdminSecurityRoute,
@@ -7240,6 +7342,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdPagesRoute: typeof AuthenticatedStoreStoreIdPagesRoute
   AuthenticatedStoreStoreIdPanelsRoute: typeof AuthenticatedStoreStoreIdPanelsRoute
   AuthenticatedStoreStoreIdPaymentsRoute: typeof AuthenticatedStoreStoreIdPaymentsRoute
+  AuthenticatedStoreStoreIdPoliciesRoute: typeof AuthenticatedStoreStoreIdPoliciesRoute
   AuthenticatedStoreStoreIdPopupsRoute: typeof AuthenticatedStoreStoreIdPopupsRoute
   AuthenticatedStoreStoreIdPricingRoute: typeof AuthenticatedStoreStoreIdPricingRoute
   AuthenticatedStoreStoreIdProductsRoute: typeof AuthenticatedStoreStoreIdProductsRouteWithChildren
@@ -7429,6 +7532,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdPanelsRoute: AuthenticatedStoreStoreIdPanelsRoute,
     AuthenticatedStoreStoreIdPaymentsRoute:
       AuthenticatedStoreStoreIdPaymentsRoute,
+    AuthenticatedStoreStoreIdPoliciesRoute:
+      AuthenticatedStoreStoreIdPoliciesRoute,
     AuthenticatedStoreStoreIdPopupsRoute: AuthenticatedStoreStoreIdPopupsRoute,
     AuthenticatedStoreStoreIdPricingRoute:
       AuthenticatedStoreStoreIdPricingRoute,
@@ -7627,6 +7732,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaturaTokenRoute: FaturaTokenRoute,
   KargoTakipTrackingRoute: KargoTakipTrackingRoute,
   MagazaSlugRoute: MagazaSlugRoute,
+  PolitikaPolicySlugRoute: PolitikaPolicySlugRoute,
   PreviewSlugRoute: PreviewSlugRoute,
   RehberlerSlugRoute: RehberlerSlugRoute,
   SayfaSlugRoute: SayfaSlugRoute,
@@ -7658,6 +7764,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugLoginRoute: SSlugLoginRoute,
   SSlugOrderRoute: SSlugOrderRoute,
   SSlugOrdersRoute: SSlugOrdersRoute,
+  SSlugPolitikalarRoute: SSlugPolitikalarRoute,
   SSlugPrivacyRoute: SSlugPrivacyRoute,
   SSlugProductsRoute: SSlugProductsRoute,
   SSlugRegisterRoute: SSlugRegisterRoute,
@@ -7704,6 +7811,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugKampanyaCampaignSlugRoute: SSlugKampanyaCampaignSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
+  SSlugPolitikaPolicySlugRoute: SSlugPolitikaPolicySlugRoute,
   ApiPublicEmailClickTokenRoute: ApiPublicEmailClickTokenRoute,
   ApiPublicEmailOpenTokenRoute: ApiPublicEmailOpenTokenRoute,
   ApiPublicEmailUnsubscribeTokenRoute: ApiPublicEmailUnsubscribeTokenRoute,

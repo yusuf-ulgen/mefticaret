@@ -67,6 +67,9 @@ function CheckoutPage() {
   const [line1, setLine1] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [note, setNote] = useState("");
+  const [policyAccepted, setPolicyAccepted] = useState(false);
+  const [policyError, setPolicyError] = useState(false);
+  const [newsletter, setNewsletter] = useState(false);
   const [gift, setGift] = useState({ wrap: false, message: "" });
   const [discountCode, setDiscountCode] = useState("");
   const [giftCardCode, setGiftCardCode] = useState("");
@@ -359,12 +362,19 @@ function CheckoutPage() {
         return;
       }
     }
+    if (!policyAccepted) {
+      setPolicyError(true);
+      toast.error("Siparişi tamamlamak için sözleşmeleri onaylamanız gerekir.");
+      document.getElementById("policy-consent")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     setSubmitting(true);
     try {
       const payload = {
+        policyAccepted: true,
         slug,
         items: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
-        customer: { fullName, email, phone, acceptsMarketing: false },
+        customer: { fullName, email, phone, acceptsMarketing: newsletter },
         address: digitalOnly
           ? undefined
           : {
@@ -894,6 +904,32 @@ function CheckoutPage() {
                   Fiyat, indirim, stok, vergi ve hediye kartı tutarları sunucuda doğrulanır.
                 </p>
               )}
+            </div>
+            <div id="policy-consent" style={{ marginTop: 16, display: "grid", gap: 10, fontSize: 13, lineHeight: 1.5 }}>
+              <label style={{ display: "flex", gap: 8, alignItems: "flex-start", color: policyError && !policyAccepted ? "#d93b3b" : "inherit" }}>
+                <input
+                  type="checkbox"
+                  checked={policyAccepted}
+                  onChange={(e) => { setPolicyAccepted(e.target.checked); if (e.target.checked) setPolicyError(false); }}
+                  style={{ marginTop: 3, width: 16, height: 16, flexShrink: 0 }}
+                  aria-required="true"
+                />
+                <span>
+                  <a href={`/s/${slug}/politika/gizlilik`} target="_blank" rel="noopener" style={{ textDecoration: "underline", color: "inherit" }}>Gizlilik Politikası</a>
+                  {"'nı, "}
+                  <a href={`/s/${slug}/politika/iade-degisim`} target="_blank" rel="noopener" style={{ textDecoration: "underline", color: "inherit" }}>İade Politikası</a>
+                  {"'nı ve "}
+                  <a href={`/s/${slug}/politika/mesafeli-satis-sozlesmesi`} target="_blank" rel="noopener" style={{ textDecoration: "underline", color: "inherit" }}>Mesafeli Satış Sözleşmesi</a>
+                  {"'ni okudum, kabul ediyorum. *"}
+                </span>
+              </label>
+              {policyError && !policyAccepted ? (
+                <p role="alert" style={{ margin: 0, color: "#d93b3b", fontSize: 12 }}>Bu onay olmadan sipariş tamamlanamaz.</p>
+              ) : null}
+              <label style={{ display: "flex", gap: 8, alignItems: "flex-start", color: muted }}>
+                <input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} style={{ marginTop: 3, width: 16, height: 16, flexShrink: 0 }} />
+                <span>E-posta ile kampanya ve bülten almak istiyorum. (İsteğe bağlı)</span>
+              </label>
             </div>
             <button
               type="button"

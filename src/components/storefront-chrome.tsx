@@ -807,6 +807,7 @@ export function StorefrontChrome({
             { to: "/s/$slug/returns", label: "İade politikası" },
             { to: "/s/$slug/privacy", label: "Gizlilik politikası" },
             { to: "/s/$slug/terms", label: "Kullanım şartları" },
+            { to: "/s/$slug/politikalar", label: "Tüm politikalar" },
           ].map((link) => (
             <Link
               key={link.label}

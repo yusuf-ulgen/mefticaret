@@ -26,5 +26,5 @@ export const Route = createFileRoute("/s/$slug/returns")({
 
 function ReturnsPage() {
   const { slug } = Route.useParams();
-  return <InfoPage slug={slug} content={content} />;
+  return <InfoPage slug={slug} content={content} policySlug="iade-degisim" />;
 }

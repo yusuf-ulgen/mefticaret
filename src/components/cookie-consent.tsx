@@ -1,4 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+
+import { getPublicCookieBanner } from "@/lib/policies-public.functions";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -16,20 +20,32 @@ export function CookieConsent({ storeSlug }: { storeSlug: string }) {
   const [analytics, setAnalytics] = useState(true);
   const [marketing, setMarketing] = useState(false);
   const [busy, setBusy] = useState(false);
+  const settings = useQuery({
+    queryKey: ["cookie-banner", storeSlug],
+    queryFn: () => getPublicCookieBanner({ data: { slug: storeSlug } }),
+    staleTime: 10 * 60_000,
+  });
+  const cfg = settings.data;
+  const version = `${CONSENT_POLICY_VERSION}-${cfg?.consentVersion ?? "1.0"}`;
 
   useEffect(() => {
-    if (!readCookiePreferences(storeSlug)) setOpen(true);
-  }, [storeSlug]);
+    if (settings.isLoading) return;
+    const prev = readCookiePreferences(storeSlug) as (ReturnType<typeof readCookiePreferences> & { version?: string }) | null;
+    // Mağaza çerez kategorilerini değiştirdiyse onay yeniden istenir.
+    if (!prev || (cfg && prev.version && prev.version !== version)) setOpen(true);
+  }, [storeSlug, settings.isLoading, cfg, version]);
 
   async function persist(next: { analytics: boolean; marketing: boolean }) {
+    // eslint-disable-next-line no-param-reassign
     setBusy(true);
-    writeCookiePreferences(storeSlug, { ...next, decidedAt: new Date().toISOString() });
+    next = { analytics: next.analytics && (cfg?.usesAnalytics ?? true), marketing: next.marketing && (cfg?.usesMarketing ?? true) };
+    writeCookiePreferences(storeSlug, { ...next, decidedAt: new Date().toISOString(), version } as never);
     setOpen(false);
     try {
       await recordConsent({
         data: {
           storeSlug,
-          policyVersion: CONSENT_POLICY_VERSION,
+          policyVersion: version,
           source: "storefront",
           consents: [
             { consentType: "cookies_necessary", granted: true },
@@ -47,13 +63,23 @@ export function CookieConsent({ storeSlug }: { storeSlug: string }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-[104px] z-50 mx-auto max-w-3xl rounded-xl border border-border bg-background p-4 shadow-lg sm:bottom-3">
+    <div
+      role="dialog"
+      aria-label="Çerez bildirimi"
+      className={cn(
+        "fixed inset-x-3 bottom-[104px] z-50 mx-auto max-w-3xl rounded-xl border border-border p-4 shadow-lg sm:bottom-3",
+        cfg?.position === "bottom-left" && "sm:right-auto sm:mx-0 sm:max-w-sm",
+        cfg?.position === "bottom-right" && "sm:left-auto sm:mx-0 sm:max-w-sm",
+        cfg?.colorScheme === "dark" ? "dark bg-background text-foreground" : "bg-background",
+      )}
+    >
       <p className="text-sm font-semibold text-foreground">Çerez tercihleri</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Zorunlu çerezler sepet ve oturum için gereklidir. Analitik ve pazarlama çerezleri yalnızca
-        onayınla kullanılır. Ayrıntılar için{" "}
-        <a className="underline" href={`/s/${storeSlug}/privacy`}>
-          gizlilik politikası
+        {cfg?.bannerText ||
+          "Size daha iyi bir deneyim sunmak için çerezler kullanıyoruz. Zorunlu çerezler sepet ve oturum için gereklidir; diğerleri yalnızca onayınızla kullanılır."}{" "}
+        Ayrıntılar için{" "}
+        <a className="underline" href={`/s/${storeSlug}/politika/cerez`}>
+          çerez politikası
         </a>
         .
       </p>
@@ -64,14 +90,18 @@ export function CookieConsent({ storeSlug }: { storeSlug: string }) {
             <span>Zorunlu çerezler</span>
             <span className="text-muted-foreground">Her zaman açık</span>
           </div>
-          <div className="flex items-center justify-between text-xs">
-            <span>Analitik çerezler</span>
-            <Switch checked={analytics} onCheckedChange={setAnalytics} />
-          </div>
-          <div className="flex items-center justify-between text-xs">
-            <span>Pazarlama çerezleri</span>
-            <Switch checked={marketing} onCheckedChange={setMarketing} />
-          </div>
+          {cfg?.usesAnalytics !== false ? (
+            <div className="flex items-center justify-between text-xs">
+              <span>Analitik çerezler — siteyi nasıl kullandığınızı anlarız</span>
+              <Switch checked={analytics} onCheckedChange={setAnalytics} />
+            </div>
+          ) : null}
+          {cfg?.usesMarketing !== false ? (
+            <div className="flex items-center justify-between text-xs">
+              <span>Pazarlama çerezleri — size özel reklamlar</span>
+              <Switch checked={marketing} onCheckedChange={setMarketing} />
+            </div>
+          ) : null}
         </div>
       ) : null}
 
