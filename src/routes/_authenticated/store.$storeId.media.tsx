@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { MediaLibraryPanel } from "@/components/media-library-panel";
+import { MediaV2DetailExtra, MediaV2Uploader, useMediaV2Boot } from "@/components/media-v2";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,7 @@ function MediaPage() {
             <TabsTrigger value="products">Ürün görselleri</TabsTrigger>
           </TabsList>
           <TabsContent value="library" className="mt-6">
-            <MediaLibraryPanel storeId={storeId} />
+            <LibraryTab storeId={storeId} />
           </TabsContent>
           <TabsContent value="products" className="mt-6">
             <ProductImagesPanel />
@@ -286,5 +287,24 @@ function StatCard({ label, value }: { label: string; value: string }) {
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-1 text-xl font-semibold">{value}</p>
     </div>
+  );
+}
+
+function LibraryTab({ storeId }: { storeId: string }) {
+  const { data: boot } = useMediaV2Boot(storeId);
+  const queryClient = useQueryClient();
+  if (!boot?.enabled) return <MediaLibraryPanel storeId={storeId} />;
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["media-assets", storeId] });
+  return (
+    <MediaLibraryPanel
+      storeId={storeId}
+      v2
+      uploader={({ folderId, onUploaded }) => (
+        <MediaV2Uploader storeId={storeId} boot={boot} folderId={folderId} onUploaded={onUploaded} />
+      )}
+      renderDetailExtra={(asset) => (
+        <MediaV2DetailExtra storeId={storeId} asset={asset} boot={boot} folderId={asset.folder_id} onDone={refresh} />
+      )}
+    />
   );
 }

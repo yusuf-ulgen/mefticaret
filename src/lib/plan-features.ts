@@ -192,6 +192,12 @@ export const MODULE_CATALOG: PlanModule[] = [
 
 
   {
+    key: "v2_media_system",
+    label: "Medya Sistemi v2",
+    description: "Sürükle-bırak toplu yükleme, HEIC/RAW desteği, filigran, görsel düzenleyici ve günlük yükleme kotası.",
+    routes: [],
+  },
+  {
     key: "v2_dark_mode",
     label: "Koyu Mod",
     description: "Vitrinde otomatik veya manuel koyu mod ve ayrı koyu renkler.",
