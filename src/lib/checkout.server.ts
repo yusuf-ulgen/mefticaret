@@ -59,6 +59,8 @@ export const placeOrderSchema = z.object({
   note: z.string().trim().max(500).optional(),
   giftWrap: z.boolean().optional(),
   giftMessage: z.string().trim().max(300).optional(),
+  /** Gizlilik politikası ve mesafeli satış sözleşmesi onayı (zorunlu, sunucuda kontrol edilir). */
+  policyAccepted: z.boolean().optional(),
 });
 
 export const orderStatusSchema = z.object({

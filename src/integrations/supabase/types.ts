@@ -3505,6 +3505,47 @@ export type Database = {
           },
         ]
       }
+      cookie_banner_settings: {
+        Row: {
+          banner_text: string | null
+          color_scheme: string
+          consent_version: string
+          position: string
+          store_id: string
+          updated_at: string
+          uses_analytics: boolean
+          uses_marketing: boolean
+        }
+        Insert: {
+          banner_text?: string | null
+          color_scheme?: string
+          consent_version?: string
+          position?: string
+          store_id: string
+          updated_at?: string
+          uses_analytics?: boolean
+          uses_marketing?: boolean
+        }
+        Update: {
+          banner_text?: string | null
+          color_scheme?: string
+          consent_version?: string
+          position?: string
+          store_id?: string
+          updated_at?: string
+          uses_analytics?: boolean
+          uses_marketing?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cookie_banner_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       copilot_conversations: {
         Row: {
           created_at: string
@@ -12792,6 +12833,326 @@ export type Database = {
           value?: Json
         }
         Relationships: []
+      }
+      policies: {
+        Row: {
+          acceptance_count: number
+          change_summary: string | null
+          created_at: string
+          current_version_id: string | null
+          draft_content: string
+          effective_date: string | null
+          id: string
+          is_mandatory: boolean
+          is_visible: boolean
+          last_reviewed_at: string | null
+          last_reviewed_by: string | null
+          next_review_date: string | null
+          placeholder_values: Json
+          policy_key: string
+          policy_type: string
+          requires_acceptance: boolean
+          seo_description: string | null
+          seo_title: string | null
+          store_id: string | null
+          template_id: string | null
+          title: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          acceptance_count?: number
+          change_summary?: string | null
+          created_at?: string
+          current_version_id?: string | null
+          draft_content?: string
+          effective_date?: string | null
+          id?: string
+          is_mandatory?: boolean
+          is_visible?: boolean
+          last_reviewed_at?: string | null
+          last_reviewed_by?: string | null
+          next_review_date?: string | null
+          placeholder_values?: Json
+          policy_key: string
+          policy_type?: string
+          requires_acceptance?: boolean
+          seo_description?: string | null
+          seo_title?: string | null
+          store_id?: string | null
+          template_id?: string | null
+          title: string
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          acceptance_count?: number
+          change_summary?: string | null
+          created_at?: string
+          current_version_id?: string | null
+          draft_content?: string
+          effective_date?: string | null
+          id?: string
+          is_mandatory?: boolean
+          is_visible?: boolean
+          last_reviewed_at?: string | null
+          last_reviewed_by?: string | null
+          next_review_date?: string | null
+          placeholder_values?: Json
+          policy_key?: string
+          policy_type?: string
+          requires_acceptance?: boolean
+          seo_description?: string | null
+          seo_title?: string | null
+          store_id?: string | null
+          template_id?: string | null
+          title?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policies_current_version_fk"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "policy_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policies_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policies_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "policy_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      policy_acceptances: {
+        Row: {
+          acceptance_method: string
+          accepted_at: string
+          id: string
+          ip_address: string | null
+          order_number: string | null
+          policy_id: string
+          policy_version_id: string | null
+          session_id: string | null
+          store_id: string | null
+          subject_email: string | null
+          user_agent: string | null
+          user_id: string | null
+          user_type: string
+          version_label: string | null
+          withdrawn_at: string | null
+        }
+        Insert: {
+          acceptance_method?: string
+          accepted_at?: string
+          id?: string
+          ip_address?: string | null
+          order_number?: string | null
+          policy_id: string
+          policy_version_id?: string | null
+          session_id?: string | null
+          store_id?: string | null
+          subject_email?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          user_type?: string
+          version_label?: string | null
+          withdrawn_at?: string | null
+        }
+        Update: {
+          acceptance_method?: string
+          accepted_at?: string
+          id?: string
+          ip_address?: string | null
+          order_number?: string | null
+          policy_id?: string
+          policy_version_id?: string | null
+          session_id?: string | null
+          store_id?: string | null
+          subject_email?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          user_type?: string
+          version_label?: string | null
+          withdrawn_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_acceptances_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_acceptances_policy_version_id_fkey"
+            columns: ["policy_version_id"]
+            isOneToOne: false
+            referencedRelation: "policy_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_acceptances_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      policy_placeholders: {
+        Row: {
+          default_value: string | null
+          id: string
+          input_type: string
+          is_required: boolean
+          label: string
+          min_value: number | null
+          options: Json | null
+          placeholder_key: string
+          policy_key: string
+          sort_order: number
+        }
+        Insert: {
+          default_value?: string | null
+          id?: string
+          input_type?: string
+          is_required?: boolean
+          label: string
+          min_value?: number | null
+          options?: Json | null
+          placeholder_key: string
+          policy_key: string
+          sort_order?: number
+        }
+        Update: {
+          default_value?: string | null
+          id?: string
+          input_type?: string
+          is_required?: boolean
+          label?: string
+          min_value?: number | null
+          options?: Json | null
+          placeholder_key?: string
+          policy_key?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      policy_templates: {
+        Row: {
+          applicable_country: string
+          content: string
+          created_at: string
+          id: string
+          last_updated_at: string
+          law_references: Json
+          policy_key: string
+          policy_type: string
+          template_name: string
+          title: string
+          version: string
+        }
+        Insert: {
+          applicable_country?: string
+          content: string
+          created_at?: string
+          id?: string
+          last_updated_at?: string
+          law_references?: Json
+          policy_key: string
+          policy_type?: string
+          template_name: string
+          title: string
+          version?: string
+        }
+        Update: {
+          applicable_country?: string
+          content?: string
+          created_at?: string
+          id?: string
+          last_updated_at?: string
+          law_references?: Json
+          policy_key?: string
+          policy_type?: string
+          template_name?: string
+          title?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      policy_versions: {
+        Row: {
+          change_summary: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          effective_date: string | null
+          id: string
+          is_active: boolean
+          policy_id: string
+          published_at: string | null
+          requires_acceptance: boolean
+          store_id: string | null
+          title: string
+          version: string
+        }
+        Insert: {
+          change_summary?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          effective_date?: string | null
+          id?: string
+          is_active?: boolean
+          policy_id: string
+          published_at?: string | null
+          requires_acceptance?: boolean
+          store_id?: string | null
+          title: string
+          version: string
+        }
+        Update: {
+          change_summary?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          effective_date?: string | null
+          id?: string
+          is_active?: boolean
+          policy_id?: string
+          published_at?: string | null
+          requires_acceptance?: boolean
+          store_id?: string | null
+          title?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_versions_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_versions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       price_list_items: {
         Row: {
