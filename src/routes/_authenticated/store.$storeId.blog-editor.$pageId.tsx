@@ -275,7 +275,7 @@ function BlogEditorPage() {
 
         <TabsContent value="content" className="space-y-4">
           <Input
-            className="h-auto border-0 px-0 text-2xl font-bold shadow-none focus-visible:ring-0 sm:text-3xl"
+            className="h-auto border-0 px-0 !text-2xl font-bold sm:!text-3xl shadow-none focus-visible:ring-0 sm:text-3xl"
             placeholder="Yazı başlığı"
             value={form.title}
             onChange={(e) => set("title", e.target.value)}

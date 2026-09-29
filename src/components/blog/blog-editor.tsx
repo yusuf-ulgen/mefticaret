@@ -87,6 +87,7 @@ export function BlogEditor({
   const [picker, setPicker] = useState<"product" | "collection" | null>(null);
   const [slash, setSlash] = useState<{ query: string; top: number; left: number; from: number } | null>(null);
   const [slashIndex, setSlashIndex] = useState(0);
+  const keyRef = useRef<(event: KeyboardEvent) => boolean>(() => false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -108,6 +109,7 @@ export function BlogEditor({
         class: "blog-prose min-h-[320px] px-3 py-3 focus:outline-none sm:px-5",
         "aria-label": "Yazı içeriği",
       },
+      handleKeyDown: (_view, event) => keyRef.current(event),
     },
     onUpdate: ({ editor: e }) => {
       onChange(e.isEmpty ? "" : e.getHTML());
@@ -205,6 +207,16 @@ export function BlogEditor({
 
   const filtered = slash ? COMMANDS.filter((c) => c.key.startsWith(slash.query) || c.label.toLocaleLowerCase("tr").includes(slash.query)) : [];
 
+  keyRef.current = (event) => {
+    if (!slash || !filtered.length) return false;
+    if (event.key === "ArrowDown") setSlashIndex((i) => (i + 1) % filtered.length);
+    else if (event.key === "ArrowUp") setSlashIndex((i) => (i - 1 + filtered.length) % filtered.length);
+    else if (event.key === "Enter") runSlash(filtered[Math.min(slashIndex, filtered.length - 1)]!);
+    else if (event.key === "Escape") setSlash(null);
+    else return false;
+    return true;
+  };
+
   const runSlash = (cmd: Command) => {
     if (!editor || !slash) return;
     editor.chain().focus().deleteRange({ from: slash.from, to: editor.state.selection.from }).run();
@@ -285,22 +297,7 @@ export function BlogEditor({
         </div>
       ) : null}
 
-      <EditorContent
-        editor={editor}
-        onKeyDown={(event) => {
-          if (!slash || !filtered.length) return;
-          if (event.key === "ArrowDown") {
-            event.preventDefault();
-            setSlashIndex((i) => (i + 1) % filtered.length);
-          } else if (event.key === "ArrowUp") {
-            event.preventDefault();
-            setSlashIndex((i) => (i - 1 + filtered.length) % filtered.length);
-          } else if (event.key === "Enter") {
-            event.preventDefault();
-            runSlash(filtered[slashIndex]!);
-          } else if (event.key === "Escape") setSlash(null);
-        }}
-      />
+      <EditorContent editor={editor} />
 
       {slash && filtered.length ? (
         <div
