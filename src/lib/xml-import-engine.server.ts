@@ -372,8 +372,8 @@ export function normalizeRows(
       description: read("description").slice(0, 20_000) || null,
       vendor: read("brand").slice(0, 120) || null,
       price,
-      compareAtPrice: parseNumber(read("compare_at_price")),
-      costPrice: parseNumber(read("cost_price")),
+      compareAtPrice: readNumber("compare_at_price", "first"),
+      costPrice: readNumber("cost_price", "first"),
       taxRate: parseNumber(read("tax_rate")) ?? 20,
       currency: /^[A-Z]{3}$/.test(currency) ? currency : fallbackCurrency,
       stock:
