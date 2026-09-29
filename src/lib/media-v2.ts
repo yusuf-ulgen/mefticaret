@@ -263,7 +263,7 @@ export async function processAndUpload(
   const info = await validateMediaFile(file);
   const assetId = crypto.randomUUID();
   const base = sanitizeFileName(file.name.replace(/\.[^.]+$/, ""));
-  const key = (name: string, variant?: string) => buildObjectKey({ storeId, assetId, fileName: name, variant });
+  const key = (name: string, variant?: string) => buildObjectKey(variant ? { storeId, assetId, fileName: name, variant } : { storeId, assetId, fileName: name });
   const q = opts.quality ?? 0.85;
 
   let main: Blob = file;

@@ -51,8 +51,8 @@ export type MediaAsset = {
   metadata_stripped?: boolean | null;
   watermark_applied?: boolean | null;
   duration_seconds?: number | null;
-  thumbUrl?: string;
-  posterUrl?: string;
+  thumbUrl?: string | undefined;
+  posterUrl?: string | undefined;
 };
 
 export const mediaFoldersQuery = (storeId: string) =>
