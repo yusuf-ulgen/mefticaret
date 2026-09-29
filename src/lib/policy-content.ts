@@ -4,7 +4,7 @@ import { htmlToText } from "@/lib/blog-content";
 
 export type PolicyScope = "platform" | "store";
 
-export const STORE_POLICY_KEYS = ["refund", "privacy", "shipping", "cookie", "distance_selling"] as const;
+export const STORE_POLICY_KEYS = ["refund", "privacy", "shipping", "cookie", "distance_selling", "terms"] as const;
 export const PLATFORM_POLICY_KEYS = ["privacy", "terms", "cookie", "refund", "seller_agreement", "distance_selling"] as const;
 
 const STORE_SLUGS: Record<string, string> = {
@@ -13,6 +13,7 @@ const STORE_SLUGS: Record<string, string> = {
   shipping: "kargo-teslimat",
   cookie: "cerez",
   distance_selling: "mesafeli-satis-sozlesmesi",
+  terms: "kullanim-kosullari",
 };
 const PLATFORM_SLUGS: Record<string, string> = {
   privacy: "gizlilik",
