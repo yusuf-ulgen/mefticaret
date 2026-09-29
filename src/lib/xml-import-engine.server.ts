@@ -672,6 +672,28 @@ export async function upsertProducts(
         }
       }
 
+      /* --- görseller: beslemedeki eksik görseller eklenir, mevcutlar korunur --- */
+      if (item.images.length) {
+        const { data: currentImages } = await admin
+          .from("product_images")
+          .select("url, position")
+          .eq("product_id", productId);
+        const have = new Set((currentImages ?? []).map((img) => img.url));
+        let position = (currentImages ?? []).reduce((max, img) => Math.max(max, img.position ?? 0), 0);
+        const add = item.images
+          .slice(0, MAX_PRODUCT_IMAGES)
+          .filter((url) => !have.has(url))
+          .slice(0, Math.max(0, MAX_PRODUCT_IMAGES - have.size))
+          .map((url) => ({
+            store_id: input.storeId,
+            product_id: productId,
+            url,
+            alt: item.title.slice(0, 120),
+            position: ++position,
+          }));
+        if (add.length) await admin.from("product_images").insert(add);
+      }
+
       result.updated += 1;
     }
 
@@ -742,6 +764,9 @@ export async function upsertProducts(
 }
 
 /** Yeni ürünün varyantları (varyasyonlu ürünlerde hepsi) ve görselleri. */
+/** Ürün başına aktarılan en çok görsel. */
+const MAX_PRODUCT_IMAGES = 20;
+
 async function insertChildren(admin: Client, storeId: string, productId: string, item: NormalizedProduct) {
   const optionEntries = Object.entries(item.options);
   const rows = item.variants.length
@@ -780,7 +805,7 @@ async function insertChildren(admin: Client, storeId: string, productId: string,
 
   if (item.images.length) {
     await admin.from("product_images").insert(
-      item.images.slice(0, 8).map((url, index) => ({
+      item.images.slice(0, MAX_PRODUCT_IMAGES).map((url, index) => ({
         store_id: storeId,
         product_id: productId,
         url,
