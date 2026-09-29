@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { CalendarClock, PenLine, Tags, Trash2, UserRound } from "lucide-react";
@@ -307,6 +307,15 @@ function BlogAdminPage() {
         </TabsList>
 
         <TabsContent value="posts" className="space-y-6">
+          <div className="surface-card flex flex-wrap items-center gap-3 p-4">
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">Blog Stüdyosu</p>
+              <p className="text-sm text-muted-foreground">Zengin düzenleyici, ürün kartları, SEO skoru, yorumlar, sürüm geçmişi ve yayın takvimi.</p>
+            </div>
+            <Button asChild>
+              <Link to="/store/$storeId/blog-studio" params={{ storeId }}>Blog Stüdyosu'nu aç</Link>
+            </Button>
+          </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StatCard label="Taslak" value={counts.draft} />
             <StatCard label="Yayında" value={counts.published} />

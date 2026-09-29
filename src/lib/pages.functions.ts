@@ -23,7 +23,7 @@ const pageInput = z.object({
   sortOrder: z.number().int().min(0).max(999).default(0),
   /** CMS alanları — blog yazıları ve zamanlanmış yayın için. */
   pageKind: z.enum(["page", "blog"]).optional(),
-  status: z.enum(["draft", "published", "scheduled"]).optional(),
+  status: z.enum(["draft", "published", "scheduled", "review", "archived"]).optional(),
   scheduledAt: z.string().datetime().nullable().optional(),
   categoryId: z.guid().nullable().optional(),
   authorId: z.guid().nullable().optional(),
