@@ -16,10 +16,6 @@ export async function mediaEntitlement(supabase: unknown, storeId: string) {
   };
 }
 
-async function assertManager(supabase: unknown, userId: string, storeId: string) {
-  const { assertStoreManager } = await import("@/lib/store-access.server");
-  await assertStoreManager(supabase as never, storeId, userId);
-}
 
 export async function usedToday(storeId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
