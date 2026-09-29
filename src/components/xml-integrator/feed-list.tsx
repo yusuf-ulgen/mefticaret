@@ -12,6 +12,7 @@ import { CardSkeleton } from "@/components/ui/data-skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { emptyFeed, FeedSheet, type FeedFormValue } from "@/components/xml-integrator/feed-sheet";
 import { FeedCard } from "@/components/xml-integrator/shared";
+import { XmlBulkActions } from "@/components/xml-integrator/bulk-actions";
 import { xmlIntegratorOverviewQuery } from "@/lib/xml-integrator-queries";
 import type {
   FieldMapping,
@@ -89,6 +90,11 @@ export function XmlFeedList({ storeId }: { storeId: string }) {
 
         {groups.map((group) => (
           <TabsContent key={group.direction} value={group.direction} className="mt-0 space-y-2">
+            <XmlBulkActions
+              storeId={storeId}
+              feeds={group.rows}
+              runLabel={group.direction === "import" ? "Aktifleri çalıştır" : "Aktiflerin XML'ini üret"}
+            />
             {group.rows.length ? (
               group.rows.map((feed) => (
                 <FeedCard key={feed.id} storeId={storeId} feed={feed} onEdit={() => openEdit(feed)} />

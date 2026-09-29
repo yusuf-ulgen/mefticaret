@@ -985,11 +985,16 @@ export async function runImportFeed(
     /* v2: alan kuralları ve hata eşiği beslemeden okunur (mevcut çağıranlar değişmez). */
     const { data: extraRow } = await admin
       .from("xml_feeds")
-      .select("field_rules, max_errors_before_pause, name")
+      .select("field_rules, max_errors_before_pause, name, error_notification_email")
       .eq("id", feed.id)
       .eq("store_id", feed.storeId)
       .maybeSingle();
-    const extra = (extraRow ?? {}) as { field_rules?: unknown; max_errors_before_pause?: number; name?: string };
+    const extra = (extraRow ?? {}) as {
+      field_rules?: unknown;
+      max_errors_before_pause?: number;
+      name?: string;
+      error_notification_email?: string | null;
+    };
     const { parseFieldRules, applyFieldRules, classifyFailure } = await import("@/lib/xml-field-rules");
     const fieldRules = parseFieldRules(extra.field_rules);
     const maxErrors = Math.max(1, Number(extra.max_errors_before_pause ?? 100));
@@ -1212,6 +1217,24 @@ export async function runImportFeed(
           _entity: "system",
           _meta: {},
         } as never);
+        /* Satıcının tanımladığı adrese bildirim e-postası (tek alıcı, olay bazlı). */
+        const email = String(extra.error_notification_email ?? "").trim();
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          try {
+            const { sendTemplateEmail } = await import("@/lib/email-templates/send-email");
+            await sendTemplateEmail("xml-feed-paused", email, {
+              templateData: {
+                feedName: extra.name ?? "Besleme",
+                reason,
+                errorCount: mappingErrors.length + upsert.errors.length,
+                panelUrl: `https://mefticaret.com/store/${feed.storeId}/xml-integrator/quarantine`,
+              },
+              idempotencyKey: `xml-feed-paused-${feed.id}-${startedAt}`,
+            });
+          } catch (mailError) {
+            console.warn("[xml] durdurma e-postası gönderilemedi:", mailError instanceof Error ? mailError.message : mailError);
+          }
+        }
       }
     }
 

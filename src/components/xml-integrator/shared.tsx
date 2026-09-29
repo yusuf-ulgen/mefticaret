@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { formatDate } from "@/lib/mefti";
 import { QuarantineAlertBadge } from "@/components/xml-integrator/quarantine-panel";
+import { ExportReadinessButton } from "@/components/xml-integrator/export-readiness";
 import { deleteXmlFeed, runXmlFeedNow, toggleXmlFeed } from "@/lib/xml-integrator.functions";
 import {
   XML_PLATFORM_LABELS,
@@ -302,7 +303,9 @@ export function FeedCard({
               <RefreshCw className="mr-1 size-4" />
               Tam senkronizasyon
             </Button>
-          ) : null}
+          ) : (
+            <ExportReadinessButton storeId={storeId} feedId={feed.id} />
+          )}
 
           <div className="flex gap-1">
             <Button asChild size="icon" variant="outline" aria-label="Alan eşleştirme">
