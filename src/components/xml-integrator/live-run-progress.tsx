@@ -4,7 +4,11 @@
  */
 
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Pause, Play, Square } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { controlXmlRun } from "@/lib/xml-integrator-v2.functions";
 
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -27,12 +31,16 @@ export type LiveRun = {
   delta_sync_enabled: boolean | null;
   error_categories: Record<string, number> | null;
   started_at: string | null;
+  control_state: string | null;
+  rate_per_min: number | null;
+  store_id?: string;
 };
 
-const LIVE_STATUSES = new Set(["queued", "running"]);
+const isLive = (row: LiveRun) =>
+  row.status === "queued" || row.status === "running" || (row.status === "partial" && row.control_state === "paused");
 
 const SELECT =
-  "id, feed_id, status, phase, total_rows, processed_count, created_count, updated_count, skipped_count, unchanged_count, delta_sync_enabled, error_count, error_categories, started_at";
+  "id, feed_id, status, phase, total_rows, processed_count, created_count, updated_count, skipped_count, unchanged_count, delta_sync_enabled, error_count, error_categories, started_at, control_state, rate_per_min, store_id";
 
 /** Süren çalışmaları okur ve Realtime güncellemeleriyle canlı tutar. */
 export function useLiveImportRuns(storeId: string) {
@@ -47,7 +55,7 @@ export function useLiveImportRuns(storeId: string) {
         .from("xml_import_logs")
         .select(SELECT)
         .eq("store_id", storeId)
-        .in("status", ["queued", "running"])
+        .or("status.in.(queued,running),and(status.eq.partial,control_state.eq.paused)")
         .order("started_at", { ascending: false })
         .limit(5);
       if (active) setRuns((data ?? []) as unknown as LiveRun[]);
@@ -64,7 +72,7 @@ export function useLiveImportRuns(storeId: string) {
           if (!row?.id) return;
           setRuns((current) => {
             const rest = current.filter((item) => item.id !== row.id);
-            if (!LIVE_STATUSES.has(row.status)) return rest;
+            if (!isLive(row)) return rest;
             return [row, ...rest].slice(0, 5);
           });
         },
@@ -87,13 +95,32 @@ function RunCard({ run, feedName }: { run: LiveRun; feedName: string }) {
   const percent = total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : null;
   const categories = Object.entries(run.error_categories ?? {}).filter(([, count]) => Number(count) > 0);
   const errorCount = Number(run.error_count ?? 0);
+  const control = useServerFn(controlXmlRun);
+  const [busy, setBusy] = useState<string | null>(null);
+  const paused = run.control_state === "paused";
+  const rate = Number(run.rate_per_min ?? 0);
+  const remaining = rate > 0 && total > processed ? Math.round(((total - processed) / rate) * 60) : null;
+  const act = async (action: "pause" | "stop" | "resume") => {
+    if (!run.store_id) return;
+    setBusy(action);
+    try {
+      await control({ data: { storeId: run.store_id, runId: run.id, action } });
+      toast.success(action === "pause" ? "Duraklatma isteği gönderildi" : action === "stop" ? "Durdurma isteği gönderildi" : "Çalışma kaldığı yerden tamamlandı");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "İşlem başarısız");
+    } finally {
+      setBusy(null);
+    }
+  };
 
   return (
     <article className="rounded-xl border bg-card p-3 text-xs">
       <div className="flex flex-wrap items-center gap-2">
-        <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden />
+        {paused ? <Pause className="size-3.5 text-muted-foreground" aria-hidden /> : <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden />}
         <span className="font-medium">{feedName}</span>
-        <Badge variant="secondary">{XML_PHASE_LABELS[run.phase ?? ""] ?? "Çalışıyor"}</Badge>
+        <Badge variant="secondary">
+          {paused ? "Duraklatıldı" : run.control_state === "pause_requested" ? "Duraklatılıyor…" : run.control_state === "stop_requested" ? "Durduruluyor…" : XML_PHASE_LABELS[run.phase ?? ""] ?? "Çalışıyor"}
+        </Badge>
         {errorCount > 0 ? <Badge variant="destructive">{errorCount} hata</Badge> : null}
       </div>
 
@@ -103,7 +130,25 @@ function RunCard({ run, feedName }: { run: LiveRun; feedName: string }) {
         {total > 0
           ? `${processed} / ${total} ürün işlendi${percent === null ? "" : ` · %${percent}`}`
           : "Kaynak hazırlanıyor…"}
+        {rate > 0 && !paused ? ` · ~${rate.toLocaleString("tr-TR")} kayıt/dk` : ""}
+        {remaining !== null && !paused ? ` · kalan ~${Math.floor(remaining / 60)} dk ${remaining % 60} sn` : ""}
       </p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {paused ? (
+          <Button size="sm" variant="outline" disabled={busy !== null} onClick={() => act("resume")}>
+            {busy === "resume" ? <Loader2 className="mr-1 size-3.5 animate-spin" /> : <Play className="mr-1 size-3.5" />}Devam et
+          </Button>
+        ) : run.status === "running" ? (
+          <>
+            <Button size="sm" variant="outline" disabled={busy !== null || run.control_state !== "running"} onClick={() => act("pause")}>
+              <Pause className="mr-1 size-3.5" />Duraklat
+            </Button>
+            <Button size="sm" variant="outline" disabled={busy !== null || run.control_state !== "running"} onClick={() => act("stop")}>
+              <Square className="mr-1 size-3.5" />Durdur
+            </Button>
+          </>
+        ) : null}
+      </div>
       <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
         <RunStat label="Yeni" value={Number(run.created_count ?? 0)} />
         <RunStat label="Güncellendi" value={Number(run.updated_count ?? 0)} />
