@@ -120,7 +120,7 @@ function PolicyEditor({ storeId, policyId, onChanged }: { storeId: string | null
   const [pub, setPub] = useState({ bump: "minor" as "minor" | "major", effectiveDate: today(), changeSummary: "", requiresAcceptance: false });
 
   useEffect(() => {
-    const p = q.data?.policy;
+    const p = q.data?.policy as any;
     if (p && !form) {
       setForm({
         title: p.title ?? "",
@@ -170,7 +170,7 @@ function PolicyEditor({ storeId, policyId, onChanged }: { storeId: string | null
   if (q.isLoading || !form) return <Loader2 className="h-5 w-5 animate-spin" />;
   if (q.error) return <p className="text-sm text-destructive">{(q.error as Error).message}</p>;
   const defs = q.data!.placeholders.filter((d) => d.placeholder_key !== "MAGAZA_ADI");
-  const p = q.data!.policy;
+  const p = q.data!.policy as any;
 
   return (
     <div className="space-y-4">

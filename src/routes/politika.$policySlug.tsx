@@ -6,8 +6,8 @@ import { getPlatformPublicPolicy } from "@/lib/policies-public.functions";
 export const Route = createFileRoute("/politika/$policySlug")({
   loader: async ({ params }) => {
     const res = await getPlatformPublicPolicy({ data: { policy: params.policySlug } });
-    if (!res?.policy) throw notFound();
-    return res.policy;
+    if (!res) throw notFound();
+    return res;
   },
   head: ({ loaderData, params }) => {
     const title = loaderData ? `${loaderData.seoTitle || loaderData.title} — Mefticaret` : "Politika — Mefticaret";
