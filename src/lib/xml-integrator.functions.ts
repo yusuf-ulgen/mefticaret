@@ -1166,6 +1166,7 @@ export const previewXmlImport = createServerFn({ method: "POST" })
         storeId: z.guid(),
         feedId: z.guid(),
         fieldMapping: z.record(z.string(), z.string()).default({}),
+        fieldRules: z.record(z.string(), z.unknown()).default({}),
         transformRules: z.record(z.string(), z.any()).default({}),
         pricingRules: z.record(z.string(), z.any()).default({}),
         variantMode: z.enum(["none", "nested", "flat"]).default("none"),
@@ -1206,6 +1207,7 @@ export const previewXmlImport = createServerFn({ method: "POST" })
     }
 
     const { fetchFeedSource, parseFeedRows, normalizeRows } = await import("@/lib/xml-import-engine.server");
+    const { applyFieldRules, parseFieldRules } = await import("@/lib/xml-field-rules");
     const { buildVariantGroups } = await import("@/lib/xml-variant-parser");
 
     const fetched = await fetchFeedSource({
@@ -1228,9 +1230,28 @@ export const previewXmlImport = createServerFn({ method: "POST" })
     const mode = parseVariantMode(data.variantMode);
     const groups = buildVariantGroups(parsed.rows, mode, variantConfig);
 
-    const { items, errors } = normalizeRows(
+    const ruled = applyFieldRules(
       groups.map((group) => group.mainRow),
       data.fieldMapping,
+      parseFieldRules(data.fieldRules),
+    );
+    const requiredMissing = new Set(ruled.missing.map((item) => item.row));
+    const originalVariantRows = groups
+      .filter((_, index) => !requiredMissing.has(index))
+      .flatMap((group) => group.variantRows);
+    const variantRuleMapping = { ...data.fieldMapping, ...variantConfig.variantMapping };
+    const ruledVariants = applyFieldRules(originalVariantRows, variantRuleMapping, parseFieldRules(data.fieldRules));
+    let variantCursor = 0;
+    const variantRows = groups
+      .filter((_, index) => !requiredMissing.has(index))
+      .map((group) => {
+        const rows = ruledVariants.rows.slice(variantCursor, variantCursor + group.variantRows.length);
+        variantCursor += group.variantRows.length;
+        return rows;
+      });
+    const { items, errors: normalizeErrors } = normalizeRows(
+      ruled.rows.filter((_, index) => !requiredMissing.has(index)),
+      ruled.mapping,
       {
         priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
         pricingRules: parsePricingRules(
@@ -1241,12 +1262,16 @@ export const previewXmlImport = createServerFn({ method: "POST" })
         ...(mode === "none"
           ? {}
           : {
-              variantRows: groups.map((group) => group.variantRows),
+              variantRows,
               optionAttributes: variantConfig.optionAttributes,
-              variantMapping: variantConfig.variantMapping,
+              variantMapping: ruledVariants.mapping,
             }),
       },
     );
+    const errors = [
+      ...ruled.missing.map((item) => ({ row: item.row + 1, reason: `Zorunlu alan eksik: ${item.field}` })),
+      ...normalizeErrors,
+    ];
 
     return {
       totalRows: parsed.rows.length,

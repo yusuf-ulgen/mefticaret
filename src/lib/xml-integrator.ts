@@ -250,6 +250,41 @@ export const TARGET_FIELDS: TargetField[] = [
 
 export type FieldMapping = Record<string, string>;
 
+/**
+ * Kayıtlı/şablondan gelen bir yolu güncel alan listesine uyarlar.
+ * XML dizilerindeki `[0]` / `[]` farkını ve harf büyüklüğünü tolere eder;
+ * yalnız tek bir güvenli eşleşme varsa yaprak adına göre de onarır.
+ */
+export function resolveMappingPath(path: string, columns: string[]): string | null {
+  const clean = path.trim();
+  if (!clean) return null;
+  if (columns.includes(clean)) return clean;
+  const generic = (value: string) => value.replace(/\[\d*\]/g, "").toLocaleLowerCase("tr");
+  const wanted = generic(clean);
+  const exact = columns.find((column) => generic(column) === wanted);
+  if (exact) return exact;
+  const leaf = wanted.split(".").pop() ?? wanted;
+  const leafMatches = columns.filter((column) => (generic(column).split(".").pop() ?? "") === leaf);
+  return leafMatches.length === 1 ? leafMatches[0] ?? null : null;
+}
+
+/** Geçerli eski eşlemeleri korur, kaybolan yolları önerilerle tamamlar. */
+export function reconcileFieldMapping(
+  mapping: FieldMapping,
+  columns: string[],
+  suggestions: FieldMapping = {},
+): FieldMapping {
+  const next: FieldMapping = {};
+  for (const field of TARGET_FIELDS) {
+    const current = mapping[field.key] ? resolveMappingPath(mapping[field.key] ?? "", columns) : null;
+    const suggested = suggestions[field.key]
+      ? resolveMappingPath(suggestions[field.key] ?? "", columns)
+      : null;
+    if (current ?? suggested) next[field.key] = current ?? suggested ?? "";
+  }
+  return next;
+}
+
 /* ------------------------------- ayrıştırma ------------------------------ */
 
 export type ParsedSource = {
@@ -473,13 +508,14 @@ export function missingRequiredFields(mapping: FieldMapping): TargetField[] {
 /** Bir satırdan eşleştirilmiş değeri okur (dizi indeksli yollar dahil). */
 export function readMapped(row: Record<string, string>, path: string | undefined): string {
   if (!path) return "";
-  if (row[path] !== undefined) return row[path];
-  if (!path.includes("[]")) return "";
-  const prefix = path.split("[]")[0] ?? "";
-  const suffix = path.split("[]").slice(1).join("[]");
-  const values: string[] = [];
+  if (row[path] !== undefined) return String(row[path] ?? "").trim();
+  // Eski eşlemeler `variation.price`, yeni alan envanteri ise
+  // `variation[].price` taşıyabilir. Her iki biçimi indekslerden bağımsız oku.
+  const wanted = path.replace(/\[\d*\]/g, "");
   for (const [key, value] of Object.entries(row)) {
-    if (key.startsWith(prefix) && key.replace(/\[\d+\]/g, "[]") === path) values.push(value);
+    if (key.replace(/\[\d+\]/g, "") === wanted && String(value ?? "").trim()) {
+      return String(value).trim();
+    }
   }
-  return values.join(suffix ? "," : ",");
+  return "";
 }
