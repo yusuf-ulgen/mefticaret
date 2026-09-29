@@ -236,6 +236,27 @@ export function normalizeRows(
     const read = (field: string) =>
       applyTransforms(readMapped(row, mapping[field]).trim(), transforms[field], row).trim();
 
+    /**
+     * Sayısal alanlar: dizi yolu ("a[].price") veya indeksi yazılmamış yol
+     * ("a.variation.qty") birden çok değer döndürebilir. Fiyatta ilk geçerli
+     * değer, stokta toplam kullanılır.
+     */
+    const readNumber = (field: string, mode: "first" | "sum"): number | null => {
+      const path = mapping[field];
+      if (!path) return parseNumber(read(field));
+      const direct = row[path];
+      if (direct !== undefined || transforms[field]?.length) return parseNumber(read(field));
+      const generic = path.replace(/\[\d*\]/g, "");
+      const values: number[] = [];
+      for (const [k, v] of Object.entries(row)) {
+        if (k.replace(/\[\d+\]/g, "") !== generic) continue;
+        const n = parseNumber(String(v).trim());
+        if (n !== null) values.push(n);
+      }
+      if (!values.length) return parseNumber(read(field));
+      return mode === "sum" ? values.reduce((a, b) => a + b, 0) : values[0]!;
+    };
+
     const sku = read("sku");
     const barcode = read("barcode");
     const title = read("title");
@@ -254,14 +275,14 @@ export function normalizeRows(
       return;
     }
 
-    const rawPrice = parseNumber(read("price"));
+    const rawPrice = readNumber("price", "first");
     if (rawPrice === null || rawPrice < 0) {
       errors.push({ row: index + 1, reason: `${key}: satış fiyatı okunamadı` });
       return;
     }
 
     const price = finalPrice(rawPrice);
-    const stockValue = parseNumber(read("stock"));
+    const stockValue = readNumber("stock", "sum");
     const weight = parseNumber(read("weight"));
     const options_: Record<string, string> = {};
     for (const [field, label] of [
