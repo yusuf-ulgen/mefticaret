@@ -71,7 +71,7 @@ export const registerMediaAsset = createServerFn({ method: "POST" })
     if (extraPaths.some((p) => p && !p.startsWith(`${data.storeId}/`))) throw new Error("Geçersiz dosya yolu");
     if (!v2 && !["image", "video", "document"].includes(data.kind)) throw new Error("Bu dosya türü paketinizde kapalı");
     if (v2) {
-      const { mediaEntitlement, consumeMediaQuota } = await import("@/lib/media-v2.functions");
+      const { mediaEntitlement, consumeMediaQuota } = await import("@/lib/media-v2.server");
       const ent = await mediaEntitlement(supabase, data.storeId);
       if (!ent.enabled) throw new Error("Medya Sistemi v2 paketinizde kapalı.");
       const total =
