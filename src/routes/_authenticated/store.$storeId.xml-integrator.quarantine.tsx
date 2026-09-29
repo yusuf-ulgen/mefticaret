@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { FailedItemsPanel } from "@/components/xml-integrator/failed-items-panel";
 import { QuarantinePanel } from "@/components/xml-integrator/quarantine-panel";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/xml-integrator/quarantine")({
@@ -25,5 +26,10 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/xml-integra
 
 function XmlQuarantinePage() {
   const { storeId } = Route.useParams();
-  return <QuarantinePanel storeId={storeId} />;
+  return (
+    <div className="space-y-6">
+      <FailedItemsPanel storeId={storeId} />
+      <QuarantinePanel storeId={storeId} />
+    </div>
+  );
 }

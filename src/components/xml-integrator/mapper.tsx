@@ -7,10 +7,13 @@ import { DndContext, useDraggable, useDroppable, type DragEndEvent } from "@dnd-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { Eye, GripVertical, Loader2, Sparkles, Wand2, Wrench, X } from "lucide-react";
+import { Eye, GripVertical, Loader2, Settings2, Sparkles, Wand2, Wrench, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { FieldRuleDialog, MappingTemplatesBar, describeRule } from "@/components/xml-integrator/field-rules";
+import { getXmlFeedV2Settings, saveXmlFeedV2Settings } from "@/lib/xml-integrator-v2.functions";
+import type { FieldRule, FieldRules } from "@/lib/xml-field-rules";
 import { XmlCategoryMapper } from "@/components/xml-integrator/category-mapper";
 import { VariationManager } from "@/components/xml-integrator/variation-manager";
 import { CurrencySettings, useCurrencyRates } from "@/components/xml-integrator/currency-settings";
@@ -90,6 +93,23 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
   const [pricingRules, setPricingRules] = useState<PricingRules>(DEFAULT_PRICING_RULES);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
+  const [fieldRules, setFieldRules] = useState<FieldRules>({});
+  const [ruleField, setRuleField] = useState<string | null>(null);
+  const [maxErrors, setMaxErrors] = useState(100);
+  const [alertEmail, setAlertEmail] = useState("");
+  const getV2 = useServerFn(getXmlFeedV2Settings);
+  const saveV2 = useServerFn(saveXmlFeedV2Settings);
+  const v2 = useQuery({
+    queryKey: ["xml-integrator", storeId, "v2", feedId],
+    queryFn: () => getV2({ data: { storeId, feedId } }),
+  });
+  useEffect(() => {
+    if (v2.data) {
+      setFieldRules(v2.data.fieldRules);
+      setMaxErrors(v2.data.maxErrors);
+      setAlertEmail(v2.data.email);
+    }
+  }, [v2.data]);
 
   useEffect(() => {
     if (feed && loadedFor !== feed.id) {
@@ -203,8 +223,9 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
   });
 
   const saveMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!feed) throw new Error("Besleme bulunamadı");
+      await saveV2({ data: { storeId, feedId, fieldRules: fieldRules as never, maxErrors, email: alertEmail.trim() } });
       return save({
         data: {
           storeId,
@@ -293,6 +314,19 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         </TabsList>
 
         <TabsContent value="fields" className="space-y-4">
+      <MappingTemplatesBar
+        storeId={storeId}
+        mapping={mapping}
+        rules={fieldRules}
+        onApply={(nextMapping, nextRules) => {
+          setMapping((current) => ({ ...current, ...nextMapping }));
+          setFieldRules((current) => ({ ...current, ...nextRules }));
+        }}
+        onReset={() => {
+          setMapping({});
+          setFieldRules({});
+        }}
+      />
       {columns.length === 0 ? (
         <div className="rounded-xl border border-dashed bg-card p-6 text-center text-sm">
           <p className="text-muted-foreground">Bu beslemenin alan listesi henüz okunmadı.</p>
@@ -340,6 +374,8 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
                         transformSummary={describeTransforms(effectiveTransforms[field.key])}
                         ai={aiInfo[field.key] ?? null}
                         onOpenTransforms={() => setActiveField(field.key)}
+                        ruleSummary={describeRule(fieldRules[field.key])}
+                        onOpenRules={() => setRuleField(field.key)}
                         onSelect={(value) =>
                           setMapping((current) => {
                             const next = { ...current };
@@ -414,6 +450,44 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
       ) : null}
 
 
+      {ruleField ? (
+        <FieldRuleDialog
+          open
+          onOpenChange={(next) => {
+            if (!next) setRuleField(null);
+          }}
+          fieldLabel={TARGET_FIELDS.find((field) => field.key === ruleField)?.label ?? ruleField}
+          sourcePath={mapping[ruleField] ?? ""}
+          columns={columns.map((column) => column.path)}
+          sampleRow={sampleRow}
+          rule={fieldRules[ruleField]}
+          onSave={(rule: FieldRule | null) =>
+            setFieldRules((current) => {
+              const next = { ...current };
+              if (rule) next[ruleField] = rule;
+              else delete next[ruleField];
+              return next;
+            })
+          }
+        />
+      ) : null}
+
+      {feed.direction === "import" ? (
+        <section className="grid gap-3 rounded-xl border bg-card p-3 text-xs sm:grid-cols-2">
+          <label className="space-y-1">
+            <span className="font-medium">Otomatik durdurma eşiği (hata sayısı)</span>
+            <Input type="number" min={1} max={100000} value={maxErrors} onChange={(e) => setMaxErrors(Math.max(1, Number(e.target.value) || 1))} />
+          </label>
+          <label className="space-y-1">
+            <span className="font-medium">Hata bildirimi e-postası</span>
+            <Input type="email" placeholder="ornek@magaza.com" value={alertEmail} onChange={(e) => setAlertEmail(e.target.value)} />
+          </label>
+          <p className="text-muted-foreground sm:col-span-2">
+            Bir çalışmada bu kadar hata olursa besleme durdurulur ve panelde bildirim gösterilir.
+          </p>
+        </section>
+      ) : null}
+
       {missing.length ? (
         <p className="text-xs text-destructive">
           Eksik zorunlu alan: {missing.map((field) => field.label).join(", ")}
@@ -482,7 +556,11 @@ function TargetSlot({
   transformSummary,
   onOpenTransforms,
   ai,
+  ruleSummary,
+  onOpenRules,
 }: {
+  ruleSummary: string;
+  onOpenRules: () => void;
   fieldKey: string;
   label: string;
   required?: boolean | undefined;
@@ -531,10 +609,14 @@ function TargetSlot({
               <Wrench className="size-3 shrink-0 text-muted-foreground" />
               <span className="min-w-0 flex-1 truncate">{value}</span>
             </button>
+            <Button size="icon" variant="ghost" aria-label={`${label} alan ayarları`} onClick={onOpenRules}>
+              <Settings2 className="size-3" />
+            </Button>
             <Button size="icon" variant="ghost" aria-label={`${label} eşleşmesini kaldır`} onClick={() => onSelect("")}>
               <X className="size-3" />
             </Button>
           </div>
+          {ruleSummary ? <p className="truncate text-[11px] text-primary">⚙ {ruleSummary}</p> : null}
           {transformSummary ? (
             <p className="truncate text-[11px] text-muted-foreground">{transformSummary}</p>
           ) : (
