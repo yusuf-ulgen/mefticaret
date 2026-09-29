@@ -8,12 +8,15 @@ import {
   type MediaVariant,
 } from "@/lib/media-storage";
 
-export type MediaKind = "image" | "video" | "document";
+export type MediaKind = "image" | "video" | "document" | "audio" | "model" | "other";
 
 export const MEDIA_KIND_LABELS: Record<MediaKind, string> = {
   image: "Görsel",
   video: "Video",
   document: "Doküman",
+  audio: "Ses",
+  model: "3D Model",
+  other: "Diğer",
 };
 
 /** Desteklenen dosya türleri ve tür başına boyut sınırları. */
