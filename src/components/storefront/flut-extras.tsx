@@ -26,7 +26,7 @@ export function recommendSize(heightCm: number, weightKg: number): string | null
   return edge && next && next !== cur ? `${cur} veya ${next}` : cur;
 }
 
-export function SizeRecommender({ theme, fabric }: { theme: StoreTheme; fabric?: string }) {
+export function SizeRecommender({ theme, fabric }: { theme: StoreTheme; fabric?: string | undefined }) {
   const { t, border, radius, muted } = storefrontTokens(theme);
   const [h, setH] = useState("");
   const [w, setW] = useState("");
@@ -65,7 +65,7 @@ export function FlutPdpExtras({
   theme, features, texts, storeSlug, storeName, productId, productTitle, selectedLabel, stock, relatedIds, fallbackPhone, onBundleMain,
 }: {
   theme: StoreTheme; features: Features; texts: Texts; storeSlug: string; storeName: string; productId: string; productTitle: string;
-  selectedLabel: string; stock: number; relatedIds: string[]; fallbackPhone?: string | null; onBundleMain: () => boolean;
+  selectedLabel: string; stock: number; relatedIds: string[]; fallbackPhone?: string | null | undefined; onBundleMain: () => boolean;
 }) {
   const { t, border, radius, muted, fonts } = storefrontTokens(theme);
   const cart = useCart();
@@ -120,7 +120,7 @@ export function FlutPdpExtras({
 }
 
 /** Sağ alt sabit WhatsApp butonu. */
-export function FlutWhatsAppFab({ phone }: { phone?: string | null }) {
+export function FlutWhatsAppFab({ phone }: { phone?: string | null | undefined }) {
   const n = (phone || "").replace(/\D/g, "");
   if (n.length < 10) return null;
   return (
@@ -132,7 +132,7 @@ export function FlutWhatsAppFab({ phone }: { phone?: string | null }) {
 }
 
 /** Kampanya geri sayımı: Gün / Saat / Dk / Sn. */
-export function FlutCountdown({ endsAt, label, accent }: { endsAt?: string; label?: string; accent: string }) {
+export function FlutCountdown({ endsAt, label, accent }: { endsAt?: string | undefined; label?: string | undefined; accent: string }) {
   const end = endsAt ? new Date(endsAt.replace(" ", "T")).getTime() : NaN;
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => { setNow(Date.now()); const i = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(i); }, []);
