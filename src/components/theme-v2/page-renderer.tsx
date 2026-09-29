@@ -712,7 +712,7 @@ const EDIT_CSS =
 
 /** Google Fonts yalnız desteklenen ağırlıkları kabul eder; desteklenmeyen istek tüm dosyayı düşürür. */
 const HEAVY_FONTS = new Set(["Nunito", "Noto Serif", "Noto Sans", "Orbitron", "Exo 2", "Roboto Condensed", "Shippori Mincho", "Inter", "Plus Jakarta Sans", "Playfair Display", "Jost", "DM Sans", "Source Sans 3", "Manrope", "Outfit", "Sora", "Work Sans", "Poppins"]);
-const fontWeights = (font: string) => (font === "Bebas Neue" || font === "Share Tech Mono" ? "400" : font === "Cormorant Garamond" ? "300;400;500;600;700" : font === "Libre Baskerville" ? "400;700" : HEAVY_FONTS.has(font) ? "400;500;600;700;800" : "400;500;600;700");
+const fontWeights = (font: string) => (font === "Bebas Neue" || font === "Share Tech Mono" || font === "Great Vibes" ? "400" : font === "Cormorant Garamond" ? "300;400;500;600;700" : font === "Libre Baskerville" ? "400;700" : HEAVY_FONTS.has(font) ? "400;500;600;700;800" : "400;500;600;700");
 
 /** Sayfa → bölümler → bloklar. Global ayarlar CSS değişkenlerine dönüşür. */
 export function PageRenderer({ sections, settings, ctx, className }: { sections: V2Section[]; settings: V2Settings; ctx: V2RenderContext; className?: string }) {

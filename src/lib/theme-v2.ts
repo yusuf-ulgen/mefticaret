@@ -433,7 +433,7 @@ export const V2_BLOCKS: Record<V2BlockType, V2Definition> = {
 };
 
 /** Global tema ayarları: renkler, tipografi, düzen, butonlar, görseller, koyu mod, logo. */
-export const V2_FONTS = ["Inter", "Geist", "Manrope", "DM Sans", "Plus Jakarta Sans", "Outfit", "Sora", "Work Sans", "Poppins", "Playfair Display", "Cormorant Garamond", "Lora", "Libre Baskerville", "Space Grotesk", "Bebas Neue", "Source Sans 3", "Jost", "Caveat", "Nunito", "Dancing Script", "Roboto Condensed", "Noto Serif", "Noto Sans", "Shippori Mincho", "Orbitron", "Exo 2", "Cormorant"] as const;
+export const V2_FONTS = ["Inter", "Geist", "Manrope", "DM Sans", "Plus Jakarta Sans", "Outfit", "Sora", "Work Sans", "Poppins", "Playfair Display", "Cormorant Garamond", "Lora", "Libre Baskerville", "Space Grotesk", "Bebas Neue", "Source Sans 3", "Jost", "Caveat", "Nunito", "Dancing Script", "Roboto Condensed", "Noto Serif", "Noto Sans", "Shippori Mincho", "Orbitron", "Exo 2", "Cormorant", "Great Vibes"] as const;
 export const V2_MONO_FONTS = ["JetBrains Mono", "Share Tech Mono", "Space Mono", "IBM Plex Mono", "Fira Code"] as const;
 
 export const V2_GLOBAL_DEFAULTS: V2Settings = {
