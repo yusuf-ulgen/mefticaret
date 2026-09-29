@@ -1130,7 +1130,7 @@ export async function runImportFeed(
           .update({ is_active: false, paused_reason: reason })
           .eq("id", feed.id)
           .eq("store_id", feed.storeId);
-        await admin.rpc("emit_notification", {
+        await (admin as unknown as { rpc: (fn: string, args: unknown) => Promise<unknown> }).rpc("emit_notification", {
           _store_id: feed.storeId,
           _kind: "system",
           _title: `XML besleme durduruldu: ${extra.name ?? "Besleme"}`,
