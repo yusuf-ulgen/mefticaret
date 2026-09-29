@@ -261,7 +261,7 @@ export const searchBlogEmbeds = createServerFn({ method: "GET" })
     const like = `%${data.q.replace(/[%_]/g, "")}%`;
     if (data.kind === "collection") {
       const { data: rows } = await db.from("collections").select("id, title, slug, image_url").eq("store_id", data.storeId).ilike("title", like).limit(12);
-      return ((rows ?? []) as Array<Record<string, any>>).map((r) => ({ id: r.id, title: r.title, slug: r.slug, image: r.image_url ?? null, price: null as number | null }));
+      return ((rows ?? []) as any[]).map((r: any) => ({ id: r.id as string, title: r.title as string, slug: r.slug as string, image: (r.image_url as string | null) ?? null, price: null as number | null }));
     }
     const { data: rows } = await db
       .from("products")
@@ -270,9 +270,9 @@ export const searchBlogEmbeds = createServerFn({ method: "GET" })
       .eq("status", "active")
       .ilike("title", like)
       .limit(12);
-    return ((rows ?? []) as Array<Record<string, any>>).map((r) => {
+    return ((rows ?? []) as any[]).map((r: any) => {
       const imgs = ((r.product_images ?? []) as Array<{ url: string | null; position: number }>).sort((a, b) => a.position - b.position);
-      return { id: r.id, title: r.title, slug: r.slug, image: imgs.find((i) => i.url)?.url ?? null, price: r.base_price === null ? null : Number(r.base_price) };
+      return { id: r.id as string, title: r.title as string, slug: r.slug as string, image: imgs.find((i) => i.url)?.url ?? null, price: r.base_price === null ? null : Number(r.base_price) };
     });
   });
 
