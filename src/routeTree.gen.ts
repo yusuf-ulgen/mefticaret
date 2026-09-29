@@ -146,6 +146,7 @@ import { Route as SSlugGiftCardRouteImport } from './routes/s.$slug.gift-card'
 import { Route as SSlugLoginRouteImport } from './routes/s.$slug.login'
 import { Route as SSlugOrderRouteImport } from './routes/s.$slug.order'
 import { Route as SSlugOrdersRouteImport } from './routes/s.$slug.orders'
+import { Route as SSlugPolitikalarRouteImport } from './routes/s.$slug.politikalar'
 import { Route as SSlugPrivacyRouteImport } from './routes/s.$slug.privacy'
 import { Route as SSlugProductsRouteImport } from './routes/s.$slug.products'
 import { Route as SSlugRegisterRouteImport } from './routes/s.$slug.register'
@@ -326,6 +327,7 @@ import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$co
 import { Route as SSlugKampanyaCampaignSlugRouteImport } from './routes/s.$slug.kampanya.$campaignSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
+import { Route as SSlugPolitikaPolicySlugRouteImport } from './routes/s.$slug.politika.$policySlug'
 import { Route as AuthenticatedStoreStoreIdBlogEditorPageIdRouteImport } from './routes/_authenticated/store.$storeId.blog-editor.$pageId'
 import { Route as AuthenticatedStoreStoreIdCatalogV2IndexRouteImport } from './routes/_authenticated/store.$storeId.catalog-v2.index'
 import { Route as AuthenticatedStoreStoreIdCatalogV2ProductIdRouteImport } from './routes/_authenticated/store.$storeId.catalog-v2.$productId'
@@ -1078,6 +1080,11 @@ const SSlugOrderRoute = SSlugOrderRouteImport.update({
 const SSlugOrdersRoute = SSlugOrdersRouteImport.update({
   id: '/s/$slug/orders',
   path: '/s/$slug/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugPolitikalarRoute = SSlugPolitikalarRouteImport.update({
+  id: '/s/$slug/politikalar',
+  path: '/s/$slug/politikalar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SSlugPrivacyRoute = SSlugPrivacyRouteImport.update({
@@ -2135,6 +2142,11 @@ const SSlugPagePageSlugRoute = SSlugPagePageSlugRouteImport.update({
   path: '/s/$slug/page/$pageSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SSlugPolitikaPolicySlugRoute = SSlugPolitikaPolicySlugRouteImport.update({
+  id: '/s/$slug/politika/$policySlug',
+  path: '/s/$slug/politika/$policySlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedStoreStoreIdBlogEditorPageIdRoute =
   AuthenticatedStoreStoreIdBlogEditorPageIdRouteImport.update({
     id: '/blog-editor/$pageId',
@@ -2438,6 +2450,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/orders': typeof SSlugOrdersRoute
+  '/s/$slug/politikalar': typeof SSlugPolitikalarRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/register': typeof SSlugRegisterRoute
@@ -2618,6 +2631,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/s/$slug/politika/$policySlug': typeof SSlugPolitikaPolicySlugRoute
   '/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId/': typeof AuthenticatedStoreStoreIdIndexRoute
   '/store/$storeId/blog-editor/$pageId': typeof AuthenticatedStoreStoreIdBlogEditorPageIdRoute
@@ -2782,6 +2796,7 @@ export interface FileRoutesByTo {
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/orders': typeof SSlugOrdersRoute
+  '/s/$slug/politikalar': typeof SSlugPolitikalarRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/register': typeof SSlugRegisterRoute
@@ -2958,6 +2973,7 @@ export interface FileRoutesByTo {
   '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/s/$slug/politika/$policySlug': typeof SSlugPolitikaPolicySlugRoute
   '/admin/frontend': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId': typeof AuthenticatedStoreStoreIdIndexRoute
   '/store/$storeId/blog-editor/$pageId': typeof AuthenticatedStoreStoreIdBlogEditorPageIdRoute
@@ -3126,6 +3142,7 @@ export interface FileRoutesById {
   '/s/$slug/login': typeof SSlugLoginRoute
   '/s/$slug/order': typeof SSlugOrderRoute
   '/s/$slug/orders': typeof SSlugOrdersRoute
+  '/s/$slug/politikalar': typeof SSlugPolitikalarRoute
   '/s/$slug/privacy': typeof SSlugPrivacyRoute
   '/s/$slug/products': typeof SSlugProductsRoute
   '/s/$slug/register': typeof SSlugRegisterRoute
@@ -3306,6 +3323,7 @@ export interface FileRoutesById {
   '/s/$slug/kampanya/$campaignSlug': typeof SSlugKampanyaCampaignSlugRoute
   '/s/$slug/p/$productSlug': typeof SSlugPProductSlugRoute
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
+  '/s/$slug/politika/$policySlug': typeof SSlugPolitikaPolicySlugRoute
   '/_authenticated/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/_authenticated/store/$storeId/': typeof AuthenticatedStoreStoreIdIndexRoute
   '/_authenticated/store/$storeId/blog-editor/$pageId': typeof AuthenticatedStoreStoreIdBlogEditorPageIdRoute
@@ -3474,6 +3492,7 @@ export interface FileRouteTypes {
     | '/s/$slug/login'
     | '/s/$slug/order'
     | '/s/$slug/orders'
+    | '/s/$slug/politikalar'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
     | '/s/$slug/register'
@@ -3654,6 +3673,7 @@ export interface FileRouteTypes {
     | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/s/$slug/politika/$policySlug'
     | '/admin/frontend/'
     | '/store/$storeId/'
     | '/store/$storeId/blog-editor/$pageId'
@@ -3818,6 +3838,7 @@ export interface FileRouteTypes {
     | '/s/$slug/login'
     | '/s/$slug/order'
     | '/s/$slug/orders'
+    | '/s/$slug/politikalar'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
     | '/s/$slug/register'
@@ -3994,6 +4015,7 @@ export interface FileRouteTypes {
     | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/s/$slug/politika/$policySlug'
     | '/admin/frontend'
     | '/store/$storeId'
     | '/store/$storeId/blog-editor/$pageId'
@@ -4161,6 +4183,7 @@ export interface FileRouteTypes {
     | '/s/$slug/login'
     | '/s/$slug/order'
     | '/s/$slug/orders'
+    | '/s/$slug/politikalar'
     | '/s/$slug/privacy'
     | '/s/$slug/products'
     | '/s/$slug/register'
@@ -4341,6 +4364,7 @@ export interface FileRouteTypes {
     | '/s/$slug/kampanya/$campaignSlug'
     | '/s/$slug/p/$productSlug'
     | '/s/$slug/page/$pageSlug'
+    | '/s/$slug/politika/$policySlug'
     | '/_authenticated/admin/frontend/'
     | '/_authenticated/store/$storeId/'
     | '/_authenticated/store/$storeId/blog-editor/$pageId'
@@ -4449,6 +4473,7 @@ export interface RootRouteChildren {
   SSlugLoginRoute: typeof SSlugLoginRoute
   SSlugOrderRoute: typeof SSlugOrderRoute
   SSlugOrdersRoute: typeof SSlugOrdersRoute
+  SSlugPolitikalarRoute: typeof SSlugPolitikalarRoute
   SSlugPrivacyRoute: typeof SSlugPrivacyRoute
   SSlugProductsRoute: typeof SSlugProductsRoute
   SSlugRegisterRoute: typeof SSlugRegisterRoute
@@ -4495,6 +4520,7 @@ export interface RootRouteChildren {
   SSlugKampanyaCampaignSlugRoute: typeof SSlugKampanyaCampaignSlugRoute
   SSlugPProductSlugRoute: typeof SSlugPProductSlugRoute
   SSlugPagePageSlugRoute: typeof SSlugPagePageSlugRoute
+  SSlugPolitikaPolicySlugRoute: typeof SSlugPolitikaPolicySlugRoute
   ApiPublicEmailClickTokenRoute: typeof ApiPublicEmailClickTokenRoute
   ApiPublicEmailOpenTokenRoute: typeof ApiPublicEmailOpenTokenRoute
   ApiPublicEmailUnsubscribeTokenRoute: typeof ApiPublicEmailUnsubscribeTokenRoute
@@ -5462,6 +5488,13 @@ declare module '@tanstack/react-router' {
       path: '/s/$slug/orders'
       fullPath: '/s/$slug/orders'
       preLoaderRoute: typeof SSlugOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug/politikalar': {
+      id: '/s/$slug/politikalar'
+      path: '/s/$slug/politikalar'
+      fullPath: '/s/$slug/politikalar'
+      preLoaderRoute: typeof SSlugPolitikalarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/$slug/privacy': {
@@ -6724,6 +6757,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugPagePageSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/s/$slug/politika/$policySlug': {
+      id: '/s/$slug/politika/$policySlug'
+      path: '/s/$slug/politika/$policySlug'
+      fullPath: '/s/$slug/politika/$policySlug'
+      preLoaderRoute: typeof SSlugPolitikaPolicySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/store/$storeId/blog-editor/$pageId': {
       id: '/_authenticated/store/$storeId/blog-editor/$pageId'
       path: '/blog-editor/$pageId'
@@ -7658,6 +7698,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugLoginRoute: SSlugLoginRoute,
   SSlugOrderRoute: SSlugOrderRoute,
   SSlugOrdersRoute: SSlugOrdersRoute,
+  SSlugPolitikalarRoute: SSlugPolitikalarRoute,
   SSlugPrivacyRoute: SSlugPrivacyRoute,
   SSlugProductsRoute: SSlugProductsRoute,
   SSlugRegisterRoute: SSlugRegisterRoute,
@@ -7704,6 +7745,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugKampanyaCampaignSlugRoute: SSlugKampanyaCampaignSlugRoute,
   SSlugPProductSlugRoute: SSlugPProductSlugRoute,
   SSlugPagePageSlugRoute: SSlugPagePageSlugRoute,
+  SSlugPolitikaPolicySlugRoute: SSlugPolitikaPolicySlugRoute,
   ApiPublicEmailClickTokenRoute: ApiPublicEmailClickTokenRoute,
   ApiPublicEmailOpenTokenRoute: ApiPublicEmailOpenTokenRoute,
   ApiPublicEmailUnsubscribeTokenRoute: ApiPublicEmailUnsubscribeTokenRoute,

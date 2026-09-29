@@ -29,5 +29,5 @@ export const Route = createFileRoute("/s/$slug/privacy")({
 
 function PrivacyPage() {
   const { slug } = Route.useParams();
-  return <InfoPage slug={slug} content={content} extra={<DataRequestForm slug={slug} />} />;
+  return <InfoPage slug={slug} content={content} policySlug="gizlilik" extra={<DataRequestForm slug={slug} />} />;
 }
