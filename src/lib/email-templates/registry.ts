@@ -3,6 +3,7 @@ import type { ComponentType } from 'react'
 import { template as customerNotificationTemplate } from './customer-notification'
 import { template as refundProcessedTemplate } from './refund-processed'
 import { template as analyticsReportTemplate } from './analytics-report'
+import { template as xmlFeedPausedTemplate } from './xml-feed-paused'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -25,4 +26,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'customer-notification': customerNotificationTemplate,
   'refund-processed': refundProcessedTemplate,
   'analytics-report': analyticsReportTemplate,
+  'xml-feed-paused': xmlFeedPausedTemplate,
 }
