@@ -250,6 +250,41 @@ export const TARGET_FIELDS: TargetField[] = [
 
 export type FieldMapping = Record<string, string>;
 
+/**
+ * Kayıtlı/şablondan gelen bir yolu güncel alan listesine uyarlar.
+ * XML dizilerindeki `[0]` / `[]` farkını ve harf büyüklüğünü tolere eder;
+ * yalnız tek bir güvenli eşleşme varsa yaprak adına göre de onarır.
+ */
+export function resolveMappingPath(path: string, columns: string[]): string | null {
+  const clean = path.trim();
+  if (!clean) return null;
+  if (columns.includes(clean)) return clean;
+  const generic = (value: string) => value.replace(/\[\d*\]/g, "").toLocaleLowerCase("tr");
+  const wanted = generic(clean);
+  const exact = columns.find((column) => generic(column) === wanted);
+  if (exact) return exact;
+  const leaf = wanted.split(".").pop() ?? wanted;
+  const leafMatches = columns.filter((column) => (generic(column).split(".").pop() ?? "") === leaf);
+  return leafMatches.length === 1 ? leafMatches[0] ?? null : null;
+}
+
+/** Geçerli eski eşlemeleri korur, kaybolan yolları önerilerle tamamlar. */
+export function reconcileFieldMapping(
+  mapping: FieldMapping,
+  columns: string[],
+  suggestions: FieldMapping = {},
+): FieldMapping {
+  const next: FieldMapping = {};
+  for (const field of TARGET_FIELDS) {
+    const current = mapping[field.key] ? resolveMappingPath(mapping[field.key] ?? "", columns) : null;
+    const suggested = suggestions[field.key]
+      ? resolveMappingPath(suggestions[field.key] ?? "", columns)
+      : null;
+    if (current ?? suggested) next[field.key] = current ?? suggested ?? "";
+  }
+  return next;
+}
+
 /* ------------------------------- ayrıştırma ------------------------------ */
 
 export type ParsedSource = {

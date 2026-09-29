@@ -12,6 +12,29 @@ import { parseFieldRules } from "@/lib/xml-field-rules";
 const mappingSchema = z.record(z.string().max(100), z.string().max(300));
 const rulesSchema = z.record(z.string().max(100), z.unknown());
 
+function normalizeLegacyTemplateMapping(raw: unknown): Record<string, string> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const source = raw as Record<string, unknown>;
+  const out: Record<string, string> = {};
+  const allowed = new Set([
+    "sku", "barcode", "title", "description", "brand", "category", "category_path",
+    "cost_price", "price", "compare_at_price", "tax_rate", "currency", "stock",
+    "variant_name", "variant_value", "color", "size", "material", "images", "videos",
+    "weight", "hs_code", "shipping_days",
+  ]);
+  for (const [key, value] of Object.entries(source)) {
+    if (allowed.has(key) && typeof value === "string" && value.trim()) out[key] = value.trim();
+  }
+  // İlk sürüm şablonlarında hedefler image_1..5 ve option1/2 adıyla kaydedilmişti.
+  if (!out.images) {
+    const image = [1, 2, 3, 4, 5].map((index) => source[`image_${index}`]).find((value) => typeof value === "string" && value.trim());
+    if (typeof image === "string") out.images = image.trim();
+  }
+  if (!out.size && typeof source["option1"] === "string") out.size = source["option1"].trim();
+  if (!out.color && typeof source["option2"] === "string") out.color = source["option2"].trim();
+  return out;
+}
+
 async function assertManager(supabase: unknown, storeId: string, userId: string) {
   const { assertStoreManager } = await import("@/lib/store-access.server");
   await assertStoreManager(supabase as never, storeId, userId);
@@ -90,7 +113,7 @@ export const listXmlMappingTemplates = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return (rows ?? []).map((row) => {
       const r = row as Record<string, unknown>;
-      const mapping = (r["field_mapping"] ?? {}) as Record<string, string>;
+       const mapping = normalizeLegacyTemplateMapping(r["field_mapping"]);
       return {
         id: String(r["id"]),
         name: String(r["name"]),
@@ -180,7 +203,7 @@ export const applyXmlMappingTemplate = createServerFn({ method: "POST" })
       .update({ usage_count: Number(r["usage_count"] ?? 0) + 1, last_used_at: new Date().toISOString() } as never)
       .eq("id", data.templateId);
     return {
-      fieldMapping: (r["field_mapping"] ?? {}) as Record<string, string>,
+       fieldMapping: normalizeLegacyTemplateMapping(r["field_mapping"]),
       fieldRules: parseFieldRules(r["field_rules"]),
     };
   });

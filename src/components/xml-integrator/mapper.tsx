@@ -61,6 +61,8 @@ import {
   TARGET_FIELDS,
   TARGET_FIELD_GROUP_LABELS,
   missingRequiredFields,
+  reconcileFieldMapping,
+  resolveMappingPath,
   type FieldMapping,
   type TargetFieldGroup,
   type XmlAuthType,
@@ -173,7 +175,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
       });
     },
     onSuccess: (result) => {
-      setMapping((current) => ({ ...result.suggestedMapping, ...current }));
+      setMapping((current) => reconcileFieldMapping(current, result.columns, result.suggestedMapping));
       void client.invalidateQueries({ queryKey: ["xml-integrator", storeId] });
       toast.success(`${result.columns.length} alan yenilendi`);
     },
@@ -273,7 +275,9 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
     );
   }
 
-  const missing = missingRequiredFields(mapping);
+  const missing = missingRequiredFields(mapping).filter(
+    (field) => !fieldRules[field.key]?.fallback && !fieldRules[field.key]?.defaultValue,
+  );
 
   const onDragEnd = (event: DragEndEvent) => {
     const source = String(event.active.id);
@@ -320,7 +324,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
         mapping={mapping}
         rules={fieldRules}
         onApply={(nextMapping, nextRules) => {
-          setMapping(nextMapping);
+          setMapping(reconcileFieldMapping(nextMapping, columns.map((column) => column.path)));
           setFieldRules(nextRules);
         }}
         onReset={() => {
@@ -371,6 +375,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
                         label={field.label}
                         required={field.required}
                         value={mapping[field.key] ?? ""}
+                        invalid={Boolean(mapping[field.key] && !resolveMappingPath(mapping[field.key] ?? "", columns.map((column) => column.path)))}
                         columns={columns.map((column) => column.path)}
                         transformSummary={describeTransforms(effectiveTransforms[field.key])}
                         ai={aiInfo[field.key] ?? null}
@@ -552,6 +557,7 @@ function TargetSlot({
   label,
   required,
   value,
+  invalid,
   columns,
   onSelect,
   transformSummary,
@@ -566,6 +572,7 @@ function TargetSlot({
   label: string;
   required?: boolean | undefined;
   value: string;
+  invalid: boolean;
   columns: string[];
   onSelect: (value: string) => void;
   transformSummary: string;
@@ -604,7 +611,7 @@ function TargetSlot({
             <button
               type="button"
               onClick={onOpenTransforms}
-              className="flex min-w-0 flex-1 items-center gap-1 rounded-md border bg-background px-2 py-1 text-left text-xs hover:bg-muted"
+              className={`flex min-w-0 flex-1 items-center gap-1 rounded-md border bg-background px-2 py-1 text-left text-xs hover:bg-muted ${invalid ? "border-destructive text-destructive" : ""}`}
               aria-label={`${label} dönüştürme kuralları`}
             >
               <Wrench className="size-3 shrink-0 text-muted-foreground" />
@@ -618,6 +625,7 @@ function TargetSlot({
             </Button>
           </div>
           {ruleSummary ? <p className="truncate text-[11px] text-primary">⚙ {ruleSummary}</p> : null}
+          {invalid ? <p className="text-[11px] text-destructive">Kaynak alan artık bulunamıyor; yeniden seçin.</p> : null}
           {transformSummary ? (
             <p className="truncate text-[11px] text-muted-foreground">{transformSummary}</p>
           ) : (
