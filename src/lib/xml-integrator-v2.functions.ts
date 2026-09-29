@@ -161,7 +161,7 @@ export const deleteXmlMappingTemplate = createServerFn({ method: "POST" })
   });
 
 /** Şablonu okur ve kullanım sayacını artırır; eşleşmeyi tarayıcı forma uygular. */
-export const useXmlMappingTemplate = createServerFn({ method: "POST" })
+export const applyXmlMappingTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ storeId: z.guid(), templateId: z.guid() }).parse(d))
   .handler(async ({ data, context }) => {
