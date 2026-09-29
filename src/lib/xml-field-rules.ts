@@ -72,7 +72,7 @@ const num = (value: string) => {
 
 export function checkCondition(row: Record<string, string>, condition: FieldRule["condition"]): boolean {
   if (!condition) return true;
-  const left = String(row[condition.field] ?? "").trim();
+  const left = readPath(row, condition.field);
   const right = String(condition.value ?? "").trim();
   switch (condition.operator) {
     case "equals":
@@ -111,14 +111,25 @@ export function testFormula(formula: string, value: string, row: Record<string, 
   }
 }
 
+/** Yolu okur; dizi/indeksiz yollarda ilk dolu değeri döndürür. */
+function readPath(row: Record<string, string>, path: string | undefined): string {
+  if (!path) return "";
+  if (row[path] !== undefined) return String(row[path]).trim();
+  const generic = path.replace(/\[\d*\]/g, "");
+  for (const [k, v] of Object.entries(row)) {
+    if (k.replace(/\[\d+\]/g, "") === generic && String(v).trim()) return String(v).trim();
+  }
+  return "";
+}
+
 /** Tek hedef alanın kurallı değerini hesaplar. */
 export function resolveRuleValue(
   row: Record<string, string>,
   sourcePath: string | undefined,
   rule: FieldRule,
 ): string {
-  let value = sourcePath ? String(row[sourcePath] ?? "").trim() : "";
-  if (!value && rule.fallback) value = String(row[rule.fallback] ?? "").trim();
+  let value = readPath(row, sourcePath);
+  if (!value && rule.fallback) value = readPath(row, rule.fallback);
   if (checkCondition(row, rule.condition)) {
     if (rule.formula && value) {
       const out = testFormula(rule.formula, value, row);
