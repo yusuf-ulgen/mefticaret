@@ -1167,7 +1167,7 @@ export async function runImportFeed(
       },
     });
 
-    return await finish(
+    const finished = await finish(
       {
         status: "success",
         totalRows: parsed.totalRows,
@@ -1184,6 +1184,8 @@ export async function runImportFeed(
       },
       allErrors,
     );
+    if (interrupted) await patchLog({ status: "partial" });
+    return finished;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Bilinmeyen hata";
     const category: ErrorCategory =
