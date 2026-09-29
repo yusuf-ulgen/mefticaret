@@ -139,8 +139,8 @@ export function BlogEditor({
 
   const insertImage = async (file: File) => {
     if (!editor) return;
-    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return toast.error("Yalnız JPG, PNG veya WEBP yükleyebilirsiniz");
-    if (file.size > 15_000_000) return toast.error("Dosya çok büyük (en fazla 15 MB)");
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { toast.error("Yalnız JPG, PNG veya WEBP yükleyebilirsiniz"); return; }
+    if (file.size > 15_000_000) { toast.error("Dosya çok büyük (en fazla 15 MB)"); return; }
     setUploading(true);
     try {
       const dataUrl = await resizeImage(file);
@@ -160,7 +160,7 @@ export function BlogEditor({
     if (/youtu\.?be/.test(url)) e.chain().focus().setYoutubeVideo({ src: url }).run();
     else {
       const id = /vimeo\.com\/(\d+)/.exec(url)?.[1];
-      if (!id) return toast.error("Geçerli bir YouTube veya Vimeo bağlantısı girin");
+      if (!id) { toast.error("Geçerli bir YouTube veya Vimeo bağlantısı girin"); return; }
       e.chain().focus().insertContent(`<p><iframe src="https://player.vimeo.com/video/${id}" width="640" height="360" allowfullscreen="true"></iframe></p>`).run();
     }
   };

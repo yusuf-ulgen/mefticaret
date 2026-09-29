@@ -218,8 +218,8 @@ function BlogEditorPage() {
   };
 
   const submit = (status: string) => {
-    if (form.title.trim().length < 2) return toast.error("Başlık en az 2 karakter olmalı");
-    if (status === "scheduled" && !form.scheduledAt) return toast.error("Yayın tarihini seçin");
+    if (form.title.trim().length < 2) { toast.error("Başlık en az 2 karakter olmalı"); return; }
+    if (status === "scheduled" && !form.scheduledAt) { toast.error("Yayın tarihini seçin"); return; }
     mutation.mutate({ status });
   };
 
