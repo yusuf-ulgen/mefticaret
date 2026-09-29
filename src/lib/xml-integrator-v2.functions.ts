@@ -26,12 +26,12 @@ function normalizeLegacyTemplateMapping(raw: unknown): Record<string, string> {
     if (allowed.has(key) && typeof value === "string" && value.trim()) out[key] = value.trim();
   }
   // İlk sürüm şablonlarında hedefler image_1..5 ve option1/2 adıyla kaydedilmişti.
-  if (!out.images) {
+  if (!out["images"]) {
     const image = [1, 2, 3, 4, 5].map((index) => source[`image_${index}`]).find((value) => typeof value === "string" && value.trim());
-    if (typeof image === "string") out.images = image.trim();
+    if (typeof image === "string") out["images"] = image.trim();
   }
-  if (!out.size && typeof source["option1"] === "string") out.size = source["option1"].trim();
-  if (!out.color && typeof source["option2"] === "string") out.color = source["option2"].trim();
+  if (!out["size"] && typeof source["option1"] === "string") out["size"] = source["option1"].trim();
+  if (!out["color"] && typeof source["option2"] === "string") out["color"] = source["option2"].trim();
   return out;
 }
 

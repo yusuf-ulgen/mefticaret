@@ -182,6 +182,8 @@ export function parseNumber(raw: string | undefined | null): number | null {
       : text.replace(/,/g, "");
   } else if (hasComma) {
     normalized = text.replace(/\./g, "").replace(",", ".");
+  } else if ((text.match(/\./g) ?? []).length > 1) {
+    normalized = text.replace(/\./g, "");
   }
   const value = Number(normalized);
   return Number.isFinite(value) ? value : null;
@@ -245,12 +247,13 @@ export function normalizeRows(
       const path = mapping[field];
       if (!path) return parseNumber(read(field));
       const direct = row[path];
-      if (direct !== undefined || transforms[field]?.length) return parseNumber(read(field));
+      if (direct !== undefined) return parseNumber(read(field));
       const generic = path.replace(/\[\d*\]/g, "");
       const values: number[] = [];
       for (const [k, v] of Object.entries(row)) {
         if (k.replace(/\[\d+\]/g, "") !== generic) continue;
-        const n = parseNumber(String(v).trim());
+        const transformed = applyTransforms(String(v).trim(), transforms[field], row).trim();
+        const n = parseNumber(transformed);
         if (n !== null) values.push(n);
       }
       if (!values.length) return parseNumber(read(field));
@@ -1014,6 +1017,19 @@ export async function runImportFeed(
     const mapping = ruled.mapping;
     const requiredMissing = new Set(ruled.missing.map((item) => item.row));
     const mainRows = ruled.rows;
+    const originalVariantRows = groups
+      .filter((_, index) => !requiredMissing.has(index))
+      .flatMap((group) => group.variantRows);
+    const variantRuleMapping = { ...baseMapping, ...variantConfig.variantMapping };
+    const ruledVariants = applyFieldRules(originalVariantRows, variantRuleMapping, fieldRules);
+    let variantCursor = 0;
+    const variantRows = groups
+      .filter((_, index) => !requiredMissing.has(index))
+      .map((group) => {
+        const rows = ruledVariants.rows.slice(variantCursor, variantCursor + group.variantRows.length);
+        variantCursor += group.variantRows.length;
+        return rows;
+      });
 
     const normalized = normalizeRows(
       mainRows.filter((_, index) => !requiredMissing.has(index)),
@@ -1026,11 +1042,9 @@ export async function runImportFeed(
         ...(variantMode === "none"
           ? {}
           : {
-              variantRows: groups
-                .filter((_, index) => !requiredMissing.has(index))
-                .map((group) => group.variantRows),
+              variantRows,
               optionAttributes: variantConfig.optionAttributes,
-              variantMapping: variantConfig.variantMapping,
+              variantMapping: ruledVariants.mapping,
             }),
       },
     );

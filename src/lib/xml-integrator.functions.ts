@@ -1236,6 +1236,19 @@ export const previewXmlImport = createServerFn({ method: "POST" })
       parseFieldRules(data.fieldRules),
     );
     const requiredMissing = new Set(ruled.missing.map((item) => item.row));
+    const originalVariantRows = groups
+      .filter((_, index) => !requiredMissing.has(index))
+      .flatMap((group) => group.variantRows);
+    const variantRuleMapping = { ...data.fieldMapping, ...variantConfig.variantMapping };
+    const ruledVariants = applyFieldRules(originalVariantRows, variantRuleMapping, parseFieldRules(data.fieldRules));
+    let variantCursor = 0;
+    const variantRows = groups
+      .filter((_, index) => !requiredMissing.has(index))
+      .map((group) => {
+        const rows = ruledVariants.rows.slice(variantCursor, variantCursor + group.variantRows.length);
+        variantCursor += group.variantRows.length;
+        return rows;
+      });
     const { items, errors: normalizeErrors } = normalizeRows(
       ruled.rows.filter((_, index) => !requiredMissing.has(index)),
       ruled.mapping,
@@ -1249,11 +1262,9 @@ export const previewXmlImport = createServerFn({ method: "POST" })
         ...(mode === "none"
           ? {}
           : {
-              variantRows: groups
-                .filter((_, index) => !requiredMissing.has(index))
-                .map((group) => group.variantRows),
+              variantRows,
               optionAttributes: variantConfig.optionAttributes,
-              variantMapping: variantConfig.variantMapping,
+              variantMapping: ruledVariants.mapping,
             }),
       },
     );
