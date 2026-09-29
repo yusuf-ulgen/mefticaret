@@ -920,11 +920,23 @@ export async function runImportFeed(
     phase = "mapping";
     await patchLog({ phase, total_rows: parsed.totalRows });
 
-    const mapping = feed.fieldMapping ?? {};
-    if (!mapping["sku"] && !mapping["barcode"]) {
+    /* v2: alan kuralları ve hata eşiği beslemeden okunur (mevcut çağıranlar değişmez). */
+    const { data: extraRow } = await admin
+      .from("xml_feeds")
+      .select("field_rules, max_errors_before_pause, name")
+      .eq("id", feed.id)
+      .eq("store_id", feed.storeId)
+      .maybeSingle();
+    const extra = (extraRow ?? {}) as { field_rules?: unknown; max_errors_before_pause?: number; name?: string };
+    const { parseFieldRules, applyFieldRules, classifyFailure } = await import("@/lib/xml-field-rules");
+    const fieldRules = parseFieldRules(extra.field_rules);
+    const maxErrors = Math.max(1, Number(extra.max_errors_before_pause ?? 100));
+
+    const baseMapping = feed.fieldMapping ?? {};
+    if (!baseMapping["sku"] && !baseMapping["barcode"]) {
       throw new Error("Alan eşleme eksik: stok kodu veya barkod alanı eşleştirilmeli");
     }
-    if (!mapping["title"] || !mapping["price"]) {
+    if (!baseMapping["title"] || !baseMapping["price"]) {
       throw new Error("Alan eşleme eksik: ürün adı ve satış fiyatı alanları eşleştirilmeli");
     }
 
@@ -934,8 +946,17 @@ export async function runImportFeed(
     const variantConfig = parseVariantConfig(feed.variantConfig);
     const groups = buildVariantGroups(parsed.rows, variantMode, variantConfig);
 
-    const { items, errors } = normalizeRows(
+    const ruled = applyFieldRules(
       groups.map((group) => group.mainRow),
+      baseMapping,
+      fieldRules,
+    );
+    const mapping = ruled.mapping;
+    const requiredMissing = new Set(ruled.missing.map((item) => item.row));
+    const mainRows = ruled.rows;
+
+    const normalized = normalizeRows(
+      mainRows.filter((_, index) => !requiredMissing.has(index)),
       mapping,
       {
         priceMarkup: feed.priceMarkup,
@@ -945,14 +966,38 @@ export async function runImportFeed(
         ...(variantMode === "none"
           ? {}
           : {
-              variantRows: groups.map((group) => group.variantRows),
+              variantRows: groups
+                .filter((_, index) => !requiredMissing.has(index))
+                .map((group) => group.variantRows),
               optionAttributes: variantConfig.optionAttributes,
               variantMapping: variantConfig.variantMapping,
             }),
       },
     );
+    const items = normalized.items;
+    const keptRows = mainRows.filter((_, index) => !requiredMissing.has(index));
+    const errors: RowError[] = [
+      ...ruled.missing.map((item) => ({
+        row: item.row + 1,
+        reason: `Zorunlu alan eksik: ${item.field}`,
+      })),
+      ...normalized.errors.map((item) => ({ ...item, row: item.row })),
+    ];
 
     const mappingErrors: RowError[] = errors.map((item) => ({ ...item, category: "MAPPING_ERROR" }));
+
+    /* Hatalı ürünleri "Hatalı Ürünler" listesine yaz (ham satırla). */
+    const failedRows: Array<Record<string, unknown>> = [];
+    const pickSku = (row: Record<string, string> | undefined) =>
+      row ? String(row[baseMapping["sku"] ?? ""] ?? row[baseMapping["barcode"] ?? ""] ?? "").slice(0, 200) || null : null;
+    for (const item of ruled.missing) {
+      const row = mainRows[item.row];
+      failedRows.push({ sku: pickSku(row), error_type: "required", message: `Zorunlu alan eksik: ${item.field}`, raw_data: row ?? {} });
+    }
+    for (const item of normalized.errors) {
+      const row = keptRows[item.row - 1];
+      failedRows.push({ sku: pickSku(row), error_type: classifyFailure(item.reason), message: item.reason.slice(0, 500), raw_data: row ?? {} });
+    }
 
     /* Delta senkronizasyon: kayıtlı özetle aynı olan ürünler atlanır.
        Ayarlanan süre geçtiyse (varsayılan 7 gün) tam senkronizasyon yapılır. */
@@ -974,44 +1019,126 @@ export async function runImportFeed(
       newHashes = delta.hashes;
     }
 
+    const resumeFrom = Math.max(0, Math.min(options.resumeFrom ?? 0, itemsToWrite.length));
+    if (resumeFrom) itemsToWrite = itemsToWrite.slice(resumeFrom);
+
     phase = "upserting";
     await patchLog({
       phase,
       error_count: mappingErrors.length,
       unchanged_count: unchangedCount,
       delta_sync_enabled: deltaActive,
+      control_state: "running",
     });
 
+    /* Paketler halinde yazılır; her paket arasında duraklat/durdur isteği ve hata eşiği kontrol edilir. */
+    const SLICE = 250;
+    const upsert = {
+      created: 0,
+      updated: 0,
+      skipped: 0,
+      quarantined: 0,
+      priceChanged: 0,
+      stockChanged: 0,
+      errors: [] as RowError[],
+    };
+    let interrupted: "paused" | "stopped" | "threshold" | null = null;
+    let written = 0;
     let lastTick = 0;
-    const upsert = await upsertProducts(admin, {
-      storeId: feed.storeId,
-      items: itemsToWrite,
-      publishNew: options.publishNew ?? false,
-      guardrail: { feedId: feed.id, config: parseGuardrailConfig(feed.guardrailConfig) },
-      onProgress: async ({ processed, result }) => {
-        // Her pakette değil, en fazla saniyede bir yazarız; gereksiz yük olmasın.
-        if (Date.now() - lastTick < 800 && processed < itemsToWrite.length) return;
-        lastTick = Date.now();
-        await patchLog({
-          processed_count: processed,
-          created_count: result.created,
-          updated_count: result.updated,
-          skipped_count: result.skipped + mappingErrors.length + unchangedCount,
-          error_count: mappingErrors.length + result.errors.length,
-          error_categories: countErrorCategories([...mappingErrors, ...result.errors]) as never,
-        });
-      },
-    });
+    const upsertStarted = Date.now();
 
-    if (newHashes && newHashes.size) {
+    for (let offset = 0; offset < itemsToWrite.length; offset += SLICE) {
+      if (logId && offset > 0) {
+        const { data: ctl } = await admin
+          .from("xml_import_logs")
+          .select("control_state")
+          .eq("id", logId)
+          .maybeSingle();
+        const state = (ctl as { control_state?: string } | null)?.control_state;
+        if (state === "pause_requested") { interrupted = "paused"; break; }
+        if (state === "stop_requested") { interrupted = "stopped"; break; }
+      }
+      if (mappingErrors.length + upsert.errors.length >= maxErrors) { interrupted = "threshold"; break; }
+
+      const part = await upsertProducts(admin, {
+        storeId: feed.storeId,
+        items: itemsToWrite.slice(offset, offset + SLICE),
+        publishNew: options.publishNew ?? false,
+        guardrail: { feedId: feed.id, config: parseGuardrailConfig(feed.guardrailConfig) },
+        onProgress: async ({ processed, result }) => {
+          if (Date.now() - lastTick < 800) return;
+          lastTick = Date.now();
+          const done = written + processed;
+          const minutes = Math.max(1 / 60, (Date.now() - upsertStarted) / 60000);
+          await patchLog({
+            processed_count: resumeFrom + done,
+            created_count: upsert.created + result.created,
+            updated_count: upsert.updated + result.updated,
+            skipped_count: upsert.skipped + result.skipped + mappingErrors.length + unchangedCount,
+            error_count: mappingErrors.length + upsert.errors.length + result.errors.length,
+            error_categories: countErrorCategories([...mappingErrors, ...upsert.errors, ...result.errors]) as never,
+            rate_per_min: Math.round(done / minutes),
+          });
+        },
+      });
+      written += Math.min(SLICE, itemsToWrite.length - offset);
+      upsert.created += part.created;
+      upsert.updated += part.updated;
+      upsert.skipped += part.skipped;
+      upsert.quarantined += part.quarantined;
+      upsert.priceChanged += part.priceChanged;
+      upsert.stockChanged += part.stockChanged;
+      upsert.errors.push(...part.errors);
+    }
+    if (!interrupted && mappingErrors.length + upsert.errors.length >= maxErrors) interrupted = "threshold";
+
+    for (const item of upsert.errors) {
+      failedRows.push({ sku: item.reason.split(":")[0]?.slice(0, 200) ?? null, error_type: classifyFailure(item.reason), message: item.reason.slice(0, 500), raw_data: {} });
+    }
+    if (failedRows.length) {
+      await admin
+        .from("xml_run_failed_items")
+        .update({ status: "superseded" })
+        .eq("feed_id", feed.id)
+        .eq("status", "pending");
+      await admin.from("xml_run_failed_items").insert(
+        failedRows.slice(0, 2000).map((row) => ({ ...row, run_id: logId, feed_id: feed.id, store_id: feed.storeId })) as never,
+      );
+    }
+
+    if (newHashes && newHashes.size && !interrupted) {
       await saveProductHashes(admin, { storeId: feed.storeId, feedId: feed.id, hashes: newHashes });
     }
-    if (fullSync) {
+    if (fullSync && !interrupted) {
       await admin
         .from("xml_feeds")
         .update({ last_full_sync_at: startedAt.toISOString() })
         .eq("id", feed.id)
         .eq("store_id", feed.storeId);
+    }
+
+    if (interrupted) {
+      const cursor = resumeFrom + written;
+      await patchLog({
+        control_state: interrupted === "paused" ? "paused" : "stopped",
+        resume_cursor: cursor,
+      });
+      if (interrupted === "threshold") {
+        const reason = `${maxErrors} hata eşiği aşıldı; besleme otomatik durduruldu`;
+        await admin
+          .from("xml_feeds")
+          .update({ is_active: false, paused_reason: reason })
+          .eq("id", feed.id)
+          .eq("store_id", feed.storeId);
+        await admin.rpc("emit_notification", {
+          _store_id: feed.storeId,
+          _kind: "system",
+          _title: `XML besleme durduruldu: ${extra.name ?? "Besleme"}`,
+          _message: `${reason}. Hatalı Ürünler listesini inceleyin.`,
+          _entity: "system",
+          _meta: {},
+        } as never);
+      }
     }
 
     const allErrors = [...mappingErrors, ...upsert.errors];
