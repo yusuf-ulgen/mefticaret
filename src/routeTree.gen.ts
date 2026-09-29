@@ -172,6 +172,7 @@ import { Route as AuthenticatedStoreStoreIdBasketRouteImport } from './routes/_a
 import { Route as AuthenticatedStoreStoreIdBiRouteImport } from './routes/_authenticated/store.$storeId.bi'
 import { Route as AuthenticatedStoreStoreIdBillingRouteImport } from './routes/_authenticated/store.$storeId.billing'
 import { Route as AuthenticatedStoreStoreIdBlogRouteImport } from './routes/_authenticated/store.$storeId.blog'
+import { Route as AuthenticatedStoreStoreIdBlogStudioRouteImport } from './routes/_authenticated/store.$storeId.blog-studio'
 import { Route as AuthenticatedStoreStoreIdCampaignsRouteImport } from './routes/_authenticated/store.$storeId.campaigns'
 import { Route as AuthenticatedStoreStoreIdCartsRouteImport } from './routes/_authenticated/store.$storeId.carts'
 import { Route as AuthenticatedStoreStoreIdCashflowRouteImport } from './routes/_authenticated/store.$storeId.cashflow'
@@ -325,6 +326,7 @@ import { Route as SSlugCCollectionSlugRouteImport } from './routes/s.$slug.c.$co
 import { Route as SSlugKampanyaCampaignSlugRouteImport } from './routes/s.$slug.kampanya.$campaignSlug'
 import { Route as SSlugPProductSlugRouteImport } from './routes/s.$slug.p.$productSlug'
 import { Route as SSlugPagePageSlugRouteImport } from './routes/s.$slug.page.$pageSlug'
+import { Route as AuthenticatedStoreStoreIdBlogEditorPageIdRouteImport } from './routes/_authenticated/store.$storeId.blog-editor.$pageId'
 import { Route as AuthenticatedStoreStoreIdCatalogV2IndexRouteImport } from './routes/_authenticated/store.$storeId.catalog-v2.index'
 import { Route as AuthenticatedStoreStoreIdCatalogV2ProductIdRouteImport } from './routes/_authenticated/store.$storeId.catalog-v2.$productId'
 import { Route as AuthenticatedStoreStoreIdCustomersV2IndexRouteImport } from './routes/_authenticated/store.$storeId.customers-v2.index'
@@ -1228,6 +1230,12 @@ const AuthenticatedStoreStoreIdBlogRoute =
     path: '/blog',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdBlogStudioRoute =
+  AuthenticatedStoreStoreIdBlogStudioRouteImport.update({
+    id: '/blog-studio',
+    path: '/blog-studio',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdCampaignsRoute =
   AuthenticatedStoreStoreIdCampaignsRouteImport.update({
     id: '/campaigns',
@@ -2127,6 +2135,12 @@ const SSlugPagePageSlugRoute = SSlugPagePageSlugRouteImport.update({
   path: '/s/$slug/page/$pageSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedStoreStoreIdBlogEditorPageIdRoute =
+  AuthenticatedStoreStoreIdBlogEditorPageIdRouteImport.update({
+    id: '/blog-editor/$pageId',
+    path: '/blog-editor/$pageId',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdCatalogV2IndexRoute =
   AuthenticatedStoreStoreIdCatalogV2IndexRouteImport.update({
     id: '/',
@@ -2450,6 +2464,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/bi': typeof AuthenticatedStoreStoreIdBiRoute
   '/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
   '/store/$storeId/blog': typeof AuthenticatedStoreStoreIdBlogRoute
+  '/store/$storeId/blog-studio': typeof AuthenticatedStoreStoreIdBlogStudioRoute
   '/store/$storeId/campaigns': typeof AuthenticatedStoreStoreIdCampaignsRoute
   '/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
   '/store/$storeId/cashflow': typeof AuthenticatedStoreStoreIdCashflowRoute
@@ -2605,6 +2620,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId/': typeof AuthenticatedStoreStoreIdIndexRoute
+  '/store/$storeId/blog-editor/$pageId': typeof AuthenticatedStoreStoreIdBlogEditorPageIdRoute
   '/store/$storeId/catalog-v2/$productId': typeof AuthenticatedStoreStoreIdCatalogV2ProductIdRoute
   '/store/$storeId/customers-v2/$customerId': typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute
   '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
@@ -2792,6 +2808,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/bi': typeof AuthenticatedStoreStoreIdBiRoute
   '/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
   '/store/$storeId/blog': typeof AuthenticatedStoreStoreIdBlogRoute
+  '/store/$storeId/blog-studio': typeof AuthenticatedStoreStoreIdBlogStudioRoute
   '/store/$storeId/campaigns': typeof AuthenticatedStoreStoreIdCampaignsRoute
   '/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
   '/store/$storeId/cashflow': typeof AuthenticatedStoreStoreIdCashflowRoute
@@ -2943,6 +2960,7 @@ export interface FileRoutesByTo {
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/admin/frontend': typeof AuthenticatedAdminFrontendIndexRoute
   '/store/$storeId': typeof AuthenticatedStoreStoreIdIndexRoute
+  '/store/$storeId/blog-editor/$pageId': typeof AuthenticatedStoreStoreIdBlogEditorPageIdRoute
   '/store/$storeId/catalog-v2/$productId': typeof AuthenticatedStoreStoreIdCatalogV2ProductIdRoute
   '/store/$storeId/customers-v2/$customerId': typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute
   '/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
@@ -3134,6 +3152,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/bi': typeof AuthenticatedStoreStoreIdBiRoute
   '/_authenticated/store/$storeId/billing': typeof AuthenticatedStoreStoreIdBillingRoute
   '/_authenticated/store/$storeId/blog': typeof AuthenticatedStoreStoreIdBlogRoute
+  '/_authenticated/store/$storeId/blog-studio': typeof AuthenticatedStoreStoreIdBlogStudioRoute
   '/_authenticated/store/$storeId/campaigns': typeof AuthenticatedStoreStoreIdCampaignsRoute
   '/_authenticated/store/$storeId/carts': typeof AuthenticatedStoreStoreIdCartsRoute
   '/_authenticated/store/$storeId/cashflow': typeof AuthenticatedStoreStoreIdCashflowRoute
@@ -3289,6 +3308,7 @@ export interface FileRoutesById {
   '/s/$slug/page/$pageSlug': typeof SSlugPagePageSlugRoute
   '/_authenticated/admin/frontend/': typeof AuthenticatedAdminFrontendIndexRoute
   '/_authenticated/store/$storeId/': typeof AuthenticatedStoreStoreIdIndexRoute
+  '/_authenticated/store/$storeId/blog-editor/$pageId': typeof AuthenticatedStoreStoreIdBlogEditorPageIdRoute
   '/_authenticated/store/$storeId/catalog-v2/$productId': typeof AuthenticatedStoreStoreIdCatalogV2ProductIdRoute
   '/_authenticated/store/$storeId/customers-v2/$customerId': typeof AuthenticatedStoreStoreIdCustomersV2CustomerIdRoute
   '/_authenticated/store/$storeId/customers/$customerId': typeof AuthenticatedStoreStoreIdCustomersCustomerIdRoute
@@ -3480,6 +3500,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/bi'
     | '/store/$storeId/billing'
     | '/store/$storeId/blog'
+    | '/store/$storeId/blog-studio'
     | '/store/$storeId/campaigns'
     | '/store/$storeId/carts'
     | '/store/$storeId/cashflow'
@@ -3635,6 +3656,7 @@ export interface FileRouteTypes {
     | '/s/$slug/page/$pageSlug'
     | '/admin/frontend/'
     | '/store/$storeId/'
+    | '/store/$storeId/blog-editor/$pageId'
     | '/store/$storeId/catalog-v2/$productId'
     | '/store/$storeId/customers-v2/$customerId'
     | '/store/$storeId/customers/$customerId'
@@ -3822,6 +3844,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/bi'
     | '/store/$storeId/billing'
     | '/store/$storeId/blog'
+    | '/store/$storeId/blog-studio'
     | '/store/$storeId/campaigns'
     | '/store/$storeId/carts'
     | '/store/$storeId/cashflow'
@@ -3973,6 +3996,7 @@ export interface FileRouteTypes {
     | '/s/$slug/page/$pageSlug'
     | '/admin/frontend'
     | '/store/$storeId'
+    | '/store/$storeId/blog-editor/$pageId'
     | '/store/$storeId/catalog-v2/$productId'
     | '/store/$storeId/customers-v2/$customerId'
     | '/store/$storeId/customers/$customerId'
@@ -4163,6 +4187,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/bi'
     | '/_authenticated/store/$storeId/billing'
     | '/_authenticated/store/$storeId/blog'
+    | '/_authenticated/store/$storeId/blog-studio'
     | '/_authenticated/store/$storeId/campaigns'
     | '/_authenticated/store/$storeId/carts'
     | '/_authenticated/store/$storeId/cashflow'
@@ -4318,6 +4343,7 @@ export interface FileRouteTypes {
     | '/s/$slug/page/$pageSlug'
     | '/_authenticated/admin/frontend/'
     | '/_authenticated/store/$storeId/'
+    | '/_authenticated/store/$storeId/blog-editor/$pageId'
     | '/_authenticated/store/$storeId/catalog-v2/$productId'
     | '/_authenticated/store/$storeId/customers-v2/$customerId'
     | '/_authenticated/store/$storeId/customers/$customerId'
@@ -5620,6 +5646,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdBlogRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/blog-studio': {
+      id: '/_authenticated/store/$storeId/blog-studio'
+      path: '/blog-studio'
+      fullPath: '/store/$storeId/blog-studio'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdBlogStudioRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/campaigns': {
       id: '/_authenticated/store/$storeId/campaigns'
       path: '/campaigns'
@@ -6691,6 +6724,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugPagePageSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/store/$storeId/blog-editor/$pageId': {
+      id: '/_authenticated/store/$storeId/blog-editor/$pageId'
+      path: '/blog-editor/$pageId'
+      fullPath: '/store/$storeId/blog-editor/$pageId'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdBlogEditorPageIdRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/catalog-v2/': {
       id: '/_authenticated/store/$storeId/catalog-v2/'
       path: '/'
@@ -7139,6 +7179,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdBiRoute: typeof AuthenticatedStoreStoreIdBiRoute
   AuthenticatedStoreStoreIdBillingRoute: typeof AuthenticatedStoreStoreIdBillingRoute
   AuthenticatedStoreStoreIdBlogRoute: typeof AuthenticatedStoreStoreIdBlogRoute
+  AuthenticatedStoreStoreIdBlogStudioRoute: typeof AuthenticatedStoreStoreIdBlogStudioRoute
   AuthenticatedStoreStoreIdCampaignsRoute: typeof AuthenticatedStoreStoreIdCampaignsRoute
   AuthenticatedStoreStoreIdCartsRoute: typeof AuthenticatedStoreStoreIdCartsRoute
   AuthenticatedStoreStoreIdCashflowRoute: typeof AuthenticatedStoreStoreIdCashflowRoute
@@ -7254,6 +7295,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdWhatsappRoute: typeof AuthenticatedStoreStoreIdWhatsappRoute
   AuthenticatedStoreStoreIdXmlIntegratorRoute: typeof AuthenticatedStoreStoreIdXmlIntegratorRouteWithChildren
   AuthenticatedStoreStoreIdIndexRoute: typeof AuthenticatedStoreStoreIdIndexRoute
+  AuthenticatedStoreStoreIdBlogEditorPageIdRoute: typeof AuthenticatedStoreStoreIdBlogEditorPageIdRoute
   AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute: typeof AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute
   AuthenticatedStoreStoreIdThemeLibraryIndexRoute: typeof AuthenticatedStoreStoreIdThemeLibraryIndexRoute
   AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute: typeof AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute
@@ -7282,6 +7324,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdBillingRoute:
       AuthenticatedStoreStoreIdBillingRoute,
     AuthenticatedStoreStoreIdBlogRoute: AuthenticatedStoreStoreIdBlogRoute,
+    AuthenticatedStoreStoreIdBlogStudioRoute:
+      AuthenticatedStoreStoreIdBlogStudioRoute,
     AuthenticatedStoreStoreIdCampaignsRoute:
       AuthenticatedStoreStoreIdCampaignsRoute,
     AuthenticatedStoreStoreIdCartsRoute: AuthenticatedStoreStoreIdCartsRoute,
@@ -7485,6 +7529,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdXmlIntegratorRoute:
       AuthenticatedStoreStoreIdXmlIntegratorRouteWithChildren,
     AuthenticatedStoreStoreIdIndexRoute: AuthenticatedStoreStoreIdIndexRoute,
+    AuthenticatedStoreStoreIdBlogEditorPageIdRoute:
+      AuthenticatedStoreStoreIdBlogEditorPageIdRoute,
     AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute:
       AuthenticatedStoreStoreIdThemeMarketplaceTemplateIdRoute,
     AuthenticatedStoreStoreIdThemeLibraryIndexRoute:
