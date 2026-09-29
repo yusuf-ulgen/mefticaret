@@ -94,6 +94,13 @@ export function InfoPage({
       <Breadcrumb theme={theme} slug={slug} storeName={store.name} current={content.title} />
       {policy ? (
         <PolicyArticle policy={policy} />
+      ) : policySlug ? (
+        <section className="mx-auto w-full max-w-3xl px-4 pb-12 pt-4">
+          <h1 style={{ fontSize: "clamp(24px, 6vw, 32px)", fontWeight: 700, margin: 0 }}>{content.title}</h1>
+          <p style={{ marginTop: 16, opacity: 0.75 }}>
+            {published.isLoading ? "Yükleniyor…" : `${store.name} bu politikayı henüz yayınlamadı. Sorularınız için mağazayla iletişime geçebilirsiniz.`}
+          </p>
+        </section>
       ) : (
         <InfoSections theme={theme} title={content.title} intro={content.intro} sections={content.sections} />
       )}
