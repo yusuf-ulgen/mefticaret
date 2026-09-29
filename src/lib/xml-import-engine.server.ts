@@ -811,7 +811,7 @@ export type FeedRunResult = {
 export async function runImportFeed(
   admin: Client,
   feed: FeedRecord,
-  options: { trigger?: string; rowLimit?: number; nextRunAt?: string | null; publishNew?: boolean } = {},
+  options: { trigger?: string; rowLimit?: number; nextRunAt?: string | null; publishNew?: boolean; resumeFrom?: number } = {},
 ): Promise<FeedRunResult> {
   const startedAt = new Date();
   const trigger = options.trigger ?? "manual";
