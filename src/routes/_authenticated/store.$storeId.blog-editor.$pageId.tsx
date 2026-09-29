@@ -114,7 +114,8 @@ function BlogEditorPage() {
   });
 
   useEffect(() => {
-    const r = post.data as Record<string, any> | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const r = post.data as any;
     if (!r) return;
     setForm({
       title: r.title ?? "", slug: r.slug ?? "", excerpt: r.excerpt ?? "",
