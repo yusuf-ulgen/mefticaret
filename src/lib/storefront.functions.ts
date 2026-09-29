@@ -204,6 +204,8 @@ export const getStorefront = createServerFn({ method: "GET" })
     let theme = themeRes.data;
     let stylePreset: string | null = null;
     let couture: Record<string, boolean> = {};
+    const themeFeatures: Record<string, boolean> = {};
+    const themeTexts: Record<string, string> = {};
     if (store.store_kind !== "micro") {
       try {
         const { loadEntitlements } = await import("@/lib/entitlements.server");
@@ -217,6 +219,10 @@ export const getStorefront = createServerFn({ method: "GET" })
             const over = v2ToLegacyTheme(globalSettings(snap.settings));
             theme = { ...(theme ?? {}), ...Object.fromEntries(Object.entries(over).filter(([, v]) => v !== undefined)) } as typeof theme;
             stylePreset = typeof snap.settings["style_preset"] === "string" ? (snap.settings["style_preset"] as string) : null;
+            for (const [k, v] of Object.entries(snap.settings)) {
+              if (k.startsWith("theme_") && typeof v === "boolean") themeFeatures[k] = v;
+              if (["whatsapp_number", "countdown_ends_at", "countdown_label", "fabric_stretch"].includes(k) && typeof v === "string") themeTexts[k] = v.slice(0, 200);
+            }
             if (stylePreset === "couture" && ent.modules["theme_couture"] === true) {
               couture = Object.fromEntries(["wishlist", "quick_view", "size_guide", "reviews", "instagram", "compare", "back_in_stock"].map((k) => [k, ent.modules[`couture_${k}`] === true]));
               couture["enabled"] = true;
