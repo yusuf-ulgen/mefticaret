@@ -37,6 +37,22 @@ export type MediaAsset = {
   created_at: string;
   displayUrl: string;
   variantUrls: Record<string, string>;
+  // Medya v2 (eski kayıtlarda boş olabilir)
+  original_filename?: string | null;
+  original_format?: string | null;
+  thumbnail_sm_path?: string | null;
+  thumbnail_md_path?: string | null;
+  thumbnail_lg_path?: string | null;
+  poster_path?: string | null;
+  blurhash?: string | null;
+  dominant_color?: string | null;
+  color_palette?: string[] | null;
+  has_transparency?: boolean | null;
+  metadata_stripped?: boolean | null;
+  watermark_applied?: boolean | null;
+  duration_seconds?: number | null;
+  thumbUrl?: string;
+  posterUrl?: string;
 };
 
 export const mediaFoldersQuery = (storeId: string) =>
@@ -61,7 +77,7 @@ export const mediaAssetsQuery = (storeId: string) =>
       const { data, error } = await supabase
         .from("media_assets")
         .select(
-          "id, folder_id, file_name, title, alt, caption, kind, mime_type, extension, size_bytes, original_size_bytes, width, height, storage_provider, bucket, storage_path, optimized, converted_to_webp, variants, tags, created_at",
+          "id, folder_id, file_name, title, alt, caption, kind, mime_type, extension, size_bytes, original_size_bytes, width, height, storage_provider, bucket, storage_path, optimized, converted_to_webp, variants, tags, created_at, original_filename, original_format, thumbnail_sm_path, thumbnail_md_path, thumbnail_lg_path, poster_path, blurhash, dominant_color, color_palette, has_transparency, metadata_stripped, watermark_applied, duration_seconds",
         )
         .eq("store_id", storeId)
         .order("created_at", { ascending: false })
@@ -72,6 +88,7 @@ export const mediaAssetsQuery = (storeId: string) =>
       const paths = rows.flatMap((row) => [
         row.storage_path,
         ...(Array.isArray(row.variants) ? row.variants.map((variant) => variant.path) : []),
+        ...[row.thumbnail_md_path, row.poster_path].filter((p): p is string => Boolean(p)),
       ]);
       const signed = await signMediaPaths(paths);
 
@@ -87,6 +104,8 @@ export const mediaAssetsQuery = (storeId: string) =>
           tags: row.tags ?? [],
           displayUrl: signed[row.storage_path] ?? "",
           variantUrls,
+          thumbUrl: row.thumbnail_md_path ? signed[row.thumbnail_md_path] : undefined,
+          posterUrl: row.poster_path ? signed[row.poster_path] : undefined,
         };
       });
     },
