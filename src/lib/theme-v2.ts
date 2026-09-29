@@ -476,6 +476,22 @@ export const V2_GLOBAL_GROUPS: { id: string; label: string; flag?: string; field
   { id: "effects", label: "Efektler", fields: [
     f("style_preset", "Efekt paketi", "select", { options: opt(["none", "Yok"], ["obsidian", "Obsidyen: altın parıltı, paralaks, imleç"], ["aurora", "Aurora: hareketli geçiş, cam kartlar, ilerleme çubuğu"], ["atlas", "Atlas: pazar yeri yoğun düzen"], ["zen", "Zen: mürekkep açılış, ince çizgiler, grenli görseller"], ["nexus", "Nexus: neon, tarama çizgisi, glitch, nişangâh"], ["couture", "Couture: moda butik, yavaş yakınlaşma, sıralı kartlar"]) }),
   ] },
+  { id: "theme_features", label: "Tema özellikleri (Flüt)", fields: [
+    f("theme_flut_style", "Flüt teması aktif", "boolean"),
+    f("theme_video_hero", "Video hero", "boolean"),
+    f("theme_quick_view", "Hızlı görünüm", "boolean"),
+    f("theme_size_recommender", "Boy/kilo beden önerisi", "boolean"),
+    f("theme_live_counter", "Canlı izleyici sayacı", "boolean"),
+    f("theme_whatsapp_order", "WhatsApp ile sipariş", "boolean"),
+    f("whatsapp_number", "WhatsApp numarası (905xxxxxxxxx)", "text"),
+    f("theme_instagram_feed", "Instagram galerisi", "boolean"),
+    f("theme_3d_viewer", "3D model görüntüleyici", "boolean"),
+    f("theme_countdown_timer", "Geri sayım sayacı", "boolean"),
+    f("countdown_ends_at", "Kampanya bitişi (YYYY-AA-GG SS:DD)", "text"),
+    f("countdown_label", "Geri sayım başlığı", "text"),
+    f("theme_bundle_builder", "Kombin oluşturucu", "boolean"),
+    f("fabric_stretch", "Kumaş esneme bilgisi", "text"),
+  ] },
   { id: "layout", label: "Düzen", fields: [
     f("max_width", "Maks. genişlik (px)", "number", { min: 720, max: 1920 }),
     f("content_padding", "İçerik boşluğu (px)", "number", { min: 0, max: 64 }),

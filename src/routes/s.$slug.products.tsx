@@ -116,6 +116,9 @@ function StorefrontProductsPage() {
   const [maxPrice, setMaxPrice] = useState("");
   const [inStock, setInStock] = useState(false);
   const [color, setColor] = useState("all");
+  const [fabric, setFabric] = useState("all");
+  const [size, setSize] = useState("all");
+  const [onSale, setOnSale] = useState(false);
   const [columns, setColumns] = useState<2 | 3 | 4>(4);
   const [page, setPage] = useState(1);
   const [sheet, setSheet] = useState(false);
@@ -129,6 +132,11 @@ function StorefrontProductsPage() {
   );
   const colors = useMemo(() => [...new Set(products.flatMap((product) => productSwatches(product.tags).map((item) => item.tag)))], [products]);
 
+  const tagValues = (prefixes: string[]) => [...new Set(products.flatMap((p) => (p.tags ?? []).map((tag) => { const m = tag.match(/^([^:]+):\s*(.+)$/); return m && prefixes.includes(m[1]!.toLocaleLowerCase("tr")) ? m[2]!.trim() : null; }).filter((v): v is string => Boolean(v))))].sort((a, b) => a.localeCompare(b, "tr"));
+  const hasTag = (tags: string[] | null, prefixes: string[], value: string) => (tags ?? []).some((tag) => { const m = tag.match(/^([^:]+):\s*(.+)$/); return Boolean(m && prefixes.includes(m[1]!.toLocaleLowerCase("tr")) && m[2]!.trim() === value); });
+  const fabrics = useMemo(() => tagValues(["kumaş", "kumas", "fabric"]), [products]);
+  const sizes = useMemo(() => tagValues(["beden", "size"]), [products]);
+
   const visible = useMemo(() => {
     const q = normalize(term.trim());
     const min = minPrice.trim() ? Number(minPrice) : null;
@@ -140,6 +148,9 @@ function StorefrontProductsPage() {
       if (max !== null && Number.isFinite(max) && price > max) return false;
       if (inStock && (product.stockTotal ?? 0) <= 0) return false;
       if (color !== "all" && !productSwatches(product.tags).some((item) => item.tag === color)) return false;
+      if (fabric !== "all" && !hasTag(product.tags, ["kumaş", "kumas", "fabric"], fabric)) return false;
+      if (size !== "all" && !hasTag(product.tags, ["beden", "size"], size)) return false;
+      if (onSale && !(Number(product.compare_at_price ?? 0) > Number(product.livePrice ?? product.base_price))) return false;
       if (q && !normalize(`${product.title} ${product.product_type ?? ""} ${(product.tags ?? []).join(" ")}`).includes(q))
         return false;
       return true;
@@ -149,7 +160,7 @@ function StorefrontProductsPage() {
     else if (sort === "price_desc") sorted.sort((a, b) => Number(b.livePrice ?? b.base_price) - Number(a.livePrice ?? a.base_price));
     else if (sort === "title") sorted.sort((a, b) => a.title.localeCompare(b.title, "tr"));
     return sorted;
-  }, [products, term, type, minPrice, maxPrice, sort, inStock, color]);
+  }, [products, term, type, minPrice, maxPrice, sort, inStock, color, fabric, size, onSale]);
 
   const pageCount = Math.max(1, Math.ceil(visible.length / pageSize));
   const currentPage = Math.min(page, pageCount);
@@ -168,6 +179,9 @@ function StorefrontProductsPage() {
     ...(color !== "all" ? [{ label: color, clear: () => setColor("all") }] : []),
     ...(minPrice ? [{ label: `Min ${minPrice} ₺`, clear: () => setMinPrice("") }] : []),
     ...(maxPrice ? [{ label: `Maks ${maxPrice} ₺`, clear: () => setMaxPrice("") }] : []),
+    ...(fabric !== "all" ? [{ label: fabric, clear: () => setFabric("all") }] : []),
+    ...(size !== "all" ? [{ label: `Beden ${size}`, clear: () => setSize("all") }] : []),
+    ...(onSale ? [{ label: "İndirimli", clear: () => setOnSale(false) }] : []),
     ...(inStock ? [{ label: "Stoktakiler", clear: () => setInStock(false) }] : []),
   ];
 
@@ -195,6 +209,22 @@ function StorefrontProductsPage() {
             {colors.map((value) => <option key={value} value={value}>{value}</option>)}
           </select>
         ) : null}
+        {sizes.length ? (
+          <select aria-label="Beden" value={size} onChange={(event) => { setSize(event.target.value); setPage(1); }} style={controlStyle}>
+            <option value="all">Tüm bedenler</option>
+            {sizes.map((value) => <option key={value} value={value}>{value}</option>)}
+          </select>
+        ) : null}
+        {fabrics.length ? (
+          <select aria-label="Kumaş" value={fabric} onChange={(event) => { setFabric(event.target.value); setPage(1); }} style={controlStyle}>
+            <option value="all">Tüm kumaşlar</option>
+            {fabrics.map((value) => <option key={value} value={value}>{value}</option>)}
+          </select>
+        ) : null}
+        <label style={{ ...controlStyle, display: "flex", gap: 7, alignItems: "center", cursor: "pointer" }}>
+          <input type="checkbox" checked={onSale} onChange={(event) => { setOnSale(event.target.checked); setPage(1); }} />
+          Sadece indirimli
+        </label>
         <label style={{ ...controlStyle, display: "flex", gap: 7, alignItems: "center", cursor: "pointer" }}>
           <input type="checkbox" checked={inStock} onChange={(event) => { setInStock(event.target.checked); setPage(1); }} />
           Stoktakiler

@@ -23,6 +23,7 @@ import { recordRecentProduct } from "@/lib/recently-viewed";
 import { storefrontProductQuery, storefrontQuery } from "@/lib/storefront-queries";
 import { storefrontUI } from "@/lib/storefront-ui";
 import { ConversionBoosters, StickyAddToCartBar } from "@/components/wokiee/pdp-boosters";
+import { FlutCountdown, FlutPdpExtras, FlutWhatsAppFab } from "@/components/storefront/flut-extras";
 import { trackEvent } from "@/lib/track";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
@@ -689,6 +690,26 @@ function ProductPage() {
             stock={selected?.stock ?? 0}
             commerce={commerce}
           />
+          {storefrontData?.themeFeatures?.["theme_flut_style"] ? (
+            <>
+              <FlutPdpExtras
+                theme={t}
+                features={storefrontData.themeFeatures}
+                texts={storefrontData.themeTexts ?? {}}
+                storeSlug={store.slug}
+                storeName={store.name}
+                productId={product.id}
+                productTitle={displayTitle}
+                selectedLabel={selected && variants.length > 1 ? selected.title : ""}
+                stock={selected?.stock ?? 0}
+                relatedIds={related.map((r) => r.id)}
+                fallbackPhone={storefrontData.profile?.contact_phone}
+                onBundleMain={() => { if (!selected || !inStock) return false; addToCart(); return true; }}
+              />
+              {storefrontData.themeFeatures["theme_whatsapp_order"] ? <FlutWhatsAppFab phone={storefrontData.themeTexts?.["whatsapp_number"] || storefrontData.profile?.contact_phone} /> : null}
+              {storefrontData.themeFeatures["theme_countdown_timer"] ? <FlutCountdown endsAt={storefrontData.themeTexts?.["countdown_ends_at"]} label={storefrontData.themeTexts?.["countdown_label"]} accent={t.accent_color} /> : null}
+            </>
+          ) : null}
 
           {inStock ? (
             <div
