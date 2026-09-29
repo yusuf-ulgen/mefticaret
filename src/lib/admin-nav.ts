@@ -166,6 +166,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         keywords: "sayfa ekle mağaza hakkımızda iletişim kvkk sss",
       },
       {
+        to: "/admin/policies",
+        label: "Platform Politikaları",
+        icon: FileText,
+        hint: "Sözleşmeler, sürümler ve onay kayıtları",
+        keywords: "politika sözleşme kvkk gizlilik çerez sürüm onay",
+      },
+      {
         to: "/admin/site-pages",
         label: "Platform Sayfaları",
         icon: FileText,

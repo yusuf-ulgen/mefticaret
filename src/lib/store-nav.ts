@@ -226,6 +226,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Vitrin Menüleri", to: p("navigation"), icon: Menu },
         { label: "İçerik Sayfaları", to: p("pages"), icon: FileText },
         { label: "Blog & CMS", to: p("blog"), icon: PenLine },
+        { label: "Politikalar", to: p("policies"), icon: FileText },
         { label: "Domainler", to: p("domains"), icon: Globe },
       ],
     },

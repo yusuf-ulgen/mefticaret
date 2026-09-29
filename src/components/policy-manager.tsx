@@ -281,11 +281,11 @@ function Acceptances({ storeId, policies }: { storeId: string | null; policies: 
     onError: (e) => toast.error((e as Error).message),
   });
   const exportCsv = () => {
-    const rows = (q.data?.rows ?? []).map((r) => ({
-      Politika: names.get(r.policy_id) ?? "", Sürüm: r.version_label ?? "", "E-posta": r.subject_email ?? "", Sipariş: r.order_number ?? "",
-      IP: r.ip_address ?? "", Tarayıcı: r.user_agent ?? "", Tarih: r.accepted_at, "Geri çekildi": r.withdrawn_at ?? "",
-    }));
-    downloadCsv(`politika-onaylari-${today()}.csv`, toCsv(rows));
+    const rows = (q.data?.rows ?? []).map((r) => [
+      names.get(r.policy_id) ?? "", r.version_label ?? "", r.subject_email ?? "", r.order_number ?? "",
+      r.ip_address ?? "", r.user_agent ?? "", r.accepted_at, r.withdrawn_at ?? "",
+    ]);
+    downloadCsv(`politika-onaylari-${today()}.csv`, toCsv(["Politika", "Sürüm", "E-posta", "Sipariş", "IP", "Tarayıcı", "Tarih", "Geri çekildi"], rows));
   };
   return (
     <Card>
