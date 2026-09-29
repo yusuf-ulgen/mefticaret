@@ -10,6 +10,23 @@ import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";
 import { absoluteUrl, articleSchema, plainText } from "@/lib/seo";
 import { missingHead, storefrontHead } from "@/lib/storefront-seo";
+import { BlogEngagement } from "@/components/blog/blog-engagement";
+import { addHeadingIds, extractToc, isHtmlBody } from "@/lib/blog-content";
+import { sanitizeBlogHtml } from "@/lib/blog-sanitize";
+
+const escapeHtml = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
+
+/** Temizlenmiş HTML + başlık çapaları + içindekiler bloğunun doldurulması. */
+function renderBlogHtml(body: string) {
+  const html = addHeadingIds(sanitizeBlogHtml(body));
+  const toc = extractToc(html);
+  const list = toc.length
+    ? `<div class="blog-toc">İçindekiler<ol>${toc
+        .map((h) => `<li style="margin-left:${h.level === 3 ? 16 : 0}px"><a href="#${h.id}">${escapeHtml(h.text)}</a></li>`)
+        .join("")}</ol></div>`
+    : "";
+  return html.replace(/<div[^>]*data-toc[^>]*>[\s\S]*?<\/div>/gi, list);
+}
 
 export const Route = createFileRoute("/s/$slug/page/$pageSlug")({
   loader: async ({ context, params }) => {
@@ -172,19 +189,30 @@ function StorePage() {
             {page.excerpt}
           </p>
         ) : null}
-        <div
-          style={{
-            marginTop: 24,
-            fontSize: "clamp(16px, 4.2vw, 17px)",
-            lineHeight: 1.85,
-            whiteSpace: "pre-wrap",
-            overflowWrap: "anywhere",
-          }}
-        >
-          {page.body}
-        </div>
+        {isHtmlBody(page.body) ? (
+          <div
+            className="blog-prose"
+            style={{ marginTop: 24, fontSize: "clamp(16px, 4.2vw, 17px)" }}
+            dangerouslySetInnerHTML={{ __html: renderBlogHtml(page.body ?? "") }}
+          />
+        ) : (
+          <div
+            style={{
+              marginTop: 24,
+              fontSize: "clamp(16px, 4.2vw, 17px)",
+              lineHeight: 1.85,
+              whiteSpace: "pre-wrap",
+              overflowWrap: "anywhere",
+            }}
+          >
+            {page.body}
+          </div>
+        )}
 
         {post ? <ShareButtons postId={post.id} title={post.title} border={border} muted={muted} /> : null}
+        {post ? (
+          <BlogEngagement postId={post.id} border={border} muted={muted} cardBg={cardBg} radius={radius} accent={t.accent_color ?? muted} />
+        ) : null}
 
 
         {post && post.tags.length > 0 ? (

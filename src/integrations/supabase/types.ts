@@ -1880,6 +1880,278 @@ export type Database = {
           },
         ]
       }
+      blog_comments: {
+        Row: {
+          author_email: string | null
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          ip_hash: string | null
+          like_count: number
+          parent_id: string | null
+          post_id: string
+          post_source: string
+          status: string
+          store_id: string | null
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          author_email?: string | null
+          author_name: string
+          content: string
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          like_count?: number
+          parent_id?: string | null
+          post_id: string
+          post_source?: string
+          status?: string
+          store_id?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          author_email?: string | null
+          author_name?: string
+          content?: string
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          like_count?: number
+          parent_id?: string | null
+          post_id?: string
+          post_source?: string
+          status?: string
+          store_id?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "blog_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_comments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_post_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      blog_post_revisions: {
+        Row: {
+          body: string | null
+          change_summary: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          post_id: string
+          post_source: string
+          revised_by: string | null
+          revision_number: number
+          store_id: string | null
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          change_summary?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          post_id: string
+          post_source?: string
+          revised_by?: string | null
+          revision_number: number
+          store_id?: string | null
+          title: string
+        }
+        Update: {
+          body?: string | null
+          change_summary?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          post_id?: string
+          post_source?: string
+          revised_by?: string | null
+          revision_number?: number
+          store_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_revisions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_post_views: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          referrer_url: string | null
+          session_id: string
+          store_id: string | null
+          viewed_on: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          referrer_url?: string | null
+          session_id: string
+          store_id?: string | null
+          viewed_on?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          referrer_url?: string | null
+          session_id?: string
+          store_id?: string | null
+          viewed_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_views_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_related_posts: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          related_post_id: string
+          sort_order: number
+          store_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          related_post_id: string
+          sort_order?: number
+          store_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          related_post_id?: string
+          sort_order?: number
+          store_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_related_posts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_settings: {
+        Row: {
+          allow_comments: string
+          banned_words: string[]
+          created_at: string
+          id: string
+          layout: string
+          moderation_required: boolean
+          posts_per_page: number
+          show_author: boolean
+          show_comments: boolean
+          show_date: boolean
+          show_tags: boolean
+          store_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          allow_comments?: string
+          banned_words?: string[]
+          created_at?: string
+          id?: string
+          layout?: string
+          moderation_required?: boolean
+          posts_per_page?: number
+          show_author?: boolean
+          show_comments?: boolean
+          show_date?: boolean
+          show_tags?: boolean
+          store_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allow_comments?: string
+          banned_words?: string[]
+          created_at?: string
+          id?: string
+          layout?: string
+          moderation_required?: boolean
+          posts_per_page?: number
+          show_author?: boolean
+          show_comments?: boolean
+          show_date?: boolean
+          show_tags?: boolean
+          store_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_tags: {
         Row: {
           created_at: string
@@ -12199,70 +12471,112 @@ export type Database = {
       }
       platform_posts: {
         Row: {
+          allow_comments: boolean
           author_name: string | null
           body: string
           canonical_url: string | null
           category: string | null
+          comment_count: number
+          cover_alt: string | null
           cover_url: string | null
           created_at: string
           excerpt: string | null
           id: string
           is_featured: boolean
           is_published: boolean
+          like_count: number
           meta_title: string | null
           noindex: boolean
+          og_description: string | null
+          og_image_url: string | null
+          og_title: string | null
+          post_type: string
           published_at: string | null
+          reading_time_minutes: number | null
+          revision_count: number
+          schema_type: string
           seo_description: string | null
+          seo_keywords: string | null
           slug: string
           sort_order: number
           status: string
           tags: string[]
           title: string
           updated_at: string
+          view_count: number
+          word_count: number
         }
         Insert: {
+          allow_comments?: boolean
           author_name?: string | null
           body?: string
           canonical_url?: string | null
           category?: string | null
+          comment_count?: number
+          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
           is_featured?: boolean
           is_published?: boolean
+          like_count?: number
           meta_title?: string | null
           noindex?: boolean
+          og_description?: string | null
+          og_image_url?: string | null
+          og_title?: string | null
+          post_type?: string
           published_at?: string | null
+          reading_time_minutes?: number | null
+          revision_count?: number
+          schema_type?: string
           seo_description?: string | null
+          seo_keywords?: string | null
           slug: string
           sort_order?: number
           status?: string
           tags?: string[]
           title: string
           updated_at?: string
+          view_count?: number
+          word_count?: number
         }
         Update: {
+          allow_comments?: boolean
           author_name?: string | null
           body?: string
           canonical_url?: string | null
           category?: string | null
+          comment_count?: number
+          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
           is_featured?: boolean
           is_published?: boolean
+          like_count?: number
           meta_title?: string | null
           noindex?: boolean
+          og_description?: string | null
+          og_image_url?: string | null
+          og_title?: string | null
+          post_type?: string
           published_at?: string | null
+          reading_time_minutes?: number | null
+          revision_count?: number
+          schema_type?: string
           seo_description?: string | null
+          seo_keywords?: string | null
           slug?: string
           sort_order?: number
           status?: string
           tags?: string[]
           title?: string
           updated_at?: string
+          view_count?: number
+          word_count?: number
         }
         Relationships: []
       }
@@ -17659,20 +17973,38 @@ export type Database = {
       }
       store_pages: {
         Row: {
+          allow_comments: boolean
           author_id: string | null
           author_name: string | null
           body: string
+          canonical_url: string | null
           category_id: string | null
+          comment_count: number
+          cover_alt: string | null
           cover_url: string | null
           created_at: string
           excerpt: string | null
+          featured: boolean
           id: string
           is_published: boolean
+          last_edited_at: string | null
+          last_edited_by: string | null
+          like_count: number
+          noindex: boolean
+          og_description: string | null
+          og_image_url: string | null
+          og_title: string | null
           page_kind: string
+          post_type: string
           published_at: string | null
+          reading_time_minutes: number | null
+          revision_count: number
           scheduled_at: string | null
+          schema_type: string
           seo: Json
           seo_description: string | null
+          seo_keywords: string | null
+          seo_title: string | null
           show_in_footer: boolean
           slug: string
           sort_order: number
@@ -17680,22 +18012,42 @@ export type Database = {
           store_id: string
           title: string
           updated_at: string
+          view_count: number
+          word_count: number
         }
         Insert: {
+          allow_comments?: boolean
           author_id?: string | null
           author_name?: string | null
           body?: string
+          canonical_url?: string | null
           category_id?: string | null
+          comment_count?: number
+          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string
           excerpt?: string | null
+          featured?: boolean
           id?: string
           is_published?: boolean
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          like_count?: number
+          noindex?: boolean
+          og_description?: string | null
+          og_image_url?: string | null
+          og_title?: string | null
           page_kind?: string
+          post_type?: string
           published_at?: string | null
+          reading_time_minutes?: number | null
+          revision_count?: number
           scheduled_at?: string | null
+          schema_type?: string
           seo?: Json
           seo_description?: string | null
+          seo_keywords?: string | null
+          seo_title?: string | null
           show_in_footer?: boolean
           slug: string
           sort_order?: number
@@ -17703,22 +18055,42 @@ export type Database = {
           store_id: string
           title: string
           updated_at?: string
+          view_count?: number
+          word_count?: number
         }
         Update: {
+          allow_comments?: boolean
           author_id?: string | null
           author_name?: string | null
           body?: string
+          canonical_url?: string | null
           category_id?: string | null
+          comment_count?: number
+          cover_alt?: string | null
           cover_url?: string | null
           created_at?: string
           excerpt?: string | null
+          featured?: boolean
           id?: string
           is_published?: boolean
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          like_count?: number
+          noindex?: boolean
+          og_description?: string | null
+          og_image_url?: string | null
+          og_title?: string | null
           page_kind?: string
+          post_type?: string
           published_at?: string | null
+          reading_time_minutes?: number | null
+          revision_count?: number
           scheduled_at?: string | null
+          schema_type?: string
           seo?: Json
           seo_description?: string | null
+          seo_keywords?: string | null
+          seo_title?: string | null
           show_in_footer?: boolean
           slug?: string
           sort_order?: number
@@ -17726,6 +18098,8 @@ export type Database = {
           store_id?: string
           title?: string
           updated_at?: string
+          view_count?: number
+          word_count?: number
         }
         Relationships: [
           {

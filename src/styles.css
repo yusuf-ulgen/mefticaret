@@ -867,3 +867,39 @@
 .chat-dot { animation: chat-bounce 1.2s infinite; }
 .chat-enter { animation: chat-in .2s ease-out; }
 @media (prefers-reduced-motion: reduce) { .chat-dot, .chat-enter { animation: none; } }
+
+/* ---------- Blog v2 içerik biçimleri (panel düzenleyici + vitrin) ---------- */
+.blog-prose { line-height: 1.8; overflow-wrap: anywhere; }
+.blog-prose > * + * { margin-top: 0.9em; }
+.blog-prose h1 { font-size: 1.9em; font-weight: 700; line-height: 1.25; margin-top: 1.2em; }
+.blog-prose h2 { font-size: 1.45em; font-weight: 700; line-height: 1.3; margin-top: 1.4em; scroll-margin-top: 80px; }
+.blog-prose h3 { font-size: 1.2em; font-weight: 600; margin-top: 1.2em; scroll-margin-top: 80px; }
+.blog-prose ul { list-style: disc; padding-left: 1.4em; }
+.blog-prose ol { list-style: decimal; padding-left: 1.4em; }
+.blog-prose ul[data-type="taskList"] { list-style: none; padding-left: 0.2em; }
+.blog-prose ul[data-type="taskList"] li { display: flex; gap: 0.5em; align-items: flex-start; }
+.blog-prose ul[data-type="taskList"] li > label { margin-top: 0.25em; }
+.blog-prose a { text-decoration: underline; text-underline-offset: 3px; }
+.blog-prose blockquote { border-left: 3px solid currentColor; padding-left: 1em; opacity: 0.85; font-style: italic; }
+.blog-prose pre { background: color-mix(in oklch, currentColor 8%, transparent); padding: 0.9em 1em; border-radius: 10px; overflow-x: auto; font-size: 0.88em; }
+.blog-prose code { font-family: ui-monospace, monospace; font-size: 0.9em; }
+.blog-prose img { max-width: 100%; height: auto; border-radius: 12px; }
+.blog-prose hr { border: 0; border-top: 1px solid color-mix(in oklch, currentColor 18%, transparent); margin: 2em 0; }
+.blog-prose table { width: 100%; border-collapse: collapse; font-size: 0.92em; display: block; overflow-x: auto; }
+.blog-prose th, .blog-prose td { border: 1px solid color-mix(in oklch, currentColor 18%, transparent); padding: 0.45em 0.7em; text-align: left; min-width: 80px; }
+.blog-prose th { background: color-mix(in oklch, currentColor 6%, transparent); font-weight: 600; }
+.blog-prose iframe, .blog-prose div[data-youtube-video] iframe { width: 100%; aspect-ratio: 16 / 9; height: auto; border: 0; border-radius: 12px; }
+.blog-prose p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; pointer-events: none; opacity: 0.45; }
+.blog-callout { border-radius: 12px; padding: 0.9em 1.1em; border: 1px solid; }
+.blog-callout[data-callout="info"] { background: oklch(0.96 0.03 250); border-color: oklch(0.85 0.06 250); color: oklch(0.3 0.08 255); }
+.blog-callout[data-callout="warning"] { background: oklch(0.97 0.05 85); border-color: oklch(0.86 0.1 80); color: oklch(0.35 0.08 60); }
+.blog-callout[data-callout="success"] { background: oklch(0.96 0.04 150); border-color: oklch(0.84 0.08 150); color: oklch(0.32 0.08 150); }
+.blog-embed a { display: flex; gap: 0.9em; align-items: center; text-decoration: none; color: inherit; border: 1px solid color-mix(in oklch, currentColor 15%, transparent); border-radius: 14px; padding: 0.7em; }
+.blog-embed--card a { flex-direction: column; align-items: stretch; max-width: 320px; }
+.blog-embed--card img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.blog-embed--row img { width: 88px; height: 88px; object-fit: cover; }
+.blog-embed__body { display: flex; flex-direction: column; gap: 0.2em; }
+.blog-embed__price { font-weight: 600; }
+.blog-embed__cta { font-size: 0.85em; margin-top: 0.3em; padding: 0.35em 0.9em; border-radius: 999px; background: color-mix(in oklch, currentColor 90%, transparent); color: oklch(1 0 0); align-self: flex-start; }
+.blog-toc { border: 1px dashed color-mix(in oklch, currentColor 25%, transparent); border-radius: 12px; padding: 0.8em 1em; font-weight: 600; }
+.blog-toc ol { font-weight: 400; margin-top: 0.4em; }
