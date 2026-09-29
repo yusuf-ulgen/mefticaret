@@ -21959,8 +21959,10 @@ export type Database = {
           currency_config: Json
           delta_sync_config: Json
           direction: Database["public"]["Enums"]["xml_direction"]
+          error_notification_email: string | null
           export_token: string
           field_mapping: Json
+          field_rules: Json
           filter_rules: Json
           ftp_config: Json
           guardrail_config: Json
@@ -21971,9 +21973,12 @@ export type Database = {
           last_full_sync_at: string | null
           last_run_at: string | null
           last_status: Database["public"]["Enums"]["xml_run_status"] | null
+          mapping_groups: Json
+          max_errors_before_pause: number
           name: string
           next_run_at: string | null
           output_filename: string | null
+          paused_reason: string | null
           platform: Database["public"]["Enums"]["xml_platform"]
           price_markup: number | null
           pricing_rules: Json
@@ -22002,8 +22007,10 @@ export type Database = {
           currency_config?: Json
           delta_sync_config?: Json
           direction?: Database["public"]["Enums"]["xml_direction"]
+          error_notification_email?: string | null
           export_token?: string
           field_mapping?: Json
+          field_rules?: Json
           filter_rules?: Json
           ftp_config?: Json
           guardrail_config?: Json
@@ -22014,9 +22021,12 @@ export type Database = {
           last_full_sync_at?: string | null
           last_run_at?: string | null
           last_status?: Database["public"]["Enums"]["xml_run_status"] | null
+          mapping_groups?: Json
+          max_errors_before_pause?: number
           name: string
           next_run_at?: string | null
           output_filename?: string | null
+          paused_reason?: string | null
           platform?: Database["public"]["Enums"]["xml_platform"]
           price_markup?: number | null
           pricing_rules?: Json
@@ -22045,8 +22055,10 @@ export type Database = {
           currency_config?: Json
           delta_sync_config?: Json
           direction?: Database["public"]["Enums"]["xml_direction"]
+          error_notification_email?: string | null
           export_token?: string
           field_mapping?: Json
+          field_rules?: Json
           filter_rules?: Json
           ftp_config?: Json
           guardrail_config?: Json
@@ -22057,9 +22069,12 @@ export type Database = {
           last_full_sync_at?: string | null
           last_run_at?: string | null
           last_status?: Database["public"]["Enums"]["xml_run_status"] | null
+          mapping_groups?: Json
+          max_errors_before_pause?: number
           name?: string
           next_run_at?: string | null
           output_filename?: string | null
+          paused_reason?: string | null
           platform?: Database["public"]["Enums"]["xml_platform"]
           price_markup?: number | null
           pricing_rules?: Json
@@ -22141,6 +22156,7 @@ export type Database = {
       }
       xml_import_logs: {
         Row: {
+          control_state: string
           created_at: string
           created_count: number
           delta_sync_enabled: boolean
@@ -22154,6 +22170,8 @@ export type Database = {
           id: string
           phase: string | null
           processed_count: number
+          rate_per_min: number | null
+          resume_cursor: number
           skipped_count: number
           started_at: string
           status: Database["public"]["Enums"]["xml_run_status"]
@@ -22165,6 +22183,7 @@ export type Database = {
           updated_count: number
         }
         Insert: {
+          control_state?: string
           created_at?: string
           created_count?: number
           delta_sync_enabled?: boolean
@@ -22178,6 +22197,8 @@ export type Database = {
           id?: string
           phase?: string | null
           processed_count?: number
+          rate_per_min?: number | null
+          resume_cursor?: number
           skipped_count?: number
           started_at?: string
           status?: Database["public"]["Enums"]["xml_run_status"]
@@ -22189,6 +22210,7 @@ export type Database = {
           updated_count?: number
         }
         Update: {
+          control_state?: string
           created_at?: string
           created_count?: number
           delta_sync_enabled?: boolean
@@ -22202,6 +22224,8 @@ export type Database = {
           id?: string
           phase?: string | null
           processed_count?: number
+          rate_per_min?: number | null
+          resume_cursor?: number
           skipped_count?: number
           started_at?: string
           status?: Database["public"]["Enums"]["xml_run_status"]
@@ -22222,6 +22246,65 @@ export type Database = {
           },
           {
             foreignKeyName: "xml_import_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xml_mapping_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          field_mapping: Json
+          field_rules: Json
+          id: string
+          is_public: boolean
+          last_used_at: string | null
+          mapping_groups: Json
+          name: string
+          provider_type: string
+          store_id: string | null
+          updated_at: string
+          usage_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          field_mapping?: Json
+          field_rules?: Json
+          id?: string
+          is_public?: boolean
+          last_used_at?: string | null
+          mapping_groups?: Json
+          name: string
+          provider_type?: string
+          store_id?: string | null
+          updated_at?: string
+          usage_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          field_mapping?: Json
+          field_rules?: Json
+          id?: string
+          is_public?: boolean
+          last_used_at?: string | null
+          mapping_groups?: Json
+          name?: string
+          provider_type?: string
+          store_id?: string | null
+          updated_at?: string
+          usage_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_mapping_templates_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
@@ -22339,6 +22422,70 @@ export type Database = {
           },
           {
             foreignKeyName: "xml_quarantine_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xml_run_failed_items: {
+        Row: {
+          created_at: string
+          error_type: string
+          feed_id: string
+          id: string
+          message: string | null
+          raw_data: Json
+          run_id: string | null
+          sku: string | null
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error_type?: string
+          feed_id: string
+          id?: string
+          message?: string | null
+          raw_data?: Json
+          run_id?: string | null
+          sku?: string | null
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error_type?: string
+          feed_id?: string
+          id?: string
+          message?: string | null
+          raw_data?: Json
+          run_id?: string | null
+          sku?: string | null
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xml_run_failed_items_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "xml_feeds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_run_failed_items_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "xml_import_logs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xml_run_failed_items_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
