@@ -95,6 +95,8 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [fieldRules, setFieldRules] = useState<FieldRules>({});
   const [ruleField, setRuleField] = useState<string | null>(null);
+  const [maxErrors, setMaxErrors] = useState(100);
+  const [alertEmail, setAlertEmail] = useState("");
   const getV2 = useServerFn(getXmlFeedV2Settings);
   const saveV2 = useServerFn(saveXmlFeedV2Settings);
   const v2 = useQuery({
@@ -102,7 +104,11 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
     queryFn: () => getV2({ data: { storeId, feedId } }),
   });
   useEffect(() => {
-    if (v2.data) setFieldRules(v2.data.fieldRules);
+    if (v2.data) {
+      setFieldRules(v2.data.fieldRules);
+      setMaxErrors(v2.data.maxErrors);
+      setAlertEmail(v2.data.email);
+    }
   }, [v2.data]);
 
   useEffect(() => {
@@ -219,7 +225,7 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!feed) throw new Error("Besleme bulunamadı");
-      await saveV2({ data: { storeId, feedId, fieldRules: fieldRules as never } });
+      await saveV2({ data: { storeId, feedId, fieldRules: fieldRules as never, maxErrors, email: alertEmail.trim() } });
       return save({
         data: {
           storeId,
@@ -464,6 +470,22 @@ export function XmlFieldMapper({ storeId, feedId }: { storeId: string; feedId: s
             })
           }
         />
+      ) : null}
+
+      {feed.direction === "import" ? (
+        <section className="grid gap-3 rounded-xl border bg-card p-3 text-xs sm:grid-cols-2">
+          <label className="space-y-1">
+            <span className="font-medium">Otomatik durdurma eşiği (hata sayısı)</span>
+            <Input type="number" min={1} max={100000} value={maxErrors} onChange={(e) => setMaxErrors(Math.max(1, Number(e.target.value) || 1))} />
+          </label>
+          <label className="space-y-1">
+            <span className="font-medium">Hata bildirimi e-postası</span>
+            <Input type="email" placeholder="ornek@magaza.com" value={alertEmail} onChange={(e) => setAlertEmail(e.target.value)} />
+          </label>
+          <p className="text-muted-foreground sm:col-span-2">
+            Bir çalışmada bu kadar hata olursa besleme durdurulur ve panelde bildirim gösterilir.
+          </p>
+        </section>
       ) : null}
 
       {missing.length ? (
