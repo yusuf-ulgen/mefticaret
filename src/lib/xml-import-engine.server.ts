@@ -678,8 +678,9 @@ export async function upsertProducts(
           .from("product_images")
           .select("url, position")
           .eq("product_id", productId);
-        const have = new Set((currentImages ?? []).map((img) => img.url));
-        let position = (currentImages ?? []).reduce((max, img) => Math.max(max, img.position ?? 0), 0);
+        const existingImages = (currentImages ?? []) as Array<{ url: string; position: number | null }>;
+        const have = new Set(existingImages.map((img) => img.url));
+        let position = existingImages.reduce((max, img) => Math.max(max, img.position ?? 0), 0);
         const add = item.images
           .slice(0, MAX_PRODUCT_IMAGES)
           .filter((url) => !have.has(url))
