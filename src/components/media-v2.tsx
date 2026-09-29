@@ -204,7 +204,7 @@ function WatermarkDialog({ storeId, open, onOpenChange, boot }: { storeId: strin
     const { supabase } = await import("@/integrations/supabase/client");
     const path = `${storeId}/watermark/${crypto.randomUUID()}.png`;
     const { error } = await supabase.storage.from("store-media").upload(path, file, { contentType: file.type, upsert: false });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setF((p) => ({ ...p, imagePath: path, imageUrl: URL.createObjectURL(file) }));
   }
 
@@ -287,7 +287,7 @@ export function MediaV2DetailExtra({ storeId, asset, boot, folderId, onDone }: {
 
   async function applyWmCopy() {
     const wm = toWm(boot.watermark, boot.watermarkImageUrl);
-    if (!wm) return toast.error("Önce filigranı açın");
+    if (!wm) { toast.error("Önce filigranı açın"); return; }
     setBusy(true);
     try {
       const blob = await fetch(asset.displayUrl).then((r) => r.blob());
