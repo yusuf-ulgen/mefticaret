@@ -9687,92 +9687,140 @@ export type Database = {
       media_assets: {
         Row: {
           alt: string | null
+          blurhash: string | null
           bucket: string
           caption: string | null
           checksum: string | null
+          color_palette: Json | null
           converted_to_webp: boolean
           created_at: string
           created_by: string | null
+          dominant_color: string | null
           duration_seconds: number | null
           extension: string | null
           file_name: string
           folder_id: string | null
+          has_transparency: boolean
           height: number | null
           id: string
+          is_animated: boolean
           kind: string
+          metadata_stripped: boolean
           mime_type: string
           optimized: boolean
+          original_filename: string | null
+          original_format: string | null
           original_size_bytes: number | null
+          poster_path: string | null
+          processing_error: string | null
+          processing_status: string
           public_url: string | null
           size_bytes: number
+          source_asset_id: string | null
           storage_path: string
           storage_provider: string
           store_id: string
           tags: string[]
+          thumbnail_lg_path: string | null
+          thumbnail_md_path: string | null
+          thumbnail_sm_path: string | null
           title: string | null
           updated_at: string
           usage_count: number
           variants: Json
+          watermark_applied: boolean
           width: number | null
         }
         Insert: {
           alt?: string | null
+          blurhash?: string | null
           bucket?: string
           caption?: string | null
           checksum?: string | null
+          color_palette?: Json | null
           converted_to_webp?: boolean
           created_at?: string
           created_by?: string | null
+          dominant_color?: string | null
           duration_seconds?: number | null
           extension?: string | null
           file_name: string
           folder_id?: string | null
+          has_transparency?: boolean
           height?: number | null
           id?: string
+          is_animated?: boolean
           kind?: string
+          metadata_stripped?: boolean
           mime_type: string
           optimized?: boolean
+          original_filename?: string | null
+          original_format?: string | null
           original_size_bytes?: number | null
+          poster_path?: string | null
+          processing_error?: string | null
+          processing_status?: string
           public_url?: string | null
           size_bytes?: number
+          source_asset_id?: string | null
           storage_path: string
           storage_provider?: string
           store_id: string
           tags?: string[]
+          thumbnail_lg_path?: string | null
+          thumbnail_md_path?: string | null
+          thumbnail_sm_path?: string | null
           title?: string | null
           updated_at?: string
           usage_count?: number
           variants?: Json
+          watermark_applied?: boolean
           width?: number | null
         }
         Update: {
           alt?: string | null
+          blurhash?: string | null
           bucket?: string
           caption?: string | null
           checksum?: string | null
+          color_palette?: Json | null
           converted_to_webp?: boolean
           created_at?: string
           created_by?: string | null
+          dominant_color?: string | null
           duration_seconds?: number | null
           extension?: string | null
           file_name?: string
           folder_id?: string | null
+          has_transparency?: boolean
           height?: number | null
           id?: string
+          is_animated?: boolean
           kind?: string
+          metadata_stripped?: boolean
           mime_type?: string
           optimized?: boolean
+          original_filename?: string | null
+          original_format?: string | null
           original_size_bytes?: number | null
+          poster_path?: string | null
+          processing_error?: string | null
+          processing_status?: string
           public_url?: string | null
           size_bytes?: number
+          source_asset_id?: string | null
           storage_path?: string
           storage_provider?: string
           store_id?: string
           tags?: string[]
+          thumbnail_lg_path?: string | null
+          thumbnail_md_path?: string | null
+          thumbnail_sm_path?: string | null
           title?: string | null
           updated_at?: string
           usage_count?: number
           variants?: Json
+          watermark_applied?: boolean
           width?: number | null
         }
         Relationships: [
@@ -9781,6 +9829,13 @@ export type Database = {
             columns: ["folder_id"]
             isOneToOne: false
             referencedRelation: "media_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_assets_source_asset_id_fkey"
+            columns: ["source_asset_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
             referencedColumns: ["id"]
           },
           {
@@ -9835,6 +9890,97 @@ export type Database = {
             foreignKeyName: "media_folders_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_upload_usage: {
+        Row: {
+          bytes_uploaded: number
+          files_uploaded: number
+          store_id: string
+          updated_at: string
+          usage_date: string
+        }
+        Insert: {
+          bytes_uploaded?: number
+          files_uploaded?: number
+          store_id: string
+          updated_at?: string
+          usage_date?: string
+        }
+        Update: {
+          bytes_uploaded?: number
+          files_uploaded?: number
+          store_id?: string
+          updated_at?: string
+          usage_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_upload_usage_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_watermark_settings: {
+        Row: {
+          apply_scope: string
+          color: string
+          created_at: string
+          image_path: string | null
+          is_active: boolean
+          margin_x: number
+          margin_y: number
+          opacity: number
+          position: string
+          size_percent: number
+          store_id: string
+          text_content: string | null
+          updated_at: string
+          watermark_type: string
+        }
+        Insert: {
+          apply_scope?: string
+          color?: string
+          created_at?: string
+          image_path?: string | null
+          is_active?: boolean
+          margin_x?: number
+          margin_y?: number
+          opacity?: number
+          position?: string
+          size_percent?: number
+          store_id: string
+          text_content?: string | null
+          updated_at?: string
+          watermark_type?: string
+        }
+        Update: {
+          apply_scope?: string
+          color?: string
+          created_at?: string
+          image_path?: string | null
+          is_active?: boolean
+          margin_x?: number
+          margin_y?: number
+          opacity?: number
+          position?: string
+          size_percent?: number
+          store_id?: string
+          text_content?: string | null
+          updated_at?: string
+          watermark_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_watermark_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
