@@ -19,6 +19,7 @@ const APP_REQUIRED_MODULE: Record<string, string> = {
   "keyword-generator": "module_ai",
   "email-marketing": "module_email_marketing",
   klaviyo: "module_email_marketing",
+  "klaviyo-marketing": "module_email_marketing",
   "site-kit": "module_site_kit",
   "global-export": "module_global_export",
 };
