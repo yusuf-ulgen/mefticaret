@@ -11,7 +11,7 @@ import {
   Upload,
   Video,
 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -58,14 +58,31 @@ import {
 import { mediaAssetsQuery, mediaFoldersQuery, type MediaAsset } from "@/lib/media-library-queries";
 import { STORAGE_PROVIDER_LABELS, buildSrcSet } from "@/lib/media-storage";
 
-const KIND_FILTERS: { value: "all" | MediaKind; label: string }[] = [
+const BASE_KIND_FILTERS: { value: "all" | MediaKind; label: string }[] = [
   { value: "all", label: "Tümü" },
   { value: "image", label: "Görseller" },
   { value: "video", label: "Videolar" },
   { value: "document", label: "Dokümanlar" },
 ];
+const V2_KIND_FILTERS: { value: "all" | MediaKind; label: string }[] = [
+  ...BASE_KIND_FILTERS,
+  { value: "audio", label: "Ses" },
+  { value: "model", label: "3D" },
+];
 
-export function MediaLibraryPanel({ storeId }: { storeId: string }) {
+export function MediaLibraryPanel({
+  storeId,
+  uploader,
+  renderDetailExtra,
+  v2 = false,
+}: {
+  storeId: string;
+  /** Medya v2 açıkken klasik yükleme kutusunun yerine geçer. */
+  uploader?: (ctx: { folderId: string | null; onUploaded: () => Promise<void> }) => ReactNode;
+  renderDetailExtra?: (asset: MediaAsset, close: () => void) => ReactNode;
+  v2?: boolean;
+}) {
+  const KIND_FILTERS = v2 ? V2_KIND_FILTERS : BASE_KIND_FILTERS;
   const queryClient = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -244,6 +261,9 @@ export function MediaLibraryPanel({ storeId }: { storeId: string }) {
         <StatCard label="Alt metni eksik" value={String(missingAlt)} />
       </div>
 
+      {uploader ? (
+        uploader({ folderId: activeFolder, onUploaded: invalidate })
+      ) : (
       <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -295,6 +315,7 @@ export function MediaLibraryPanel({ storeId }: { storeId: string }) {
           onChange={(event) => void handleFiles(event.target.files)}
         />
       </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[240px_1fr]">
         <aside className="space-y-3">
@@ -552,6 +573,8 @@ export function MediaLibraryPanel({ storeId }: { storeId: string }) {
                   <div className="p-6 text-center text-sm text-muted-foreground">Önizleme yok</div>
                 )}
               </div>
+
+              {renderDetailExtra?.(detail, () => setDetail(null))}
 
               <dl className="grid grid-cols-2 gap-2 text-xs">
                 <Meta label="Boyut" value={formatBytes(Number(detail.size_bytes))} />
