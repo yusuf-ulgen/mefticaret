@@ -22,7 +22,6 @@ export function agentDiscoveryResponse(pathname: string): Response | null {
           linkset: [
             {
               anchor: `${BASE}/api/v2`,
-              "service-desc": [{ href: `${BASE}/api/v2/openapi.json`, type: "application/json" }],
               "service-doc": [{ href: `${BASE}/rehberler`, type: "text/html" }],
             },
             {
