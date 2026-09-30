@@ -79,11 +79,14 @@ function withTimeout<T>(p: Promise<T>, fallback: T, ms = 1500): Promise<T> {
 }
 
 export const Route = createFileRoute("/")({
-  loader: async () => {
+  loader: async ({ context }) => {
+    // Hero/başlık metni sunucuda hazır gelsin (mobil LCP): bölümler loader'da önceden yüklenir.
     const [homeSeo, planOffers, faqItems] = await Promise.all([
       withTimeout(fetchHomeSeo(), null as Awaited<ReturnType<typeof fetchHomeSeo>> | null),
       withTimeout(loadPlanOffers(), [] as PlanOffer[]),
       withTimeout(loadFaqItems(), [] as FaqItem[]),
+      withTimeout(context.queryClient.ensureQueryData(siteSectionsQuery()).then(() => null), null),
+      withTimeout(context.queryClient.ensureQueryData(plansQuery()).then(() => null), null),
     ]);
     return { homeSeo, planOffers, faqItems };
   },
