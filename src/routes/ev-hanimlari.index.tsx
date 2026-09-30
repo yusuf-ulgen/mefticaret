@@ -20,7 +20,6 @@ import { getHomeMakerProfile } from "@/lib/home-maker.functions";
 import { requestPhoneOtp, verifyPhoneOtp } from "@/lib/kolay-v8.functions";
 
 export const Route = createFileRoute("/ev-hanimlari/")({
-  ssr: false,
   head: () => ({
     meta: [
       { title: "Ev Hanımları Portalı — Mefticaret" },
