@@ -102,6 +102,18 @@ function buildDnsChecks(domain: DomainRow, checking: boolean): DnsCheck[] {
   });
 }
 
+type RegionResult = { region: string; status: string; values: string[] };
+
+function regionResults(records: unknown): RegionResult[] {
+  if (!Array.isArray(records)) return [];
+  return records
+    .filter((r) => !!r && typeof r === "object" && (r as { type?: unknown }).type === "REGION")
+    .map((r) => {
+      const x = r as { region?: unknown; status?: unknown; values?: unknown };
+      return { region: String(x.region ?? ""), status: String(x.status ?? "error"), values: Array.isArray(x.values) ? x.values.map(String) : [] };
+    });
+}
+
 function worst(states: CheckState[]): CheckState {
   const order: CheckState[] = ["error", "pending", "warn", "unknown", "ok"];
   return order.find((s) => states.includes(s)) ?? "unknown";
@@ -179,6 +191,16 @@ export function DomainStatusCard({
     unknown: "bg-muted text-muted-foreground border-border",
   };
 
+  const regions = regionResults(domain.dns_records);
+  const provider = detected(domain.dns_records, "PROVIDER")[0] ?? null;
+  const regionState: CheckState = !isCustom
+    ? "ok"
+    : checking
+      ? "pending"
+      : regions.length
+        ? worst(regions.map((r) => (r.status === "ok" ? "ok" : r.status === "missing" ? "warn" : r.status === "error" ? "unknown" : "error")))
+        : "unknown";
+
   return (
     <article className="surface-card overflow-hidden p-0">
       <header className="space-y-2 px-4 pt-5 sm:px-6">
@@ -192,7 +214,8 @@ export function DomainStatusCard({
           {domain.is_primary ? <Badge>Ana domain</Badge> : null}
         </div>
         <p className="text-xs text-muted-foreground">
-          {isCustom ? "Özel domain" : "Platform alt alan adı"} · Eklenme: {fmt(domain.created_at)}
+          {isCustom ? "Özel domain" : "Platform alt alan adı"}
+          {provider ? ` · Sağlayıcı: ${provider}` : ""} · Eklenme: {fmt(domain.created_at)}
           {domain.redirect_to_hostname ? ` · → ${domain.redirect_to_hostname} (301)` : ""}
         </p>
       </header>
@@ -293,14 +316,45 @@ export function DomainStatusCard({
           )}
         </Section>
 
-        <Section title="Bölgesel erişim" state="unknown" summary="Bu kontrol henüz desteklenmiyor">
-          <div className="flex items-start gap-2 text-sm text-muted-foreground">
-            <CircleDashed className="mt-0.5 size-4 shrink-0" />
-            <p>
-              Mefticaret DNS kayıtlarını tek bir genel çözümleyici üzerinden kontrol ediyor; bölge bazlı erişim testi
-              henüz yapılmıyor. Bu yüzden burada bölge sonucu gösterilmez.
-            </p>
-          </div>
+        <Section
+          title="Bölgesel erişim"
+          state={regionState}
+          summary={
+            !isCustom
+              ? "Platform ağı üzerinden sunulur"
+              : checking
+                ? "Kontrol ediliyor"
+                : regions.length
+                  ? `${regions.filter((r) => r.status === "ok").length}/${regions.length} bölge doğru yönleniyor`
+                  : "Henüz kontrol edilmedi"
+          }
+        >
+          {!isCustom ? (
+            <p className="text-sm text-muted-foreground">Alt alan adları tüm bölgelerde platform ağından sunulur.</p>
+          ) : regions.length ? (
+            <ul className="space-y-2">
+              {regions.map((r) => {
+                const st: CheckState = checking ? "pending" : r.status === "ok" ? "ok" : r.status === "error" ? "unknown" : r.status === "missing" ? "warn" : "error";
+                const note = r.status === "ok" ? "Doğru yönleniyor" : r.status === "missing" ? "Kayıt bulunamadı" : r.status === "error" ? "Durum alınamadı" : "Farklı adrese yönleniyor";
+                return (
+                  <li key={r.region} className="flex flex-wrap items-center gap-2 rounded-lg border border-border p-3 text-sm">
+                    <StateIcon state={st} className="size-4" />
+                    <span className="font-medium">{r.region}</span>
+                    <span className="text-xs text-muted-foreground">{note}</span>
+                    <span className="ml-auto break-all font-mono text-xs text-muted-foreground">{r.values.join(", ") || "—"}</span>
+                  </li>
+                );
+              })}
+              <li className="text-xs text-muted-foreground">
+                Farklı bölgelerden genel DNS çözümlemesiyle kontrol edilir{domain.last_checked_at ? ` · ${fmt(domain.last_checked_at)}` : ""}.
+              </li>
+            </ul>
+          ) : (
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <CircleDashed className="mt-0.5 size-4 shrink-0" />
+              <p>Bölge sonucu için "Durumu yeniden kontrol et" düğmesine bas.</p>
+            </div>
+          )}
         </Section>
 
         <Section title="TLS sertifikası" state={tls.state} summary={tls.label}>
