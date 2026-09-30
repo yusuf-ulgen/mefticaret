@@ -249,7 +249,6 @@ function DomainsPage() {
               onRecheck={domain.type === "custom" ? () => verify.mutate(domain.id) : null}
               actions={
                 <>
-                {null}
                 {domain.status === "verified" ? (
                   <Button
                     variant="outline"
