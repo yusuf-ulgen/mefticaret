@@ -14,10 +14,10 @@ Satıcılar kendi alan adıyla mağaza açar; Ev Hanımları (Kolay Panel), B2B 
 
 ## Diller
 
-- [English](https://mefticaret.com/en): English homepage.
-- [Deutsch](https://mefticaret.com/de): Deutsche Startseite.
-- [Français](https://mefticaret.com/fr): Page d'accueil.
-- [العربية](https://mefticaret.com/ar): الصفحة الرئيسية.
+- [English](https://mefticaret.com/en/llms.txt): İngilizce sürüm.
+- [Deutsch](https://mefticaret.com/de/llms.txt): Almanca sürüm.
+- [Français](https://mefticaret.com/fr/llms.txt): Fransızca sürüm.
+- [العربية](https://mefticaret.com/ar/llms.txt): Arapça sürüm.
 
 ## Ajanlar için
 

@@ -1,0 +1,25 @@
+# Mefticaret
+
+> ميفتيجارت منصة تجارة إلكترونية متعددة المستأجرين مقرها تركيا: إنشاء المتاجر، إدارة المنتجات والطلبات، المدفوعات، الشحن، تحسين محركات البحث، المدونة، تكامل الأسواق وأدوات الذكاء الاصطناعي في لوحة واحدة.
+
+يفتح البائعون متاجرهم على نطاقاتهم الخاصة؛ كما تشمل المنصة البائعين من المنزل (Kolay Panel) وموردي B2B وتطبيق رسائل Mefticaret.
+
+## الصفحات
+
+- [الصفحة الرئيسية](https://mefticaret.com/ar): نظرة عامة على المنصة والميزات والباقات.
+
+## لغات أخرى
+
+- [Türkçe](https://mefticaret.com/llms.txt): النسخة التركية.
+- [English](https://mefticaret.com/en/llms.txt): النسخة الإنجليزية.
+- [Deutsch](https://mefticaret.com/de/llms.txt): النسخة الألمانية.
+- [Français](https://mefticaret.com/fr/llms.txt): النسخة الفرنسية.
+
+## للوكلاء
+
+- [خادم MCP](https://mefticaret.com/mcp): نقطة MCP محمية بـ OAuth لبيانات المتجر.
+- [كتالوج API](https://mefticaret.com/.well-known/api-catalog): أوصاف واجهات API العامة.
+
+## Optional
+
+- [خريطة الموقع العربية](https://mefticaret.com/sitemap-ar.xml): جميع الصفحات العامة بالعربية.
