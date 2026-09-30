@@ -8,6 +8,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Download, History, Loader2, ScrollText } from "lucide-react";
 import { toast } from "sonner";
+import { sanitizeBlogHtml } from "@/lib/blog-sanitize";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -164,7 +165,10 @@ function PolicyEditor({ storeId, policyId, onChanged }: { storeId: string | null
   const preview = useMemo(() => {
     if (!form) return "";
     const vals: Record<string, string> = { ...form.values, MAGAZA_ADI: q.data?.storeName ?? "" };
-    return form.draftContent.replace(/\{\{([A-Z_]+)\}\}/g, (m, k: string) => (vals[k] ? vals[k] : `<mark>${m}</mark>`));
+    const esc = (s: string) =>
+      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    const html = form.draftContent.replace(/\{\{([A-Z_]+)\}\}/g, (m, k: string) => (vals[k] ? esc(vals[k]) : `<mark>${m}</mark>`));
+    return sanitizeBlogHtml(html);
   }, [form, q.data?.storeName]);
 
   if (q.isLoading || !form) return <Loader2 className="h-5 w-5 animate-spin" />;

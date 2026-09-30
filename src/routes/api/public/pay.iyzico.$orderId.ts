@@ -25,7 +25,8 @@ export const Route = createFileRoute("/api/public/pay/iyzico/$orderId")({
           .maybeSingle();
         if (!order) return new Response("not found", { status: 404 });
         const slug = (order.stores as { slug?: string } | null)?.slug ?? "";
-        const back = `${origin}/s/${slug}/order?no=${encodeURIComponent(order.order_number)}&email=${encodeURIComponent(order.customer_email ?? "")}`;
+        // Müşteri e-postası yönlendirme adresine yazılmaz; müşteri sipariş sayfasında e-postasını girer.
+        const back = `${origin}/s/${encodeURIComponent(slug)}/order?no=${encodeURIComponent(order.order_number)}`;
 
         if (token) {
           const gw = await import("@/lib/store-gateways.server");

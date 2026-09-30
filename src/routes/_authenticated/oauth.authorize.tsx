@@ -98,7 +98,16 @@ function AuthorizePage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const redirectRegistered = Boolean(
+    client.data?.is_active && (client.data.redirect_uris ?? []).includes(search.redirect_uri),
+  );
+
   function deny() {
+    // Yalnızca istemcinin kayıtlı yönlendirme adreslerine geri dönülür (açık yönlendirme engeli).
+    if (!redirectRegistered) {
+      window.location.assign("/stores");
+      return;
+    }
     const url = new URL(search.redirect_uri);
     url.searchParams.set("error", "access_denied");
     if (search.state) url.searchParams.set("state", search.state);

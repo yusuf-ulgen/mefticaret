@@ -37,10 +37,22 @@ export const syncAbandonedCart = createServerFn({ method: "POST" })
     if (storeError) throw new Error(storeError.message);
     if (!store) return { ok: false as const };
 
-    const total = data.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const itemCount = data.items.reduce((sum, item) => sum + item.quantity, 0);
+    // Fiyat ve başlık istemciden alınmaz; mağazanın gerçek ürün varyantlarından okunur.
+    const variantIds = Array.from(new Set(data.items.map((i) => i.variantId).filter((v): v is string => !!v)));
+    const { data: variants } = variantIds.length
+      ? await supabase.from("product_variants").select("id, price, title").eq("store_id", store.id).in("id", variantIds)
+      : { data: [] as { id: string; price: number; title: string | null }[] };
+    const byId = new Map((variants ?? []).map((v) => [v.id, v]));
+    const items = data.items
+      .filter((i) => i.variantId && byId.has(i.variantId))
+      .map((i) => {
+        const v = byId.get(i.variantId!)!;
+        return { ...i, price: Number(v.price ?? 0), variantTitle: v.title ?? i.variantTitle };
+      });
+    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-    if (data.items.length === 0) {
+    if (items.length === 0) {
       // Sepet boşaldıysa bekleyen anlık görüntüyü sıfırla
       const { error } = await supabase
         .from("abandoned_carts")
@@ -57,7 +69,7 @@ export const syncAbandonedCart = createServerFn({ method: "POST" })
         cart_token: data.cartToken,
         customer_email: data.customerEmail || null,
         customer_name: data.customerName || null,
-        items: data.items,
+        items,
         item_count: itemCount,
         total: Math.round(total * 100) / 100,
         currency: data.currency,
@@ -74,7 +86,7 @@ export const markCartRecovered = createServerFn({ method: "POST" })
     z
       .object({
         slug: z.string().trim().min(1).max(120),
-        cartToken: z.string().trim().min(16).max(128),
+        cartToken: z.string().trim().regex(/^[a-f0-9]{32,128}$/i),
         orderNumber: z.string().trim().min(1).max(60),
       })
       .parse(data),
@@ -92,14 +104,30 @@ export const markCartRecovered = createServerFn({ method: "POST" })
 
     const { data: order } = await supabase
       .from("orders")
-      .select("id")
+      .select("id, customer_email, created_at")
       .eq("store_id", store.id)
       .eq("order_number", data.orderNumber)
       .maybeSingle();
+    // Yalnızca son 2 saatte oluşan, sepetteki e-postayla eşleşen gerçek sipariş bağlanır.
+    if (!order) return { ok: false as const };
+    if (Date.now() - new Date(order.created_at).getTime() > 2 * 60 * 60 * 1000) return { ok: false as const };
+    const { data: cartRow } = await supabase
+      .from("abandoned_carts")
+      .select("customer_email")
+      .eq("store_id", store.id)
+      .eq("cart_token", data.cartToken)
+      .maybeSingle();
+    if (!cartRow) return { ok: false as const };
+    if (
+      cartRow.customer_email &&
+      (order.customer_email ?? "").toLowerCase() !== cartRow.customer_email.toLowerCase()
+    ) {
+      return { ok: false as const };
+    }
 
     const { error } = await supabase
       .from("abandoned_carts")
-      .update({ recovered_order_id: order?.id ?? null })
+      .update({ recovered_order_id: order.id })
       .eq("store_id", store.id)
       .eq("cart_token", data.cartToken)
       .is("recovered_order_id", null);

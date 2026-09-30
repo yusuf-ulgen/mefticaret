@@ -52,7 +52,8 @@ export const createStore = createServerFn({ method: "POST" })
     const { data: plan } = await supabase
       .from("plans")
       .select("id")
-      .eq("code", data.planCode ?? "free")
+      // Ücretli paketler yalnızca ödeme/abonelik akışıyla atanır; yeni mağaza her zaman ücretsiz paketle açılır.
+      .eq("code", "free")
       .maybeSingle();
 
     const payload = {
