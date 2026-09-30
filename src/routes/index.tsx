@@ -25,9 +25,9 @@ import { pickSection, sectionIcon, siteSectionsQuery, type SiteSection } from "@
 import { fetchHomeSeo } from "@/lib/seo-ai.functions";
 import { plansQuery } from "@/lib/store-queries";
 
-const FALLBACK_TITLE = "Mefticaret — E-Ticaret Altyapısı ve Mağaza Yönetimi";
+const FALLBACK_TITLE = "Mefticaret — Online Mağaza Kur, Pazaryerlerinde Sat";
 const FALLBACK_DESCRIPTION =
-  "Türkiye'nin kapsamlı SaaS e-ticaret altyapısı. Dakikalar içinde mağazanı aç; stok, sipariş, kargo ve pazaryeri entegrasyonlarını tek panelden yönet.";
+  "Mefticaret ile dakikalar içinde online mağazanı aç; ürün, sipariş, ödeme, kargo ve pazaryeri satışlarını tek panelden yönet.";
 
 type PlanOffer = { name: string; price: number; currency: string };
 
