@@ -34,7 +34,7 @@ export const Route = createFileRoute("/sayfa/$slug")({
   errorComponent: ({ error }) => (
     <main className="mx-auto w-full max-w-3xl px-5 py-14" role="alert">
       <h1 className="text-2xl font-semibold">Sayfa şu anda görüntülenemiyor</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+      <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : String(error)}</p>
     </main>
   ),
   notFoundComponent: () => (
