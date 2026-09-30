@@ -184,13 +184,8 @@ function HomeMakerAuthPage() {
     }
   }
 
-  if (checking) {
-    return (
-      <div className="grid min-h-screen place-items-center bg-hm-sand">
-        <Loader2 className="size-6 animate-spin text-hm-rose" />
-      </div>
-    );
-  }
+  // Oturum kontrolü sırasında da içerik gösterilir (arama motorları başlığı görebilsin).
+  void checking;
 
   return (
     <div className="hm-app min-h-screen bg-hm-sand px-5 py-10">
