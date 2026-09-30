@@ -1,0 +1,26 @@
+# Mefticaret
+
+> Mefticaret is a Turkey-based multi-tenant e-commerce platform: store builder, product and order management, payments, shipping, SEO, blog, marketplace integrations and AI tools in one panel.
+
+Sellers open stores on their own domain; home-based sellers (Kolay Panel), B2B suppliers and the Mefticaret Messages app are also part of the platform.
+
+## Pages
+
+- [Home](https://mefticaret.com/en): Platform overview, features and plans.
+- [How to start an online store](https://mefticaret.com/en/how-to-start-an-online-store): Step-by-step guide to launching a store.
+
+## Other languages
+
+- [Türkçe](https://mefticaret.com/llms.txt): Turkish version.
+- [Deutsch](https://mefticaret.com/de/llms.txt): German version.
+- [Français](https://mefticaret.com/fr/llms.txt): French version.
+- [العربية](https://mefticaret.com/ar/llms.txt): Arabic version.
+
+## For agents
+
+- [MCP server](https://mefticaret.com/mcp): OAuth-protected MCP endpoint for store data.
+- [API catalog](https://mefticaret.com/.well-known/api-catalog): Public API descriptions.
+
+## Optional
+
+- [English sitemap](https://mefticaret.com/sitemap-en.xml): All public English pages.
