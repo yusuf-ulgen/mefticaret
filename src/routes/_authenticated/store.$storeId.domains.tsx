@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DomainStatusCard } from "@/components/domain-status-card";
 import { storeDomainsQuery } from "@/lib/store-queries";
 import {
   DOMAIN_STATUS_LABELS,

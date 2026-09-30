@@ -107,7 +107,7 @@ function worst(states: CheckState[]): CheckState {
   return order.find((s) => states.includes(s)) ?? "unknown";
 }
 
-function tlsState(domain: DomainRow, checking: boolean): { state: CheckState; label: string; detail?: string } {
+function tlsState(domain: DomainRow, checking: boolean): { state: CheckState; label: string; detail?: string | undefined } {
   if (checking) return { state: "pending", label: "Kontrol ediliyor" };
   const expired = domain.ssl_expires_at && new Date(domain.ssl_expires_at).getTime() < Date.now();
   if (domain.ssl_status === "active" && expired)
