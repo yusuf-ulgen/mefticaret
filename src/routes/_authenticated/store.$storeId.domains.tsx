@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DomainStatusCard } from "@/components/domain-status-card";
 import { storeDomainsQuery } from "@/lib/store-queries";
 import {
   DOMAIN_STATUS_LABELS,
@@ -237,88 +238,18 @@ function DomainsPage() {
 
       <div className="space-y-3">
         {list.map((domain) => {
-          const apex = domain.hostname.replace(/^www\./, "");
-          const isWww = domain.hostname.startsWith("www.");
+          const checking = verify.isPending && verify.variables === domain.id;
+          const checkError =
+            verify.isError && verify.variables === domain.id ? verify.error.message : null;
           return (
-            <article key={domain.id} className="surface-card p-5">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl bg-brand-soft text-brand-foreground">
-                  <Globe className="size-5" />
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{domain.hostname}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {domain.type === "subdomain" ? "Platform alt alan adı" : "Özel domain"}
-                    {domain.redirect_to_hostname
-                      ? ` · → ${domain.redirect_to_hostname} (301)`
-                      : ""}
-                  </p>
-                </div>
-                <div className="ml-auto flex flex-wrap items-center gap-2">
-                  {domain.is_primary ? <Badge>Ana domain</Badge> : null}
-                  <Badge
-                    variant={domain.ssl_status === "active" ? "secondary" : "outline"}
-                    className="gap-1"
-                  >
-                    <Lock className="size-3" />
-                    {SSL_STATUS_LABELS[domain.ssl_status] ?? domain.ssl_status}
-                  </Badge>
-                  <Badge
-                    variant={domain.status === "verified" ? "default" : "secondary"}
-                    className="gap-1"
-                  >
-                    {domain.status === "verified" ? <BadgeCheck className="size-3" /> : null}
-                    {DOMAIN_STATUS_LABELS[domain.status] ?? domain.status}
-                  </Badge>
-                </div>
-              </div>
-
-              {domain.type === "custom" && domain.status !== "verified" ? (
-                <div className="mt-4 space-y-3 rounded-lg border border-border bg-muted/40 p-4 text-sm">
-                  <p className="font-medium">DNS kayıtlarını ekle</p>
-                  <div className="grid gap-2 font-mono text-xs">
-                    <DnsRow
-                      type="TXT"
-                      name={`${DOMAIN_TXT_PREFIX}.${apex}`}
-                      value={domain.verification_token}
-                    />
-                    {isWww ? (
-                      <DnsRow type="CNAME" name="www" value={PLATFORM_DNS_CNAME} />
-                    ) : (
-                      <DnsRow type="A" name="@" value={PLATFORM_DNS_A} />
-                    )}
-                  </div>
-                  {domain.last_error ? (
-                    <p className="flex items-center gap-2 text-xs text-destructive">
-                      <TriangleAlert className="size-3.5" /> {domain.last_error}
-                    </p>
-                  ) : null}
-                  {domain.last_checked_at ? (
-                    <p className="text-xs text-muted-foreground">
-                      Son kontrol: {new Date(domain.last_checked_at).toLocaleString("tr-TR")}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-
-              {domain.status === "verified" && domain.ssl_expires_at ? (
-                <p className="mt-3 text-xs text-muted-foreground">
-                  Sertifika geçerlilik: {new Date(domain.ssl_expires_at).toLocaleDateString("tr-TR")} —
-                  bitiminden önce otomatik yenilenir.
-                </p>
-              ) : null}
-
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                {domain.type === "custom" ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => verify.mutate(domain.id)}
-                    disabled={verify.isPending}
-                  >
-                    <RefreshCw className="mr-2 size-4" /> DNS doğrula
-                  </Button>
-                ) : null}
+            <DomainStatusCard
+              key={domain.id}
+              domain={domain}
+              checking={checking}
+              checkError={checkError}
+              onRecheck={domain.type === "custom" ? () => verify.mutate(domain.id) : null}
+              actions={
+                <>
                 {domain.status === "verified" ? (
                   <Button
                     variant="outline"
@@ -380,8 +311,9 @@ function DomainsPage() {
                     <Trash2 className="mr-2 size-4" /> Kaldır
                   </Button>
                 ) : null}
-              </div>
-            </article>
+                </>
+              }
+            />
           );
         })}
         {list.length === 0 ? (
@@ -391,26 +323,5 @@ function DomainsPage() {
         ) : null}
       </div>
     </AppShell>
-  );
-}
-
-function DnsRow({ type, name, value }: { type: string; name: string; value: string }) {
-  return (
-    <div className="flex flex-wrap items-center gap-2 rounded-md bg-background/60 px-3 py-2">
-      <Badge variant="outline" className="font-mono">
-        {type}
-      </Badge>
-      <span className="text-muted-foreground">{name}</span>
-      <span className="break-all">{value}</span>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="ml-auto size-7"
-        onClick={() => copy(value)}
-      >
-        <Copy className="size-3.5" />
-      </Button>
-    </div>
   );
 }
