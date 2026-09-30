@@ -145,7 +145,7 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-function Row({ icon, title, sub, onClick }: { icon: React.ReactNode; title: string; sub?: string; onClick: () => void }) {
+function Row({ icon, title, sub, onClick }: { icon: React.ReactNode; title: string; sub?: string | undefined; onClick: () => void }) {
   return (
     <li>
       <button type="button" onClick={onClick} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-muted">

@@ -86,11 +86,11 @@ function UserDetail() {
   const banned = d.account.bannedUntil && new Date(d.account.bannedUntil) > new Date();
 
   return (
-    <AdminShell title={d.profile.full_name || d.profile.email || "Kullanıcı"} description={d.profile.email ?? undefined} actions={back}>
+    <AdminShell title={d.profile.full_name || d.profile.email || "Kullanıcı"} description={d.profile.email ?? ""} actions={back}>
       <section className="surface-card flex flex-wrap items-center gap-3 p-5">
         {banned ? <Badge variant="destructive">Askıda</Badge> : <Badge variant="secondary">Aktif</Badge>}
         {d.account.emailConfirmed ? <Badge variant="outline">E-posta doğrulandı</Badge> : <Badge variant="outline">E-posta doğrulanmadı</Badge>}
-        {d.roles.map((r) => <Badge key={r} className="gap-1"><ShieldCheck className="size-3" />{ROLE_LABELS[r] ?? r}</Badge>)}
+        {d.roles.map((r: string) => <Badge key={r} className="gap-1"><ShieldCheck className="size-3" />{ROLE_LABELS[r] ?? r}</Badge>)}
         <div className="ml-auto flex flex-wrap gap-2">
           <Button size="sm" variant="outline" disabled={reset.isPending} onClick={() => reset.mutate()}>
             <KeyRound className="size-4" />Şifre sıfırlama gönder
@@ -137,7 +137,7 @@ function UserDetail() {
           ) : (
             <ul className="mt-3 divide-y divide-border">
               {d.ownedStores.map((s) => <StoreRow key={s.id} store={s} role="Sahip" />)}
-              {d.memberships.map((m) => <StoreRow key={m.store.id + m.role} store={m.store} role={m.role} />)}
+              {d.memberships.map((m: { role: string; store: { id: string; name: string; slug: string; status: string } }) => <StoreRow key={m.store.id + m.role} store={m.store} role={m.role} />)}
             </ul>
           )}
         </section>
