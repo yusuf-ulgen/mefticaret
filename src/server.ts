@@ -3,6 +3,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { agentDiscoveryResponse, DISCOVERY_LINK_HEADER, htmlToMarkdown } from "./lib/agent-discovery";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -66,12 +67,35 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+async function decorateForAgents(response: Response, request: Request): Promise<Response> {
+  const type = response.headers.get("content-type") ?? "";
+  if (!type.includes("text/html") || response.status >= 400) return response;
+  const headers = new Headers(response.headers);
+  headers.append("link", DISCOVERY_LINK_HEADER);
+  headers.append("vary", "Accept");
+  const accept = request.headers.get("accept") ?? "";
+  if (request.method === "GET" && /text\/markdown/i.test(accept)) {
+    const md = htmlToMarkdown(await response.text());
+    headers.set("content-type", "text/markdown; charset=utf-8");
+    headers.delete("content-length");
+    headers.delete("content-encoding");
+    return new Response(md, { status: response.status, headers });
+  }
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const url = new URL(request.url);
+    if (request.method === "GET" || request.method === "HEAD") {
+      const discovery = agentDiscoveryResponse(url.pathname);
+      if (discovery) return discovery;
+    }
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response, request);
+      const normalized = await normalizeCatastrophicSsrResponse(response, request);
+      return await decorateForAgents(normalized, request);
     } catch (error) {
       // İstemci bağlantıyı kapattıysa (sayfadan ayrılma/yenileme) hata raporlamayız.
       if (isClientAbortError(error) || request.signal?.aborted) {

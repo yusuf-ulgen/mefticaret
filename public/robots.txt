@@ -11,6 +11,7 @@ User-agent: facebookexternalhit
 Allow: /
 
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
 
 Sitemap: https://mefticaret.com/sitemap-index.xml
