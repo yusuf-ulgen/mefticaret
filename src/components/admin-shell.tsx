@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { ChevronDown, Menu, Search, ShieldAlert, ShieldCheck, X } from "lucide-react";
 
+import { AdminCommandSearch } from "@/components/admin-command-search";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -241,10 +242,7 @@ export function AdminShell({
         <div className="flex h-16 items-center gap-3 bg-foreground px-3 text-background lg:px-5">
           <span className="font-display text-base font-semibold tracking-tight lg:hidden">Mefticaret</span>
           <div className="ml-auto flex items-center gap-2 lg:ml-0 lg:flex-1">
-            <div className="hidden min-w-0 flex-1 items-center gap-2 rounded-full bg-background/12 px-3.5 py-2 text-xs text-background/70 sm:flex lg:max-w-md">
-              <Search className="size-3.5 shrink-0" />
-              <span className="truncate">Yönetim ara — “Tüm yönetim” menüsünden</span>
-            </div>
+            <AdminCommandSearch />
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span className="hidden max-w-[16rem] truncate text-background/70 sm:inline">{userLabel}</span>

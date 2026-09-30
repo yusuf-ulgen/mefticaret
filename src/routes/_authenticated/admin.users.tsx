@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -101,7 +101,9 @@ function AdminUsers() {
               return (
                 <tr key={userId}>
                   <td className="px-4 py-3">
-                    <p className="font-medium">{String(row["full_name"] ?? "İsimsiz")}</p>
+                    <Link to="/admin/user/$userId" params={{ userId }} className="font-medium hover:underline">
+                      {String(row["full_name"] ?? "İsimsiz")}
+                    </Link>
                     <p className="text-xs text-muted-foreground">{String(row["email"] ?? "—")}</p>
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">

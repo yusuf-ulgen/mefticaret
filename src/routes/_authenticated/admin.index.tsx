@@ -26,6 +26,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { AdminAttention } from "@/components/admin-attention";
 import { AdminShell } from "@/components/admin-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -105,6 +106,7 @@ function AdminDashboard() {
 
   return (
     <AdminShell title="Dashboard" description="Platform genelinde kiracı, gelir ve destek görünürlüğü.">
+      <AdminAttention enabled={isPlatformAdmin} />
       <section className="surface-card relative overflow-hidden p-5">
         <div className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" />
         <div className="relative grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.1fr] lg:items-center">
