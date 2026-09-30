@@ -91,6 +91,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "Mefticaret — Online Mağaza Kur, Pazaryerlerinde Sat" },
+      {
+        name: "description",
+        content:
+          "Mefticaret ile dakikalar içinde online mağazanı aç; ürün, sipariş, ödeme, kargo ve pazaryeri satışlarını tek panelden yönet.",
+      },
+      { property: "og:title", content: "Mefticaret — Online Mağaza Kur, Pazaryerlerinde Sat" },
+      {
+        property: "og:description",
+        content:
+          "Mefticaret ile dakikalar içinde online mağazanı aç; ürün, sipariş, ödeme, kargo ve pazaryeri satışlarını tek panelden yönet.",
+      },
       { name: "author", content: "Mefticaret" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Mefticaret" },
