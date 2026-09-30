@@ -246,7 +246,7 @@ export const updateStoreSettings = createServerFn({ method: "POST" })
 
 type DohAnswer = { data: string; type: number };
 
-async function resolveDns(name: string, type: "TXT" | "A" | "CNAME") {
+async function resolveDns(name: string, type: "TXT" | "A" | "CNAME" | "NS") {
   try {
     const response = await fetch(
       `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(name)}&type=${type}`,
@@ -258,6 +258,50 @@ async function resolveDns(name: string, type: "TXT" | "A" | "CNAME") {
   } catch {
     return [] as string[];
   }
+}
+
+/** Bölgesel çözümleme: Google DoH + EDNS istemci alt ağıyla farklı bölgelerden A kaydı. */
+const DNS_REGIONS = [
+  { code: "tr", label: "Türkiye", subnet: "85.105.0.0/24" },
+  { code: "eu", label: "Avrupa", subnet: "46.101.0.0/24" },
+  { code: "us", label: "Kuzey Amerika", subnet: "8.8.8.0/24" },
+  { code: "asia", label: "Asya", subnet: "1.0.0.0/24" },
+] as const;
+
+async function resolveRegional(name: string) {
+  return Promise.all(
+    DNS_REGIONS.map(async (region) => {
+      try {
+        const res = await fetch(
+          `https://dns.google/resolve?name=${encodeURIComponent(name)}&type=A&edns_client_subnet=${region.subnet}`,
+          { headers: { accept: "application/dns-json" } },
+        );
+        if (!res.ok) return { type: "REGION", region: region.label, status: "error", values: [] as string[] };
+        const payload = (await res.json()) as { Status?: number; Answer?: DohAnswer[] };
+        const values = (payload.Answer ?? []).filter((a) => a.type === 1).map((a) => a.data);
+        return {
+          type: "REGION",
+          region: region.label,
+          status: values.includes(PLATFORM_DNS_A) ? "ok" : values.length ? "mismatch" : "missing",
+          values,
+        };
+      } catch {
+        return { type: "REGION", region: region.label, status: "error", values: [] as string[] };
+      }
+    }),
+  );
+}
+
+const NS_PROVIDERS: [RegExp, string][] = [
+  [/cloudflare/i, "Cloudflare"], [/domaincontrol|godaddy/i, "GoDaddy"], [/natro/i, "Natro"],
+  [/isimtescil/i, "İsimtescil"], [/turhost/i, "Turhost"], [/guzel\.net|guzelhosting/i, "Güzel Hosting"],
+  [/registrar-servers|namecheap/i, "Namecheap"], [/awsdns/i, "Amazon Route 53"], [/googledomains|google/i, "Google"],
+  [/hostinger|dns-parking/i, "Hostinger"], [/ovh/i, "OVH"], [/lovable/i, "Lovable"],
+];
+
+function providerFromNs(ns: string[]): string | null {
+  for (const host of ns) for (const [re, name] of NS_PROVIDERS) if (re.test(host)) return name;
+  return null;
 }
 
 /** Platform alt alan adı ekler: <label>.mefticaret.com — anında doğrulanmış + wildcard SSL. */
@@ -411,11 +455,14 @@ export const verifyStoreDomain = createServerFn({ method: "POST" })
     if (!domain) throw new Error("Domain bulunamadı");
 
     const apex = domain.hostname.replace(/^www\./, "");
-    const [txt, aRecords, cnames] = await Promise.all([
+    const [txt, aRecords, cnames, nsRecords, regions] = await Promise.all([
       resolveDns(`${DOMAIN_TXT_PREFIX}.${apex}`, "TXT"),
       resolveDns(domain.hostname, "A"),
       resolveDns(domain.hostname, "CNAME"),
+      resolveDns(apex, "NS"),
+      resolveRegional(domain.hostname),
     ]);
+    const provider = providerFromNs(nsRecords);
 
     const ownership = txt.includes(domain.verification_token);
     const pointing = aRecords.includes(PLATFORM_DNS_A) || cnames.includes(PLATFORM_DNS_CNAME);
@@ -443,6 +490,9 @@ export const verifyStoreDomain = createServerFn({ method: "POST" })
           ...txt.map((value) => ({ type: "TXT", value })),
           ...aRecords.map((value) => ({ type: "A", value })),
           ...cnames.map((value) => ({ type: "CNAME", value })),
+          ...nsRecords.map((value) => ({ type: "NS", value })),
+          ...(provider ? [{ type: "PROVIDER", value: provider }] : []),
+          ...regions.map((r) => ({ ...r, checked_at: nowIso })),
         ],
       })
       .eq("id", domain.id)
