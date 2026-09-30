@@ -17,6 +17,35 @@ async function assertManager(supabase: unknown, storeId: string, userId: string)
   await assertStoreManager(supabase as never, storeId, userId);
 }
 
+/** Alıcılar yalnızca mağazanın kendi WhatsApp görüşmeleri veya müşterileri olabilir. */
+async function assertKnownRecipients(supabase: unknown, storeId: string, waIds: string[]) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const digits = (v: string) => v.replace(/\D/g, "");
+  const wanted = Array.from(new Set(waIds.map(digits)));
+  const { data: convs } = await supabaseAdmin
+    .from("whatsapp_conversations")
+    .select("wa_id")
+    .eq("store_id", storeId)
+    .in("wa_id", Array.from(new Set([...waIds, ...wanted])));
+  const known = new Set((convs ?? []).map((c: { wa_id: string }) => digits(c.wa_id)));
+  const missing = wanted.filter((w) => !known.has(w));
+  if (missing.length) {
+    const { data: customers } = await supabaseAdmin
+      .from("customers")
+      .select("phone")
+      .eq("store_id", storeId)
+      .not("phone", "is", null)
+      .limit(5000);
+    for (const c of (customers ?? []) as { phone: string | null }[]) {
+      const d = digits(c.phone ?? "");
+      if (d) known.add(d);
+    }
+  }
+  void supabase;
+  const unknown = wanted.filter((w) => !known.has(w) && ![...known].some((k) => k.endsWith(w.slice(-10)) && w.length >= 10));
+  if (unknown.length) throw new Error("Alıcı bu mağazanın müşterisi veya görüşmesi değil");
+}
+
 async function limitOutbound(storeId: string, userId: string, count: number) {
   const { consumeRateLimit } = await import("@/lib/rate-limit.server");
   const limit = await consumeRateLimit(`whatsapp_send:${storeId}:${userId}`, {
@@ -78,6 +107,7 @@ export const sendWhatsApp = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertManager(context.supabase, data.storeId, context.userId);
+    await assertKnownRecipients(context.supabase, data.storeId, [data.waId]);
     await limitOutbound(data.storeId, context.userId, 1);
     const { sendWhatsAppMessage } = await import("@/lib/whatsapp.server");
     const result = await sendWhatsAppMessage(context.supabase, {
@@ -213,6 +243,7 @@ export const sendWhatsAppCampaign = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertManager(context.supabase, data.storeId, context.userId);
+    await assertKnownRecipients(context.supabase, data.storeId, data.waIds);
     await limitOutbound(data.storeId, context.userId, data.waIds.length);
     const { sendWhatsAppMessage } = await import("@/lib/whatsapp.server");
     let sent = 0;
