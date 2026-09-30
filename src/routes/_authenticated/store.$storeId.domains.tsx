@@ -311,8 +311,9 @@ function DomainsPage() {
                     <Trash2 className="mr-2 size-4" /> Kaldır
                   </Button>
                 ) : null}
-              </div>
-            </article>
+                </>
+              }
+            />
           );
         })}
         {list.length === 0 ? (
@@ -322,26 +323,5 @@ function DomainsPage() {
         ) : null}
       </div>
     </AppShell>
-  );
-}
-
-function DnsRow({ type, name, value }: { type: string; name: string; value: string }) {
-  return (
-    <div className="flex flex-wrap items-center gap-2 rounded-md bg-background/60 px-3 py-2">
-      <Badge variant="outline" className="font-mono">
-        {type}
-      </Badge>
-      <span className="text-muted-foreground">{name}</span>
-      <span className="break-all">{value}</span>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="ml-auto size-7"
-        onClick={() => copy(value)}
-      >
-        <Copy className="size-3.5" />
-      </Button>
-    </div>
   );
 }
