@@ -461,10 +461,10 @@
 .commerce-action-products { animation: commerce-products-copy 45s linear infinite; }
 .commerce-action-sent { left: 50% !important; transform: translate(-50%,-50%) !important; white-space: nowrap; animation-name: commerce-sent-copy; }
 .commerce-sound-bars { position: absolute; left: 12%; right: 12%; bottom: 5%; display: flex; align-items: flex-end; justify-content: space-between; height: 1.3rem; opacity: .18; }
-.commerce-sound-bars i { width: .18rem; border-radius: 2px; background: var(--color-foreground); animation: commerce-sound .9s ease-in-out infinite alternate; }
-.commerce-sound-bars i:nth-child(3n+1) { height: 25%; animation-delay: -.5s; }
-.commerce-sound-bars i:nth-child(3n+2) { height: 70%; animation-delay: -.2s; }
-.commerce-sound-bars i:nth-child(3n) { height: 45%; animation-delay: -.7s; }
+.commerce-sound-bars i { width: .18rem; height: 100%; border-radius: 2px; background: var(--color-foreground); transform-origin: bottom; transform: scaleY(var(--s, .5)); will-change: transform; animation: commerce-sound .9s ease-in-out infinite alternate; }
+.commerce-sound-bars i:nth-child(3n+1) { --s: .25; animation-delay: -.5s; }
+.commerce-sound-bars i:nth-child(3n+2) { --s: .7; animation-delay: -.2s; }
+.commerce-sound-bars i:nth-child(3n) { --s: .45; animation-delay: -.7s; }
 
 @keyframes commerce-brand { 0%,12%,86%,100%{opacity:1;transform:translateX(-50%) scale(1)} 17%,82%{opacity:0;transform:translateX(-50%) scale(.85)} }
 @keyframes commerce-notice { 0%,10%{opacity:1;transform:translateY(0) scale(1)} 15%,84%{opacity:0;transform:translateY(-1rem) scale(.94)} 88%,100%{opacity:1;transform:translateY(5.6rem) scale(1)} }
@@ -479,7 +479,7 @@
 @keyframes commerce-action-copy { 0%,46%{opacity:0} 49%,64%{opacity:1} 67%,100%{opacity:0} }
 @keyframes commerce-products-copy { 0%,46%{opacity:1} 49%,100%{opacity:0} }
 @keyframes commerce-sent-copy { 0%,79%{opacity:0} 82%,88%{opacity:1} 91%,100%{opacity:0} }
-@keyframes commerce-sound { to { height: 100%; } }
+@keyframes commerce-sound { to { transform: scaleY(1); } }
 
 @media (max-width: 767px) {
   .commerce-demo { width: min(100%, 18rem); border-radius: 1.5rem; }
