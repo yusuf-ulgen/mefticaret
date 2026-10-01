@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate, formatMoney } from "@/lib/mefti";
 import { supplierDeskApproveRfq, supplierDeskCreateRfq } from "@/lib/supplier-desk.functions";
+import { supplierSetSalePrice } from "@/lib/supplier-workflow.functions";
 
 export type CatalogProduct = {
   id: string; title: string; sku: string | null; barcode: string | null; category: string | null; brand: string | null;
@@ -36,7 +37,24 @@ function Empty({ text }: { text: string }) {
   return <div className="border-y bg-card px-4 py-12 text-center text-sm text-muted-foreground">{text}</div>;
 }
 
-export function SupplierCatalog({ products }: { products: CatalogProduct[] }) {
+function SalePriceEditor({ supplierId, product, onSaved }: { supplierId: string; product: CatalogProduct; onSaved?: (() => void) | undefined }) {
+  const save = useServerFn(supplierSetSalePrice);
+  const [value, setValue] = useState(String(product.salePrice || ""));
+  const mutation = useMutation({
+    mutationFn: () => save({ data: { supplierId, productId: product.id, salePrice: Number(value.replace(",", ".")) } }),
+    onSuccess: () => { toast.success("Mağaza satış fiyatı kaydedildi"); onSaved?.(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const parsed = Number(value.replace(",", "."));
+  return (
+    <form className="flex items-end gap-2" onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }}>
+      <div className="flex-1 space-y-1"><Label htmlFor="sale-price" className="text-xs">Mağaza satış fiyatı ({product.currency})</Label><Input id="sale-price" inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} /></div>
+      <Button type="submit" disabled={mutation.isPending || !Number.isFinite(parsed) || parsed < 0}>Kaydet</Button>
+    </form>
+  );
+}
+
+export function SupplierCatalog({ products, supplierId, onChanged }: { products: CatalogProduct[]; supplierId?: string | undefined; onChanged?: (() => void) | undefined }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("recent");
@@ -75,7 +93,7 @@ export function SupplierCatalog({ products }: { products: CatalogProduct[] }) {
       </article>)}
     </div>}
 
-    <Dialog open={Boolean(detail)} onOpenChange={(open) => !open && setDetail(null)}><DialogContent className="h-[100dvh] w-screen max-w-none overflow-y-auto rounded-none p-0 sm:h-auto sm:max-h-[92vh] sm:max-w-2xl sm:rounded-lg"><DialogHeader className="sr-only"><DialogTitle>{detail?.title}</DialogTitle><DialogDescription>Ürün ayrıntısı</DialogDescription></DialogHeader>{detail ? <><div className="aspect-[4/3] bg-muted/30">{detail.images[0] ? <SmartImage src={detail.images[0]} alt={detail.title} width={720} height={540} className="h-full w-full object-contain" /> : null}</div><div className="space-y-4 p-4 sm:p-5"><div><Badge variant="outline">{detail.category ?? "Kategorisiz"}</Badge><h2 className="mt-2 text-xl font-semibold">{detail.title}</h2><p className="mt-1 text-sm text-muted-foreground">{detail.brand ?? "—"} · {detail.sku ?? "SKU yok"}</p></div><div className="grid grid-cols-2 gap-3 border-y py-4"><div><p className="text-xs text-muted-foreground">Tedarikçi fiyatı</p><p className="font-medium">{formatMoney(detail.supplierPrice, detail.currency)}</p></div><div><p className="text-xs text-muted-foreground">Mağaza satış fiyatı</p><p className="font-semibold text-success">{formatMoney(detail.salePrice, detail.currency)}</p></div></div><div className="grid grid-cols-3 gap-2 text-sm"><div><p className="text-xs text-muted-foreground">Stok</p><p>{detail.stock}</p></div><div><p className="text-xs text-muted-foreground">Renk</p><p>{detail.color ?? "—"}</p></div><div><p className="text-xs text-muted-foreground">Beden</p><p>{detail.size ?? "—"}</p></div></div>{detail.description ? <p className="text-sm leading-6 text-muted-foreground">{detail.description}</p> : null}</div><DialogFooter className="sticky bottom-0 border-t bg-card p-3 sm:p-4"><Button className="h-auto min-h-10 w-full whitespace-normal px-2 text-xs sm:text-sm" variant="outline" onClick={() => { toggle(detail.id); setDetail(null); }}><ShoppingBasket /> Teklife ekle</Button></DialogFooter></> : null}</DialogContent></Dialog>
+    <Dialog open={Boolean(detail)} onOpenChange={(open) => !open && setDetail(null)}><DialogContent className="h-[100dvh] w-screen max-w-none overflow-y-auto rounded-none p-0 sm:h-auto sm:max-h-[92vh] sm:max-w-2xl sm:rounded-lg"><DialogHeader className="sr-only"><DialogTitle>{detail?.title}</DialogTitle><DialogDescription>Ürün ayrıntısı</DialogDescription></DialogHeader>{detail ? <><div className="aspect-[4/3] bg-muted/30">{detail.images[0] ? <SmartImage src={detail.images[0]} alt={detail.title} width={720} height={540} className="h-full w-full object-contain" /> : null}</div><div className="space-y-4 p-4 sm:p-5"><div><Badge variant="outline">{detail.category ?? "Kategorisiz"}</Badge><h2 className="mt-2 text-xl font-semibold">{detail.title}</h2><p className="mt-1 text-sm text-muted-foreground">{detail.brand ?? "—"} · {detail.sku ?? "SKU yok"}</p></div><div className="grid grid-cols-2 gap-3 border-y py-4"><div><p className="text-xs text-muted-foreground">Tedarikçi fiyatı</p><p className="font-medium">{formatMoney(detail.supplierPrice, detail.currency)}</p></div><div><p className="text-xs text-muted-foreground">Mağaza satış fiyatı</p><p className="font-semibold text-success">{formatMoney(detail.salePrice, detail.currency)}</p></div></div>{supplierId ? <SalePriceEditor key={detail.id} supplierId={supplierId} product={detail} onSaved={onChanged} /> : null}{detail.images.length > 1 ? <div className="flex gap-2 overflow-x-auto">{detail.images.map((src, i) => <SmartImage key={src} src={src} alt={`${detail.title} ${i + 1}`} width={96} height={96} className="size-20 shrink-0 rounded-md border object-cover" />)}</div> : null}<div className="grid grid-cols-3 gap-2 text-sm"><div><p className="text-xs text-muted-foreground">Stok</p><p>{detail.stock}</p></div><div><p className="text-xs text-muted-foreground">Renk</p><p>{detail.color ?? "—"}</p></div><div><p className="text-xs text-muted-foreground">Beden</p><p>{detail.size ?? "—"}</p></div></div>{detail.description ? <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{detail.description}</p> : null}</div><DialogFooter className="sticky bottom-0 border-t bg-card p-3 sm:p-4"><Button className="h-auto min-h-10 w-full whitespace-normal px-2 text-xs sm:text-sm" variant="outline" onClick={() => { toggle(detail.id); setDetail(null); }}><ShoppingBasket /> Teklife ekle</Button></DialogFooter></> : null}</DialogContent></Dialog>
   </div>;
 }
 

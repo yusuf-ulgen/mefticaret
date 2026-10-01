@@ -17,6 +17,7 @@ import {
   supplierSaveFeed,
   supplierSavePaymentSettings,
   supplierSendMessage,
+  supplierSetFeedMarkup,
   supplierUpdatePurchaseOrder,
   supplierWorkflowOverview,
 } from "@/lib/supplier-workflow.functions";
@@ -159,9 +160,16 @@ export function SupplierXmlFeeds({ supplierId, data }: { supplierId: string; dat
   const remove = useServerFn(supplierDeleteFeed);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
+  const [markup, setMarkup] = useState("");
+  const setFeedMarkup = useServerFn(supplierSetFeedMarkup);
+  const markupMutation = useMutation({
+    mutationFn: (v: { feedId: string; markupPercent: number }) => setFeedMarkup({ data: { supplierId, ...v } }),
+    onSuccess: () => { toast.success("Kâr oranı kaydedildi; bir sonraki eşitlemede satış fiyatları güncellenir"); refresh(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const created = await save({ data: { supplierId, name, sourceUrl: url } });
+      const created = await save({ data: { supplierId, name, sourceUrl: url, markupPercent: Math.max(0, Number(markup.replace(",", ".")) || 0) } });
       return run({ data: { supplierId, feedId: created.id } });
     },
     onSuccess: (r) => {
@@ -195,11 +203,12 @@ export function SupplierXmlFeeds({ supplierId, data }: { supplierId: string; dat
     <section className="space-y-4 rounded-xl border bg-card p-4">
       <div>
         <h2 className="font-medium">XML entegratör</h2>
-        <p className="text-sm text-muted-foreground">Ürün XML bağlantınızı ekleyin; stok kodu, ad, fiyat, stok ve görseller otomatik eşleştirilip mağazaya aktarılır.</p>
+        <p className="text-sm text-muted-foreground">Ürün XML bağlantınızı ekleyin; stok kodu, ad, alış fiyatı, stok, açıklama ve tüm görseller otomatik eşleştirilip mağazaya aktarılır.</p>
       </div>
-      <div className="grid gap-2 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
+      <div className="grid gap-2 sm:grid-cols-[1fr_2fr_8rem_auto] sm:items-end">
         <div className="space-y-1"><Label className="text-xs">Besleme adı</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ana katalog" /></div>
         <div className="space-y-1"><Label className="text-xs">XML adresi</Label><Input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://ornek.com/urunler.xml" /></div>
+        <div className="space-y-1"><Label className="text-xs">Satış kâr oranı (%)</Label><Input inputMode="decimal" value={markup} onChange={(e) => setMarkup(e.target.value)} placeholder="ör. 30" /></div>
         <Button disabled={saveMutation.isPending || name.length < 2 || !url} onClick={() => saveMutation.mutate()}>{saveMutation.isPending ? "Aktarılıyor…" : "Ekle ve aktar"}</Button>
       </div>
       <ul className="divide-y">
@@ -213,6 +222,19 @@ export function SupplierXmlFeeds({ supplierId, data }: { supplierId: string; dat
               </div>
             </div>
             <p className="break-all text-xs text-muted-foreground">{feed.sourceUrl}</p>
+            <form
+              className="flex items-center gap-2 text-xs"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const value = Number(String(new FormData(e.currentTarget).get("markup") ?? "").replace(",", "."));
+                if (Number.isFinite(value) && value >= 0) markupMutation.mutate({ feedId: feed.id, markupPercent: value });
+              }}
+            >
+              <Label htmlFor={`markup-${feed.id}`} className="text-xs text-muted-foreground">Mağaza satış fiyatı = alış fiyatı +</Label>
+              <Input id={`markup-${feed.id}`} name="markup" inputMode="decimal" defaultValue={feed.markupPercent || ""} placeholder="0" className="h-8 w-20" />
+              <span>%</span>
+              <Button type="submit" size="sm" variant="outline" disabled={markupMutation.isPending}>Kaydet</Button>
+            </form>
             <p className="text-xs text-muted-foreground">
               {feed.lastRunAt ? `${formatDate(feed.lastRunAt)} · ` : "Henüz çalışmadı"}
               {feed.lastStatus === "success" ? `${feed.stats.totalRows ?? 0} satır, ${feed.stats.created ?? 0} yeni, ${feed.stats.updated ?? 0} güncellendi` : null}

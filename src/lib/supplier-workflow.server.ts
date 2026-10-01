@@ -128,10 +128,26 @@ const toNumber = (value: string) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const IMAGE_KEY = /(image|img|resim|gorsel|görsel|picture|photo|foto)/i;
+
+/** Satırdaki tüm görsel adreslerini toplar (eşlenen alan + görsel adlı tüm alanlar). */
+export function collectImages(row: Record<string, string>, mapped: string | undefined): string[] {
+  const wanted = mapped ? mapped.replace(/\[\d*\]/g, "") : null;
+  const urls: string[] = [];
+  for (const [key, value] of Object.entries(row)) {
+    const generic = key.replace(/\[\d+\]/g, "");
+    if (generic !== wanted && !IMAGE_KEY.test(generic.split(".").pop() ?? "")) continue;
+    for (const part of String(value ?? "").split(/[\s,;|]+/)) {
+      if (/^https?:\/\//i.test(part) && !urls.includes(part)) urls.push(part);
+    }
+  }
+  return urls.slice(0, 100);
+}
+
 /** Tedarikçi XML'ini indirir, eşleştirir ve tedarikçi ürünlerine yazar. */
 export async function runSupplierFeed(
   admin: Client,
-  feed: { id: string; supplier_id: string; store_id: string; source_url: string; field_mapping: Record<string, string> },
+  feed: { id: string; supplier_id: string; store_id: string; source_url: string; field_mapping: Record<string, string>; sale_markup_percent?: number | string | null },
   currency: string,
 ) {
   const { fetchSource } = await import("@/lib/xml-integrator.server");
@@ -151,6 +167,7 @@ export async function runSupplierFeed(
       .eq("supplier_id", feed.supplier_id);
     const byExternal = new Map(((existing ?? []) as any[]).map((row) => [String(row.external_id ?? ""), String(row.id)]));
 
+    const markup = Math.max(0, Number(feed.sale_markup_percent ?? 0) || 0);
     let created = 0;
     let updated = 0;
     let skipped = 0;
@@ -166,7 +183,11 @@ export async function runSupplierFeed(
         continue;
       }
       seen.add(sku);
-      const imagesRaw = readMapped(row, mapping["images"]);
+      const images = collectImages(row, mapping["images"]);
+      const purchase = toNumber(readMapped(row, mapping["cost_price"]) || readMapped(row, mapping["price"]));
+      const retail = mapping["cost_price"] ? toNumber(readMapped(row, mapping["price"])) : 0;
+      const salePrice = markup > 0 ? Math.round(purchase * (1 + markup / 100) * 100) / 100 : retail > 0 ? retail : null;
+      const description = readMapped(row, mapping["description"]).slice(0, 200_000);
       const record = {
         store_id: feed.store_id,
         supplier_id: feed.supplier_id,
@@ -176,13 +197,12 @@ export async function runSupplierFeed(
         title: title.slice(0, 400),
         brand: readMapped(row, mapping["brand"]) || null,
         category: readMapped(row, mapping["category"]) || null,
-        supplier_price: toNumber(readMapped(row, mapping["cost_price"]) || readMapped(row, mapping["price"])),
+        supplier_price: purchase,
+        ...(salePrice !== null ? { computed_price: salePrice } : {}),
         currency: ((c) => (c === "TL" || c === "YTL" ? "TRY" : c))((readMapped(row, mapping["currency"]) || currency || "TRY").trim().toUpperCase().slice(0, 10)),
         stock: Math.max(0, Math.round(toNumber(readMapped(row, mapping["stock"])))),
-        images: imagesRaw
-          ? imagesRaw.split(/[\s,;|]+/).filter((url) => /^https?:\/\//i.test(url)).slice(0, 20)
-          : [],
-        raw: row,
+        images,
+        raw: description ? { ...row, description } : row,
         last_seen_at: startedAt,
       };
       const id = byExternal.get(sku);

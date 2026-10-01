@@ -304,7 +304,7 @@ export async function loadSupplierWorkspace(admin: Client, suppliers: { id: stri
       return {
         id: row.id, feedId: "", title: row.title, sku: row.sku, barcode: row.barcode,
         category: row.category, brand: row.brand, supplierPrice: num(row.supplier_price),
-        salePrice: num(liveVariant?.price ?? liveProduct?.base_price ?? row.computed_price ?? row.supplier_price),
+        salePrice: num(row.computed_price ?? liveVariant?.price ?? liveProduct?.base_price ?? row.supplier_price),
         stock: Number(liveVariant?.stock ?? row.stock ?? 0), currency: row.currency ?? "TRY",
         images: Array.isArray(row.images) ? row.images.filter((url: unknown) => typeof url === "string") : [],
         description: typeof raw.description === "string" ? raw.description : null,

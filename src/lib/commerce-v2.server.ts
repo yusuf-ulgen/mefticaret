@@ -61,7 +61,7 @@ export const variantSchema = z.object({
 
 export const productSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(100_000).nullish(),
+  description: z.string().max(200_000).nullish(),
   handle: z.string().trim().max(200).optional(),
   vendor: z.string().trim().max(160).nullish(),
   product_type: z.string().trim().max(160).nullish(),

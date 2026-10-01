@@ -39,7 +39,7 @@ export const createProduct = createServerFn({ method: "POST" })
       .object({
         storeId: z.guid(),
         title: z.string().trim().min(2).max(120),
-        description: z.string().trim().max(4000).optional(),
+        description: z.string().trim().max(200_000).optional(),
         vendor: z.string().trim().max(80).optional(),
         productType: z.string().trim().max(80).optional(),
         basePrice: z.number().min(0).max(9_999_999),
@@ -143,7 +143,7 @@ export const updateProduct = createServerFn({ method: "POST" })
         patch: z
           .object({
             title: z.string().trim().min(2).max(120).optional(),
-            description: z.string().trim().max(4000).optional(),
+            description: z.string().trim().max(200_000).optional(),
             vendor: z.string().trim().max(80).optional(),
             product_type: z.string().trim().max(80).optional(),
             base_price: z.number().min(0).max(9_999_999).optional(),
@@ -514,7 +514,7 @@ export const createProductAdvanced = createServerFn({ method: "POST" })
       .object({
         storeId: z.guid(),
         title: z.string().trim().min(2).max(120),
-        description: z.string().trim().max(4000).optional(),
+        description: z.string().trim().max(200_000).optional(),
         vendor: z.string().trim().max(80).optional(),
         productType: z.string().trim().max(80).optional(),
         status: statusEnum.default("draft"),
