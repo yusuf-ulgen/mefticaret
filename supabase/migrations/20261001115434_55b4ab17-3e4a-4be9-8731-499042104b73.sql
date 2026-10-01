@@ -1,0 +1,2 @@
+DROP TRIGGER IF EXISTS enforce_tenant_refs ON public.supplier_products;
+CREATE TRIGGER enforce_tenant_refs BEFORE INSERT OR UPDATE ON public.supplier_products FOR EACH ROW EXECUTE FUNCTION app_private.enforce_tenant_refs('product_id', 'products', 'supplier_id', 'suppliers', 'variant_id', 'product_variants');
