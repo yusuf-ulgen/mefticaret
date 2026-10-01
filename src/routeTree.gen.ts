@@ -50,7 +50,6 @@ import { Route as AuthenticatedMesajlarRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
-import { Route as AuthenticatedSupplierRouteImport } from './routes/_authenticated/supplier'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as ArIndexRouteImport } from './routes/ar.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
@@ -126,6 +125,7 @@ import { Route as AuthenticatedInboxPanelRouteImport } from './routes/_authentic
 import { Route as AuthenticatedOauthAuthorizeRouteImport } from './routes/_authenticated/oauth.authorize'
 import { Route as AuthenticatedSellerSellerIdRouteImport } from './routes/_authenticated/seller.$sellerId'
 import { Route as AuthenticatedStoreStoreIdRouteImport } from './routes/_authenticated/store.$storeId'
+import { Route as AuthenticatedSupplierPanelRouteImport } from './routes/_authenticated/supplier.panel'
 import { Route as AuthenticatedTedarikciPanelRouteImport } from './routes/_authenticated/tedarikci.panel'
 import { Route as ApiAiExecuteRouteImport } from './routes/api/ai/execute'
 import { Route as ApiPublicIndexnowRouteImport } from './routes/api/public/indexnow'
@@ -311,6 +311,7 @@ import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/publ
 import { Route as ApiPublicMobileAppStoreSlugRouteImport } from './routes/api/public/mobile-app.$storeSlug'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
+import { Route as ApiPublicPaySupplierPaytrRouteImport } from './routes/api/public/pay.supplier-paytr'
 import { Route as ApiPublicProductImageSplatRouteImport } from './routes/api/public/product-image.$'
 import { Route as ApiPublicQnbpayRefundWebhookRouteImport } from './routes/api/public/qnbpay.refund-webhook'
 import { Route as ApiPublicQnbpaySaleWebhookRouteImport } from './routes/api/public/qnbpay.sale-webhook'
@@ -356,6 +357,7 @@ import { Route as ApiPublicEmailUnsubscribeTokenRouteImport } from './routes/api
 import { Route as ApiPublicFeedStoreSlugKindRouteImport } from './routes/api/public/feed.$storeSlug.$kind'
 import { Route as ApiPublicPayIyzicoOrderIdRouteImport } from './routes/api/public/pay.iyzico.$orderId'
 import { Route as ApiPublicPayPaytrStoreIdRouteImport } from './routes/api/public/pay.paytr.$storeId'
+import { Route as ApiPublicPaySupplierIyzicoPoIdRouteImport } from './routes/api/public/pay.supplier-iyzico.$poId'
 import { Route as AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRouteImport } from './routes/_authenticated/store.$storeId.theme-library.$themeId.versions'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorFeedsIndexRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.feeds.index'
 import { Route as AuthenticatedStoreStoreIdXmlIntegratorFeedsNewRouteImport } from './routes/_authenticated/store.$storeId.xml-integrator.feeds.new'
@@ -565,11 +567,6 @@ const AuthenticatedSellersRoute = AuthenticatedSellersRouteImport.update({
 const AuthenticatedStoresRoute = AuthenticatedStoresRouteImport.update({
   id: '/stores',
   path: '/stores',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedSupplierRoute = AuthenticatedSupplierRouteImport.update({
-  id: '/supplier',
-  path: '/supplier',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
@@ -984,6 +981,12 @@ const AuthenticatedStoreStoreIdRoute =
   AuthenticatedStoreStoreIdRouteImport.update({
     id: '/store/$storeId',
     path: '/store/$storeId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSupplierPanelRoute =
+  AuthenticatedSupplierPanelRouteImport.update({
+    id: '/supplier/panel',
+    path: '/supplier/panel',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTedarikciPanelRoute =
@@ -2062,6 +2065,12 @@ const ApiPublicOauthTokenRoute = ApiPublicOauthTokenRouteImport.update({
   path: '/api/public/oauth/token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaySupplierPaytrRoute =
+  ApiPublicPaySupplierPaytrRouteImport.update({
+    id: '/api/public/pay/supplier-paytr',
+    path: '/api/public/pay/supplier-paytr',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicProductImageSplatRoute =
   ApiPublicProductImageSplatRouteImport.update({
     id: '/api/public/product-image/$',
@@ -2317,6 +2326,12 @@ const ApiPublicPayPaytrStoreIdRoute =
     path: '/api/public/pay/paytr/$storeId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPaySupplierIyzicoPoIdRoute =
+  ApiPublicPaySupplierIyzicoPoIdRouteImport.update({
+    id: '/api/public/pay/supplier-iyzico/$poId',
+    path: '/api/public/pay/supplier-iyzico/$poId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRoute =
   AuthenticatedStoreStoreIdThemeLibraryThemeIdVersionsRouteImport.update({
     id: '/theme-library/$themeId/versions',
@@ -2383,7 +2398,6 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
-  '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/$slug': typeof DemoSlugRoute
@@ -2458,6 +2472,7 @@ export interface FileRoutesByFullPath {
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
+  '/supplier/panel': typeof AuthenticatedSupplierPanelRoute
   '/tedarikci/panel': typeof AuthenticatedTedarikciPanelRoute
   '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
@@ -2642,6 +2657,7 @@ export interface FileRoutesByFullPath {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
+  '/api/public/pay/supplier-paytr': typeof ApiPublicPaySupplierPaytrRoute
   '/api/public/product-image/$': typeof ApiPublicProductImageSplatRoute
   '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
   '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
@@ -2683,6 +2699,7 @@ export interface FileRoutesByFullPath {
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
   '/api/public/pay/iyzico/$orderId': typeof ApiPublicPayIyzicoOrderIdRoute
   '/api/public/pay/paytr/$storeId': typeof ApiPublicPayPaytrStoreIdRoute
+  '/api/public/pay/supplier-iyzico/$poId': typeof ApiPublicPaySupplierIyzicoPoIdRoute
   '/store/$storeId/catalog-v2/': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/store/$storeId/customers-v2/': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
   '/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
@@ -2734,7 +2751,6 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
-  '/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/$slug': typeof DemoSlugRoute
@@ -2808,6 +2824,7 @@ export interface FileRoutesByTo {
   '/inbox/panel': typeof AuthenticatedInboxPanelRoute
   '/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
+  '/supplier/panel': typeof AuthenticatedSupplierPanelRoute
   '/tedarikci/panel': typeof AuthenticatedTedarikciPanelRoute
   '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
@@ -2988,6 +3005,7 @@ export interface FileRoutesByTo {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
+  '/api/public/pay/supplier-paytr': typeof ApiPublicPaySupplierPaytrRoute
   '/api/public/product-image/$': typeof ApiPublicProductImageSplatRoute
   '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
   '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
@@ -3029,6 +3047,7 @@ export interface FileRoutesByTo {
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
   '/api/public/pay/iyzico/$orderId': typeof ApiPublicPayIyzicoOrderIdRoute
   '/api/public/pay/paytr/$storeId': typeof ApiPublicPayPaytrStoreIdRoute
+  '/api/public/pay/supplier-iyzico/$poId': typeof ApiPublicPaySupplierIyzicoPoIdRoute
   '/store/$storeId/catalog-v2': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/store/$storeId/customers-v2': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsIndexRoute
@@ -3083,7 +3102,6 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
-  '/_authenticated/supplier': typeof AuthenticatedSupplierRoute
   '/admin/login': typeof AdminLoginRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/demo/$slug': typeof DemoSlugRoute
@@ -3158,6 +3176,7 @@ export interface FileRoutesById {
   '/_authenticated/oauth/authorize': typeof AuthenticatedOauthAuthorizeRoute
   '/_authenticated/seller/$sellerId': typeof AuthenticatedSellerSellerIdRoute
   '/_authenticated/store/$storeId': typeof AuthenticatedStoreStoreIdRouteWithChildren
+  '/_authenticated/supplier/panel': typeof AuthenticatedSupplierPanelRoute
   '/_authenticated/tedarikci/panel': typeof AuthenticatedTedarikciPanelRoute
   '/api/ai/execute': typeof ApiAiExecuteRoute
   '/api/public/indexnow': typeof ApiPublicIndexnowRoute
@@ -3342,6 +3361,7 @@ export interface FileRoutesById {
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
+  '/api/public/pay/supplier-paytr': typeof ApiPublicPaySupplierPaytrRoute
   '/api/public/product-image/$': typeof ApiPublicProductImageSplatRoute
   '/api/public/qnbpay/refund-webhook': typeof ApiPublicQnbpayRefundWebhookRoute
   '/api/public/qnbpay/sale-webhook': typeof ApiPublicQnbpaySaleWebhookRoute
@@ -3383,6 +3403,7 @@ export interface FileRoutesById {
   '/api/public/feed/$storeSlug/$kind': typeof ApiPublicFeedStoreSlugKindRoute
   '/api/public/pay/iyzico/$orderId': typeof ApiPublicPayIyzicoOrderIdRoute
   '/api/public/pay/paytr/$storeId': typeof ApiPublicPayPaytrStoreIdRoute
+  '/api/public/pay/supplier-iyzico/$poId': typeof ApiPublicPaySupplierIyzicoPoIdRoute
   '/_authenticated/store/$storeId/catalog-v2/': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/_authenticated/store/$storeId/customers-v2/': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
   '/_authenticated/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
@@ -3437,7 +3458,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/sellers'
     | '/stores'
-    | '/supplier'
     | '/admin/login'
     | '/blog/$slug'
     | '/demo/$slug'
@@ -3512,6 +3532,7 @@ export interface FileRouteTypes {
     | '/oauth/authorize'
     | '/seller/$sellerId'
     | '/store/$storeId'
+    | '/supplier/panel'
     | '/tedarikci/panel'
     | '/api/ai/execute'
     | '/api/public/indexnow'
@@ -3696,6 +3717,7 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
+    | '/api/public/pay/supplier-paytr'
     | '/api/public/product-image/$'
     | '/api/public/qnbpay/refund-webhook'
     | '/api/public/qnbpay/sale-webhook'
@@ -3737,6 +3759,7 @@ export interface FileRouteTypes {
     | '/api/public/feed/$storeSlug/$kind'
     | '/api/public/pay/iyzico/$orderId'
     | '/api/public/pay/paytr/$storeId'
+    | '/api/public/pay/supplier-iyzico/$poId'
     | '/store/$storeId/catalog-v2/'
     | '/store/$storeId/customers-v2/'
     | '/store/$storeId/products/'
@@ -3788,7 +3811,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/sellers'
     | '/stores'
-    | '/supplier'
     | '/admin/login'
     | '/blog/$slug'
     | '/demo/$slug'
@@ -3862,6 +3884,7 @@ export interface FileRouteTypes {
     | '/inbox/panel'
     | '/oauth/authorize'
     | '/seller/$sellerId'
+    | '/supplier/panel'
     | '/tedarikci/panel'
     | '/api/ai/execute'
     | '/api/public/indexnow'
@@ -4042,6 +4065,7 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
+    | '/api/public/pay/supplier-paytr'
     | '/api/public/product-image/$'
     | '/api/public/qnbpay/refund-webhook'
     | '/api/public/qnbpay/sale-webhook'
@@ -4083,6 +4107,7 @@ export interface FileRouteTypes {
     | '/api/public/feed/$storeSlug/$kind'
     | '/api/public/pay/iyzico/$orderId'
     | '/api/public/pay/paytr/$storeId'
+    | '/api/public/pay/supplier-iyzico/$poId'
     | '/store/$storeId/catalog-v2'
     | '/store/$storeId/customers-v2'
     | '/store/$storeId/products'
@@ -4136,7 +4161,6 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
-    | '/_authenticated/supplier'
     | '/admin/login'
     | '/blog/$slug'
     | '/demo/$slug'
@@ -4211,6 +4235,7 @@ export interface FileRouteTypes {
     | '/_authenticated/oauth/authorize'
     | '/_authenticated/seller/$sellerId'
     | '/_authenticated/store/$storeId'
+    | '/_authenticated/supplier/panel'
     | '/_authenticated/tedarikci/panel'
     | '/api/ai/execute'
     | '/api/public/indexnow'
@@ -4395,6 +4420,7 @@ export interface FileRouteTypes {
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
+    | '/api/public/pay/supplier-paytr'
     | '/api/public/product-image/$'
     | '/api/public/qnbpay/refund-webhook'
     | '/api/public/qnbpay/sale-webhook'
@@ -4436,6 +4462,7 @@ export interface FileRouteTypes {
     | '/api/public/feed/$storeSlug/$kind'
     | '/api/public/pay/iyzico/$orderId'
     | '/api/public/pay/paytr/$storeId'
+    | '/api/public/pay/supplier-iyzico/$poId'
     | '/_authenticated/store/$storeId/catalog-v2/'
     | '/_authenticated/store/$storeId/customers-v2/'
     | '/_authenticated/store/$storeId/products/'
@@ -4552,6 +4579,7 @@ export interface RootRouteChildren {
   ApiPublicMobileAppStoreSlugRoute: typeof ApiPublicMobileAppStoreSlugRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
+  ApiPublicPaySupplierPaytrRoute: typeof ApiPublicPaySupplierPaytrRoute
   ApiPublicProductImageSplatRoute: typeof ApiPublicProductImageSplatRoute
   ApiPublicQnbpayRefundWebhookRoute: typeof ApiPublicQnbpayRefundWebhookRoute
   ApiPublicQnbpaySaleWebhookRoute: typeof ApiPublicQnbpaySaleWebhookRoute
@@ -4579,6 +4607,7 @@ export interface RootRouteChildren {
   ApiPublicFeedStoreSlugKindRoute: typeof ApiPublicFeedStoreSlugKindRoute
   ApiPublicPayIyzicoOrderIdRoute: typeof ApiPublicPayIyzicoOrderIdRoute
   ApiPublicPayPaytrStoreIdRoute: typeof ApiPublicPayPaytrStoreIdRoute
+  ApiPublicPaySupplierIyzicoPoIdRoute: typeof ApiPublicPaySupplierIyzicoPoIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -4868,13 +4897,6 @@ declare module '@tanstack/react-router' {
       path: '/stores'
       fullPath: '/stores'
       preLoaderRoute: typeof AuthenticatedStoresRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/supplier': {
-      id: '/_authenticated/supplier'
-      path: '/supplier'
-      fullPath: '/supplier'
-      preLoaderRoute: typeof AuthenticatedSupplierRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/admin/login': {
@@ -5400,6 +5422,13 @@ declare module '@tanstack/react-router' {
       path: '/store/$storeId'
       fullPath: '/store/$storeId'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/supplier/panel': {
+      id: '/_authenticated/supplier/panel'
+      path: '/supplier/panel'
+      fullPath: '/supplier/panel'
+      preLoaderRoute: typeof AuthenticatedSupplierPanelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tedarikci/panel': {
@@ -6697,6 +6726,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOauthTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/pay/supplier-paytr': {
+      id: '/api/public/pay/supplier-paytr'
+      path: '/api/public/pay/supplier-paytr'
+      fullPath: '/api/public/pay/supplier-paytr'
+      preLoaderRoute: typeof ApiPublicPaySupplierPaytrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/product-image/$': {
       id: '/api/public/product-image/$'
       path: '/api/public/product-image/$'
@@ -7010,6 +7046,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/pay/paytr/$storeId'
       fullPath: '/api/public/pay/paytr/$storeId'
       preLoaderRoute: typeof ApiPublicPayPaytrStoreIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/pay/supplier-iyzico/$poId': {
+      id: '/api/public/pay/supplier-iyzico/$poId'
+      path: '/api/public/pay/supplier-iyzico/$poId'
+      fullPath: '/api/public/pay/supplier-iyzico/$poId'
+      preLoaderRoute: typeof ApiPublicPaySupplierIyzicoPoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/store/$storeId/theme-library/$themeId/versions': {
@@ -7680,12 +7723,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedStoresRoute: typeof AuthenticatedStoresRoute
-  AuthenticatedSupplierRoute: typeof AuthenticatedSupplierRoute
   AuthenticatedEvHanimlariPanelRoute: typeof AuthenticatedEvHanimlariPanelRoute
   AuthenticatedInboxPanelRoute: typeof AuthenticatedInboxPanelRoute
   AuthenticatedOauthAuthorizeRoute: typeof AuthenticatedOauthAuthorizeRoute
   AuthenticatedSellerSellerIdRoute: typeof AuthenticatedSellerSellerIdRoute
   AuthenticatedStoreStoreIdRoute: typeof AuthenticatedStoreStoreIdRouteWithChildren
+  AuthenticatedSupplierPanelRoute: typeof AuthenticatedSupplierPanelRoute
   AuthenticatedTedarikciPanelRoute: typeof AuthenticatedTedarikciPanelRoute
 }
 
@@ -7696,12 +7739,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedStoresRoute: AuthenticatedStoresRoute,
-  AuthenticatedSupplierRoute: AuthenticatedSupplierRoute,
   AuthenticatedEvHanimlariPanelRoute: AuthenticatedEvHanimlariPanelRoute,
   AuthenticatedInboxPanelRoute: AuthenticatedInboxPanelRoute,
   AuthenticatedOauthAuthorizeRoute: AuthenticatedOauthAuthorizeRoute,
   AuthenticatedSellerSellerIdRoute: AuthenticatedSellerSellerIdRoute,
   AuthenticatedStoreStoreIdRoute: AuthenticatedStoreStoreIdRouteWithChildren,
+  AuthenticatedSupplierPanelRoute: AuthenticatedSupplierPanelRoute,
   AuthenticatedTedarikciPanelRoute: AuthenticatedTedarikciPanelRoute,
 }
 
@@ -7813,6 +7856,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMobileAppStoreSlugRoute: ApiPublicMobileAppStoreSlugRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,
+  ApiPublicPaySupplierPaytrRoute: ApiPublicPaySupplierPaytrRoute,
   ApiPublicProductImageSplatRoute: ApiPublicProductImageSplatRoute,
   ApiPublicQnbpayRefundWebhookRoute: ApiPublicQnbpayRefundWebhookRoute,
   ApiPublicQnbpaySaleWebhookRoute: ApiPublicQnbpaySaleWebhookRoute,
@@ -7840,6 +7884,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicFeedStoreSlugKindRoute: ApiPublicFeedStoreSlugKindRoute,
   ApiPublicPayIyzicoOrderIdRoute: ApiPublicPayIyzicoOrderIdRoute,
   ApiPublicPayPaytrStoreIdRoute: ApiPublicPayPaytrStoreIdRoute,
+  ApiPublicPaySupplierIyzicoPoIdRoute: ApiPublicPaySupplierIyzicoPoIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
