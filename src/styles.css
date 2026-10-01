@@ -164,9 +164,9 @@
   --sidebar-ring: oklch(0.56 0.21 288);
 
   /* Tedarikçi paneli — Trend_Molli referansındaki canlı turuncu çalışma alanı */
-  --supplier-brand: oklch(0.68 0.2 43);
-  --supplier-brand-foreground: oklch(1 0 0);
-  --supplier-surface: oklch(0.975 0.004 80);
+  --supplier-brand: var(--primary);
+  --supplier-brand-foreground: var(--primary-foreground);
+  --supplier-surface: var(--muted);
 
   /* İzleme paneli — koyu altyapı görünümü ve durum renkleri */
   --status-healthy: oklch(0.72 0.17 152);
