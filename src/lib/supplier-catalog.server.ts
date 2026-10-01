@@ -80,10 +80,10 @@ export function descriptionOf(raw: Record<string, unknown> | null): string {
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-export function salePriceOf(sp: { supplier_price: number | null; computed_price: number | null }, markup: number, variantPrice?: number | null) {
+export function salePriceOf(sp: { supplier_price: number | null; computed_price: number | null; suggested_price?: number | null }, markup: number, variantPrice?: number | null) {
   const purchase = Number(variantPrice ?? sp.supplier_price ?? 0) || 0;
   if (markup > 0) return round2(purchase * (1 + markup / 100));
-  const listed = Number(sp.computed_price ?? 0);
+  const listed = Number(sp.computed_price ?? sp.suggested_price ?? 0);
   if (listed > 0 && (variantPrice == null || variantPrice === sp.supplier_price)) return round2(listed);
   return round2(purchase);
 }
@@ -112,7 +112,7 @@ async function ensureCategory(db: Client, storeId: string, name: string | null, 
   return id;
 }
 
-const SP_COLUMNS = "id, supplier_id, catalog_visible, sku, barcode, title, brand, category, supplier_price, computed_price, currency, stock, images, raw";
+const SP_COLUMNS = "id, supplier_id, catalog_visible, suggested_price, sku, barcode, title, brand, category, supplier_price, computed_price, currency, stock, images, raw";
 
 /** Seçili tedarikçi ürünlerini mağazaya tüm bilgileriyle aktarır. */
 export async function importToStore(db: Client, storeId: string, ids: string[], markup: number) {
