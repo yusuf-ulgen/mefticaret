@@ -178,7 +178,7 @@ export async function importToStore(db: Client, storeId: string, ids: string[], 
         );
       }
 
-      const list = variants.length
+      const list: ParsedVariant[] = variants.length
         ? variants
         : [{ sku: sp.sku, barcode: sp.barcode, price: null, stock: Number(sp.stock ?? 0), taxRate, desi, options: {} }];
       await db.from("product_variants").insert(
