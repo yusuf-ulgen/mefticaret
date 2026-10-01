@@ -9,9 +9,13 @@ import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AutoImportTab, CategoryMapTab, ImportedTab } from "@/components/supplier-catalog/seller-tabs";
 import {
   getCatalogProduct,
   importCatalogProducts,
+  listCatalogFacets,
   listCatalogProducts,
   listCatalogSuppliers,
 } from "@/lib/supplier-catalog.functions";
@@ -45,6 +49,25 @@ function SupplierCatalogPage() {
   const [markup, setMarkup] = useState("0");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [tab, setTab] = useState("catalog");
+  const [category, setCategory] = useState("");
+  const [brand, setBrand] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [inStock, setInStock] = useState(false);
+  const [notImported, setNotImported] = useState(false);
+  const [sort, setSort] = useState<"title" | "price_asc" | "price_desc" | "newest" | "stock">("title");
+  const listFacets = useServerFn(listCatalogFacets);
+  const facets = useQuery({ queryKey: ["catalog-facets", storeId, supplierId], enabled: !!supplierId, queryFn: () => listFacets({ data: { storeId, supplierId } }) });
+  const filters = {
+    category,
+    brand,
+    minPrice: minPrice === "" ? null : Math.max(0, Number(minPrice) || 0),
+    maxPrice: maxPrice === "" ? null : Math.max(0, Number(maxPrice) || 0),
+    inStock,
+    notImported,
+    sort,
+  };
 
   const suppliers = useQuery({ queryKey: ["catalog-suppliers", storeId], queryFn: () => listSuppliers({ data: { storeId } }) });
   useEffect(() => {
@@ -52,9 +75,9 @@ function SupplierCatalogPage() {
   }, [suppliers.data, supplierId]);
 
   const products = useQuery({
-    queryKey: ["catalog-products", storeId, supplierId, term, page],
+    queryKey: ["catalog-products", storeId, supplierId, term, page, filters],
     enabled: !!supplierId,
-    queryFn: () => listProducts({ data: { storeId, supplierId, search: term, page } }),
+    queryFn: () => listProducts({ data: { storeId, supplierId, search: term, page, ...filters } }),
   });
 
   const importMut = useMutation({
@@ -93,6 +116,8 @@ function SupplierCatalogPage() {
                 setSupplierId(s.id);
                 setPage(0);
                 setSelected(new Set());
+                setCategory("");
+                setBrand("");
               }}
               className={`shrink-0 rounded-full border px-4 py-2 text-sm ${s.id === supplierId ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"}`}
             >
@@ -101,6 +126,19 @@ function SupplierCatalogPage() {
           ))}
         </div>
 
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList className="flex w-full overflow-x-auto">
+            <TabsTrigger value="catalog">Katalog</TabsTrigger>
+            <TabsTrigger value="imported">Aktarılanlar</TabsTrigger>
+            <TabsTrigger value="categories">Kategori eşleştirme</TabsTrigger>
+            <TabsTrigger value="auto">Otomatik aktarım</TabsTrigger>
+          </TabsList>
+          <TabsContent value="imported" className="mt-4"><ImportedTab storeId={storeId} /></TabsContent>
+          <TabsContent value="categories" className="mt-4"><CategoryMapTab storeId={storeId} supplierId={supplierId} /></TabsContent>
+          <TabsContent value="auto" className="mt-4">
+            <AutoImportTab storeId={storeId} supplierId={supplierId} supplierName={suppliers.data?.find((x) => x.id === supplierId)?.name ?? ""} />
+          </TabsContent>
+          <TabsContent value="catalog" className="mt-4 space-y-4">
         <form
           className="flex flex-wrap gap-2"
           onSubmit={(e) => {
@@ -118,6 +156,28 @@ function SupplierCatalogPage() {
             <Input type="number" min={0} max={1000} value={markup} onChange={(e) => setMarkup(e.target.value)} className="w-20" />
           </label>
         </form>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <select className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={category} onChange={(e) => { setCategory(e.target.value); setPage(0); }}>
+            <option value="">Tüm kategoriler</option>
+            {facets.data?.categories.map((c) => <option key={c.name} value={c.name}>{c.name} ({c.count})</option>)}
+          </select>
+          <select className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={brand} onChange={(e) => { setBrand(e.target.value); setPage(0); }}>
+            <option value="">Tüm markalar</option>
+            {facets.data?.brands.map((c) => <option key={c.name} value={c.name}>{c.name} ({c.count})</option>)}
+          </select>
+          <Input type="number" min={0} placeholder="Min alış ₺" value={minPrice} onChange={(e) => { setMinPrice(e.target.value); setPage(0); }} />
+          <Input type="number" min={0} placeholder="Maks alış ₺" value={maxPrice} onChange={(e) => { setMaxPrice(e.target.value); setPage(0); }} />
+          <select className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={sort} onChange={(e) => { setSort(e.target.value as typeof sort); setPage(0); }}>
+            <option value="title">Ada göre</option>
+            <option value="newest">Yeni gelenler</option>
+            <option value="price_asc">Fiyat artan</option>
+            <option value="price_desc">Fiyat azalan</option>
+            <option value="stock">Stok çok olan</option>
+          </select>
+          <label className="flex items-center gap-2 text-sm"><Switch checked={inStock} onCheckedChange={(v) => { setInStock(v); setPage(0); }} /> Stokta olanlar</label>
+          <label className="flex items-center gap-2 text-sm"><Switch checked={notImported} onCheckedChange={(v) => { setNotImported(v); setPage(0); }} /> Aktarılmamışlar</label>
+          <span className="self-center text-sm text-muted-foreground">{products.data?.total ?? 0} ürün</span>
+        </div>
         <p className="text-xs text-muted-foreground">
           Kâr oranı 0 ise tedarikçinin satış fiyatı kullanılır. Aktarılan ürünler hemen yayına alınır; stok ve fiyat tedarikçi güncelledikçe otomatik eşitlenir.
         </p>
@@ -150,7 +210,12 @@ function SupplierCatalogPage() {
                     <span className="line-clamp-2 flex-1 text-sm font-medium text-foreground">{item.title}</span>
                     <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
                   </button>
-                  <div className="text-lg font-semibold text-foreground">{formatMoney(item.price, item.currency)}</div>
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="text-lg font-semibold text-foreground">{formatMoney(item.price, item.currency)}</span>
+                    {item.marginPercent != null && item.marginPercent > 0 && <span className="text-xs text-success">%{item.marginPercent} kâr</span>}
+                    {item.isNew && <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] uppercase text-accent-foreground">Yeni</span>}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Alış {formatMoney(item.purchasePrice, item.currency)}{item.brand ? ` · ${item.brand}` : ""}</div>
                   <div className="mt-auto flex items-center justify-between gap-2">
                     <span className="text-sm text-success">{item.stock} stok</span>
                     {item.productId ? (
@@ -186,9 +251,11 @@ function SupplierCatalogPage() {
             </Button>
           </div>
         )}
+          </TabsContent>
+        </Tabs>
       </div>
 
-      {items.length > 0 && (
+      {tab === "catalog" && items.length > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 p-3 backdrop-blur">
           <div className="mx-auto flex max-w-5xl items-center gap-2">
             <Button
