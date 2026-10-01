@@ -82,19 +82,19 @@
   --color-monitor-muted: var(--monitor-muted);
   --color-monitor-border: var(--monitor-border);
 
-  /* Kolay Panel (ev üretimi mağazalar) — yumuşak pastel palet */
-  --color-hm-rose: oklch(0.62 0.13 12);
-  --color-hm-rose-soft: oklch(0.96 0.02 12);
-  --color-hm-teal: oklch(0.58 0.09 200);
-  --color-hm-teal-soft: oklch(0.96 0.02 200);
-  --color-hm-emerald: oklch(0.58 0.11 158);
-  --color-hm-emerald-soft: oklch(0.96 0.03 158);
-  --color-hm-amber: oklch(0.62 0.12 70);
-  --color-hm-amber-soft: oklch(0.96 0.04 75);
-  --color-hm-sand: oklch(0.98 0.005 80);
-  --color-hm-line: oklch(0.91 0.006 80);
-  --color-hm-ink: oklch(0.28 0.012 60);
-  --color-hm-ink-soft: oklch(0.52 0.012 60);
+  /* Kolay Panel (ev üretimi mağazalar) — Mefticaret ana paletine bağlı */
+  --color-hm-rose: var(--primary);
+  --color-hm-rose-soft: var(--muted);
+  --color-hm-teal: var(--brand);
+  --color-hm-teal-soft: var(--brand-soft);
+  --color-hm-emerald: var(--success);
+  --color-hm-emerald-soft: color-mix(in oklab, var(--success) 10%, var(--background));
+  --color-hm-amber: var(--warning-foreground);
+  --color-hm-amber-soft: color-mix(in oklab, var(--warning) 15%, var(--background));
+  --color-hm-sand: var(--muted);
+  --color-hm-line: var(--border);
+  --color-hm-ink: var(--foreground);
+  --color-hm-ink-soft: var(--muted-foreground);
 
   --shadow-soft: 0 1px 2px oklch(0.2 0.03 262 / 0.06), 0 8px 24px oklch(0.2 0.03 262 / 0.06);
   --shadow-elevated: 0 2px 4px oklch(0.2 0.03 262 / 0.08), 0 18px 48px oklch(0.2 0.03 262 / 0.12);
