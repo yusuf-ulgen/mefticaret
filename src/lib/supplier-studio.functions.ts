@@ -179,11 +179,12 @@ export const studioSaveProduct = createServerFn({ method: "POST" })
       raw[`${k}.BayiFiyati`] = String(v.price ?? data.purchasePrice);
       if (data.taxRate != null) raw[`${k}.KdvOrani`] = String(data.taxRate);
     });
-    if (!data.variants.length && data.taxRate != null) raw["UrunSecenek.Secenek[0].KdvOrani"] = String(data.taxRate);
-    if (!data.variants.length && data.taxRate != null) {
+    if (!data.variants.length) {
       raw["UrunSecenek.Secenek[0].StokAdedi"] = String(data.stock);
       raw["UrunSecenek.Secenek[0].Barkod"] = data.barcode || data.sku;
       raw["UrunSecenek.Secenek[0].StokKodu"] = data.sku;
+      raw["UrunSecenek.Secenek[0].BayiFiyati"] = String(data.purchasePrice);
+      if (data.taxRate != null) raw["UrunSecenek.Secenek[0].KdvOrani"] = String(data.taxRate);
     }
     const stock = data.variants.length ? data.variants.reduce((a, v) => a + v.stock, 0) : data.stock;
     const record = {
