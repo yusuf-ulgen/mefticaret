@@ -177,7 +177,7 @@ export async function runSupplierFeed(
         brand: readMapped(row, mapping["brand"]) || null,
         category: readMapped(row, mapping["category"]) || null,
         supplier_price: toNumber(readMapped(row, mapping["cost_price"]) || readMapped(row, mapping["price"])),
-        currency: (readMapped(row, mapping["currency"]) || currency || "TRY").toUpperCase().slice(0, 10),
+        currency: ((c) => (c === "TL" || c === "YTL" ? "TRY" : c))((readMapped(row, mapping["currency"]) || currency || "TRY").trim().toUpperCase().slice(0, 10)),
         stock: Math.max(0, Math.round(toNumber(readMapped(row, mapping["stock"])))),
         images: imagesRaw
           ? imagesRaw.split(/[\s,;|]+/).filter((url) => /^https?:\/\//i.test(url)).slice(0, 20)
