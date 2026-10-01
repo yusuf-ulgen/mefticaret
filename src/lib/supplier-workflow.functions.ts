@@ -200,6 +200,8 @@ export const supplierSetSalePrice = createServerFn({ method: "POST" })
     const { data: row, error } = await db.from("supplier_products").update({ computed_price: data.salePrice }).eq("id", data.productId).eq("supplier_id", supplier.id).select("id").maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Ürün bulunamadı");
+    const { propagateToImporters } = await import("@/lib/supplier-catalog.server");
+    await propagateToImporters(db, supplier.id);
     return { ok: true };
   });
 

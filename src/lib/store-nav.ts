@@ -136,6 +136,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "Depolar & Şubeler", to: p("warehouses"), icon: Building2 },
         { label: "Depo Transferleri", to: p("transfers"), icon: ArrowLeftRight },
         { label: "Stok Sayımı", to: p("stock-count"), icon: ClipboardList },
+        { label: "Tedarikçi Ürünleri", to: p("supplier-catalog"), icon: Truck },
         { label: "Tedarik & Satın Alma", to: p("purchasing"), icon: Truck },
         {
           label: "XML Entegratör",
