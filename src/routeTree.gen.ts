@@ -70,6 +70,7 @@ import { Route as PreviewSlugRouteImport } from './routes/preview.$slug'
 import { Route as RehberlerIndexRouteImport } from './routes/rehberler.index'
 import { Route as RehberlerSlugRouteImport } from './routes/rehberler.$slug'
 import { Route as SayfaSlugRouteImport } from './routes/sayfa.$slug'
+import { Route as SupplierIndexRouteImport } from './routes/supplier.index'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
@@ -669,6 +670,11 @@ const RehberlerSlugRoute = RehberlerSlugRouteImport.update({
 const SayfaSlugRoute = SayfaSlugRouteImport.update({
   id: '/sayfa/$slug',
   path: '/sayfa/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupplierIndexRoute = SupplierIndexRouteImport.update({
+  id: '/supplier/',
+  path: '/supplier/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
@@ -2425,6 +2431,7 @@ export interface FileRoutesByFullPath {
   '/ev-hanimlari/': typeof EvHanimlariIndexRoute
   '/fr/': typeof FrIndexRoute
   '/rehberler/': typeof RehberlerIndexRoute
+  '/supplier/': typeof SupplierIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -2779,6 +2786,7 @@ export interface FileRoutesByTo {
   '/ev-hanimlari': typeof EvHanimlariIndexRoute
   '/fr': typeof FrIndexRoute
   '/rehberler': typeof RehberlerIndexRoute
+  '/supplier': typeof SupplierIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/api': typeof AuthenticatedAdminApiRoute
@@ -3131,6 +3139,7 @@ export interface FileRoutesById {
   '/ev-hanimlari/': typeof EvHanimlariIndexRoute
   '/fr/': typeof FrIndexRoute
   '/rehberler/': typeof RehberlerIndexRoute
+  '/supplier/': typeof SupplierIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/api': typeof AuthenticatedAdminApiRoute
@@ -3488,6 +3497,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/'
     | '/fr/'
     | '/rehberler/'
+    | '/supplier/'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -3842,6 +3852,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari'
     | '/fr'
     | '/rehberler'
+    | '/supplier'
     | '/.lovable/oauth/consent'
     | '/admin/analytics'
     | '/admin/api'
@@ -4193,6 +4204,7 @@ export interface FileRouteTypes {
     | '/ev-hanimlari/'
     | '/fr/'
     | '/rehberler/'
+    | '/supplier/'
     | '/.lovable/oauth/consent'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/api'
@@ -4544,6 +4556,7 @@ export interface RootRouteChildren {
   EvHanimlariIndexRoute: typeof EvHanimlariIndexRoute
   FrIndexRoute: typeof FrIndexRoute
   RehberlerIndexRoute: typeof RehberlerIndexRoute
+  SupplierIndexRoute: typeof SupplierIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiAiExecuteRoute: typeof ApiAiExecuteRoute
   ApiPublicIndexnowRoute: typeof ApiPublicIndexnowRoute
@@ -5050,6 +5063,13 @@ declare module '@tanstack/react-router' {
       path: '/sayfa/$slug'
       fullPath: '/sayfa/$slug'
       preLoaderRoute: typeof SayfaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/supplier/': {
+      id: '/supplier/'
+      path: '/supplier'
+      fullPath: '/supplier/'
+      preLoaderRoute: typeof SupplierIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.lovable/oauth/consent': {
@@ -7830,6 +7850,7 @@ const rootRouteChildren: RootRouteChildren = {
   EvHanimlariIndexRoute: EvHanimlariIndexRoute,
   FrIndexRoute: FrIndexRoute,
   RehberlerIndexRoute: RehberlerIndexRoute,
+  SupplierIndexRoute: SupplierIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiAiExecuteRoute: ApiAiExecuteRoute,
   ApiPublicIndexnowRoute: ApiPublicIndexnowRoute,
