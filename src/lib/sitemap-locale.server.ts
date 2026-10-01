@@ -41,6 +41,7 @@ const PLATFORM_PATHS: Record<SitemapLocale, string[]> = {
     "/seo-ve-raporlama",
     "/tedarikci-giris",
     "/supplier",
+    "/ev-hanimlari",
     "/blog",
   ],
   en: ["/en", "/en/how-to-start-an-online-store"],
