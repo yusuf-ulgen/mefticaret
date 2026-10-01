@@ -25,6 +25,7 @@ import {
   saveSupplier,
   setPurchaseOrderStatus,
 } from "@/lib/purchasing.functions";
+import { StoreSupplierWorkflow } from "@/components/supplier/store-supplier-workflow";
 import { purchaseOrdersQuery, suppliersQuery } from "@/lib/purchasing-queries";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/purchasing")({
@@ -532,6 +533,7 @@ function PurchasingPage() {
           </div>
         </section>
       </div>
+      <StoreSupplierWorkflow storeId={storeId} />
     </AppShell>
   );
 }
