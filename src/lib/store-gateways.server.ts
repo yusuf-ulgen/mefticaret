@@ -159,7 +159,7 @@ const money = (n: number) => n.toFixed(2);
 export async function createIyzicoPayment(
   s: Settings,
   order: GatewayOrder,
-  ctx: { origin: string; ip: string },
+  ctx: { origin: string; ip: string; callbackUrl?: string },
 ): Promise<string> {
   const [first, ...rest] = (order.name || "Müşteri").split(" ");
   const addr = order.address;
@@ -176,7 +176,7 @@ export async function createIyzicoPayment(
     currency: order.currency === "TRY" ? "TRY" : order.currency,
     basketId: order.id,
     paymentGroup: "PRODUCT",
-    callbackUrl: `${ctx.origin}/api/public/pay/iyzico/${order.id}`,
+    callbackUrl: ctx.callbackUrl ?? `${ctx.origin}/api/public/pay/iyzico/${order.id}`,
     enabledInstallments: [1, 2, 3, 6, 9],
     buyer: {
       id: order.email,
@@ -238,7 +238,7 @@ export function orderIdFromPaytrOid(oid: string): string | null {
 export async function createPaytrPayment(
   s: Settings,
   order: GatewayOrder,
-  ctx: { origin: string; ip: string },
+  ctx: { origin: string; ip: string; backUrl?: string },
 ): Promise<string> {
   const merchantId = str(s, "merchant_id");
   const key = str(s, "merchant_key");
@@ -254,7 +254,7 @@ export async function createPaytrPayment(
   const testMode = isTest(s, "test_mode") ? "1" : "0";
   const hashStr = `${merchantId}${ctx.ip}${oid}${order.email}${amount}${basket}${noInstallment}${maxInstallment}${currency}${testMode}`;
   const token = createHmac("sha256", key).update(hashStr + salt).digest("base64");
-  const back = `${ctx.origin}/s/${order.slug}/order?no=${encodeURIComponent(order.orderNumber)}&email=${encodeURIComponent(order.email)}`;
+  const back = ctx.backUrl ?? `${ctx.origin}/s/${order.slug}/order?no=${encodeURIComponent(order.orderNumber)}&email=${encodeURIComponent(order.email)}`;
   const addr = order.address;
   const form = new URLSearchParams({
     merchant_id: merchantId,

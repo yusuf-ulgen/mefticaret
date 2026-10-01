@@ -14747,6 +14747,7 @@ export type Database = {
       }
       purchase_orders: {
         Row: {
+          carrier: string | null
           code: string
           created_at: string
           created_by: string | null
@@ -14754,13 +14755,22 @@ export type Database = {
           expected_at: string | null
           id: string
           note: string | null
+          paid_amount: number | null
+          paid_at: string | null
+          payment_provider: string | null
+          payment_reference: string | null
+          payment_status: string
           received_at: string | null
+          shipped_at: string | null
           status: string
           store_id: string
           supplier_id: string | null
+          supplier_status: string
+          tracking_number: string | null
           updated_at: string
         }
         Insert: {
+          carrier?: string | null
           code: string
           created_at?: string
           created_by?: string | null
@@ -14768,13 +14778,22 @@ export type Database = {
           expected_at?: string | null
           id?: string
           note?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          payment_provider?: string | null
+          payment_reference?: string | null
+          payment_status?: string
           received_at?: string | null
+          shipped_at?: string | null
           status?: string
           store_id: string
           supplier_id?: string | null
+          supplier_status?: string
+          tracking_number?: string | null
           updated_at?: string
         }
         Update: {
+          carrier?: string | null
           code?: string
           created_at?: string
           created_by?: string | null
@@ -14782,10 +14801,18 @@ export type Database = {
           expected_at?: string | null
           id?: string
           note?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          payment_provider?: string | null
+          payment_reference?: string | null
+          payment_status?: string
           received_at?: string | null
+          shipped_at?: string | null
           status?: string
           store_id?: string
           supplier_id?: string | null
+          supplier_status?: string
+          tracking_number?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -19847,6 +19874,93 @@ export type Database = {
           },
         ]
       }
+      supplier_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          purchase_order_id: string | null
+          read_at: string | null
+          sender_role: string
+          sender_user_id: string | null
+          store_id: string
+          supplier_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          purchase_order_id?: string | null
+          read_at?: string | null
+          sender_role: string
+          sender_user_id?: string | null
+          store_id: string
+          supplier_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          purchase_order_id?: string | null
+          read_at?: string | null
+          sender_role?: string
+          sender_user_id?: string | null
+          store_id?: string
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_messages_purchase_order_id_fkey"
+            columns: ["purchase_order_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_messages_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_messages_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_payment_settings: {
+        Row: {
+          provider: string
+          settings: Json
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          provider: string
+          settings?: Json
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          provider?: string
+          settings?: Json
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_payment_settings_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: true
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_payout_requests: {
         Row: {
           account_name: string | null
@@ -20007,6 +20121,69 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_xml_feeds: {
+        Row: {
+          created_at: string
+          field_mapping: Json
+          id: string
+          is_active: boolean
+          last_error: string | null
+          last_run_at: string | null
+          last_status: string | null
+          name: string
+          source_url: string
+          stats: Json
+          store_id: string
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          field_mapping?: Json
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          name: string
+          source_url: string
+          stats?: Json
+          store_id: string
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          field_mapping?: Json
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          name?: string
+          source_url?: string
+          stats?: Json
+          store_id?: string
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_xml_feeds_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_xml_feeds_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
         ]
