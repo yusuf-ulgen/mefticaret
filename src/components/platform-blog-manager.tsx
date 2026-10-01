@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { CoverImageUpload } from "@/components/cover-image-upload";
 import { MarkdownEditor } from "@/components/markdown-editor";
+import { PlatformBlogAi } from "@/components/platform-blog-ai";
 import { formatDateTime } from "@/lib/mefti";
 import { platformPostsQuery } from "@/lib/platform-blog-queries";
 import { removePlatformPost, savePlatformPost } from "@/lib/platform-blog.functions";
@@ -339,6 +340,23 @@ export function PlatformBlogManager() {
               saveMutation.mutate();
             }}
           >
+            <PlatformBlogAi
+              currentTitle={form.title}
+              currentBody={form.body}
+              onResult={(r) =>
+                setForm((f) => ({
+                  ...f,
+                  title: r.title,
+                  metaTitle: r.metaTitle,
+                  slug: f.postId && f.slug ? f.slug : r.slug,
+                  excerpt: r.excerpt,
+                  seoDescription: r.seoDescription,
+                  body: r.body,
+                  tags: r.tags.join(", "),
+                  category: r.category || f.category,
+                }))
+              }
+            />
             {!form.postId ? (
               <div className="flex flex-wrap gap-2">
                 {TEMPLATES.map((template) => (
