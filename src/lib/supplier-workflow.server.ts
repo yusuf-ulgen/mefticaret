@@ -131,7 +131,7 @@ const toNumber = (value: string) => {
 const IMAGE_KEY = /(image|img|resim|gorsel|görsel|picture|photo|foto)/i;
 
 /** Satırdaki tüm görsel adreslerini toplar (eşlenen alan + görsel adlı tüm alanlar). */
-function collectImages(row: Record<string, string>, mapped: string | undefined): string[] {
+export function collectImages(row: Record<string, string>, mapped: string | undefined): string[] {
   const wanted = mapped ? mapped.replace(/\[\d*\]/g, "") : null;
   const urls: string[] = [];
   for (const [key, value] of Object.entries(row)) {
