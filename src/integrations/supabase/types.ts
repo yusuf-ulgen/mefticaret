@@ -20135,6 +20135,7 @@ export type Database = {
           last_run_at: string | null
           last_status: string | null
           name: string
+          sale_markup_percent: number
           source_url: string
           stats: Json
           store_id: string
@@ -20150,6 +20151,7 @@ export type Database = {
           last_run_at?: string | null
           last_status?: string | null
           name: string
+          sale_markup_percent?: number
           source_url: string
           stats?: Json
           store_id: string
@@ -20165,6 +20167,7 @@ export type Database = {
           last_run_at?: string | null
           last_status?: string | null
           name?: string
+          sale_markup_percent?: number
           source_url?: string
           stats?: Json
           store_id?: string

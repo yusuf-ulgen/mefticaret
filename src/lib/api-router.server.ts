@@ -63,7 +63,7 @@ const RESOURCES: Record<string, Resource> = {
     writeSchema: z.object({
       title: z.string().trim().min(1).max(300).optional(),
       slug: z.string().trim().min(1).max(200).optional(),
-      description: z.string().max(20_000).nullish(),
+      description: z.string().max(200_000).nullish(),
       sku: z.string().trim().max(120).nullish(),
       barcode: z.string().trim().max(120).nullish(),
       status: z.enum(["draft", "active", "archived"]).optional(),

@@ -6,7 +6,7 @@ import { insertAuditRow } from "./audit.server";
 
 const rowSchema = z.object({
   title: z.string().trim().min(2).max(160),
-  description: z.string().trim().max(4000).optional(),
+  description: z.string().trim().max(200_000).optional(),
   sku: z.string().trim().max(60).optional(),
   vendor: z.string().trim().max(80).optional(),
   productType: z.string().trim().max(80).optional(),

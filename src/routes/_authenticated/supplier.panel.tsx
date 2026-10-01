@@ -232,7 +232,7 @@ function SupplierPortalPage() {
 
             <TabsContent value="products" className="mt-0 space-y-4">
               {workflow.data ? <SupplierXmlFeeds supplierId={supplierId} data={workflow.data} /> : null}
-              <SupplierCatalog products={data.products} />
+              <SupplierCatalog products={data.products} supplierId={supplierId || undefined} onChanged={refresh} />
             </TabsContent>
 
             <TabsContent value="changes" className="mt-0 space-y-4">

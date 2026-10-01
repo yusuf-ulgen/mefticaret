@@ -38,7 +38,7 @@ export const supplierWorkflowOverview = createServerFn({ method: "POST" })
       lib.loadMessages(db, supplier.id),
       db
         .from("supplier_xml_feeds")
-        .select("id, name, source_url, is_active, last_run_at, last_status, last_error, stats")
+        .select("id, name, source_url, is_active, last_run_at, last_status, last_error, stats, sale_markup_percent")
         .eq("supplier_id", supplier.id)
         .order("created_at", { ascending: true }),
       lib.loadSupplierPaymentSettings(db, supplier.id),
@@ -51,6 +51,7 @@ export const supplierWorkflowOverview = createServerFn({ method: "POST" })
         id: String(feed.id),
         name: String(feed.name),
         sourceUrl: String(feed.source_url),
+        markupPercent: Number(feed.sale_markup_percent ?? 0) || 0,
         isActive: Boolean(feed.is_active),
         lastRunAt: (feed.last_run_at as string | null) ?? null,
         lastStatus: (feed.last_status as string | null) ?? null,
@@ -157,6 +158,7 @@ export const supplierSaveFeed = createServerFn({ method: "POST" })
         supplierId: z.guid(),
         name: z.string().trim().min(2).max(120),
         sourceUrl: z.string().trim().url().max(2000),
+        markupPercent: z.number().min(0).max(1000).default(0),
       })
       .parse(data),
   )
@@ -169,11 +171,36 @@ export const supplierSaveFeed = createServerFn({ method: "POST" })
     if ((count ?? 0) >= 10) throw new Error("En fazla 10 XML beslemesi eklenebilir");
     const { data: created, error } = await db
       .from("supplier_xml_feeds")
-      .insert({ supplier_id: supplier.id, store_id: supplier.store_id, name: data.name, source_url: data.sourceUrl })
+      .insert({ supplier_id: supplier.id, store_id: supplier.store_id, name: data.name, source_url: data.sourceUrl, sale_markup_percent: data.markupPercent })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
     return { id: String(created.id) };
+  });
+
+/** Beslemenin mağaza satış fiyatı kâr oranını günceller. */
+export const supplierSetFeedMarkup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ supplierId: z.guid(), feedId: z.guid(), markupPercent: z.number().min(0).max(1000) }).parse(data))
+  .handler(async ({ data, context }) => {
+    const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
+    const db = await admin();
+    const { error } = await db.from("supplier_xml_feeds").update({ sale_markup_percent: data.markupPercent }).eq("id", data.feedId).eq("supplier_id", supplier.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Tek bir tedarikçi ürününün mağaza satış fiyatını belirler. */
+export const supplierSetSalePrice = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ supplierId: z.guid(), productId: z.guid(), salePrice: z.number().min(0).max(100_000_000) }).parse(data))
+  .handler(async ({ data, context }) => {
+    const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
+    const db = await admin();
+    const { data: row, error } = await db.from("supplier_products").update({ computed_price: data.salePrice }).eq("id", data.productId).eq("supplier_id", supplier.id).select("id").maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error("Ürün bulunamadı");
+    return { ok: true };
   });
 
 export const supplierDeleteFeed = createServerFn({ method: "POST" })
@@ -198,7 +225,7 @@ export const supplierRunFeed = createServerFn({ method: "POST" })
     const db = await admin();
     const { data: feed } = await db
       .from("supplier_xml_feeds")
-      .select("id, supplier_id, store_id, source_url, field_mapping")
+      .select("id, supplier_id, store_id, source_url, field_mapping, sale_markup_percent")
       .eq("id", data.feedId)
       .eq("supplier_id", supplier.id)
       .maybeSingle();

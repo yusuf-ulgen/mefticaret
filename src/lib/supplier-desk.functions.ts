@@ -33,7 +33,7 @@ const rowSchema = z.object({
   sku: z.string().trim().min(1).max(120),
   barcode: z.string().max(120).nullable(),
   title: z.string().trim().min(1).max(400),
-  description: z.string().max(8000).nullable(),
+  description: z.string().max(200_000).nullable(),
   shortDescription: z.string().max(1000).nullable().default(null),
   costPrice: z.number().finite().min(0).max(100_000_000),
   retailPrice: z.number().finite().min(0).max(100_000_000).nullable(),

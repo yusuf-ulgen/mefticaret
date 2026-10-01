@@ -384,7 +384,7 @@ export function normalizeRows(
       sku: sku || null,
       barcode: barcode || null,
       title: title.slice(0, 250),
-      description: read("description").slice(0, 20_000) || null,
+      description: read("description").slice(0, 200_000) || null,
       vendor: read("brand").slice(0, 120) || null,
       price,
       compareAtPrice: readNumber("compare_at_price", "first"),
