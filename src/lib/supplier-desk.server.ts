@@ -275,7 +275,7 @@ export async function loadSupplierWorkspace(admin: Client, suppliers: { id: stri
   const storeIds = Array.from(new Set(suppliers.map((supplier) => supplier.store_id)));
   const [{ data: products }, { data: rfqs }, { data: accounts }] = await Promise.all([
     admin.from("supplier_products")
-      .select("id, feed_id, title, sku, barcode, category, brand, supplier_price, computed_price, stock, currency, images, raw, product_id, variant_id, updated_at")
+      .select("id, title, sku, barcode, category, brand, supplier_price, computed_price, stock, currency, images, raw, product_id, variant_id, updated_at")
       .in("supplier_id", supplierIds).order("updated_at", { ascending: false }).limit(1000),
     admin.from("rfq_requests")
       .select("id, reference, company_name, currency, quoted_total, requested_total, status, valid_until, purchase_order_id, items, created_at")
@@ -302,7 +302,7 @@ export async function loadSupplierWorkspace(admin: Client, suppliers: { id: stri
       const liveProduct = row.product_id ? liveProductMap.get(row.product_id) : null;
       const liveVariant = row.variant_id ? liveVariantMap.get(row.variant_id) : null;
       return {
-        id: row.id, feedId: row.feed_id, title: row.title, sku: row.sku, barcode: row.barcode,
+        id: row.id, feedId: "", title: row.title, sku: row.sku, barcode: row.barcode,
         category: row.category, brand: row.brand, supplierPrice: num(row.supplier_price),
         salePrice: num(liveVariant?.price ?? liveProduct?.base_price ?? row.computed_price ?? row.supplier_price),
         stock: Number(liveVariant?.stock ?? row.stock ?? 0), currency: row.currency ?? "TRY",

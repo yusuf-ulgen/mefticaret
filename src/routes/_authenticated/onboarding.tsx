@@ -206,18 +206,9 @@ function OnboardingPage() {
               </div>
               <div className="space-y-2">
                 <Label>Paket</Label>
-                <Select value={planCode} onValueChange={setPlanCode}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(plans ?? []).map((plan) => (
-                      <SelectItem key={plan.id} value={plan.code}>
-                        {plan.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <p className="rounded-md border border-border bg-muted px-3 py-2 text-sm">
+                  Mağazanız ücretsiz paketle açılır. Ücretli pakete kurulumdan sonra panelden ödeme yaparak geçebilirsiniz.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label>Para birimi</Label>
