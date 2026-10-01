@@ -5,6 +5,7 @@ import {
   BadgeCheck,
   Banknote,
   BarChart3,
+  MessageSquare,
   Boxes,
   Gauge,
   PackageCheck,
@@ -28,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SupplierMessages, SupplierPaymentSettings, SupplierPurchaseOrders, SupplierXmlFeeds, useSupplierWorkflow } from "@/components/supplier/workflow-panels";
 import { DROPSHIP_STATUS_LABEL } from "@/lib/dropshipping";
 import { formatDate, formatMoney } from "@/lib/mefti";
 import { LEDGER_STATUS_LABELS, PAYOUT_STATUS_LABELS } from "@/lib/supplier-import";
@@ -38,7 +40,7 @@ import {
 } from "@/lib/supplier-desk.functions";
 import { supplierPortalUpdateOrder } from "@/lib/supplier-portal.functions";
 
-export const Route = createFileRoute("/_authenticated/supplier")({
+export const Route = createFileRoute("/_authenticated/supplier/panel")({
   head: () => ({
     meta: [
       { title: "Tedarikçi Paneli — Mefticaret" },
@@ -102,6 +104,7 @@ function SupplierPortalPage() {
   });
 
   const supplierId = data?.suppliers[0]?.id ?? "";
+  const workflow = useSupplierWorkflow(supplierId);
   const [activeTab, setActiveTab] = useState("profile");
   const [orderFilter, setOrderFilter] = useState("pending");
   const openOrders = useMemo(
@@ -123,6 +126,7 @@ function SupplierPortalPage() {
     { value: "orders", label: "Siparişler", icon: ShoppingBag },
     { value: "products", label: "Ürünler", icon: Boxes },
     { value: "changes", label: "Değişimler", icon: Repeat2 },
+    { value: "messages", label: workflow.data?.unread ? `Mesaj (${workflow.data.unread})` : "Mesajlar", icon: MessageSquare },
     { value: "analytics", label: "Analiz", icon: BarChart3 },
   ];
 
@@ -183,9 +187,13 @@ function SupplierPortalPage() {
               <ProfileSummary data={data} openOrders={openOrders.length} />
               {supplierId ? <SupplierCommercialDesk supplierId={supplierId} products={data.products} rfqs={data.rfqs} credit={data.credit} transactions={data.transactions} onChanged={refresh} /> : null}
               <FinancePanel data={data} onSaved={refresh} />
+              {workflow.data ? <SupplierPaymentSettings key={supplierId} supplierId={supplierId} data={workflow.data} /> : null}
             </TabsContent>
 
             <TabsContent value="orders" className="mt-0 space-y-4">
+              <h2 className="text-sm font-medium">Mağazadan gelen satın alma siparişleri</h2>
+              {workflow.data ? <SupplierPurchaseOrders supplierId={supplierId} data={workflow.data} /> : null}
+              <h2 className="pt-2 text-sm font-medium">Müşteri siparişleri (dropshipping)</h2>
               <div className="grid grid-cols-4 gap-1 rounded-lg bg-card p-1 shadow-sm">
                 {[
                   ["pending", "Bekleyen"],
@@ -223,11 +231,16 @@ function SupplierPortalPage() {
             </TabsContent>
 
             <TabsContent value="products" className="mt-0 space-y-4">
+              {workflow.data ? <SupplierXmlFeeds supplierId={supplierId} data={workflow.data} /> : null}
               <SupplierCatalog products={data.products} />
             </TabsContent>
 
             <TabsContent value="changes" className="mt-0 space-y-4">
               <SupplierChanges movements={data.movements} returnCount={data.ledger.reduce((total, row) => total + row.scorecard.returned, 0)} cancelledCount={data.ledger.reduce((total, row) => total + row.scorecard.cancelled, 0)} />
+            </TabsContent>
+
+            <TabsContent value="messages" className="mt-0 space-y-4">
+              {workflow.data ? <SupplierMessages supplierId={supplierId} data={workflow.data} /> : null}
             </TabsContent>
 
             <TabsContent value="analytics" className="mt-0 space-y-4">
@@ -269,7 +282,7 @@ function SupplierPortalPage() {
 
             <nav
               aria-label="Tedarikçi paneli"
-              className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card px-1 pb-[max(.35rem,env(safe-area-inset-bottom))] pt-1 shadow-elevated sm:hidden"
+              className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-card px-1 pb-[max(.35rem,env(safe-area-inset-bottom))] pt-1 shadow-elevated sm:hidden"
             >
               {navigation.map((item) => (
                 <Button

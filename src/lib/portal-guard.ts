@@ -14,7 +14,7 @@ export function portalRedirect(access: PortalAccess, key: PortalKey): never {
       }
       throw redirect({ to: "/ev-hanimlari/kurulum", replace: true });
     case "supplier":
-      throw redirect({ to: "/supplier", replace: true });
+      throw redirect({ to: "/supplier/panel", replace: true });
     case "inbox":
       throw redirect({ to: "/mesajlar", replace: true });
   }

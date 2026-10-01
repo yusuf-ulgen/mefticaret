@@ -125,6 +125,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         keywords: "seller onay",
       },
       {
+        to: "/admin/suppliers",
+        label: "Tedarikçiler",
+        icon: BadgeCheck,
+        hint: "Tedarikçi erişimi, siparişler, ödeme talepleri",
+        keywords: "tedarikci supplier xml odeme talebi satin alma",
+      },
+      {
         to: "/admin/store-access",
         label: "Mağaza Yetkilendirme",
         icon: ShieldCheck,
