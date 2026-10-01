@@ -19258,6 +19258,71 @@ export type Database = {
           },
         ]
       }
+      store_supplier_imports: {
+        Row: {
+          created_at: string
+          id: string
+          last_synced_at: string
+          markup_percent: number
+          product_id: string
+          store_id: string
+          supplier_id: string
+          supplier_product_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_synced_at?: string
+          markup_percent?: number
+          product_id: string
+          store_id: string
+          supplier_id: string
+          supplier_product_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_synced_at?: string
+          markup_percent?: number
+          product_id?: string
+          store_id?: string
+          supplier_id?: string
+          supplier_product_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_supplier_imports_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_supplier_imports_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_supplier_imports_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_supplier_imports_supplier_product_id_fkey"
+            columns: ["supplier_product_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_theme_sections: {
         Row: {
           created_at: string
@@ -20205,6 +20270,7 @@ export type Database = {
           id: string
           is_active: boolean
           is_dropship: boolean
+          is_public_catalog: boolean
           lead_time_days: number
           name: string
           note: string | null
@@ -20229,6 +20295,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_dropship?: boolean
+          is_public_catalog?: boolean
           lead_time_days?: number
           name: string
           note?: string | null
@@ -20253,6 +20320,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_dropship?: boolean
+          is_public_catalog?: boolean
           lead_time_days?: number
           name?: string
           note?: string | null
