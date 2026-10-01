@@ -34,8 +34,10 @@ export const Route = createFileRoute("/ev-hanimlari/")({
         content: "Sade panel, kolay giriş: el emeği ürünlerinizi telefonunuzdan satın.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://mefticaret.com/ev-hanimlari" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://mefticaret.com/ev-hanimlari" }],
   }),
   component: HomeMakerAuthPage,
 });
