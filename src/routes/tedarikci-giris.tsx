@@ -69,7 +69,7 @@ function SupplierLoginPage() {
         return;
       }
       toast.success("Tedarikçi paneline hoş geldiniz");
-      void navigate({ to: "/supplier" });
+      void navigate({ to: "/supplier/panel" });
     } catch {
       setBusy(false);
       setNotice("Tedarikçi erişiminiz doğrulanamadı. Lütfen birkaç saniye sonra tekrar deneyin.");

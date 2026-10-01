@@ -38,7 +38,7 @@ import {
 } from "@/lib/supplier-desk.functions";
 import { supplierPortalUpdateOrder } from "@/lib/supplier-portal.functions";
 
-export const Route = createFileRoute("/_authenticated/supplier")({
+export const Route = createFileRoute("/_authenticated/supplier/panel")({
   head: () => ({
     meta: [
       { title: "Tedarikçi Paneli — Mefticaret" },
