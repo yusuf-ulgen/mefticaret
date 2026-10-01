@@ -224,6 +224,8 @@ export async function runSupplierFeed(
     try {
       const { propagateToImporters } = await import("@/lib/supplier-catalog.server");
       await propagateToImporters(admin, feed.supplier_id);
+      const { runAutoImports } = await import("@/lib/supplier-catalog.server");
+      await runAutoImports(admin, { supplierId: feed.supplier_id });
     } catch {
       /* eşitleme hatası beslemeyi bozmaz */
     }

@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { SmartImage } from "@/components/smart-image";
 import { printCargoLabels } from "@/components/supplier/cargo-label";
+import { SupplierCatalogStudio, SupplierSellerStats } from "@/components/supplier/catalog-studio";
 import { SupplierAnalytics, SupplierCatalog, SupplierChanges, SupplierCommercialDesk } from "@/components/supplier/workspace-panels";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -231,6 +232,8 @@ function SupplierPortalPage() {
             </TabsContent>
 
             <TabsContent value="products" className="mt-0 space-y-4">
+              {supplierId ? <SupplierSellerStats supplierId={supplierId} /> : null}
+              {supplierId ? <SupplierCatalogStudio supplierId={supplierId} /> : null}
               {workflow.data ? <SupplierXmlFeeds supplierId={supplierId} data={workflow.data} /> : null}
               <SupplierCatalog products={data.products} supplierId={supplierId || undefined} onChanged={refresh} />
             </TabsContent>
@@ -244,6 +247,7 @@ function SupplierPortalPage() {
             </TabsContent>
 
             <TabsContent value="analytics" className="mt-0 space-y-4">
+              {supplierId ? <SupplierSellerStats supplierId={supplierId} /> : null}
               <SupplierAnalytics orders={data.orders} currency={data.suppliers[0]?.currency ?? "TRY"} />
               {data.ledger.map((row) => (
                 <div key={row.supplierId} className="rounded-lg border bg-card p-4 sm:p-5">
