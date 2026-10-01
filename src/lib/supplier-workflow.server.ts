@@ -221,6 +221,12 @@ export async function runSupplierFeed(
       else skipped += 1;
     }
 
+    try {
+      const { propagateToImporters } = await import("@/lib/supplier-catalog.server");
+      await propagateToImporters(admin, feed.supplier_id);
+    } catch {
+      /* eşitleme hatası beslemeyi bozmaz */
+    }
     const stats = { totalRows: parsed.totalRows, created, updated, skipped, format: fetched.format };
     await admin
       .from("supplier_xml_feeds")

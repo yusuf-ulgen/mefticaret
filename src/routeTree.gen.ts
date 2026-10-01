@@ -277,6 +277,7 @@ import { Route as AuthenticatedStoreStoreIdStatisticsRouteImport } from './route
 import { Route as AuthenticatedStoreStoreIdStockAlertsRouteImport } from './routes/_authenticated/store.$storeId.stock-alerts'
 import { Route as AuthenticatedStoreStoreIdStockCountRouteImport } from './routes/_authenticated/store.$storeId.stock-count'
 import { Route as AuthenticatedStoreStoreIdStockoutRouteImport } from './routes/_authenticated/store.$storeId.stockout'
+import { Route as AuthenticatedStoreStoreIdSupplierCatalogRouteImport } from './routes/_authenticated/store.$storeId.supplier-catalog'
 import { Route as AuthenticatedStoreStoreIdSupplierPerformanceRouteImport } from './routes/_authenticated/store.$storeId.supplier-performance'
 import { Route as AuthenticatedStoreStoreIdSupportRouteImport } from './routes/_authenticated/store.$storeId.support'
 import { Route as AuthenticatedStoreStoreIdSupportPerformanceRouteImport } from './routes/_authenticated/store.$storeId.support-performance'
@@ -1868,6 +1869,12 @@ const AuthenticatedStoreStoreIdStockoutRoute =
     path: '/stockout',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdSupplierCatalogRoute =
+  AuthenticatedStoreStoreIdSupplierCatalogRouteImport.update({
+    id: '/supplier-catalog',
+    path: '/supplier-catalog',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdSupplierPerformanceRoute =
   AuthenticatedStoreStoreIdSupplierPerformanceRouteImport.update({
     id: '/supplier-performance',
@@ -2636,6 +2643,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
+  '/store/$storeId/supplier-catalog': typeof AuthenticatedStoreStoreIdSupplierCatalogRoute
   '/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
   '/store/$storeId/support': typeof AuthenticatedStoreStoreIdSupportRoute
   '/store/$storeId/support-performance': typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
@@ -2987,6 +2995,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
+  '/store/$storeId/supplier-catalog': typeof AuthenticatedStoreStoreIdSupplierCatalogRoute
   '/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
   '/store/$storeId/support': typeof AuthenticatedStoreStoreIdSupportRoute
   '/store/$storeId/support-performance': typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
@@ -3344,6 +3353,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
   '/_authenticated/store/$storeId/stock-count': typeof AuthenticatedStoreStoreIdStockCountRoute
   '/_authenticated/store/$storeId/stockout': typeof AuthenticatedStoreStoreIdStockoutRoute
+  '/_authenticated/store/$storeId/supplier-catalog': typeof AuthenticatedStoreStoreIdSupplierCatalogRoute
   '/_authenticated/store/$storeId/supplier-performance': typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
   '/_authenticated/store/$storeId/support': typeof AuthenticatedStoreStoreIdSupportRoute
   '/_authenticated/store/$storeId/support-performance': typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
@@ -3702,6 +3712,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/stock-alerts'
     | '/store/$storeId/stock-count'
     | '/store/$storeId/stockout'
+    | '/store/$storeId/supplier-catalog'
     | '/store/$storeId/supplier-performance'
     | '/store/$storeId/support'
     | '/store/$storeId/support-performance'
@@ -4053,6 +4064,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/stock-alerts'
     | '/store/$storeId/stock-count'
     | '/store/$storeId/stockout'
+    | '/store/$storeId/supplier-catalog'
     | '/store/$storeId/supplier-performance'
     | '/store/$storeId/support'
     | '/store/$storeId/support-performance'
@@ -4409,6 +4421,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/stock-alerts'
     | '/_authenticated/store/$storeId/stock-count'
     | '/_authenticated/store/$storeId/stockout'
+    | '/_authenticated/store/$storeId/supplier-catalog'
     | '/_authenticated/store/$storeId/supplier-performance'
     | '/_authenticated/store/$storeId/support'
     | '/_authenticated/store/$storeId/support-performance'
@@ -6514,6 +6527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdStockoutRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/supplier-catalog': {
+      id: '/_authenticated/store/$storeId/supplier-catalog'
+      path: '/supplier-catalog'
+      fullPath: '/store/$storeId/supplier-catalog'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSupplierCatalogRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/supplier-performance': {
       id: '/_authenticated/store/$storeId/supplier-performance'
       path: '/supplier-performance'
@@ -7487,6 +7507,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdStockAlertsRoute: typeof AuthenticatedStoreStoreIdStockAlertsRoute
   AuthenticatedStoreStoreIdStockCountRoute: typeof AuthenticatedStoreStoreIdStockCountRoute
   AuthenticatedStoreStoreIdStockoutRoute: typeof AuthenticatedStoreStoreIdStockoutRoute
+  AuthenticatedStoreStoreIdSupplierCatalogRoute: typeof AuthenticatedStoreStoreIdSupplierCatalogRoute
   AuthenticatedStoreStoreIdSupplierPerformanceRoute: typeof AuthenticatedStoreStoreIdSupplierPerformanceRoute
   AuthenticatedStoreStoreIdSupportRoute: typeof AuthenticatedStoreStoreIdSupportRoute
   AuthenticatedStoreStoreIdSupportPerformanceRoute: typeof AuthenticatedStoreStoreIdSupportPerformanceRoute
@@ -7710,6 +7731,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdStockCountRoute,
     AuthenticatedStoreStoreIdStockoutRoute:
       AuthenticatedStoreStoreIdStockoutRoute,
+    AuthenticatedStoreStoreIdSupplierCatalogRoute:
+      AuthenticatedStoreStoreIdSupplierCatalogRoute,
     AuthenticatedStoreStoreIdSupplierPerformanceRoute:
       AuthenticatedStoreStoreIdSupplierPerformanceRoute,
     AuthenticatedStoreStoreIdSupportRoute:
