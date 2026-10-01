@@ -156,12 +156,16 @@ export function slugify(value: string): string {
     .slice(0, 48);
 }
 
+const CURRENCY_ALIASES: Record<string, string> = { TL: "TRY", YTL: "TRY", "₺": "TRY", "$": "USD", "€": "EUR", "£": "GBP" };
+
 export function formatMoney(value: number, currency = "TRY", locale = "tr-TR"): string {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(value);
+  const raw = String(currency || "TRY").trim().toUpperCase();
+  const code = CURRENCY_ALIASES[raw] ?? raw;
+  try {
+    return new Intl.NumberFormat(locale, { style: "currency", currency: code, maximumFractionDigits: 0 }).format(value);
+  } catch {
+    return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(value)} ${raw}`;
+  }
 }
 
 export function formatNumber(value: number, locale = "tr-TR"): string {
