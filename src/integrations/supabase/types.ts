@@ -19258,6 +19258,112 @@ export type Database = {
           },
         ]
       }
+      store_supplier_auto_imports: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          last_result: Json | null
+          last_run_at: string | null
+          markup_percent: number
+          store_id: string
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_result?: Json | null
+          last_run_at?: string | null
+          markup_percent?: number
+          store_id: string
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_result?: Json | null
+          last_run_at?: string | null
+          markup_percent?: number
+          store_id?: string
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_supplier_auto_imports_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_supplier_auto_imports_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_supplier_category_maps: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          id: string
+          markup_percent: number | null
+          source_category: string
+          store_id: string
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          markup_percent?: number | null
+          source_category: string
+          store_id: string
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          markup_percent?: number | null
+          source_category?: string
+          store_id?: string
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_supplier_category_maps_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_supplier_category_maps_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_supplier_category_maps_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_supplier_imports: {
         Row: {
           created_at: string
@@ -19268,6 +19374,7 @@ export type Database = {
           store_id: string
           supplier_id: string
           supplier_product_id: string
+          sync_enabled: boolean
           updated_at: string
         }
         Insert: {
@@ -19279,6 +19386,7 @@ export type Database = {
           store_id: string
           supplier_id: string
           supplier_product_id: string
+          sync_enabled?: boolean
           updated_at?: string
         }
         Update: {
@@ -19290,6 +19398,7 @@ export type Database = {
           store_id?: string
           supplier_id?: string
           supplier_product_id?: string
+          sync_enabled?: boolean
           updated_at?: string
         }
         Relationships: [
@@ -20093,6 +20202,7 @@ export type Database = {
         Row: {
           barcode: string | null
           brand: string | null
+          catalog_visible: boolean
           category: string | null
           computed_price: number | null
           created_at: string
@@ -20107,6 +20217,7 @@ export type Database = {
           sku: string | null
           stock: number
           store_id: string
+          suggested_price: number | null
           supplier_id: string | null
           supplier_price: number
           title: string
@@ -20116,6 +20227,7 @@ export type Database = {
         Insert: {
           barcode?: string | null
           brand?: string | null
+          catalog_visible?: boolean
           category?: string | null
           computed_price?: number | null
           created_at?: string
@@ -20130,6 +20242,7 @@ export type Database = {
           sku?: string | null
           stock?: number
           store_id: string
+          suggested_price?: number | null
           supplier_id?: string | null
           supplier_price?: number
           title: string
@@ -20139,6 +20252,7 @@ export type Database = {
         Update: {
           barcode?: string | null
           brand?: string | null
+          catalog_visible?: boolean
           category?: string | null
           computed_price?: number | null
           created_at?: string
@@ -20153,6 +20267,7 @@ export type Database = {
           sku?: string | null
           stock?: number
           store_id?: string
+          suggested_price?: number | null
           supplier_id?: string | null
           supplier_price?: number
           title?: string
