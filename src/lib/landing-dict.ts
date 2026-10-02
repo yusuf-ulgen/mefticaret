@@ -367,7 +367,13 @@ export const LANDING_DICT: Record<"en" | "de" | "fr" | "ar", Record<string, stri
   "WhatsApp CRM": "WhatsApp CRM",
   "XML Entegratör": "XML Integrator",
   "Yorum Toplayıcı": "Review Collector",
-  "Yurtiçi Kargo": "Yurtiçi Kargo"
+  "Yurtiçi Kargo": "Yurtiçi Kargo",
+  "Ürün seçiminden ilk siparişe 5 adım, gerekli her şey, maliyetler ve kanal kararı.": "From product selection to your first order in 5 steps: essentials, costs, and choosing your sales channels.",
+  "Altyapı seçerken komisyon, özellik ve büyüme kriterlerini yan yana karşılaştırın.": "Compare fees, features, and scalability side by side to choose your platform.",
+  "Tedarikçi bulmadan XML aktarımına kadar stoksuz satışın adım adım kurulumu.": "Set up dropshipping step by step, from finding suppliers to importing XML feeds.",
+  "Trendyol, Hepsiburada, Amazon ve N11 stok, fiyat ve siparişlerini tek panelde yönetin.": "Manage inventory, prices, and orders across Trendyol, Hepsiburada, Amazon, and N11 from one dashboard.",
+  "Paket fiyatlarını, ürün ve sipariş limitlerini, komisyon oranlarını tek tabloda karşılaştırın.": "Compare plan pricing, product and order limits, and commission rates in one table.",
+  "Dönüşüm ve kanal raporlarını tek ekranda izleyin, SEO ayarlarıyla organik trafiğinizi artırın.": "Track conversion and channel reports in one view, and boost organic traffic with SEO settings."
  },
  "de": {
   "/ay": "/Monat",
@@ -736,7 +742,13 @@ export const LANDING_DICT: Record<"en" | "de" | "fr" | "ar", Record<string, stri
   "WhatsApp CRM": "WhatsApp CRM",
   "XML Entegratör": "XML-Integrator",
   "Yorum Toplayıcı": "Bewertungssammler",
-  "Yurtiçi Kargo": "Yurtiçi Kargo"
+  "Yurtiçi Kargo": "Yurtiçi Kargo",
+  "Ürün seçiminden ilk siparişe 5 adım, gerekli her şey, maliyetler ve kanal kararı.": "In 5 Schritten von der Produktauswahl zur ersten Bestellung – mit allem, was Sie brauchen, Kostenüberblick und Kanalwahl.",
+  "Altyapı seçerken komisyon, özellik ve büyüme kriterlerini yan yana karşılaştırın.": "Vergleichen Sie bei der Plattformwahl Provisionen, Funktionen und Wachstumspotenzial direkt miteinander.",
+  "Tedarikçi bulmadan XML aktarımına kadar stoksuz satışın adım adım kurulumu.": "Dropshipping Schritt für Schritt einrichten – von der Lieferantensuche bis zum XML-Import.",
+  "Trendyol, Hepsiburada, Amazon ve N11 stok, fiyat ve siparişlerini tek panelde yönetin.": "Verwalten Sie Bestände, Preise und Bestellungen für Trendyol, Hepsiburada, Amazon und N11 in einem zentralen Dashboard.",
+  "Paket fiyatlarını, ürün ve sipariş limitlerini, komisyon oranlarını tek tabloda karşılaştırın.": "Vergleichen Sie Paketpreise, Produkt- und Bestelllimits sowie Provisionssätze in einer einzigen Tabelle.",
+  "Dönüşüm ve kanal raporlarını tek ekranda izleyin, SEO ayarlarıyla organik trafiğinizi artırın.": "Behalten Sie Conversion- und Kanalberichte zentral im Blick und steigern Sie mit SEO-Einstellungen Ihren organischen Traffic."
  },
  "fr": {
   "/ay": "/mois",
@@ -1105,7 +1117,13 @@ export const LANDING_DICT: Record<"en" | "de" | "fr" | "ar", Record<string, stri
   "WhatsApp CRM": "CRM WhatsApp",
   "XML Entegratör": "Intégration XML",
   "Yorum Toplayıcı": "Collecteur d’avis",
-  "Yurtiçi Kargo": "Yurtiçi Kargo"
+  "Yurtiçi Kargo": "Yurtiçi Kargo",
+  "Ürün seçiminden ilk siparişe 5 adım, gerekli her şey, maliyetler ve kanal kararı.": "Du choix des produits à la première commande en 5 étapes : l’essentiel, les coûts et le choix des canaux.",
+  "Altyapı seçerken komisyon, özellik ve büyüme kriterlerini yan yana karşılaştırın.": "Comparez les commissions, les fonctionnalités et le potentiel de croissance pour choisir votre plateforme.",
+  "Tedarikçi bulmadan XML aktarımına kadar stoksuz satışın adım adım kurulumu.": "Lancez votre activité de dropshipping pas à pas, de la recherche de fournisseurs à l’import XML.",
+  "Trendyol, Hepsiburada, Amazon ve N11 stok, fiyat ve siparişlerini tek panelde yönetin.": "Gérez vos stocks, prix et commandes sur Trendyol, Hepsiburada, Amazon et N11 depuis une seule interface.",
+  "Paket fiyatlarını, ürün ve sipariş limitlerini, komisyon oranlarını tek tabloda karşılaştırın.": "Comparez les tarifs des offres, les limites de produits et de commandes et les taux de commission dans un seul tableau.",
+  "Dönüşüm ve kanal raporlarını tek ekranda izleyin, SEO ayarlarıyla organik trafiğinizi artırın.": "Suivez vos conversions et les performances de vos canaux sur un seul écran, et boostez votre trafic organique grâce aux réglages SEO."
  },
  "ar": {
   "/ay": "/شهر",
@@ -1474,6 +1492,12 @@ export const LANDING_DICT: Record<"en" | "de" | "fr" | "ar", Record<string, stri
   "WhatsApp CRM": "إدارة علاقات العملاء عبر WhatsApp",
   "XML Entegratör": "ربط XML",
   "Yorum Toplayıcı": "جمع تقييمات العملاء",
-  "Yurtiçi Kargo": "Yurtiçi Kargo"
+  "Yurtiçi Kargo": "Yurtiçi Kargo",
+  "Ürün seçiminden ilk siparişe 5 adım, gerekli her şey, maliyetler ve kanal kararı.": "من اختيار المنتج إلى أول طلب في 5 خطوات: كل ما تحتاجه، والتكاليف، واختيار قناة البيع.",
+  "Altyapı seçerken komisyon, özellik ve büyüme kriterlerini yan yana karşılaştırın.": "قارن العمولات والمزايا وإمكانات النمو جنبًا إلى جنب عند اختيار منصة متجرك.",
+  "Tedarikçi bulmadan XML aktarımına kadar stoksuz satışın adım adım kurulumu.": "ابدأ البيع دون مخزون خطوة بخطوة، من العثور على مورد إلى استيراد بيانات XML.",
+  "Trendyol, Hepsiburada, Amazon ve N11 stok, fiyat ve siparişlerini tek panelde yönetin.": "أدر المخزون والأسعار والطلبات على Trendyol وHepsiburada وAmazon وN11 من لوحة واحدة.",
+  "Paket fiyatlarını, ürün ve sipariş limitlerini, komisyon oranlarını tek tabloda karşılaştırın.": "قارن أسعار الباقات وحدود المنتجات والطلبات ونسب العمولات في جدول واحد.",
+  "Dönüşüm ve kanal raporlarını tek ekranda izleyin, SEO ayarlarıyla organik trafiğinizi artırın.": "تابع تقارير التحويل وقنوات البيع من شاشة واحدة، وزد زياراتك من نتائج البحث المجانية بإعدادات SEO."
  }
 };
