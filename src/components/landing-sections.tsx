@@ -292,6 +292,7 @@ type ShowcaseApp = {
 };
 
 function AppLogoChip({ app }: { app: ShowcaseApp }) {
+  const tx = useTx();
   return (
     <div className="showcase-card flex shrink-0 items-center gap-3 px-4 py-3">
       {app.logoUrl ? (
@@ -306,7 +307,7 @@ function AppLogoChip({ app }: { app: ShowcaseApp }) {
           {app.logoEmoji ?? "🧩"}
         </span>
       )}
-      <span className="whitespace-nowrap text-sm font-semibold">{app.name}</span>
+      <span className="whitespace-nowrap text-sm font-semibold">{tx(app.name)}</span>
     </div>
   );
 }
