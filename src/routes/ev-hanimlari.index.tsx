@@ -20,25 +20,76 @@ import { getHomeMakerProfile } from "@/lib/home-maker.functions";
 import { requestPhoneOtp, verifyPhoneOtp } from "@/lib/kolay-v8.functions";
 
 export const Route = createFileRoute("/ev-hanimlari/")({
-  head: () => ({
-    meta: [
-      { title: "Ev Hanımları Portalı — Mefticaret" },
-      {
-        name: "description",
-        content:
-          "Telefon numaranızla veya e-postanızla giriş yapın, el emeği ürünlerinizi sade bir panelden satmaya hemen başlayın.",
-      },
-      { property: "og:title", content: "Ev Hanımları Portalı — Mefticaret" },
-      {
-        property: "og:description",
-        content: "Sade panel, kolay giriş: el emeği ürünlerinizi telefonunuzdan satın.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://mefticaret.com/ev-hanimlari" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "https://mefticaret.com/ev-hanimlari" }],
-  }),
+  head: () => {
+    const url = "https://mefticaret.com/ev-hanimlari";
+    const title = "Evden Satış Yap: El Emeği Ürünlerini Online Sat | Mefticaret";
+    const description =
+      "Ev hanımları için kolay online satış: el örgüsü, takı, ev yemeği, sabun ve dekor ürünlerinizi telefonunuzdan açacağınız mağazada satın.";
+    const categories = [
+      "El örgüsü ve tığ işi",
+      "Takı ve aksesuar",
+      "Ev yemekleri ve reçel",
+      "Doğal sabun ve kozmetik",
+      "Ev dekorasyonu",
+      "Bebek ve çocuk ürünleri",
+    ];
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        {
+          name: "keywords",
+          content:
+            "evden satış, ev hanımları online satış, el emeği ürün satma, el örgüsü satış, ev yemeği satışı, doğal sabun satışı, takı satışı",
+        },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { property: "og:locale", content: "tr_TR" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "WebPage",
+                "@id": url,
+                url,
+                name: title,
+                description,
+                inLanguage: "tr-TR",
+                isPartOf: { "@type": "WebSite", name: "Mefticaret", url: "https://mefticaret.com" },
+                about: categories.map((name) => ({ "@type": "Thing", name })),
+              },
+              {
+                "@type": "ItemList",
+                name: "Ev hanımlarının satabileceği ürün kategorileri",
+                itemListElement: categories.map((name, i) => ({
+                  "@type": "ListItem",
+                  position: i + 1,
+                  name,
+                })),
+              },
+              {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  { "@type": "ListItem", position: 1, name: "Mefticaret", item: "https://mefticaret.com/" },
+                  { "@type": "ListItem", position: 2, name: "Ev Hanımları", item: url },
+                ],
+              },
+            ],
+          }),
+        },
+      ],
+    };
+  },
   component: HomeMakerAuthPage,
 });
 
