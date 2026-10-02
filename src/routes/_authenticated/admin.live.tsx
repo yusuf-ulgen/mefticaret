@@ -124,6 +124,44 @@ function AdminLivePage() {
         </div>
       }
     >
+      <section className="surface-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Globe2 className="size-4 text-primary" />
+            <h2 className="font-display text-lg font-semibold">Mefticaret sitesi ziyaretçileri</h2>
+          </div>
+          <Badge variant="secondary">ana sayfa, rehberler, blog</Badge>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <MetricCard icon={<Activity />} label="Şu an sitede" value={formatNumber(data?.platform?.activeVisitors ?? 0)} hint="son 5 dakika" />
+          <MetricCard icon={<Eye />} label="Ziyaretçi" value={formatNumber(data?.platform?.visitors ?? 0)} hint={`son ${minutes} dakika`} />
+          <MetricCard icon={<MousePointer2 />} label="Sayfa görüntüleme" value={formatNumber(data?.platform?.pageViews ?? 0)} hint={`son ${minutes} dakika`} />
+          <MetricCard icon={<Store />} label="Ana sayfa" value={formatNumber(data?.platform?.homeViews ?? 0)} hint="görüntüleme" />
+        </div>
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <ListCard title="Şu an hangi sayfadalar" icon={<Radio />} items={data?.platform?.pagesNow ?? []} />
+          <ListCard title="Nereden geldiler" icon={<ArrowUpRight />} items={data?.platform?.sources ?? []} />
+          <ListCard title="En çok bakılan sayfalar" icon={<Eye />} items={data?.platform?.topPages ?? []} />
+        </div>
+        <div className="mt-4 divide-y divide-border">
+          {(data?.platform?.recent ?? []).length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">Henüz site ziyareti yok.</p>
+          ) : (
+            (data?.platform?.recent ?? []).map((row) => (
+              <div key={row.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{row.path}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {[row.source, row.city, row.country, row.device].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+                <span className="shrink-0 text-xs text-muted-foreground">{timeAgo(row.createdAt)}</span>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_1fr]">
         <section className="surface-card relative overflow-hidden p-5">
           <div className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full bg-primary/10 blur-2xl" />

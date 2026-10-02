@@ -1222,7 +1222,53 @@ export async function platformLive(input: z.infer<typeof liveInputSchema>) {
   const paidOrders = orders.filter((row) => row.payment_status === "paid");
   const funnelViews = events.filter((row) => row.kind === "page_view" || row.kind === "product_view").length;
 
+  // Mefticaret platform sayfaları (ana sayfa, rehberler, blog…)
+  const { data: pvRows } = await db
+    .from("platform_page_views")
+    .select("id, visitor_id, session_id, path, page_title, source, device, country, city, created_at")
+    .gte("created_at", since)
+    .order("created_at", { ascending: false })
+    .limit(4000);
+  type Pv = { id: string; visitor_id: string; session_id: string; path: string; page_title: string | null; source: string | null; device: string | null; country: string | null; city: string | null; created_at: string };
+  const pv = (pvRows ?? []) as Pv[];
+  const pvFresh = pv.filter((row) => Date.now() - new Date(row.created_at).getTime() < 5 * 60_000);
+  const pvTally = (rows: Pv[], key: keyof Pv, limit: number) => {
+    const map = new Map<string, number>();
+    for (const row of rows) {
+      const label = (row[key] as string | null) || "Bilinmiyor";
+      map.set(label, (map.get(label) ?? 0) + 1);
+    }
+    return [...map.entries()].map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count).slice(0, limit);
+  };
+  const pvNow = new Map<string, Set<string>>();
+  for (const row of pvFresh) {
+    if (!pvNow.has(row.path)) pvNow.set(row.path, new Set());
+    pvNow.get(row.path)!.add(row.visitor_id);
+  }
+  const platform = {
+    activeVisitors: new Set(pvFresh.map((row) => row.visitor_id)).size,
+    visitors: new Set(pv.map((row) => row.visitor_id)).size,
+    pageViews: pv.length,
+    homeViews: pv.filter((row) => row.path === "/").length,
+    pagesNow: [...pvNow.entries()].map(([label, set]) => ({ label, count: set.size })).sort((a, b) => b.count - a.count).slice(0, 8),
+    topPages: pvTally(pv, "path", 8),
+    sources: pvTally(pv, "source", 6),
+    devices: pvTally(pv, "device", 4),
+    cities: pvTally(pv, "city", 6),
+    recent: pv.slice(0, 15).map((row) => ({
+      id: row.id,
+      path: row.path,
+      title: row.page_title,
+      source: row.source,
+      device: row.device,
+      city: row.city,
+      country: row.country,
+      createdAt: row.created_at,
+    })),
+  };
+
   return {
+    platform,
     minutes,
     visitors,
     sessions,
