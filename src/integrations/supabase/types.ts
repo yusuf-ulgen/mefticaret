@@ -12602,6 +12602,48 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_page_views: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          device: string | null
+          id: string
+          page_title: string | null
+          path: string
+          referrer_host: string | null
+          session_id: string
+          source: string | null
+          visitor_id: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          page_title?: string | null
+          path: string
+          referrer_host?: string | null
+          session_id: string
+          source?: string | null
+          visitor_id: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          page_title?: string | null
+          path?: string
+          referrer_host?: string | null
+          session_id?: string
+          source?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       platform_pages: {
         Row: {
           body: string

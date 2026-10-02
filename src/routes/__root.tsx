@@ -176,6 +176,15 @@ function RootComponent() {
   }, []);
 
   const { queryClient } = Route.useRouteContext();
+  const currentPath = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => {
+    // Başlığın güncellenmesi için kısa gecikme.
+    const timer = window.setTimeout(() => {
+      void import("@/lib/platform-track").then((m) => m.trackPlatformView(currentPath));
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [currentPath]);
+
 
   return (
     <QueryClientProvider client={queryClient}>
