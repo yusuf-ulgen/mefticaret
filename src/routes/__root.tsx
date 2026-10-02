@@ -181,6 +181,7 @@ function RootComponent() {
     // Başlığın güncellenmesi için kısa gecikme.
     const timer = window.setTimeout(() => {
       void import("@/lib/platform-track").then((m) => m.trackPlatformView(currentPath));
+      void import("@/lib/google-analytics").then((m) => m.trackGaPageView(currentPath));
     }, 400);
     return () => window.clearTimeout(timer);
   }, [currentPath]);
