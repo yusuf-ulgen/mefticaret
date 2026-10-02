@@ -21,12 +21,14 @@ import { Button } from "@/components/ui/button";
 import { getPublicAppShowcase } from "@/lib/app-showcase.functions";
 import { publicPlatformPostsQuery } from "@/lib/platform-blog-queries";
 import { sectionIcon, type SiteSection } from "@/lib/site-content";
+import { useTx } from "@/lib/landing-i18n";
 
 
 
 /* ---------------------------------- Entegrasyonlar ---------------------------------- */
 
 export function IntegrationsSection({ section }: { section: SiteSection | null }) {
+  const tx = useTx();
   if (!section) return null;
   const items = section.items;
   const half = Math.ceil(items.length / 2);
@@ -54,7 +56,7 @@ export function IntegrationsSection({ section }: { section: SiteSection | null }
               {section.badge}
             </p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Entegrasyon
+              {tx("Entegrasyon")}
             </p>
           </div>
         </div>
@@ -70,6 +72,7 @@ export function IntegrationsSection({ section }: { section: SiteSection | null }
 }
 
 function IntegrationCard({ item }: { item: Record<string, string> }) {
+  const tx = useTx();
   const Icon = sectionIcon(item["icon"]);
 
   return (
@@ -79,7 +82,7 @@ function IntegrationCard({ item }: { item: Record<string, string> }) {
       </span>
       <div className="min-w-0">
         <p className="truncate text-xs font-semibold uppercase tracking-widest">{item["label"]}</p>
-        <p className="text-sm text-muted-foreground">{item["count"]} bağlantı</p>
+        <p className="text-sm text-muted-foreground">{tx("{n} bağlantı", { n: item["count"] ?? "" })}</p>
 
       </div>
       <ArrowUpRight className="ml-auto size-4 shrink-0 text-muted-foreground" />
@@ -129,17 +132,17 @@ const CAPABILITY_GROUPS = [
 ];
 
 export function PlatformCapabilitiesSection() {
+  const tx = useTx();
   return (
     <section id="ozellikler" className="border-y border-border bg-secondary/40 py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div className="text-center">
-          <span className="eyebrow">Platform Özellikleri</span>
+          <span className="eyebrow">{tx("Platform Özellikleri")}</span>
           <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-            Satışını Büyüten Her Şey Hazır Geliyor
+            {tx("Satışını Büyüten Her Şey Hazır Geliyor")}
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-            Uygulama mağazası, yapay zekâ destekli otomasyonlar ve pazaryeri–kargo–ödeme
-            entegrasyonları Mefticaret ile birlikte gelir.
+            {tx("Uygulama mağazası, yapay zekâ destekli otomasyonlar ve pazaryeri–kargo–ödeme entegrasyonları Mefticaret ile birlikte gelir.")}
           </p>
         </div>
 
@@ -149,16 +152,16 @@ export function PlatformCapabilitiesSection() {
               <span className="grid size-11 place-items-center rounded-xl bg-brand-soft text-brand">
                 <group.icon className="size-5" />
               </span>
-              <span className="eyebrow mt-5">{group.eyebrow}</span>
-              <h3 className="mt-3 text-lg font-semibold leading-snug">{group.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{group.text}</p>
+              <span className="eyebrow mt-5">{tx(group.eyebrow)}</span>
+              <h3 className="mt-3 text-lg font-semibold leading-snug">{tx(group.title)}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{tx(group.text)}</p>
               <ul className="mt-6 flex flex-1 flex-col gap-3">
                 {group.items.map((item) => (
                   <li key={item.label} className="flex items-start gap-3 text-sm">
                     <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
                       <item.icon className="size-3.5" />
                     </span>
-                    <span className="leading-relaxed">{item.label}</span>
+                    <span className="leading-relaxed">{tx(item.label)}</span>
                   </li>
                 ))}
               </ul>
@@ -169,7 +172,7 @@ export function PlatformCapabilitiesSection() {
         <div className="mt-12 text-center">
           <Button asChild className="rounded-full">
             <Link to="/auth" search={{ mode: "register" }}>
-              Ücretsiz Başlayın <ArrowRight className="ml-2 size-4" />
+              {tx("Ücretsiz Başlayın")} <ArrowRight className="ml-2 size-4" />
             </Link>
           </Button>
         </div>
@@ -181,6 +184,7 @@ export function PlatformCapabilitiesSection() {
 /* ------------------------------------- Blog ---------------------------------------- */
 
 export function BlogSection({ section }: { section: SiteSection | null }) {
+  const tx = useTx();
   const { data: posts } = useQuery(publicPlatformPostsQuery());
   const [category, setCategory] = useState<string>("all");
 
@@ -214,7 +218,7 @@ export function BlogSection({ section }: { section: SiteSection | null }) {
         </div>
         <Button asChild variant="outline" className="rounded-full">
           <Link to="/blog">
-            Tüm yazılar
+            {tx("Tüm yazılar")}
             <ArrowUpRight className="ml-1 size-4" />
           </Link>
         </Button>
@@ -231,7 +235,7 @@ export function BlogSection({ section }: { section: SiteSection | null }) {
               className="rounded-full"
               onClick={() => setCategory(item)}
             >
-              {item === "all" ? "Tümü" : item}
+              {item === "all" ? tx("Tümü") : tx(item)}
             </Button>
           ))}
         </div>
@@ -246,13 +250,13 @@ export function BlogSection({ section }: { section: SiteSection | null }) {
               params={{ slug: post.slug }}
               className="showcase-card group flex flex-col p-6"
             >
-              {post.category ? <span className="eyebrow">{post.category}</span> : null}
+              {post.category ? <span className="eyebrow">{tx(post.category)}</span> : null}
               <h3 className="mt-4 text-lg font-semibold leading-snug group-hover:underline">
-                {post.title}
+                {tx(post.title)}
               </h3>
               {post.excerpt ? (
                 <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-                  {post.excerpt}
+                  {tx(post.excerpt)}
                 </p>
               ) : null}
               <p className="mt-6 text-xs text-muted-foreground">
@@ -293,7 +297,7 @@ function AppLogoChip({ app }: { app: ShowcaseApp }) {
       {app.logoUrl ? (
         <img
           src={app.logoUrl}
-          alt={`${app.name} logosu`}
+          alt={app.name}
           loading="lazy"
           className="size-8 shrink-0 rounded-lg object-contain"
         />
@@ -308,6 +312,7 @@ function AppLogoChip({ app }: { app: ShowcaseApp }) {
 }
 
 export function AppShowcaseSection() {
+  const tx = useTx();
   const { data: apps } = useQuery({
     queryKey: ["public-app-showcase"],
     queryFn: () => getPublicAppShowcase(),
@@ -321,13 +326,12 @@ export function AppShowcaseSection() {
   return (
     <section id="uygulamalar" className="overflow-hidden py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 text-center lg:px-8">
-        <span className="eyebrow">Uygulama Mağazası</span>
+        <span className="eyebrow">{tx("Uygulama Mağazası")}</span>
         <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-          {apps.length}+ Uygulama ve Entegrasyon Tek Panelde
+          {tx("{n}+ Uygulama ve Entegrasyon Tek Panelde", { n: apps.length })}
         </h2>
         <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-          Pazaryerlerinden kargoya, pazarlamadan otomasyona — mağazanı büyüten tüm araçlar tek tıkla
-          kurulur.
+          {tx("Pazaryerlerinden kargoya, pazarlamadan otomasyona — mağazanı büyüten tüm araçlar tek tıkla kurulur.")}
         </p>
       </div>
 
@@ -350,7 +354,7 @@ export function AppShowcaseSection() {
       <div className="mt-12 text-center">
         <Button asChild variant="outline" className="rounded-full">
           <Link to="/auth" search={{ mode: "register" }}>
-            Uygulama Mağazasını Keşfet <ArrowRight className="ml-2 size-4" />
+            {tx("Uygulama Mağazasını Keşfet")} <ArrowRight className="ml-2 size-4" />
           </Link>
         </Button>
       </div>
