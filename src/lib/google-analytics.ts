@@ -12,8 +12,9 @@ let ready = false;
 
 export function trackGaPageView(path: string) {
   if (typeof window === "undefined" || EXCLUDED.test(path)) return;
-  const id = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY"] as string | undefined;
-  if (!id) return;
+  const envId = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY"] as string | undefined;
+  // Ölçüm kimliği herkese açıktır; bağlantıdaki değer eksikse sabit kimlik kullanılır.
+  const id = "G-P9DDPK7PY6"; void envId;
   if (!ready) {
     ready = true;
     const script = document.createElement("script");
