@@ -19,6 +19,7 @@ import { CompareProvider } from "@/lib/compare";
 import { FavoritesProvider } from "@/lib/favorites";
 import { I18nProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
+import { GA_EXCLUDED, GA_ID, GA_INLINE } from "@/lib/google-analytics";
 
 function NotFoundComponent() {
   return (
@@ -156,6 +157,12 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="tr">
       <head>
+        {!GA_EXCLUDED.test(pathname) && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} />
+            <script dangerouslySetInnerHTML={{ __html: GA_INLINE }} />
+          </>
+        )}
         <HeadContent />
         <link rel="manifest" href={manifestFor(pathname)} />
       </head>
