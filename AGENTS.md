@@ -15,3 +15,5 @@
 - Tedarikçi iş akışı (satın alma siparişi, mesaj, XML besleme, iyzico/PayTR ödeme) yalnız supplier-workflow.functions.ts sunucu işlevlerinden geçer; ödeme anahtarları supplier_payment_settings tablosunda yalnız sunucuya açıktır — neden: kiracılar arası sızıntı ve anahtar ifşasını önlemek.
 - Tedarikçi paneli /supplier/panel (giriş gerekli), /supplier herkese açık SEO tanıtım sayfasıdır — neden: Google girişli sayfaları indeksleyemez.
 - Tedarikci Katalogu (magazaya aktar + otomatik fiyat/stok esitleme) yalniz supplier-catalog.functions.ts / supplier-catalog.server.ts uzerinden calisir; store_supplier_imports tablosuna istemci yazamaz — neden: kiracilar arasi sizinti olmadan tum magazalar tum tedarikcileri gorebilsin.
+
+- Platform ana sayfası tek bileşendir (src/components/platform-home.tsx); TR/EN/DE/FR/AR rotaları onu locale ile render eder, metinler landing-dict.ts sözlüğünden (Türkçe metin anahtar) çevrilir — neden: diller arasında düzen birebir aynı kalsın.

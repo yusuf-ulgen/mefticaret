@@ -903,3 +903,10 @@
 .blog-embed__cta { font-size: 0.85em; margin-top: 0.3em; padding: 0.35em 0.9em; border-radius: 999px; background: color-mix(in oklch, currentColor 90%, transparent); color: oklch(1 0 0); align-self: flex-start; }
 .blog-toc { border: 1px dashed color-mix(in oklch, currentColor 25%, transparent); border-radius: 12px; padding: 0.8em 1em; font-weight: 600; }
 .blog-toc ol { font-weight: 400; margin-top: 0.4em; }
+
+/* Arapça ana sayfa: harf aralığı daraltması harfleri kesmesin. */
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3 {
+  letter-spacing: normal;
+}

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useTx } from "@/lib/landing-i18n";
 
 const SUITE_FEATURES = [
   {
@@ -60,17 +61,17 @@ const SUMMARY_ITEMS = [
 ];
 
 export function LandingGrowthSuite() {
+  const tx = useTx();
   return (
     <section id="global-ticaret" className="overflow-hidden py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
         <div className="text-center">
-          <span className="eyebrow">GLOBAL SATIŞ VE BÜYÜME</span>
+          <span className="eyebrow">{tx("GLOBAL SATIŞ VE BÜYÜME")}</span>
           <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">
-              Dünyaya satış için gereken tüm operasyon tek panelde
+              {tx("Dünyaya satış için gereken tüm operasyon tek panelde")}
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground">
-            Yerel fiyatlandırmadan çok dilli SEO’ya, ihracat belgelerinden otomatik kampanyalara
-            kadar yeni nesil global ticaret araçları Mefticaret’e dahil.
+            {tx("Yerel fiyatlandırmadan çok dilli SEO’ya, ihracat belgelerinden otomatik kampanyalara kadar yeni nesil global ticaret araçları Mefticaret’e dahil.")}
           </p>
         </div>
 
@@ -83,14 +84,14 @@ export function LandingGrowthSuite() {
               <span className="grid size-11 place-items-center rounded-xl bg-brand-soft text-brand">
                 <feature.icon className="size-5" aria-hidden="true" />
               </span>
-              <p className="eyebrow mt-5">{feature.eyebrow}</p>
-              <h3 className="mt-3 text-xl font-semibold leading-snug">{feature.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{feature.text}</p>
+              <p className="eyebrow mt-5">{tx(feature.eyebrow)}</p>
+              <h3 className="mt-3 text-xl font-semibold leading-snug">{tx(feature.title)}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{tx(feature.text)}</p>
               <ul className="mt-5 flex flex-1 flex-wrap content-end gap-x-5 gap-y-2 text-xs font-medium text-foreground">
                 {feature.points.map((point) => (
                   <li key={point} className="flex items-center gap-2">
                     <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
-                    {point}
+                    {tx(point)}
                   </li>
                 ))}
               </ul>
@@ -104,7 +105,7 @@ export function LandingGrowthSuite() {
               <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
                 <item.icon className="size-4" aria-hidden="true" />
               </span>
-              <span className="leading-snug text-muted-foreground">{item.label}</span>
+              <span className="leading-snug text-muted-foreground">{tx(item.label)}</span>
             </div>
           ))}
         </div>
@@ -112,11 +113,11 @@ export function LandingGrowthSuite() {
         <div className="mt-12 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg" className="rounded-full px-6">
             <Link to="/auth" search={{ mode: "register" }}>
-              Ücretsiz başlayın <ArrowRight className="ml-2 size-4" />
+              {tx("Ücretsiz başlayın")} <ArrowRight className="ml-2 size-4" />
             </Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="rounded-full px-6">
-            <Link to="/e-ticaret-paketleri">Paketleri inceleyin</Link>
+            <Link to="/e-ticaret-paketleri">{tx("Paketleri inceleyin")}</Link>
           </Button>
         </div>
       </div>

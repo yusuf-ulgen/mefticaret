@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { sectionIcon, type SiteSection, type SiteSectionItem } from "@/lib/site-content";
+import { useTx } from "@/lib/landing-i18n";
 
 /**
  * Ana sayfa üst menüsündeki mega menü.
@@ -12,11 +13,11 @@ import { sectionIcon, type SiteSection, type SiteSectionItem } from "@/lib/site-
 
 type MenuTree = { menu: string; groups: { group: string; items: SiteSectionItem[] }[] }[];
 
-function buildTree(items: SiteSectionItem[]): MenuTree {
+function buildTree(items: SiteSectionItem[], tx: (s: string) => string = (s) => s): MenuTree {
   const tree: MenuTree = [];
   for (const item of items) {
-    const menuName = item["menu"]?.trim() || "Menü";
-    const groupName = item["group"]?.trim() || "Bağlantılar";
+    const menuName = item["menu"]?.trim() || tx("Menü");
+    const groupName = item["group"]?.trim() || tx("Bağlantılar");
     let menu = tree.find((entry) => entry.menu === menuName);
     if (!menu) {
       menu = { menu: menuName, groups: [] };
@@ -83,7 +84,8 @@ export function LandingMegaMenu({
   section: SiteSection;
   extraLinks: SiteSectionItem[];
 }) {
-  const tree = buildTree(section.items);
+  const tx = useTx();
+  const tree = buildTree(section.items, tx);
   const menuNames = new Set(tree.map((entry) => entry.menu.toLocaleLowerCase("tr")));
   const links = extraLinks.filter(
     (item) => !menuNames.has((item["label"] ?? "").toLocaleLowerCase("tr")),
@@ -101,7 +103,7 @@ export function LandingMegaMenu({
   if (tree.length === 0) return null;
 
   return (
-    <nav aria-label="Ana gezinme" className="hidden items-center gap-6 text-sm font-medium md:flex">
+    <nav aria-label={tx("Ana gezinme")} className="hidden items-center gap-6 text-sm font-medium md:flex">
       {tree.map((menu) => {
         const isOpen = open === menu.menu;
         return (
@@ -158,7 +160,8 @@ export function LandingMobileMenu({
   open: boolean;
   onClose: () => void;
 }) {
-  const tree = buildTree(section?.items ?? []);
+  const tx = useTx();
+  const tree = buildTree(section?.items ?? [], tx);
   const menuNames = new Set(tree.map((entry) => entry.menu.toLocaleLowerCase("tr")));
   const links = extraLinks.filter(
     (item) => !menuNames.has((item["label"] ?? "").toLocaleLowerCase("tr")),
@@ -181,7 +184,7 @@ export function LandingMobileMenu({
       id="mobil-ana-menu"
       className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain border-t border-border bg-background px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 shadow-lg md:hidden"
     >
-      <nav aria-label="Mobil ana gezinme" className="mx-auto max-w-lg">
+      <nav aria-label={tx("Mobil ana gezinme")} className="mx-auto max-w-lg">
         <div className="divide-y divide-border">
           {tree.map((menu) => {
             const isExpanded = expanded === menu.menu;
