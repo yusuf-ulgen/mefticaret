@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { GlobalLanding, globalLandingHead, type LandingCopy } from "@/components/global-landing";
+import { globalLandingHead, type LandingCopy } from "@/components/global-landing";
+import { PlatformHome } from "@/components/platform-home";
+import { siteSectionsQuery } from "@/lib/site-content";
+import { plansQuery } from "@/lib/store-queries";
 
 const COPY: LandingCopy = {
   locale: "en",
@@ -76,5 +79,12 @@ const COPY: LandingCopy = {
 
 export const Route = createFileRoute("/en/")({
   head: () => globalLandingHead(COPY, "/en"),
-  component: () => <GlobalLanding copy={COPY} />,
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(siteSectionsQuery()).catch(() => null),
+      context.queryClient.ensureQueryData(plansQuery()).catch(() => null),
+    ]);
+    return null;
+  },
+  component: () => <PlatformHome locale="en" />,
 });
