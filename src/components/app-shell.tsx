@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth-context";
-import { myStoresQuery } from "@/lib/store-queries";
+import { myStoresQuery, storeActionItemsQuery } from "@/lib/store-queries";
 import { STORE_ROLE_LABELS } from "@/lib/mefti";
 import { PanelBottomNav } from "@/components/panel-bottom-nav";
 import { storeNavGroups, storeQuickLinks, type StoreNavItem } from "@/lib/store-nav";
@@ -43,6 +43,46 @@ import { cn } from "@/lib/utils";
 import { useSellerDesignV2 } from "@/lib/seller-design";
 
 const PIN_STORAGE_KEY = "mefti:pinned-nav";
+
+/** Kokpit sağ paneli: geniş ekranda bekleyen işler (gerçek sayılar) ve hızlı geçişler. */
+function CockpitRail({ storeId }: { storeId: string }) {
+  const { data } = useQuery(storeActionItemsQuery(storeId));
+  const items = [
+    { label: "Bekleyen sipariş", count: data?.pendingOrders, to: "/store/$storeId/orders" as const },
+    { label: "Sevk bekleyen", count: data?.unfulfilled, to: "/store/$storeId/shipments" as const },
+    { label: "Kritik stok", count: data?.lowStock, to: "/store/$storeId/inventory" as const },
+    { label: "İade talebi", count: data?.pendingReturns, to: "/store/$storeId/returns" as const },
+    { label: "Onay bekleyen yorum", count: data?.pendingReviews, to: "/store/$storeId/reviews" as const },
+  ];
+  return (
+    <aside
+      aria-label="Kokpit"
+      className="sticky top-16 hidden h-[calc(100vh-4rem)] w-72 shrink-0 overflow-y-auto border-l border-sidebar-border bg-sidebar/60 p-4 2xl:block"
+    >
+      <p className="mb-3 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-primary">Kokpit · Bekleyen işler</p>
+      <ul className="space-y-1.5">
+        {items.map((item) => {
+          const n = item.count ?? 0;
+          return (
+            <li key={item.label}>
+              <Link
+                to={item.to}
+                params={{ storeId }}
+                className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5 text-sm hover:border-primary/60"
+              >
+                <span className="text-muted-foreground">{item.label}</span>
+                <span className={cn("font-mono text-base font-semibold", n > 0 ? "text-primary" : "text-success")}>
+                  {data ? n : "—"}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mt-4 text-xs text-muted-foreground">Sayılar mağazanızın kayıtlarından gelir; sayfa açıldığında yenilenir.</p>
+    </aside>
+  );
+}
 
 function usePinnedNav() {
   const [pinned, setPinned] = useState<string[]>([]);
@@ -545,6 +585,7 @@ export function AppShell({
             {children}
           </div>
         </main>
+        {v2 && storeId ? <CockpitRail storeId={storeId} /> : null}
       </div>
 
       {storeId ? <PanelBottomNav storeId={storeId} /> : null}
