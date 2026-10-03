@@ -33,7 +33,7 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [x] Menü grupları/sırası referansla aynı (Genel, Katalog, Satışlar, Kullanıcılar, İçerik, Pazarlama, İstatistikler, Uygulamalar, Genel Ayarlar, Operasyon Yönetimi)
 - [x] Perakende Satış (kasa + perakende satışlar listesi)
 - [x] Ödeme Bildirimleri (havale onay/ret)
-- [ ] Misafir Kullanıcılar listesi
+- [x] Misafir Kullanıcılar listesi
 - [ ] Pazarlama izinleri (KVKK abonelik/izin listesi)
 - [ ] SMS Pazarlama
 - [ ] Takvim

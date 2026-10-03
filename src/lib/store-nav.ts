@@ -133,6 +133,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       icon: Users,
       items: [
         { label: "Müşteriler", to: p("customers"), icon: Users },
+        { label: "Misafir Kullanıcılar", to: p("guests"), icon: Users, keywords: "misafir üyeliksiz kayıtsız sipariş" },
         { label: "Müşteri Grupları", to: p("customer-segments"), icon: UsersRound, keywords: "segment grup" },
         { label: "Segmentler", to: p("segments"), icon: UsersRound },
         { label: "Segment Oluşturucu", to: p("segments-v2"), icon: UsersRound, keywords: "segment kural v2" },

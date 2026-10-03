@@ -214,6 +214,7 @@ import { Route as AuthenticatedStoreStoreIdGeoRouteImport } from './routes/_auth
 import { Route as AuthenticatedStoreStoreIdGiftCardsRouteImport } from './routes/_authenticated/store.$storeId.gift-cards'
 import { Route as AuthenticatedStoreStoreIdGiftLiabilityRouteImport } from './routes/_authenticated/store.$storeId.gift-liability'
 import { Route as AuthenticatedStoreStoreIdGlobalRouteImport } from './routes/_authenticated/store.$storeId.global'
+import { Route as AuthenticatedStoreStoreIdGuestsRouteImport } from './routes/_authenticated/store.$storeId.guests'
 import { Route as AuthenticatedStoreStoreIdHealthRouteImport } from './routes/_authenticated/store.$storeId.health'
 import { Route as AuthenticatedStoreStoreIdImportExportRouteImport } from './routes/_authenticated/store.$storeId.import-export'
 import { Route as AuthenticatedStoreStoreIdInboxRouteImport } from './routes/_authenticated/store.$storeId.inbox'
@@ -1493,6 +1494,12 @@ const AuthenticatedStoreStoreIdGlobalRoute =
     path: '/global',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdGuestsRoute =
+  AuthenticatedStoreStoreIdGuestsRouteImport.update({
+    id: '/guests',
+    path: '/guests',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdHealthRoute =
   AuthenticatedStoreStoreIdHealthRouteImport.update({
     id: '/health',
@@ -2630,6 +2637,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/gift-cards': typeof AuthenticatedStoreStoreIdGiftCardsRoute
   '/store/$storeId/gift-liability': typeof AuthenticatedStoreStoreIdGiftLiabilityRoute
   '/store/$storeId/global': typeof AuthenticatedStoreStoreIdGlobalRoute
+  '/store/$storeId/guests': typeof AuthenticatedStoreStoreIdGuestsRoute
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
@@ -2991,6 +2999,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/gift-cards': typeof AuthenticatedStoreStoreIdGiftCardsRoute
   '/store/$storeId/gift-liability': typeof AuthenticatedStoreStoreIdGiftLiabilityRoute
   '/store/$storeId/global': typeof AuthenticatedStoreStoreIdGlobalRoute
+  '/store/$storeId/guests': typeof AuthenticatedStoreStoreIdGuestsRoute
   '/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
@@ -3356,6 +3365,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/gift-cards': typeof AuthenticatedStoreStoreIdGiftCardsRoute
   '/_authenticated/store/$storeId/gift-liability': typeof AuthenticatedStoreStoreIdGiftLiabilityRoute
   '/_authenticated/store/$storeId/global': typeof AuthenticatedStoreStoreIdGlobalRoute
+  '/_authenticated/store/$storeId/guests': typeof AuthenticatedStoreStoreIdGuestsRoute
   '/_authenticated/store/$storeId/health': typeof AuthenticatedStoreStoreIdHealthRoute
   '/_authenticated/store/$storeId/import-export': typeof AuthenticatedStoreStoreIdImportExportRoute
   '/_authenticated/store/$storeId/inbox': typeof AuthenticatedStoreStoreIdInboxRoute
@@ -3723,6 +3733,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/gift-cards'
     | '/store/$storeId/gift-liability'
     | '/store/$storeId/global'
+    | '/store/$storeId/guests'
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inbox'
@@ -4084,6 +4095,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/gift-cards'
     | '/store/$storeId/gift-liability'
     | '/store/$storeId/global'
+    | '/store/$storeId/guests'
     | '/store/$storeId/health'
     | '/store/$storeId/import-export'
     | '/store/$storeId/inbox'
@@ -4448,6 +4460,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/gift-cards'
     | '/_authenticated/store/$storeId/gift-liability'
     | '/_authenticated/store/$storeId/global'
+    | '/_authenticated/store/$storeId/guests'
     | '/_authenticated/store/$storeId/health'
     | '/_authenticated/store/$storeId/import-export'
     | '/_authenticated/store/$storeId/inbox'
@@ -6190,6 +6203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdGlobalRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/guests': {
+      id: '/_authenticated/store/$storeId/guests'
+      path: '/guests'
+      fullPath: '/store/$storeId/guests'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdGuestsRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/health': {
       id: '/_authenticated/store/$storeId/health'
       path: '/health'
@@ -7598,6 +7618,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdGiftCardsRoute: typeof AuthenticatedStoreStoreIdGiftCardsRoute
   AuthenticatedStoreStoreIdGiftLiabilityRoute: typeof AuthenticatedStoreStoreIdGiftLiabilityRoute
   AuthenticatedStoreStoreIdGlobalRoute: typeof AuthenticatedStoreStoreIdGlobalRoute
+  AuthenticatedStoreStoreIdGuestsRoute: typeof AuthenticatedStoreStoreIdGuestsRoute
   AuthenticatedStoreStoreIdHealthRoute: typeof AuthenticatedStoreStoreIdHealthRoute
   AuthenticatedStoreStoreIdImportExportRoute: typeof AuthenticatedStoreStoreIdImportExportRoute
   AuthenticatedStoreStoreIdInboxRoute: typeof AuthenticatedStoreStoreIdInboxRoute
@@ -7772,6 +7793,7 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdGiftLiabilityRoute:
       AuthenticatedStoreStoreIdGiftLiabilityRoute,
     AuthenticatedStoreStoreIdGlobalRoute: AuthenticatedStoreStoreIdGlobalRoute,
+    AuthenticatedStoreStoreIdGuestsRoute: AuthenticatedStoreStoreIdGuestsRoute,
     AuthenticatedStoreStoreIdHealthRoute: AuthenticatedStoreStoreIdHealthRoute,
     AuthenticatedStoreStoreIdImportExportRoute:
       AuthenticatedStoreStoreIdImportExportRoute,
