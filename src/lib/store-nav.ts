@@ -162,6 +162,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       icon: Megaphone,
       items: [
         { label: "E-Posta Pazarlama", to: p("email-marketing"), icon: Mail, keywords: "kampanya bülten" },
+        { label: "SMS Pazarlama", to: p("sms-marketing"), icon: MessageSquare, keywords: "sms toplu kampanya verimor" },
         { label: "WhatsApp Pazarlama", to: p("whatsapp"), icon: MessageCircle },
         { label: "Otomasyon", to: p("automations"), icon: Zap },
         { label: "Promosyonlar", to: p("marketing"), icon: Megaphone },

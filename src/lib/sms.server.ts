@@ -169,3 +169,32 @@ export async function sendSms(
     return { status: "failed", campaignId: null, error: (cause as Error).message };
   }
 }
+
+/** Aynı metni birden çok alıcıya tek istekte gönderir (Verimor çoklu mesaj). */
+export async function sendSmsBulk(
+  supabase: Client,
+  input: { storeId: string; to: string[]; body: string },
+): Promise<{ status: SmsSendResult["status"]; campaignId: string | null; error: string | null }> {
+  const credentials = await getVerimorCredentials(supabase, input.storeId);
+  if (!credentials) return { status: "failed", campaignId: null, error: "Verimor SMS uygulaması kurulu değil" };
+  const message = input.body.trim();
+  if (!message || input.to.length === 0) return { status: "failed", campaignId: null, error: "Alıcı veya mesaj yok" };
+  try {
+    const payload: Record<string, unknown> = {
+      username: credentials.username,
+      password: credentials.password,
+      source_addr: credentials.sourceAddr,
+      messages: [{ msg: message, dest: input.to.join(",") }],
+    };
+    if (credentials.validForMinutes) payload["valid_for"] = `${credentials.validForMinutes}m`;
+    const result = await call("/send.json", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!result.ok) return { status: "failed", campaignId: null, error: `Verimor ${result.status}: ${result.body || "ayrıntı yok"}` };
+    return { status: "sent", campaignId: result.body || null, error: null };
+  } catch (cause) {
+    return { status: "failed", campaignId: null, error: (cause as Error).message };
+  }
+}
