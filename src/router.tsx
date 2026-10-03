@@ -1,5 +1,6 @@
 import { QueryClient, timeoutManager } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
+import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { routeTree } from "./routeTree.gen";
 
 const isPrerendering =
@@ -42,6 +43,9 @@ export const getRouter = () => {
     defaultPreloadStaleTime: 30_000,
     defaultStaleTime: 30_000,
   });
+
+  // Sunucuda yüklenen veriyi tarayıcıya aktarır: hidrasyon uyuşmazlığı (beyaz ekran / yeniden çizim) olmaz.
+  setupRouterSsrQueryIntegration({ router, queryClient, wrapQueryClient: false });
 
   return router;
 };
