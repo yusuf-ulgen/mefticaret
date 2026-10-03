@@ -98,6 +98,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       icon: Package,
       items: [
         { label: "Ürünler", to: p("products"), icon: Package, keywords: "product varyant" },
+        { label: "Hızlı Güncelleme", to: p("quick-update"), icon: FileSpreadsheet, keywords: "toplu fiyat stok düzenle hızlı" },
         { label: "Kategoriler", to: p("collections"), icon: Boxes, keywords: "koleksiyon kategori" },
         { label: "Stok Yönetimi", to: p("inventory"), icon: Warehouse, keywords: "stok depo" },
         { label: "Depolar & Şubeler", to: p("warehouses"), icon: Building2 },

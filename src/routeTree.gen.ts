@@ -257,6 +257,7 @@ import { Route as AuthenticatedStoreStoreIdProductsRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdProfitRouteImport } from './routes/_authenticated/store.$storeId.profit'
 import { Route as AuthenticatedStoreStoreIdPurchasingRouteImport } from './routes/_authenticated/store.$storeId.purchasing'
 import { Route as AuthenticatedStoreStoreIdQuestionsRouteImport } from './routes/_authenticated/store.$storeId.questions'
+import { Route as AuthenticatedStoreStoreIdQuickUpdateRouteImport } from './routes/_authenticated/store.$storeId.quick-update'
 import { Route as AuthenticatedStoreStoreIdReceivablesRouteImport } from './routes/_authenticated/store.$storeId.receivables'
 import { Route as AuthenticatedStoreStoreIdReorderRouteImport } from './routes/_authenticated/store.$storeId.reorder'
 import { Route as AuthenticatedStoreStoreIdReportMonthlyRouteImport } from './routes/_authenticated/store.$storeId.report-monthly'
@@ -1756,6 +1757,12 @@ const AuthenticatedStoreStoreIdQuestionsRoute =
     path: '/questions',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdQuickUpdateRoute =
+  AuthenticatedStoreStoreIdQuickUpdateRouteImport.update({
+    id: '/quick-update',
+    path: '/quick-update',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdReceivablesRoute =
   AuthenticatedStoreStoreIdReceivablesRouteImport.update({
     id: '/receivables',
@@ -2708,6 +2715,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/profit': typeof AuthenticatedStoreStoreIdProfitRoute
   '/store/$storeId/purchasing': typeof AuthenticatedStoreStoreIdPurchasingRoute
   '/store/$storeId/questions': typeof AuthenticatedStoreStoreIdQuestionsRoute
+  '/store/$storeId/quick-update': typeof AuthenticatedStoreStoreIdQuickUpdateRoute
   '/store/$storeId/receivables': typeof AuthenticatedStoreStoreIdReceivablesRoute
   '/store/$storeId/reorder': typeof AuthenticatedStoreStoreIdReorderRoute
   '/store/$storeId/report-monthly': typeof AuthenticatedStoreStoreIdReportMonthlyRoute
@@ -3073,6 +3081,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/profit': typeof AuthenticatedStoreStoreIdProfitRoute
   '/store/$storeId/purchasing': typeof AuthenticatedStoreStoreIdPurchasingRoute
   '/store/$storeId/questions': typeof AuthenticatedStoreStoreIdQuestionsRoute
+  '/store/$storeId/quick-update': typeof AuthenticatedStoreStoreIdQuickUpdateRoute
   '/store/$storeId/receivables': typeof AuthenticatedStoreStoreIdReceivablesRoute
   '/store/$storeId/reorder': typeof AuthenticatedStoreStoreIdReorderRoute
   '/store/$storeId/report-monthly': typeof AuthenticatedStoreStoreIdReportMonthlyRoute
@@ -3444,6 +3453,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/profit': typeof AuthenticatedStoreStoreIdProfitRoute
   '/_authenticated/store/$storeId/purchasing': typeof AuthenticatedStoreStoreIdPurchasingRoute
   '/_authenticated/store/$storeId/questions': typeof AuthenticatedStoreStoreIdQuestionsRoute
+  '/_authenticated/store/$storeId/quick-update': typeof AuthenticatedStoreStoreIdQuickUpdateRoute
   '/_authenticated/store/$storeId/receivables': typeof AuthenticatedStoreStoreIdReceivablesRoute
   '/_authenticated/store/$storeId/reorder': typeof AuthenticatedStoreStoreIdReorderRoute
   '/_authenticated/store/$storeId/report-monthly': typeof AuthenticatedStoreStoreIdReportMonthlyRoute
@@ -3816,6 +3826,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/profit'
     | '/store/$storeId/purchasing'
     | '/store/$storeId/questions'
+    | '/store/$storeId/quick-update'
     | '/store/$storeId/receivables'
     | '/store/$storeId/reorder'
     | '/store/$storeId/report-monthly'
@@ -4181,6 +4192,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/profit'
     | '/store/$storeId/purchasing'
     | '/store/$storeId/questions'
+    | '/store/$storeId/quick-update'
     | '/store/$storeId/receivables'
     | '/store/$storeId/reorder'
     | '/store/$storeId/report-monthly'
@@ -4551,6 +4563,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/profit'
     | '/_authenticated/store/$storeId/purchasing'
     | '/_authenticated/store/$storeId/questions'
+    | '/_authenticated/store/$storeId/quick-update'
     | '/_authenticated/store/$storeId/receivables'
     | '/_authenticated/store/$storeId/reorder'
     | '/_authenticated/store/$storeId/report-monthly'
@@ -6556,6 +6569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdQuestionsRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/quick-update': {
+      id: '/_authenticated/store/$storeId/quick-update'
+      path: '/quick-update'
+      fullPath: '/store/$storeId/quick-update'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdQuickUpdateRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/receivables': {
       id: '/_authenticated/store/$storeId/receivables'
       path: '/receivables'
@@ -7741,6 +7761,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdProfitRoute: typeof AuthenticatedStoreStoreIdProfitRoute
   AuthenticatedStoreStoreIdPurchasingRoute: typeof AuthenticatedStoreStoreIdPurchasingRoute
   AuthenticatedStoreStoreIdQuestionsRoute: typeof AuthenticatedStoreStoreIdQuestionsRoute
+  AuthenticatedStoreStoreIdQuickUpdateRoute: typeof AuthenticatedStoreStoreIdQuickUpdateRoute
   AuthenticatedStoreStoreIdReceivablesRoute: typeof AuthenticatedStoreStoreIdReceivablesRoute
   AuthenticatedStoreStoreIdReorderRoute: typeof AuthenticatedStoreStoreIdReorderRoute
   AuthenticatedStoreStoreIdReportMonthlyRoute: typeof AuthenticatedStoreStoreIdReportMonthlyRoute
@@ -7948,6 +7969,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdPurchasingRoute,
     AuthenticatedStoreStoreIdQuestionsRoute:
       AuthenticatedStoreStoreIdQuestionsRoute,
+    AuthenticatedStoreStoreIdQuickUpdateRoute:
+      AuthenticatedStoreStoreIdQuickUpdateRoute,
     AuthenticatedStoreStoreIdReceivablesRoute:
       AuthenticatedStoreStoreIdReceivablesRoute,
     AuthenticatedStoreStoreIdReorderRoute:
