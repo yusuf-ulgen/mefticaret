@@ -1031,5 +1031,5 @@
 }
 .seller-v2 { --gradient-surface: linear-gradient(var(--card), var(--card)); }
 /* Koyu üst çubukta kenarlıklı düğmeler açık kutu olarak görünmesin */
-.seller-v2 > header button { background: transparent; color: var(--sidebar-primary-foreground); border-color: color-mix(in oklab, var(--sidebar-primary-foreground) 18%, transparent); }
-.seller-v2 > header button:hover { background: color-mix(in oklab, var(--sidebar-primary-foreground) 10%, transparent); }
+.seller-v2 > header button:not(.rounded-full) { background: transparent; color: var(--sidebar-primary-foreground); border-color: color-mix(in oklab, var(--sidebar-primary-foreground) 18%, transparent); }
+.seller-v2 > header button:not(.rounded-full):hover { background: color-mix(in oklab, var(--sidebar-primary-foreground) 10%, transparent); }
