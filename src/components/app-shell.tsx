@@ -40,6 +40,7 @@ import { useRecentPaths } from "@/lib/store-recent-nav";
 import { storeEntitlementsQuery } from "@/lib/entitlements-queries";
 import { moduleKeyForPath } from "@/lib/plan-features";
 import { cn } from "@/lib/utils";
+import { useSellerDesignV2 } from "@/lib/seller-design";
 
 const PIN_STORAGE_KEY = "mefti:pinned-nav";
 
@@ -88,6 +89,7 @@ function NavLinkRow({
       <Link
         to={item.to}
         onClick={onNavigate}
+        aria-current={active ? "page" : undefined}
         className={cn(
           "flex items-center gap-2.5 rounded-lg py-1.5 pl-2 pr-8 text-[0.84rem] font-medium text-sidebar-foreground/85 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
           active && "bg-sidebar-accent font-semibold text-sidebar-accent-foreground",
@@ -444,9 +446,10 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const v2 = useSellerDesignV2();
 
   const sidebar = storeId ? (
-    <div className="flex h-full min-h-0 flex-col gap-4 p-3">
+    <div className={cn("flex h-full min-h-0 flex-col gap-4 p-3", v2 && "seller-v2-nav")}>
       <div className="lg:hidden">
         <Link to="/stores" className="flex items-center gap-2 px-1 py-1">
           <span className="grid size-8 place-items-center rounded-lg brand-gradient text-brand-foreground">
@@ -465,7 +468,7 @@ export function AppShell({
   ) : null;
 
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className={cn("min-h-screen", v2 ? "seller-v2 bg-background text-foreground" : "bg-muted/40")}>
       <a href="#panel-content" className="skip-link">
         İçeriğe geç
       </a>
@@ -484,7 +487,7 @@ export function AppShell({
                 <Menu className="size-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-80 border-sidebar-border bg-sidebar p-0">
+            <SheetContent side="left" className={cn("w-80 border-sidebar-border bg-sidebar p-0", v2 && "seller-v2")}>
               <SheetTitle className="sr-only">Mağaza menüsü</SheetTitle>
               {sidebar}
             </SheetContent>
@@ -512,7 +515,7 @@ export function AppShell({
 
       <div className="flex">
         {sidebar ? (
-          <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-[17rem] shrink-0 border-r border-sidebar-border/70 bg-card lg:block">
+          <aside className={cn("sticky top-16 hidden h-[calc(100vh-4rem)] w-[17rem] shrink-0 border-r border-sidebar-border/70 lg:block", v2 ? "bg-sidebar" : "bg-card")}>
             {sidebar}
           </aside>
         ) : null}
@@ -529,7 +532,7 @@ export function AppShell({
             {storeId ? <QuickLinks storeId={storeId} /> : null}
             <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:px-6 lg:py-5">
               <div className="min-w-0">
-                <p className="eyebrow mb-1">Mağaza paneli</p>
+                <p className={cn("eyebrow mb-1", v2 && "text-primary")}>Mağaza paneli</p>
                 <h1 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
                   {title}
                 </h1>
