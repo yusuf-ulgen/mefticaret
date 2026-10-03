@@ -157,7 +157,7 @@ export function StoreSummary({ storeId }: { storeId: string }) {
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5 [&>*:last-child]:col-span-2 lg:[&>*:last-child]:col-span-1">
           <Kpi icon={Users} label="Oturumlar" value={d ? String(d.sessions) : dash} now={d?.sessions} before={b?.sessions} spark={d?.spark.sessions} foot={LABEL[p]} />
           <Kpi icon={Wallet} label="Toplam satışlar" value={d ? (d.totals.length ? d.totals.map(([c, v]) => formatMoney(v, c)).join(" · ") : formatMoney(0)) : dash}
             now={d && d.totals.length <= 1 ? d.revenueSum : undefined} before={b?.revenueSum} spark={d?.spark.revenue} foot={LABEL[p]} />
