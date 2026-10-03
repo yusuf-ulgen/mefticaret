@@ -6,6 +6,10 @@ import {
   ChevronDown,
   LogOut,
   Menu,
+  Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Sun,
   Pin,
   PinOff,
   Plus,
@@ -446,7 +450,9 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const v2 = useSellerDesignV2();
+  const design = useSellerDesignV2();
+  const v2 = design.enabled;
+  const collapsed = v2 && design.collapsed;
 
   const sidebar = storeId ? (
     <div className={cn("flex h-full min-h-0 flex-col gap-4 p-3", v2 && "seller-v2-nav")}>
@@ -468,7 +474,7 @@ export function AppShell({
   ) : null;
 
   return (
-    <div className={cn("min-h-screen", v2 ? "seller-v2 bg-background text-foreground" : "bg-muted/40")}>
+    <div className={cn("min-h-screen", v2 ? "seller-v2 bg-background text-foreground" : "bg-muted/40", v2 && design.dark && "dark")}>
       <a href="#panel-content" className="skip-link">
         İçeriğe geç
       </a>
@@ -509,14 +515,43 @@ export function AppShell({
           <div className="sm:hidden">{storeId ? <CommandPalette storeId={storeId} /> : null}</div>
           {storeId ? <AiCreditBadge storeId={storeId} /> : null}
           {storeId ? <NotificationBell storeId={storeId} /> : null}
+          {v2 ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={design.toggleDark}
+              aria-label={design.dark ? "Açık temaya geç" : "Koyu temaya geç"}
+              aria-pressed={design.dark}
+              className="text-sidebar-primary-foreground hover:bg-white/10 hover:text-sidebar-primary-foreground"
+            >
+              {design.dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            </Button>
+          ) : null}
           <UserMenu />
         </div>
       </header>
 
       <div className="flex">
         {sidebar ? (
-          <aside className={cn("sticky top-16 hidden h-[calc(100vh-4rem)] w-[17rem] shrink-0 border-r border-sidebar-border/70 lg:block", v2 ? "bg-sidebar" : "bg-card")}>
-            {sidebar}
+          <aside
+            className={cn(
+              "sticky top-16 hidden h-[calc(100vh-4rem)] shrink-0 border-r border-sidebar-border/70 lg:block",
+              v2 ? "bg-sidebar motion-safe:transition-[width] motion-safe:duration-200" : "bg-card",
+              collapsed ? "w-14" : "w-[17rem]",
+            )}
+          >
+            {v2 ? (
+              <button
+                type="button"
+                onClick={design.toggleCollapsed}
+                aria-label={collapsed ? "Menüyü genişlet" : "Menüyü daralt"}
+                aria-expanded={!collapsed}
+                className="absolute -right-3 top-4 z-10 grid size-6 place-items-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground hover:text-sidebar-primary-foreground focus-visible:outline-2 focus-visible:outline-ring"
+              >
+                {collapsed ? <PanelLeftOpen className="size-3.5" /> : <PanelLeftClose className="size-3.5" />}
+              </button>
+            ) : null}
+            {collapsed ? <CollapsedNav storeId={storeId!} /> : sidebar}
           </aside>
         ) : null}
 
@@ -549,5 +584,32 @@ export function AppShell({
 
       {storeId ? <PanelBottomNav storeId={storeId} /> : null}
     </div>
+  );
+}
+
+/** Daraltılmış masaüstü menüsü: grup simgeleri, ad tooltip ile; tüm sayfalar genişletilince erişilebilir. */
+function CollapsedNav({ storeId }: { storeId: string }) {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const groups = useMemo(() => storeNavGroups(storeId), [storeId]);
+  return (
+    <nav aria-label="Mağaza menüsü (daraltılmış)" className="seller-v2-nav flex h-full flex-col items-center gap-1 overflow-y-auto py-12">
+      {groups.map((g) => {
+        const first = g.items[0];
+        if (!first) return null;
+        const active = g.items.some((i) => pathname === i.to || pathname.startsWith(i.to + "/"));
+        return (
+          <Link
+            key={g.group}
+            to={first.to}
+            title={g.group}
+            aria-label={g.group}
+            aria-current={active ? "page" : undefined}
+            className="grid size-10 place-items-center rounded-lg text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
+            <g.icon className="size-4" />
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
