@@ -54,7 +54,7 @@ async function load(storeId: string, p: Period, shift: number) {
   const span = (to.getTime() - from.getTime()) / buckets;
   const idx = (iso: string) => Math.min(buckets - 1, Math.max(0, Math.floor((new Date(iso).getTime() - from.getTime()) / span)));
   const sSess = Array.from({ length: buckets }, () => new Set<string>());
-  for (const x of events) sSess[idx(x.created_at)].add(x.session_id);
+  for (const x of events) sSess[idx(x.created_at)]!.add(x.session_id);
   const sOrd = new Array(buckets).fill(0);
   const sRev = new Array(buckets).fill(0);
   for (const r of orders) sOrd[idx(r.created_at)]++;
@@ -99,7 +99,7 @@ function Spark({ data }: { data: number[] }) {
 }
 
 function Kpi({ icon: Icon, label, value, now, before, spark, foot }: {
-  icon: ComponentType<{ className?: string }>; label: string; value: string; now?: number; before?: number; spark?: number[]; foot: string;
+  icon: ComponentType<{ className?: string }>; label: string; value: string; now?: number | undefined; before?: number | undefined; spark?: number[] | undefined; foot: string;
 }) {
   return (
     <div className="rounded-2xl border bg-card p-4">
