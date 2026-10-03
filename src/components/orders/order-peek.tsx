@@ -12,6 +12,13 @@ import { orderQuery } from "@/lib/sales-queries";
 
 type PeekItem = { id: string; product_name?: string | null; name?: string | null; variant_title?: string | null; quantity: number; total?: number | string | null; line_total?: number | string | null };
 
+type PeekOrder = {
+  id: string; status: string; payment_status: string; order_number: string; placed_at: string;
+  grand_total: number | string; currency: string; customer_name: string | null; customer_email: string | null;
+  customers: { full_name: string | null; email: string | null; phone: string | null } | null;
+  order_items: PeekItem[] | null;
+};
+
 /** Kokpit ayrıntı bölmesi: siparişten ayrılmadan özet; telefonda alttan, geniş ekranda sağdan açılır. */
 export function OrderPeek({
   storeId,
@@ -37,7 +44,7 @@ export function OrderPeek({
     ...orderQuery(orderId ?? ""),
     enabled: Boolean(orderId),
   });
-  const o = order as Record<string, any> | null | undefined;
+  const o = order as PeekOrder | null | undefined;
   const items = (o?.order_items ?? []) as PeekItem[];
   const step = o ? next?.(o.status) : undefined;
 
