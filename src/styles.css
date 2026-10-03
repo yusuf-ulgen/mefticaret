@@ -303,9 +303,13 @@
   border-color: color-mix(in oklab, var(--brand) 25%, transparent);
   color: var(--accent-foreground);
 }
-.seller-v2 main a[class*="text-primary"],
-.seller-v2 main .text-brand {
-  color: var(--brand);
+.seller-v2 .seller-v2-topbar button:not([class*="bg-destructive"]):not([class*="gradient"]) {
+  background-color: transparent;
+  color: inherit;
+  border-color: oklch(1 0 0 / 14%);
+}
+.seller-v2 .seller-v2-topbar button:hover {
+  background-color: oklch(1 0 0 / 10%);
 }
 .seller-v2 .seller-v2-topbar {
   background: oklch(0.2 0.012 286);
