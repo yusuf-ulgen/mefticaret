@@ -41,7 +41,6 @@ import { storeEntitlementsQuery } from "@/lib/entitlements-queries";
 import { moduleKeyForPath } from "@/lib/plan-features";
 import { cn } from "@/lib/utils";
 import { useSellerDesignV2 } from "@/lib/seller-design";
-import { useSellerDesignV2 } from "@/lib/seller-design";
 
 const PIN_STORAGE_KEY = "mefti:pinned-nav";
 
