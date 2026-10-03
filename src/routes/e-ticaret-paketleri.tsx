@@ -304,6 +304,9 @@ function PlansPage() {
           <Button asChild size="lg" variant="outline" className="rounded-full">
             <Link to="/e-ticaret-nasil-yapilir">E-ticaret nasıl yapılır?</Link>
           </Button>
+          <Button asChild size="lg" variant="outline" className="rounded-full">
+            <Link to="/e-ticaret-maliyeti">E-ticaret sitesi kurma maliyeti</Link>
+          </Button>
         </div>
       </section>
     </main>

@@ -631,6 +631,13 @@ const GUIDES = [
       "Paket fiyatlarını, ürün ve sipariş limitlerini, komisyon oranlarını tek tabloda karşılaştırın.",
   },
   {
+    to: "/e-ticaret-maliyeti",
+    eyebrow: "Maliyet",
+    title: "E-ticaret sitesi kurma maliyeti",
+    description:
+      "Alan adı, altyapı, ödeme komisyonu, kargo ve reklam giderlerini kalem kalem hesaplayın.",
+  },
+  {
     to: "/seo-ve-raporlama",
     eyebrow: "SEO & Rapor",
     title: "SEO ve raporlama",

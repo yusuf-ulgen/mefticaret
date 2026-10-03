@@ -34,6 +34,7 @@ const PLATFORM_PATHS: Record<SitemapLocale, string[]> = {
     "/e-ticaret-nasil-yapilir",
     "/e-ticaret-sitesi-kurma",
     "/e-ticaret-paketleri",
+    "/e-ticaret-maliyeti",
     "/en-iyi-e-ticaret-altyapisi",
     "/kolay-panel-rehberi",
     "/dropshipping-nasil-yapilir",
