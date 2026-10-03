@@ -233,6 +233,7 @@ import { Route as AuthenticatedStoreStoreIdLocalizationRouteImport } from './rou
 import { Route as AuthenticatedStoreStoreIdLossesRouteImport } from './routes/_authenticated/store.$storeId.losses'
 import { Route as AuthenticatedStoreStoreIdLtvRouteImport } from './routes/_authenticated/store.$storeId.ltv'
 import { Route as AuthenticatedStoreStoreIdMarketingRouteImport } from './routes/_authenticated/store.$storeId.marketing'
+import { Route as AuthenticatedStoreStoreIdMarketingConsentsRouteImport } from './routes/_authenticated/store.$storeId.marketing-consents'
 import { Route as AuthenticatedStoreStoreIdMarketplaceAnalyticsRouteImport } from './routes/_authenticated/store.$storeId.marketplace-analytics'
 import { Route as AuthenticatedStoreStoreIdMarketplaceReturnsRouteImport } from './routes/_authenticated/store.$storeId.marketplace-returns'
 import { Route as AuthenticatedStoreStoreIdMarketsPricingRouteImport } from './routes/_authenticated/store.$storeId.markets-pricing'
@@ -1608,6 +1609,12 @@ const AuthenticatedStoreStoreIdMarketingRoute =
     path: '/marketing',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdMarketingConsentsRoute =
+  AuthenticatedStoreStoreIdMarketingConsentsRouteImport.update({
+    id: '/marketing-consents',
+    path: '/marketing-consents',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute =
   AuthenticatedStoreStoreIdMarketplaceAnalyticsRouteImport.update({
     id: '/marketplace-analytics',
@@ -2656,6 +2663,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
+  '/store/$storeId/marketing-consents': typeof AuthenticatedStoreStoreIdMarketingConsentsRoute
   '/store/$storeId/marketplace-analytics': typeof AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute
   '/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/store/$storeId/markets-pricing': typeof AuthenticatedStoreStoreIdMarketsPricingRoute
@@ -3018,6 +3026,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
+  '/store/$storeId/marketing-consents': typeof AuthenticatedStoreStoreIdMarketingConsentsRoute
   '/store/$storeId/marketplace-analytics': typeof AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute
   '/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/store/$storeId/markets-pricing': typeof AuthenticatedStoreStoreIdMarketsPricingRoute
@@ -3384,6 +3393,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/losses': typeof AuthenticatedStoreStoreIdLossesRoute
   '/_authenticated/store/$storeId/ltv': typeof AuthenticatedStoreStoreIdLtvRoute
   '/_authenticated/store/$storeId/marketing': typeof AuthenticatedStoreStoreIdMarketingRoute
+  '/_authenticated/store/$storeId/marketing-consents': typeof AuthenticatedStoreStoreIdMarketingConsentsRoute
   '/_authenticated/store/$storeId/marketplace-analytics': typeof AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute
   '/_authenticated/store/$storeId/marketplace-returns': typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   '/_authenticated/store/$storeId/markets-pricing': typeof AuthenticatedStoreStoreIdMarketsPricingRoute
@@ -3752,6 +3762,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
     | '/store/$storeId/marketing'
+    | '/store/$storeId/marketing-consents'
     | '/store/$storeId/marketplace-analytics'
     | '/store/$storeId/marketplace-returns'
     | '/store/$storeId/markets-pricing'
@@ -4114,6 +4125,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/losses'
     | '/store/$storeId/ltv'
     | '/store/$storeId/marketing'
+    | '/store/$storeId/marketing-consents'
     | '/store/$storeId/marketplace-analytics'
     | '/store/$storeId/marketplace-returns'
     | '/store/$storeId/markets-pricing'
@@ -4479,6 +4491,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/losses'
     | '/_authenticated/store/$storeId/ltv'
     | '/_authenticated/store/$storeId/marketing'
+    | '/_authenticated/store/$storeId/marketing-consents'
     | '/_authenticated/store/$storeId/marketplace-analytics'
     | '/_authenticated/store/$storeId/marketplace-returns'
     | '/_authenticated/store/$storeId/markets-pricing'
@@ -6336,6 +6349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketingRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/marketing-consents': {
+      id: '/_authenticated/store/$storeId/marketing-consents'
+      path: '/marketing-consents'
+      fullPath: '/store/$storeId/marketing-consents'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdMarketingConsentsRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/marketplace-analytics': {
       id: '/_authenticated/store/$storeId/marketplace-analytics'
       path: '/marketplace-analytics'
@@ -7637,6 +7657,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdLossesRoute: typeof AuthenticatedStoreStoreIdLossesRoute
   AuthenticatedStoreStoreIdLtvRoute: typeof AuthenticatedStoreStoreIdLtvRoute
   AuthenticatedStoreStoreIdMarketingRoute: typeof AuthenticatedStoreStoreIdMarketingRoute
+  AuthenticatedStoreStoreIdMarketingConsentsRoute: typeof AuthenticatedStoreStoreIdMarketingConsentsRoute
   AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute: typeof AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute
   AuthenticatedStoreStoreIdMarketplaceReturnsRoute: typeof AuthenticatedStoreStoreIdMarketplaceReturnsRoute
   AuthenticatedStoreStoreIdMarketsPricingRoute: typeof AuthenticatedStoreStoreIdMarketsPricingRoute
@@ -7822,6 +7843,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdLtvRoute: AuthenticatedStoreStoreIdLtvRoute,
     AuthenticatedStoreStoreIdMarketingRoute:
       AuthenticatedStoreStoreIdMarketingRoute,
+    AuthenticatedStoreStoreIdMarketingConsentsRoute:
+      AuthenticatedStoreStoreIdMarketingConsentsRoute,
     AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute:
       AuthenticatedStoreStoreIdMarketplaceAnalyticsRoute,
     AuthenticatedStoreStoreIdMarketplaceReturnsRoute:

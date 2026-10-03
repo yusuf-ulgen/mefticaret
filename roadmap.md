@@ -34,7 +34,7 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [x] Perakende Satış (kasa + perakende satışlar listesi)
 - [x] Ödeme Bildirimleri (havale onay/ret)
 - [x] Misafir Kullanıcılar listesi
-- [ ] Pazarlama izinleri (KVKK abonelik/izin listesi)
+- [x] Pazarlama izinleri (KVKK abonelik/izin listesi)
 - [ ] SMS Pazarlama
 - [ ] Takvim
 - [ ] Cookie Builder (çerez bandı oluşturucu)
