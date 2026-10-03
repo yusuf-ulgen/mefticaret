@@ -1,7 +1,10 @@
 import { StoreComparison } from "@/components/analytics/store-comparison";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { PlatformAnalyticsCenter } from "@/components/platform-analytics/center";
+import { getAnalyticsFlag, setAnalyticsFlag } from "@/lib/platform-analytics.functions";
 import {
   Area,
   AreaChart,
@@ -38,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/admin/analytics")({
       { property: "og:description", content: "Mefticaret platformunun canlı analitik merkezi." },
     ],
   }),
-  component: AdminAnalyticsPage,
+  component: AdminAnalyticsGate,
 });
 
 const RANGES = [7, 30, 90, 180, 365] as const;
@@ -70,7 +73,27 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-function AdminAnalyticsPage() {
+function AdminAnalyticsGate() {
+  const { isPlatformAdmin } = useAuth();
+  const qc = useQueryClient();
+  const fetchFlag = useServerFn(getAnalyticsFlag);
+  const setFlag = useServerFn(setAnalyticsFlag);
+  const flag = useQuery({ queryKey: ["flag", "v2_superadmin_analytics"], queryFn: () => fetchFlag(), enabled: isPlatformAdmin });
+  const toggle = async (enabled: boolean) => {
+    await setFlag({ data: { enabled } });
+    await qc.invalidateQueries({ queryKey: ["flag", "v2_superadmin_analytics"] });
+  };
+  if (flag.data?.enabled) {
+    return (
+      <AdminShell title="Platform Analitik Merkezi" description="Platform geneli GMV, platform geliri, abonelik, satıcı ve operasyon analitiği.">
+        <PlatformAnalyticsCenter onDisable={() => void toggle(false)} />
+      </AdminShell>
+    );
+  }
+  return <AdminAnalyticsPage onEnableV2={flag.data ? () => void toggle(true) : undefined} />;
+}
+
+function AdminAnalyticsPage({ onEnableV2 }: { onEnableV2?: (() => void) | undefined }) {
   const { isPlatformAdmin } = useAuth();
   const [days, setDays] = useState<number>(30);
   const { data, isLoading } = useQuery(platformAnalyticsQuery(days, isPlatformAdmin));
@@ -84,6 +107,7 @@ function AdminAnalyticsPage() {
       description="Platform geneli ciro, komisyon, abonelik, dönüşüm ve mağaza performansı."
       actions={
         <div className="flex flex-wrap gap-1">
+          {onEnableV2 ? <Button size="sm" variant="outline" onClick={onEnableV2}>Yeni Analitik Merkezi'ni aç (v2)</Button> : null}
           {RANGES.map((range) => (
             <Button
               key={range}

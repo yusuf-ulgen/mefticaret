@@ -18,3 +18,4 @@
 
 - Platform ana sayfası tek bileşendir (src/components/platform-home.tsx); TR/EN/DE/FR/AR rotaları onu locale ile render eder, metinler landing-dict.ts sözlüğünden (Türkçe metin anahtar) çevrilir — neden: diller arasında düzen birebir aynı kalsın.
 - Ev Hanımları giriş sayfası tek bileşendir (home-maker-auth-page.tsx); TR/EN/DE/FR/AR rotaları onu locale ile render eder, metin ve meta home-maker-i18n.ts içindedir — neden: diller arasında düzen aynı kalsın.
+- Platform Analitik Merkezi (v2, /admin/analytics) platform_settings 'v2_superadmin_analytics' anahtarıyla açılır; tüm platform geneli okumalar yalnız platform-analytics.server.ts içinde assertPlatformAdmin sonrası yapılır ve KPI/rapor/CSV aynı veri kümesinden üretilir — neden: kiracı sızıntısını önlemek ve toplamların tutarlı kalması.

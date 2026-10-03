@@ -12452,6 +12452,36 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_analytics_saved_views: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          kind?: string
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_charge_items: {
         Row: {
           code: string
@@ -24062,6 +24092,18 @@ export type Database = {
       page_fts_text: {
         Args: { _body: string; _excerpt: string; _slug: string; _title: string }
         Returns: string
+      }
+      platform_store_milestones: {
+        Args: never
+        Returns: {
+          first_domain_verified_at: string
+          first_order_at: string
+          first_payment_method_at: string
+          first_product_at: string
+          last_order_at: string
+          product_count: number
+          store_id: string
+        }[]
       }
       product_fts_text: {
         Args: {
