@@ -212,6 +212,107 @@
   --ring: oklch(0.66 0.2 288);
 }
 
+/* Satıcı paneli v2 tasarımı (bayrak: v2_seller_design). Yalnız .seller-v2 sınırında geçerli;
+   AppShell ve panel açıkken gövde bu sınıfı alır, panelden çıkınca kaldırılır. */
+.seller-v2 {
+  --background: oklch(0.984 0.004 301.4);
+  --foreground: oklch(0.185 0.015 304.5);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.185 0.015 304.5);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.185 0.015 304.5);
+  --primary: oklch(0.541 0.247 293);
+  --primary-hover: oklch(0.491 0.241 292.6);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.984 0.004 301.4);
+  --secondary-foreground: oklch(0.185 0.015 304.5);
+  --muted: oklch(0.965 0.008 301.4);
+  --muted-foreground: oklch(0.487 0.028 301.4);
+  --accent: oklch(0.958 0.023 299.4);
+  --accent-foreground: oklch(0.38 0.178 293.7);
+  --brand: oklch(0.541 0.247 293);
+  --brand-soft: oklch(0.958 0.023 299.4);
+  --border: oklch(0.929 0.016 306.4);
+  --input: oklch(0.9 0.02 306.4);
+  --ring: oklch(0.541 0.247 293);
+  --radius: 0.875rem;
+  --chart-1: oklch(0.541 0.247 293);
+  --chart-2: oklch(0.38 0.178 293.7);
+  --chart-3: oklch(0.709 0.159 293.5);
+  --chart-4: oklch(0.185 0.015 304.5);
+  --chart-5: oklch(0.82 0.09 295);
+  /* Koyu sol menü */
+  --sidebar: oklch(0.167 0.017 301.7);
+  --sidebar-foreground: oklch(0.88 0.02 303);
+  --sidebar-primary: oklch(0.141 0.014 301.7);
+  --sidebar-primary-foreground: oklch(0.972 0.011 303.1);
+  --sidebar-accent: oklch(0.246 0.039 302);
+  --sidebar-accent-foreground: oklch(0.972 0.011 303.1);
+  --sidebar-border: oklch(0.311 0.044 303);
+  --sidebar-ring: oklch(0.709 0.159 293.5);
+  --shadow-seller: 0 1px 2px oklch(0.38 0.178 293.7 / 0.05), 0 8px 24px -16px oklch(0.38 0.178 293.7 / 0.25);
+}
+.dark .seller-v2,
+.dark.seller-v2,
+.seller-v2.dark {
+  --background: oklch(0.167 0.017 301.7);
+  --foreground: oklch(0.972 0.011 303.1);
+  --card: oklch(0.208 0.026 301.8);
+  --card-foreground: oklch(0.972 0.011 303.1);
+  --popover: oklch(0.208 0.026 301.8);
+  --popover-foreground: oklch(0.972 0.011 303.1);
+  --primary: oklch(0.709 0.159 293.5);
+  --primary-hover: oklch(0.76 0.14 293.5);
+  --primary-foreground: oklch(0.167 0.017 301.7);
+  --secondary: oklch(0.246 0.039 302);
+  --secondary-foreground: oklch(0.972 0.011 303.1);
+  --muted: oklch(0.246 0.039 302);
+  --muted-foreground: oklch(0.785 0.035 302.6);
+  --accent: oklch(0.29 0.07 295);
+  --accent-foreground: oklch(0.86 0.09 295);
+  --brand: oklch(0.709 0.159 293.5);
+  --brand-soft: oklch(0.29 0.07 295);
+  --border: oklch(0.311 0.044 303);
+  --input: oklch(0.35 0.044 303);
+  --ring: oklch(0.709 0.159 293.5);
+  --sidebar: oklch(0.14 0.015 301.7);
+  --sidebar-primary: oklch(0.12 0.013 301.7);
+}
+.seller-v2 {
+  background-color: var(--background);
+  font-variant-numeric: tabular-nums;
+}
+.seller-v2 .surface-card,
+.seller-v2 main .rounded-2xl.border,
+.seller-v2 main .rounded-xl.border {
+  box-shadow: var(--shadow-seller);
+}
+.seller-v2 .seller-v2-nav [aria-current="page"],
+.seller-v2 .seller-v2-nav a.active {
+  background: color-mix(in oklab, var(--sidebar-ring) 22%, transparent);
+  color: var(--sidebar-primary-foreground);
+  box-shadow: inset 3px 0 0 var(--sidebar-ring);
+}
+@media (max-width: 1023px) {
+  .seller-v2 main button,
+  .seller-v2 main [role="button"],
+  .seller-v2 main input:not([type="checkbox"]):not([type="radio"]),
+  .seller-v2 main select {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .seller-v2 main a,
+  .seller-v2 main button {
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  }
+}
+/* Tema editörü önizlemesi ve mağaza vitrini panel token'larını almasın */
+.seller-v2 iframe,
+.seller-v2 [data-storefront-preview] {
+  color-scheme: normal;
+}
+
 
 @layer base {
   * {
