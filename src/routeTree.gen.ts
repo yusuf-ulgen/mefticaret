@@ -282,6 +282,7 @@ import { Route as AuthenticatedStoreStoreIdShippingPerformanceRouteImport } from
 import { Route as AuthenticatedStoreStoreIdSimulatorRouteImport } from './routes/_authenticated/store.$storeId.simulator'
 import { Route as AuthenticatedStoreStoreIdSiteKitRouteImport } from './routes/_authenticated/store.$storeId.site-kit'
 import { Route as AuthenticatedStoreStoreIdSlaRouteImport } from './routes/_authenticated/store.$storeId.sla'
+import { Route as AuthenticatedStoreStoreIdSmsMarketingRouteImport } from './routes/_authenticated/store.$storeId.sms-marketing'
 import { Route as AuthenticatedStoreStoreIdSocialShareRouteImport } from './routes/_authenticated/store.$storeId.social-share'
 import { Route as AuthenticatedStoreStoreIdStatisticsRouteImport } from './routes/_authenticated/store.$storeId.statistics'
 import { Route as AuthenticatedStoreStoreIdStockAlertsRouteImport } from './routes/_authenticated/store.$storeId.stock-alerts'
@@ -1903,6 +1904,12 @@ const AuthenticatedStoreStoreIdSlaRoute =
     path: '/sla',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdSmsMarketingRoute =
+  AuthenticatedStoreStoreIdSmsMarketingRouteImport.update({
+    id: '/sms-marketing',
+    path: '/sms-marketing',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdSocialShareRoute =
   AuthenticatedStoreStoreIdSocialShareRouteImport.update({
     id: '/social-share',
@@ -2712,6 +2719,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
   '/store/$storeId/site-kit': typeof AuthenticatedStoreStoreIdSiteKitRoute
   '/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
+  '/store/$storeId/sms-marketing': typeof AuthenticatedStoreStoreIdSmsMarketingRoute
   '/store/$storeId/social-share': typeof AuthenticatedStoreStoreIdSocialShareRoute
   '/store/$storeId/statistics': typeof AuthenticatedStoreStoreIdStatisticsRoute
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
@@ -3074,6 +3082,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
   '/store/$storeId/site-kit': typeof AuthenticatedStoreStoreIdSiteKitRoute
   '/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
+  '/store/$storeId/sms-marketing': typeof AuthenticatedStoreStoreIdSmsMarketingRoute
   '/store/$storeId/social-share': typeof AuthenticatedStoreStoreIdSocialShareRoute
   '/store/$storeId/statistics': typeof AuthenticatedStoreStoreIdStatisticsRoute
   '/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
@@ -3442,6 +3451,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/simulator': typeof AuthenticatedStoreStoreIdSimulatorRoute
   '/_authenticated/store/$storeId/site-kit': typeof AuthenticatedStoreStoreIdSiteKitRoute
   '/_authenticated/store/$storeId/sla': typeof AuthenticatedStoreStoreIdSlaRoute
+  '/_authenticated/store/$storeId/sms-marketing': typeof AuthenticatedStoreStoreIdSmsMarketingRoute
   '/_authenticated/store/$storeId/social-share': typeof AuthenticatedStoreStoreIdSocialShareRoute
   '/_authenticated/store/$storeId/statistics': typeof AuthenticatedStoreStoreIdStatisticsRoute
   '/_authenticated/store/$storeId/stock-alerts': typeof AuthenticatedStoreStoreIdStockAlertsRoute
@@ -3811,6 +3821,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/simulator'
     | '/store/$storeId/site-kit'
     | '/store/$storeId/sla'
+    | '/store/$storeId/sms-marketing'
     | '/store/$storeId/social-share'
     | '/store/$storeId/statistics'
     | '/store/$storeId/stock-alerts'
@@ -4173,6 +4184,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/simulator'
     | '/store/$storeId/site-kit'
     | '/store/$storeId/sla'
+    | '/store/$storeId/sms-marketing'
     | '/store/$storeId/social-share'
     | '/store/$storeId/statistics'
     | '/store/$storeId/stock-alerts'
@@ -4540,6 +4552,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/simulator'
     | '/_authenticated/store/$storeId/site-kit'
     | '/_authenticated/store/$storeId/sla'
+    | '/_authenticated/store/$storeId/sms-marketing'
     | '/_authenticated/store/$storeId/social-share'
     | '/_authenticated/store/$storeId/statistics'
     | '/_authenticated/store/$storeId/stock-alerts'
@@ -6692,6 +6705,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdSlaRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/sms-marketing': {
+      id: '/_authenticated/store/$storeId/sms-marketing'
+      path: '/sms-marketing'
+      fullPath: '/store/$storeId/sms-marketing'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdSmsMarketingRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/social-share': {
       id: '/_authenticated/store/$storeId/social-share'
       path: '/social-share'
@@ -7706,6 +7726,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdSimulatorRoute: typeof AuthenticatedStoreStoreIdSimulatorRoute
   AuthenticatedStoreStoreIdSiteKitRoute: typeof AuthenticatedStoreStoreIdSiteKitRoute
   AuthenticatedStoreStoreIdSlaRoute: typeof AuthenticatedStoreStoreIdSlaRoute
+  AuthenticatedStoreStoreIdSmsMarketingRoute: typeof AuthenticatedStoreStoreIdSmsMarketingRoute
   AuthenticatedStoreStoreIdSocialShareRoute: typeof AuthenticatedStoreStoreIdSocialShareRoute
   AuthenticatedStoreStoreIdStatisticsRoute: typeof AuthenticatedStoreStoreIdStatisticsRoute
   AuthenticatedStoreStoreIdStockAlertsRoute: typeof AuthenticatedStoreStoreIdStockAlertsRoute
@@ -7931,6 +7952,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
     AuthenticatedStoreStoreIdSiteKitRoute:
       AuthenticatedStoreStoreIdSiteKitRoute,
     AuthenticatedStoreStoreIdSlaRoute: AuthenticatedStoreStoreIdSlaRoute,
+    AuthenticatedStoreStoreIdSmsMarketingRoute:
+      AuthenticatedStoreStoreIdSmsMarketingRoute,
     AuthenticatedStoreStoreIdSocialShareRoute:
       AuthenticatedStoreStoreIdSocialShareRoute,
     AuthenticatedStoreStoreIdStatisticsRoute:

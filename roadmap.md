@@ -35,7 +35,7 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [x] Ödeme Bildirimleri (havale onay/ret)
 - [x] Misafir Kullanıcılar listesi
 - [x] Pazarlama izinleri (KVKK abonelik/izin listesi)
-- [ ] SMS Pazarlama
+- [x] SMS Pazarlama
 - [ ] Takvim
 - [ ] Cookie Builder (çerez bandı oluşturucu)
 - [ ] Hızlı Güncelleme tablosu (fiyat/stok satır içi)
