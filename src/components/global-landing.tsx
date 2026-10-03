@@ -248,21 +248,33 @@ export function GlobalLanding({ copy }: { copy: LandingCopy }) {
   );
 }
 
-const LANDING_ALTERNATES = [
+export const LANDING_ALTERNATES = [
   { hrefLang: "tr", href: "https://mefticaret.com/" }, { hrefLang: "en", href: "https://mefticaret.com/en" },
   { hrefLang: "de", href: "https://mefticaret.com/de" }, { hrefLang: "fr", href: "https://mefticaret.com/fr" }, { hrefLang: "ar", href: "https://mefticaret.com/ar" },
 ];
 
+/** Ana sayfa meta metinleri: Türkçe başlık/açıklamanın birebir karşılıkları. */
+const HOME_META: Record<LandingCopy["locale"], { title: string; description: string; ogLocale: string }> = {
+  en: { title: "Mefticaret — E-Commerce Platform and Store Management", description: "Turkey's comprehensive SaaS e-commerce platform. Open your store in minutes; manage stock, orders, shipping and marketplace integrations from one panel.", ogLocale: "en_US" },
+  de: { title: "Mefticaret — E-Commerce-Plattform und Shopverwaltung", description: "Die umfassende SaaS-E-Commerce-Plattform aus der Türkei. Eröffnen Sie Ihren Shop in Minuten; verwalten Sie Lager, Bestellungen, Versand und Marktplatz-Integrationen in einem Panel.", ogLocale: "de_DE" },
+  fr: { title: "Mefticaret — Plateforme e-commerce et gestion de boutique", description: "La plateforme e-commerce SaaS complète de Turquie. Ouvrez votre boutique en quelques minutes ; gérez stock, commandes, livraisons et intégrations marketplaces depuis un seul panneau.", ogLocale: "fr_FR" },
+  ar: { title: "مفتيجاريت — منصة التجارة الإلكترونية وإدارة المتجر", description: "منصة التجارة الإلكترونية الشاملة بنظام SaaS من تركيا. افتح متجرك في دقائق، وأدر المخزون والطلبات والشحن وتكاملات الأسواق الإلكترونية من لوحة واحدة.", ogLocale: "ar_AE" },
+};
+
+const OG_IMAGE = "https://mefticaret.com/og-mefticaret.jpg";
+
 export function globalLandingHead(copy: LandingCopy, path: string) {
   const url = `https://mefticaret.com${path}`;
+  const { title, description, ogLocale } = HOME_META[copy.locale];
   return {
     meta: [
-      { title: copy.title }, { name: "description", content: copy.subtitle }, { name: "content-language", content: copy.locale },
-      { property: "og:title", content: copy.title }, { property: "og:description", content: copy.subtitle }, { property: "og:type", content: "website" },
-      { property: "og:url", content: url }, { property: "og:site_name", content: "Mefticaret" }, { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: copy.title }, { name: "twitter:description", content: copy.subtitle },
+      { title }, { name: "description", content: description }, { name: "content-language", content: copy.locale },
+      { property: "og:title", content: title }, { property: "og:description", content: description }, { property: "og:type", content: "website" },
+      { property: "og:url", content: url }, { property: "og:site_name", content: "Mefticaret" }, { property: "og:locale", content: ogLocale },
+      { property: "og:image", content: OG_IMAGE }, { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title }, { name: "twitter:description", content: description }, { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: url }, ...LANDING_ALTERNATES.map(alt => ({ rel: "alternate", hrefLang: alt.hrefLang, href: alt.href })), { rel: "alternate", hrefLang: "x-default", href: "https://mefticaret.com/" }],
-    scripts: [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "SoftwareApplication", name: "Mefticaret", applicationCategory: "BusinessApplication", operatingSystem: "Web", url, description: copy.subtitle, inLanguage: copy.locale, publisher: { "@type": "Organization", name: "Mefticaret" } }) }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "SoftwareApplication", name: "Mefticaret", applicationCategory: "BusinessApplication", applicationSubCategory: "E-commerce", operatingSystem: "Web", url, image: OG_IMAGE, description, inLanguage: copy.locale, publisher: { "@type": "Organization", name: "Mefticaret" } }) }],
   };
 }

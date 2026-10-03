@@ -52,17 +52,21 @@ import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedStoresRouteImport } from './routes/_authenticated/stores'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as ArIndexRouteImport } from './routes/ar.index'
+import { Route as ArEvHanimlariRouteImport } from './routes/ar.ev-hanimlari'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as DeIndexRouteImport } from './routes/de.index'
+import { Route as DeEvHanimlariRouteImport } from './routes/de.ev-hanimlari'
 import { Route as DemoSlugRouteImport } from './routes/demo.$slug'
 import { Route as EnIndexRouteImport } from './routes/en.index'
+import { Route as EnEvHanimlariRouteImport } from './routes/en.ev-hanimlari'
 import { Route as EnHowToStartAnOnlineStoreRouteImport } from './routes/en.how-to-start-an-online-store'
 import { Route as EvHanimlariIndexRouteImport } from './routes/ev-hanimlari.index'
 import { Route as EvHanimlariKurulumRouteImport } from './routes/ev-hanimlari.kurulum'
 import { Route as EvHanimlariSablonlarRouteImport } from './routes/ev-hanimlari.sablonlar'
 import { Route as FaturaTokenRouteImport } from './routes/fatura.$token'
 import { Route as FrIndexRouteImport } from './routes/fr.index'
+import { Route as FrEvHanimlariRouteImport } from './routes/fr.ev-hanimlari'
 import { Route as KargoTakipTrackingRouteImport } from './routes/kargo-takip.$tracking'
 import { Route as MagazaSlugRouteImport } from './routes/magaza.$slug'
 import { Route as PolitikaPolicySlugRouteImport } from './routes/politika.$policySlug'
@@ -583,6 +587,11 @@ const ArIndexRoute = ArIndexRouteImport.update({
   path: '/ar/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArEvHanimlariRoute = ArEvHanimlariRouteImport.update({
+  id: '/ar/ev-hanimlari',
+  path: '/ar/ev-hanimlari',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -598,6 +607,11 @@ const DeIndexRoute = DeIndexRouteImport.update({
   path: '/de/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeEvHanimlariRoute = DeEvHanimlariRouteImport.update({
+  id: '/de/ev-hanimlari',
+  path: '/de/ev-hanimlari',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoSlugRoute = DemoSlugRouteImport.update({
   id: '/demo/$slug',
   path: '/demo/$slug',
@@ -606,6 +620,11 @@ const DemoSlugRoute = DemoSlugRouteImport.update({
 const EnIndexRoute = EnIndexRouteImport.update({
   id: '/en/',
   path: '/en/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnEvHanimlariRoute = EnEvHanimlariRouteImport.update({
+  id: '/en/ev-hanimlari',
+  path: '/en/ev-hanimlari',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EnHowToStartAnOnlineStoreRoute =
@@ -637,6 +656,11 @@ const FaturaTokenRoute = FaturaTokenRouteImport.update({
 const FrIndexRoute = FrIndexRouteImport.update({
   id: '/fr/',
   path: '/fr/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FrEvHanimlariRoute = FrEvHanimlariRouteImport.update({
+  id: '/fr/ev-hanimlari',
+  path: '/fr/ev-hanimlari',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KargoTakipTrackingRoute = KargoTakipTrackingRouteImport.update({
@@ -2425,12 +2449,16 @@ export interface FileRoutesByFullPath {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/admin/login': typeof AdminLoginRoute
+  '/ar/ev-hanimlari': typeof ArEvHanimlariRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/de/ev-hanimlari': typeof DeEvHanimlariRoute
   '/demo/$slug': typeof DemoSlugRoute
+  '/en/ev-hanimlari': typeof EnEvHanimlariRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/fr/ev-hanimlari': typeof FrEvHanimlariRoute
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/politika/$policySlug': typeof PolitikaPolicySlugRoute
@@ -2782,12 +2810,16 @@ export interface FileRoutesByTo {
   '/sellers': typeof AuthenticatedSellersRoute
   '/stores': typeof AuthenticatedStoresRoute
   '/admin/login': typeof AdminLoginRoute
+  '/ar/ev-hanimlari': typeof ArEvHanimlariRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/de/ev-hanimlari': typeof DeEvHanimlariRoute
   '/demo/$slug': typeof DemoSlugRoute
+  '/en/ev-hanimlari': typeof EnEvHanimlariRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/fr/ev-hanimlari': typeof FrEvHanimlariRoute
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/politika/$policySlug': typeof PolitikaPolicySlugRoute
@@ -3137,12 +3169,16 @@ export interface FileRoutesById {
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/stores': typeof AuthenticatedStoresRoute
   '/admin/login': typeof AdminLoginRoute
+  '/ar/ev-hanimlari': typeof ArEvHanimlariRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/de/ev-hanimlari': typeof DeEvHanimlariRoute
   '/demo/$slug': typeof DemoSlugRoute
+  '/en/ev-hanimlari': typeof EnEvHanimlariRoute
   '/en/how-to-start-an-online-store': typeof EnHowToStartAnOnlineStoreRoute
   '/ev-hanimlari/kurulum': typeof EvHanimlariKurulumRoute
   '/ev-hanimlari/sablonlar': typeof EvHanimlariSablonlarRoute
   '/fatura/$token': typeof FaturaTokenRoute
+  '/fr/ev-hanimlari': typeof FrEvHanimlariRoute
   '/kargo-takip/$tracking': typeof KargoTakipTrackingRoute
   '/magaza/$slug': typeof MagazaSlugRoute
   '/politika/$policySlug': typeof PolitikaPolicySlugRoute
@@ -3497,12 +3533,16 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/admin/login'
+    | '/ar/ev-hanimlari'
     | '/blog/$slug'
+    | '/de/ev-hanimlari'
     | '/demo/$slug'
+    | '/en/ev-hanimlari'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/fr/ev-hanimlari'
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/politika/$policySlug'
@@ -3854,12 +3894,16 @@ export interface FileRouteTypes {
     | '/sellers'
     | '/stores'
     | '/admin/login'
+    | '/ar/ev-hanimlari'
     | '/blog/$slug'
+    | '/de/ev-hanimlari'
     | '/demo/$slug'
+    | '/en/ev-hanimlari'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/fr/ev-hanimlari'
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/politika/$policySlug'
@@ -4208,12 +4252,16 @@ export interface FileRouteTypes {
     | '/_authenticated/sellers'
     | '/_authenticated/stores'
     | '/admin/login'
+    | '/ar/ev-hanimlari'
     | '/blog/$slug'
+    | '/de/ev-hanimlari'
     | '/demo/$slug'
+    | '/en/ev-hanimlari'
     | '/en/how-to-start-an-online-store'
     | '/ev-hanimlari/kurulum'
     | '/ev-hanimlari/sablonlar'
     | '/fatura/$token'
+    | '/fr/ev-hanimlari'
     | '/kargo-takip/$tracking'
     | '/magaza/$slug'
     | '/politika/$policySlug'
@@ -4562,12 +4610,16 @@ export interface RootRouteChildren {
   UnauthorizedRoute: typeof UnauthorizedRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  ArEvHanimlariRoute: typeof ArEvHanimlariRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  DeEvHanimlariRoute: typeof DeEvHanimlariRoute
   DemoSlugRoute: typeof DemoSlugRoute
+  EnEvHanimlariRoute: typeof EnEvHanimlariRoute
   EnHowToStartAnOnlineStoreRoute: typeof EnHowToStartAnOnlineStoreRoute
   EvHanimlariKurulumRoute: typeof EvHanimlariKurulumRoute
   EvHanimlariSablonlarRoute: typeof EvHanimlariSablonlarRoute
   FaturaTokenRoute: typeof FaturaTokenRoute
+  FrEvHanimlariRoute: typeof FrEvHanimlariRoute
   KargoTakipTrackingRoute: typeof KargoTakipTrackingRoute
   MagazaSlugRoute: typeof MagazaSlugRoute
   PolitikaPolicySlugRoute: typeof PolitikaPolicySlugRoute
@@ -4965,6 +5017,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ar/ev-hanimlari': {
+      id: '/ar/ev-hanimlari'
+      path: '/ar/ev-hanimlari'
+      fullPath: '/ar/ev-hanimlari'
+      preLoaderRoute: typeof ArEvHanimlariRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -4986,6 +5045,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/de/ev-hanimlari': {
+      id: '/de/ev-hanimlari'
+      path: '/de/ev-hanimlari'
+      fullPath: '/de/ev-hanimlari'
+      preLoaderRoute: typeof DeEvHanimlariRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/$slug': {
       id: '/demo/$slug'
       path: '/demo/$slug'
@@ -4998,6 +5064,13 @@ declare module '@tanstack/react-router' {
       path: '/en'
       fullPath: '/en/'
       preLoaderRoute: typeof EnIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/ev-hanimlari': {
+      id: '/en/ev-hanimlari'
+      path: '/en/ev-hanimlari'
+      fullPath: '/en/ev-hanimlari'
+      preLoaderRoute: typeof EnEvHanimlariRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/en/how-to-start-an-online-store': {
@@ -5040,6 +5113,13 @@ declare module '@tanstack/react-router' {
       path: '/fr'
       fullPath: '/fr/'
       preLoaderRoute: typeof FrIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fr/ev-hanimlari': {
+      id: '/fr/ev-hanimlari'
+      path: '/fr/ev-hanimlari'
+      fullPath: '/fr/ev-hanimlari'
+      preLoaderRoute: typeof FrEvHanimlariRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kargo-takip/$tracking': {
@@ -7874,12 +7954,16 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminLoginRoute: AdminLoginRoute,
+  ArEvHanimlariRoute: ArEvHanimlariRoute,
   BlogSlugRoute: BlogSlugRoute,
+  DeEvHanimlariRoute: DeEvHanimlariRoute,
   DemoSlugRoute: DemoSlugRoute,
+  EnEvHanimlariRoute: EnEvHanimlariRoute,
   EnHowToStartAnOnlineStoreRoute: EnHowToStartAnOnlineStoreRoute,
   EvHanimlariKurulumRoute: EvHanimlariKurulumRoute,
   EvHanimlariSablonlarRoute: EvHanimlariSablonlarRoute,
   FaturaTokenRoute: FaturaTokenRoute,
+  FrEvHanimlariRoute: FrEvHanimlariRoute,
   KargoTakipTrackingRoute: KargoTakipTrackingRoute,
   MagazaSlugRoute: MagazaSlugRoute,
   PolitikaPolicySlugRoute: PolitikaPolicySlugRoute,

@@ -44,10 +44,10 @@ const PLATFORM_PATHS: Record<SitemapLocale, string[]> = {
     "/ev-hanimlari",
     "/blog",
   ],
-  en: ["/en", "/en/how-to-start-an-online-store"],
-  de: ["/de"],
-  ar: ["/ar"],
-  fr: ["/fr"],
+  en: ["/en", "/en/how-to-start-an-online-store", "/en/ev-hanimlari"],
+  de: ["/de", "/de/ev-hanimlari"],
+  ar: ["/ar", "/ar/ev-hanimlari"],
+  fr: ["/fr", "/fr/ev-hanimlari"],
 };
 
 function escapeXml(value: string) {
