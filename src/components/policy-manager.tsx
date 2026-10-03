@@ -335,7 +335,7 @@ function Acceptances({ storeId, policies }: { storeId: string | null; policies: 
   );
 }
 
-function CookieBannerForm({ storeId }: { storeId: string }) {
+export function CookieBannerForm({ storeId }: { storeId: string }) {
   const get = useServerFn(getCookieBanner);
   const save = useServerFn(saveCookieBanner);
   const q = useQuery({ queryKey: ["cookie-banner-admin", storeId], queryFn: () => get({ data: { storeId } }) });
