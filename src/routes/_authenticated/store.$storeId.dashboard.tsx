@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
+import { StoreSummary } from "@/components/store-summary";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney, formatNumber, formatPercent, STORE_STATUS_LABELS } from "@/lib/mefti";
@@ -190,6 +191,7 @@ function DashboardPage() {
         ) : null
       }
     >
+      <div className="mb-4"><StoreSummary storeId={storeId} /></div>
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-5">
         {/* Öne çıkan ciro kartı — mobilde tam genişlik, mini trend grafiğiyle */}
         <div className="surface-card relative overflow-hidden p-5 xl:col-span-2">
