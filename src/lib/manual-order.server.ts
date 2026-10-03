@@ -20,7 +20,9 @@ export const manualOrderSchema = z.object({
     phone: z.string().trim().max(40).optional().nullable(),
   }),
   /** Siparişin nereden geldiği: whatsapp, phone veya manual. */
-  source: z.enum(["manual", "whatsapp", "phone"]).default("manual"),
+  source: z.enum(["manual", "whatsapp", "phone", "pos"]).default("manual"),
+  /** Perakende (mağaza kasası) satışlarında ödeme şekli. */
+  posPaymentMethod: z.enum(["cash", "card", "transfer"]).optional().nullable(),
   address: z
     .object({
       city: z.string().trim().max(80).optional().nullable(),
@@ -205,6 +207,8 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
   const sourceLabel =
     input.source === "whatsapp"
       ? "WhatsApp siparişi panele kaydedildi"
+      : input.source === "pos"
+        ? "Perakende satış (mağaza kasası) kaydedildi"
       : input.source === "phone"
         ? "Telefon siparişi panele kaydedildi"
         : "Panelden manuel sipariş oluşturuldu";
@@ -213,7 +217,7 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
     store_id: store.id,
     kind: "created",
     message: sourceLabel,
-    meta: { source: input.source },
+    meta: { source: input.source, pos_payment_method: input.posPaymentMethod ?? null },
   });
 
   if (existingCustomer) {
