@@ -419,11 +419,11 @@ function Sellers({ d }: { d: CenterData }) {
   const top = s.funnel[0]?.count ?? 0;
   return (
     <div className="space-y-6">
-      <Panel eyebrow="Onboarding hunisi" title="Dönemde açılan mağazaların ilerleyişi" table={{ header: ["Adım", "Mağaza", "Önceki adıma göre"], rows: s.funnel.map((f: any, i: number) => [f.label, f.count, i ? pf(s.funnel[i - 1].count ? (f.count / s.funnel[i - 1].count) * 100 : null, 0) : "—"]) }}>
+      <Panel eyebrow="Onboarding hunisi" title="Dönemde açılan mağazaların ilerleyişi" table={{ header: ["Adım", "Mağaza", "Önceki adıma göre"], rows: s.funnel.map((f: any, i: number) => [f.label, f.count, i ? pf((s.funnel as any[])[i - 1].count ? (f.count / (s.funnel as any[])[i - 1].count) * 100 : null, 0) : "—"]) }}>
         {top ? (
           <ol className="space-y-2">
             {s.funnel.map((f: any, i: number) => {
-              const prev = i ? s.funnel[i - 1].count : f.count;
+              const prev = i ? (s.funnel as any[])[i - 1].count : f.count;
               const w = (f.count / top) * 100;
               return (
                 <li key={f.key} className="grid grid-cols-[minmax(0,9rem)_1fr_auto] items-center gap-3 text-sm sm:grid-cols-[12rem_1fr_7rem]">
@@ -575,9 +575,9 @@ function ReportBuilder({ base }: { base: CenterInput }) {
         {!metrics.length ? <Empty>En az bir metrik seçin.</Empty> : q.isError ? <Empty>Rapor hesaplanamadı.</Empty> : !rows.length && !q.isFetching ? <Empty>Seçilen dönemde veri yok.</Empty> : activeChart === "table" ? null : (
           <div className="h-72"><ResponsiveContainer>
             {activeChart === "line" ? (
-              <LineChart data={rows}><CartesianGrid stroke={CHART_GRID} vertical={false} /><XAxis dataKey="key" tick={{ fontSize: 10 }} minTickGap={20} /><YAxis tick={{ fontSize: 10 }} width={56} /><Tooltip />{metrics.map((m, i) => <Line key={m} name={REPORT_METRIC_LABELS[m]} dataKey={m} stroke={colors[i]} dot={false} strokeWidth={2} />)}</LineChart>
+              <LineChart data={rows}><CartesianGrid stroke={CHART_GRID} vertical={false} /><XAxis dataKey="key" tick={{ fontSize: 10 }} minTickGap={20} /><YAxis tick={{ fontSize: 10 }} width={56} /><Tooltip />{metrics.map((m, i) => <Line key={m} name={REPORT_METRIC_LABELS[m]} dataKey={m} stroke={colors[i]!} dot={false} strokeWidth={2} />)}</LineChart>
             ) : (
-              <BarChart data={rows}><CartesianGrid stroke={CHART_GRID} vertical={false} /><XAxis dataKey="key" tick={{ fontSize: 10 }} minTickGap={20} /><YAxis tick={{ fontSize: 10 }} width={56} /><Tooltip />{metrics.map((m, i) => <Bar key={m} name={REPORT_METRIC_LABELS[m]} dataKey={m} fill={colors[i]} stackId={activeChart === "stacked" ? "s" : undefined} />)}</BarChart>
+              <BarChart data={rows}><CartesianGrid stroke={CHART_GRID} vertical={false} /><XAxis dataKey="key" tick={{ fontSize: 10 }} minTickGap={20} /><YAxis tick={{ fontSize: 10 }} width={56} /><Tooltip />{metrics.map((m, i) => <Bar key={m} name={REPORT_METRIC_LABELS[m]} dataKey={m} fill={colors[i]!} stackId={activeChart === "stacked" ? "s" : undefined} />)}</BarChart>
             )}
           </ResponsiveContainer></div>
         )}
