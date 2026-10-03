@@ -36,7 +36,7 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [x] Misafir Kullanıcılar listesi
 - [x] Pazarlama izinleri (KVKK abonelik/izin listesi)
 - [x] SMS Pazarlama
-- [ ] Takvim
+- [x] Takvim
 - [ ] Cookie Builder (çerez bandı oluşturucu)
 - [ ] Hızlı Güncelleme tablosu (fiyat/stok satır içi)
 - [ ] Ana sayfa "Mağaza özeti" (Bugün/Dün/1 Hafta/30 Gün) + sipariş sayfası özet kartları/sekmeler

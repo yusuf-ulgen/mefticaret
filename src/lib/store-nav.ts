@@ -90,6 +90,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       items: [
         { label: "Panel", to: p("dashboard"), icon: LayoutDashboard, keywords: "dashboard özet" },
         { label: "Canlı Akış", to: p("live"), icon: Radio, keywords: "canlı izleme live gerçek zamanlı" },
+        { label: "Takvim", to: p("calendar"), icon: ClipboardList, keywords: "takvim kampanya planı" },
       ],
     },
     {
