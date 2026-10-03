@@ -28,3 +28,16 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [ ] Şikayet moderasyon ekranı (Süper Admin)
 - [ ] App Store / Google Play: yerel uygulama derlemesi burada yapılamaz
 - [x] E-ticaret sitesi kurma maliyeti rehberi (/e-ticaret-maliyeti)
+
+## Referans panel (foursid) eksik uygulamaları — sırayla yapılacak
+- [x] Menü grupları/sırası referansla aynı (Genel, Katalog, Satışlar, Kullanıcılar, İçerik, Pazarlama, İstatistikler, Uygulamalar, Genel Ayarlar, Operasyon Yönetimi)
+- [ ] Perakende Satış (POS) + Perakende Satışlar/Müşteriler/Rapor
+- [ ] Ödeme Bildirimleri (havale bildirimi onayı)
+- [ ] Misafir Kullanıcılar listesi
+- [ ] Pazarlama izinleri (KVKK abonelik/izin listesi)
+- [ ] SMS Pazarlama
+- [ ] Takvim
+- [ ] Cookie Builder (çerez bandı oluşturucu)
+- [ ] Hızlı Güncelleme tablosu (fiyat/stok satır içi)
+- [ ] Ana sayfa "Mağaza özeti" (Bugün/Dün/1 Hafta/30 Gün) + sipariş sayfası özet kartları/sekmeler
+- Yapılmayacak: Forsid Buket, Magenty, Artboard, OpenAI Ads, Fast Cart (referansa özel ürünler/markalar)
