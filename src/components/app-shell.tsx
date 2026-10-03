@@ -45,7 +45,7 @@ import { useSellerDesignV2 } from "@/lib/seller-design";
 const PIN_STORAGE_KEY = "mefti:pinned-nav";
 
 /** Kokpit sağ paneli: geniş ekranda bekleyen işler (gerçek sayılar) ve hızlı geçişler. */
-function CockpitRail({ storeId }: { storeId: string }) {
+export function CockpitRail({ storeId }: { storeId: string }) {
   const { data } = useQuery(storeActionItemsQuery(storeId));
   const items = [
     { label: "Bekleyen sipariş", count: data?.pendingOrders, to: "/store/$storeId/orders" as const },
@@ -57,7 +57,7 @@ function CockpitRail({ storeId }: { storeId: string }) {
   return (
     <aside
       aria-label="Kokpit"
-      className="sticky top-16 hidden h-[calc(100vh-4rem)] w-72 shrink-0 overflow-y-auto border-l border-sidebar-border bg-sidebar/60 p-4 2xl:block"
+      className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-72 shrink-0 overflow-y-auto border-l border-sidebar-border bg-sidebar/60 p-4 2xl:block"
     >
       <p className="mb-3 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-primary">Kokpit · Bekleyen işler</p>
       <ul className="space-y-1.5">
@@ -309,7 +309,7 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
                 onClick={() => toggleGroup(group.group)}
                 aria-expanded={open}
                 className={cn(
-                  "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[0.78rem] font-semibold uppercase tracking-wide text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  "seller-v2-group flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-[0.78rem] font-semibold uppercase tracking-wide text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   hasActive && "text-sidebar-foreground",
                 )}
               >
@@ -323,7 +323,7 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
                 />
               </button>
               {open ? (
-                <ul className="mt-0.5 space-y-0.5 border-l border-sidebar-border/70 pl-2 ml-3.5">
+                <ul className="seller-v2-sub mt-0.5 space-y-0.5 border-l border-sidebar-border/70 pl-2 ml-3.5">
                   {group.items.map((item) => (
                     <NavLinkRow
                       key={item.label}
@@ -514,7 +514,7 @@ export function AppShell({
       </a>
 
       {/* Koyu üst çubuk — referans panel düzeniyle aynı hizada */}
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-2 bg-sidebar-primary px-3 text-sidebar-primary-foreground lg:px-4">
+      <header className={cn("sticky top-0 z-30 flex h-14 items-center gap-2 bg-sidebar-primary px-3 text-sidebar-primary-foreground lg:px-4", v2 && "seller-v2-topbar")}>
         {sidebar ? (
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -555,7 +555,7 @@ export function AppShell({
 
       <div className="flex">
         {sidebar ? (
-          <aside className={cn("sticky top-16 hidden h-[calc(100vh-4rem)] w-[17rem] shrink-0 border-r border-sidebar-border/70 lg:block", v2 ? "bg-sidebar" : "bg-card")}>
+          <aside className={cn("sticky top-14 hidden h-[calc(100vh-3.5rem)] w-[17rem] shrink-0 border-r border-sidebar-border/70 lg:block", v2 ? "bg-sidebar" : "bg-card")}>
             {sidebar}
           </aside>
         ) : null}
@@ -568,12 +568,12 @@ export function AppShell({
             storeId && "pb-24 lg:pb-6",
           )}
         >
-          <div className="mx-auto w-full max-w-6xl space-y-4">
-            {storeId ? <QuickLinks storeId={storeId} /> : null}
-            <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:px-6 lg:py-5">
+          <div className={cn("mx-auto w-full space-y-4", v2 ? "max-w-[78rem]" : "max-w-6xl")}>
+            {storeId && !v2 ? <QuickLinks storeId={storeId} /> : null}
+            <div className={cn("flex flex-wrap items-end justify-between gap-3", v2 ? "pt-2 lg:pt-6" : "rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:px-6 lg:py-5")}>
               <div className="min-w-0">
-                <p className={cn("eyebrow mb-1", v2 && "text-primary")}>Mağaza paneli</p>
-                <h1 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+                {v2 ? null : <p className="eyebrow mb-1">Mağaza paneli</p>}
+                <h1 className={cn("font-display font-semibold tracking-tight", v2 ? "text-2xl sm:text-[1.7rem]" : "text-xl sm:text-2xl")}>
                   {title}
                 </h1>
                 {description ? (
@@ -585,7 +585,7 @@ export function AppShell({
             {children}
           </div>
         </main>
-        {v2 && storeId ? <CockpitRail storeId={storeId} /> : null}
+        
       </div>
 
       {storeId ? <PanelBottomNav storeId={storeId} /> : null}

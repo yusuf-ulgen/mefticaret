@@ -212,55 +212,53 @@
   --ring: oklch(0.66 0.2 288);
 }
 
-/* Satıcı paneli v2 tasarımı (bayrak: v2_seller_design) — Modern FinTech kokpit: derin grafit zemin,
-   elektrik mavisi vurgu, zümrüt pozitif metrik. Yalnız .seller-v2 sınırında geçerli. */
+/* Satıcı paneli v2 tasarımı (bayrak: v2_seller_design) — referans panel düzeni: koyu üst çubuk,
+   beyaz sol menü, açık gri zemin, beyaz ince kenarlı kartlar, mor vurgu. Yalnız .seller-v2 sınırında. */
 .seller-v2,
 .dark .seller-v2,
 .dark.seller-v2,
 .seller-v2.dark {
-  color-scheme: dark;
-  --background: oklch(0.155 0.014 264);
-  --foreground: oklch(0.955 0.008 255);
-  --card: oklch(0.195 0.02 264);
-  --card-foreground: oklch(0.955 0.008 255);
-  --popover: oklch(0.21 0.022 264);
-  --popover-foreground: oklch(0.955 0.008 255);
-  --primary: oklch(0.623 0.188 259.8);
-  --primary-hover: oklch(0.67 0.17 259.8);
+  color-scheme: light;
+  --background: oklch(0.966 0.003 286);
+  --foreground: oklch(0.2 0.01 286);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.01 286);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.01 286);
+  --primary: oklch(0.2 0.012 286);
+  --primary-hover: oklch(0.3 0.012 286);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.279 0.037 260);
-  --secondary-foreground: oklch(0.955 0.008 255);
-  --muted: oklch(0.235 0.028 262);
-  --muted-foreground: oklch(0.72 0.025 257);
-  --accent: oklch(0.279 0.06 260);
-  --accent-foreground: oklch(0.84 0.09 255);
-  --brand: oklch(0.623 0.188 259.8);
-  --brand-soft: oklch(0.279 0.06 260);
-  --success: oklch(0.696 0.149 162.5);
-  --border: oklch(0.3 0.03 262 / 70%);
-  --input: oklch(0.34 0.035 262);
-  --ring: oklch(0.623 0.188 259.8);
-  --radius: 0.75rem;
-  --chart-1: oklch(0.623 0.188 259.8);
-  --chart-2: oklch(0.696 0.149 162.5);
-  --chart-3: oklch(0.78 0.12 230);
+  --secondary: oklch(0.955 0.004 286);
+  --secondary-foreground: oklch(0.2 0.01 286);
+  --muted: oklch(0.962 0.004 286);
+  --muted-foreground: oklch(0.52 0.012 286);
+  --accent: oklch(0.955 0.025 293);
+  --accent-foreground: oklch(0.5 0.22 290);
+  --brand: oklch(0.55 0.22 290);
+  --brand-soft: oklch(0.955 0.025 293);
+  --success: oklch(0.6 0.15 155);
+  --destructive: oklch(0.58 0.21 20);
+  --border: oklch(0.925 0.005 286);
+  --input: oklch(0.91 0.006 286);
+  --ring: oklch(0.55 0.22 290);
+  --radius: 0.875rem;
+  --chart-1: oklch(0.55 0.22 290);
+  --chart-2: oklch(0.6 0.15 155);
+  --chart-3: oklch(0.7 0.13 230);
   --chart-4: oklch(0.75 0.15 75);
-  --chart-5: oklch(0.65 0.2 300);
-  --sidebar: oklch(0.13 0.012 264);
-  --sidebar-foreground: oklch(0.8 0.02 257);
-  --sidebar-primary: oklch(0.12 0.012 264);
-  --sidebar-primary-foreground: oklch(0.97 0.006 255);
-  --sidebar-accent: oklch(0.23 0.03 262);
-  --sidebar-accent-foreground: oklch(0.97 0.006 255);
-  --sidebar-border: oklch(0.26 0.028 262);
-  --sidebar-ring: oklch(0.623 0.188 259.8);
-  --gradient-surface: linear-gradient(180deg, oklch(0.21 0.022 264) 0%, oklch(0.185 0.018 264) 100%);
-  --shadow-seller: 0 0 0 1px oklch(1 0 0 / 0.03) inset, 0 12px 32px -18px oklch(0 0 0 / 0.7);
+  --chart-5: oklch(0.65 0.2 340);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.28 0.01 286);
+  --sidebar-primary: oklch(0.2 0.012 286);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.955 0.004 286);
+  --sidebar-accent-foreground: oklch(0.18 0.01 286);
+  --sidebar-border: oklch(0.925 0.005 286);
+  --sidebar-ring: oklch(0.55 0.22 290);
+  --shadow-seller: 0 1px 2px oklch(0.2 0.01 286 / 0.04);
 }
 .seller-v2 {
   background-color: var(--background);
-  background-image: radial-gradient(60rem 30rem at 85% -10%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 70%);
-  background-attachment: fixed;
   color: var(--foreground);
   font-variant-numeric: tabular-nums;
 }
@@ -268,25 +266,54 @@
 .seller-v2 main .rounded-2xl.border,
 .seller-v2 main .rounded-xl.border {
   box-shadow: var(--shadow-seller);
-  background-color: color-mix(in oklab, var(--card) 88%, transparent);
-  backdrop-filter: blur(6px);
-}
-.seller-v2 .seller-v2-nav [aria-current="page"],
-.seller-v2 .seller-v2-nav a.active {
-  background: color-mix(in oklab, var(--sidebar-ring) 18%, transparent);
-  color: var(--sidebar-primary-foreground);
-  box-shadow: inset 2px 0 0 var(--sidebar-ring);
-}
-.seller-v2 .eyebrow {
-  background: color-mix(in oklab, var(--primary) 16%, transparent);
-  border-color: color-mix(in oklab, var(--primary) 35%, transparent);
-  color: var(--accent-foreground);
-}
-.seller-v2 main .bg-white {
   background-color: var(--card);
+  border-color: var(--border);
+}
+.seller-v2 .seller-v2-nav [aria-current="page"] {
+  background: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
+  font-weight: 600;
 }
 .seller-v2 .seller-v2-nav [aria-current="page"] svg {
-  color: var(--sidebar-ring);
+  color: var(--sidebar-accent-foreground);
+}
+.seller-v2 .seller-v2-nav .seller-v2-group {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--sidebar-foreground);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.seller-v2 .seller-v2-nav .seller-v2-group[aria-expanded="true"] {
+  background: var(--sidebar-accent);
+  font-weight: 600;
+}
+.seller-v2 .seller-v2-nav .seller-v2-group svg:last-child {
+  order: 9;
+}
+.seller-v2 .seller-v2-nav .seller-v2-sub {
+  border-left: 0;
+  margin-left: 1.75rem;
+  padding-left: 0;
+}
+.seller-v2 .eyebrow {
+  background: var(--accent);
+  border-color: color-mix(in oklab, var(--brand) 25%, transparent);
+  color: var(--accent-foreground);
+}
+.seller-v2 .seller-v2-topbar button:not([class*="bg-destructive"]):not([class*="gradient"]) {
+  background-color: transparent;
+  color: inherit;
+  border-color: oklch(1 0 0 / 14%);
+}
+.seller-v2 .seller-v2-topbar button:hover {
+  background-color: oklch(1 0 0 / 10%);
+}
+.seller-v2 .seller-v2-topbar {
+  background: oklch(0.2 0.012 286);
+  color: oklch(0.98 0 0);
 }
 @media (max-width: 1023px) {
   .seller-v2 main button,
@@ -302,12 +329,10 @@
     transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
   }
 }
-/* Tema editörü önizlemesi ve mağaza vitrini panel token'larını almasın */
 .seller-v2 iframe,
 .seller-v2 [data-storefront-preview] {
   color-scheme: normal;
 }
-
 
 @layer base {
   * {
