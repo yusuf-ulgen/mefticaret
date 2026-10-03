@@ -135,25 +135,6 @@ function LiveViewPage() {
   const cartValue = activeCarts.reduce((sum, cart) => sum + Number(cart.grand_total ?? 0), 0);
   const paidOrders = (orders ?? []).filter((order) => order.payment_status === "paid");
   const todayRevenue = paidOrders.reduce((sum, order) => sum + Number(order.grand_total ?? 0), 0);
-  const cities = useMemo(() => topBy(rows, "city", 7), [rows]);
-  const topPages = useMemo(() => topBy(rows, "path", 6), [rows]);
-  const devices = useMemo(() => topBy(rows, "device", 4), [rows]);
-  const countries = useMemo(() => topBy(rows, "country", 6), [rows]);
-  const funnel = [
-    { label: "Görüntüleme", value: summary.pageViews + summary.productViews },
-    { label: "Sepete ekleme", value: summary.addToCart },
-    { label: "Ödeme adımı", value: summary.checkouts },
-    { label: "Satın alma", value: summary.purchases },
-  ];
-  const funnelMax = Math.max(1, ...funnel.map((step) => step.value));
-  const visitorTrend = useMemo(() => {
-    const last = buckets.slice(-30).reduce((sum, bucket) => sum + bucket.count, 0);
-    const prev = buckets.slice(-60, -30).reduce((sum, bucket) => sum + bucket.count, 0);
-    if (prev === 0) return last > 0 ? 100 : 0;
-    return ((last - prev) / prev) * 100;
-  }, [buckets]);
-
-
   function refresh() {
     setLastUpdated(new Date());
     void Promise.all([
@@ -162,166 +143,146 @@ function LiveViewPage() {
       queryClient.invalidateQueries({ queryKey: ["live-carts", storeId] }),
     ]);
   }
+  const [search, setSearch] = useState("");
+  const [stage, setStage] = useState<"all" | Stage>("all");
+  void orders;
+
+  const sessions = useMemo(() => {
+    const cutoff = Date.now() - 30 * 60_000;
+    const map = new Map<string, LiveSession>();
+    for (const e of rows) {
+      if (new Date(e.created_at).getTime() < cutoff) continue;
+      let s = map.get(e.session_id);
+      if (!s) {
+        s = { id: e.session_id, last: e.created_at, path: e.path, city: e.city, country: e.country, device: e.device, source: e.referrer_host ?? e.source, stage: "visit", events: 0 };
+        map.set(e.session_id, s);
+      }
+      s.events++;
+      const r = STAGE_RANK[kindStage(e.kind)];
+      if (r > STAGE_RANK[s.stage]) s.stage = kindStage(e.kind);
+    }
+    return [...map.values()];
+  }, [rows]);
+
+  const counts = {
+    visit: sessions.length,
+    cart: sessions.filter((s) => STAGE_RANK[s.stage] >= 1).length,
+    checkout: sessions.filter((s) => STAGE_RANK[s.stage] >= 2).length,
+    purchase: sessions.filter((s) => s.stage === "purchase").length,
+  };
+  const q = search.trim().toLocaleLowerCase("tr");
+  const shown = sessions.filter((s) => (stage === "all" || s.stage === stage) &&
+    (!q || `${s.city ?? ""} ${s.country ?? ""} ${s.path ?? ""}`.toLocaleLowerCase("tr").includes(q)));
+  const cityList = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of sessions) { const k = s.city || s.country || "Bilinmiyor"; m.set(k, (m.get(k) ?? 0) + 1); }
+    return [...m].sort((a, b) => b[1] - a[1]).slice(0, 12);
+  }, [sessions]);
+
+  const STAT = [
+    { k: "visit" as const, label: "Ziyaretçi", icon: Eye, v: counts.visit },
+    { k: "cart" as const, label: "Sepet", icon: ShoppingCart, v: counts.cart },
+    { k: "checkout" as const, label: "Ödeme", icon: CreditCard, v: counts.checkout },
+    { k: "purchase" as const, label: "Satın alım", icon: CheckCircle2, v: counts.purchase },
+  ];
 
   return (
-    <AppShell
-      storeId={storeId}
-      title="Canlı Takip"
-      description="Mağazanızda şu an neler oluyor?"
-      actions={
-        <div className="flex items-center gap-2">
-          <span className="hidden text-xs text-muted-foreground sm:inline">Güncellendi {timeAgo(lastUpdated.toISOString())}</span>
-          <Button size="sm" variant="outline" onClick={refresh} aria-label="Canlı verileri yenile">
-            <RefreshCw className="size-4" />
-            <span className="hidden sm:inline">Yenile</span>
-          </Button>
-          <Badge variant="outline" className="gap-2 border-success/30 bg-success/10 text-success">
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex size-2 animate-ping rounded-full bg-success/60" />
-              <span className="relative inline-flex size-2 rounded-full bg-success" />
-            </span>
-            Canlı
-          </Badge>
-        </div>
-      }
-    >
-      <section className="mb-5 max-w-3xl">
-        <p className="eyebrow">GERÇEK ZAMANLI MAĞAZA GÖRÜNÜMÜ</p>
-        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Ziyaretçilerinizi anlık olarak izleyin.</h1>
-        <p className="mt-3 text-muted-foreground">Hangi müşteri hangi sayfada, hangi şehirden bağlanıyor ve sepetinde ne var; hepsi tek ekranda.</p>
-      </section>
-
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.15fr_1fr]">
-        <section className="surface-card relative overflow-hidden p-5">
-          <div className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-brand-soft/70 blur-2xl" />
-          <div className="relative flex items-start justify-between gap-3">
+    <AppShell storeId={storeId} title="Canlı Akış">
+      <div className="grid min-h-[70vh] grid-cols-1 overflow-hidden rounded-2xl border bg-card lg:grid-cols-[1fr_320px]">
+        {/* Sol: canlı alan */}
+        <div className="relative flex min-h-[460px] flex-col bg-muted/40">
+          <Globe2 aria-hidden strokeWidth={0.4} className="pointer-events-none absolute inset-0 m-auto size-[min(80%,520px)] text-foreground/5" />
+          <div className="relative m-4 flex w-fit items-center gap-3 rounded-2xl border bg-card px-4 py-3 shadow-sm">
+            <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary"><Radio className="size-4" /></span>
             <div>
-              <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="grid size-7 place-items-center rounded-full bg-brand-soft text-brand"><Activity className="size-4" /></span>
-                Anlık ziyaretçi
-              </p>
-              <p className="mt-3 font-display text-4xl font-semibold tracking-tight sm:text-5xl">{formatNumber(summary.visitors)}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{formatNumber(summary.sessions)} aktif oturum · son 5 dakika</p>
+              <h2 className="font-semibold leading-tight">Canlı Akış</h2>
+              <p className="text-xs text-muted-foreground">{lastUpdated.toLocaleTimeString("tr-TR")} güncellendi</p>
             </div>
-            <TrendPill value={visitorTrend} />
+            <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-2 py-0.5 text-[11px] font-semibold text-success">
+              <span className="size-1.5 animate-pulse rounded-full bg-success" /> CANLI
+            </span>
+            <Button size="icon" variant="ghost" onClick={refresh} aria-label="Yenile"><RefreshCw className="size-4" /></Button>
           </div>
-          <div className="relative mt-5 flex h-16 items-end gap-[3px]" aria-hidden>
-            {buckets.slice(-30).map((bucket) => (
-              <div
-                key={`spark-${bucket.minute}`}
-                className="min-w-0 flex-1 rounded-t-sm bg-brand/25"
-                style={{ height: `${Math.max(6, (bucket.count / maxBucket) * 100)}%` }}
-              />
+
+          <div className="relative flex-1 px-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Son 30 dakika · konumlar</p>
+            {cityList.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{isLoading ? "Yükleniyor…" : "Şu an mağazanızda ziyaretçi yok."}</p>
+            ) : (
+              <ul className="flex flex-wrap gap-2">
+                {cityList.map(([c, n]) => (
+                  <li key={c} className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-sm">
+                    <MapPin className="size-3.5 text-primary" /> {c} <span className="font-semibold tabular-nums">{n}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="relative grid grid-cols-2 gap-2 p-4 sm:grid-cols-4">
+            {STAT.map((s) => (
+              <button key={s.k} onClick={() => setStage(stage === s.k ? "all" : s.k)} aria-pressed={stage === s.k}
+                className={`flex items-center gap-3 rounded-2xl border bg-card px-3 py-2.5 text-left ${stage === s.k ? "border-primary" : ""}`}>
+                <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary"><s.icon className="size-4" /></span>
+                <span>
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{s.label}</span>
+                  <span className="block text-xl font-semibold tabular-nums">{formatNumber(s.v)}</span>
+                </span>
+              </button>
             ))}
           </div>
-          <p className="relative mt-2 text-xs text-muted-foreground">Son 30 dakikalık ziyaretçi hareketi</p>
-        </section>
-
-        <div className="grid grid-cols-2 gap-3">
-          <MetricCard icon={<ShoppingCart />} label="Aktif sepet" value={formatNumber(activeCarts.length)} hint={`${formatMoney(cartValue, currency)} sepet değeri`} />
-          <MetricCard icon={<Package />} label="Bugün sipariş" value={formatNumber((orders ?? []).length)} hint={`${formatMoney(todayRevenue, currency)} ödenmiş ciro`} />
-          <MetricCard icon={<ArrowUpRight />} label="Dönüşüm" value={`${summary.conversionRate.toFixed(1)}%`} hint="son 60 dakika" />
-          <MetricCard icon={<Eye />} label="Görüntüleme" value={formatNumber(summary.pageViews + summary.productViews)} hint="sayfa + ürün" />
+          <p className="relative px-4 pb-3 text-xs text-muted-foreground">
+            Aktif sepet değeri: {formatMoney(cartValue, currency)} · Bugün ödenen: {formatMoney(todayRevenue, currency)}
+          </p>
         </div>
+
+        {/* Sağ: anlık oturumlar */}
+        <aside className="flex flex-col border-t lg:border-l lg:border-t-0">
+          <div className="space-y-2 border-b p-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.14em]">Anlık oturumlar</h3>
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Şehir, sayfa ara…" aria-label="Oturum ara"
+              className="h-9 w-full rounded-lg border bg-background px-3 text-sm outline-none focus:border-primary" />
+            <select value={stage} onChange={(e) => setStage(e.target.value as "all" | Stage)} aria-label="Aşama filtresi"
+              className="h-9 w-full rounded-lg border bg-background px-2 text-sm">
+              <option value="all">Tümü</option>
+              <option value="visit">Ziyaret</option>
+              <option value="cart">Sepet</option>
+              <option value="checkout">Ödeme</option>
+              <option value="purchase">Satın alım</option>
+            </select>
+          </div>
+          <ul className="max-h-[60vh] flex-1 divide-y overflow-y-auto">
+            {shown.length === 0 ? (
+              <li className="p-6 text-center text-sm text-muted-foreground">Oturum bulunamadı.</li>
+            ) : shown.map((s) => {
+              const D = s.device === "mobile" ? Smartphone : s.device === "tablet" ? Tablet : Monitor;
+              return (
+                <li key={s.id} className="flex gap-3 p-3 text-sm">
+                  <D className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate font-medium">{s.city || s.country || "Konum bilinmiyor"}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{timeAgo(s.last)}</span>
+                    </div>
+                    <p className="truncate text-xs text-muted-foreground">{s.path ?? "/"}</p>
+                    <p className="mt-1 text-xs"><span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">{STAGE_LABEL[s.stage]}</span>
+                      {s.source ? <span className="ml-2 text-muted-foreground">{s.source}</span> : null}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </aside>
       </div>
-
-
       <LivePagesPanel storeId={storeId} />
-
-      <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.4fr_0.8fr]">
-        <section className="surface-card overflow-hidden">
-          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border p-5">
-            <div>
-              <div className="flex items-center gap-2"><Globe2 className="size-4 text-brand" /><h2 className="font-medium">Ziyaretçileriniz nerelerden geliyor?</h2></div>
-              <p className="mt-1 text-sm text-muted-foreground">Şehir bazlı ziyaretçi dağılımı · son 60 dakika</p>
-            </div>
-            <Badge variant="secondary">{formatNumber(summary.visitors)} aktif ziyaretçi</Badge>
-          </div>
-          <div className="grid grid-cols-1 gap-6 p-5 lg:grid-cols-[1.2fr_0.8fr]">
-            <LiveMap cities={cities} />
-            <div>
-              <div className="mb-3 flex items-center justify-between text-xs font-medium uppercase tracking-wide text-muted-foreground"><span>Şehir bazlı dağılım</span><span>Olay</span></div>
-              <div className="space-y-4">
-                {cities.length === 0 ? <EmptyLine label="Şehir verisi bekleniyor" /> : cities.map((city, index) => <DistributionRow key={city.label} item={city} rank={index} max={cities[0]?.count ?? 1} />)}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="surface-card p-5">
-          <div className="flex items-start justify-between gap-3"><div><h2 className="font-medium">Ziyaretçi akışı</h2><p className="mt-1 text-sm text-muted-foreground">Dakika bazlı tekil ziyaretçi sayısı</p></div><Radio className="size-4 text-brand" /></div>
-          <div className="mt-7 flex h-36 items-end gap-1" aria-label="Son 60 dakika ziyaretçi grafiği">
-            {buckets.map((bucket) => <div key={bucket.minute} className="min-w-0 flex-1 rounded-t-sm bg-brand/70 transition-all hover:bg-brand" style={{ height: `${Math.max(4, (bucket.count / maxBucket) * 100)}%` }} title={`${bucket.count} ziyaretçi`} />)}
-          </div>
-          <div className="mt-3 flex justify-between text-xs text-muted-foreground"><span>60 dk önce</span><span>şimdi</span></div>
-          <div className="mt-6 grid grid-cols-2 gap-3 border-t border-border pt-5"><MiniStat label="Sayfa görüntüleme" value={summary.pageViews + summary.productViews} /><MiniStat label="Satın alma" value={summary.purchases} /></div>
-        </section>
-      </div>
-
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="surface-card p-5">
-          <div className="flex items-start justify-between gap-3"><div><h2 className="font-medium">Aktif sepetler</h2><p className="mt-1 text-sm text-muted-foreground">Ziyaretçilerin karar aşamasını kaçırmayın.</p></div><ShoppingCart className="size-4 text-brand" /></div>
-          <div className="mt-5 space-y-2">
-            {activeCarts.length === 0 ? <EmptyState icon={<ShoppingCart />} title="Şu anda aktif sepet yok" description="Vitrininize trafik geldiğinde sepetler burada canlı görünür." /> : activeCarts.slice(0, 5).map((cart, index) => <CartRow key={cart.id} cart={cart} index={index} currency={currency} />)}
-          </div>
-        </section>
-        <section className="surface-card p-5">
-          <h2 className="font-medium">Dönüşüm hunisi</h2><p className="mt-1 text-sm text-muted-foreground">Son 60 dakikanın müşteri yolculuğu</p>
-          <div className="mt-6 space-y-4">{funnel.map((step) => <div key={step.label}><div className="flex justify-between text-sm"><span>{step.label}</span><span className="font-medium">{formatNumber(step.value)}</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-brand transition-all" style={{ width: `${(step.value / funnelMax) * 100}%` }} /></div></div>)}</div>
-        </section>
-      </div>
-
-      <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-        <section className="surface-card p-5"><div className="flex items-start justify-between"><div><h2 className="font-medium">Canlı aktivite</h2><p className="mt-1 text-sm text-muted-foreground">Mağazada gerçekleşen son ziyaretçi hareketleri.</p></div><Activity className="size-4 text-brand" /></div><div className="mt-4 divide-y divide-border">{isLoading ? <p className="py-10 text-center text-sm text-muted-foreground">Yükleniyor…</p> : rows.length === 0 ? <EmptyState icon={<Activity />} title="Şu anda hareket yok" description="Vitrininize trafik geldiğinde ziyaretçiler burada canlı görünür." /> : rows.slice(0, 12).map((event) => <ActivityRow key={event.id} event={event} currency={currency} />)}</div></section>
-        <section className="space-y-5"><ListCard title="En çok görüntülenen sayfalar" icon={<Eye />} items={topPages} /><ListCard title="Cihazlar" icon={<Smartphone />} items={devices} /><ListCard title="Ülkeler" icon={<MapPin />} items={countries} /></section>
-      </div>
     </AppShell>
   );
 }
 
-function TrendPill({ value }: { value: number }) {
-  const up = value >= 0;
-  return (
-    <span
-      className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${up ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}
-    >
-      <ArrowUpRight className={`size-3 ${up ? "" : "rotate-90"}`} />
-      {up ? "+" : ""}
-      {value.toFixed(0)}%
-    </span>
-  );
+type Stage = "visit" | "cart" | "checkout" | "purchase";
+type LiveSession = { id: string; last: string; path: string | null; city: string | null; country: string | null; device: string | null; source: string | null; stage: Stage; events: number };
+const STAGE_RANK: Record<Stage, number> = { visit: 0, cart: 1, checkout: 2, purchase: 3 };
+const STAGE_LABEL: Record<Stage, string> = { visit: "Geziniyor", cart: "Sepette", checkout: "Ödemede", purchase: "Satın aldı" };
+function kindStage(k: string): Stage {
+  return k === "add_to_cart" ? "cart" : k === "checkout" ? "checkout" : k === "purchase" ? "purchase" : "visit";
 }
-
-function MetricCard({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: string; hint: string }) {
-
-  return <div className="surface-card p-4 sm:p-5"><div className="flex items-center gap-2 text-xs text-muted-foreground sm:text-sm"><span className="text-brand [&>svg]:size-4">{icon}</span>{label}</div><p className="mt-2 font-display text-2xl font-semibold sm:mt-3 sm:text-3xl">{value}</p><p className="mt-1 truncate text-xs text-muted-foreground">{hint}</p></div>;
-}
-
-function LiveMap({ cities }: { cities: { label: string; count: number }[] }) {
-  const points = [{ x: 49, y: 47 }, { x: 55, y: 42 }, { x: 59, y: 54 }, { x: 45, y: 57 }, { x: 64, y: 48 }, { x: 37, y: 40 }, { x: 70, y: 60 }];
-  return <div className="relative min-h-72 overflow-hidden rounded-lg border border-border bg-brand-soft/50 p-3"><div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] [background-size:28px_28px]" /><svg viewBox="0 0 100 65" className="relative z-10 h-full min-h-64 w-full text-brand/25" aria-label="Dünya haritası üzerinde canlı ziyaretçi noktaları" role="img"><path fill="currentColor" d="M6 21 14 14l12 2 7-5 11 5 3 8-8 3-4 7-12-1-7 5-7-5-6-7zm41-9 8-5 12 2 6 7 11 2 6 9-6 6-12-2-6 7-10-3-4-10-8-5zM44 42l7 2 5 9-5 8-7-5-3-8zM68 45l8-3 10 5-4 7-10-1z" /><path fill="none" stroke="currentColor" strokeDasharray="1.5 2" d="M3 32h94M22 6c10 12 10 38 0 54M50 3c-7 17-7 40 0 59M78 6c-10 12-10 38 0 54" /></svg>{points.map((point, index) => <span key={`${point.x}-${point.y}`} className="absolute z-20 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background bg-brand shadow-sm" style={{ left: `${point.x}%`, top: `${point.y}%`, opacity: cities.length === 0 ? 0.3 : 1 - index * 0.09 }} />)}<div className="absolute bottom-4 left-4 z-20 flex items-center gap-2 rounded-full border border-border bg-background/90 px-3 py-1.5 text-xs shadow-sm"><span className="size-2 rounded-full bg-success" />Canlı bağlantılar</div></div>;
-}
-
-function DistributionRow({ item, rank, max }: { item: { label: string; count: number }; rank: number; max: number }) {
-  return <div><div className="mb-1.5 flex items-center justify-between gap-3 text-sm"><span className="flex min-w-0 items-center gap-2"><span className="grid size-5 shrink-0 place-items-center rounded-full bg-muted text-[10px] font-semibold">{rank + 1}</span><span className="truncate">{item.label}</span></span><span className="font-medium">{formatNumber(item.count)}</span></div><div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-brand" style={{ width: `${Math.max(8, (item.count / max) * 100)}%` }} /></div></div>;
-}
-
-function CartRow({ cart, index, currency }: { cart: { id: string; grand_total: number; currency: string; updated_at: string }; index: number; currency: string }) {
-  return <div className="flex items-center justify-between gap-3 rounded-md border border-border p-3"><div className="flex min-w-0 items-center gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-soft text-brand"><ShoppingCart className="size-4" /></span><div className="min-w-0"><p className="truncate text-sm font-medium">Ziyaretçi #{index + 1}</p><p className="text-xs text-muted-foreground">{timeAgo(cart.updated_at)} · devam ediyor</p></div></div><div className="text-right"><p className="text-sm font-semibold">{formatMoney(Number(cart.grand_total), cart.currency || currency)}</p><p className="text-xs text-muted-foreground">Sepet</p></div></div>;
-}
-
-function ActivityRow({ event, currency }: { event: { kind: string; path: string | null; city: string | null; country: string | null; device: string | null; value: number | string; currency: string; created_at: string }; currency: string }) {
-  const Icon = KIND_ICON[event.kind] ?? Activity;
-  return <div className="flex items-center gap-3 py-3"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-soft text-brand"><Icon className="size-4" /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm"><span className="font-medium">{KIND_LABELS[event.kind] ?? event.kind}</span><span className="truncate text-muted-foreground">{event.path ?? "Mağaza ana sayfası"}</span></div><p className="mt-0.5 truncate text-xs text-muted-foreground">{[event.city, event.country, event.device].filter(Boolean).join(" · ") || "Konum bilgisi bekleniyor"}</p></div><div className="shrink-0 text-right text-xs text-muted-foreground">{Number(event.value) > 0 ? <p className="text-sm font-medium text-foreground">{formatMoney(Number(event.value), event.currency || currency)}</p> : null}{timeAgo(event.created_at)}</div></div>;
-}
-
-function ListCard({ title, icon, items }: { title: string; icon: React.ReactNode; items: { label: string; count: number }[] }) {
-  return <div className="surface-card p-5"><div className="flex items-center gap-2"><span className="text-brand [&>svg]:size-4">{icon}</span><h2 className="font-medium">{title}</h2></div>{items.length === 0 ? <p className="mt-4 text-sm text-muted-foreground">Henüz veri yok.</p> : <ul className="mt-4 space-y-3">{items.map((item) => <li key={item.label} className="flex items-center justify-between gap-3 text-sm"><span className="truncate text-muted-foreground">{item.label}</span><span className="font-medium">{formatNumber(item.count)}</span></li>)}</ul>}<div className="mt-4 flex items-center gap-1 text-xs font-medium text-brand">Detayları gör<ChevronRight className="size-3" /></div></div>;
-}
-
-function MiniStat({ label, value }: { label: string; value: number }) {
-  return <div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-lg font-semibold">{formatNumber(value)}</p></div>;
-}
-
-function EmptyLine({ label }: { label: string }) { return <p className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">{label}</p>; }
-function EmptyState({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) { return <div className="grid place-items-center rounded-md border border-dashed border-border px-5 py-10 text-center"><span className="text-muted-foreground [&>svg]:size-6">{icon}</span><p className="mt-3 font-medium">{title}</p><p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p></div>; }
