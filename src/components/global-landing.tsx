@@ -255,10 +255,10 @@ export const LANDING_ALTERNATES = [
 
 /** Ana sayfa meta metinleri: Türkçe başlık/açıklamanın birebir karşılıkları. */
 const HOME_META: Record<LandingCopy["locale"], { title: string; description: string; ogLocale: string }> = {
-  en: { title: "Mefticaret — Build Your Online Store, Sell on Marketplaces", description: "Open your online store in minutes with Mefticaret; manage products, orders, payments, shipping and marketplace sales from one panel.", ogLocale: "en_US" },
-  de: { title: "Mefticaret — Onlineshop erstellen, auf Marktplätzen verkaufen", description: "Eröffnen Sie mit Mefticaret in wenigen Minuten Ihren Onlineshop und verwalten Sie Produkte, Bestellungen, Zahlungen, Versand und Marktplatzverkäufe in einem Panel.", ogLocale: "de_DE" },
-  fr: { title: "Mefticaret — Créez votre boutique en ligne, vendez sur les marketplaces", description: "Ouvrez votre boutique en ligne en quelques minutes avec Mefticaret ; gérez produits, commandes, paiements, livraisons et ventes sur marketplaces depuis un seul panneau.", ogLocale: "fr_FR" },
-  ar: { title: "مفتيجاريت — أنشئ متجرك الإلكتروني وبِع في الأسواق الإلكترونية", description: "افتح متجرك الإلكتروني في دقائق مع مفتيجاريت، وأدر المنتجات والطلبات والمدفوعات والشحن ومبيعات الأسواق الإلكترونية من لوحة واحدة.", ogLocale: "ar_AE" },
+  en: { title: "Mefticaret — E-Commerce Platform and Store Management", description: "Turkey's comprehensive SaaS e-commerce platform. Open your store in minutes; manage stock, orders, shipping and marketplace integrations from one panel.", ogLocale: "en_US" },
+  de: { title: "Mefticaret — E-Commerce-Plattform und Shopverwaltung", description: "Die umfassende SaaS-E-Commerce-Plattform aus der Türkei. Eröffnen Sie Ihren Shop in Minuten; verwalten Sie Lager, Bestellungen, Versand und Marktplatz-Integrationen in einem Panel.", ogLocale: "de_DE" },
+  fr: { title: "Mefticaret — Plateforme e-commerce et gestion de boutique", description: "La plateforme e-commerce SaaS complète de Turquie. Ouvrez votre boutique en quelques minutes ; gérez stock, commandes, livraisons et intégrations marketplaces depuis un seul panneau.", ogLocale: "fr_FR" },
+  ar: { title: "مفتيجاريت — منصة التجارة الإلكترونية وإدارة المتجر", description: "منصة التجارة الإلكترونية الشاملة بنظام SaaS من تركيا. افتح متجرك في دقائق، وأدر المخزون والطلبات والشحن وتكاملات الأسواق الإلكترونية من لوحة واحدة.", ogLocale: "ar_AE" },
 };
 
 const OG_IMAGE = "https://mefticaret.com/og-mefticaret.jpg";
