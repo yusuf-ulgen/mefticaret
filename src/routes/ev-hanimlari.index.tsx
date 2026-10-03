@@ -18,79 +18,18 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { getHomeMakerProfile } from "@/lib/home-maker.functions";
 import { requestPhoneOtp, verifyPhoneOtp } from "@/lib/kolay-v8.functions";
+import {
+  HOME_MAKER_LANG_LABEL,
+  HOME_MAKER_LOCALES,
+  homeMakerHead,
+  homeMakerPath,
+  hmT,
+  type HomeMakerLocale,
+} from "@/lib/home-maker-i18n";
 
 export const Route = createFileRoute("/ev-hanimlari/")({
-  head: () => {
-    const url = "https://mefticaret.com/ev-hanimlari";
-    const title = "Evden Satış Yap: El Emeği Ürünlerini Online Sat | Mefticaret";
-    const description =
-      "Ev hanımları için kolay online satış: el örgüsü, takı, ev yemeği, sabun ve dekor ürünlerinizi telefonunuzdan açacağınız mağazada satın.";
-    const categories = [
-      "El örgüsü ve tığ işi",
-      "Takı ve aksesuar",
-      "Ev yemekleri ve reçel",
-      "Doğal sabun ve kozmetik",
-      "Ev dekorasyonu",
-      "Bebek ve çocuk ürünleri",
-    ];
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        {
-          name: "keywords",
-          content:
-            "evden satış, ev hanımları online satış, el emeği ürün satma, el örgüsü satış, ev yemeği satışı, doğal sabun satışı, takı satışı",
-        },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { property: "og:url", content: url },
-        { property: "og:locale", content: "tr_TR" },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: description },
-      ],
-      links: [{ rel: "canonical", href: url }],
-      scripts: [
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@graph": [
-              {
-                "@type": "WebPage",
-                "@id": url,
-                url,
-                name: title,
-                description,
-                inLanguage: "tr-TR",
-                isPartOf: { "@type": "WebSite", name: "Mefticaret", url: "https://mefticaret.com" },
-                about: categories.map((name) => ({ "@type": "Thing", name })),
-              },
-              {
-                "@type": "ItemList",
-                name: "Ev hanımlarının satabileceği ürün kategorileri",
-                itemListElement: categories.map((name, i) => ({
-                  "@type": "ListItem",
-                  position: i + 1,
-                  name,
-                })),
-              },
-              {
-                "@type": "BreadcrumbList",
-                itemListElement: [
-                  { "@type": "ListItem", position: 1, name: "Mefticaret", item: "https://mefticaret.com/" },
-                  { "@type": "ListItem", position: 2, name: "Ev Hanımları", item: url },
-                ],
-              },
-            ],
-          }),
-        },
-      ],
-    };
-  },
-  component: HomeMakerAuthPage,
+  head: () => homeMakerHead("tr"),
+  component: () => <HomeMakerAuthPage locale="tr" />,
 });
 
 const PERKS = [
@@ -101,7 +40,8 @@ const PERKS = [
 
 type Mode = "phone" | "login" | "register";
 
-function HomeMakerAuthPage() {
+export function HomeMakerAuthPage({ locale }: { locale: HomeMakerLocale }) {
+  const t = (text: string) => hmT(locale, text);
   const navigate = useNavigate();
   const readProfile = useServerFn(getHomeMakerProfile);
   const sendCode = useServerFn(requestPhoneOtp);
@@ -152,15 +92,15 @@ function HomeMakerAuthPage() {
     event.preventDefault();
     const mail = email.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
-      toast.error("Geçerli bir e-posta adresi yazın.");
+      toast.error(t("Geçerli bir e-posta adresi yazın."));
       return;
     }
     if (password.length < 8) {
-      toast.error("Şifreniz en az 8 karakter olmalı.");
+      toast.error(t("Şifreniz en az 8 karakter olmalı."));
       return;
     }
     if (mode === "register" && fullName.trim().length < 2) {
-      toast.error("Adınızı yazın.");
+      toast.error(t("Adınızı yazın."));
       return;
     }
 
@@ -170,7 +110,7 @@ function HomeMakerAuthPage() {
         email: mail,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/ev-hanimlari`,
+          emailRedirectTo: `${window.location.origin}${homeMakerPath(locale)}`,
           data: { full_name: fullName.trim() },
         },
       });
@@ -181,10 +121,10 @@ function HomeMakerAuthPage() {
       }
       if (!data.session) {
         setConfirmSent(true);
-        toast.success("E-postanıza onay bağlantısı gönderdik.");
+        toast.success(t("E-postanıza onay bağlantısı gönderdik."));
         return;
       }
-      toast.success("Hoş geldiniz!");
+      toast.success(t("Hoş geldiniz!"));
       await routeAfterLogin();
       return;
     }
@@ -193,11 +133,11 @@ function HomeMakerAuthPage() {
     if (error) {
       setBusy(false);
       toast.error(
-        /invalid/i.test(error.message) ? "E-posta veya şifre hatalı." : error.message,
+        /invalid/i.test(error.message) ? t("E-posta veya şifre hatalı.") : error.message,
       );
       return;
     }
-    toast.success("Hoş geldiniz!");
+    toast.success(t("Hoş geldiniz!"));
     await routeAfterLogin();
     setBusy(false);
   }
@@ -209,9 +149,9 @@ function HomeMakerAuthPage() {
     try {
       await sendCode({ data: { phone } });
       setCodeSent(true);
-      toast.success("Kodu telefonunuza gönderdik.");
+      toast.success(t("Kodu telefonunuza gönderdik."));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Kod gönderilemedi.");
+      toast.error(error instanceof Error ? error.message : t("Kod gönderilemedi."));
     } finally {
       setBusy(false);
     }
@@ -228,10 +168,10 @@ function HomeMakerAuthPage() {
         token_hash: result.tokenHash,
       });
       if (error) throw new Error(error.message);
-      toast.success("Hoş geldiniz!");
+      toast.success(t("Hoş geldiniz!"));
       await routeAfterLogin();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Giriş yapılamadı.");
+      toast.error(error instanceof Error ? error.message : t("Giriş yapılamadı."));
     } finally {
       setBusy(false);
     }
@@ -241,15 +181,15 @@ function HomeMakerAuthPage() {
   void checking;
 
   return (
-    <div className="hm-app min-h-screen bg-hm-sand px-5 py-10">
+    <div className="hm-app min-h-screen bg-hm-sand px-5 py-10" dir={locale === "ar" ? "rtl" : "ltr"} lang={locale}>
       <div className="mx-auto w-full max-w-[420px]">
         <div className="mb-7 text-center">
           <span className="mx-auto grid size-14 place-items-center rounded-3xl bg-hm-rose/15 text-hm-rose">
             <Heart className="size-7" />
           </span>
-          <h1 className="mt-4 text-[26px] font-semibold leading-tight text-hm-ink">Evde Üretenler Portalı</h1>
+          <h1 className="mt-4 text-[26px] font-semibold leading-tight text-hm-ink">{t("Evde Üretenler Portalı")}</h1>
           <p className="mt-2 text-sm text-hm-ink-soft">
-            Telefon numaranızla kod alarak ya da e-posta ve şifrenizle girin.
+            {t("Telefon numaranızla kod alarak ya da e-posta ve şifrenizle girin.")}
           </p>
         </div>
 
@@ -269,7 +209,7 @@ function HomeMakerAuthPage() {
                   mode === value ? "bg-white text-hm-ink shadow-sm" : "text-hm-ink-soft"
                 }`}
               >
-                {value === "phone" ? "Telefonla" : value === "login" ? "Giriş yap" : "Hesap aç"}
+                {value === "phone" ? t("Telefonla") : value === "login" ? t("Giriş yap") : t("Hesap aç")}
               </button>
             ))}
           </div>
@@ -279,7 +219,7 @@ function HomeMakerAuthPage() {
               <form onSubmit={confirmCode} className="grid gap-4">
                 <div className="grid gap-2">
                   <label className="text-sm font-medium text-hm-ink" htmlFor="hm-code">
-                    Telefonunuza gelen 4 haneli kod
+                    {t("Telefonunuza gelen 4 haneli kod")}
                   </label>
                   <Input
                     id="hm-code"
@@ -298,7 +238,7 @@ function HomeMakerAuthPage() {
                   disabled={busy || code.length !== 4}
                   className="h-14 rounded-2xl bg-hm-rose text-base font-semibold text-white hover:bg-hm-rose/90"
                 >
-                  {busy ? <Loader2 className="size-5 animate-spin" /> : "Giriş yap"}
+                  {busy ? <Loader2 className="size-5 animate-spin" /> : t("Giriş yap")}
                 </Button>
                 <button
                   type="button"
@@ -308,14 +248,14 @@ function HomeMakerAuthPage() {
                   }}
                   className="text-center text-sm font-medium text-hm-ink-soft underline-offset-4 hover:underline"
                 >
-                  Numaramı değiştir / yeni kod isteyin
+                  {t("Numaramı değiştir / yeni kod isteyin")}
                 </button>
               </form>
             ) : (
               <form onSubmit={askCode} className="grid gap-4">
                 <div className="grid gap-2">
                   <label className="text-sm font-medium text-hm-ink" htmlFor="hm-phone">
-                    Telefon numaranız
+                    {t("Telefon numaranız")}
                   </label>
                   <div className="relative flex items-center">
                     <Phone className="pointer-events-none absolute left-4 size-5 text-hm-ink-soft" />
@@ -341,15 +281,15 @@ function HomeMakerAuthPage() {
                   {busy ? <Loader2 className="size-5 animate-spin" /> : "Kod gönder"}
                 </Button>
                 <p className="text-center text-xs text-hm-ink-soft">
-                  Kod ücretsizdir ve 5 dakika geçerlidir.
+                  {t("Kod ücretsizdir ve 5 dakika geçerlidir.")}
                 </p>
               </form>
             )
           ) : confirmSent ? (
             <div className="grid gap-3 rounded-2xl bg-hm-amber-soft p-4 text-sm text-hm-ink">
-              <p className="font-semibold">E-postanızı kontrol edin.</p>
+              <p className="font-semibold">{t("E-postanızı kontrol edin.")}</p>
               <p className="text-hm-ink-soft">
-                Gönderdiğimiz onay bağlantısına dokunduktan sonra bu sayfadan giriş yapabilirsiniz.
+                {t("Gönderdiğimiz onay bağlantısına dokunduktan sonra bu sayfadan giriş yapabilirsiniz.")}
               </p>
               <button
                 type="button"
@@ -359,7 +299,7 @@ function HomeMakerAuthPage() {
                 }}
                 className="text-left text-sm font-semibold text-hm-teal underline-offset-4 hover:underline"
               >
-                Girişe dön
+                {t("Girişe dön")}
               </button>
             </div>
           ) : (
@@ -367,7 +307,7 @@ function HomeMakerAuthPage() {
               {mode === "register" ? (
                 <div className="grid gap-2">
                   <label className="text-sm font-medium text-hm-ink" htmlFor="hm-name">
-                    Adınız
+                    {t("Adınız")}
                   </label>
                   <Input
                     id="hm-name"
@@ -384,7 +324,7 @@ function HomeMakerAuthPage() {
 
               <div className="grid gap-2">
                 <label className="text-sm font-medium text-hm-ink" htmlFor="hm-email">
-                  E-posta adresiniz
+                  {t("E-posta adresiniz")}
                 </label>
                 <div className="relative flex items-center">
                   <Mail className="pointer-events-none absolute left-4 size-5 text-hm-ink-soft" />
@@ -405,7 +345,7 @@ function HomeMakerAuthPage() {
 
               <div className="grid gap-2">
                 <label className="text-sm font-medium text-hm-ink" htmlFor="hm-password">
-                  Şifreniz
+                  {t("Şifreniz")}
                 </label>
                 <div className="relative flex items-center">
                   <Lock className="pointer-events-none absolute left-4 size-5 text-hm-ink-soft" />
@@ -416,7 +356,7 @@ function HomeMakerAuthPage() {
                     required
                     minLength={8}
                     maxLength={72}
-                    placeholder="En az 8 karakter"
+                    placeholder={t("En az 8 karakter")}
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     className="h-14 rounded-2xl border-hm-line pl-12 text-base"
@@ -432,9 +372,9 @@ function HomeMakerAuthPage() {
                 {busy ? (
                   <Loader2 className="size-5 animate-spin" />
                 ) : mode === "login" ? (
-                  "Giriş yap"
+                  t("Giriş yap")
                 ) : (
-                  "Hesabımı oluştur"
+                  t("Hesabımı oluştur")
                 )}
               </Button>
 
@@ -443,7 +383,7 @@ function HomeMakerAuthPage() {
                   href="/forgot-password"
                   className="text-center text-sm font-medium text-hm-ink-soft underline-offset-4 hover:underline"
                 >
-                  Şifremi unuttum
+                  {t("Şifremi unuttum")}
                 </a>
               ) : null}
             </form>
@@ -454,20 +394,33 @@ function HomeMakerAuthPage() {
           {PERKS.map((perk) => (
             <li key={perk} className="flex items-start gap-3 rounded-2xl bg-white/70 p-3 text-sm text-hm-ink">
               <Sparkles className="mt-0.5 size-4 shrink-0 text-hm-amber" />
-              {perk}
+              {t(perk)}
             </li>
           ))}
         </ul>
 
         <p className="mt-6 flex items-center justify-center gap-2 text-center text-xs text-hm-ink-soft">
-          <ShieldCheck className="size-4" /> Bilgileriniz KVKK kapsamında korunur
+          <ShieldCheck className="size-4" /> {t("Bilgileriniz KVKK kapsamında korunur")}
         </p>
         <a
           href="/auth"
           className="mt-4 flex items-center justify-center gap-1 text-xs font-medium text-hm-ink-soft"
         >
-          Kurumsal panele giriş <ArrowRight className="size-3" />
+          {t("Kurumsal panele giriş")} <ArrowRight className="size-3" />
         </a>
+        <nav aria-label={t("Dil")} className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs">
+          {HOME_MAKER_LOCALES.map((l) => (
+            <a
+              key={l}
+              href={homeMakerPath(l)}
+              hrefLang={l}
+              aria-current={l === locale ? "page" : undefined}
+              className={l === locale ? "font-semibold text-hm-ink" : "text-hm-ink-soft hover:underline"}
+            >
+              {HOME_MAKER_LANG_LABEL[l]}
+            </a>
+          ))}
+        </nav>
       </div>
     </div>
   );
