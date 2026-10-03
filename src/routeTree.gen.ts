@@ -194,6 +194,7 @@ import { Route as AuthenticatedStoreStoreIdChannelsRouteImport } from './routes/
 import { Route as AuthenticatedStoreStoreIdCohortsRouteImport } from './routes/_authenticated/store.$storeId.cohorts'
 import { Route as AuthenticatedStoreStoreIdCollectionsRouteImport } from './routes/_authenticated/store.$storeId.collections'
 import { Route as AuthenticatedStoreStoreIdCollectionsV2RouteImport } from './routes/_authenticated/store.$storeId.collections-v2'
+import { Route as AuthenticatedStoreStoreIdCookieBuilderRouteImport } from './routes/_authenticated/store.$storeId.cookie-builder'
 import { Route as AuthenticatedStoreStoreIdCopilotRouteImport } from './routes/_authenticated/store.$storeId.copilot'
 import { Route as AuthenticatedStoreStoreIdCustomerNotificationsRouteImport } from './routes/_authenticated/store.$storeId.customer-notifications'
 import { Route as AuthenticatedStoreStoreIdCustomerSegmentsRouteImport } from './routes/_authenticated/store.$storeId.customer-segments'
@@ -1375,6 +1376,12 @@ const AuthenticatedStoreStoreIdCollectionsV2Route =
   AuthenticatedStoreStoreIdCollectionsV2RouteImport.update({
     id: '/collections-v2',
     path: '/collections-v2',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
+const AuthenticatedStoreStoreIdCookieBuilderRoute =
+  AuthenticatedStoreStoreIdCookieBuilderRouteImport.update({
+    id: '/cookie-builder',
+    path: '/cookie-builder',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
 const AuthenticatedStoreStoreIdCopilotRoute =
@@ -2638,6 +2645,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/store/$storeId/collections-v2': typeof AuthenticatedStoreStoreIdCollectionsV2Route
+  '/store/$storeId/cookie-builder': typeof AuthenticatedStoreStoreIdCookieBuilderRoute
   '/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
   '/store/$storeId/customer-notifications': typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   '/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
@@ -3004,6 +3012,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/store/$storeId/collections-v2': typeof AuthenticatedStoreStoreIdCollectionsV2Route
+  '/store/$storeId/cookie-builder': typeof AuthenticatedStoreStoreIdCookieBuilderRoute
   '/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
   '/store/$storeId/customer-notifications': typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   '/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
@@ -3372,6 +3381,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/cohorts': typeof AuthenticatedStoreStoreIdCohortsRoute
   '/_authenticated/store/$storeId/collections': typeof AuthenticatedStoreStoreIdCollectionsRoute
   '/_authenticated/store/$storeId/collections-v2': typeof AuthenticatedStoreStoreIdCollectionsV2Route
+  '/_authenticated/store/$storeId/cookie-builder': typeof AuthenticatedStoreStoreIdCookieBuilderRoute
   '/_authenticated/store/$storeId/copilot': typeof AuthenticatedStoreStoreIdCopilotRoute
   '/_authenticated/store/$storeId/customer-notifications': typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   '/_authenticated/store/$storeId/customer-segments': typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
@@ -3743,6 +3753,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/cohorts'
     | '/store/$storeId/collections'
     | '/store/$storeId/collections-v2'
+    | '/store/$storeId/cookie-builder'
     | '/store/$storeId/copilot'
     | '/store/$storeId/customer-notifications'
     | '/store/$storeId/customer-segments'
@@ -4109,6 +4120,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/cohorts'
     | '/store/$storeId/collections'
     | '/store/$storeId/collections-v2'
+    | '/store/$storeId/cookie-builder'
     | '/store/$storeId/copilot'
     | '/store/$storeId/customer-notifications'
     | '/store/$storeId/customer-segments'
@@ -4476,6 +4488,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/cohorts'
     | '/_authenticated/store/$storeId/collections'
     | '/_authenticated/store/$storeId/collections-v2'
+    | '/_authenticated/store/$storeId/cookie-builder'
     | '/_authenticated/store/$storeId/copilot'
     | '/_authenticated/store/$storeId/customer-notifications'
     | '/_authenticated/store/$storeId/customer-segments'
@@ -6102,6 +6115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCollectionsV2RouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/cookie-builder': {
+      id: '/_authenticated/store/$storeId/cookie-builder'
+      path: '/cookie-builder'
+      fullPath: '/store/$storeId/cookie-builder'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdCookieBuilderRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/copilot': {
       id: '/_authenticated/store/$storeId/copilot'
       path: '/copilot'
@@ -7658,6 +7678,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdCohortsRoute: typeof AuthenticatedStoreStoreIdCohortsRoute
   AuthenticatedStoreStoreIdCollectionsRoute: typeof AuthenticatedStoreStoreIdCollectionsRoute
   AuthenticatedStoreStoreIdCollectionsV2Route: typeof AuthenticatedStoreStoreIdCollectionsV2Route
+  AuthenticatedStoreStoreIdCookieBuilderRoute: typeof AuthenticatedStoreStoreIdCookieBuilderRoute
   AuthenticatedStoreStoreIdCopilotRoute: typeof AuthenticatedStoreStoreIdCopilotRoute
   AuthenticatedStoreStoreIdCustomerNotificationsRoute: typeof AuthenticatedStoreStoreIdCustomerNotificationsRoute
   AuthenticatedStoreStoreIdCustomerSegmentsRoute: typeof AuthenticatedStoreStoreIdCustomerSegmentsRoute
@@ -7820,6 +7841,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdCollectionsRoute,
     AuthenticatedStoreStoreIdCollectionsV2Route:
       AuthenticatedStoreStoreIdCollectionsV2Route,
+    AuthenticatedStoreStoreIdCookieBuilderRoute:
+      AuthenticatedStoreStoreIdCookieBuilderRoute,
     AuthenticatedStoreStoreIdCopilotRoute:
       AuthenticatedStoreStoreIdCopilotRoute,
     AuthenticatedStoreStoreIdCustomerNotificationsRoute:
