@@ -93,7 +93,7 @@ function AdminAnalyticsGate() {
   return <AdminAnalyticsPage onEnableV2={flag.data ? () => void toggle(true) : undefined} />;
 }
 
-function AdminAnalyticsPage({ onEnableV2 }: { onEnableV2?: () => void }) {
+function AdminAnalyticsPage({ onEnableV2 }: { onEnableV2?: (() => void) | undefined }) {
   const { isPlatformAdmin } = useAuth();
   const [days, setDays] = useState<number>(30);
   const { data, isLoading } = useQuery(platformAnalyticsQuery(days, isPlatformAdmin));

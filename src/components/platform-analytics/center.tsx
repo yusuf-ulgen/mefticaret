@@ -92,7 +92,7 @@ function MetricInfo({ k }: { k: string }) {
   );
 }
 
-function Change({ cur, prev, invert = false }: { cur: number | null; prev: number | null; invert?: boolean }) {
+function Change({ cur, prev, invert = false }: { cur: number | null; prev: number | null; invert?: boolean | undefined }) {
   if (prev === null) return <span className="text-[11px] text-muted-foreground">Karşılaştırma kapalı</span>;
   const ch = safeChange(cur, prev);
   if (ch === null) return <span className="text-[11px] text-muted-foreground">Karşılaştırma yok</span>;
@@ -119,7 +119,7 @@ function Spark({ data, k }: { data: Record<string, number | string | null>[]; k:
   );
 }
 
-function Kpi({ label, metric, value, cur, prev, invert, spark, onOpen, note }: { label: string; metric?: string; value: string; cur?: number | null; prev?: number | null; invert?: boolean; spark?: ReactNode; onOpen?: () => void; note?: string }) {
+function Kpi({ label, metric, value, cur, prev, invert, spark, onOpen, note }: { label: string; metric?: string | undefined; value: string; cur?: number | null | undefined; prev?: number | null | undefined; invert?: boolean | undefined; spark?: ReactNode; onOpen?: (() => void) | undefined; note?: string | undefined }) {
   return (
     <div
       role={onOpen ? "button" : undefined}
