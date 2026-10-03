@@ -120,6 +120,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
         { label: "e-Ticaret Satışları", to: p("orders"), icon: ShoppingBag, keywords: "sipariş" },
         { label: "Perakende Satış", to: p("retail"), icon: Store, keywords: "kasa pos mağaza perakende satışlar" },
         { label: "Yeni Sipariş", to: p("orders/new"), icon: ShoppingCart, keywords: "manuel sipariş" },
+        { label: "Ödeme Bildirimleri", to: p("payment-notices"), icon: Banknote, keywords: "havale eft ödeme bekleyen dekont" },
         { label: "Sevkiyatlar", to: p("shipments"), icon: Truck, keywords: "kargo" },
         { label: "İadeler", to: p("returns"), icon: RotateCcw },
         { label: "İptal & Kayıp", to: p("losses"), icon: TrendingDown, keywords: "iptal edilenler" },

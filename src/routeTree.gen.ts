@@ -244,6 +244,7 @@ import { Route as AuthenticatedStoreStoreIdOauthRouteImport } from './routes/_au
 import { Route as AuthenticatedStoreStoreIdOrdersRouteImport } from './routes/_authenticated/store.$storeId.orders'
 import { Route as AuthenticatedStoreStoreIdPagesRouteImport } from './routes/_authenticated/store.$storeId.pages'
 import { Route as AuthenticatedStoreStoreIdPanelsRouteImport } from './routes/_authenticated/store.$storeId.panels'
+import { Route as AuthenticatedStoreStoreIdPaymentNoticesRouteImport } from './routes/_authenticated/store.$storeId.payment-notices'
 import { Route as AuthenticatedStoreStoreIdPaymentsRouteImport } from './routes/_authenticated/store.$storeId.payments'
 import { Route as AuthenticatedStoreStoreIdPoliciesRouteImport } from './routes/_authenticated/store.$storeId.policies'
 import { Route as AuthenticatedStoreStoreIdPopupsRouteImport } from './routes/_authenticated/store.$storeId.popups'
@@ -1672,6 +1673,12 @@ const AuthenticatedStoreStoreIdPanelsRoute =
     path: '/panels',
     getParentRoute: () => AuthenticatedStoreStoreIdRoute,
   } as any)
+const AuthenticatedStoreStoreIdPaymentNoticesRoute =
+  AuthenticatedStoreStoreIdPaymentNoticesRouteImport.update({
+    id: '/payment-notices',
+    path: '/payment-notices',
+    getParentRoute: () => AuthenticatedStoreStoreIdRoute,
+  } as any)
 const AuthenticatedStoreStoreIdPaymentsRoute =
   AuthenticatedStoreStoreIdPaymentsRouteImport.update({
     id: '/payments',
@@ -2653,6 +2660,7 @@ export interface FileRoutesByFullPath {
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/panels': typeof AuthenticatedStoreStoreIdPanelsRoute
+  '/store/$storeId/payment-notices': typeof AuthenticatedStoreStoreIdPaymentNoticesRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
   '/store/$storeId/policies': typeof AuthenticatedStoreStoreIdPoliciesRoute
   '/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
@@ -3013,6 +3021,7 @@ export interface FileRoutesByTo {
   '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/panels': typeof AuthenticatedStoreStoreIdPanelsRoute
+  '/store/$storeId/payment-notices': typeof AuthenticatedStoreStoreIdPaymentNoticesRoute
   '/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
   '/store/$storeId/policies': typeof AuthenticatedStoreStoreIdPoliciesRoute
   '/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
@@ -3377,6 +3386,7 @@ export interface FileRoutesById {
   '/_authenticated/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/_authenticated/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/_authenticated/store/$storeId/panels': typeof AuthenticatedStoreStoreIdPanelsRoute
+  '/_authenticated/store/$storeId/payment-notices': typeof AuthenticatedStoreStoreIdPaymentNoticesRoute
   '/_authenticated/store/$storeId/payments': typeof AuthenticatedStoreStoreIdPaymentsRoute
   '/_authenticated/store/$storeId/policies': typeof AuthenticatedStoreStoreIdPoliciesRoute
   '/_authenticated/store/$storeId/popups': typeof AuthenticatedStoreStoreIdPopupsRoute
@@ -3743,6 +3753,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders'
     | '/store/$storeId/pages'
     | '/store/$storeId/panels'
+    | '/store/$storeId/payment-notices'
     | '/store/$storeId/payments'
     | '/store/$storeId/policies'
     | '/store/$storeId/popups'
@@ -4103,6 +4114,7 @@ export interface FileRouteTypes {
     | '/store/$storeId/orders'
     | '/store/$storeId/pages'
     | '/store/$storeId/panels'
+    | '/store/$storeId/payment-notices'
     | '/store/$storeId/payments'
     | '/store/$storeId/policies'
     | '/store/$storeId/popups'
@@ -4466,6 +4478,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store/$storeId/orders'
     | '/_authenticated/store/$storeId/pages'
     | '/_authenticated/store/$storeId/panels'
+    | '/_authenticated/store/$storeId/payment-notices'
     | '/_authenticated/store/$storeId/payments'
     | '/_authenticated/store/$storeId/policies'
     | '/_authenticated/store/$storeId/popups'
@@ -6387,6 +6400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStoreStoreIdPanelsRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdRoute
     }
+    '/_authenticated/store/$storeId/payment-notices': {
+      id: '/_authenticated/store/$storeId/payment-notices'
+      path: '/payment-notices'
+      fullPath: '/store/$storeId/payment-notices'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdPaymentNoticesRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdRoute
+    }
     '/_authenticated/store/$storeId/payments': {
       id: '/_authenticated/store/$storeId/payments'
       path: '/payments'
@@ -7608,6 +7628,7 @@ interface AuthenticatedStoreStoreIdRouteChildren {
   AuthenticatedStoreStoreIdOrdersRoute: typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   AuthenticatedStoreStoreIdPagesRoute: typeof AuthenticatedStoreStoreIdPagesRoute
   AuthenticatedStoreStoreIdPanelsRoute: typeof AuthenticatedStoreStoreIdPanelsRoute
+  AuthenticatedStoreStoreIdPaymentNoticesRoute: typeof AuthenticatedStoreStoreIdPaymentNoticesRoute
   AuthenticatedStoreStoreIdPaymentsRoute: typeof AuthenticatedStoreStoreIdPaymentsRoute
   AuthenticatedStoreStoreIdPoliciesRoute: typeof AuthenticatedStoreStoreIdPoliciesRoute
   AuthenticatedStoreStoreIdPopupsRoute: typeof AuthenticatedStoreStoreIdPopupsRoute
@@ -7799,6 +7820,8 @@ const AuthenticatedStoreStoreIdRouteChildren: AuthenticatedStoreStoreIdRouteChil
       AuthenticatedStoreStoreIdOrdersRouteWithChildren,
     AuthenticatedStoreStoreIdPagesRoute: AuthenticatedStoreStoreIdPagesRoute,
     AuthenticatedStoreStoreIdPanelsRoute: AuthenticatedStoreStoreIdPanelsRoute,
+    AuthenticatedStoreStoreIdPaymentNoticesRoute:
+      AuthenticatedStoreStoreIdPaymentNoticesRoute,
     AuthenticatedStoreStoreIdPaymentsRoute:
       AuthenticatedStoreStoreIdPaymentsRoute,
     AuthenticatedStoreStoreIdPoliciesRoute:
