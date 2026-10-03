@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BildirimIptalRouteImport } from './routes/bildirim-iptal'
 import { Route as DropshippingNasilYapilirRouteImport } from './routes/dropshipping-nasil-yapilir'
+import { Route as ETicaretMaliyetiRouteImport } from './routes/e-ticaret-maliyeti'
 import { Route as ETicaretNasilYapilirRouteImport } from './routes/e-ticaret-nasil-yapilir'
 import { Route as ETicaretPaketleriRouteImport } from './routes/e-ticaret-paketleri'
 import { Route as ETicaretSitesiKurmaRouteImport } from './routes/e-ticaret-sitesi-kurma'
@@ -396,6 +397,11 @@ const DropshippingNasilYapilirRoute =
     path: '/dropshipping-nasil-yapilir',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ETicaretMaliyetiRoute = ETicaretMaliyetiRouteImport.update({
+  id: '/e-ticaret-maliyeti',
+  path: '/e-ticaret-maliyeti',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ETicaretNasilYapilirRoute = ETicaretNasilYapilirRouteImport.update({
   id: '/e-ticaret-nasil-yapilir',
   path: '/e-ticaret-nasil-yapilir',
@@ -2412,6 +2418,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/bildirim-iptal': typeof BildirimIptalRoute
   '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
+  '/e-ticaret-maliyeti': typeof ETicaretMaliyetiRoute
   '/e-ticaret-nasil-yapilir': typeof ETicaretNasilYapilirRoute
   '/e-ticaret-paketleri': typeof ETicaretPaketleriRoute
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
@@ -2774,6 +2781,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/bildirim-iptal': typeof BildirimIptalRoute
   '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
+  '/e-ticaret-maliyeti': typeof ETicaretMaliyetiRoute
   '/e-ticaret-nasil-yapilir': typeof ETicaretNasilYapilirRoute
   '/e-ticaret-paketleri': typeof ETicaretPaketleriRoute
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
@@ -3132,6 +3140,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/bildirim-iptal': typeof BildirimIptalRoute
   '/dropshipping-nasil-yapilir': typeof DropshippingNasilYapilirRoute
+  '/e-ticaret-maliyeti': typeof ETicaretMaliyetiRoute
   '/e-ticaret-nasil-yapilir': typeof ETicaretNasilYapilirRoute
   '/e-ticaret-paketleri': typeof ETicaretPaketleriRoute
   '/e-ticaret-sitesi-kurma': typeof ETicaretSitesiKurmaRoute
@@ -3496,6 +3505,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bildirim-iptal'
     | '/dropshipping-nasil-yapilir'
+    | '/e-ticaret-maliyeti'
     | '/e-ticaret-nasil-yapilir'
     | '/e-ticaret-paketleri'
     | '/e-ticaret-sitesi-kurma'
@@ -3858,6 +3868,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bildirim-iptal'
     | '/dropshipping-nasil-yapilir'
+    | '/e-ticaret-maliyeti'
     | '/e-ticaret-nasil-yapilir'
     | '/e-ticaret-paketleri'
     | '/e-ticaret-sitesi-kurma'
@@ -4215,6 +4226,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bildirim-iptal'
     | '/dropshipping-nasil-yapilir'
+    | '/e-ticaret-maliyeti'
     | '/e-ticaret-nasil-yapilir'
     | '/e-ticaret-paketleri'
     | '/e-ticaret-sitesi-kurma'
@@ -4579,6 +4591,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BildirimIptalRoute: typeof BildirimIptalRoute
   DropshippingNasilYapilirRoute: typeof DropshippingNasilYapilirRoute
+  ETicaretMaliyetiRoute: typeof ETicaretMaliyetiRoute
   ETicaretNasilYapilirRoute: typeof ETicaretNasilYapilirRoute
   ETicaretPaketleriRoute: typeof ETicaretPaketleriRoute
   ETicaretSitesiKurmaRoute: typeof ETicaretSitesiKurmaRoute
@@ -4749,6 +4762,13 @@ declare module '@tanstack/react-router' {
       path: '/dropshipping-nasil-yapilir'
       fullPath: '/dropshipping-nasil-yapilir'
       preLoaderRoute: typeof DropshippingNasilYapilirRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/e-ticaret-maliyeti': {
+      id: '/e-ticaret-maliyeti'
+      path: '/e-ticaret-maliyeti'
+      fullPath: '/e-ticaret-maliyeti'
+      preLoaderRoute: typeof ETicaretMaliyetiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/e-ticaret-nasil-yapilir': {
@@ -7922,6 +7942,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BildirimIptalRoute: BildirimIptalRoute,
   DropshippingNasilYapilirRoute: DropshippingNasilYapilirRoute,
+  ETicaretMaliyetiRoute: ETicaretMaliyetiRoute,
   ETicaretNasilYapilirRoute: ETicaretNasilYapilirRoute,
   ETicaretPaketleriRoute: ETicaretPaketleriRoute,
   ETicaretSitesiKurmaRoute: ETicaretSitesiKurmaRoute,
