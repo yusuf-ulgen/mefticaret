@@ -17,3 +17,4 @@
 - Tedarikci Katalogu (magazaya aktar + otomatik fiyat/stok esitleme) yalniz supplier-catalog.functions.ts / supplier-catalog.server.ts uzerinden calisir; store_supplier_imports tablosuna istemci yazamaz — neden: kiracilar arasi sizinti olmadan tum magazalar tum tedarikcileri gorebilsin.
 
 - Platform ana sayfası tek bileşendir (src/components/platform-home.tsx); TR/EN/DE/FR/AR rotaları onu locale ile render eder, metinler landing-dict.ts sözlüğünden (Türkçe metin anahtar) çevrilir — neden: diller arasında düzen birebir aynı kalsın.
+- Ev Hanımları giriş sayfası tek bileşendir (home-maker-auth-page.tsx); TR/EN/DE/FR/AR rotaları onu locale ile render eder, metin ve meta home-maker-i18n.ts içindedir — neden: diller arasında düzen aynı kalsın.
