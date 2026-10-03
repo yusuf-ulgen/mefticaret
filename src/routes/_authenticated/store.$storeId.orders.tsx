@@ -154,6 +154,7 @@ function OrdersPage() {
       update({ data: { orderId: vars.orderId, patch: { status: vars.status as never } } }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["orders", storeId] });
+      await queryClient.invalidateQueries({ queryKey: ["order"] });
       toast.success("Sipariş durumu güncellendi");
     },
     onError: (error: Error) => toast.error(error.message),
