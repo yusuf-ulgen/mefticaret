@@ -84,7 +84,7 @@ export function WokieeProductCard({
   const [hover, setHover] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const badges = resolveDesignTokens((theme as { design_tokens?: unknown }).design_tokens).badges;
+  const badges = resolveDesignTokens((theme as { design_tokens?: unknown } | null | undefined)?.design_tokens).badges;
   const price = Number(product.livePrice ?? product.base_price);
   const compareAt = product.compare_at_price ? Number(product.compare_at_price) : null;
   const off = discountPercent(price, compareAt);

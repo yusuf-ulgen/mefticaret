@@ -34,7 +34,7 @@ export function CartDrawer({
 
   const lines = cart.linesFor(storeSlug);
   const subtotal = cart.subtotalFor(storeSlug);
-  const design = resolveDesignTokens((theme as { design_tokens?: unknown }).design_tokens).commerce;
+  const design = resolveDesignTokens((theme as { design_tokens?: unknown } | null | undefined)?.design_tokens).commerce;
   const override = design['freeShippingThreshold'] > 0 ? design['freeShippingThreshold'] : null;
   const threshold = design['freeShippingBar'] ? (override ?? commerce?.freeShippingThreshold ?? null) : null;
   const remaining = threshold ? Math.max(0, threshold - subtotal) : 0;
