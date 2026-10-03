@@ -118,7 +118,8 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       icon: ShoppingBag,
       items: [
         { label: "e-Ticaret Satışları", to: p("orders"), icon: ShoppingBag, keywords: "sipariş" },
-        { label: "Yeni Sipariş", to: p("orders/new"), icon: ShoppingCart, keywords: "manuel sipariş perakende" },
+        { label: "Perakende Satış", to: p("retail"), icon: Store, keywords: "kasa pos mağaza perakende satışlar" },
+        { label: "Yeni Sipariş", to: p("orders/new"), icon: ShoppingCart, keywords: "manuel sipariş" },
         { label: "Sevkiyatlar", to: p("shipments"), icon: Truck, keywords: "kargo" },
         { label: "İadeler", to: p("returns"), icon: RotateCcw },
         { label: "İptal & Kayıp", to: p("losses"), icon: TrendingDown, keywords: "iptal edilenler" },

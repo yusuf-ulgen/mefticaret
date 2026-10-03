@@ -20,7 +20,9 @@ export const manualOrderSchema = z.object({
     phone: z.string().trim().max(40).optional().nullable(),
   }),
   /** Siparişin nereden geldiği: whatsapp, phone veya manual. */
-  source: z.enum(["manual", "whatsapp", "phone"]).default("manual"),
+  source: z.enum(["manual", "whatsapp", "phone", "pos"]).default("manual"),
+  /** Perakende (mağaza kasası) satışlarında ödeme şekli. */
+  posPaymentMethod: z.enum(["cash", "card", "transfer"]).optional().nullable(),
   address: z
     .object({
       city: z.string().trim().max(80).optional().nullable(),
@@ -105,31 +107,32 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
 
   const email = input.customer.email?.trim().toLowerCase() || null;
   const phone = input.customer.phone?.trim() || null;
-  if (!email && !phone) throw new Error("Müşteri için telefon veya e-posta gerekli.");
+  const walkIn = input.source === "pos" && !email && !phone;
+  if (!email && !phone && !walkIn) throw new Error("Müşteri için telefon veya e-posta gerekli.");
 
   // Aynı müşteriyi iki kez açmamak için önce e-posta, yoksa telefon ile eşleşme aranır.
-  const matcher = supabase
-    .from("customers")
-    .select("id, orders_count, total_spent")
-    .eq("store_id", store.id);
-  const { data: existingCustomer } = email
-    ? await matcher.ilike("email", email).maybeSingle()
-    : await matcher.eq("phone", phone!).maybeSingle();
-
-  let customerId = existingCustomer?.id ?? null;
-  if (!customerId) {
-    const { data: inserted, error: customerError } = await supabase
+  // Kasada bilgisi alınmayan perakende müşteri için müşteri kaydı açılmaz.
+  let existingCustomer: { id: string; orders_count: number | null; total_spent: number | null } | null = null;
+  let customerId: string | null = null;
+  if (!walkIn) {
+    const matcher = supabase
       .from("customers")
-      .insert({
-        store_id: store.id,
-        full_name: input.customer.fullName,
-        email,
-        phone,
-      })
-      .select("id")
-      .single();
-    if (customerError) throw new Error(customerError.message);
-    customerId = inserted.id;
+      .select("id, orders_count, total_spent")
+      .eq("store_id", store.id);
+    const { data: found } = email
+      ? await matcher.ilike("email", email).maybeSingle()
+      : await matcher.eq("phone", phone!).maybeSingle();
+    existingCustomer = found ?? null;
+    customerId = existingCustomer?.id ?? null;
+    if (!customerId) {
+      const { data: inserted, error: customerError } = await supabase
+        .from("customers")
+        .insert({ store_id: store.id, full_name: input.customer.fullName, email, phone })
+        .select("id")
+        .single();
+      if (customerError) throw new Error(customerError.message);
+      customerId = inserted.id;
+    }
   }
 
   const addressJson = input.address
@@ -205,6 +208,8 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
   const sourceLabel =
     input.source === "whatsapp"
       ? "WhatsApp siparişi panele kaydedildi"
+      : input.source === "pos"
+        ? "Perakende satış (mağaza kasası) kaydedildi"
       : input.source === "phone"
         ? "Telefon siparişi panele kaydedildi"
         : "Panelden manuel sipariş oluşturuldu";
@@ -213,7 +218,7 @@ export async function createManualOrder(supabase: Client, input: ManualOrderInpu
     store_id: store.id,
     kind: "created",
     message: sourceLabel,
-    meta: { source: input.source },
+    meta: { source: input.source, pos_payment_method: input.posPaymentMethod ?? null },
   });
 
   if (existingCustomer) {

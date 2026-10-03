@@ -31,7 +31,7 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 
 ## Referans panel (foursid) eksik uygulamaları — sırayla yapılacak
 - [x] Menü grupları/sırası referansla aynı (Genel, Katalog, Satışlar, Kullanıcılar, İçerik, Pazarlama, İstatistikler, Uygulamalar, Genel Ayarlar, Operasyon Yönetimi)
-- [ ] Perakende Satış (POS) + Perakende Satışlar/Müşteriler/Rapor
+- [x] Perakende Satış (kasa + perakende satışlar listesi)
 - [ ] Ödeme Bildirimleri (havale bildirimi onayı)
 - [ ] Misafir Kullanıcılar listesi
 - [ ] Pazarlama izinleri (KVKK abonelik/izin listesi)
