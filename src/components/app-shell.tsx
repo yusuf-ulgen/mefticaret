@@ -45,7 +45,7 @@ import { useSellerDesignV2 } from "@/lib/seller-design";
 const PIN_STORAGE_KEY = "mefti:pinned-nav";
 
 /** Kokpit sağ paneli: geniş ekranda bekleyen işler (gerçek sayılar) ve hızlı geçişler. */
-function CockpitRail({ storeId }: { storeId: string }) {
+export function CockpitRail({ storeId }: { storeId: string }) {
   const { data } = useQuery(storeActionItemsQuery(storeId));
   const items = [
     { label: "Bekleyen sipariş", count: data?.pendingOrders, to: "/store/$storeId/orders" as const },
