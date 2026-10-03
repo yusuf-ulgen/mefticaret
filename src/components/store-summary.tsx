@@ -40,7 +40,8 @@ export function StoreSummary({ storeId }: { storeId: string }) {
   });
 
   const money = (t: [string, number][]) => (t.length ? t.map(([c, v]) => formatMoney(v, c)).join(" · ") : formatMoney(0));
-  const aov: [string, number][] = data && data.totals.length === 1 && data.paidCount ? [[data.totals[0][0], data.totals[0][1] / data.paidCount]] : [];
+  const only = data?.totals.length === 1 ? data.totals[0] : undefined;
+  const aov: [string, number][] = only && data?.paidCount ? [[only[0], only[1] / data.paidCount]] : [];
   const cards = [
     { label: "Sipariş", value: data ? String(data.orders) : "" },
     { label: "Ciro (ödenen)", value: data ? money(data.totals) : "" },
