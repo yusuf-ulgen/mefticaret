@@ -27,3 +27,4 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [x] Kayıt/giriş (tanıtım, 6 haneli kod, Google/Apple, şifre sıfırlama), mağaza bağlama, QR/rehber, profil kartı, engelle/şikayet, gizlilik, bildirim ayarları, KVKK indir/sil, açık rıza, TR/EN giriş
 - [ ] Şikayet moderasyon ekranı (Süper Admin)
 - [ ] App Store / Google Play: yerel uygulama derlemesi burada yapılamaz
+- [ ] E-ticaret sitesi kurma maliyeti rehberi (/e-ticaret-maliyeti)
