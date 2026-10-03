@@ -39,5 +39,5 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [x] Takvim
 - [x] Cookie Builder (çerez bandı oluşturucu)
 - [x] Hızlı Güncelleme tablosu (fiyat/stok satır içi)
-- [ ] Ana sayfa "Mağaza özeti" (Bugün/Dün/1 Hafta/30 Gün) + sipariş sayfası özet kartları/sekmeler
+- [x] Ana sayfa "Mağaza özeti" (Bugün/Dün/1 Hafta/30 Gün) + sipariş sayfası özet kartları/sekmeler
 - Yapılmayacak: Forsid Buket, Magenty, Artboard, OpenAI Ads, Fast Cart (referansa özel ürünler/markalar)
