@@ -88,6 +88,7 @@ function NavLinkRow({
       <Link
         to={item.to}
         onClick={onNavigate}
+        aria-current={active ? "page" : undefined}
         className={cn(
           "flex items-center gap-2.5 rounded-lg py-1.5 pl-2 pr-8 text-[0.84rem] font-medium text-sidebar-foreground/85 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
           active && "bg-sidebar-accent font-semibold text-sidebar-accent-foreground",
@@ -444,9 +445,10 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const v2 = useSellerDesignV2();
 
   const sidebar = storeId ? (
-    <div className="flex h-full min-h-0 flex-col gap-4 p-3">
+    <div className={cn("flex h-full min-h-0 flex-col gap-4 p-3", v2 && "seller-v2-nav")}>
       <div className="lg:hidden">
         <Link to="/stores" className="flex items-center gap-2 px-1 py-1">
           <span className="grid size-8 place-items-center rounded-lg brand-gradient text-brand-foreground">
@@ -465,7 +467,7 @@ export function AppShell({
   ) : null;
 
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className={cn("min-h-screen", v2 ? "seller-v2 bg-background text-foreground" : "bg-muted/40")}>
       <a href="#panel-content" className="skip-link">
         İçeriğe geç
       </a>
