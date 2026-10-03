@@ -82,6 +82,7 @@ export const HOME_MAKER_META: Record<HomeMakerLocale, Meta> = {
 type Dict = Record<string, string>;
 
 const EN: Dict = {
+  "Kod gönder": "Send code",
   "Tek ekranda mağaza, ürün ve sipariş": "Shop, products and orders on one screen",
   "Fotoğraf arka planını yapay zeka temizler": "AI cleans up your photo backgrounds",
   "Kargosuz teslimat için kod üretir": "Generates codes for hand delivery without shipping",
@@ -119,6 +120,7 @@ const EN: Dict = {
 };
 
 const DE: Dict = {
+  "Kod gönder": "Code senden",
   "Tek ekranda mağaza, ürün ve sipariş": "Shop, Produkte und Bestellungen auf einem Bildschirm",
   "Fotoğraf arka planını yapay zeka temizler": "KI bereinigt den Hintergrund Ihrer Fotos",
   "Kargosuz teslimat için kod üretir": "Erstellt Codes für die persönliche Übergabe ohne Versand",
@@ -156,6 +158,7 @@ const DE: Dict = {
 };
 
 const FR: Dict = {
+  "Kod gönder": "Envoyer le code",
   "Tek ekranda mağaza, ürün ve sipariş": "Boutique, produits et commandes sur un seul écran",
   "Fotoğraf arka planını yapay zeka temizler": "L'IA nettoie l'arrière-plan de vos photos",
   "Kargosuz teslimat için kod üretir": "Génère des codes pour la remise en main propre",
@@ -193,6 +196,7 @@ const FR: Dict = {
 };
 
 const AR: Dict = {
+  "Kod gönder": "إرسال الرمز",
   "Tek ekranda mağaza, ürün ve sipariş": "المتجر والمنتجات والطلبات في شاشة واحدة",
   "Fotoğraf arka planını yapay zeka temizler": "الذكاء الاصطناعي ينظّف خلفية صورك",
   "Kargosuz teslimat için kod üretir": "ينشئ رموزًا للتسليم باليد بدون شحن",

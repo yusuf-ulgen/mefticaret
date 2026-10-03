@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { LANDING_ALTERNATES } from "@/components/global-landing";
 import { PlatformHome } from "@/components/platform-home";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -85,7 +86,11 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: "https://mefticaret.com/og-mefticaret.jpg" },
     ],
-    links: [{ rel: "canonical", href: "https://mefticaret.com/" }],
+    links: [
+      { rel: "canonical", href: "https://mefticaret.com/" },
+      ...LANDING_ALTERNATES.map((alt) => ({ rel: "alternate", hrefLang: alt.hrefLang, href: alt.href })),
+      { rel: "alternate", hrefLang: "x-default", href: "https://mefticaret.com/" },
+    ],
     scripts: [
       {
         type: "application/ld+json",
@@ -94,6 +99,7 @@ export const Route = createFileRoute("/")({
           "@type": "SoftwareApplication",
           name: "Mefticaret",
           applicationCategory: "BusinessApplication",
+          applicationSubCategory: "E-commerce",
           operatingSystem: "Web",
           url: "https://mefticaret.com/",
           image: "https://mefticaret.com/og-mefticaret.jpg",
