@@ -188,10 +188,10 @@ function LiveViewPage() {
 
   return (
     <AppShell storeId={storeId} title="Canlı Akış">
-      <div className="grid min-h-[70vh] grid-cols-1 overflow-hidden rounded-2xl border bg-card lg:grid-cols-[1fr_320px]">
+      <div className="grid grid-cols-1 lg:min-h-[70vh] overflow-hidden rounded-2xl border bg-card lg:grid-cols-[1fr_320px]">
         {/* Sol: canlı alan */}
-        <div className="relative flex min-h-[460px] flex-col bg-muted/40">
-          <Globe2 aria-hidden strokeWidth={0.4} className="pointer-events-none absolute inset-0 m-auto size-[min(80%,520px)] text-foreground/5" />
+        <div className="relative flex min-h-[320px] flex-col lg:min-h-[460px] bg-muted/40">
+          <Globe2 aria-hidden strokeWidth={0.4} className="pointer-events-none absolute inset-0 m-auto hidden size-[min(80%,520px)] text-foreground/5 sm:block" />
           <div className="relative m-4 flex w-fit items-center gap-3 rounded-2xl border bg-card px-4 py-3 shadow-sm">
             <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary"><Radio className="size-4" /></span>
             <div>
@@ -251,7 +251,7 @@ function LiveViewPage() {
               <option value="purchase">Satın alım</option>
             </select>
           </div>
-          <ul className="max-h-[60vh] flex-1 divide-y overflow-y-auto">
+          <ul className="max-h-[60vh] divide-y lg:flex-1 overflow-y-auto">
             {shown.length === 0 ? (
               <li className="p-6 text-center text-sm text-muted-foreground">Oturum bulunamadı.</li>
             ) : shown.map((s) => {
