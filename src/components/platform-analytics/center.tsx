@@ -577,7 +577,7 @@ function ReportBuilder({ base }: { base: CenterInput }) {
             {activeChart === "line" ? (
               <LineChart data={rows}><CartesianGrid stroke={CHART_GRID} vertical={false} /><XAxis dataKey="key" tick={{ fontSize: 10 }} minTickGap={20} /><YAxis tick={{ fontSize: 10 }} width={56} /><Tooltip />{metrics.map((m, i) => <Line key={m} name={REPORT_METRIC_LABELS[m]} dataKey={m} stroke={colors[i]!} dot={false} strokeWidth={2} />)}</LineChart>
             ) : (
-              <BarChart data={rows}><CartesianGrid stroke={CHART_GRID} vertical={false} /><XAxis dataKey="key" tick={{ fontSize: 10 }} minTickGap={20} /><YAxis tick={{ fontSize: 10 }} width={56} /><Tooltip />{metrics.map((m, i) => <Bar key={m} name={REPORT_METRIC_LABELS[m]} dataKey={m} fill={colors[i]!} stackId={activeChart === "stacked" ? "s" : undefined} />)}</BarChart>
+              <BarChart data={rows}><CartesianGrid stroke={CHART_GRID} vertical={false} /><XAxis dataKey="key" tick={{ fontSize: 10 }} minTickGap={20} /><YAxis tick={{ fontSize: 10 }} width={56} /><Tooltip />{metrics.map((m, i) => <Bar key={m} name={REPORT_METRIC_LABELS[m]} dataKey={m} fill={colors[i]!} {...(activeChart === "stacked" ? { stackId: "s" } : {})} />)}</BarChart>
             )}
           </ResponsiveContainer></div>
         )}
