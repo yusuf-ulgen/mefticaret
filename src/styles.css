@@ -1011,3 +1011,25 @@
 [dir="rtl"] h3 {
   letter-spacing: normal;
 }
+
+/* Satıcı v2 — ortak bileşen durumları */
+.seller-v2 :is(button, a, input, select, textarea, [role="tab"], [role="menuitem"]):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.seller-v2 :is(button, input, select, textarea):disabled { opacity: 0.55; cursor: not-allowed; }
+.seller-v2 [aria-invalid="true"] { border-color: var(--destructive); }
+.seller-v2 main table thead th {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-foreground);
+}
+.seller-v2 main table tbody tr:hover { background: color-mix(in oklab, var(--accent) 60%, transparent); }
+.seller-v2 main [role="tablist"] [aria-selected="true"],
+.seller-v2 main [role="tablist"] [data-state="active"] { color: var(--accent-foreground); }
+@media (max-width: 639px) {
+  .seller-v2 main .relative.w-full.overflow-auto { -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+  .seller-v2 main form .grid { grid-template-columns: minmax(0, 1fr); }
+}
+.seller-v2 { --gradient-surface: linear-gradient(var(--card), var(--card)); }
+/* Koyu üst çubukta kenarlıklı düğmeler açık kutu olarak görünmesin */
+.seller-v2 > header button:not(.rounded-full) { background: transparent; color: var(--sidebar-primary-foreground); border-color: color-mix(in oklab, var(--sidebar-primary-foreground) 18%, transparent); }
+.seller-v2 > header button:not(.rounded-full):hover { background: color-mix(in oklab, var(--sidebar-primary-foreground) 10%, transparent); }

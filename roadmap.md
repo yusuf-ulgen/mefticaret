@@ -28,3 +28,8 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [ ] Şikayet moderasyon ekranı (Süper Admin)
 - [ ] App Store / Google Play: yerel uygulama derlemesi burada yapılamaz
 - [x] E-ticaret sitesi kurma maliyeti rehberi (/e-ticaret-maliyeti)
+
+## Satıcı paneli v2 tasarımı (bayrak: v2_seller_design)
+- [x] Marka renkleri, koyu menü, daraltma, açık/koyu tema, ortak bileşen durumları, kişisel önizleme (?seller_v2=1)
+- [ ] Sayfaya özel: ana sayfa görev/uyarı alanı, sipariş tutar/ödeme/teslimat ayrımı, ayarlarda bölüm + kaydedilmemiş uyarısı, alan adlarında açılır DNS/TLS, mobilde tablo→kart, analitikte çizgi tipi/işaret + tablo
+- [ ] 155 satıcı sayfasında sabit renk kullanan ~23 dosyanın koyu tema taraması
