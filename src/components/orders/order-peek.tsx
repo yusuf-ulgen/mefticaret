@@ -34,7 +34,7 @@ export function OrderPeek({
 }) {
   const mobile = useIsMobile();
   const { data: order, isLoading } = useQuery({
-    ...orderQuery(storeId, orderId ?? ""),
+    ...orderQuery(orderId ?? ""),
     enabled: Boolean(orderId),
   });
   const o = order as Record<string, any> | null | undefined;

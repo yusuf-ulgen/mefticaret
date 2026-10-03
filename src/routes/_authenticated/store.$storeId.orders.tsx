@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Download, ShoppingBag } from "lucide-react";
+import { Download, Eye, ShoppingBag } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { OrderPeek } from "@/components/orders/order-peek";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -103,6 +104,7 @@ function OrdersPage() {
   const update = useServerFn(updateOrder);
   const createShipmentFn = useServerFn(createShipment);
   const [selected, setSelected] = useState<string[]>([]);
+  const [peekId, setPeekId] = useState<string | null>(null);
   const [bulkStatus, setBulkStatus] = useState<OrderStatus>("processing");
   const [bulkCarrier, setBulkCarrier] = useState("Aras Kargo");
 
@@ -331,6 +333,9 @@ function OrdersPage() {
                     {formatMoney(Number(order.grand_total), order.currency)}
                   </span>
                 </div>
+                <Button size="sm" variant="ghost" className="mt-1 h-10 w-full gap-2" onClick={() => setPeekId(order.id)}>
+                  <Eye className="size-4" /> Hızlı bak
+                </Button>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Badge variant={statusVariant(order.status)}>
                     {ORDER_STATUS_LABELS[order.status]}
@@ -430,7 +435,15 @@ function OrdersPage() {
                   <td className="px-4 py-3 text-xs text-muted-foreground">
                     {formatDateTime(order.placed_at)}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <button
+                      type="button"
+                      onClick={() => setPeekId(order.id)}
+                      aria-label={`${order.order_number} hızlı bak`}
+                      className="mr-1 inline-grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <Eye className="size-4" />
+                    </button>
                     {NEXT_STATUS[order.status] ? (
                       <Button
                         size="sm"
@@ -463,6 +476,19 @@ function OrdersPage() {
           ) : null}
         </div>
       )}
+      <OrderPeek
+        storeId={storeId}
+        orderId={peekId}
+        onOpenChange={(open) => !open && setPeekId(null)}
+        statusLabel={(st) => ORDER_STATUS_LABELS[st as OrderStatus] ?? st}
+        paymentLabel={(st) => (PAYMENT_STATUS_LABELS as Record<string, string>)[st] ?? st}
+        next={(st) => NEXT_STATUS[st as OrderStatus]}
+        advancing={advance.isPending}
+        onAdvance={(id, st) => {
+          const n = NEXT_STATUS[st as OrderStatus];
+          if (n) advance.mutate({ orderId: id, status: n.value });
+        }}
+      />
     </AppShell>
   );
 }
