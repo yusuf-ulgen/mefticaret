@@ -9,6 +9,10 @@ import { useState, type ComponentType } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney } from "@/lib/mefti";
 
+// Basit (tipsiz) erişim: büyük şema tiplerinin derleme süresini şişirmemesi için.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as unknown as { from: (t: string) => any };
+
 type Period = "today" | "yesterday" | "week" | "month";
 const LABEL: Record<Period, string> = { today: "Bugün", yesterday: "Dün", week: "1 Hafta", month: "30 Gün" };
 const DAYS: Record<Period, number> = { today: 1, yesterday: 1, week: 7, month: 30 };
@@ -30,9 +34,9 @@ type Ev = { kind: string; session_id: string; created_at: string };
 async function load(storeId: string, p: Period, shift: number) {
   const { from, to } = range(p, shift);
   const [o, e] = await Promise.all([
-    supabase.from("orders").select("grand_total, currency, payment_status, status, created_at").eq("store_id", storeId)
+    db.from("orders").select("grand_total, currency, payment_status, status, created_at").eq("store_id", storeId)
       .gte("created_at", from.toISOString()).lt("created_at", to.toISOString()).limit(5000),
-    supabase.from("analytics_events").select("kind, session_id, created_at").eq("store_id", storeId)
+    db.from("analytics_events").select("kind, session_id, created_at").eq("store_id", storeId)
       .in("kind", ["page_view", "add_to_cart", "checkout", "purchase"])
       .gte("created_at", from.toISOString()).lt("created_at", to.toISOString()).limit(20000),
   ]);
@@ -133,8 +137,8 @@ export function StoreSummary({ storeId }: { storeId: string }) {
     refetchInterval: 30_000,
     queryFn: async () => {
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
-      const { data } = await supabase.from("analytics_events").select("visitor_id").eq("store_id", storeId).gte("created_at", since).limit(2000);
-      return new Set((data ?? []).map((x) => x.visitor_id)).size;
+      const { data } = await db.from("analytics_events").select("visitor_id").eq("store_id", storeId).gte("created_at", since).limit(2000);
+      return new Set(((data ?? []) as { visitor_id: string }[]).map((x) => x.visitor_id)).size;
     },
   });
   const d = cur.data;
