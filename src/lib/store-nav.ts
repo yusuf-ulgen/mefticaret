@@ -225,6 +225,7 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       icon: Blocks,
       items: [
         { label: "Uygulama Mağazası", to: p("apps"), icon: Blocks },
+        { label: "Cookie Builder", to: p("cookie-builder"), icon: ShieldCheck, keywords: "çerez kvkk onay bandı cookie" },
         { label: "Copilot", to: p("copilot"), icon: Bot },
         { label: "AI Asistan", to: p("ai"), icon: Sparkles },
         { label: "AI İçerik Stüdyosu", to: p("ai-studio"), icon: Wand2 },

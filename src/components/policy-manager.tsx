@@ -335,7 +335,7 @@ function Acceptances({ storeId, policies }: { storeId: string | null; policies: 
   );
 }
 
-function CookieBannerForm({ storeId }: { storeId: string }) {
+export function CookieBannerForm({ storeId }: { storeId: string }) {
   const get = useServerFn(getCookieBanner);
   const save = useServerFn(saveCookieBanner);
   const q = useQuery({ queryKey: ["cookie-banner-admin", storeId], queryFn: () => get({ data: { storeId } }) });
@@ -371,6 +371,32 @@ function CookieBannerForm({ storeId }: { storeId: string }) {
         <div className="space-y-1.5">
           <Label>Bant metni (boşsa varsayılan)</Label>
           <Textarea rows={3} value={f.bannerText ?? ""} onChange={(e) => setF({ ...f, bannerText: e.target.value || null })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Önizleme</Label>
+          <div className="relative h-56 overflow-hidden rounded-lg border bg-muted/40" aria-label="Çerez bandı önizlemesi">
+            <div className="p-3 text-xs text-muted-foreground">Mağaza sayfanız</div>
+            <div
+              className={`absolute bottom-2 rounded-lg border p-3 text-xs shadow-lg ${
+                f.position === "bottom" ? "inset-x-2" : f.position === "bottom-left" ? "left-2 w-64" : "right-2 w-64"
+              } ${f.colorScheme === "dark" ? "bg-foreground text-background" : "bg-background text-foreground"}`}
+            >
+              <p className="mb-2">
+                {f.bannerText ||
+                  "Sitemizde deneyiminizi iyileştirmek için çerezler kullanıyoruz. Zorunlu çerezler her zaman açıktır."}
+              </p>
+              <div className="mb-2 flex flex-wrap gap-1 opacity-80">
+                <span className="rounded border px-1.5">Zorunlu</span>
+                {f.usesAnalytics && <span className="rounded border px-1.5">Analitik</span>}
+                {f.usesMarketing && <span className="rounded border px-1.5">Pazarlama</span>}
+              </div>
+              <div className="flex gap-2">
+                <span className="rounded-full bg-primary px-3 py-1 text-primary-foreground">Kabul et</span>
+                <span className="rounded-full border px-3 py-1">Reddet</span>
+                <span className="rounded-full px-2 py-1 underline">Ayarlar</span>
+              </div>
+            </div>
+          </div>
         </div>
         <p className="text-xs text-muted-foreground">Kategorileri değiştirdiğinizde ziyaretçilerden yeniden onay istenir.</p>
         <Button onClick={() => m.mutate()} disabled={m.isPending}>Kaydet</Button>
