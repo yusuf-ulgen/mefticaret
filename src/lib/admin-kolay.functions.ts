@@ -186,3 +186,68 @@ export const setMicroStoreStatus = createServerFn({ method: "POST" })
 
     return { ok: true as const };
   });
+
+/* ------------------- Tedarikçi ürün aktarım kotası ------------------- */
+
+export const getKolaySupplierQuota = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertPlatformAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { readKolayQuotaSetting } = await import("./supplier-catalog.server");
+    const db = supabaseAdmin as never as { from: (t: string) => any };
+    const setting = await readKolayQuotaSetting(db);
+    const { data: micro } = await supabaseAdmin.from("stores").select("id").eq("store_kind", "micro").limit(500);
+    const ids = (micro ?? []).map((s) => s.id);
+    const used: Record<string, number> = {};
+    if (ids.length) {
+      const { data: rows } = await db.from("store_supplier_imports").select("store_id").in("store_id", ids).limit(50000);
+      for (const r of (rows ?? []) as { store_id: string }[]) used[r.store_id] = (used[r.store_id] ?? 0) + 1;
+    }
+    return { default: setting.default, stores: setting.stores, used };
+  });
+
+export const saveKolaySupplierQuota = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        defaultLimit: z.number().int().min(0).max(100000).optional(),
+        storeId: z.guid().optional(),
+        storeLimit: z.number().int().min(0).max(100000).nullable().optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    await assertPlatformAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { readKolayQuotaSetting, KOLAY_QUOTA_KEY } = await import("./supplier-catalog.server");
+    const db = supabaseAdmin as never as { from: (t: string) => any };
+    const setting = await readKolayQuotaSetting(db);
+    if (data.defaultLimit !== undefined) setting.default = data.defaultLimit;
+    if (data.storeId) {
+      if (data.storeLimit == null) delete setting.stores[data.storeId];
+      else setting.stores[data.storeId] = data.storeLimit;
+    }
+    const { error } = await db.from("platform_settings").upsert(
+      {
+        key: KOLAY_QUOTA_KEY,
+        value: setting,
+        label: "Kolay Panel tedarikçi ürün kotası",
+        description: "Kolay Panel mağazalarının tedarikçi kataloğundan aktarabileceği en fazla ürün sayısı.",
+        is_public: false,
+        updated_by: context.userId,
+      },
+      { onConflict: "key" },
+    );
+    if (error) throw new Error(error.message);
+    await insertAuditRow(context.supabase, {
+      store_id: data.storeId ?? null,
+      actor_id: context.userId,
+      action: "platform.kolay_supplier_quota_changed",
+      entity: "platform_settings",
+      entity_id: null,
+      new_value: data as never,
+    } as never);
+    return { ok: true as const };
+  });
