@@ -129,6 +129,39 @@ const toNumber = (value: string) => {
 };
 
 const IMAGE_KEY = /(image|img|resim|gorsel|görsel|picture|photo|foto)/i;
+const IMAGE_EXT = /\.(jpe?g|png|webp|gif|avif)(\?|$)/i;
+const STOCK_KEY = /(stok|stock|qty|quantity|miktar|adet|inventory)/i;
+const NOT_STOCK = /(kod|code|durum|status|birim|unit|id$)/i;
+
+/** Stok: eşlenen alanın tüm varyant değerleri toplanır; alan yoksa stok adlı alanlar aranır. */
+export function collectStock(row: Record<string, string>, mapped: string | undefined, toNum: (v: string) => number): number {
+  const sumPath = (path: string) => {
+    let total = 0;
+    let hit = false;
+    for (const [key, value] of Object.entries(row)) {
+      if (key.replace(/\[\d*\]/g, "") !== path) continue;
+      const n = toNum(String(value ?? ""));
+      if (String(value ?? "").trim() !== "") hit = true;
+      total += Math.max(0, n);
+    }
+    return hit ? total : null;
+  };
+  if (mapped) {
+    const v = sumPath(mapped.replace(/\[\d*\]/g, ""));
+    if (v !== null) return Math.round(v);
+  }
+  const paths = new Set<string>();
+  for (const key of Object.keys(row)) {
+    const generic = key.replace(/\[\d*\]/g, "");
+    const last = generic.split(".").pop() ?? "";
+    if (STOCK_KEY.test(last) && !NOT_STOCK.test(last)) paths.add(generic);
+  }
+  const list = [...paths];
+  const top = list.filter((p) => !Object.keys(row).some((k) => k.includes("[") && k.replace(/\[\d*\]/g, "") === p));
+  const pick = top.find((p) => /total|toplam/i.test(p)) ?? top[0] ?? list[0];
+  if (!pick) return 0;
+  return Math.round(sumPath(pick) ?? 0);
+}
 
 /** Satırdaki tüm görsel adreslerini toplar (eşlenen alan + görsel adlı tüm alanlar). */
 export function collectImages(row: Record<string, string>, mapped: string | undefined): string[] {
@@ -136,9 +169,12 @@ export function collectImages(row: Record<string, string>, mapped: string | unde
   const urls: string[] = [];
   for (const [key, value] of Object.entries(row)) {
     const generic = key.replace(/\[\d+\]/g, "");
-    if (generic !== wanted && !IMAGE_KEY.test(generic.split(".").pop() ?? "")) continue;
-    for (const part of String(value ?? "").split(/[\s,;|]+/)) {
-      if (/^https?:\/\//i.test(part) && !urls.includes(part)) urls.push(part);
+    const named = generic === wanted || IMAGE_KEY.test(generic);
+    for (const raw of String(value ?? "").split(/[\s,;|]+/)) {
+      const part = raw.replace(/^["'<]+|["'>]+$/g, "");
+      if (!/^https?:\/\//i.test(part)) continue;
+      if (!named && !IMAGE_EXT.test(part)) continue;
+      if (!urls.includes(part)) urls.push(part);
     }
   }
   return urls.slice(0, 100);
@@ -156,7 +192,10 @@ export async function runSupplierFeed(
   try {
     const fetched = await fetchSource({ url: feed.source_url });
     const parsed = parseSourceText(fetched.content, fetched.format, { limit: 5000 });
-    const mapping = Object.keys(feed.field_mapping ?? {}).length ? feed.field_mapping : suggestMapping(parsed.columns);
+    const suggested = suggestMapping(parsed.columns) as Record<string, string>;
+    const saved = Object.fromEntries(Object.entries(feed.field_mapping ?? {}).filter(([, v]) => typeof v === "string" && v.trim()));
+    // Kayıtlı eşleme önceliklidir; boş kalan alanlar (ör. stok, görsel) otomatik tamamlanır.
+    const mapping: Record<string, string> = { ...suggested, ...saved };
     if (!mapping["sku"] || !mapping["title"]) {
       throw new Error("XML içinde stok kodu ve ürün adı alanları bulunamadı");
     }
@@ -200,7 +239,7 @@ export async function runSupplierFeed(
         supplier_price: purchase,
         ...(salePrice !== null ? { computed_price: salePrice } : {}),
         currency: ((c) => (c === "TL" || c === "YTL" ? "TRY" : c))((readMapped(row, mapping["currency"]) || currency || "TRY").trim().toUpperCase().slice(0, 10)),
-        stock: Math.max(0, Math.round(toNumber(readMapped(row, mapping["stock"])))),
+        stock: collectStock(row, mapping["stock"], toNumber),
         images,
         raw: description ? { ...row, description } : row,
         last_seen_at: startedAt,
