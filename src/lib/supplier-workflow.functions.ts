@@ -423,10 +423,25 @@ export const adminSupplierOverview = createServerFn({ method: "POST" })
     const lib = await import("@/lib/supplier-workflow.server");
     const ids = ((suppliers ?? []) as any[]).map((s) => s.id);
     const orders = ids.length ? await lib.loadPurchaseOrders(db, { supplierIds: ids }, 100) : [];
+    // Tedarikçi sayfasından kayıt olup henüz bir tedarikçi kaydına bağlanmamış hesaplar.
+    const linked = new Set(((suppliers ?? []) as any[]).map((s) => s.portal_user_id as string));
+    const pending: { userId: string; email: string; name: string | null; createdAt: string; confirmed: boolean }[] = [];
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    for (let page = 1; page <= 20; page += 1) {
+      const { data: list, error: listError } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+      if (listError) break;
+      for (const u of list.users) {
+        if (u.user_metadata?.["signup_kind"] !== "supplier" || linked.has(u.id) || !u.email) continue;
+        pending.push({ userId: u.id, email: u.email, name: (u.user_metadata?.["full_name"] as string | null) ?? null, createdAt: u.created_at, confirmed: Boolean(u.email_confirmed_at) });
+      }
+      if (list.users.length < 200) break;
+    }
+    pending.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     const storeName = new Map(((stores ?? []) as any[]).map((s) => [s.id, s.name as string]));
     const supplierName = new Map(((suppliers ?? []) as any[]).map((s) => [s.id, s.name as string]));
     return {
       stores: ((stores ?? []) as any[]).map((s) => ({ id: String(s.id), name: String(s.name) })),
+      pending,
       suppliers: ((suppliers ?? []) as any[]).map((s) => ({
         id: String(s.id),
         name: String(s.name),
@@ -466,8 +481,6 @@ export const adminGrantSupplierAccess = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const db = await admin();
     const email = data.email.toLowerCase();
-    const { data: owned } = await db.from("stores").select("id, owner_id").not("owner_id", "is", null).limit(5000);
-    const ownerIds = Array.from(new Set(((owned ?? []) as any[]).map((s) => s.owner_id as string)));
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let userId: string | null = null;
     for (let page = 1; page <= 20 && !userId; page += 1) {
@@ -478,7 +491,6 @@ export const adminGrantSupplierAccess = createServerFn({ method: "POST" })
       if (list.users.length < 200) break;
     }
     if (!userId) throw new Error("Bu e-postayla kayıtlı kullanıcı bulunamadı");
-    if (!ownerIds.includes(userId)) throw new Error("Bu kullanıcı bir mağaza sahibi değil");
 
     const { data: existing } = await db
       .from("suppliers")
