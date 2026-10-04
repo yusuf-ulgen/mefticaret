@@ -170,7 +170,8 @@ export function SupplierXmlFeeds({ supplierId, data }: { supplierId: string; dat
   const saveMutation = useMutation({
     mutationFn: async () => {
       const created = await save({ data: { supplierId, name, sourceUrl: url, markupPercent: Math.max(0, Number(markup.replace(",", ".")) || 0) } });
-      return run({ data: { supplierId, feedId: created.id } });
+      if (created.error || !created.stats) throw new Error(`Besleme eklendi ama yüklenemedi: ${created.error ?? "bilinmeyen hata"}`);
+      return created.stats;
     },
     onSuccess: (r) => {
       toast.success(`XML aktarıldı: ${r.created} yeni, ${r.updated} güncellendi`);
