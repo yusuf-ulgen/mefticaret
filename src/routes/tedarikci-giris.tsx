@@ -85,7 +85,7 @@ function SupplierLoginPage() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/tedarikci-giris`,
-        data: { full_name: fullName.trim() || null },
+        data: { full_name: fullName.trim() || null, signup_kind: "supplier" },
       },
     });
     setBusy(false);

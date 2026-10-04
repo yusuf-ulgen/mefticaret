@@ -82,7 +82,7 @@ function AdminSuppliersPage() {
             <div>
               <h2 className="font-medium">Tedarikçi erişimi aç</h2>
               <p className="text-sm text-muted-foreground">
-                Kullanıcı bir mağaza sahibi olmalıdır. Kendi hesabıyla, ayrı şifre olmadan tedarikçi paneline girer.
+                Tedarikçi kendi hesabıyla tedarikçi paneline girer. Kayıtlı herhangi bir kullanıcıya erişim verebilirsiniz.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
@@ -103,7 +103,7 @@ function AdminSuppliersPage() {
                 </select>
               </div>
               <div className="space-y-1">
-                <Label htmlFor="sup-email">Mağaza sahibinin e-postası</Label>
+                <Label htmlFor="sup-email">Tedarikçinin e-postası</Label>
                 <Input id="sup-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
               <div className="space-y-1">
@@ -117,6 +117,39 @@ function AdminSuppliersPage() {
             >
               Erişim ver
             </Button>
+          </section>
+
+          <section className="rounded-lg border bg-card">
+            <h2 className="border-b p-4 font-medium">Yeni kayıt olan tedarikçiler ({data.pending.length})</h2>
+            {data.pending.length === 0 ? (
+              <p className="p-4 text-sm text-muted-foreground">Erişim bekleyen yeni tedarikçi kaydı yok.</p>
+            ) : (
+              <ul className="divide-y">
+                {data.pending.map((p) => (
+                  <li key={p.userId} className="flex flex-wrap items-center justify-between gap-2 p-4 text-sm">
+                    <div className="min-w-0">
+                      <p className="font-medium">{p.name ?? p.email}</p>
+                      <p className="text-muted-foreground">
+                        {p.email} · {new Date(p.createdAt).toLocaleDateString("tr-TR")}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{p.confirmed ? "E-posta doğrulandı" : "E-posta doğrulanmadı"}</Badge>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setForm({ buyerStoreId: form.buyerStoreId, email: p.email, supplierName: p.name ?? "" });
+                          document.getElementById("buyer")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                          toast.message("Mağazayı seçip “Erişim ver”e basın");
+                        }}
+                      >
+                        Erişim ver
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
 
           <section className="rounded-lg border bg-card">
