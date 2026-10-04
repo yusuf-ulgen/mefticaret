@@ -172,10 +172,17 @@ export const supplierSaveFeed = createServerFn({ method: "POST" })
     const { data: created, error } = await db
       .from("supplier_xml_feeds")
       .insert({ supplier_id: supplier.id, store_id: supplier.store_id, name: data.name, source_url: data.sourceUrl, sale_markup_percent: data.markupPercent })
-      .select("id")
+      .select("id, supplier_id, store_id, source_url, field_mapping, sale_markup_percent")
       .single();
     if (error) throw new Error(error.message);
-    return { id: String(created.id) };
+    // Eklenen besleme hemen ilk kez yüklenir; hata olursa besleme kalır ve hata mesajı döner.
+    const { runSupplierFeed } = await import("@/lib/supplier-workflow.server");
+    try {
+      const stats = await runSupplierFeed(db, created as never, supplier.currency || "TRY");
+      return { id: String(created.id), stats, error: null as string | null };
+    } catch (cause) {
+      return { id: String(created.id), stats: null, error: cause instanceof Error ? cause.message : "Besleme yüklenemedi" };
+    }
   });
 
 /** Beslemenin mağaza satış fiyatı kâr oranını günceller. */
