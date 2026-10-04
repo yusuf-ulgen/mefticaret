@@ -160,6 +160,8 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
           barcode: loaderData.barcode,
           ratingValue: loaderData.ratingAverage,
           reviewCount: loaderData.reviewCount,
+          sellerName: loaderData.storeName,
+          category: loaderData.category,
         }),
       ],
     });

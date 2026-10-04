@@ -231,10 +231,14 @@ export type ProductSchemaInput = {
   barcode?: string | null;
   ratingValue?: number;
   reviewCount?: number;
+  sellerName?: string | null;
+  category?: string | null;
 };
 
 /** Product yapısal verisi (Offer + AggregateRating dahil). */
 export function productSchema(input: ProductSchemaInput) {
+  // Google ürün sonuçları fiyat geçerlilik tarihi ister; fiyat gece güncellenir, bir yıl ileri verilir.
+  const validUntil = new Date(Date.now() + 365 * 86_400_000).toISOString().slice(0, 10);
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -242,17 +246,21 @@ export function productSchema(input: ProductSchemaInput) {
     description: clampDescription(input.description, 400),
     url: input.url,
     ...(input.images.length ? { image: input.images } : {}),
-    ...(input.sku ? { sku: input.sku } : {}),
+    ...(input.sku ? { sku: input.sku, mpn: input.sku } : {}),
     ...(input.barcode ? { gtin: input.barcode } : {}),
+    ...(input.category ? { category: input.category } : {}),
     ...(input.brand ? { brand: { "@type": "Brand", name: input.brand } } : {}),
     offers: {
       "@type": "Offer",
       url: input.url,
       price: input.price,
       priceCurrency: input.currency,
+      priceValidUntil: validUntil,
+      itemCondition: "https://schema.org/NewCondition",
       availability: input.inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
+      ...(input.sellerName ? { seller: { "@type": "Organization", name: input.sellerName } } : {}),
     },
     ...(input.reviewCount && input.reviewCount > 0
       ? {
