@@ -347,6 +347,15 @@ export const getCatalogProduct = createServerFn({ method: "POST" })
     };
   });
 
+export const getKolayImportQuota = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ storeId: z.guid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const db = await guard(context.supabase, data.storeId, context.userId);
+    const { kolayImportQuota } = await import("@/lib/supplier-catalog.server");
+    return kolayImportQuota(db, data.storeId);
+  });
+
 export const importCatalogProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>

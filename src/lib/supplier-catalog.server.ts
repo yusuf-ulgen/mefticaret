@@ -122,7 +122,17 @@ export async function importToStore(db: Client, storeId: string, ids: string[], 
     .eq("store_id", storeId)
     .in("supplier_product_id", ids);
   const done = new Set(((existing ?? []) as any[]).map((r) => r.supplier_product_id));
-  const todo = ids.filter((id) => !done.has(id));
+  let todo = ids.filter((id) => !done.has(id));
+  const quota = await kolayImportQuota(db, storeId);
+  let overQuota = 0;
+  if (quota) {
+    const left = Math.max(0, quota.limit - quota.used);
+    overQuota = Math.max(0, todo.length - left);
+    todo = todo.slice(0, left);
+    if (!todo.length) {
+      return { imported: 0, skipped: done.size, failed: [`Tedarikçi ürün kotanız doldu (${quota.used}/${quota.limit}).`] };
+    }
+  }
   const { data: rows, error } = await db.from("supplier_products").select(SP_COLUMNS).in("id", todo);
   if (error) throw new Error(error.message);
   const { data: sups } = await db.from("suppliers").select("id").eq("is_active", true).eq("is_public_catalog", true);
@@ -223,7 +233,32 @@ export async function importToStore(db: Client, storeId: string, ids: string[], 
       failed.push(`${sp.title}: ${cause instanceof Error ? cause.message : "hata"}`);
     }
   }
+  if (overQuota) failed.push(`Kota sınırı: ${overQuota} ürün aktarılmadı (kota ${quota!.limit}).`);
   return { imported, skipped: done.size, failed };
+}
+
+export const KOLAY_QUOTA_KEY = "kolay_supplier_quota";
+export const KOLAY_QUOTA_DEFAULT = 20;
+export type KolayQuotaSetting = { default: number; stores: Record<string, number> };
+
+export async function readKolayQuotaSetting(db: Client): Promise<KolayQuotaSetting> {
+  const { data } = await db.from("platform_settings").select("value").eq("key", KOLAY_QUOTA_KEY).maybeSingle();
+  const v = (data?.value ?? {}) as Partial<KolayQuotaSetting>;
+  return {
+    default: Number.isFinite(Number(v.default)) ? Math.max(0, Number(v.default)) : KOLAY_QUOTA_DEFAULT,
+    stores: v.stores && typeof v.stores === "object" ? v.stores : {},
+  };
+}
+
+/** Kolay Panel (micro) mağazaları için aktarım kotası; kurumsal mağazalarda null. */
+export async function kolayImportQuota(db: Client, storeId: string): Promise<{ limit: number; used: number } | null> {
+  const { data: store } = await db.from("stores").select("store_kind").eq("id", storeId).maybeSingle();
+  if (store?.store_kind !== "micro") return null;
+  const setting = await readKolayQuotaSetting(db);
+  const own = setting.stores[storeId];
+  const limit = own != null && Number.isFinite(Number(own)) ? Math.max(0, Number(own)) : setting.default;
+  const { count } = await db.from("store_supplier_imports").select("id", { count: "exact", head: true }).eq("store_id", storeId);
+  return { limit, used: count ?? 0 };
 }
 
 /** Tedarikçi ürünü değişince aktaran tüm mağazalarda fiyat ve stok günceller. */

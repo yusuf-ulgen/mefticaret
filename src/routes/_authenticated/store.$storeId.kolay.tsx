@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   ShoppingBasket,
   Store,
+  Truck,
   Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -38,6 +39,7 @@ import { GooglePreviewCard } from "@/components/homemaker/google-preview-card";
 import { SeoDashboardCard } from "@/components/homemaker/seo-dashboard-card";
 import { SetupGuide } from "@/components/homemaker/setup-guide";
 import { StoreTab } from "@/components/homemaker/store-tab";
+import { SupplierTab } from "@/components/homemaker/supplier-tab";
 import { useStoreRealtime } from "@/hooks/use-store-realtime";
 import { speakTurkish } from "@/hooks/use-voice";
 import { isStoreToday, QUOTA_EXCLUDED_STATUSES } from "@/lib/day-window";
@@ -70,7 +72,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/kolay")({
   component: KolayPanel,
 });
 
-type Tab = "store" | "products" | "orders" | "packaging" | "customers" | "insights";
+type Tab = "store" | "products" | "supplier" | "orders" | "packaging" | "customers" | "insights";
 
 function KolayPanel() {
   const { storeId } = Route.useParams();
@@ -335,6 +337,7 @@ function KolayPanel() {
             />
           </div>
         ) : null}
+        {tab === "supplier" ? <SupplierTab storeId={storeId} /> : null}
         {tab === "packaging" ? <PackagingTab storeId={storeId} /> : null}
         {tab === "customers" ? <CustomersTab storeId={storeId} /> : null}
         {tab === "insights" ? <InsightsTab storeId={storeId} /> : null}
@@ -344,11 +347,12 @@ function KolayPanel() {
         aria-label="Panel bölümleri"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-hm-line bg-white pb-[env(safe-area-inset-bottom)]"
       >
-        <div className="mx-auto grid max-w-lg grid-cols-6">
+        <div className="mx-auto grid max-w-lg grid-cols-7">
           {(
             [
               ["store", "Mağazam", Store],
               ["products", "Ürünlerim", Package],
+              ["supplier", "Tedarikçi", Truck],
               ["orders", "Siparişler", ShoppingBag],
               ["packaging", "Ambalaj", ShoppingBasket],
               ["customers", "Müşteriler", Users],

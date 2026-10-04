@@ -18,7 +18,13 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth-context";
 import { formatDateTime, formatMoney, formatNumber, STORE_STATUS_LABELS } from "@/lib/mefti";
-import { listMicroStores, setMicroStoreStatus, type MicroStoreRow } from "@/lib/admin-kolay.functions";
+import {
+  getKolaySupplierQuota,
+  listMicroStores,
+  saveKolaySupplierQuota,
+  setMicroStoreStatus,
+  type MicroStoreRow,
+} from "@/lib/admin-kolay.functions";
 import { downloadCsv, toCsv } from "@/lib/csv";
 
 const DESCRIPTION =
@@ -64,6 +70,30 @@ function AdminKolayPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+
+  const fetchQuota = useServerFn(getKolaySupplierQuota);
+  const saveQuota = useServerFn(saveKolaySupplierQuota);
+  const quota = useQuery({
+    queryKey: ["admin-kolay-supplier-quota"],
+    enabled: isPlatformAdmin,
+    queryFn: () => fetchQuota(),
+  });
+  const [defaultDraft, setDefaultDraft] = useState<string | null>(null);
+  const quotaMutation = useMutation({
+    mutationFn: (input: { defaultLimit?: number; storeId?: string; storeLimit?: number | null }) => saveQuota({ data: input }),
+    onSuccess: async () => {
+      toast.success("Tedarikçi ürün kotası kaydedildi");
+      setDefaultDraft(null);
+      await queryClient.invalidateQueries({ queryKey: ["admin-kolay-supplier-quota"] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const saveStoreQuota = (storeId: string, raw: string) => {
+    const current = quota.data?.stores[storeId];
+    const next = raw.trim() === "" ? null : Math.max(0, Math.floor(Number(raw) || 0));
+    if ((current ?? null) === next) return;
+    quotaMutation.mutate({ storeId, storeLimit: next });
+  };
 
   const rows = stores.data ?? [];
 
@@ -152,8 +182,33 @@ function AdminKolayPage() {
           </span>
         </div>
 
+        <div className="mt-4 flex flex-wrap items-end gap-3 rounded-xl border border-border/60 p-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-medium">Tedarikçi ürün kotası (varsayılan)</div>
+            <p className="text-xs text-muted-foreground">
+              Her Kolay Panel mağazasının tedarikçilerden aktarabileceği en fazla ürün sayısı. Tabloda mağazaya özel kota
+              girebilirsiniz; boş bırakılırsa varsayılan geçerli olur. 0 yazarsanız aktarım kapanır.
+            </p>
+          </div>
+          <Input
+            type="number"
+            min={0}
+            className="h-9 w-28"
+            aria-label="Varsayılan tedarikçi ürün kotası"
+            value={defaultDraft ?? String(quota.data?.default ?? "")}
+            onChange={(e) => setDefaultDraft(e.target.value)}
+          />
+          <Button
+            size="sm"
+            disabled={defaultDraft === null || quotaMutation.isPending}
+            onClick={() => quotaMutation.mutate({ defaultLimit: Math.max(0, Math.floor(Number(defaultDraft) || 0)) })}
+          >
+            Kaydet
+          </Button>
+        </div>
+
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[900px] text-sm">
+          <table className="w-full min-w-[1020px] text-sm">
             <thead className="text-left text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="px-3 py-2">Mağaza</th>
@@ -163,6 +218,7 @@ function AdminKolayPage() {
                 <th className="px-3 py-2 text-right">Sipariş</th>
                 <th className="px-3 py-2 text-right">Ciro</th>
                 <th className="px-3 py-2">Son sipariş</th>
+                <th className="px-3 py-2">Tedarikçi kotası</th>
                 <th className="px-3 py-2">Durum</th>
                 <th className="px-3 py-2">Vitrin</th>
               </tr>
@@ -186,6 +242,26 @@ function AdminKolayPage() {
                   <td className="px-3 py-3 text-right">{formatMoney(row.revenue, "TRY")}</td>
                   <td className="px-3 py-3 text-xs text-muted-foreground">
                     {row.lastOrderAt ? formatDateTime(row.lastOrderAt) : "—"}
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        key={`${row.id}-${quota.data?.stores[row.id] ?? "d"}`}
+                        type="number"
+                        min={0}
+                        className="h-9 w-20"
+                        aria-label={`${row.name} tedarikçi ürün kotası`}
+                        placeholder={String(quota.data?.default ?? "")}
+                        defaultValue={quota.data?.stores[row.id] ?? ""}
+                        onBlur={(e) => saveStoreQuota(row.id, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                        }}
+                      />
+                      <span className="whitespace-nowrap text-xs text-muted-foreground">
+                        {formatNumber(quota.data?.used[row.id] ?? 0)} kullanıldı
+                      </span>
+                    </div>
                   </td>
                   <td className="px-3 py-3">
                     <Select
@@ -220,7 +296,7 @@ function AdminKolayPage() {
               ))}
               {!stores.isLoading && filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-3 py-10 text-center text-muted-foreground">
+                  <td colSpan={10} className="px-3 py-10 text-center text-muted-foreground">
                     Kayıt bulunamadı.
                   </td>
                 </tr>
