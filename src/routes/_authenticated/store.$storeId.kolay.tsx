@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   ShoppingBasket,
   Store,
+  Truck,
   Users,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
