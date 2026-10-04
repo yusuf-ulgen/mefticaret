@@ -200,10 +200,19 @@ export async function runSupplierFeed(
       throw new Error("XML içinde stok kodu ve ürün adı alanları bulunamadı");
     }
 
-    const { data: existing } = await admin
-      .from("supplier_products")
-      .select("id, external_id")
-      .eq("supplier_id", feed.supplier_id);
+    // Tümü sayfalanarak okunur (varsayılan 1000 satır sınırı tekrar kayıt oluşturuyordu).
+    const existing: any[] = [];
+    for (let from = 0; ; from += 1000) {
+      const { data: page, error: pageError } = await admin
+        .from("supplier_products")
+        .select("id, external_id")
+        .eq("supplier_id", feed.supplier_id)
+        .order("created_at", { ascending: true })
+        .range(from, from + 999);
+      if (pageError) throw new Error(pageError.message);
+      existing.push(...(page ?? []));
+      if (!page || page.length < 1000) break;
+    }
     const byExternal = new Map(((existing ?? []) as any[]).map((row) => [String(row.external_id ?? ""), String(row.id)]));
 
     const markup = Math.max(0, Number(feed.sale_markup_percent ?? 0) || 0);
