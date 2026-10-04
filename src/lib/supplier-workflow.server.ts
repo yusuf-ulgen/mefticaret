@@ -191,7 +191,7 @@ export async function runSupplierFeed(
   const startedAt = new Date().toISOString();
   try {
     const fetched = await fetchSource({ url: feed.source_url });
-    const parsed = parseSourceText(fetched.content, fetched.format, { limit: 5000 });
+    const parsed = parseSourceText(fetched.content, fetched.format, { limit: 20000 });
     const suggested = suggestMapping(parsed.columns) as Record<string, string>;
     const saved = Object.fromEntries(Object.entries(feed.field_mapping ?? {}).filter(([, v]) => typeof v === "string" && v.trim()));
     // Kayıtlı eşleme önceliklidir; boş kalan alanlar (ör. stok, görsel) otomatik tamamlanır.
