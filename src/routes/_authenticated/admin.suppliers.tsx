@@ -8,7 +8,6 @@ import { AdminShell } from "@/components/admin-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { formatDate, formatMoney } from "@/lib/mefti";
 import { PO_PAYMENT_LABEL, PO_SUPPLIER_STATUS_LABEL } from "@/lib/supplier-workflow";
 import {
@@ -46,19 +45,22 @@ function AdminSuppliersPage() {
   const { data, isLoading, error } = useQuery({ queryKey: ["admin-suppliers"], queryFn: () => load() });
   const refresh = () => void client.invalidateQueries({ queryKey: ["admin-suppliers"] });
 
-  const [form, setForm] = useState({ buyerStoreId: "", email: "", supplierName: "" });
+  const [email, setEmail] = useState("");
   const grantMutation = useMutation({
-    mutationFn: () => grant({ data: form }),
+    mutationFn: (input: { email: string; supplierName?: string }) => grant({ data: input }),
     onSuccess: (result) => {
-      toast.success(result.created ? "Tedarikçi erişimi açıldı" : "Mevcut tedarikçi erişimi yeniden açıldı");
-      setForm({ buyerStoreId: "", email: "", supplierName: "" });
+      toast.success(result.created ? "Tedarikçi erişimi verildi" : "Tedarikçi erişimi yeniden açıldı");
+      setEmail("");
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
   });
   const toggleMutation = useMutation({
     mutationFn: (input: { supplierId: string; enabled: boolean }) => toggle({ data: input }),
-    onSuccess: refresh,
+    onSuccess: (_r, v) => {
+      toast.success(v.enabled ? "Erişim verildi" : "Erişim kaldırıldı");
+      refresh();
+    },
     onError: (e: Error) => toast.error(e.message),
   });
   const payoutMutation = useMutation({
@@ -71,54 +73,13 @@ function AdminSuppliersPage() {
   });
 
   return (
-    <AdminShell title="Tedarikçiler" description="Mağaza sahiplerine tedarikçi erişimi verin; siparişleri ve ödeme taleplerini yönetin.">
+    <AdminShell title="Tedarikçiler" description="Kayıt olan tedarikçilere portal erişimi verin veya kaldırın; siparişleri ve ödeme taleplerini yönetin.">
       {isLoading ? (
         <div className="h-40 animate-pulse rounded-lg border bg-muted/40" />
       ) : error ? (
         <p className="text-sm text-destructive">{(error as Error).message}</p>
       ) : data ? (
         <div className="space-y-6">
-          <section className="space-y-4 rounded-lg border bg-card p-4 sm:p-5">
-            <div>
-              <h2 className="font-medium">Tedarikçi erişimi aç</h2>
-              <p className="text-sm text-muted-foreground">
-                Tedarikçi kendi hesabıyla tedarikçi paneline girer. Kayıtlı herhangi bir kullanıcıya erişim verebilirsiniz.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="space-y-1">
-                <Label htmlFor="buyer">Alıcı mağaza</Label>
-                <select
-                  id="buyer"
-                  className="h-9 w-full rounded-md border bg-background px-3 text-sm"
-                  value={form.buyerStoreId}
-                  onChange={(e) => setForm({ ...form, buyerStoreId: e.target.value })}
-                >
-                  <option value="">Seçin</option>
-                  {data.stores.map((store) => (
-                    <option key={store.id} value={store.id}>
-                      {store.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="sup-email">Tedarikçinin e-postası</Label>
-                <Input id="sup-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="sup-name">Tedarikçi adı</Label>
-                <Input id="sup-name" value={form.supplierName} onChange={(e) => setForm({ ...form, supplierName: e.target.value })} />
-              </div>
-            </div>
-            <Button
-              disabled={grantMutation.isPending || !form.buyerStoreId || !form.email || form.supplierName.length < 2}
-              onClick={() => grantMutation.mutate()}
-            >
-              Erişim ver
-            </Button>
-          </section>
-
           <section className="rounded-lg border bg-card">
             <h2 className="border-b p-4 font-medium">Yeni kayıt olan tedarikçiler ({data.pending.length})</h2>
             {data.pending.length === 0 ? (
@@ -137,11 +98,8 @@ function AdminSuppliersPage() {
                       <Badge variant="outline">{p.confirmed ? "E-posta doğrulandı" : "E-posta doğrulanmadı"}</Badge>
                       <Button
                         size="sm"
-                        onClick={() => {
-                          setForm({ buyerStoreId: form.buyerStoreId, email: p.email, supplierName: p.name ?? "" });
-                          document.getElementById("buyer")?.scrollIntoView({ behavior: "smooth", block: "center" });
-                          toast.message("Mağazayı seçip “Erişim ver”e basın");
-                        }}
+                        disabled={grantMutation.isPending}
+                        onClick={() => grantMutation.mutate(p.name ? { email: p.email, supplierName: p.name } : { email: p.email })}
                       >
                         Erişim ver
                       </Button>
@@ -150,6 +108,19 @@ function AdminSuppliersPage() {
                 ))}
               </ul>
             )}
+          </section>
+
+          <section className="space-y-3 rounded-lg border bg-card p-4 sm:p-5">
+            <div>
+              <h2 className="font-medium">E-postayla erişim ver</h2>
+              <p className="text-sm text-muted-foreground">Listede görünmeyen eski kayıtlar için tedarikçinin kayıt e-postasını yazın.</p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Input type="email" placeholder="tedarikci@ornek.com" aria-label="Tedarikçinin e-postası" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Button disabled={grantMutation.isPending || !email.includes("@")} onClick={() => grantMutation.mutate({ email: email.trim() })}>
+                Erişim ver
+              </Button>
+            </div>
           </section>
 
           <section className="rounded-lg border bg-card">
@@ -163,7 +134,7 @@ function AdminSuppliersPage() {
                     <div className="min-w-0">
                       <p className="font-medium">{s.name}</p>
                       <p className="text-muted-foreground">
-                        {s.storeName} · {s.email ?? "—"}
+                        {s.email ?? "—"}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -174,7 +145,7 @@ function AdminSuppliersPage() {
                         disabled={toggleMutation.isPending}
                         onClick={() => toggleMutation.mutate({ supplierId: s.id, enabled: !s.portalEnabled })}
                       >
-                        {s.portalEnabled ? "Kapat" : "Aç"}
+                        {s.portalEnabled ? "Erişimi kaldır" : "Erişim ver"}
                       </Button>
                     </div>
                   </li>
