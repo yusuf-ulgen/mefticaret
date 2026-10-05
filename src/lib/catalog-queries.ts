@@ -13,9 +13,12 @@ export const productsQuery = (storeId: string) =>
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     queryFn: async () => {
+      // Açıklama (200.000 karaktere kadar) listede indirilmez; liste çok daha hızlı açılır.
       const { data, error } = await supabase
         .from("products")
-        .select("*, product_variants(id, stock, price), product_images(url, position)")
+        .select(
+          "id,store_id,title,slug,status,vendor,product_type,tags,base_price,compare_at_price,currency,track_inventory,seo,created_at,updated_at,sku,barcode,seller_name,video_url,cost_price,tax_rate,weight_grams,length_cm,width_cm,height_cm,variant_options,seller_id,tax_class_id,brand_id,vendor_id,category_id,made_to_order,prep_days,custom_note_enabled,custom_note_label,is_digital,published_at,seo_title,seo_description, product_variants(id, stock, price), product_images(url, position)",
+        )
         .eq("store_id", storeId)
         .order("created_at", { ascending: false })
         .limit(500);
@@ -23,6 +26,17 @@ export const productsQuery = (storeId: string) =>
       return data ?? [];
     },
   });
+
+/** Dışa aktarma için ürün açıklamalarını yalnız gerektiğinde indirir. */
+export async function fetchProductDescriptions(storeId: string): Promise<Map<string, string>> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, description")
+    .eq("store_id", storeId)
+    .limit(500);
+  if (error) throw error;
+  return new Map((data ?? []).map((p) => [p.id, p.description ?? ""]));
+}
 
 export const productQuery = (productId: string) =>
   queryOptions({

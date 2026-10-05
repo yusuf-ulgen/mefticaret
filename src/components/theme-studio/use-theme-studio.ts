@@ -289,7 +289,7 @@ export function useThemeStudio(storeId: string) {
         id: product.id,
         title: product.title,
         slug: product.slug,
-        description: product.description,
+        description: product.seo_description ?? null,
         base_price: product.base_price,
         compare_at_price: product.compare_at_price,
         currency: product.currency,

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { productsQuery } from "@/lib/catalog-queries";
+import { fetchProductDescriptions, productsQuery } from "@/lib/catalog-queries";
 import { ordersQuery } from "@/lib/sales-queries";
 import {
   PRODUCT_CSV_HEADERS,
@@ -118,18 +118,19 @@ function ImportExportPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  function exportProducts() {
+  async function exportProducts() {
     const list = products ?? [];
     if (list.length === 0) {
       toast.info("Dışa aktarılacak ürün yok");
       return;
     }
+    const descriptions = await fetchProductDescriptions(storeId).catch(() => new Map<string, string>());
     const rows = list.map((product) => {
       const variants = (product.product_variants ?? []) as { stock: number }[];
       const stock = variants.reduce((sum, variant) => sum + (variant.stock ?? 0), 0);
       return [
         product.title,
-        product.description ?? "",
+        descriptions.get(product.id) ?? "",
         "",
         product.vendor ?? "",
         product.product_type ?? "",

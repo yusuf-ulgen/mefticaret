@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { productsQuery } from "@/lib/catalog-queries";
+import { fetchProductDescriptions, productsQuery } from "@/lib/catalog-queries";
 import { PRODUCT_CSV_HEADERS, downloadCsv, toCsv } from "@/lib/csv";
 import { formatMoney, formatNumber } from "@/lib/mefti";
 import { storeQuery } from "@/lib/store-queries";
@@ -68,15 +68,16 @@ function ProductsPage() {
 
   const allSelected = rows.length > 0 && rows.every((row) => selected.includes(row.id));
 
-  const exportCsv = () => {
+  const exportCsv = async () => {
     const source = selected.length > 0 ? rows.filter((r) => selected.includes(r.id)) : rows;
+    const descriptions = await fetchProductDescriptions(storeId).catch(() => new Map<string, string>());
     const csv = toCsv(
       [...PRODUCT_CSV_HEADERS],
       source.map((product) => {
         const variants = product.product_variants ?? [];
         return [
           product.title,
-          product.description ?? "",
+          descriptions.get(product.id) ?? "",
           product.sku ?? "",
           product.vendor ?? "",
           product.product_type ?? "",
