@@ -497,9 +497,15 @@ export const adminGrantSupplierAccess = createServerFn({ method: "POST" })
     if (!userId) throw new Error("Bu e-postayla kayıtlı kullanıcı bulunamadı");
 
     // Tedarikçinin mevcut kaydı varsa (hangi mağazada olursa olsun) yeniden aç.
-    let existingQuery = db.from("suppliers").select("id").eq("portal_user_id", userId);
-    if (data.buyerStoreId) existingQuery = existingQuery.eq("store_id", data.buyerStoreId);
-    const { data: existingRows } = await existingQuery.limit(1);
+    const { data: existingRows } = data.buyerStoreId
+      ? await db
+          .from("suppliers")
+          .select("id")
+          .eq("portal_user_id", userId)
+          .eq("store_id", data.buyerStoreId)
+          .limit(1)
+          
+      : await db.from("suppliers").select("id").eq("portal_user_id", userId).limit(1);
     const existing = existingRows?.[0];
     if (existing) {
       await db.from("suppliers").update({ portal_enabled: true, is_active: true }).eq("id", existing.id);
