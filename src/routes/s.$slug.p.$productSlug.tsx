@@ -953,7 +953,7 @@ function ProductPage() {
 
       <div style={{ margin: "24px 0", display: "grid", gap: 24 }}>
         <ProductArViewer productId={product.id} title={product.title} />
-        <SizeUnitConverter country={visitorCountry} />
+        {localized.ctx?.storeKind === "micro" ? null : <SizeUnitConverter country={visitorCountry} />}
         <ShoppableVideoRail
           storeId={store.id}
           slug={store.slug}
