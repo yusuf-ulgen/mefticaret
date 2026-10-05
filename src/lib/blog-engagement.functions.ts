@@ -137,6 +137,9 @@ export const likeBlogPost = createServerFn({ method: "POST" })
     const db = await admin();
     const post = await loadPublishedPost(db, data.postId);
     if (!post) throw new Error("Yazı bulunamadı");
+    const { consumeRateLimit } = await import("@/lib/rate-limit.server");
+    const gate = await consumeRateLimit(`blog_like:${await ipHash()}:${post.id}`, { limit: 1, windowSeconds: 86_400 });
+    if (!gate.allowed) return { likes: post.like_count, liked: true };
     const { error } = await db.from("blog_post_likes").insert({ post_id: post.id, session_id: data.sessionId });
     if (error) return { likes: post.like_count, liked: true };
     const { count } = await db.from("blog_post_likes").select("id", { count: "exact", head: true }).eq("post_id", post.id);
@@ -150,12 +153,18 @@ export const recordBlogView = createServerFn({ method: "POST" })
     const db = await admin();
     const post = await loadPublishedPost(db, data.postId);
     if (!post) return { ok: false };
+    const { consumeRateLimit } = await import("@/lib/rate-limit.server");
+    const gate = await consumeRateLimit(`blog_view:${await ipHash()}:${post.id}`, { limit: 1, windowSeconds: 3_600 });
+    if (!gate.allowed) return { ok: true };
     const { error } = await db.from("blog_post_views").insert({
       store_id: post.store_id,
       post_id: post.id,
       session_id: data.sessionId,
       referrer_url: data.referrer ? data.referrer.slice(0, 500) : null,
     });
-    if (!error) await db.from("store_pages").update({ view_count: post.view_count + 1 }).eq("id", post.id);
+    if (!error) {
+      const { count } = await db.from("blog_post_views").select("id", { count: "exact", head: true }).eq("post_id", post.id);
+      await db.from("store_pages").update({ view_count: count ?? post.view_count + 1 }).eq("id", post.id);
+    }
     return { ok: true };
   });

@@ -23,7 +23,13 @@ export const resolveStorefrontRedirect = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!redirect) return null;
 
-    await supabaseAdmin
+    // Sayaç her IP için saatte bir kez artar; yönlendirme her durumda çalışır.
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { consumeRateLimit, clientIp } = await import("@/lib/rate-limit.server");
+    const request = getRequest();
+    const ip = request ? clientIp(request) : "unknown";
+    const gate = await consumeRateLimit(`redirect_hit:${ip}:${redirect.id}`, { limit: 1, windowSeconds: 3_600 });
+    if (gate.allowed) await supabaseAdmin
       .from("store_seo_redirects")
       .update({ hit_count: 1, last_hit_at: new Date().toISOString() })
       .eq("id", redirect.id);

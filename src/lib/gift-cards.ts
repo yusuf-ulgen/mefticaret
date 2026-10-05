@@ -23,8 +23,12 @@ export function generateGiftCardCode(groups = 3, groupSize = 4): string {
   for (let g = 0; g < groups; g += 1) {
     let part = "";
     for (let i = 0; i < groupSize; i += 1) {
-      const index = Math.floor(Math.random() * CODE_ALPHABET.length);
-      part += CODE_ALPHABET[index];
+      // Kriptografik rastgelelik; modulo sapmasını önlemek için reddetme örneklemesi.
+      const limit = 256 - (256 % CODE_ALPHABET.length);
+      const buf = new Uint8Array(1);
+      do crypto.getRandomValues(buf);
+      while ((buf[0] ?? 0) >= limit);
+      part += CODE_ALPHABET[(buf[0] ?? 0) % CODE_ALPHABET.length];
     }
     parts.push(part);
   }
