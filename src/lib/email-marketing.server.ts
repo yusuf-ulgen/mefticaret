@@ -37,13 +37,6 @@ export async function sendMarketingEmail(input: {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return { sent: false, reason: "missing_api_key" };
 
-  // Brevo bağlıysa pazarlama e-postaları Brevo üzerinden gider.
-  const { brevoReady, sendBrevoEmail } = await import("./brevo.server");
-  if (brevoReady()) {
-    const r = await sendBrevoEmail(input);
-    return r.ok ? { sent: true } : { sent: false, reason: "error", message: r.error };
-  }
-
   try {
     await sendLovableEmail(
       {
