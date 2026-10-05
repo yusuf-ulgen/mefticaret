@@ -39,16 +39,23 @@ export const recordConsent = createServerFn({ method: "POST" })
     if (!store) throw new Error("Mağaza bulunamadı");
 
     const userAgent = request?.headers.get("user-agent") ?? null;
+    // Ziyaretçinin yazdığı e-postaya güvenilmez; yalnız oturumu doğrulanan kullanıcının e-postası eklenir.
+    let verifiedEmail: string | null = null;
+    const bearer = request?.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
+    if (bearer) {
+      const { data: auth } = await supabase.auth.getUser(bearer);
+      verifiedEmail = auth.user?.email ?? null;
+    }
     const rows = data.consents.map((item) => ({
       store_id: store.id,
       consent_type: item.consentType,
       granted: item.granted,
       policy_version: data.policyVersion,
       source: data.source,
-      subject_email: data.subjectEmail ?? null,
+      subject_email: verifiedEmail,
       ip,
       user_agent: userAgent,
-      meta: { subject_verified: false } as never,
+      meta: { subject_verified: Boolean(verifiedEmail) } as never,
     }));
 
     // Yazma yalnızca sunucu tarafında (service role) yapılır; ziyaretçi doğrudan tabloya yazamaz.
