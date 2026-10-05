@@ -22,6 +22,13 @@
       "when": 1791040729991,
       "tag": "0002_seed_v2_seller_design_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791219076436,
+      "tag": "0003_perf_indexes",
+      "breakpoints": true
     }
   ]
 }

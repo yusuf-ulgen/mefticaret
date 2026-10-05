@@ -233,6 +233,7 @@ export const storeActionItemsQuery = (storeId: string) =>
           supabase
             .from("product_variants")
             .select("id, stock, low_stock_threshold, products!inner(store_id, status)")
+            .eq("store_id", storeId)
             .eq("products.store_id", storeId)
             .neq("products.status", "archived")
             .limit(1000),
