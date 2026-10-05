@@ -34,7 +34,8 @@ export const smsAudienceFn = createServerFn({ method: "POST" })
     const { getVerimorCredentials } = await import("./sms.server");
     const list = await recipients(context.supabase, data.storeId);
     const creds = await getVerimorCredentials(context.supabase, data.storeId);
-    return { count: list.length, max: MAX_RECIPIENTS, providerReady: !!creds };
+    const { brevoReady } = await import("./brevo.server");
+    return { count: list.length, max: MAX_RECIPIENTS, providerReady: !!creds || brevoReady() };
   });
 
 export const sendSmsCampaignFn = createServerFn({ method: "POST" })
@@ -43,7 +44,9 @@ export const sendSmsCampaignFn = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { sendSmsBulk, getVerimorCredentials } = await import("./sms.server");
-    if (!(await getVerimorCredentials(supabase, data.storeId))) {
+    const { brevoReady, sendBrevoSms } = await import("./brevo.server");
+    const useVerimor = !!(await getVerimorCredentials(supabase, data.storeId));
+    if (!useVerimor && !brevoReady()) {
       throw new Error("SMS göndermek için önce Uygulamalar'dan Verimor SMS'i kurup bilgilerinizi girin.");
     }
     const list = (await recipients(supabase, data.storeId)).slice(0, MAX_RECIPIENTS);
@@ -59,8 +62,20 @@ export const sendSmsCampaignFn = createServerFn({ method: "POST" })
         .insert(chunk.map((r) => ({ store_id: data.storeId, channel: "sms" as const, recipient: r.phone, customer_id: r.customerId, body: data.body, subject: "SMS Pazarlama", status: "queued" as const })))
         .select("id");
       if (error) throw new Error(i === 0 ? "Bu mağazada SMS gönderme yetkiniz yok." : error.message);
-      const res = await sendSmsBulk(supabase, { storeId: data.storeId, to: chunk.map((r) => r.phone), body: data.body });
       const ids = (rows ?? []).map((r) => r.id);
+      if (!useVerimor) {
+        // Brevo: alıcı başına gönderim, her kaydın durumu ayrı güncellenir.
+        for (let j = 0; j < chunk.length; j += 1) {
+          const r = await sendBrevoSms(chunk[j]!.phone, data.body);
+          const id = ids[j];
+          if (id) await supabase.from("message_deliveries").update(r.ok
+            ? { status: "sent" as const, provider_message_id: r.id, sent_at: new Date().toISOString() }
+            : { status: "failed" as const, error: r.error }).eq("id", id);
+          if (r.ok) sent += 1; else { failed += 1; lastError = r.error; }
+        }
+        continue;
+      }
+      const res = await sendSmsBulk(supabase, { storeId: data.storeId, to: chunk.map((r) => r.phone), body: data.body });
       await supabase
         .from("message_deliveries")
         .update({ status: res.status, error: res.error, provider_message_id: res.campaignId, sent_at: res.status === "sent" ? new Date().toISOString() : null })
