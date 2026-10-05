@@ -57,6 +57,9 @@ export async function sendMarketingEmail(input: {
     if (error instanceof EmailAPIError && error.code === "recipient_suppressed") {
       return { sent: false, reason: "recipient_suppressed" };
     }
+    if (error instanceof EmailAPIError && (error.code === "missing_parameter" || error.status === 400)) {
+      return { sent: false, reason: "error", message: "Mefticaret e-posta sistemi toplu kampanya göndermeyi desteklemiyor; kampanyalar için bir pazarlama sağlayıcısı (ör. Brevo) gerekir." };
+    }
     return { sent: false, reason: "error", message: error instanceof Error ? error.message : "gönderim hatası" };
   }
   return { sent: true };
