@@ -30,16 +30,16 @@ export function CookieConsent({ storeSlug }: { storeSlug: string }) {
 
   useEffect(() => {
     if (settings.isLoading) return;
-    const prev = readCookiePreferences(storeSlug) as (ReturnType<typeof readCookiePreferences> & { version?: string }) | null;
+    const prev = readCookiePreferences(storeSlug) as (ReturnType<typeof readCookiePreferences> & { bannerVersion?: string }) | null;
     // Mağaza çerez kategorilerini değiştirdiyse onay yeniden istenir.
-    if (!prev || (cfg && prev.version && prev.version !== version)) setOpen(true);
+    if (!prev || (cfg && prev.bannerVersion && prev.bannerVersion !== version)) setOpen(true);
   }, [storeSlug, settings.isLoading, cfg, version]);
 
   async function persist(next: { analytics: boolean; marketing: boolean }) {
     // eslint-disable-next-line no-param-reassign
     setBusy(true);
     next = { analytics: next.analytics && (cfg?.usesAnalytics ?? true), marketing: next.marketing && (cfg?.usesMarketing ?? true) };
-    writeCookiePreferences(storeSlug, { ...next, decidedAt: new Date().toISOString(), version } as never);
+    writeCookiePreferences(storeSlug, { ...next, decidedAt: new Date().toISOString(), bannerVersion: version } as never);
     setOpen(false);
     try {
       await recordConsent({
