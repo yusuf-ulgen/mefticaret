@@ -68,9 +68,8 @@ export const sendSmsCampaignFn = createServerFn({ method: "POST" })
         for (let j = 0; j < chunk.length; j += 1) {
           const r = await sendBrevoSms(chunk[j]!.phone, data.body);
           const id = ids[j];
-          if (id) await supabase.from("message_deliveries").update(r.ok
-            ? { status: "sent" as const, provider_message_id: r.id, sent_at: new Date().toISOString() }
-            : { status: "failed" as const, error: r.error }).eq("id", id);
+          if (id && r.ok) await supabase.from("message_deliveries").update({ status: "sent", provider_message_id: r.id, sent_at: new Date().toISOString() }).eq("id", id);
+          if (id && !r.ok) await supabase.from("message_deliveries").update({ status: "failed", error: r.error }).eq("id", id);
           if (r.ok) sent += 1; else { failed += 1; lastError = r.error; }
         }
         continue;
