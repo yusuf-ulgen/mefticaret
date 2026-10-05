@@ -49,17 +49,17 @@ function KolayLedgerPage() {
   return (
     <AdminShell title="Kolay Panel Defteri" description="Her Kolay Panel mağazasının siparişleri ayrı defterde: satış, komisyon ve bankaya aktarılacak tutar.">
       <div className="space-y-4">
-        <div className="flex flex-wrap items-end gap-2">
-          <label className="text-xs">Başlangıç<Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-9" /></label>
-          <label className="text-xs">Bitiş<Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-9" /></label>
-          <Input placeholder="Mağaza ara" value={search} onChange={(e) => setSearch(e.target.value)} className="h-9 w-full sm:w-56" aria-label="Mağaza ara" />
-          <Button size="sm" variant="outline" disabled={!rows.length} onClick={() => downloadCsv("kolay-defter.csv", toCsv(["Mağaza","Sipariş","Ödenen","İptal/İade","Satış","Komisyon","Net","Aktarılan","Bekleyen talep","Aktarılacak","IBAN","Hesap sahibi"], rows.map((r) => [r.name, r.orderCount, r.paidCount, r.cancelled, r.sales, r.commission, r.net, r.transferred, r.pending, r.toTransfer ?? "", r.iban ?? "", r.holder ?? ""])))}>CSV indir</Button>
+        <div className="grid grid-cols-2 items-end gap-2 sm:flex sm:flex-wrap">
+          <label className="min-w-0 text-xs">Başlangıç<Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-9 w-full" /></label>
+          <label className="min-w-0 text-xs">Bitiş<Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-9 w-full" /></label>
+          <Input placeholder="Mağaza ara" value={search} onChange={(e) => setSearch(e.target.value)} className="col-span-2 h-9 w-full sm:w-56" aria-label="Mağaza ara" />
+          <Button size="sm" variant="outline" className="col-span-2 sm:col-span-1" disabled={!rows.length} onClick={() => downloadCsv("kolay-defter.csv", toCsv(["Mağaza","Sipariş","Ödenen","İptal/İade","Satış","Komisyon","Net","Aktarılan","Bekleyen talep","Aktarılacak","IBAN","Hesap sahibi"], rows.map((r) => [r.name, r.orderCount, r.paidCount, r.cancelled, r.sales, r.commission, r.net, r.transferred, r.pending, r.toTransfer ?? "", r.iban ?? "", r.holder ?? ""])))}>CSV indir</Button>
         </div>
         {(from || to) && <p className="text-xs text-muted-foreground">Seçili tarih aralığında "Aktarılacak" gösterilmez; aktarılacak tutar tüm dönemin bakiyesidir.</p>}
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {([["Toplam satış", sum("sales")], ["Komisyon geliri", sum("commission")], ["Satıcılara net", sum("net")], ["Aktarılan", sum("transferred")]] as const).map(([l, v]) => (
-            <div key={l} className="surface-card p-4"><p className="text-xs text-muted-foreground">{l}</p><p className="text-lg font-semibold tabular-nums">{formatMoney(v, "TRY")}</p></div>
+            <div key={l} className="surface-card min-w-0 p-3 sm:p-4"><p className="text-xs text-muted-foreground">{l}</p><p className="truncate text-base font-semibold tabular-nums sm:text-lg">{formatMoney(v, "TRY")}</p></div>
           ))}
         </div>
 
@@ -84,10 +84,20 @@ function KolayLedgerPage() {
                 </button>
                 {open === r.storeId && (
                   <div className="space-y-3 border-t p-4 text-sm">
-                    <p className="text-xs text-muted-foreground">Banka: {r.iban ? `${r.holder ?? ""} · ${r.iban}` : "IBAN girilmemiş"}{r.pending ? ` · Bekleyen talep ${formatMoney(r.pending, r.currency)}` : ""}</p>
+                    <p className="break-all text-xs text-muted-foreground">Banka: {r.iban ? `${r.holder ?? ""} · ${r.iban}` : "IBAN girilmemiş"}{r.pending ? ` · Bekleyen talep ${formatMoney(r.pending, r.currency)}` : ""}</p>
                     {detail.isLoading ? <p className="text-muted-foreground">Yükleniyor…</p> : detail.data ? (
                       <>
-                        <div className="overflow-x-auto">
+                        <ul className="space-y-2 sm:hidden">
+                          {detail.data.lines.map((l) => (
+                            <li key={l.id} className={`rounded-lg border p-3 text-xs ${l.counted ? "" : "text-muted-foreground"}`}>
+                              <div className="flex items-center justify-between gap-2"><span className="min-w-0 truncate font-medium">{l.number ?? "—"} · {l.customer ?? "—"}</span><Badge variant="outline" className="shrink-0">{l.counted ? "Hesaba katıldı" : l.paymentStatus !== "paid" ? "Ödenmedi" : "İptal/iade"}</Badge></div>
+                              <p className="mt-1 text-muted-foreground">{l.placedAt ? formatDateTime(l.placedAt) : "—"}</p>
+                              <div className="mt-2 grid grid-cols-3 gap-2 tabular-nums"><span>Tutar<br /><b>{formatMoney(l.total, l.currency)}</b></span><span>Komisyon<br /><b>{formatMoney(l.commission, l.currency)}</b></span><span>Net<br /><b>{formatMoney(l.net, l.currency)}</b></span></div>
+                            </li>
+                          ))}
+                          {detail.data.lines.length === 0 && <li className="py-3 text-center text-muted-foreground">Bu dönemde sipariş yok.</li>}
+                        </ul>
+                        <div className="hidden overflow-x-auto sm:block">
                           <table className="w-full text-xs">
                             <thead className="text-left text-muted-foreground"><tr><th className="py-1 pr-3">Tarih</th><th className="pr-3">Sipariş</th><th className="pr-3">Müşteri</th><th className="pr-3 text-right">Tutar</th><th className="pr-3 text-right">Komisyon</th><th className="pr-3 text-right">Net</th><th>Durum</th></tr></thead>
                             <tbody className="divide-y divide-border">
