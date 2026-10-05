@@ -97,6 +97,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         keywords: "kolay panel ev hanımı hanimlari micro satıcı vitrin mikro paket",
       },
       {
+        to: "/admin/kolay-defter",
+        label: "Kolay Panel Defteri",
+        icon: Store,
+        hint: "Mağaza bazında satış, komisyon, aktarım",
+        keywords: "kolay defter hakediş komisyon aktarım banka iban satış",
+      },
+      {
         to: "/admin/ev-hanimlari",
         label: "Ev Hanımları İçerikleri",
         icon: Store,

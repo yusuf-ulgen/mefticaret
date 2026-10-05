@@ -96,6 +96,7 @@ import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminFirewallRouteImport } from './routes/_authenticated/admin.firewall'
 import { Route as AuthenticatedAdminKlaviyoRouteImport } from './routes/_authenticated/admin.klaviyo'
 import { Route as AuthenticatedAdminKolayRouteImport } from './routes/_authenticated/admin.kolay'
+import { Route as AuthenticatedAdminKolayDefterRouteImport } from './routes/_authenticated/admin.kolay-defter'
 import { Route as AuthenticatedAdminLanguagesRouteImport } from './routes/_authenticated/admin.languages'
 import { Route as AuthenticatedAdminLiveRouteImport } from './routes/_authenticated/admin.live'
 import { Route as AuthenticatedAdminLoadTestRouteImport } from './routes/_authenticated/admin.load-test'
@@ -830,6 +831,12 @@ const AuthenticatedAdminKolayRoute = AuthenticatedAdminKolayRouteImport.update({
   path: '/kolay',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminKolayDefterRoute =
+  AuthenticatedAdminKolayDefterRouteImport.update({
+    id: '/kolay-defter',
+    path: '/kolay-defter',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminLanguagesRoute =
   AuthenticatedAdminLanguagesRouteImport.update({
     id: '/languages',
@@ -2562,6 +2569,7 @@ export interface FileRoutesByFullPath {
   '/admin/firewall': typeof AuthenticatedAdminFirewallRoute
   '/admin/klaviyo': typeof AuthenticatedAdminKlaviyoRoute
   '/admin/kolay': typeof AuthenticatedAdminKolayRoute
+  '/admin/kolay-defter': typeof AuthenticatedAdminKolayDefterRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
   '/admin/load-test': typeof AuthenticatedAdminLoadTestRoute
@@ -2933,6 +2941,7 @@ export interface FileRoutesByTo {
   '/admin/firewall': typeof AuthenticatedAdminFirewallRoute
   '/admin/klaviyo': typeof AuthenticatedAdminKlaviyoRoute
   '/admin/kolay': typeof AuthenticatedAdminKolayRoute
+  '/admin/kolay-defter': typeof AuthenticatedAdminKolayDefterRoute
   '/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/admin/live': typeof AuthenticatedAdminLiveRoute
   '/admin/load-test': typeof AuthenticatedAdminLoadTestRoute
@@ -3302,6 +3311,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/firewall': typeof AuthenticatedAdminFirewallRoute
   '/_authenticated/admin/klaviyo': typeof AuthenticatedAdminKlaviyoRoute
   '/_authenticated/admin/kolay': typeof AuthenticatedAdminKolayRoute
+  '/_authenticated/admin/kolay-defter': typeof AuthenticatedAdminKolayDefterRoute
   '/_authenticated/admin/languages': typeof AuthenticatedAdminLanguagesRoute
   '/_authenticated/admin/live': typeof AuthenticatedAdminLiveRoute
   '/_authenticated/admin/load-test': typeof AuthenticatedAdminLoadTestRoute
@@ -3676,6 +3686,7 @@ export interface FileRouteTypes {
     | '/admin/firewall'
     | '/admin/klaviyo'
     | '/admin/kolay'
+    | '/admin/kolay-defter'
     | '/admin/languages'
     | '/admin/live'
     | '/admin/load-test'
@@ -4047,6 +4058,7 @@ export interface FileRouteTypes {
     | '/admin/firewall'
     | '/admin/klaviyo'
     | '/admin/kolay'
+    | '/admin/kolay-defter'
     | '/admin/languages'
     | '/admin/live'
     | '/admin/load-test'
@@ -4415,6 +4427,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/firewall'
     | '/_authenticated/admin/klaviyo'
     | '/_authenticated/admin/kolay'
+    | '/_authenticated/admin/kolay-defter'
     | '/_authenticated/admin/languages'
     | '/_authenticated/admin/live'
     | '/_authenticated/admin/load-test'
@@ -5453,6 +5466,13 @@ declare module '@tanstack/react-router' {
       path: '/kolay'
       fullPath: '/admin/kolay'
       preLoaderRoute: typeof AuthenticatedAdminKolayRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/kolay-defter': {
+      id: '/_authenticated/admin/kolay-defter'
+      path: '/kolay-defter'
+      fullPath: '/admin/kolay-defter'
+      preLoaderRoute: typeof AuthenticatedAdminKolayDefterRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/languages': {
@@ -7465,6 +7485,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminFirewallRoute: typeof AuthenticatedAdminFirewallRoute
   AuthenticatedAdminKlaviyoRoute: typeof AuthenticatedAdminKlaviyoRoute
   AuthenticatedAdminKolayRoute: typeof AuthenticatedAdminKolayRoute
+  AuthenticatedAdminKolayDefterRoute: typeof AuthenticatedAdminKolayDefterRoute
   AuthenticatedAdminLanguagesRoute: typeof AuthenticatedAdminLanguagesRoute
   AuthenticatedAdminLiveRoute: typeof AuthenticatedAdminLiveRoute
   AuthenticatedAdminLoadTestRoute: typeof AuthenticatedAdminLoadTestRoute
@@ -7525,6 +7546,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminFirewallRoute: AuthenticatedAdminFirewallRoute,
   AuthenticatedAdminKlaviyoRoute: AuthenticatedAdminKlaviyoRoute,
   AuthenticatedAdminKolayRoute: AuthenticatedAdminKolayRoute,
+  AuthenticatedAdminKolayDefterRoute: AuthenticatedAdminKolayDefterRoute,
   AuthenticatedAdminLanguagesRoute: AuthenticatedAdminLanguagesRoute,
   AuthenticatedAdminLiveRoute: AuthenticatedAdminLiveRoute,
   AuthenticatedAdminLoadTestRoute: AuthenticatedAdminLoadTestRoute,
