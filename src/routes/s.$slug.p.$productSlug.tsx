@@ -964,6 +964,8 @@ function ProductPage() {
       </div>
 
 
+      {localized.ctx?.storeKind === "micro" ? null : (
+      <>
       <div id="yorumlar" style={{ scrollMarginTop: 90 }}>
         <StorefrontReviews
           storeSlug={store.slug}
@@ -994,6 +996,8 @@ function ProductPage() {
           headingFont: fonts.heading,
         }}
       />
+      </>
+      )}
 
       <RecentlyViewed
         storeSlug={store.slug}
