@@ -3,6 +3,8 @@ import { Outlet, createFileRoute, isRedirect, redirect } from "@tanstack/react-r
 
 import { checkAdminPanelSession } from "@/lib/admin-auth.functions";
 
+let adminOkUntil = 0;
+
 /**
  * Süper admin bölümünün layout route'u.
  *
@@ -13,12 +15,16 @@ import { checkAdminPanelSession } from "@/lib/admin-auth.functions";
  */
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
+    // Menü geçişlerinde sunucu kontrolünü 60 sn tekrar etmeyiz; platform verisi
+    // okuyan her sunucu işlevi yine kendi yetki kontrolünü yapar.
+    if (adminOkUntil > Date.now()) return { platformAdmin: true as const };
     try {
       // Tek yetki kaynağı: sunucu tarafındaki panel oturumu. Oturum çerezi her
       // istekte doğrulanır ve kullanıcının `platform_admin` rolü veritabanından
       // yeniden okunur.
       const panel = await checkAdminPanelSession();
       if (!panel.allowed) throw redirect({ to: "/auth", search: { next: "/admin" } });
+      adminOkUntil = Date.now() + 60_000;
       return { platformAdmin: true as const };
     } catch (error) {
       if (isRedirect(error)) throw error;
