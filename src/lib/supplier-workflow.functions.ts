@@ -504,8 +504,8 @@ export const adminGrantSupplierAccess = createServerFn({ method: "POST" })
           .eq("portal_user_id", userId)
           .eq("store_id", data.buyerStoreId)
           .limit(1)
-          .returns<{ id: string }[]>()
-      : await db.from("suppliers").select("id").eq("portal_user_id", userId).limit(1).returns<{ id: string }[]>();
+          
+      : await db.from("suppliers").select("id").eq("portal_user_id", userId).limit(1);
     const existing = existingRows?.[0];
     if (existing) {
       await db.from("suppliers").update({ portal_enabled: true, is_active: true }).eq("id", existing.id);
