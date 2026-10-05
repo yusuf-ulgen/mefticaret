@@ -471,9 +471,9 @@ export const adminGrantSupplierAccess = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
       .object({
-        buyerStoreId: z.guid(),
+        buyerStoreId: z.guid().optional(),
         email: z.string().trim().email().max(200),
-        supplierName: z.string().trim().min(2).max(160),
+        supplierName: z.string().trim().max(160).optional(),
       })
       .parse(data),
   )
@@ -483,30 +483,49 @@ export const adminGrantSupplierAccess = createServerFn({ method: "POST" })
     const email = data.email.toLowerCase();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let userId: string | null = null;
+    let metaName: string | null = null;
     for (let page = 1; page <= 20 && !userId; page += 1) {
       const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
       if (error) throw new Error(error.message);
       const hit = list.users.find((u) => (u.email ?? "").toLowerCase() === email);
-      if (hit) userId = hit.id;
+      if (hit) {
+        userId = hit.id;
+        metaName = (hit.user_metadata?.["full_name"] as string | undefined) ?? null;
+      }
       if (list.users.length < 200) break;
     }
     if (!userId) throw new Error("Bu e-postayla kayıtlı kullanıcı bulunamadı");
 
-    const { data: existing } = await db
-      .from("suppliers")
-      .select("id")
-      .eq("store_id", data.buyerStoreId)
-      .eq("portal_user_id", userId)
-      .maybeSingle();
+    // Tedarikçinin mevcut kaydı varsa (hangi mağazada olursa olsun) yeniden aç.
+    let existingQuery = db.from("suppliers").select("id").eq("portal_user_id", userId);
+    if (data.buyerStoreId) existingQuery = existingQuery.eq("store_id", data.buyerStoreId);
+    const { data: existingRows } = await existingQuery.limit(1);
+    const existing = existingRows?.[0];
     if (existing) {
       await db.from("suppliers").update({ portal_enabled: true, is_active: true }).eq("id", existing.id);
       return { id: String(existing.id), created: false };
     }
+
+    // Mağaza seçilmediyse kayıt, yöneticinin kendi mağazasına (yoksa ilk mağazaya) bağlanır;
+    // katalog herkese açık olduğundan tüm mağazalar tedarikçiyi görür.
+    let storeId = data.buyerStoreId ?? null;
+    if (!storeId) {
+      const { data: own } = await db.from("stores").select("id").eq("owner_id", context.userId).order("created_at").limit(1);
+      storeId = own?.[0]?.id ?? null;
+    }
+    if (!storeId) {
+      const { data: first } = await db.from("stores").select("id").order("created_at").limit(1);
+      storeId = first?.[0]?.id ?? null;
+    }
+    if (!storeId) throw new Error("Tedarikçi kaydı için platformda en az bir mağaza olmalı");
+    const name = (data.supplierName && data.supplierName.length >= 2 ? data.supplierName : metaName) || email.split("@")[0];
+
     const { data: created, error } = await db
       .from("suppliers")
       .insert({
-        store_id: data.buyerStoreId,
-        name: data.supplierName,
+        store_id: storeId,
+        name,
+        is_public_catalog: true,
         email,
         is_active: true,
         portal_user_id: userId,
