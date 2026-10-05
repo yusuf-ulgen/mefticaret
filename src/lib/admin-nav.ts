@@ -345,11 +345,11 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         keywords: "app store entegrasyon kategori",
       },
       {
-        to: "/admin/klaviyo",
-        label: "Klaviyo",
+        to: "/admin/email-marketing",
+        label: "E-posta Pazarlama",
         icon: Blocks,
-        hint: "E-posta pazarlama senkronu",
-        keywords: "klaviyo email e-posta liste abone",
+        hint: "Satıcılara kampanya, mağaza kampanyaları",
+        keywords: "email e-posta pazarlama kampanya bülten satıcı",
       },
       {
         to: "/admin/marketplace",
