@@ -90,6 +90,7 @@ import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminControlRouteImport } from './routes/_authenticated/admin.control'
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin.coupons'
 import { Route as AuthenticatedAdminEinvoiceRouteImport } from './routes/_authenticated/admin.einvoice'
+import { Route as AuthenticatedAdminEmailMarketingRouteImport } from './routes/_authenticated/admin.email-marketing'
 import { Route as AuthenticatedAdminEvHanimlariRouteImport } from './routes/_authenticated/admin.ev-hanimlari'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminFirewallRouteImport } from './routes/_authenticated/admin.firewall'
@@ -792,6 +793,12 @@ const AuthenticatedAdminEinvoiceRoute =
   AuthenticatedAdminEinvoiceRouteImport.update({
     id: '/einvoice',
     path: '/einvoice',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminEmailMarketingRoute =
+  AuthenticatedAdminEmailMarketingRouteImport.update({
+    id: '/email-marketing',
+    path: '/email-marketing',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminEvHanimlariRoute =
@@ -2549,6 +2556,7 @@ export interface FileRoutesByFullPath {
   '/admin/control': typeof AuthenticatedAdminControlRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
+  '/admin/email-marketing': typeof AuthenticatedAdminEmailMarketingRoute
   '/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/firewall': typeof AuthenticatedAdminFirewallRoute
@@ -2919,6 +2927,7 @@ export interface FileRoutesByTo {
   '/admin/control': typeof AuthenticatedAdminControlRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
+  '/admin/email-marketing': typeof AuthenticatedAdminEmailMarketingRoute
   '/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/firewall': typeof AuthenticatedAdminFirewallRoute
@@ -3287,6 +3296,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/control': typeof AuthenticatedAdminControlRoute
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/einvoice': typeof AuthenticatedAdminEinvoiceRoute
+  '/_authenticated/admin/email-marketing': typeof AuthenticatedAdminEmailMarketingRoute
   '/_authenticated/admin/ev-hanimlari': typeof AuthenticatedAdminEvHanimlariRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/firewall': typeof AuthenticatedAdminFirewallRoute
@@ -3660,6 +3670,7 @@ export interface FileRouteTypes {
     | '/admin/control'
     | '/admin/coupons'
     | '/admin/einvoice'
+    | '/admin/email-marketing'
     | '/admin/ev-hanimlari'
     | '/admin/finance'
     | '/admin/firewall'
@@ -4030,6 +4041,7 @@ export interface FileRouteTypes {
     | '/admin/control'
     | '/admin/coupons'
     | '/admin/einvoice'
+    | '/admin/email-marketing'
     | '/admin/ev-hanimlari'
     | '/admin/finance'
     | '/admin/firewall'
@@ -4397,6 +4409,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/control'
     | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/einvoice'
+    | '/_authenticated/admin/email-marketing'
     | '/_authenticated/admin/ev-hanimlari'
     | '/_authenticated/admin/finance'
     | '/_authenticated/admin/firewall'
@@ -5398,6 +5411,13 @@ declare module '@tanstack/react-router' {
       path: '/einvoice'
       fullPath: '/admin/einvoice'
       preLoaderRoute: typeof AuthenticatedAdminEinvoiceRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/email-marketing': {
+      id: '/_authenticated/admin/email-marketing'
+      path: '/email-marketing'
+      fullPath: '/admin/email-marketing'
+      preLoaderRoute: typeof AuthenticatedAdminEmailMarketingRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/ev-hanimlari': {
@@ -7439,6 +7459,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminControlRoute: typeof AuthenticatedAdminControlRoute
   AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
   AuthenticatedAdminEinvoiceRoute: typeof AuthenticatedAdminEinvoiceRoute
+  AuthenticatedAdminEmailMarketingRoute: typeof AuthenticatedAdminEmailMarketingRoute
   AuthenticatedAdminEvHanimlariRoute: typeof AuthenticatedAdminEvHanimlariRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminFirewallRoute: typeof AuthenticatedAdminFirewallRoute
@@ -7498,6 +7519,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminControlRoute: AuthenticatedAdminControlRoute,
   AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
   AuthenticatedAdminEinvoiceRoute: AuthenticatedAdminEinvoiceRoute,
+  AuthenticatedAdminEmailMarketingRoute: AuthenticatedAdminEmailMarketingRoute,
   AuthenticatedAdminEvHanimlariRoute: AuthenticatedAdminEvHanimlariRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
   AuthenticatedAdminFirewallRoute: AuthenticatedAdminFirewallRoute,
