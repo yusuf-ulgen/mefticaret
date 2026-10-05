@@ -53,9 +53,7 @@ function KolayLedgerPage() {
           <label className="text-xs">Başlangıç<Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-9" /></label>
           <label className="text-xs">Bitiş<Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-9" /></label>
           <Input placeholder="Mağaza ara" value={search} onChange={(e) => setSearch(e.target.value)} className="h-9 w-full sm:w-56" aria-label="Mağaza ara" />
-          <Button size="sm" variant="outline" disabled={!rows.length} onClick={() => downloadCsv("kolay-defter.csv", toCsv(rows.map((r) => ({
-            Mağaza: r.name, Sipariş: r.orderCount, Ödenen: r.paidCount, İptal_İade: r.cancelled, Satış: r.sales, Komisyon: r.commission, Net: r.net, Aktarılan: r.transferred, Bekleyen_talep: r.pending, Aktarılacak: r.toTransfer ?? "", IBAN: r.iban ?? "", Hesap_sahibi: r.holder ?? "",
-          }))))}>CSV indir</Button>
+          <Button size="sm" variant="outline" disabled={!rows.length} onClick={() => downloadCsv("kolay-defter.csv", toCsv(["Mağaza","Sipariş","Ödenen","İptal/İade","Satış","Komisyon","Net","Aktarılan","Bekleyen talep","Aktarılacak","IBAN","Hesap sahibi"], rows.map((r) => [r.name, r.orderCount, r.paidCount, r.cancelled, r.sales, r.commission, r.net, r.transferred, r.pending, r.toTransfer ?? "", r.iban ?? "", r.holder ?? ""])))}>CSV indir</Button>
         </div>
         {(from || to) && <p className="text-xs text-muted-foreground">Seçili tarih aralığında "Aktarılacak" gösterilmez; aktarılacak tutar tüm dönemin bakiyesidir.</p>}
 
