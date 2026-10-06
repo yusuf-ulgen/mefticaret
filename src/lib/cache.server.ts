@@ -24,7 +24,8 @@ export type CacheNamespace = (typeof CACHE_NAMESPACES)[keyof typeof CACHE_NAMESP
 /** Ad alanı bazlı varsayılan TTL değerleri (saniye). */
 export const CACHE_TTL: Record<CacheNamespace, number> = {
   "store-settings": 300,
-  catalog: 120,
+  // Vitrin panel değişikliklerini en geç ~15 sn'de göstersin (anlık eşitleme).
+  catalog: 15,
   categories: 600,
   session: 900,
   "rate-limit": 60,

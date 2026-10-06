@@ -35,26 +35,24 @@ export function useStorefrontLive(slug: string, storeId: string | undefined) {
       };
     }
 
-    const channel = supabase
-      .channel(`storefront-live-${storeId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "products", filter: `store_id=eq.${storeId}` },
-        refresh,
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "product_variants",
-          filter: `store_id=eq.${storeId}`,
-        },
-        refresh,
-      )
-      .subscribe();
+    // Sunucu önbelleği en geç ~15 sn'de yenilenir; değişiklikten hemen sonra ve
+    // önbellek süresi dolunca bir kez daha tazeleriz.
+    let late: ReturnType<typeof setTimeout> | undefined;
+    const onChange = () => {
+      refresh();
+      if (late) clearTimeout(late);
+      late = setTimeout(refresh, 16_000);
+    };
+    const byStore = `store_id=eq.${storeId}`;
+    let channel = supabase.channel(`storefront-live-${storeId}`);
+    for (const table of ["products", "product_variants", "product_images", "collections", "home_maker_profiles"]) {
+      channel = channel.on("postgres_changes", { event: "*", schema: "public", table, filter: byStore }, onChange);
+    }
+    channel = channel.on("postgres_changes", { event: "*", schema: "public", table: "stores", filter: `id=eq.${storeId}` }, onChange);
+    channel.subscribe();
 
     return () => {
+      if (late) clearTimeout(late);
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("online", refresh);
       void supabase.removeChannel(channel);
