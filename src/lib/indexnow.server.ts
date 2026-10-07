@@ -128,3 +128,23 @@ export async function pingProductIndexNow(
     /* indeksleme bildirimi ürün kaydını engellemez */
   }
 }
+
+const PUBLIC_ORIGIN = "https://mefticaret.com";
+
+/**
+ * Yeni yayınlanan blog yazısını ve ilgili site haritalarını arama motorlarına bildirir.
+ * Site haritaları zaten canlı üretilir; bu çağrı yalnız taramayı hızlandırır.
+ * storeSlug yoksa platform (süper yönetici) blogudur.
+ */
+export async function pingBlogPostIndexNow(postSlug: string, storeSlug?: string | null): Promise<void> {
+  const base = PUBLIC_ORIGIN;
+  const urls = storeSlug
+    ? [`${base}/s/${storeSlug}/page/${postSlug}`, `${base}/s/${storeSlug}/blog`, `${base}/api/public/sitemap/${storeSlug}`]
+    : [`${base}/blog/${postSlug}`, `${base}/blog`];
+  urls.push(`${base}/sitemap-blog.xml`, `${base}/sitemap-index.xml`);
+  try {
+    await pushUrlsToIndexNow(base, urls);
+  } catch {
+    /* bildirim hatası yazı kaydını engellemez */
+  }
+}

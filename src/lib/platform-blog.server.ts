@@ -68,6 +68,7 @@ export async function upsertPlatformPost(
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!data) throw new Error("Yazı bulunamadı");
+    await notifyIfPublished(input.status, data.slug);
     return data;
   }
 
@@ -77,7 +78,14 @@ export async function upsertPlatformPost(
     .select("id, slug")
     .single();
   if (error) throw new Error(error.message);
+  await notifyIfPublished(input.status, data.slug);
   return data;
+}
+
+async function notifyIfPublished(status: string, slug: string) {
+  if (status !== "published") return;
+  const { pingBlogPostIndexNow } = await import("@/lib/indexnow.server");
+  await pingBlogPostIndexNow(slug);
 }
 
 export async function deletePlatformPost(
