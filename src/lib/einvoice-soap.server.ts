@@ -20,8 +20,18 @@ export interface SoapCredentials {
   password: string;
 }
 
-/** Ortam değişkenlerinden kimlik bilgisi okur; eksikse null döner. */
-export function readSoapCredentials(): SoapCredentials | null {
+/**
+ * Ortam değişkenlerinden kimlik bilgisi okur; eksikse null döner.
+ * Test ortamında e-Arşiv ayrı platformda (portaltest) ayrı kullanıcıyla çalışır:
+ * `QNB_EARSIV_USERNAME` / `QNB_EARSIV_PASSWORD`. Canlıda tek kullanıcı yeterlidir;
+ * e-Arşiv bilgisi yoksa e-Fatura kullanıcısı kullanılır.
+ */
+export function readSoapCredentials(kind: "efatura" | "earsiv" = "efatura"): SoapCredentials | null {
+  if (kind === "earsiv") {
+    const u = process.env["QNB_EARSIV_USERNAME"];
+    const pw = process.env["QNB_EARSIV_PASSWORD"];
+    if (u && pw) return { username: u, password: pw };
+  }
   const username = process.env["QNB_EINVOICE_USERNAME"];
   const password = process.env["QNB_EINVOICE_PASSWORD"];
   if (!username || !password) return null;

@@ -134,6 +134,11 @@ function AdminEinvoicePage() {
       earsivBranch: row.earsiv_branch,
       earsivCashbox: row.earsiv_cashbox,
       erpCode: row.erp_code ?? "",
+      earsivLoginUrl: row.earsiv_login_url ?? "",
+      senderAlias: row.sender_alias ?? "",
+      senderTaxOffice: row.sender_tax_office ?? "",
+      senderDistrict: row.sender_district ?? "",
+      autoSend: row.auto_send ?? false,
     });
   }, [data, form]);
 
@@ -396,6 +401,29 @@ function AdminEinvoicePage() {
                 <Input value={form.erpCode ?? ""} onChange={(e) => set("erpCode", e.target.value)} />
               </div>
 
+              <div className="grid gap-2">
+                <Label>Gönderici GB etiketi</Label>
+                <Input value={form.senderAlias ?? ""} placeholder="urn:mail:defaultgb@..." onChange={(e) => set("senderAlias", e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>Gönderici vergi dairesi</Label>
+                <Input value={form.senderTaxOffice ?? ""} onChange={(e) => set("senderTaxOffice", e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>Gönderici ilçe</Label>
+                <Input value={form.senderDistrict ?? ""} onChange={(e) => set("senderDistrict", e.target.value)} />
+              </div>
+              <div className="flex items-center justify-between gap-2 rounded-md border p-3">
+                <div>
+                  <Label>Ödenen faturaları otomatik gönder</Label>
+                  <p className="text-xs text-muted-foreground">Test gönderimi başarılı olmadan açmayın.</p>
+                </div>
+                <input type="checkbox" className="size-5 accent-primary" checked={Boolean(form.autoSend)} onChange={(e) => set("autoSend", e.target.checked)} />
+              </div>
+              <div className="grid gap-2 md:col-span-2">
+                <Label>e-Arşiv giriş (userService) adresi</Label>
+                <Input value={form.earsivLoginUrl ?? ""} onChange={(e) => set("earsivLoginUrl", e.target.value)} />
+              </div>
               <div className="grid gap-2 md:col-span-2">
                 <Label>e-Arşiv servisi adresi</Label>
                 <Input

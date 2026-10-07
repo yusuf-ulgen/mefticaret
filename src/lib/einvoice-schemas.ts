@@ -17,7 +17,7 @@ export const settingsSchema = z.object({
   senderAddress: z.string().trim().max(300).optional().or(z.literal("")),
   senderCity: z.string().trim().max(80).optional().or(z.literal("")),
   senderCountry: z.string().trim().min(2).max(80),
-  invoicePrefix: z.string().trim().min(2).max(8),
+  invoicePrefix: z.string().trim().regex(/^[A-Z]{3}$/, "Ön ek 3 büyük harf olmalı (GİB)"),
   isEnabled: z.boolean(),
   checkUserOperation: z.string().trim().min(2).max(80),
   listUsersOperation: z.string().trim().min(2).max(80),
@@ -31,6 +31,11 @@ export const settingsSchema = z.object({
   earsivBranch: z.string().trim().min(1).max(20),
   earsivCashbox: z.string().trim().min(1).max(20),
   erpCode: z.string().trim().max(40).optional().or(z.literal("")),
+  earsivLoginUrl: z.string().trim().max(400).optional().or(z.literal("")),
+  senderAlias: z.string().trim().max(200).optional().or(z.literal("")),
+  senderTaxOffice: z.string().trim().max(120).optional().or(z.literal("")),
+  senderDistrict: z.string().trim().max(80).optional().or(z.literal("")),
+  autoSend: z.boolean().optional(),
 });
 
 /** Belge indirme formatları (QNB: HTML / PDF / UBL). */
@@ -57,6 +62,8 @@ export const sendSchema = z.object({
   buyerTitle: z.string().trim().min(2).max(200),
   buyerAddress: z.string().trim().min(2).max(300),
   buyerCity: z.string().trim().min(2).max(80),
+  buyerDistrict: z.string().trim().max(80).optional(),
+  buyerTaxOffice: z.string().trim().max(120).optional(),
   buyerEmail: z.string().trim().email().max(160).optional().or(z.literal("")),
   /** `AUTO`: alıcı e-fatura mükellefi ise e-Fatura, değilse e-Arşiv olarak düzenlenir. */
   profile: z.enum(["AUTO", "TEMELFATURA", "EARSIVFATURA"]),

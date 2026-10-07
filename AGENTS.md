@@ -20,3 +20,5 @@
 - Ev Hanımları giriş sayfası tek bileşendir (home-maker-auth-page.tsx); TR/EN/DE/FR/AR rotaları onu locale ile render eder, metin ve meta home-maker-i18n.ts içindedir — neden: diller arasında düzen aynı kalsın.
 - Platform Analitik Merkezi (v2, /admin/analytics) platform_settings 'v2_superadmin_analytics' anahtarıyla açılır; tüm platform geneli okumalar yalnız platform-analytics.server.ts içinde assertPlatformAdmin sonrası yapılır ve KPI/rapor/CSV aynı veri kümesinden üretilir — neden: kiracı sızıntısını önlemek ve toplamların tutarlı kalması.
 - Satıcı paneli v2 tasarımı yalnız AppShell içindeki .seller-v2 sınıfıyla (src/styles.css token geçersiz kılma) uygulanır; platform_settings v2_seller_design bayrağıyla açılır — neden: süper yönetici, vitrin ve checkout etkilenmesin, bayrak kapanınca eski görünüm dönsün.
+
+- QNB e-belge gönderimi yalnız einvoice.server.ts sendInvoice üzerinden; otomatik gönderim invoices.status=paid tetikleyicisi + kuyruk (einvoice-auto.server.ts) ile yapılır ve başarısız gönderim otomatik tekrar edilmez — neden: mükerrer resmî fatura riskini önlemek.
