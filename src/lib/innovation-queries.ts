@@ -4,22 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 /** Next-Gen Innovation & FinTech Pack okuma sorguları (RLS ile mağazaya kapalı). */
 
-export type LiveStreamRow = {
-  id: string;
-  title: string;
-  description: string | null;
-  provider: "youtube" | "vimeo" | "mux" | "custom";
-  stream_url: string | null;
-  chat_enabled: boolean;
-  status: "scheduled" | "live" | "ended" | "cancelled";
-  scheduled_at: string | null;
-  started_at: string | null;
-  ended_at: string | null;
-  peak_viewers: number;
-  total_views: number;
-  product_clicks: number;
-};
-
 export type ShoppableVideoRow = {
   id: string;
   product_id: string | null;
@@ -106,23 +90,6 @@ export type ArAssetRow = {
   scale_hint: string | null;
   is_active: boolean;
 };
-
-export const liveStreamsQuery = (storeId: string) =>
-  queryOptions({
-    queryKey: ["live-streams", storeId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("live_streams")
-        .select(
-          "id, title, description, provider, stream_url, chat_enabled, status, scheduled_at, started_at, ended_at, peak_viewers, total_views, product_clicks",
-        )
-        .eq("store_id", storeId)
-        .order("created_at", { ascending: false })
-        .limit(100);
-      if (error) throw error;
-      return (data ?? []) as LiveStreamRow[];
-    },
-  });
 
 export const shoppableVideosQuery = (storeId: string) =>
   queryOptions({

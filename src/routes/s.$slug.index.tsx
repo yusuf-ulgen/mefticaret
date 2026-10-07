@@ -3,7 +3,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { ShopierHome } from "@/components/storefront/shopier-home";
-import { LiveStreamBanner } from "@/components/storefront/live-stream-banner";
 import { ShoppableVideoRail } from "@/components/storefront/shoppable-video-rail";
 import { UgcWall } from "@/components/storefront/ugc-wall";
 import { StorefrontSections } from "@/components/storefront-sections";
@@ -198,10 +197,9 @@ function StorefrontHome() {
         />
       ) : null}
 
-      {/* Kolay Panel vitrini sade kalır: canlı yayın, video ve UGC blokları yalnız kurumsal mağazalarda. */}
+      {/* Kolay Panel vitrini sade kalır: video ve UGC blokları yalnız kurumsal mağazalarda. */}
       {isHomeMakerStorefront ? null : (
         <div style={{ display: "grid", gap: 28, margin: "28px 0" }}>
-          <LiveStreamBanner storeId={store.id} slug={store.slug} currency={store.currency} />
           <ShoppableVideoRail storeId={store.id} slug={store.slug} placement="home" />
           <UgcWall storeId={store.id} />
         </div>

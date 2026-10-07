@@ -99,7 +99,7 @@ function InnovationPage() {
 
         <Tabs defaultValue="live">
           <TabsList className="flex-wrap">
-            <TabsTrigger value="live">Canlı Satış & Video</TabsTrigger>
+            <TabsTrigger value="live">Kısa Video</TabsTrigger>
             <TabsTrigger value="social">İçerik & 3B</TabsTrigger>
             <TabsTrigger value="pos">Akıllı POS</TabsTrigger>
             <TabsTrigger value="green">Yeşil Kasa & Ek Hizmet</TabsTrigger>
