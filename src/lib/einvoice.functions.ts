@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
+  credentialsSchema,
   downloadSchema,
   inboxDownloadSchema,
   inboxSyncSchema,
@@ -105,4 +106,13 @@ export const downloadEinvoiceInboxDocument = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { downloadInboxDocument } = await import("@/lib/einvoice.server");
     return downloadInboxDocument(data.ettn, data.format, context.userId);
+  });
+
+export const saveEinvoiceCredentials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => credentialsSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { saveCredentials } = await import("@/lib/einvoice.server");
+    return saveCredentials(data, context.userId);
   });

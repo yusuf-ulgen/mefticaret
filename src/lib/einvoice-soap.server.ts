@@ -26,7 +26,26 @@ export interface SoapCredentials {
  * `QNB_EARSIV_USERNAME` / `QNB_EARSIV_PASSWORD`. Canlıda tek kullanıcı yeterlidir;
  * e-Arşiv bilgisi yoksa e-Fatura kullanıcısı kullanılır.
  */
-export function readSoapCredentials(kind: "efatura" | "earsiv" = "efatura"): SoapCredentials | null {
+export async function readSoapCredentials(kind: "efatura" | "earsiv" = "efatura"): Promise<SoapCredentials | null> {
+  // Önce Süper Admin ekranından kaydedilen (şifreli) bilgiler, yoksa ortam değişkenleri.
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { decryptCredentials } = await import("./payment-crypto.server");
+    const kinds = kind === "earsiv" ? ["earsiv", "efatura"] : ["efatura"];
+    const { data } = await supabaseAdmin
+      .from("einvoice_credentials")
+      .select("kind, username, secret_payload")
+      .in("kind", kinds);
+    for (const k of kinds) {
+      const row = (data ?? []).find((r) => r.kind === k);
+      if (row) {
+        const dec = await decryptCredentials(row.secret_payload);
+        if (row.username && dec["password"]) return { username: row.username, password: dec["password"] };
+      }
+    }
+  } catch {
+    /* ortam değişkenlerine düşülür */
+  }
   if (kind === "earsiv") {
     const u = process.env["QNB_EARSIV_USERNAME"];
     const pw = process.env["QNB_EARSIV_PASSWORD"];

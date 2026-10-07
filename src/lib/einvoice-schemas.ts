@@ -85,3 +85,9 @@ export type SettingsInput = z.infer<typeof settingsSchema>;
 export type SendInput = z.infer<typeof sendSchema>;
 export type RecipientInput = z.infer<typeof recipientSchema>;
 export type StatusInput = z.infer<typeof statusSchema>;
+
+export const credentialsSchema = z.object({
+  kind: z.enum(["efatura", "earsiv"]),
+  username: z.string().trim().min(3, "Kullanıcı adı zorunlu").max(120),
+  password: z.string().min(4, "Şifre zorunlu").max(200),
+});

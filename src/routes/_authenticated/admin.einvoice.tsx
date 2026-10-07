@@ -37,6 +37,7 @@ import {
   saveEinvoiceSettings,
   sendEinvoiceDocument,
   syncEinvoiceInbox,
+  saveEinvoiceCredentials,
   testEinvoiceConnection,
 } from "@/lib/einvoice.functions";
 
@@ -269,6 +270,12 @@ function AdminEinvoicePage() {
           {test.isPending ? "Test ediliyor…" : "Bağlantıyı test et"}
         </Button>
       </div>
+
+      <QnbLoginCard
+        users={data?.credentialUsers ?? []}
+        environment={form?.environment ?? "test"}
+        onSaved={() => queryClient.invalidateQueries({ queryKey: ["admin-einvoice"] })}
+      />
 
       <Tabs defaultValue="settings">
         <TabsList>
@@ -729,5 +736,89 @@ function AdminEinvoicePage() {
         </TabsContent>
       </Tabs>
     </AdminShell>
+  );
+}
+
+
+const QNB_PORTAL = {
+  test: { efatura: "https://portaltest.qnbesolutions.com.tr/yonetim", earsiv: "https://portaltest.qnbesolutions.com.tr/yonetim" },
+  live: { efatura: "https://portal.qnbesolutions.com.tr", earsiv: "https://portal.qnbesolutions.com.tr" },
+} as const;
+
+/** QNB kullanıcı adı/şifre girişi. Şifre şifrelenerek saklanır, ekranda geri gösterilmez. */
+function QnbLoginCard({
+  users,
+  environment,
+  onSaved,
+}: {
+  users: { kind: string; username: string; updatedAt: string }[];
+  environment: "test" | "live";
+  onSaved: () => void;
+}) {
+  const saveFn = useServerFn(saveEinvoiceCredentials);
+  const [kind, setKind] = useState<"efatura" | "earsiv">("efatura");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const current = users.find((u) => u.kind === kind);
+  const save = useMutation({
+    mutationFn: () => saveFn({ data: { kind, username, password } }),
+    onSuccess: () => {
+      setPassword("");
+      toast.success("QNB giriş bilgileri kaydedildi. Şimdi \"Bağlantıyı test et\" ile deneyin.");
+      onSaved();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  return (
+    <div className="mb-6 rounded-lg border bg-card p-4">
+      <div className="mb-3">
+        <h2 className="text-base font-semibold">QNB giriş bilgileri</h2>
+        <p className="text-sm text-muted-foreground">
+          QNB'nin size e-postayla gönderdiği kullanıcı adı ve şifreyi girin. Şifre şifrelenerek saklanır ve bir daha gösterilmez.
+        </p>
+      </div>
+      <div className="mb-3 flex gap-2">
+        <Button type="button" size="sm" variant={kind === "efatura" ? "default" : "outline"} onClick={() => setKind("efatura")}>
+          e-Fatura kullanıcısı
+        </Button>
+        <Button type="button" size="sm" variant={kind === "earsiv" ? "default" : "outline"} onClick={() => setKind("earsiv")}>
+          e-Arşiv kullanıcısı
+        </Button>
+      </div>
+      {current ? (
+        <p className="mb-3 text-sm">
+          Kayıtlı kullanıcı: <span className="font-medium">{current.username}</span>
+        </p>
+      ) : (
+        <p className="mb-3 text-sm text-destructive">Bu bölüm için kayıtlı kullanıcı yok.</p>
+      )}
+      <form
+        className="grid gap-3 sm:grid-cols-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          save.mutate();
+        }}
+      >
+        <div className="grid gap-2">
+          <Label htmlFor="qnb-user">Kullanıcı adı</Label>
+          <Input id="qnb-user" autoComplete="username" value={username} placeholder="örn. 13178864312.portaltest" onChange={(e) => setUsername(e.target.value)} />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="qnb-pass">Şifre</Label>
+          <Input id="qnb-pass" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </div>
+        <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+          <Button type="submit" disabled={save.isPending || username.trim().length < 3 || password.length < 4}>
+            {save.isPending ? "Kaydediliyor…" : "Kaydet"}
+          </Button>
+          <a className="text-sm text-primary underline" href={QNB_PORTAL[environment][kind]} target="_blank" rel="noreferrer">
+            Şifremi unuttum (QNB portalında sıfırla)
+          </a>
+        </div>
+      </form>
+      <p className="mt-3 text-xs text-muted-foreground">
+        Test ortamında e-Fatura ve e-Arşiv ayrı kullanıcılarla çalışır. Canlıda tek kullanıcı yeterlidir; e-Arşiv boş bırakılırsa e-Fatura kullanıcısı kullanılır.
+      </p>
+    </div>
   );
 }

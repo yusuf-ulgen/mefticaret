@@ -4794,6 +4794,30 @@ export type Database = {
           },
         ]
       }
+      einvoice_credentials: {
+        Row: {
+          kind: string
+          secret_payload: string
+          updated_at: string
+          updated_by: string | null
+          username: string
+        }
+        Insert: {
+          kind: string
+          secret_payload: string
+          updated_at?: string
+          updated_by?: string | null
+          username: string
+        }
+        Update: {
+          kind?: string
+          secret_payload?: string
+          updated_at?: string
+          updated_by?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
       einvoice_documents: {
         Row: {
           attempts: number
