@@ -109,7 +109,8 @@ export async function loadOverview() {
 
   return {
     settings,
-    credentialsConfigured: readSoapCredentials() !== null,
+    credentialsConfigured: (await readSoapCredentials()) !== null,
+    credentialUsers: await credentialUsernames(),
     documents: documents.data ?? [],
     inbox: inbox.data ?? [],
     invoices: (invoices.data ?? []).map((row) => ({
@@ -184,7 +185,7 @@ export async function saveSettings(input: SettingsInput, userId: string) {
 /** Bağlantı testi: cookie yönteminde gerçek `wsLogin`, wsse yönteminde servis erişimi. */
 export async function testConnection(userId: string) {
   const settings = await loadSettingsRow();
-  const credentials = readSoapCredentials();
+  const credentials = await readSoapCredentials();
   if (!credentials) {
     throw new Error("QNB kullanıcı adı/şifresi tanımlı değil");
   }
@@ -264,7 +265,7 @@ function parseLines(raw: unknown, fallbackTotal: number, taxTotal: number, subto
 
 /** Fatura servisine çağrı yapar; cookie yönteminde önce `wsLogin` çalıştırır. */
 async function serviceCall(settings: SettingsRow, body: string) {
-  const credentials = readSoapCredentials();
+  const credentials = await readSoapCredentials();
   if (!credentials) throw new Error("QNB kullanıcı adı/şifresi tanımlı değil");
   if (!settings.service_url) throw new Error("Servis adresi tanımlı değil");
 
@@ -496,7 +497,7 @@ export async function sendInvoice(input: SendInput, userId: string | null) {
   // QNB: ERP kodu tüm gönderimlerde zorunludur (belgeGonderExt.erpKodu, e-Arşiv input.erpKodu).
   if (!settings.erp_code) throw new Error("ERP kodu tanımlı değil (QNB tarafından verilen kod)");
   if (!/^[A-Z]{3}$/.test(settings.invoice_prefix)) throw new Error("Fatura ön eki 3 büyük harf olmalı");
-  const credentials = readSoapCredentials("efatura");
+  const credentials = await readSoapCredentials("efatura");
   if (!credentials) throw new Error("QNB e-Fatura kullanıcı adı/şifresi tanımlı değil");
 
   const { data: invoice, error: invoiceError } = await client
@@ -635,7 +636,7 @@ export async function sendInvoice(input: SendInput, userId: string | null) {
     // Test ortamında e-Arşiv (portaltest) ile e-Fatura (erpefaturatest) farklı platformlardadır;
     // her biri kendi giriş servisi ve kullanıcısıyla oturum açar. Canlıda tek kullanıcı yeterlidir.
     let cookie: string | null = null;
-    const loginCredentials = isEarsiv ? readSoapCredentials("earsiv") : credentials;
+    const loginCredentials = isEarsiv ? await readSoapCredentials("earsiv") : credentials;
     if (!loginCredentials) throw new Error("QNB e-Arşiv kullanıcı adı/şifresi tanımlı değil");
     if (settings.auth_mode === "cookie") {
       cookie = (
@@ -966,4 +967,35 @@ export async function downloadInboxDocument(
   });
 
   return { ok: true as const, fileName: `gelen-${ettn}-${format}.zip`, base64 };
+}
+
+
+/** Kayıtlı QNB kullanıcı adlarını (şifre olmadan) döndürür. */
+async function credentialUsernames() {
+  const client = await db();
+  const { data } = await client.from("einvoice_credentials").select("kind, username, updated_at");
+  return (data ?? []).map((r) => ({ kind: r.kind, username: r.username, updatedAt: r.updated_at }));
+}
+
+/** QNB kullanıcı adı/şifresini şifreleyerek kaydeder; şifre hiçbir yerde geri gösterilmez. */
+export async function saveCredentials(input: { kind: "efatura" | "earsiv"; username: string; password: string }, userId: string) {
+  const client = await db();
+  const { encryptCredentials } = await import("./payment-crypto.server");
+  const payload = await encryptCredentials({ password: input.password });
+  const { error } = await client.from("einvoice_credentials").upsert({
+    kind: input.kind,
+    username: input.username,
+    secret_payload: payload,
+    updated_by: userId,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) throw new Error(error.message);
+  await recordAudit(null, {
+    action: "einvoice.credentials.updated",
+    actorId: userId,
+    entity: "einvoice_credentials",
+    entityId: input.kind,
+    newValue: { kind: input.kind, username: input.username },
+  });
+  return { ok: true as const };
 }
