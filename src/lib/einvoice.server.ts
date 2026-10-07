@@ -58,6 +58,11 @@ type SettingsRow = {
   earsiv_branch: string;
   earsiv_cashbox: string;
   erp_code: string | null;
+  earsiv_login_url: string | null;
+  sender_alias: string | null;
+  sender_tax_office: string | null;
+  sender_district: string | null;
+  auto_send: boolean;
   last_inbox_sequence: string;
   updated_at: string;
 };
@@ -223,23 +228,33 @@ function parseLines(raw: unknown, fallbackTotal: number, taxTotal: number, subto
   const rows = Array.isArray(raw) ? raw : [];
   const parsed = rows.map((item) => {
     const row = (item ?? {}) as Record<string, unknown>;
-    const name = String(row["name"] ?? row["description"] ?? row["title"] ?? "Abonelik hizmeti");
+    const name = String(row["name"] ?? row["description"] ?? row["title"] ?? "Mefticaret hizmet bedeli");
     const quantity = Number(row["quantity"] ?? row["qty"] ?? 1) || 1;
     const lineTotal = Number(row["total"] ?? row["amount"] ?? row["subtotal"] ?? 0);
     const unitPrice = Number(row["unit_price"] ?? row["unitPrice"] ?? (quantity ? lineTotal / quantity : 0));
-    return { name, quantity, unitPrice, lineTotal };
+    const rateRaw = row["tax_rate"] ?? row["taxRate"];
+    const taxRate = rateRaw === undefined || rateRaw === null ? null : Number(rateRaw);
+    return { name, quantity, unitPrice, lineTotal, taxRate };
   });
 
   const base = parsed.length > 0 ? parsed : [
-    { name: "Mefticaret abonelik hizmeti", quantity: 1, unitPrice: subtotal || fallbackTotal, lineTotal: subtotal || fallbackTotal },
+    { name: "Mefticaret hizmet bedeli", quantity: 1, unitPrice: subtotal || fallbackTotal, lineTotal: subtotal || fallbackTotal, taxRate: null },
   ];
 
-  const totalBase = base.reduce((sum, line) => sum + line.lineTotal, 0) || 1;
-  return base.map((line) => {
-    const share = (line.lineTotal / totalBase) * taxTotal;
-    const rate = line.lineTotal > 0 ? (share / line.lineTotal) * 100 : 0;
-    return { ...line, taxAmount: Number(share.toFixed(2)), taxRate: Number(rate.toFixed(2)) } satisfies UblLine;
+  // Satırın kendi KDV oranı varsa o kullanılır; yoksa fatura genel oranı (vergi / matrah) uygulanır.
+  const invoiceRate = subtotal > 0 ? Math.round((taxTotal / subtotal) * 10000) / 100 : 0;
+  const lines = base.map((line) => {
+    const rate = line.taxRate !== null && Number.isFinite(line.taxRate) ? line.taxRate : invoiceRate;
+    const taxAmount = Math.round(line.lineTotal * rate) / 100;
+    return { name: line.name, quantity: line.quantity, unitPrice: line.unitPrice, lineTotal: line.lineTotal, taxRate: rate, taxAmount } satisfies UblLine;
   });
+  // Kuruş yuvarlama farkı son satıra yazılır; toplam KDV veritabanındaki tutarla birebir aynı kalır.
+  const diff = Math.round((taxTotal - lines.reduce((sum, l) => sum + l.taxAmount, 0)) * 100) / 100;
+  if (lines.length && Math.abs(diff) > 0 && Math.abs(diff) <= 0.05) {
+    const last = lines[lines.length - 1]!;
+    last.taxAmount = Math.round((last.taxAmount + diff) * 100) / 100;
+  }
+  return lines;
 }
 
 /** Fatura servisine çağrı yapar; cookie yönteminde önce `wsLogin` çalıştırır. */
@@ -304,7 +319,8 @@ export async function checkRecipient(taxId: string, issueDate?: string | null) {
   const registeredAtRaw = readTag(result.xml, "kayitZamani");
   const registeredAt = parseKayitZamani(registeredAtRaw);
   const publicInstitution = (readTag(result.xml, "kamuKurulusu") ?? "").toLowerCase() === "true";
-  const registered = Boolean(alias) || /<(?:[a-zA-Z0-9_-]+:)?return[\s>]/i.test(result.xml);
+  // Boş <return/> kayıtlı olmadığı anlamına gelir; yalnız posta kutusu etiketi varsa mükelleftir.
+  const registered = Boolean(alias);
 
   // Fatura tarihi mükellefin kayıt tarihinden önceyse e-Fatura düzenlenemez.
   const issued = issueDate ? new Date(issueDate) : null;
