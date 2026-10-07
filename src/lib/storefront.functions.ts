@@ -111,7 +111,7 @@ export const getStorefront = createServerFn({ method: "GET" })
         .order("sort_order"),
       supabaseAdmin
         .from("store_settings")
-        .select("bio, contact_email, contact_phone")
+        .select("bio, contact_email, contact_phone, whatsapp_phone, instagram_url, facebook_url, trust_badges, delivery_methods")
         .eq("store_id", store.id)
         .maybeSingle(),
     ]);
@@ -245,6 +245,11 @@ export const getStorefront = createServerFn({ method: "GET" })
         bio?: string | null;
         contact_email?: string | null;
         contact_phone?: string | null;
+        whatsapp_phone?: string | null;
+        instagram_url?: string | null;
+        facebook_url?: string | null;
+        trust_badges?: string[] | null;
+        delivery_methods?: string[] | null;
       } | null,
       commerce,
       store,

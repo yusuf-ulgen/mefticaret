@@ -163,6 +163,13 @@ function StorefrontHome() {
           products={products}
           collections={collections}
           contactEmail={data.profile?.contact_email ?? null}
+          contact={{
+            whatsapp: data.profile?.whatsapp_phone ?? null,
+            instagram: data.profile?.instagram_url ?? null,
+            facebook: data.profile?.facebook_url ?? null,
+            badges: data.profile?.trust_badges ?? null,
+            delivery: data.profile?.delivery_methods ?? null,
+          }}
           salesPaused={store.status !== "active"}
           footerPages={footerPages}
           tokens={{ muted, border, cardBg, accent: t.accent_color }}
