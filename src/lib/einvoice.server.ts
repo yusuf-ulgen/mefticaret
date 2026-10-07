@@ -388,7 +388,7 @@ function gonderimCevabiAciklama(code: number): string | null {
  * Sorgulama önce `belgeOid` ("OID"), yoksa yerel belge numarası ("YEREL") ile
  * yapılır; ETTN ile sorgulama yalnız "İşlendi" durumunda çalıştığı için kullanılmaz.
  */
-export async function queryDocumentStatus(documentId: string, userId: string) {
+export async function queryDocumentStatus(documentId: string, userId: string | null) {
   const client = await db();
   const settings = await loadSettingsRow();
   if (!settings.sender_tax_id) throw new Error("Gönderici vergi kimlik numarası tanımlı değil");

@@ -14,7 +14,7 @@ export async function runPlatformEinvoiceJob(supabase: SupabaseClient, payload: 
 
   if (payload["type"] === "platform_einvoice_status") {
     const documentId = String(payload["documentId"] ?? "");
-    const result = await queryDocumentStatus(documentId, null as unknown as string);
+    const result = await queryDocumentStatus(documentId, null);
     const { data: doc } = await supabase
       .from("einvoice_documents")
       .select("id, status, status_checks, ulasti_mi")
