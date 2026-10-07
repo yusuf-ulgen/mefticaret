@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useStorefrontLive } from "@/hooks/use-storefront-live";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
@@ -106,6 +107,7 @@ export const Route = createFileRoute("/s/$slug/page/$pageSlug")({
 function StorePage() {
   const { slug, pageSlug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontPageQuery(slug, pageSlug));
+  useStorefrontLive(slug, data?.store?.id);
   const meta = useQuery(storefrontBlogPostQuery(slug, pageSlug));
   if (!data) return null;
 
