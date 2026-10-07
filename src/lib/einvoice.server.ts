@@ -159,6 +159,11 @@ export async function saveSettings(input: SettingsInput, userId: string) {
       earsiv_branch: input.earsivBranch,
       earsiv_cashbox: input.earsivCashbox,
       erp_code: input.erpCode || null,
+      earsiv_login_url: input.earsivLoginUrl || null,
+      sender_alias: input.senderAlias || null,
+      sender_tax_office: input.senderTaxOffice || null,
+      sender_district: input.senderDistrict || null,
+      ...(input.autoSend !== undefined ? { auto_send: input.autoSend } : {}),
       updated_by: userId,
     })
     .eq("id", settings.id);
