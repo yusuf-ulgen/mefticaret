@@ -479,47 +479,80 @@ export async function queryDocumentStatus(documentId: string, userId: string) {
 }
 
 
-/** Platform aboneliği faturasını QNB servisine gönderir. */
-export async function sendInvoice(input: SendInput, userId: string) {
+/** Platform faturasını (paket, kredi, komisyon, uygulama, tema) QNB servisine gönderir. */
+export async function sendInvoice(input: SendInput, userId: string | null) {
   const client = await db();
   const settings = await loadSettingsRow();
   if (!settings.is_enabled) throw new Error("E-fatura entegrasyonu kapalı");
-  if (!settings.service_url) throw new Error("Servis adresi tanımlı değil");
+  if (!settings.service_url || !settings.login_url) throw new Error("e-Fatura servis adresleri tanımlı değil");
   if (!settings.sender_tax_id || !settings.sender_title) {
     throw new Error("Gönderici vergi kimlik numarası ve unvanı zorunlu");
   }
-  const credentials = readSoapCredentials();
-  if (!credentials) throw new Error("QNB kullanıcı adı/şifresi tanımlı değil");
+  // QNB: ERP kodu tüm gönderimlerde zorunludur (belgeGonderExt.erpKodu, e-Arşiv input.erpKodu).
+  if (!settings.erp_code) throw new Error("ERP kodu tanımlı değil (QNB tarafından verilen kod)");
+  if (!/^[A-Z]{3}$/.test(settings.invoice_prefix)) throw new Error("Fatura ön eki 3 büyük harf olmalı");
+  const credentials = readSoapCredentials("efatura");
+  if (!credentials) throw new Error("QNB e-Fatura kullanıcı adı/şifresi tanımlı değil");
 
   const { data: invoice, error: invoiceError } = await client
     .from("invoices")
-    .select("id, store_id, invoice_number, subtotal, tax_total, total, currency, line_items, issued_at")
+    .select("id, store_id, invoice_number, subtotal, tax_total, total, currency, line_items, issued_at, source_type")
     .eq("id", input.invoiceId)
     .maybeSingle();
   if (invoiceError) throw new Error(invoiceError.message);
   if (!invoice) throw new Error("Fatura bulunamadı");
 
+  // Aynı fatura için kuyrukta/gönderilmiş belge varsa ikinci kez gönderilmez.
+  const { data: active } = await client
+    .from("einvoice_documents")
+    .select("id, status")
+    .eq("invoice_id", invoice.id)
+    .eq("direction", "outgoing")
+    .in("status", ["queued", "sent"])
+    .limit(1)
+    .maybeSingle();
+  if (active) throw new Error("Bu fatura için zaten bir e-belge var; ikinci kez gönderilmez");
+
   // Akış adımı 1: alıcı e-fatura mükellefi mi? "AUTO" seçiliyse servise sorulur.
   let profile: "TEMELFATURA" | "EARSIVFATURA";
   let recipientRegistered: boolean | null = null;
+  let recipientAlias: string | null = null;
   if (input.profile === "AUTO") {
     const check = await checkRecipient(input.buyerTaxId, invoice.issued_at ?? null);
     profile = check.profile;
     recipientRegistered = check.registered;
+    recipientAlias = check.alias ?? null;
   } else {
     profile = input.profile;
   }
+  if (profile === "EARSIVFATURA" && (!settings.earsiv_service_url || !settings.earsiv_login_url)) {
+    throw new Error("Alıcı e-Fatura mükellefi değil; e-Arşiv servis adresleri tanımlı olmalı");
+  }
+  if (profile === "TEMELFATURA" && !settings.sender_alias) {
+    throw new Error("Gönderici GB etiketi tanımlı değil (portal > Hizmet Aktivasyonu)");
+  }
 
-  const ettn = crypto.randomUUID();
+  const ettn = crypto.randomUUID().toUpperCase();
   const issued = new Date(invoice.issued_at ?? Date.now());
-  const documentNumber = `${settings.invoice_prefix}${issued.getFullYear()}${String(
-    invoice.invoice_number ?? "",
-  ).replace(/\D/g, "").padStart(9, "0").slice(-9)}`;
+  // GİB biçimi: 3 harf + yıl + 9 haneli ardışık numara (veritabanında kilitli sayaç).
+  const { data: numberData, error: numberError } = await client.rpc("next_einvoice_number" as never, {
+    _prefix: settings.invoice_prefix,
+    _year: issued.getFullYear(),
+  } as never);
+  if (numberError || !numberData) throw new Error(numberError?.message ?? "Belge numarası üretilemedi");
+  const documentNumber = String(numberData);
 
   const currency = invoice.currency ?? "TRY";
   const subtotal = Number(invoice.subtotal ?? 0);
   const taxTotal = Number(invoice.tax_total ?? 0);
   const total = Number(invoice.total ?? 0);
+  const SOURCE_NOTE: Record<string, string> = {
+    subscription: "Mefticaret paket/abonelik bedeli",
+    ai_credit: "Mefticaret AI kredi satışı",
+    commission: "Mefticaret satış komisyonu",
+    app: "Mefticaret uygulama mağazası satışı",
+    theme: "Mefticaret tema mağazası satışı",
+  };
 
   const xml = buildUblInvoice({
     ettn,
@@ -531,14 +564,18 @@ export async function sendInvoice(input: SendInput, userId: string) {
     supplier: {
       taxId: settings.sender_tax_id,
       title: settings.sender_title,
+      taxOffice: settings.sender_tax_office ?? "",
       address: settings.sender_address ?? "",
+      district: settings.sender_district ?? "",
       city: settings.sender_city ?? "",
       country: settings.sender_country,
     },
     customer: {
       taxId: input.buyerTaxId,
       title: input.buyerTitle,
+      taxOffice: input.buyerTaxOffice ?? "",
       address: input.buyerAddress,
+      district: input.buyerDistrict ?? "",
       city: input.buyerCity,
       country: settings.sender_country,
       ...(input.buyerEmail ? { email: input.buyerEmail } : {}),
@@ -547,7 +584,7 @@ export async function sendInvoice(input: SendInput, userId: string) {
     subtotal,
     taxTotal,
     total,
-    note: `Mefticaret abonelik faturası ${invoice.invoice_number ?? ""}`.trim(),
+    note: `${SOURCE_NOTE[String(invoice.source_type ?? "subscription")] ?? "Mefticaret hizmet bedeli"} ${invoice.invoice_number ?? ""}`.trim(),
   });
 
   const { data: doc, error: docError } = await client
@@ -559,11 +596,10 @@ export async function sendInvoice(input: SendInput, userId: string) {
       document_number: documentNumber,
       ettn,
       status: "queued",
-      operation: profile === "EARSIVFATURA" && settings.earsiv_service_url
-        ? settings.earsiv_operation
-        : settings.send_operation,
-      document_kind: profile === "EARSIVFATURA" && settings.earsiv_service_url ? "earsiv" : "efatura",
-      request_summary: { profile, recipientRegistered, total, currency, bytes: xml.length },
+      operation: profile === "EARSIVFATURA" ? settings.earsiv_operation : settings.send_operation,
+      document_kind: profile === "EARSIVFATURA" ? "earsiv" : "efatura",
+      attempts: 1,
+      request_summary: { profile, recipientRegistered, recipientAlias, total, currency, bytes: xml.length },
       created_by: userId,
     })
     .select("id")
@@ -571,31 +607,38 @@ export async function sendInvoice(input: SendInput, userId: string) {
   if (docError) throw new Error(docError.message);
 
   const base64 = Buffer.from(xml, "utf8").toString("base64");
-  // belgeGonderExt: parametreler bloğu; belgeHash MD5, mimeType application/xml, belgeVersiyon 1.0
-  const belgeHash = createHash("md5").update(Buffer.from(xml, "utf8")).digest("hex");
+  // belgeGonderExt (şema: gidenBelgeParametreleri). belgeHash = UBL içeriğinin MD5'i (büyük harf, dokümandaki örnek),
+  // mimeType application/xml, belgeVersiyon 1.0, erpKodu zorunlu, gonderenEtiket GB, alanEtiket alıcı PK.
+  const belgeHash = createHash("md5").update(Buffer.from(xml, "utf8")).digest("hex").toUpperCase();
   const body =
     `<ser:${settings.send_operation}><parametreler>` +
-    `<vergiTcKimlikNo>${settings.sender_tax_id}</vergiTcKimlikNo>` +
-    `<belgeTuru>FATURA_UBL</belgeTuru>` +
-    `<belgeNo>${documentNumber}</belgeNo>` +
-    `<veri>${base64}</veri>` +
+    (recipientAlias ? `<alanEtiket>${escapeXml(recipientAlias)}</alanEtiket>` : "") +
     `<belgeHash>${belgeHash}</belgeHash>` +
-    `<mimeType>application/xml</mimeType>` +
+    `<belgeNo>${documentNumber}</belgeNo>` +
+    `<belgeTuru>FATURA_UBL</belgeTuru>` +
     `<belgeVersiyon>1.0</belgeVersiyon>` +
+    `<erpKodu>${escapeXml(settings.erp_code)}</erpKodu>` +
+    (settings.sender_alias ? `<gonderenEtiket>${escapeXml(settings.sender_alias)}</gonderenEtiket>` : "") +
+    `<mimeType>application/xml</mimeType>` +
+    `<vergiTcKimlikNo>${settings.sender_tax_id}</vergiTcKimlikNo>` +
+    `<veri>${base64}</veri>` +
     `</parametreler></ser:${settings.send_operation}>`;
 
-  const isEarsiv = profile === "EARSIVFATURA" && Boolean(settings.earsiv_service_url);
+  const isEarsiv = profile === "EARSIVFATURA";
 
   try {
+    // Test ortamında e-Arşiv (portaltest) ile e-Fatura (erpefaturatest) farklı platformlardadır;
+    // her biri kendi giriş servisi ve kullanıcısıyla oturum açar. Canlıda tek kullanıcı yeterlidir.
     let cookie: string | null = null;
+    const loginCredentials = isEarsiv ? readSoapCredentials("earsiv") : credentials;
+    if (!loginCredentials) throw new Error("QNB e-Arşiv kullanıcı adı/şifresi tanımlı değil");
     if (settings.auth_mode === "cookie") {
-      if (!settings.login_url) throw new Error("Giriş servisi adresi tanımlı değil");
       cookie = (
         await soapLogin({
-          url: settings.login_url,
+          url: (isEarsiv ? settings.earsiv_login_url : settings.login_url) as string,
           namespace: settings.login_namespace,
           operation: settings.login_operation,
-          credentials,
+          credentials: loginCredentials,
         })
       ).cookie;
     }
@@ -608,8 +651,8 @@ export async function sendInvoice(input: SendInput, userId: string) {
         vkn: settings.sender_tax_id,
         sube: settings.earsiv_branch,
         kasa: settings.earsiv_cashbox,
-        donenBelgeFormati: "9",
-        ...(settings.erp_code ? { erpKodu: settings.erp_code } : {}),
+        donenBelgeFormati: 9,
+        erpKodu: settings.erp_code,
       });
       const earsivResult = await postSoap({
         url: settings.earsiv_service_url as string,
@@ -619,7 +662,7 @@ export async function sendInvoice(input: SendInput, userId: string) {
           `<fatura><belgeFormati>UBL</belgeFormati><belgeIcerigi>${base64}</belgeIcerigi></fatura>` +
           `</ser:${settings.earsiv_operation}>`,
         cookie,
-        ...(settings.auth_mode === "wsse" ? { credentials } : {}),
+        ...(settings.auth_mode === "wsse" ? { credentials: loginCredentials } : {}),
       });
       if (earsivResult.fault) throw new Error(earsivResult.fault);
       if (earsivResult.status >= 400) {
