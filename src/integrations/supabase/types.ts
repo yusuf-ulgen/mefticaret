@@ -4796,6 +4796,7 @@ export type Database = {
       }
       einvoice_documents: {
         Row: {
+          attempts: number
           belge_oid: string | null
           created_at: string
           created_by: string | null
@@ -4818,6 +4819,7 @@ export type Database = {
           sent_at: string | null
           service_message: string | null
           status: string
+          status_checks: number
           store_id: string | null
           ulasti_mi: boolean | null
           updated_at: string
@@ -4825,6 +4827,7 @@ export type Database = {
           yanit_durum_kodu: number | null
         }
         Insert: {
+          attempts?: number
           belge_oid?: string | null
           created_at?: string
           created_by?: string | null
@@ -4847,6 +4850,7 @@ export type Database = {
           sent_at?: string | null
           service_message?: string | null
           status?: string
+          status_checks?: number
           store_id?: string | null
           ulasti_mi?: boolean | null
           updated_at?: string
@@ -4854,6 +4858,7 @@ export type Database = {
           yanit_durum_kodu?: number | null
         }
         Update: {
+          attempts?: number
           belge_oid?: string | null
           created_at?: string
           created_by?: string | null
@@ -4876,6 +4881,7 @@ export type Database = {
           sent_at?: string | null
           service_message?: string | null
           status?: string
+          status_checks?: number
           store_id?: string | null
           ulasti_mi?: boolean | null
           updated_at?: string
@@ -4955,14 +4961,34 @@ export type Database = {
         }
         Relationships: []
       }
+      einvoice_number_counters: {
+        Row: {
+          last_value: number
+          prefix: string
+          year: number
+        }
+        Insert: {
+          last_value?: number
+          prefix: string
+          year: number
+        }
+        Update: {
+          last_value?: number
+          prefix?: string
+          year?: number
+        }
+        Relationships: []
+      }
       einvoice_settings: {
         Row: {
           auth_mode: string
+          auto_send: boolean
           check_user_operation: string
           created_at: string
           download_operation: string
           earsiv_branch: string
           earsiv_cashbox: string
+          earsiv_login_url: string | null
           earsiv_namespace: string
           earsiv_operation: string
           earsiv_service_url: string | null
@@ -4981,9 +5007,12 @@ export type Database = {
           resend_operation: string
           send_operation: string
           sender_address: string | null
+          sender_alias: string | null
           sender_city: string | null
           sender_country: string
+          sender_district: string | null
           sender_tax_id: string | null
+          sender_tax_office: string | null
           sender_title: string | null
           service_namespace: string
           service_url: string | null
@@ -4993,11 +5022,13 @@ export type Database = {
         }
         Insert: {
           auth_mode?: string
+          auto_send?: boolean
           check_user_operation?: string
           created_at?: string
           download_operation?: string
           earsiv_branch?: string
           earsiv_cashbox?: string
+          earsiv_login_url?: string | null
           earsiv_namespace?: string
           earsiv_operation?: string
           earsiv_service_url?: string | null
@@ -5016,9 +5047,12 @@ export type Database = {
           resend_operation?: string
           send_operation?: string
           sender_address?: string | null
+          sender_alias?: string | null
           sender_city?: string | null
           sender_country?: string
+          sender_district?: string | null
           sender_tax_id?: string | null
+          sender_tax_office?: string | null
           sender_title?: string | null
           service_namespace?: string
           service_url?: string | null
@@ -5028,11 +5062,13 @@ export type Database = {
         }
         Update: {
           auth_mode?: string
+          auto_send?: boolean
           check_user_operation?: string
           created_at?: string
           download_operation?: string
           earsiv_branch?: string
           earsiv_cashbox?: string
+          earsiv_login_url?: string | null
           earsiv_namespace?: string
           earsiv_operation?: string
           earsiv_service_url?: string | null
@@ -5051,9 +5087,12 @@ export type Database = {
           resend_operation?: string
           send_operation?: string
           sender_address?: string | null
+          sender_alias?: string | null
           sender_city?: string | null
           sender_country?: string
+          sender_district?: string | null
           sender_tax_id?: string | null
+          sender_tax_office?: string | null
           sender_title?: string | null
           service_namespace?: string
           service_url?: string | null
@@ -7629,6 +7668,13 @@ export type Database = {
       invoices: {
         Row: {
           billing_cycle_id: string | null
+          buyer_address: string | null
+          buyer_city: string | null
+          buyer_district: string | null
+          buyer_email: string | null
+          buyer_tax_id: string | null
+          buyer_tax_office: string | null
+          buyer_title: string | null
           created_at: string
           currency: string
           due_at: string | null
@@ -7638,6 +7684,8 @@ export type Database = {
           line_items: Json
           paid_at: string | null
           pay_token: string
+          source_id: string | null
+          source_type: string
           status: Database["public"]["Enums"]["invoice_status"]
           store_id: string
           subscription_id: string | null
@@ -7648,6 +7696,13 @@ export type Database = {
         }
         Insert: {
           billing_cycle_id?: string | null
+          buyer_address?: string | null
+          buyer_city?: string | null
+          buyer_district?: string | null
+          buyer_email?: string | null
+          buyer_tax_id?: string | null
+          buyer_tax_office?: string | null
+          buyer_title?: string | null
           created_at?: string
           currency?: string
           due_at?: string | null
@@ -7657,6 +7712,8 @@ export type Database = {
           line_items?: Json
           paid_at?: string | null
           pay_token?: string
+          source_id?: string | null
+          source_type?: string
           status?: Database["public"]["Enums"]["invoice_status"]
           store_id: string
           subscription_id?: string | null
@@ -7667,6 +7724,13 @@ export type Database = {
         }
         Update: {
           billing_cycle_id?: string | null
+          buyer_address?: string | null
+          buyer_city?: string | null
+          buyer_district?: string | null
+          buyer_email?: string | null
+          buyer_tax_id?: string | null
+          buyer_tax_office?: string | null
+          buyer_title?: string | null
           created_at?: string
           currency?: string
           due_at?: string | null
@@ -7676,6 +7740,8 @@ export type Database = {
           line_items?: Json
           paid_at?: string | null
           pay_token?: string
+          source_id?: string | null
+          source_type?: string
           status?: Database["public"]["Enums"]["invoice_status"]
           store_id?: string
           subscription_id?: string | null
@@ -24078,6 +24144,10 @@ export type Database = {
         }[]
       }
       loyalty_tier_for: { Args: { _points: number }; Returns: string }
+      next_einvoice_number: {
+        Args: { _prefix: string; _year: number }
+        Returns: string
+      }
       order_fts_text: {
         Args: {
           _customer_email: string
