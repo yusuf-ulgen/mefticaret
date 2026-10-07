@@ -4,12 +4,43 @@
 //     nitro (build-only using cloudflare as a default target), VITE_* env injection, @ path alias,
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import { suppressClientAbort } from "./vite-plugins/suppress-client-abort";
+
+/**
+ * Edge worker'da import.meta.url tanımsız; sunucu paketleyicisinin CommonJS kütüphaneler
+ * (papaparse, qrcode, pngjs) için eklediği createRequire(import.meta.url) modül yüklenirken
+ * patlar ve tüm sayfalar 500 döner. Paket yazıldıktan sonra sabit bir dosya URL'sine düşülür.
+ */
+function workerImportMetaUrlFix() {
+  const patch = () => {
+    const dir = path.resolve(ROOT_DIR, "dist/server");
+    if (!fs.existsSync(dir)) return;
+    const walk = (d: string) => {
+      for (const ent of fs.readdirSync(d, { withFileTypes: true })) {
+        const full = path.join(d, ent.name);
+        if (ent.isDirectory()) walk(full);
+        else if (/\.m?js$/.test(ent.name)) {
+          const code = fs.readFileSync(full, "utf8");
+          if (!/createRequire/.test(code) || !code.includes("(import.meta.url)")) continue;
+          fs.writeFileSync(full, code.replaceAll("(import.meta.url)", '(import.meta.url ?? "file:///worker/index.mjs")'));
+        }
+      }
+    };
+    walk(dir);
+  };
+  return {
+    name: "mefti-worker-import-meta-url",
+    apply: "build" as const,
+    closeBundle: { order: "post" as const, handler: patch },
+    buildApp: { order: "post" as const, handler: patch },
+  };
+}
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url));
 
@@ -53,6 +84,8 @@ export default defineConfig({
     // eklenir, aksi halde edge worker tüm sayfalarda 500 döner.
     environments: {
       ssr: {
+        // Edge worker'da import.meta.url tanımsız; paket çalışma zamanı createRequire(import.meta.url)
+        // çağırdığında tüm sayfalar 500 döner. Sabit bir dosya URL'si verilir.
         build: {
           rollupOptions: {
             output: {
@@ -62,7 +95,11 @@ export default defineConfig({
         },
       },
     },
-    plugins: [suppressClientAbort(), mcpPlugin()],
+    plugins: [
+      suppressClientAbort(),
+      mcpPlugin(),
+      workerImportMetaUrlFix(),
+    ],
     resolve: {
       alias: {
         "entities/lib/decode.js": path.resolve(ROOT_DIR, "node_modules/entities/lib/decode.js"),

@@ -22,3 +22,4 @@
 - Satıcı paneli v2 tasarımı yalnız AppShell içindeki .seller-v2 sınıfıyla (src/styles.css token geçersiz kılma) uygulanır; platform_settings v2_seller_design bayrağıyla açılır — neden: süper yönetici, vitrin ve checkout etkilenmesin, bayrak kapanınca eski görünüm dönsün.
 
 - QNB e-belge gönderimi yalnız einvoice.server.ts sendInvoice üzerinden; otomatik gönderim invoices.status=paid tetikleyicisi + kuyruk (einvoice-auto.server.ts) ile yapılır ve başarısız gönderim otomatik tekrar edilmez — neden: mükerrer resmî fatura riskini önlemek.
+- Sunucu paketindeki createRequire(import.meta.url) satırları build sonrası vite.config.ts içindeki workerImportMetaUrlFix ile sabit URL'e düşürülür — neden: edge worker'da import.meta.url tanımsız, aksi halde tüm sayfalar 500 döner.
