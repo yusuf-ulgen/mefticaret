@@ -25,6 +25,21 @@ function priceOf(product: WokieeProduct) {
  * Shopier mağaza sayfası düzeni: mağaza kimliği, kategori sekmeleri,
  * ürün sayısı + sıralama/filtre ve iki kolonlu ürün ızgarası.
  */
+const DELIVERY_LABELS: Record<string, string> = {
+  shipping: "Kargo",
+  pickup: "Elden teslim",
+  local_delivery: "Yakın çevreye teslimat",
+  courier: "Kurye",
+};
+
+/** 05xx... → 905xx... (wa.me uluslararası biçim ister). */
+function waNumber(raw: string) {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("90")) return digits;
+  if (digits.startsWith("0")) return `9${digits}`;
+  return `90${digits}`;
+}
+
 export function ShopierHome({
   storeName,
   storeSlug,
@@ -34,6 +49,7 @@ export function ShopierHome({
   products,
   collections,
   contactEmail,
+  contact,
   salesPaused = false,
   footerPages = [],
   tokens,
@@ -46,6 +62,13 @@ export function ShopierHome({
   products: WokieeProduct[];
   collections: Collection[];
   contactEmail?: string | null;
+  contact?: {
+    whatsapp?: string | null;
+    instagram?: string | null;
+    facebook?: string | null;
+    badges?: string[] | null;
+    delivery?: string[] | null;
+  };
   salesPaused?: boolean;
   footerPages?: FooterPage[];
   tokens: { muted: string; border: string; cardBg: string; accent: string };
@@ -80,10 +103,12 @@ export function ShopierHome({
       className="sp-home"
       style={
         {
-          "--sp-muted": tokens.muted,
-          "--sp-border": tokens.border,
-          "--sp-card": tokens.cardBg,
-          "--sp-accent": tokens.accent,
+          // Kolay Panel vitrini her zaman Mefticaret marka tonlarını kullanır.
+          "--sp-muted": "var(--muted-foreground)",
+          "--sp-border": "var(--border)",
+          "--sp-card": "var(--brand-soft)",
+          "--sp-accent": "var(--brand)",
+          color: "var(--foreground)",
         } as React.CSSProperties
       }
     >
@@ -248,6 +273,23 @@ export function ShopierHome({
           <a className="sp-about-line sp-about-mail" href={`mailto:${contactEmail}`}>
             {contactEmail}
           </a>
+        ) : null}
+        {contact?.badges?.length ? (
+          <p className="sp-about-line">{contact.badges.join(" · ")}</p>
+        ) : null}
+        {contact?.delivery?.length ? (
+          <p className="sp-about-line">
+            Teslimat: {contact.delivery.map((d) => DELIVERY_LABELS[d] ?? d).join(", ")}
+          </p>
+        ) : null}
+        {contact?.whatsapp || contact?.instagram || contact?.facebook ? (
+          <p className="sp-about-line" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            {contact.whatsapp && contact.whatsapp.replace(/\D/g, "").length >= 10 ? (
+              <a href={`https://wa.me/${waNumber(contact.whatsapp)}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            ) : null}
+            {contact.instagram ? <a href={contact.instagram} target="_blank" rel="noopener noreferrer">Instagram</a> : null}
+            {contact.facebook ? <a href={contact.facebook} target="_blank" rel="noopener noreferrer">Facebook</a> : null}
+          </p>
         ) : null}
         <div className="sp-legal">
           <p>Koşullar</p>
