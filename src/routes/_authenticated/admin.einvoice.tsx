@@ -741,7 +741,7 @@ function AdminEinvoicePage() {
 
 
 const QNB_PORTAL = {
-  test: { efatura: "https://portaltest.qnbesolutions.com.tr/yonetim", earsiv: "https://portaltest.qnbesolutions.com.tr/yonetim" },
+  test: { efatura: "https://erpefaturatest1.qnbesolutions.com.tr/yonetim", earsiv: "https://portaltest.qnbesolutions.com.tr/yonetim" },
   live: { efatura: "https://portal.qnbesolutions.com.tr", earsiv: "https://portal.qnbesolutions.com.tr" },
 } as const;
 
@@ -760,6 +760,10 @@ function QnbLoginCard({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const current = users.find((u) => u.kind === kind);
+  // QNB test ortamı yalnız kendi test kullanıcı kodlarını kabul eder (dokümandaki bilgiler).
+  const TEST_USER = { efatura: "13178864312", earsiv: "13178864312.portaltest" } as const;
+  const testMismatch =
+    environment === "test" && Boolean(current) && current?.username !== TEST_USER[kind] && current?.username !== "3178864313";
   const save = useMutation({
     mutationFn: () => saveFn({ data: { kind, username, password } }),
     onSuccess: () => {
@@ -792,6 +796,16 @@ function QnbLoginCard({
       ) : (
         <p className="mb-3 text-sm text-destructive">Bu bölüm için kayıtlı kullanıcı yok.</p>
       )}
+      {environment === "test" ? (
+        <p className="mb-3 rounded-md border bg-muted/40 p-2 text-sm">
+          Test ortamında kullanıcı adı: <span className="font-medium">{TEST_USER[kind]}</span>. Şifre QNB'nin bu kullanıcı için gönderdiği e-postadadır.
+        </p>
+      ) : null}
+      {testMismatch ? (
+        <p className="mb-3 text-sm text-destructive">
+          Kayıtlı kullanıcı ({current?.username}) test kullanıcısı değil. Test sunucusu bu kullanıcıyla giriş kabul etmez (EF0003).
+        </p>
+      ) : null}
       <form
         className="grid gap-3 sm:grid-cols-2"
         onSubmit={(e) => {
@@ -801,7 +815,7 @@ function QnbLoginCard({
       >
         <div className="grid gap-2">
           <Label htmlFor="qnb-user">Kullanıcı adı</Label>
-          <Input id="qnb-user" autoComplete="username" value={username} placeholder="örn. 13178864312.portaltest" onChange={(e) => setUsername(e.target.value)} />
+          <Input id="qnb-user" autoComplete="username" value={username} placeholder={environment === "test" ? TEST_USER[kind] : "QNB portal kullanıcı adınız"} onChange={(e) => setUsername(e.target.value)} />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="qnb-pass">Şifre</Label>
