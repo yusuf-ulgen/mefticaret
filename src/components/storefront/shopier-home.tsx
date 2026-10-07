@@ -109,7 +109,6 @@ export function ShopierHome({
           "--sp-card": "var(--brand-soft)",
           "--sp-accent": "var(--brand)",
           color: "var(--foreground)",
-          ...(tokens ? {} : {}),
         } as React.CSSProperties
       }
     >
