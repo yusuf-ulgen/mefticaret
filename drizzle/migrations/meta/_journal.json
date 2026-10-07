@@ -36,6 +36,13 @@
       "when": 1791316665238,
       "tag": "0004_storefront_realtime_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791383349603,
+      "tag": "0005_storefront_realtime_seller_tables",
+      "breakpoints": true
     }
   ]
 }
