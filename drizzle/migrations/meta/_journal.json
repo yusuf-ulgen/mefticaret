@@ -50,6 +50,13 @@
       "when": 1791387268456,
       "tag": "0006_qnb_einvoice_auto_billing",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791388150981,
+      "tag": "0007_invoices_buyer_snapshot",
+      "breakpoints": true
     }
   ]
 }
