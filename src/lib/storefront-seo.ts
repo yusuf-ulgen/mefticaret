@@ -119,7 +119,7 @@ export function storefrontHead(input: StorefrontHeadInput) {
   const title = seo.title || templateTitle || buildTitle(input.fallbackTitle, storeName);
   const description = seo.description || templateDescription || input.fallbackDescription;
   const image = seo.ogImage || input.image || ctx?.settings.defaultOgImage || ctx?.logoUrl || null;
-  const noindex = Boolean(seo.noindex || ctx?.settings.noindexStore);
+  const noindex = Boolean(seo.noindex || ctx?.settings.noindexStore || (ctx && ctx.storeActive === false));
   const keywords = seo.keywords || ctx?.settings.keywords;
 
   // Ziyaretçi varsayılan dışı bir dil seçtiyse canonical kendi dil adresini işaret eder.
