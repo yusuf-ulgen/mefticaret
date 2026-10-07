@@ -147,7 +147,7 @@ export const getPublishedV2Theme = createServerFn({ method: "GET" })
         const { data: row } = await (supabaseAdmin as unknown as SupabaseClient)
           .from("v2_themes").select("published_snapshot").eq("store_id", data.storeId).eq("status", "active").maybeSingle();
         return ((row as { published_snapshot?: V2Snapshot } | null)?.published_snapshot ?? null);
-      }, { ttlSeconds: 600, storeId: data.storeId });
+      }, { ttlSeconds: 15, storeId: data.storeId });
     } catch {
       return null;
     }

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useStorefrontLive } from "@/hooks/use-storefront-live";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { FavoriteButton } from "@/components/favorite-button";
@@ -64,6 +65,7 @@ type SortKey = "newest" | "price_asc" | "price_desc" | "title";
 function CollectionPage() {
   const { slug, collectionSlug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontCollectionQuery(slug, collectionSlug));
+  useStorefrontLive(slug, data?.store?.id);
   if (!data) return null;
 
   const { store, theme, collection, products } = data;

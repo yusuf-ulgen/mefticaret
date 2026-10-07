@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useStorefrontLive } from "@/hooks/use-storefront-live";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
@@ -51,6 +52,7 @@ function formatPostDate(value: string | null) {
 function BlogPage() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
+  useStorefrontLive(slug, data?.store?.id);
   const blog = useQuery(storefrontBlogQuery(slug));
 
   const [term, setTerm] = useState("");

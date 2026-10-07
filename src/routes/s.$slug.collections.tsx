@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useStorefrontLive } from "@/hooks/use-storefront-live";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
@@ -42,6 +43,7 @@ export const Route = createFileRoute("/s/$slug/collections")({
 function CollectionsPage() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
+  useStorefrontLive(slug, data?.store?.id);
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
   const { store, theme, collections, footerPages } = data;
   const { fonts, muted, cardBg, border, radius } = storefrontTokens(theme);

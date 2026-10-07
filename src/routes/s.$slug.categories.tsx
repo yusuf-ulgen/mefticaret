@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useStorefrontLive } from "@/hooks/use-storefront-live";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
@@ -49,6 +50,7 @@ function CategoriesPage() {
   const { slug } = Route.useParams();
   const { c } = Route.useSearch();
   const { data } = useSuspenseQuery(storefrontQuery(slug));
+  useStorefrontLive(slug, data?.store?.id);
 
   const products = useMemo(() => data?.products ?? [], [data]);
   const groups = useMemo(() => {
