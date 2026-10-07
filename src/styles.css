@@ -883,6 +883,13 @@
 .hm-storefront-badge { position: absolute; top: 1px; right: 1px; display: grid; min-width: 17px; height: 17px; place-items: center; border-radius: 999px; background: var(--primary); color: var(--primary-foreground); font-size: .65rem; font-weight: 700; }
 .hm-storefront-main { width: min(100%, 900px); margin: 0 auto; padding: 0 20px; }
 .sp-home { max-width: 900px; margin: 0 auto; padding-bottom: 40px; }
+
+/* Kolay Panel vitrini: Mefticaret marka vurguları */
+.sp-home .sp-tab-active { color: var(--brand); border-bottom-color: var(--brand); }
+.sp-home .sp-contact, .sp-home .sp-about-line a { color: var(--brand); }
+.sp-home .sp-avatar { background: var(--brand-soft); color: var(--brand); }
+.sp-home .sp-name { color: var(--foreground); }
+.sp-home .sp-card:hover .sp-card-media { border-color: var(--brand); }
 .sp-paused { display: flex; align-items: flex-start; gap: 12px; margin: 16px 0 8px; padding: 18px 20px; border: 1px solid var(--sp-border, var(--border)); border-radius: 18px; background: var(--sp-card, var(--card)); box-shadow: var(--shadow-soft); font-size: 1rem; font-weight: 500; line-height: 1.45; }
 .sp-paused p { margin: 0; }
 .sp-id { padding: 18px 0 6px; }
