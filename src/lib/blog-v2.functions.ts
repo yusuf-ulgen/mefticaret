@@ -19,6 +19,14 @@ async function guard(supabase: unknown, storeId: string, userId: string) {
   return supabase as Db;
 }
 
+/** Yayınlanan mağaza blog yazısını arama motorlarına bildirir (mağaza yayındaysa). */
+async function pingStoreBlog(db: Db, storeId: string, postSlug: string) {
+  const { data: store } = await db.from("stores").select("slug, status").eq("id", storeId).maybeSingle();
+  if (!store?.slug || store.status !== "active") return;
+  const { pingBlogPostIndexNow } = await import("@/lib/indexnow.server");
+  await pingBlogPostIndexNow(postSlug, store.slug as string);
+}
+
 const postInput = z.object({
   storeId: z.guid(),
   pageId: z.guid().optional(),
@@ -135,6 +143,7 @@ export const saveBlogPostV2 = createServerFn({ method: "POST" })
       });
       if (!revError) await db.from("store_pages").update({ revision_count: next }).eq("id", row.id).eq("store_id", data.storeId);
     }
+    if (row.status === "published") await pingStoreBlog(db, data.storeId, row.slug as string);
     return { id: row.id as string, slug: row.slug as string, status: row.status as string };
   });
 
@@ -178,6 +187,10 @@ export const setBlogPostStatus = createServerFn({ method: "POST" })
       .eq("id", data.pageId)
       .eq("store_id", data.storeId);
     if (error) throw new Error(error.message);
+    if (data.status === "published") {
+      const { data: page } = await db.from("store_pages").select("slug").eq("id", data.pageId).eq("store_id", data.storeId).maybeSingle();
+      if (page?.slug) await pingStoreBlog(db, data.storeId, page.slug as string);
+    }
     return { ok: true };
   });
 
