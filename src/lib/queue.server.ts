@@ -190,6 +190,11 @@ const HANDLERS: Record<JobKind, JobHandler> = {
   },
 
   invoice: async (supabase, job) => {
+    const payload = (job.payload ?? {}) as Record<string, unknown>;
+    if (payload["type"] === "platform_einvoice" || payload["type"] === "platform_einvoice_status") {
+      const { runPlatformEinvoiceJob } = await import("./einvoice-auto.server");
+      return runPlatformEinvoiceJob(supabase, payload);
+    }
     const orderId = requireString(job, "orderId");
     const { data: order, error } = await supabase
       .from("orders")
