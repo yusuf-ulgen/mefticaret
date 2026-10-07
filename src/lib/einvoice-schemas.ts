@@ -57,6 +57,8 @@ export const sendSchema = z.object({
   buyerTitle: z.string().trim().min(2).max(200),
   buyerAddress: z.string().trim().min(2).max(300),
   buyerCity: z.string().trim().min(2).max(80),
+  buyerDistrict: z.string().trim().max(80).optional(),
+  buyerTaxOffice: z.string().trim().max(120).optional(),
   buyerEmail: z.string().trim().email().max(160).optional().or(z.literal("")),
   /** `AUTO`: alıcı e-fatura mükellefi ise e-Fatura, değilse e-Arşiv olarak düzenlenir. */
   profile: z.enum(["AUTO", "TEMELFATURA", "EARSIVFATURA"]),
