@@ -30,6 +30,8 @@ export type StoreSeoContext = {
   storeSlug: string;
   /** "micro" = Kolay Panel vitrini, "corporate" = kurumsal mağaza. */
   storeKind: "micro" | "corporate";
+  /** Mağaza yayında değilse (askı/taslak) vitrin arama motorlarından gizlenir. */
+  storeActive: boolean;
   logoUrl: string | null;
   legalName: string | null;
   contactEmail: string | null;
@@ -72,7 +74,7 @@ export const getStoreSeoContext = createServerFn({ method: "GET" })
     const supabase = publicClient();
     const { data: store, error } = await supabase
       .from("stores")
-      .select("id, name, slug, logo_url, store_kind")
+      .select("id, name, slug, logo_url, store_kind, status")
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -174,6 +176,7 @@ export const getStoreSeoContext = createServerFn({ method: "GET" })
       storeName: store.name,
       storeSlug: store.slug,
       storeKind: store.store_kind === "micro" ? "micro" : "corporate",
+      storeActive: store.status === "active",
       logoUrl: store.logo_url,
       legalName: settings?.legal_name ?? null,
       contactEmail: settings?.contact_email ?? null,
