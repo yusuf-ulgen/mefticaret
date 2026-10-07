@@ -127,6 +127,15 @@ export async function loadOverview() {
 }
 
 export async function saveSettings(input: SettingsInput, userId: string) {
+  // Ortam ile servis adresleri uyuşmazsa QNB girişi reddeder (EF0003); yanlış kayda izin verilmez.
+  const urls = [input.loginUrl, input.serviceUrl, input.earsivServiceUrl, input.earsivLoginUrl].filter(Boolean) as string[];
+  const hasTestUrl = urls.some((u) => /test\d*\.qnbesolutions\.com\.tr/i.test(u));
+  if (input.environment === "live" && hasTestUrl) {
+    throw new Error("Ortam 'Canlı' seçili ama servis adresleri test adresleri. Canlı adresleri QNB'den alıp girin ya da ortamı 'Test' yapın.");
+  }
+  if (input.environment === "test" && urls.length > 0 && !hasTestUrl) {
+    throw new Error("Ortam 'Test' seçili ama servis adresleri test adresi değil.");
+  }
   const client = await db();
   const settings = await loadSettingsRow();
   const { error } = await client
