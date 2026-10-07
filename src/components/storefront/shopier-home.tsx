@@ -103,10 +103,13 @@ export function ShopierHome({
       className="sp-home"
       style={
         {
-          "--sp-muted": tokens.muted,
-          "--sp-border": tokens.border,
-          "--sp-card": tokens.cardBg,
-          "--sp-accent": tokens.accent,
+          // Kolay Panel vitrini her zaman Mefticaret marka tonlarını kullanır.
+          "--sp-muted": "var(--muted-foreground)",
+          "--sp-border": "var(--border)",
+          "--sp-card": "var(--brand-soft)",
+          "--sp-accent": "var(--brand)",
+          color: "var(--foreground)",
+          ...(tokens ? {} : {}),
         } as React.CSSProperties
       }
     >
