@@ -103,7 +103,8 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
       category: data.product.product_type,
       ratingAverage: data.ratingAverage ?? 0,
       reviewCount: data.reviews.length,
-      inStock: data.variants.length ? data.variants.some((variant) => variant.stock > 0) : true,
+      // Satılabilir seçeneği (varyantı) olmayan ürün sepete eklenemez; stokta gösterilmez.
+      inStock: data.variants.some((variant) => variant.stock > 0),
     };
   },
   head: ({ loaderData }) => {
@@ -266,7 +267,8 @@ function ProductPage() {
   const selected = variants.find((variant) => variant.id === variantId) ?? variants[0] ?? null;
   const price = selected ? selected.price : product.base_price;
   const salesPaused = store.status !== "active";
-  const inStock = !salesPaused && (selected ? selected.stock > 0 : true);
+  // Varyant yoksa sepete eklenemez; düğme sessizce çalışmıyor gibi görünmesin.
+  const inStock = !salesPaused && Boolean(selected) && (selected?.stock ?? 0) > 0;
   const stockLeft = selected?.stock ?? 0;
   const maxQty = Math.max(1, stockLeft || 1);
   const quantity = Math.min(Math.max(1, qty), maxQty);
@@ -640,7 +642,7 @@ function ProductPage() {
           ) : null}
 
           <div style={{ marginTop: 14, fontSize: 13, color: muted }}>
-            {inStock ? (selected ? `Stokta ${selected.stock} adet` : "Stokta var") : "Tükendi"}
+            {inStock ? `Stokta ${selected?.stock ?? 0} adet` : selected ? "Tükendi" : "Şu an satışta değil"}
             {selected?.sku ?? product.sku ? ` · SKU: ${selected?.sku ?? product.sku}` : ""}
           </div>
           {inStock && stockLeft > 0 && stockLeft <= 5 ? (

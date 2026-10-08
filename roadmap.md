@@ -41,3 +41,15 @@ Not: Yeni genel API adresi oluşturulmayacak; tüm işlemler panel içi sunucu f
 - [x] Hızlı Güncelleme tablosu (fiyat/stok satır içi)
 - [x] Ana sayfa "Mağaza özeti" (Bugün/Dün/1 Hafta/30 Gün) + sipariş sayfası özet kartları/sekmeler
 - Yapılmayacak: Forsid Buket, Magenty, Artboard, OpenAI Ads, Fast Cart (referansa özel ürünler/markalar)
+
+## Test raporu (8 Ekim) düzeltmeleri
+- [x] F01 Musa sweatshirt sepete eklenmiyor
+- [x] F02 Ödemede Giriş/Üye ol mağaza müşteri girişine gitsin
+- [ ] F03/F11 Yayınlanmamış politikalar
+- [x] F04 Bizi Arayın 404
+- [x] F05 Kayıt Ol -> kayıt modu
+- [x] F06 #referanslar
+- [x] F07 eksik blog slugları
+- [x] F08 tedarikçi şifremi unuttum
+- [x] F09 Kolay Panel rehberi metni (güncel metin zaten tutarlı)
+- [x] F10 dil korunması

@@ -98,11 +98,16 @@ function SupplierLoginPage() {
     );
   }
 
+  const [resetNote, setResetNote] = useState<string | null>(null);
+
   async function handleReset() {
     if (!email.trim()) {
+      setResetNote("Şifre sıfırlama için önce yukarıya e-posta adresinizi yazın.");
+      document.getElementById("supplier-email")?.focus();
       toast.error("Önce e-posta adresinizi yazın");
       return;
     }
+    setResetNote(null);
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: `${window.location.origin}/tedarikci-giris`,
@@ -112,6 +117,7 @@ function SupplierLoginPage() {
       toast.error("Sıfırlama bağlantısı gönderilemedi", { description: error.message });
       return;
     }
+    setResetNote("Bu adres kayıtlıysa şifre sıfırlama bağlantısı e-postanıza gönderildi.");
     toast.success("Şifre sıfırlama bağlantısı e-postanıza gönderildi");
   }
 
@@ -168,6 +174,11 @@ function SupplierLoginPage() {
             >
               Şifremi unuttum
             </button>
+            {resetNote ? (
+              <p role="status" className="text-center text-xs text-muted-foreground">
+                {resetNote}
+              </p>
+            ) : null}
           </form>
         </TabsContent>
 

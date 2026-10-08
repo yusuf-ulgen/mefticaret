@@ -505,7 +505,9 @@ function CheckoutPage() {
                 </span>
                 {!memberMode ? (
                   <Link
-                    to="/auth"
+                    to="/s/$slug/login"
+                    params={{ slug }}
+                    search={{ return: "checkout" }}
                     style={{ color: t.accent_color, fontWeight: 600 }}
                   >
                     Giriş yap / Üye ol

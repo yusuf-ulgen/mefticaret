@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { Breadcrumb, StorefrontFallback } from "@/components/storefront-parts";
@@ -10,6 +11,8 @@ import { useAuth } from "@/lib/auth-context";
 import { storefrontQuery } from "@/lib/storefront-queries";
 
 export const Route = createFileRoute("/s/$slug/login")({
+  // Yalnız bilinen iç hedefe dönülür (açık yönlendirme yok).
+  validateSearch: z.object({ return: z.enum(["checkout"]).optional() }),
   loader: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
     if (!data) throw notFound();
@@ -41,6 +44,8 @@ export const Route = createFileRoute("/s/$slug/login")({
 function LoginPage() {
   const { slug } = Route.useParams();
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const target = search.return === "checkout" ? "checkout" : "account";
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   const { user } = useAuth();
   const [email, setEmail] = useState("");
@@ -72,13 +77,13 @@ function LoginPage() {
       return;
     }
     toast.success("Hoş geldin!");
-    void navigate({ to: "/s/$slug/account", params: { slug } });
+    void navigate({ to: target === "checkout" ? "/s/$slug/checkout" : "/s/$slug/account", params: { slug } });
   }
 
   async function google() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/s/${slug}/account` },
+      options: { redirectTo: `${window.location.origin}/s/${slug}/${target}` },
     });
     if (error) toast.error("Google ile giriş başarısız", { description: error.message });
   }
