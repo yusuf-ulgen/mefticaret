@@ -103,6 +103,8 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
   const { data: sections } = useQuery(siteSectionsQuery());
 
   const get = (key: string): SiteSection | null => localizeSection(pickSection(sections, key), locale);
+  // Kolay Panel sayfası beş dilde var; seçilen dil korunur.
+  const homeMakerHref = locale === "tr" ? "/ev-hanimlari" : `/${locale}/ev-hanimlari`;
   const header = get("header");
   const mega = get("header_mega");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -304,14 +306,14 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
               </ul>
               <div className="mt-7 grid gap-3 sm:grid-cols-2">
                 <Button asChild size="lg" className="rounded-full">
-                  <Link to="/ev-hanimlari">
+                  <a href={homeMakerHref}>
                     {tx("Ücretsiz başla")} <ArrowRight className="ml-2 size-4" />
-                  </Link>
+                  </a>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="rounded-full">
-                  <Link to="/ev-hanimlari">
+                  <a href={homeMakerHref}>
                     {tx("Kolay Panel girişi")}
-                  </Link>
+                  </a>
                 </Button>
               </div>
               <div className="mt-4 border-t border-border pt-4 text-center">
