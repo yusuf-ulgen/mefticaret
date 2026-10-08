@@ -181,7 +181,7 @@ export const DEFAULT_SECTIONS: SiteSection[] = [
     primary_label: "Ücretsiz Başlayın",
     primary_href: "/auth",
     secondary_label: "Bizi Arayın",
-    secondary_href: "#referanslar",
+    secondary_href: "tel:+905455294390",
     sort_order: 20,
     items: [
       { label: "Hızlı Kurulum", icon: "Zap" },
