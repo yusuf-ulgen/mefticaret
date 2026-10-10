@@ -484,14 +484,13 @@ export async function upsertProducts(
     const skus = part.map((item) => item.key);
 
 
-    const { data: existingRows, error: existingError } = await admin
-      .from("products")
-      .select("id, sku, barcode, slug, base_price")
-      .eq("store_id", input.storeId)
-      .or(`sku.in.(${skus.map((s) => `"${s.replace(/"/g, "")}"`).join(",")}),barcode.in.(${skus
-        .map((s) => `"${s.replace(/"/g, "")}"`)
-        .join(",")})`);
+    /* Filtre sözdizimine kullanıcı verisi gömülmez: SKU ve barkod ayrı, parametreli sorgularla aranır. */
+    const lookup = (column: "sku" | "barcode") =>
+      admin.from("products").select("id, sku, barcode, slug, base_price").eq("store_id", input.storeId).in(column, skus);
+    const [bySku, byBarcode] = await Promise.all([lookup("sku"), lookup("barcode")]);
+    const existingError = bySku.error ?? byBarcode.error;
     if (existingError) throw new Error(existingError.message);
+    const existingRows = [...new Map([...(bySku.data ?? []), ...(byBarcode.data ?? [])].map((r) => [r.id, r])).values()];
 
     const byKey = new Map<string, { id: string; basePrice: number | null }>();
     for (const row of (existingRows ?? []) as Array<{

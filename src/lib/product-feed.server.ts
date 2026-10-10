@@ -137,7 +137,9 @@ export async function buildCatalogFeedJson(
   }));
 }
 
-function csvEscape(value: string) {
+function csvEscape(raw: string) {
+  /* Tablo programlarında formül olarak çalışmasın diye =,+,-,@ ile başlayan hücreler metne çevrilir. */
+  const value = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
   if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
   return value;
 }

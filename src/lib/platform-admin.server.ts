@@ -80,7 +80,8 @@ export async function listPlatformRows(input: z.infer<typeof listInputSchema>) {
     query = query.in(column, values);
   }
 
-  const term = input.search?.trim();
+  /* Arama terimi filtre sözdizimini değiştiremesin diye ayraç/joker karakterleri temizlenir. */
+  const term = input.search?.replace(/[,()"\\%*:]/g, " ").trim();
   if (term && dataset.searchColumns.length > 0) {
     query = query.or(dataset.searchColumns.map((column) => `${column}.ilike.%${term}%`).join(","));
   }

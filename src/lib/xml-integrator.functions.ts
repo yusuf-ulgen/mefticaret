@@ -1407,13 +1407,16 @@ export const resolveXmlQuarantine = createServerFn({ method: "POST" })
     if (data.action === "approve") {
       for (const item of items) {
         /* Ürün stok kodu ya da barkodu ile bulunur; bulunamazsa kayıt yine kapatılır. */
-        const { data: productRows } = await supabaseAdmin
-          .from("products")
-          .select("id")
-          .eq("store_id", data.storeId)
-          .or(`sku.eq.${item.sku},barcode.eq.${item.sku}`)
-          .limit(1);
-        const productId = (productRows as Array<{ id: string }> | null)?.[0]?.id ?? null;
+        const findBy = async (column: "sku" | "barcode") => {
+          const { data: rows } = await supabaseAdmin
+            .from("products")
+            .select("id")
+            .eq("store_id", data.storeId)
+            .eq(column, item.sku)
+            .limit(1);
+          return (rows as Array<{ id: string }> | null)?.[0]?.id ?? null;
+        };
+        const productId = (await findBy("sku")) ?? (await findBy("barcode"));
         if (!productId) continue;
 
         if (item.new_price !== null) {
