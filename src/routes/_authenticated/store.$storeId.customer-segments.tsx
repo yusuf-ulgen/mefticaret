@@ -429,7 +429,7 @@ function CustomerSegmentsPage() {
                             <td className="px-4 py-3">
                               <Link
                                 className="font-medium underline-offset-4 hover:underline"
-                                to="/store/$storeId/customers/$customerId"
+                                to="/store/$storeId/customers-v2/$customerId"
                                 params={{ storeId, customerId: member.id }}
                               >
                                 {member.full_name}

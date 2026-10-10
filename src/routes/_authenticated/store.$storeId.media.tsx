@@ -255,7 +255,7 @@ function ProductImagesPanel() {
 
                 {selected.productId ? (
                   <Link
-                    to="/store/$storeId/products/$productId"
+                    to="/store/$storeId/catalog-v2/$productId"
                     params={{ storeId, productId: selected.productId }}
                     className="inline-block text-sm underline"
                   >

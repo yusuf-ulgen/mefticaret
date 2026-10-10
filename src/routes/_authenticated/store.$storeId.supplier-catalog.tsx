@@ -220,7 +220,7 @@ function SupplierCatalogPage() {
                     <span className="text-sm text-success">{item.stock} stok</span>
                     {item.productId ? (
                       <Link
-                        to="/store/$storeId/products/$productId"
+                        to="/store/$storeId/catalog-v2/$productId"
                         params={{ storeId, productId: item.productId }}
                         className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
                       >

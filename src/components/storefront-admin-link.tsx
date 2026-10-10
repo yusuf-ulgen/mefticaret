@@ -57,11 +57,11 @@ export function StorefrontAdminLink({
   } as const;
 
   return productId ? (
-    <Link to="/store/$storeId/products/$productId" params={{ storeId, productId }} style={style}>
+    <Link to="/store/$storeId/catalog-v2/$productId" params={{ storeId, productId }} style={style}>
       Panelde düzenle
     </Link>
   ) : (
-    <Link to="/store/$storeId/products" params={{ storeId }} style={style}>
+    <Link to="/store/$storeId/catalog-v2" params={{ storeId }} style={style}>
       Panelde yönet
     </Link>
   );

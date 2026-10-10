@@ -83,7 +83,7 @@ export function ImportedTab({ storeId }: { storeId: string }) {
             <input type="checkbox" checked={sel.has(it.id)} onChange={() => toggle(it.id)} aria-label="Seç" />
             {it.image ? <img src={it.image} alt="" loading="lazy" className="size-14 rounded-lg object-cover" /> : <div className="size-14 rounded-lg bg-muted" />}
             <div className="min-w-0 flex-1">
-              <Link to="/store/$storeId/products/$productId" params={{ storeId, productId: it.productId }} className="line-clamp-1 text-sm font-medium text-foreground">{it.title}</Link>
+              <Link to="/store/$storeId/catalog-v2/$productId" params={{ storeId, productId: it.productId }} className="line-clamp-1 text-sm font-medium text-foreground">{it.title}</Link>
               <div className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
                 <span>{it.supplierName}</span>
                 <span>Alış {formatMoney(it.purchasePrice, it.currency)}</span>
