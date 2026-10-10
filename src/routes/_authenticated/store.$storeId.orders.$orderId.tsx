@@ -314,7 +314,7 @@ function OrderDetailPage() {
             onEmailReceipt={emailReceipt}
             onOpenCustomer={
               customerId
-                ? () => navigate({ to: "/store/$storeId/customers/$customerId", params: { storeId, customerId } })
+                ? () => navigate({ to: "/store/$storeId/customers-v2/$customerId", params: { storeId, customerId } })
                 : null
             }
           />
@@ -539,7 +539,7 @@ function OrderDetailPage() {
             {order.customers?.id ? (
               <Button asChild variant="outline" size="sm">
                 <Link
-                  to="/store/$storeId/customers/$customerId"
+                  to="/store/$storeId/customers-v2/$customerId"
                   params={{ storeId, customerId: order.customers.id }}
                 >
                   Müşteri kartını aç

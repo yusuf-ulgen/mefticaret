@@ -147,7 +147,7 @@ export function SeoOverviewTab({
                 </div>
                 <Button asChild size="sm" variant="outline">
                   <Link
-                    to="/store/$storeId/products/$productId"
+                    to="/store/$storeId/catalog-v2/$productId"
                     params={{ storeId, productId: product.id }}
                   >
                     Düzenle

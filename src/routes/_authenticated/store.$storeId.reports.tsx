@@ -224,7 +224,7 @@ function ReportsPage() {
                       <td className="px-4 py-2">
                         {row.productId ? (
                           <Link
-                            to="/store/$storeId/products/$productId"
+                            to="/store/$storeId/catalog-v2/$productId"
                             params={{ storeId, productId: row.productId }}
                             className="font-medium hover:underline"
                           >

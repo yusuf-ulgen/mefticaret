@@ -286,7 +286,7 @@ export function ProductsSection({ storeId, period, currency }: { storeId: string
           <ul className="grid gap-2 sm:grid-cols-2">
             {p.low_stock.map((l) => (
               <li key={l.variant_id}>
-                <Link to="/store/$storeId/products/$productId" params={{ storeId, productId: l.product_id }} className="flex min-h-11 items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm">
+                <Link to="/store/$storeId/catalog-v2/$productId" params={{ storeId, productId: l.product_id }} className="flex min-h-11 items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm">
                   <span className="min-w-0 truncate">{l.title}{l.variant_title && l.variant_title !== "Default" ? ` · ${l.variant_title}` : ""}</span>
                   <Badge variant={l.stock <= 0 ? "destructive" : "outline"}>{l.stock <= 0 ? "Tükendi" : `${l.stock} adet`}</Badge>
                 </Link>

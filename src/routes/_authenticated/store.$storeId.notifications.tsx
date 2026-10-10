@@ -607,7 +607,7 @@ function EntityLink({
   if (entity === "customer") {
     return (
       <Button asChild size="sm" variant="ghost">
-        <Link to="/store/$storeId/customers" params={{ storeId }}>
+        <Link to="/store/$storeId/customers-v2" params={{ storeId }}>
           Müşteriye git
         </Link>
       </Button>

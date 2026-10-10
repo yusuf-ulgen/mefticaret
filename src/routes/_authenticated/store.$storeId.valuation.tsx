@@ -149,7 +149,7 @@ function ValuationPage() {
                     <strong>{formatNumber(summary.missingCostCount)}</strong> varyantta maliyet
                     fiyatı yok; bu kalemler maliyet değerine dahil edilmedi.{" "}
                     <Link
-                      to="/store/$storeId/products"
+                      to="/store/$storeId/catalog-v2"
                       params={{ storeId }}
                       className="underline underline-offset-4"
                     >
@@ -263,7 +263,7 @@ function ValuationPage() {
                     <td className="max-w-[280px] truncate py-2 pr-3">
                       {line.productId ? (
                         <Link
-                          to="/store/$storeId/products/$productId"
+                          to="/store/$storeId/catalog-v2/$productId"
                           params={{ storeId, productId: line.productId }}
                           className="hover:underline"
                         >

@@ -498,9 +498,9 @@ const CONTROL_GROUPS = [
     title: "Arka uç yönetimi",
     description: "Katalog, sipariş, müşteri, stok, kargo, ödeme, finans ve entegrasyonlar.",
     links: [
-      { to: "/store/$storeId/products", label: "Ürünler" },
+      { to: "/store/$storeId/catalog-v2", label: "Ürünler" },
       { to: "/store/$storeId/orders", label: "Siparişler" },
-      { to: "/store/$storeId/customers", label: "Müşteriler" },
+      { to: "/store/$storeId/customers-v2", label: "Müşteriler" },
       { to: "/store/$storeId/inventory", label: "Stok" },
       { to: "/store/$storeId/shipping", label: "Kargo" },
       { to: "/store/$storeId/payments", label: "Ödeme" },
