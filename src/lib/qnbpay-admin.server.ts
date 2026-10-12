@@ -8,6 +8,7 @@ import type {
   installmentQuerySchema,
 } from "@/lib/qnbpay-schemas";
 import * as qnbpay from "@/lib/qnbpay.server";
+import { RefundOutcomeUnknownError, RefundRejectedError } from "@/lib/refund-errors";
 
 /**
  * QNBpay yönetim akışları (yalnızca platform yöneticisi).
@@ -186,16 +187,16 @@ export async function loadCommissions(currency: "TRY" | "USD" | "EUR") {
   const row = await loadSettingsRow(db);
   const credentials = credentialsOf(row);
   const [commissions, installments] = await Promise.all([
-    qnbpay.getCommissions(credentials, currency).catch(
-      (error: unknown): Record<string, unknown> => ({
+    qnbpay
+      .getCommissions(credentials, currency)
+      .catch((error: unknown): Record<string, unknown> => ({
         error: error instanceof Error ? error.message : "Komisyon bilgisi alınamadı",
-      }),
-    ),
-    qnbpay.getActiveInstallments(credentials, { currencyCode: currency, amount: 100 }).catch(
-      (error: unknown): Record<string, unknown> => ({
+      })),
+    qnbpay
+      .getActiveInstallments(credentials, { currencyCode: currency, amount: 100 })
+      .catch((error: unknown): Record<string, unknown> => ({
         error: error instanceof Error ? error.message : "Taksit bilgisi alınamadı",
-      }),
-    ),
+      })),
   ]);
   return {
     commissions: JSON.stringify(commissions, null, 2),
@@ -344,7 +345,10 @@ export async function queryTransactionStatus(transactionId: string, actorId: str
       bank_status_code: result.bankErrorCode,
       bank_status_description: result.bankErrorDescription,
       response_summary: result.raw as never,
-      paid_at: status === "completed" ? (transaction.paid_at ?? new Date().toISOString()) : transaction.paid_at,
+      paid_at:
+        status === "completed"
+          ? (transaction.paid_at ?? new Date().toISOString())
+          : transaction.paid_at,
     })
     .eq("id", transactionId);
   if (error) throw new Error(error.message);
@@ -359,7 +363,11 @@ export async function queryTransactionStatus(transactionId: string, actorId: str
     newValue: { status, transactionStatus: result.transactionStatus },
   });
 
-  return { status, transactionStatus: result.transactionStatus, description: result.statusDescription };
+  return {
+    status,
+    transactionStatus: result.transactionStatus,
+    description: result.statusDescription,
+  };
 }
 
 /**
@@ -403,7 +411,6 @@ export async function settleTransaction(db: Admin, transactionId: string) {
     await restoreAfterPayment(db as never, transaction.store_id);
   }
 }
-
 
 export async function completeTransaction(
   input: { transactionId: string; action: "complete" | "cancel" },
@@ -479,7 +486,7 @@ export async function confirmPreAuth(
 }
 
 export async function refundTransaction(
-  input: { transactionId: string; amount: number },
+  input: { transactionId: string; amount: number; requestKey?: string | undefined },
   actorId: string,
 ) {
   const db = await admin();
@@ -487,20 +494,27 @@ export async function refundTransaction(
   const credentials = credentialsOf(row);
   const transaction = await transactionById(db, input.transactionId);
 
-  const paid = Number(transaction.amount ?? 0);
-  const alreadyRefunded = Number(transaction.refunded_amount ?? 0);
-  const amount = input.amount > 0 ? input.amount : paid - alreadyRefunded;
-  if (amount <= 0) throw new Error("İade edilecek tutar kalmadı.");
-  if (alreadyRefunded + amount > paid + 0.001) {
-    throw new Error("İade tutarı işlem tutarını aşamaz.");
+  const claimed = await db.rpc("claim_qnbpay_refund", {
+    p_transaction_id: transaction.id,
+    p_amount: input.amount,
+    p_request_key:
+      input.requestKey ??
+      `admin-refund:${transaction.id}:${transaction.refunded_amount}:${input.amount}`,
+  });
+  if (claimed.error) throw new Error(claimed.error.message);
+  const refundRow = claimed.data as unknown as {
+    id: string;
+    claimed: boolean;
+    status: string;
+    amount: number;
+    refNo?: string | null;
+  };
+  if (!refundRow.claimed) {
+    if (refundRow.status === "completed")
+      return { ok: true as const, refNo: refundRow.refNo ?? null };
+    throw new RefundOutcomeUnknownError();
   }
-
-  const { data: refundRow, error: refundError } = await db
-    .from("qnbpay_refunds")
-    .insert({ transaction_id: input.transactionId, amount, status: "pending" })
-    .select("id")
-    .single();
-  if (refundError) throw new Error(refundError.message);
+  const amount = Number(refundRow.amount);
 
   try {
     const result = await qnbpay.refundPayment(credentials, {
@@ -509,26 +523,25 @@ export async function refundTransaction(
       refundWebhookKey: row.refund_webhook_key,
     });
     const ok = result.statusCode === 100;
-    await db
-      .from("qnbpay_refunds")
-      .update({
-        status: ok ? "completed" : "failed",
-        ref_no: result.refNo,
-        status_code: result.statusCode,
-        status_description: result.statusDescription,
-        response_summary: result.raw as never,
-      })
-      .eq("id", refundRow.id);
-
-    if (ok) {
-      const total = alreadyRefunded + amount;
-      await db
-        .from("qnbpay_transactions")
-        .update({
-          refunded_amount: total,
-          status: total >= paid - 0.001 ? "refunded" : "partial_refunded",
-        })
-        .eq("id", input.transactionId);
+    if (result.statusCode === null || result.statusCode === 69 || (ok && !result.refNo))
+      throw new RefundOutcomeUnknownError();
+    if (result.refNo) {
+      const recorded = await db.rpc("record_qnbpay_refund", {
+        p_transaction_id: input.transactionId,
+        p_provider_reference: result.refNo,
+        p_amount: amount,
+        p_apply: true,
+        p_succeeded: ok,
+        p_refund_id: refundRow.id,
+        p_payload: result.raw as never,
+      });
+      if (recorded.error) throw new Error(recorded.error.message);
+    } else {
+      const failure = await db
+        .from("qnbpay_refunds")
+        .update({ status: "failed", response_summary: result.raw as never })
+        .eq("id", refundRow.id);
+      if (failure.error) throw new Error(failure.error.message);
     }
 
     await recordAudit(db, {
@@ -539,17 +552,20 @@ export async function refundTransaction(
       newValue: { amount, ok, refNo: result.refNo },
     });
 
-    if (!ok) throw new Error(result.statusDescription ?? "İade reddedildi.");
+    if (!ok) throw new RefundRejectedError(result.statusDescription ?? "İade reddedildi.");
     return { ok: true as const, refNo: result.refNo };
   } catch (error) {
     await db
       .from("qnbpay_refunds")
       .update({
-        status: "failed",
+        status: error instanceof RefundRejectedError ? "failed" : "unknown",
         status_description: error instanceof Error ? error.message : "İade başarısız",
       })
-      .eq("id", refundRow.id);
-    throw error;
+      .eq("id", refundRow.id)
+      .is("accounted_at", null)
+      .neq("status", "duplicate");
+    if (error instanceof RefundRejectedError) throw error;
+    throw new RefundOutcomeUnknownError(error instanceof Error ? error.message : undefined);
   }
 }
 
@@ -676,7 +692,10 @@ export async function loadPricing(): Promise<PricingSnapshot> {
   const db = await admin();
   const [plans, apps, items] = await Promise.all([
     db.from("plans").select("*").order("sort_order"),
-    db.from("apps").select("id, code, name, currency, price, pricing_model, is_active").order("name"),
+    db
+      .from("apps")
+      .select("id, code, name, currency, price, pricing_model, is_active")
+      .order("name"),
     db.from("platform_charge_items").select("*").order("kind").order("sort_order"),
   ]);
   if (plans.error) throw new Error(plans.error.message);
@@ -826,7 +845,10 @@ export async function handleSaleWebhook(fields: WebhookFields) {
   if (!transaction) return { ok: false, reason: "işlem bulunamadı" };
 
   // Durum yalnızca servisten teyit edilir; webhook gövdesine güvenilmez.
-  const result = await qnbpay.checkStatus(credentials, { invoiceId: invoiceRef, includePending: true });
+  const result = await qnbpay.checkStatus(credentials, {
+    invoiceId: invoiceRef,
+    includePending: true,
+  });
   const status = mapStatus(result);
 
   await db
@@ -850,7 +872,9 @@ export async function handleSaleWebhook(fields: WebhookFields) {
       webhook_payload: fields as never,
       response_summary: result.raw as never,
       paid_at:
-        status === "completed" ? (transaction.paid_at ?? new Date().toISOString()) : transaction.paid_at,
+        status === "completed"
+          ? (transaction.paid_at ?? new Date().toISOString())
+          : transaction.paid_at,
     })
     .eq("id", transaction.id);
 
@@ -888,37 +912,37 @@ export async function handleRefundWebhook(fields: WebhookFields) {
     .maybeSingle();
   if (!transaction) return { ok: false, reason: "işlem bulunamadı" };
 
-  // İade tutarı imzalı hash içeriğinden alınır; gövdedeki tutara güvenilmez.
-  const refundedNow = Number(validated.total ?? 0);
-  const succeeded = (fields["status"] ?? "").toUpperCase() !== "FAIL";
-  const total = Number(transaction.refunded_amount ?? 0) + (succeeded ? refundedNow : 0);
-  const paid = Number(transaction.amount ?? 0);
-
-  await db.from("qnbpay_refunds").insert({
-    transaction_id: transaction.id,
-    amount: refundedNow,
-    status: succeeded ? "completed" : "failed",
-    ref_no: fields["ref_no"] ?? null,
-    status_description: fields["status_description"] ?? null,
-    webhook_payload: fields as never,
+  const refundedNow = Number(validated.total);
+  if (!Number.isFinite(refundedNow) || refundedNow <= 0 || refundedNow > Number(transaction.amount))
+    return { ok: false, reason: "Invalid signed refund amount" };
+  // Use the decoded signed fields, not the random IV or unsigned body, as the replay key.
+  const canonical = JSON.stringify([
+    credentials.environment,
+    validated.invoiceId,
+    validated.orderId,
+    validated.total,
+    validated.status,
+    validated.currencyCode,
+  ]);
+  const eventDigest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonical));
+  const eventKey = [...new Uint8Array(eventDigest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+  const recorded = await db.rpc("record_qnbpay_refund", {
+    p_transaction_id: transaction.id,
+    p_provider_reference: fields["ref_no"]?.trim() ?? "",
+    p_amount: refundedNow,
+    p_apply: false,
+    p_succeeded: validated.status.toUpperCase() !== "FAIL",
+    p_event_key: eventKey,
+    p_payload: fields as never,
   });
-
-  if (succeeded) {
-    await db
-      .from("qnbpay_transactions")
-      .update({
-        refunded_amount: total,
-        status: total >= paid - 0.001 ? "refunded" : "partial_refunded",
-        webhook_payload: fields as never,
-      })
-      .eq("id", transaction.id);
-  }
-
+  if (recorded.error) throw new Error(recorded.error.message);
   await recordAudit(db, {
     action: "qnbpay.webhook.refund",
     entity: "qnbpay_transactions",
     entityId: transaction.id,
-    newValue: { refundedNow, succeeded },
+    newValue: { refundedNow, result: recorded.data },
   });
   return { ok: true };
 }

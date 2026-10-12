@@ -1,5 +1,6 @@
+import { readAllPages } from "@/lib/read-all-pages";
 import { publicSupabase } from "@/lib/public-supabase.server";
-import { readSeo } from "@/lib/seo";
+import { readSeo, readStoreSeo } from "@/lib/seo";
 
 /**
  * Dil bazlı site haritaları: /sitemap-tr.xml, /sitemap-en.xml, /sitemap-de.xml, /sitemap-ar.xml
@@ -127,11 +128,15 @@ async function loadStoreLocales(storeIds: string[]) {
 
   for (let i = 0; i < storeIds.length; i += 200) {
     const chunk = storeIds.slice(i, i + 200);
-    const { data } = await supabase
-      .from("store_locales")
-      .select("store_id, locale, is_active")
-      .in("store_id", chunk)
-      .eq("is_active", true);
+    const { data } = await readAllPages((from, to) =>
+      supabase
+        .from("store_locales")
+        .select("store_id, locale, is_active")
+        .in("store_id", chunk)
+        .eq("is_active", true)
+        .order("id")
+        .range(from, to),
+    );
     for (const row of data ?? []) {
       const short = String(row.locale).slice(0, 2).toLowerCase() as SitemapLocale;
       if (!SITEMAP_LOCALES.includes(short)) continue;
@@ -160,7 +165,7 @@ export async function buildLocaleSitemap(locale: SitemapLocale): Promise<string>
 
   // Aktif mağazalar
   const stores: StoreRow[] = [];
-  for (let offset = 0; ; offset += PAGE_SIZE) {
+  for (let offset = 0; ;) {
     const { data, error } = await supabase
       .from("stores")
       .select("id, slug, store_kind")
@@ -170,11 +175,22 @@ export async function buildLocaleSitemap(locale: SitemapLocale): Promise<string>
     if (error) throw new Error(error.message);
     const rows = (data ?? []) as StoreRow[];
     stores.push(...rows);
-    if (rows.length < PAGE_SIZE) break;
+    if (!rows.length) break;
+    offset += rows.length;
   }
 
   const localeMap = await loadStoreLocales(stores.map((store) => store.id));
-  const eligible = stores.filter((store) => localeMap.get(store.id)?.has(locale));
+  const settings = await readAllPages((from, to) =>
+    supabase.from("store_settings").select("store_id,seo").order("store_id").range(from, to),
+  );
+  const hiddenStores = new Set(
+    (settings.data ?? [])
+      .filter((row) => readStoreSeo(row.seo).noindexStore)
+      .map((row) => row.store_id),
+  );
+  const eligible = stores.filter(
+    (store) => !hiddenStores.has(store.id) && localeMap.get(store.id)?.has(locale),
+  );
   if (eligible.length === 0) return render(entries, locale);
 
   const eligibleIds = eligible.map((store) => store.id);
@@ -201,13 +217,14 @@ export async function buildLocaleSitemap(locale: SitemapLocale): Promise<string>
   // Ürünler
   for (let i = 0; i < eligibleIds.length; i += 50) {
     const chunk = eligibleIds.slice(i, i + 50);
-    for (let offset = 0; ; offset += PAGE_SIZE) {
+    for (let offset = 0; ;) {
       const { data, error } = await supabase
         .from("products")
         .select("store_id, slug, seo, updated_at")
         .in("store_id", chunk)
         .eq("status", "active")
         .order("updated_at", { ascending: false })
+        .order("id")
         .range(offset, offset + PAGE_SIZE - 1);
       if (error) throw new Error(error.message);
       const rows = (data ?? []) as {
@@ -227,18 +244,22 @@ export async function buildLocaleSitemap(locale: SitemapLocale): Promise<string>
           locales: localesFor(row.store_id),
         });
       }
-      if (rows.length < PAGE_SIZE) break;
+      if (!rows.length) break;
+      offset += rows.length;
     }
   }
 
   // Koleksiyonlar
   for (let i = 0; i < eligibleIds.length; i += 50) {
     const chunk = eligibleIds.slice(i, i + 50);
-    const { data, error } = await supabase
-      .from("collections")
-      .select("store_id, slug, seo, updated_at")
-      .in("store_id", chunk)
-      .limit(PAGE_SIZE);
+    const { data, error } = await readAllPages((from, to) =>
+      supabase
+        .from("collections")
+        .select("store_id, slug, seo, updated_at")
+        .in("store_id", chunk)
+        .order("id")
+        .range(from, to),
+    );
     if (error) throw new Error(error.message);
     for (const row of (data ?? []) as {
       store_id: string;

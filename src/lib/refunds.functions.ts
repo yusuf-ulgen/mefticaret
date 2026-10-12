@@ -22,6 +22,24 @@ export const createOrderRefund = createServerFn({ method: "POST" })
 
 const refundRef = z.object({ storeId: z.guid(), refundId: z.guid() });
 
+export const reconcileOrderRefund = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    refundRef
+      .extend({ providerReference: z.string().trim().min(3).max(160), confirmed: z.literal(true) })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { reconcileRefund } = await import("@/lib/refunds.server");
+    return reconcileRefund(
+      context.supabase,
+      context.userId,
+      data.storeId,
+      data.refundId,
+      data.providerReference,
+    );
+  });
+
 export const retryOrderRefund = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => refundRef.parse(d))

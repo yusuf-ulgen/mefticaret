@@ -1,3 +1,4 @@
+import { planPrice, yearlyPlanSummary } from "@/lib/plan-price";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -31,7 +32,12 @@ export const Route = createFileRoute("/e-ticaret-paketleri")({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Ana sayfa", item: "https://mefticaret.com/" },
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Ana sayfa",
+              item: "https://mefticaret.com/",
+            },
             { "@type": "ListItem", position: 2, name: "E-ticaret paketleri", item: URL },
           ],
         }),
@@ -52,7 +58,7 @@ const FAQ = [
   },
   {
     q: "Yıllık ödemede avantaj var mı?",
-    a: "Yıllık ödemede ücretli paketlerde 12 ay yerine 10 ay ödersiniz; fiyat tablosunda aylık karşılığını görebilirsiniz.",
+    a: "Yıllık fiyat her paket için ayrı tanımlanır. Tabloda yıllık toplamı, 12 aya bölünmüş aylık karşılığını ve varsa aylık ödemeye göre hesaplanan tasarrufu görebilirsiniz.",
   },
   {
     q: "Komisyon oranı nedir?",
@@ -74,8 +80,7 @@ function PlansPage() {
   const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
   const list = plans ?? [];
 
-  const priceOf = (plan: (typeof list)[number]) =>
-    interval === "yearly" ? Number(plan.price_yearly ?? 0) : Number(plan.price_monthly ?? 0);
+  const priceOf = (plan: (typeof list)[number]) => planPrice(plan, interval);
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-24">
@@ -130,8 +135,12 @@ function PlansPage() {
                 <h3 className="text-base font-semibold">{plan.name}</h3>
                 <p className="mt-1 text-xs text-muted-foreground">{plan.description}</p>
                 <p className="mt-5 font-display text-2xl font-extrabold">
-                  {price === 0 ? "Ücretsiz" : formatMoney(price, plan.currency)}
-                  {price > 0 ? (
+                  {price === null
+                    ? "Fiyat için iletişime geçin"
+                    : price === 0
+                      ? "Ücretsiz"
+                      : formatMoney(price, plan.currency)}
+                  {price !== null && price > 0 ? (
                     <span className="text-sm font-medium text-muted-foreground">
                       {interval === "yearly" ? "/yıl" : "/ay"}
                     </span>
@@ -139,7 +148,12 @@ function PlansPage() {
                 </p>
                 {interval === "yearly" && Number(plan.price_yearly ?? 0) > 0 ? (
                   <p className="mt-1 text-xs text-success">
-                    Aylık {formatMoney(Number(plan.price_yearly) / 12, plan.currency)} karşılığı
+                    Aylık{" "}
+                    {formatMoney(yearlyPlanSummary(plan)?.monthlyEquivalent ?? 0, plan.currency)}{" "}
+                    karşılığı
+                    {yearlyPlanSummary(plan)?.savingsPercent != null
+                      ? ` · %${yearlyPlanSummary(plan)!.savingsPercent} tasarruf`
+                      : ""}
                   </p>
                 ) : null}
                 <ul className="mt-5 space-y-2 text-sm">
@@ -170,7 +184,7 @@ function PlansPage() {
                   className="mt-6 w-full rounded-full"
                   variant={featured ? "default" : "outline"}
                 >
-                  <Link to="/auth" search={{ mode: "register" }}>
+                  <Link to="/auth" search={{ mode: "register", plan: plan.code, interval }}>
                     Bu paketle başla
                   </Link>
                 </Button>
@@ -190,7 +204,9 @@ function PlansPage() {
         </p>
         <div className="mt-6 overflow-x-auto rounded-2xl border">
           <table className="w-full min-w-[720px] text-sm">
-            <caption className="sr-only">Mefticaret e-ticaret paketlerinin limit karşılaştırması</caption>
+            <caption className="sr-only">
+              Mefticaret e-ticaret paketlerinin limit karşılaştırması
+            </caption>
             <thead className="bg-muted/50 text-left">
               <tr>
                 <th scope="col" className="px-4 py-3 font-semibold">
@@ -210,7 +226,11 @@ function PlansPage() {
                 </th>
                 {list.map((plan) => (
                   <td key={plan.id} className="px-4 py-3">
-                    {priceOf(plan) === 0 ? "Ücretsiz" : formatMoney(priceOf(plan), plan.currency)}
+                    {priceOf(plan) === null
+                      ? "—"
+                      : priceOf(plan) === 0
+                        ? "Ücretsiz"
+                        : formatMoney(priceOf(plan)!, plan.currency)}
                   </td>
                 ))}
               </tr>
@@ -290,7 +310,9 @@ function PlansPage() {
       </section>
 
       <section className="mt-20 showcase-card px-6 py-14 text-center">
-        <h2 className="text-2xl font-extrabold sm:text-3xl">Paketinizi seçin, bugün satışa başlayın</h2>
+        <h2 className="text-2xl font-extrabold sm:text-3xl">
+          Paketinizi seçin, bugün satışa başlayın
+        </h2>
         <p className="mx-auto mt-4 max-w-lg text-sm text-muted-foreground">
           Ücretsiz paketle mağazanızı açın, işiniz büyüdükçe tek tıkla yükseltin.
         </p>

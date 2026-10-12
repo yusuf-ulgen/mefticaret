@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { BigButton, SoftCard } from "@/components/homemaker/kolay-parts";
-import { verifyPaymentReceipt } from "@/lib/kolay-v8.functions";
+import { reviewPaymentReceipt, verifyPaymentReceipt } from "@/lib/kolay-v8.functions";
 import { formatMoney } from "@/lib/mefti";
 
 type SimpleOrder = {
@@ -15,6 +15,7 @@ type SimpleOrder = {
   grand_total: number;
   currency: string;
   payment_status: string;
+  status?: string;
 };
 
 async function toDataUrl(file: File): Promise<string> {
@@ -28,7 +29,7 @@ async function toDataUrl(file: File): Promise<string> {
 
 /**
  * Havale/EFT siparişlerinde müşterinin gönderdiği dekont fotoğrafını yapay
- * zekâya okutur; tutar uyuşursa sipariş "ödendi" olarak işaretlenir.
+ * zekâya okutur; banka tahsilatını doğrulayan satıcı ayrıca onaylar.
  */
 export function ReceiptVerifier({
   storeId,
@@ -41,12 +42,21 @@ export function ReceiptVerifier({
 }) {
   const queryClient = useQueryClient();
   const verify = useServerFn(verifyPaymentReceipt);
+  const review = useServerFn(reviewPaymentReceipt);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [orderId, setOrderId] = useState("");
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ status: string; notes: string } | null>(null);
+  const [result, setResult] = useState<{ status: string; notes: string; checkId: string } | null>(
+    null,
+  );
+  const [bankReference, setBankReference] = useState("");
+  const [bankConfirmed, setBankConfirmed] = useState(false);
 
-  const waiting = orders.filter((order) => order.payment_status !== "paid");
+  const waiting = orders.filter(
+    (order) =>
+      order.payment_status === "pending" &&
+      !["cancelled", "returned", "refunded"].includes(order.status ?? ""),
+  );
   if (waiting.length === 0) return null;
 
   const selected = waiting.find((order) => order.id === orderId) ?? null;
@@ -62,13 +72,14 @@ export function ReceiptVerifier({
     }
     setBusy(true);
     setResult(null);
+    setBankReference("");
+    setBankConfirmed(false);
     try {
       const imageDataUrl = await toDataUrl(file);
       const outcome = await verify({ data: { storeId, orderId: selected.id, imageDataUrl } });
-      setResult({ status: outcome.status, notes: outcome.notes });
-      if (outcome.status === "matched") {
-        await queryClient.invalidateQueries({ queryKey: ["kolay-orders", storeId] });
-        toast.success("Ödeme alındı olarak işaretlendi");
+      setResult({ status: outcome.status, notes: outcome.notes, checkId: outcome.checkId });
+      if (outcome.status === "pending_review") {
+        toast.info("Dekont inceleme bekliyor");
       } else {
         toast.warning("Dekont doğrulanamadı");
       }
@@ -80,6 +91,31 @@ export function ReceiptVerifier({
     }
   };
 
+  const decide = async (approve: boolean) => {
+    if (!result || (approve && (!bankConfirmed || bankReference.trim().length < 3))) return;
+    setBusy(true);
+    try {
+      const outcome = await review({
+        data: { storeId, checkId: result.checkId, approve, bankReference },
+      });
+      setResult({
+        ...result,
+        status: outcome.status,
+        notes:
+          outcome.status === "approved"
+            ? "Tahsilat manuel onaylandı."
+            : "Dekont reddedildi; ödeme durumu değişmedi.",
+      });
+      await queryClient.invalidateQueries({ queryKey: ["kolay-orders", storeId] });
+      await queryClient.invalidateQueries({ queryKey: ["orders", storeId] });
+      toast.success(outcome.status === "approved" ? "Tahsilat onaylandı" : "Dekont reddedildi");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "İnceleme kaydedilemedi");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <SoftCard className="grid gap-3">
       <div className="flex items-center gap-2">
@@ -87,15 +123,21 @@ export function ReceiptVerifier({
         <h2 className="text-base font-bold">Dekont kontrolü</h2>
       </div>
       <p className="text-xs text-hm-ink-soft">
-        Havale ile ödeyen müşterinizin gönderdiği dekontu yükleyin. Tutar siparişle aynıysa ödeme
-        otomatik “alındı” olur.
+        Dekontu yükleyin. Okuma sonucu inceleme önerisidir. Ödemeyi onaylamadan önce banka
+        hareketinde tutarı, para birimini ve alıcı hesabı doğrulayın.
       </p>
 
       <label className="block">
         <span className="text-sm font-semibold">Sipariş</span>
         <select
           value={orderId}
-          onChange={(event) => setOrderId(event.target.value)}
+          disabled={busy}
+          onChange={(event) => {
+            setOrderId(event.target.value);
+            setResult(null);
+            setBankConfirmed(false);
+            setBankReference("");
+          }}
           className="mt-1.5 min-h-12 w-full rounded-2xl border border-hm-line bg-hm-sand px-3 text-base"
         >
           <option value="">Seçiniz…</option>
@@ -119,11 +161,7 @@ export function ReceiptVerifier({
         }}
       />
 
-      <BigButton
-        tone="teal"
-        disabled={busy || !selected}
-        onClick={() => fileRef.current?.click()}
-      >
+      <BigButton tone="teal" disabled={busy || !selected} onClick={() => fileRef.current?.click()}>
         {busy ? <Loader2 className="size-5 animate-spin" /> : <Upload className="size-5" />}
         Dekont fotoğrafı yükle
       </BigButton>
@@ -131,17 +169,48 @@ export function ReceiptVerifier({
       {result ? (
         <div
           className={`flex items-start gap-2 rounded-2xl p-3 text-sm ${
-            result.status === "matched"
+            result.status === "approved"
               ? "bg-hm-emerald-soft text-hm-emerald"
               : "bg-hm-rose-soft text-hm-rose"
           }`}
         >
-          {result.status === "matched" ? (
+          {result.status === "approved" ? (
             <CheckCircle2 className="size-5 shrink-0" />
           ) : (
             <TriangleAlert className="size-5 shrink-0" />
           )}
           <p>{result.notes}</p>
+        </div>
+      ) : null}
+      {result?.status === "pending_review" ? (
+        <div className="grid gap-3">
+          <label className="grid gap-1 text-sm">
+            Banka işlem referansı
+            <input
+              className="rounded-xl border p-3"
+              value={bankReference}
+              maxLength={160}
+              onChange={(e) => setBankReference(e.target.value)}
+            />
+          </label>
+          <label className="flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={bankConfirmed}
+              onChange={(e) => setBankConfirmed(e.target.checked)}
+            />
+            Banka hesabındaki tahsilatı, tutarı, para birimini ve alıcı hesabı kontrol ettim.
+          </label>
+          <BigButton
+            tone="emerald"
+            disabled={busy || !bankConfirmed || bankReference.trim().length < 3}
+            onClick={() => void decide(true)}
+          >
+            Tahsilatı onayla
+          </BigButton>
+          <BigButton tone="ghost" disabled={busy} onClick={() => void decide(false)}>
+            Dekontu reddet
+          </BigButton>
         </div>
       ) : null}
     </SoftCard>

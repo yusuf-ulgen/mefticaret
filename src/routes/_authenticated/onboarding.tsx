@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { ArrowRight, Check, Globe, Palette, Rocket, Search } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
@@ -24,13 +25,7 @@ import { saveStoreSeo } from "@/lib/seo.functions";
 import { seoTemplateDefaults } from "@/components/seo/seo-shared";
 import { THEME_TEMPLATES } from "@/lib/theme-templates";
 import { plansQuery } from "@/lib/store-queries";
-import {
-  CURRENCIES,
-  INDUSTRIES,
-  LOCALES,
-  slugify,
-  SUBDOMAIN_SUFFIX,
-} from "@/lib/mefti";
+import { CURRENCIES, INDUSTRIES, LOCALES, slugify, SUBDOMAIN_SUFFIX } from "@/lib/mefti";
 
 /**
  * Tek sayfalık mağaza kurulumu: marka, paket, tema, alan adı ve SEO tek formda
@@ -38,6 +33,14 @@ import {
  * kurulum tamamlanınca kullanıcı doğrudan mağaza paneline yönlendirilir.
  */
 export const Route = createFileRoute("/_authenticated/onboarding")({
+  validateSearch: z.object({
+    plan: z
+      .string()
+      .regex(/^[a-z0-9_-]{1,40}$/)
+      .default("free"),
+    interval: z.enum(["monthly", "yearly"]).default("monthly"),
+    locale: z.enum(["tr", "en", "de", "fr", "ar"]).default("tr"),
+  }),
   head: () => ({
     meta: [
       { title: "Mağaza Kurulumu — Mefticaret" },
@@ -59,6 +62,7 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 });
 
 function OnboardingPage() {
+  const selection = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const create = useServerFn(createStore);
@@ -70,16 +74,16 @@ function OnboardingPage() {
   const [name, setName] = useState("");
   const [industry, setIndustry] = useState<string>("moda");
   const [currency, setCurrency] = useState<string>("TRY");
-  const [locale, setLocale] = useState<string>("tr");
-  const [planCode, setPlanCode] = useState<string>("free");
+  const [locale, setLocale] = useState<string>(selection.locale);
+  const [planCode, setPlanCode] = useState<string>(selection.plan);
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">(selection.interval);
   const [themeCode, setThemeCode] = useState<string>(THEME_TEMPLATES[0]?.code ?? "wokiee-mega");
   const [domain, setDomain] = useState("");
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
 
   const slug = slugify(name) || "magaza-adi";
-  const industryLabel =
-    INDUSTRIES.find((item) => item.value === industry)?.label ?? "E-ticaret";
+  const industryLabel = INDUSTRIES.find((item) => item.value === industry)?.label ?? "E-ticaret";
 
   // Otomatik SEO önerisi: kullanıcı kendi metnini yazmadıysa marka + sektörden üretilir.
   const suggestedTitle = useMemo(
@@ -106,6 +110,7 @@ function OnboardingPage() {
           currency: currency as "TRY",
           locale: locale as "tr",
           planCode,
+          billingInterval,
         },
       });
 
@@ -132,7 +137,9 @@ function OnboardingPage() {
 
       if (domain.trim()) {
         try {
-          await addDomain({ data: { storeId: store.id, hostname: domain.trim(), includeWww: true } });
+          await addDomain({
+            data: { storeId: store.id, hostname: domain.trim(), includeWww: true },
+          });
         } catch (error) {
           notes.push(`alan adı (${(error as Error).message})`);
         }
@@ -147,7 +154,11 @@ function OnboardingPage() {
       } else {
         toast.success("Mağazan hazır — panele yönlendiriliyorsun.");
       }
-      void navigate({ to: "/store/$storeId/dashboard", params: { storeId: store.id } });
+      void navigate({
+        to: planCode === "free" ? "/store/$storeId/dashboard" : "/store/$storeId/billing",
+        params: { storeId: store.id },
+        search: { plan: planCode, interval: billingInterval, locale: selection.locale },
+      });
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -207,8 +218,35 @@ function OnboardingPage() {
               <div className="space-y-2">
                 <Label>Paket</Label>
                 <p className="rounded-md border border-border bg-muted px-3 py-2 text-sm">
-                  Mağazanız ücretsiz paketle açılır. Ücretli pakete kurulumdan sonra panelden ödeme yaparak geçebilirsiniz.
+                  Mağazanız ücretsiz paketle açılır. Ücretli pakete kurulumdan sonra panelden ödeme
+                  yaparak geçebilirsiniz.
                 </p>
+                <Select value={planCode} onValueChange={setPlanCode}>
+                  <SelectTrigger aria-label="Seçilen paket">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(plans ?? [])
+                      .filter((plan) => plan.is_active)
+                      .map((plan) => (
+                        <SelectItem key={plan.id} value={plan.code}>
+                          {plan.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={billingInterval}
+                  onValueChange={(value) => setBillingInterval(value as "monthly" | "yearly")}
+                >
+                  <SelectTrigger aria-label="Ödeme dönemi">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Aylık</SelectItem>
+                    <SelectItem value="yearly">Yıllık</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Para birimi</Label>
@@ -351,6 +389,7 @@ function OnboardingPage() {
               label="Paket"
               value={(plans ?? []).find((plan) => plan.code === planCode)?.name ?? planCode}
             />
+            <Row label="Ödeme dönemi" value={billingInterval === "yearly" ? "Yıllık" : "Aylık"} />
             <Row
               label="Tema"
               value={THEME_TEMPLATES.find((item) => item.code === themeCode)?.name ?? themeCode}

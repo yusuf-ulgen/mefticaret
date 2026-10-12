@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Rocket } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
+import { authText, withLocale } from "@/lib/auth-i18n";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,15 +11,20 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/forgot-password")({
+  validateSearch: z.object({ locale: z.enum(["tr", "en", "de", "fr", "ar"]).default("tr") }),
   head: () => ({
     meta: [
       { title: "Şifremi Unuttum — Mefticaret" },
       {
         name: "description",
-        content: "E-posta adresinizi girin, şifre sıfırlama bağlantısını saniyeler içinde gönderelim.",
+        content:
+          "E-posta adresinizi girin, şifre sıfırlama bağlantısını saniyeler içinde gönderelim.",
       },
       { property: "og:title", content: "Şifremi Unuttum — Mefticaret" },
-      { property: "og:description", content: "Mefticaret hesabınızın şifresini güvenle sıfırlayın." },
+      {
+        property: "og:description",
+        content: "Mefticaret hesabınızın şifresini güvenle sıfırlayın.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -26,6 +33,8 @@ export const Route = createFileRoute("/forgot-password")({
 });
 
 function ForgotPasswordPage() {
+  const { locale } = Route.useSearch();
+  const tx = (text: string) => authText(locale, text);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -34,7 +43,7 @@ function ForgotPasswordPage() {
     event.preventDefault();
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth`,
+      redirectTo: `${window.location.origin}${withLocale("/auth", locale)}`,
     });
     setBusy(false);
     if (error) {
@@ -42,7 +51,7 @@ function ForgotPasswordPage() {
       return;
     }
     setSent(true);
-    toast.success("Sıfırlama bağlantısı gönderildi.");
+    toast.success(tx("Sıfırlama bağlantısı gönderildi."));
   }
 
   return (
@@ -56,12 +65,12 @@ function ForgotPasswordPage() {
         </Link>
 
         <form onSubmit={handleSubmit} className="surface-card space-y-4 p-6">
-          <h1 className="font-display text-xl font-semibold">Şifreni sıfırla</h1>
+          <h1 className="font-display text-xl font-semibold">{tx("Şifreni sıfırla")}</h1>
           <p className="text-sm text-muted-foreground">
-            Hesabına bağlı e-posta adresini gir; şifre yenileme bağlantısını gönderelim.
+            {tx("Hesabına bağlı e-posta adresini gir; şifre yenileme bağlantısını gönderelim.")}
           </p>
           <div className="space-y-2">
-            <Label htmlFor="forgot-email">E-posta</Label>
+            <Label htmlFor="forgot-email">{tx("E-posta")}</Label>
             <Input
               id="forgot-email"
               type="email"
@@ -72,11 +81,15 @@ function ForgotPasswordPage() {
             />
           </div>
           <Button type="submit" className="w-full" disabled={busy || sent}>
-            {sent ? "Bağlantı gönderildi" : busy ? "Gönderiliyor..." : "Sıfırlama bağlantısı gönder"}
+            {sent
+              ? tx("Bağlantı gönderildi")
+              : busy
+                ? tx("Gönderiliyor...")
+                : tx("Sıfırlama bağlantısı gönder")}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
-            <Link to="/auth" search={{ mode: "login" }} className="underline">
-              Girişe dön
+            <Link to="/auth" search={{ mode: "login", locale }} className="underline">
+              {tx("Girişe dön")}
             </Link>
           </p>
         </form>

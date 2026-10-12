@@ -19,7 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { downloadCsv, toCsv } from "@/lib/csv";
-import { ordersQuery, type OrderStatus } from "@/lib/sales-queries";
+import { type OrderStatus } from "@/lib/sales-queries";
+import { listStoreOrders, exportStoreOrders, storeOrderSummary } from "@/lib/order-list.functions";
 import { updateOrder } from "@/lib/sales.functions";
 import { createShipment } from "@/lib/shipments.functions";
 import {
@@ -35,8 +36,7 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/orders")({
       { title: "Siparişler — Mefticaret" },
       {
         name: "description",
-        content:
-          "Mağazanın siparişlerini durum, ödeme ve kargo bilgisine göre takip et ve yönet.",
+        content: "Mağazanın siparişlerini durum, ödeme ve kargo bilgisine göre takip et ve yönet.",
       },
       { property: "og:title", content: "Siparişler — Mefticaret" },
       {
@@ -75,30 +75,31 @@ const NEXT_STATUS: Partial<Record<OrderStatus, { value: OrderStatus; label: stri
 
 function OrdersPage() {
   const { storeId } = Route.useParams();
-  const { data: orders, isLoading } = useQuery(ordersQuery(storeId));
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
   const [search, setSearch] = useState("");
 
-  const rows = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    return (orders ?? []).filter((order) => {
-      const statusOk = filter === "all" || order.status === filter;
-      const searchOk =
-        term.length === 0 ||
-        order.order_number.toLowerCase().includes(term) ||
-        (order.customer_name ?? "").toLowerCase().includes(term) ||
-        (order.customer_email ?? "").toLowerCase().includes(term);
-      return statusOk && searchOk;
-    });
-  }, [orders, filter, search]);
-
-  // Mobilde uzun tabloları tek seferde basmak yavaş; parça parça gösterilir.
-  const [visibleCount, setVisibleCount] = useState(30);
-  const shown = useMemo(() => rows.slice(0, visibleCount), [rows, visibleCount]);
-
-  const revenue = (orders ?? [])
-    .filter((order) => order.payment_status === "paid")
-    .reduce((sum, order) => sum + Number(order.grand_total), 0);
+  const [page, setPage] = useState(0);
+  const readOrders = useServerFn(listStoreOrders);
+  const readSummary = useServerFn(storeOrderSummary);
+  const exportOrders = useServerFn(exportStoreOrders);
+  const orderList = useQuery({
+    queryKey: ["orders", storeId, search, filter, page],
+    queryFn: () => readOrders({ data: { storeId, search, status: filter, page } }),
+  });
+  const summaryQuery = useQuery({
+    queryKey: ["orders", storeId, "summary"],
+    queryFn: () => readSummary({ data: { storeId } }),
+  });
+  const rows = orderList.data?.rows ?? [];
+  const orders = rows;
+  const shown = rows;
+  const isLoading = orderList.isLoading;
+  const counts = {
+    all: summaryQuery.data?.total ?? 0,
+    ...(summaryQuery.data?.counts ?? {}),
+  } as Record<string, number>;
+  const unpaidCount = summaryQuery.data?.awaitingPayment ?? 0;
+  const revenues = summaryQuery.data?.paidRevenue ?? {};
 
   const queryClient = useQueryClient();
   const update = useServerFn(updateOrder);
@@ -160,36 +161,43 @@ function OrdersPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const counts = useMemo(() => {
-    const map: Record<string, number> = { all: (orders ?? []).length };
-    for (const order of orders ?? []) map[order.status] = (map[order.status] ?? 0) + 1;
-    return map;
-  }, [orders]);
-
-  const unpaidCount = (orders ?? []).filter((order) => order.payment_status !== "paid").length;
-
-  const exportCsv = () => {
-    const source = selectedVisible.length > 0 ? rows.filter((o) => selectedVisible.includes(o.id)) : rows;
-    const csv = toCsv(
-      ["siparis_no", "musteri", "eposta", "durum", "odeme", "adet", "toplam", "para_birimi", "tarih"],
-      source.map((order) => [
-        order.order_number,
-        order.customer_name ?? "",
-        order.customer_email ?? "",
-        ORDER_STATUS_LABELS[order.status],
-        PAYMENT_STATUS_LABELS[order.payment_status],
-        (order.order_items ?? []).reduce(
-          (sum: number, item: { quantity: number }) => sum + item.quantity,
-          0,
-        ),
-        Number(order.grand_total),
-        order.currency,
-        order.placed_at,
-      ]),
-    );
-    downloadCsv(`siparisler-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+  const exportCsv = async () => {
+    try {
+      const source = await exportOrders({
+        data: { storeId, search, status: filter, page: 0, selectedIds: selectedVisible },
+      });
+      const csv = toCsv(
+        [
+          "siparis_no",
+          "musteri",
+          "eposta",
+          "durum",
+          "odeme",
+          "adet",
+          "toplam",
+          "para_birimi",
+          "tarih",
+        ],
+        source.map((order) => [
+          order.order_number,
+          order.customer_name ?? "",
+          order.customer_email ?? "",
+          ORDER_STATUS_LABELS[order.status],
+          PAYMENT_STATUS_LABELS[order.payment_status],
+          (order.order_items ?? []).reduce(
+            (sum: number, item: { quantity: number }) => sum + item.quantity,
+            0,
+          ),
+          Number(order.grand_total),
+          order.currency,
+          order.placed_at,
+        ]),
+      );
+      downloadCsv(`siparisler-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "CSV export failed");
+    }
   };
-
 
   return (
     <AppShell
@@ -206,16 +214,32 @@ function OrdersPage() {
     >
       <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:grid-cols-4 sm:gap-4">
         <div className="surface-card p-3 sm:p-5">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">Sipariş</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">{(orders ?? []).length}</p>
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+            Sipariş
+          </p>
+          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">
+            {summaryQuery.isError ? "—" : (summaryQuery.data?.total ?? "—")}
+          </p>
         </div>
         <div className="surface-card p-3 sm:p-5">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">Ödenmiş ciro</p>
-          <p className="mt-1 truncate text-lg font-semibold tabular-nums sm:text-2xl">{formatMoney(revenue)}</p>
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+            Ödenmiş ciro
+          </p>
+          <p className="mt-1 truncate text-lg font-semibold tabular-nums sm:text-2xl">
+            {summaryQuery.isError
+              ? "—"
+              : Object.entries(revenues)
+                  .map(([currency, total]) => formatMoney(total, currency))
+                  .join(" / ") || "—"}
+          </p>
         </div>
         <div className="surface-card p-3 sm:p-5">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">Bekleyen</p>
-          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">{counts["pending"] ?? 0}</p>
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+            Bekleyen
+          </p>
+          <p className="mt-1 text-lg font-semibold tabular-nums sm:text-2xl">
+            {counts["pending"] ?? 0}
+          </p>
         </div>
         <div className="surface-card p-3 sm:p-5">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
@@ -231,7 +255,11 @@ function OrdersPage() {
             key={item.value}
             size="sm"
             variant={filter === item.value ? "default" : "outline"}
-            onClick={() => setFilter(item.value)}
+            onClick={() => {
+              setFilter(item.value);
+              setPage(0);
+              setSelected([]);
+            }}
             className="shrink-0 gap-1.5"
           >
             {item.label}
@@ -245,7 +273,11 @@ function OrdersPage() {
           className="min-w-0"
           placeholder="Sipariş no veya müşteri ara"
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setPage(0);
+            setSelected([]);
+          }}
           inputMode="search"
         />
         <Button size="sm" variant="outline" className="h-10 shrink-0 gap-2" onClick={exportCsv}>
@@ -268,11 +300,7 @@ function OrdersPage() {
               ))}
             </SelectContent>
           </Select>
-          <Button
-            size="sm"
-            disabled={bulkMutation.isPending}
-            onClick={() => bulkMutation.mutate()}
-          >
+          <Button size="sm" disabled={bulkMutation.isPending} onClick={() => bulkMutation.mutate()}>
             {bulkMutation.isPending ? "Uygulanıyor…" : "Durumu uygula"}
           </Button>
           <span className="mx-1 hidden h-6 w-px bg-border sm:block" />
@@ -295,7 +323,6 @@ function OrdersPage() {
           </Button>
         </div>
       ) : null}
-
 
       {isLoading ? (
         <p className="text-muted-foreground">Yükleniyor…</p>
@@ -334,7 +361,12 @@ function OrdersPage() {
                     {formatMoney(Number(order.grand_total), order.currency)}
                   </span>
                 </div>
-                <Button size="sm" variant="ghost" className="mt-1 h-10 w-full gap-2" onClick={() => setPeekId(order.id)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="mt-1 h-10 w-full gap-2"
+                  onClick={() => setPeekId(order.id)}
+                >
                   <Eye className="size-4" /> Hızlı bak
                 </Button>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -374,9 +406,7 @@ function OrdersPage() {
                 <th className="w-10 px-4 py-3">
                   <Checkbox
                     checked={allSelected}
-                    onCheckedChange={(checked) =>
-                      setSelected(checked === true ? visibleIds : [])
-                    }
+                    onCheckedChange={(checked) => setSelected(checked === true ? visibleIds : [])}
                     aria-label="Tümünü seç"
                   />
                 </th>
@@ -467,16 +497,43 @@ function OrdersPage() {
               ))}
             </tbody>
           </table>
-
-          {rows.length > shown.length ? (
-            <div className="border-t border-border p-3 text-center">
-              <Button variant="outline" onClick={() => setVisibleCount((n) => n + 30)}>
-                Daha fazla göster ({rows.length - shown.length})
-              </Button>
-            </div>
-          ) : null}
         </div>
       )}
+      <div className="my-4 flex items-center justify-between gap-3">
+        <Button
+          variant="outline"
+          disabled={page === 0 || orderList.isFetching}
+          onClick={() => {
+            setPage((p) => p - 1);
+            setSelected([]);
+          }}
+        >
+          Önceki
+        </Button>
+        <span>
+          Sayfa {page + 1} / {Math.max(1, Math.ceil((orderList.data?.total ?? 0) / 50))} ·{" "}
+          {orderList.data?.total ?? 0} sonuç
+        </span>
+        <Button
+          variant="outline"
+          disabled={orderList.isFetching || (page + 1) * 50 >= (orderList.data?.total ?? 0)}
+          onClick={() => {
+            setPage((p) => p + 1);
+            setSelected([]);
+          }}
+        >
+          Sonraki
+        </Button>
+      </div>
+      <p className="mb-4 text-xs text-muted-foreground">
+        Toplamlar tüm dönemi kapsar. CSV: seçim varsa seçilen siparişler, yoksa mevcut arama ve
+        filtrenin tüm sonuçları.
+      </p>
+      {orderList.isError || summaryQuery.isError ? (
+        <p role="alert" className="text-destructive">
+          {(orderList.error ?? summaryQuery.error)?.message}
+        </p>
+      ) : null}
       <OrderPeek
         storeId={storeId}
         orderId={peekId}

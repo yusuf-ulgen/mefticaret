@@ -1,8 +1,17 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { syncAbandonedCart } from "@/lib/abandoned.functions";
 import { getCartToken } from "@/lib/cart-token";
 import { trackEvent } from "@/lib/track";
+import { cartQuantity } from "@/lib/cart-quantity";
 
 export type CartLine = {
   storeSlug: string;
@@ -92,6 +101,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [lines, hydrated]);
 
   const add = useCallback((line: Omit<CartLine, "quantity">, quantity = 1) => {
+    quantity = cartQuantity(quantity, line.maxStock);
+    if (quantity === 0) return;
     trackEvent(line.storeSlug, "add_to_cart", {
       variantId: line.variantId,
       value: line.price * Math.max(1, quantity),
@@ -103,11 +114,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existing) {
         return current.map((item) =>
           item.variantId === line.variantId
-            ? { ...item, ...line, quantity: Math.min(item.quantity + quantity, Math.max(1, line.maxStock)) }
+            ? { ...item, ...line, quantity: cartQuantity(item.quantity + quantity, line.maxStock) }
             : item,
         );
       }
-      return [...current, { ...line, quantity: Math.max(1, Math.min(quantity, Math.max(1, line.maxStock))) }];
+      return [...current, { ...line, quantity }];
     });
   }, []);
 
@@ -116,7 +127,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       current
         .map((item) =>
           item.variantId === variantId
-            ? { ...item, quantity: Math.max(0, Math.min(quantity, Math.max(1, item.maxStock))) }
+            ? { ...item, quantity: cartQuantity(quantity, item.maxStock) }
             : item,
         )
         .filter((item) => item.quantity > 0),
@@ -128,7 +139,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const clear = useCallback((storeSlug?: string) => {
-    setLines((current) => (storeSlug ? current.filter((item) => item.storeSlug !== storeSlug) : []));
+    setLines((current) =>
+      storeSlug ? current.filter((item) => item.storeSlug !== storeSlug) : [],
+    );
   }, []);
 
   const value = useMemo<CartState>(() => {
@@ -141,7 +154,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       clear,
       linesFor,
       countFor: (storeSlug) => linesFor(storeSlug).reduce((sum, item) => sum + item.quantity, 0),
-      subtotalFor: (storeSlug) => linesFor(storeSlug).reduce((sum, item) => sum + item.price * item.quantity, 0),
+      subtotalFor: (storeSlug) =>
+        linesFor(storeSlug).reduce((sum, item) => sum + item.price * item.quantity, 0),
     };
   }, [lines, add, setQuantity, remove, clear]);
 

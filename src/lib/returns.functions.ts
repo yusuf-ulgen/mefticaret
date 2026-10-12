@@ -67,9 +67,7 @@ export const createReturn = createServerFn({ method: "POST" })
       };
     });
 
-    const refundAmount = Number(
-      lines.reduce((sum, line) => sum + line.line_total, 0).toFixed(2),
-    );
+    const refundAmount = Number(lines.reduce((sum, line) => sum + line.line_total, 0).toFixed(2));
 
     const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -93,7 +91,11 @@ export const createReturn = createServerFn({ method: "POST" })
     if (!created) throw new Error("İade talebi oluşturulamadı");
 
     const { error: linesError } = await supabase.from("return_items").insert(
-      lines.map((line) => ({ ...line, return_id: created.id, store_id: created.store_id })) as never,
+      lines.map((line) => ({
+        ...line,
+        return_id: created.id,
+        store_id: created.store_id,
+      })) as never,
     );
     if (linesError) throw new Error(linesError.message);
 
@@ -133,6 +135,12 @@ export const updateReturn = createServerFn({ method: "POST" })
       .maybeSingle();
     if (currentError) throw new Error(currentError.message);
     if (!current) throw new Error("İade talebi bulunamadı");
+    if (
+      current.status === "refunded" &&
+      ((data.status !== undefined && data.status !== "refunded") || data.refundAmount !== undefined)
+    ) {
+      throw new Error("Tamamlanmış iadenin durumu ve tutarı değiştirilemez");
+    }
 
     const patch: Record<string, unknown> = {};
     if (data.status) patch["status"] = data.status;
@@ -147,6 +155,7 @@ export const updateReturn = createServerFn({ method: "POST" })
       .from("return_requests")
       .update(patch as never)
       .eq("id", current.id)
+      .eq("status", current.status)
       .select("id, status, refund_amount")
       .maybeSingle();
     if (error) throw new Error(error.message);

@@ -16,19 +16,23 @@ import {
   Zap,
 } from "lucide-react";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { getPublicAppShowcase } from "@/lib/app-showcase.functions";
 import { publicPlatformPostsQuery } from "@/lib/platform-blog-queries";
 import { sectionIcon, type SiteSection } from "@/lib/site-content";
-import { useTx } from "@/lib/landing-i18n";
-
-
+import { useLandingLocale, useTx } from "@/lib/landing-i18n";
 
 /* ---------------------------------- Entegrasyonlar ---------------------------------- */
 
 export function IntegrationsSection({ section }: { section: SiteSection | null }) {
   const tx = useTx();
+  const locale = useLandingLocale();
   if (!section) return null;
   const items = section.items;
   const half = Math.ceil(items.length / 2);
@@ -73,6 +77,7 @@ export function IntegrationsSection({ section }: { section: SiteSection | null }
 
 function IntegrationCard({ item }: { item: Record<string, string> }) {
   const tx = useTx();
+  const locale = useLandingLocale();
   const Icon = sectionIcon(item["icon"]);
 
   return (
@@ -82,8 +87,9 @@ function IntegrationCard({ item }: { item: Record<string, string> }) {
       </span>
       <div className="min-w-0">
         <p className="truncate text-xs font-semibold uppercase tracking-widest">{item["label"]}</p>
-        <p className="text-sm text-muted-foreground">{tx("{n} bağlantı", { n: item["count"] ?? "" })}</p>
-
+        <p className="text-sm text-muted-foreground">
+          {tx("{n} bağlantı", { n: item["count"] ?? "" })}
+        </p>
       </div>
       <ArrowUpRight className="ml-auto size-4 shrink-0 text-muted-foreground" />
     </div>
@@ -133,6 +139,7 @@ const CAPABILITY_GROUPS = [
 
 export function PlatformCapabilitiesSection() {
   const tx = useTx();
+  const locale = useLandingLocale();
   return (
     <section id="ozellikler" className="border-y border-border bg-secondary/40 py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
@@ -142,7 +149,9 @@ export function PlatformCapabilitiesSection() {
             {tx("Satışını Büyüten Her Şey Hazır Geliyor")}
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-            {tx("Uygulama mağazası, yapay zekâ destekli otomasyonlar ve pazaryeri–kargo–ödeme entegrasyonları Mefticaret ile birlikte gelir.")}
+            {tx(
+              "Uygulama mağazası, yapay zekâ destekli otomasyonlar ve pazaryeri–kargo–ödeme entegrasyonları Mefticaret ile birlikte gelir.",
+            )}
           </p>
         </div>
 
@@ -171,7 +180,7 @@ export function PlatformCapabilitiesSection() {
 
         <div className="mt-12 text-center">
           <Button asChild className="rounded-full">
-            <Link to="/auth" search={{ mode: "register" }}>
+            <Link to="/auth" search={{ mode: "register", locale: locale }}>
               {tx("Ücretsiz Başlayın")} <ArrowRight className="ml-2 size-4" />
             </Link>
           </Button>
@@ -185,6 +194,7 @@ export function PlatformCapabilitiesSection() {
 
 export function BlogSection({ section }: { section: SiteSection | null }) {
   const tx = useTx();
+  const locale = useLandingLocale();
   const { data: posts } = useQuery(publicPlatformPostsQuery());
   const [category, setCategory] = useState<string>("all");
 
@@ -293,6 +303,7 @@ type ShowcaseApp = {
 
 function AppLogoChip({ app }: { app: ShowcaseApp }) {
   const tx = useTx();
+  const locale = useLandingLocale();
   return (
     <div className="showcase-card flex shrink-0 items-center gap-3 px-4 py-3">
       {app.logoUrl ? (
@@ -314,6 +325,7 @@ function AppLogoChip({ app }: { app: ShowcaseApp }) {
 
 export function AppShowcaseSection() {
   const tx = useTx();
+  const locale = useLandingLocale();
   const { data: apps } = useQuery({
     queryKey: ["public-app-showcase"],
     queryFn: () => getPublicAppShowcase(),
@@ -332,7 +344,9 @@ export function AppShowcaseSection() {
           {tx("{n}+ Uygulama ve Entegrasyon Tek Panelde", { n: apps.length })}
         </h2>
         <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-          {tx("Pazaryerlerinden kargoya, pazarlamadan otomasyona — mağazanı büyüten tüm araçlar tek tıkla kurulur.")}
+          {tx(
+            "Pazaryerlerinden kargoya, pazarlamadan otomasyona — mağazanı büyüten tüm araçlar tek tıkla kurulur.",
+          )}
         </p>
       </div>
 
@@ -354,7 +368,7 @@ export function AppShowcaseSection() {
 
       <div className="mt-12 text-center">
         <Button asChild variant="outline" className="rounded-full">
-          <Link to="/auth" search={{ mode: "register" }}>
+          <Link to="/auth" search={{ mode: "register", locale: locale }}>
             {tx("Uygulama Mağazasını Keşfet")} <ArrowRight className="ml-2 size-4" />
           </Link>
         </Button>
@@ -366,6 +380,7 @@ export function AppShowcaseSection() {
 /* -------------------------------------- SSS ---------------------------------------- */
 
 export function FaqSection({ section }: { section: SiteSection | null }) {
+  const locale = useLandingLocale();
   if (!section) return null;
   return (
     <section id="sss" className="border-t border-border bg-secondary/40 py-20 lg:py-28">
@@ -376,7 +391,7 @@ export function FaqSection({ section }: { section: SiteSection | null }) {
           <p className="mt-5 text-muted-foreground">{section.subtitle}</p>
           {section.primary_label ? (
             <Button asChild variant="outline" className="mt-6 rounded-full">
-              <Link to="/auth" search={{ mode: "register" }}>
+              <Link to="/auth" search={{ mode: "register", locale: locale }}>
                 {section.primary_label} <ArrowRight className="ml-2 size-4" />
               </Link>
             </Button>

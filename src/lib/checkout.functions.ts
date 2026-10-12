@@ -21,9 +21,8 @@ import {
  */
 async function guardCheckoutRate(bucket: string, kind: "checkout_quote" | "checkout_order") {
   const { getRequest } = await import("@tanstack/react-start/server");
-  const { consumeRateLimit, clientIp, RATE_LIMITS, recordSecurityEvent } = await import(
-    "@/lib/rate-limit.server"
-  );
+  const { consumeRateLimit, clientIp, RATE_LIMITS, recordSecurityEvent } =
+    await import("@/lib/rate-limit.server");
   const request = getRequest();
   const ip = clientIp(request);
   const limit = await consumeRateLimit(`${kind}:${bucket}:${ip}`, RATE_LIMITS[kind]);
@@ -48,7 +47,6 @@ export const placeOrder = createServerFn({ method: "POST" })
     await guardCheckoutRate(data.slug, "checkout_order");
     requirePolicyAcceptance(data.policyAccepted);
     const result = await createStorefrontOrder(data);
-    await logAcceptance(data.slug, result.orderNumber, data.customer.email, null);
     return result;
   });
 
@@ -78,25 +76,19 @@ export const placeMemberOrder = createServerFn({ method: "POST" })
     const email = userData.user?.email?.trim().toLowerCase();
     if (!email) throw new Error("Hesabınızda e-posta adresi bulunamadı.");
     requirePolicyAcceptance(data.policyAccepted);
-    const result = await createStorefrontOrder({ ...data, customer: { ...data.customer, email } }, {
-      userId: context.userId,
-      email,
-    });
-    await logAcceptance(data.slug, result.orderNumber, email, context.userId);
+    const result = await createStorefrontOrder(
+      { ...data, customer: { ...data.customer, email } },
+      {
+        userId: context.userId,
+        email,
+      },
+    );
     return result;
   });
 
 function requirePolicyAcceptance(accepted: boolean | undefined) {
-  if (accepted !== true) throw new Error("Siparişi tamamlamak için Gizlilik Politikası ve Mesafeli Satış Sözleşmesi'ni onaylamanız gerekir.");
-}
-
-/** Onay kaydı başarısız olsa bile sipariş geri alınmaz; hata kaydedilir. */
-async function logAcceptance(slug: string, orderNumber: string, email: string, userId: string | null) {
-  try {
-    const { getRequest } = await import("@tanstack/react-start/server");
-    const { recordCheckoutAcceptances } = await import("@/lib/policies.server");
-    await recordCheckoutAcceptances({ slug, orderNumber, email, userId, request: getRequest() ?? null });
-  } catch (error) {
-    console.error("policy acceptance log failed", error);
-  }
+  if (accepted !== true)
+    throw new Error(
+      "Siparişi tamamlamak için Gizlilik Politikası ve Mesafeli Satış Sözleşmesi'ni onaylamanız gerekir.",
+    );
 }

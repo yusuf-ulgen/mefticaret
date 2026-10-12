@@ -21,7 +21,11 @@ export const createShipment = createServerFn({ method: "POST" })
       .object({
         orderId: z.guid(),
         carrierKey: carrierKeySchema.optional(),
-        estimatedDeliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal("")),
+        estimatedDeliveryDate: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional()
+          .or(z.literal("")),
         carrier: z.string().trim().min(2).max(80),
         trackingNumber: z.string().trim().max(120).optional(),
         trackingUrl: z.string().trim().url().max(500).optional().or(z.literal("")),
@@ -49,6 +53,13 @@ export const createShipment = createServerFn({ method: "POST" })
       .maybeSingle();
     if (orderError) throw new Error(orderError.message);
     if (!order) throw new Error("Sipariş bulunamadı");
+    const { loadPhysicalShipmentItems } = await import("@/lib/shipment-items.server");
+    const physical = await loadPhysicalShipmentItems(
+      supabase,
+      order.id,
+      order.store_id,
+      data.items,
+    );
 
     const now = new Date().toISOString();
     const { data: shipment, error } = await supabase
@@ -60,7 +71,9 @@ export const createShipment = createServerFn({ method: "POST" })
         tracking_number: data.trackingNumber || null,
         tracking_url:
           data.trackingUrl ||
-          (data.trackingNumber && data.carrierKey ? carrierTrackUrl(data.carrierKey, data.trackingNumber) : null),
+          (data.trackingNumber && data.carrierKey
+            ? carrierTrackUrl(data.carrierKey, data.trackingNumber)
+            : null),
         carrier_key: data.carrierKey ?? null,
         estimated_delivery_date: data.estimatedDeliveryDate || null,
         status: "pending",
@@ -70,9 +83,9 @@ export const createShipment = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    if (data.items.length > 0) {
+    if (physical.lines.length > 0) {
       const { error: itemsError } = await supabase.from("shipment_items").insert(
-        data.items.map((line) => ({
+        physical.lines.map((line) => ({
           shipment_id: shipment.id,
           order_item_id: line.orderItemId,
           quantity: line.quantity,
@@ -108,7 +121,12 @@ export const updateShipment = createServerFn({ method: "POST" })
         shipmentId: z.guid(),
         status: statusSchema.optional(),
         carrierKey: carrierKeySchema.nullable().optional(),
-        estimatedDeliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional().or(z.literal("")),
+        estimatedDeliveryDate: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .nullable()
+          .optional()
+          .or(z.literal("")),
         location: z.string().trim().max(120).optional(),
         description: z.string().trim().max(300).optional(),
         carrier: z.string().trim().min(2).max(80).optional(),
@@ -129,16 +147,24 @@ export const updateShipment = createServerFn({ method: "POST" })
     if (readError) throw new Error(readError.message);
     if (!current) throw new Error("Sevkiyat bulunamadı");
 
-    const patch: Database["public"]["Tables"]["shipments"]["Update"] = { updated_at: new Date().toISOString() };
+    const patch: Database["public"]["Tables"]["shipments"]["Update"] = {
+      updated_at: new Date().toISOString(),
+    };
     if (data.carrier !== undefined) patch.carrier = data.carrier;
     if (data.carrierKey !== undefined) patch.carrier_key = data.carrierKey;
-    if (data.estimatedDeliveryDate !== undefined) patch.estimated_delivery_date = data.estimatedDeliveryDate || null;
+    if (data.estimatedDeliveryDate !== undefined)
+      patch.estimated_delivery_date = data.estimatedDeliveryDate || null;
     if (data.trackingNumber !== undefined) patch.tracking_number = data.trackingNumber || null;
     if (data.trackingUrl !== undefined) patch.tracking_url = data.trackingUrl || null;
     if (data.note !== undefined) patch.note = data.note || null;
 
     // Kullanıcı istemcisiyle güncelleme: RLS yönetim yetkisini doğrular.
-    const { data: okRow, error } = await supabase.from("shipments").update(patch).eq("id", current.id).select("id").maybeSingle();
+    const { data: okRow, error } = await supabase
+      .from("shipments")
+      .update(patch)
+      .eq("id", current.id)
+      .select("id")
+      .maybeSingle();
     if (error) throw new Error(error.message);
     if (!okRow) throw new Error("Bu kargoyu düzenleme yetkiniz yok");
 
@@ -159,10 +185,7 @@ export const deleteShipment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ shipmentId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("shipments")
-      .delete()
-      .eq("id", data.shipmentId);
+    const { error } = await context.supabase.from("shipments").delete().eq("id", data.shipmentId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -173,13 +196,17 @@ export const getOrderShipments = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("shipments")
-      .select("id, carrier, carrier_key, tracking_number, tracking_url, status, estimated_delivery_date, shipped_at, delivered_at, last_synced_at, last_sync_error, created_at, shipment_events(id, status, description, location, source, event_at)")
+      .select(
+        "id, carrier, carrier_key, tracking_number, tracking_url, status, estimated_delivery_date, shipped_at, delivered_at, last_synced_at, last_sync_error, created_at, shipment_events(id, status, description, location, source, event_at)",
+      )
       .eq("order_id", data.orderId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return (rows ?? []).map((r) => ({
       ...r,
-      shipment_events: [...(r.shipment_events ?? [])].sort((a, b) => (a.event_at < b.event_at ? 1 : -1)),
+      shipment_events: [...(r.shipment_events ?? [])].sort((a, b) =>
+        a.event_at < b.event_at ? 1 : -1,
+      ),
     }));
   });
 
@@ -196,7 +223,11 @@ export const syncShipmentNow = createServerFn({ method: "POST" })
     if (!okRow) throw new Error("Bu kargoyu güncelleme yetkiniz yok");
     const { admin, syncActiveShipments } = await import("@/lib/shipment-tracking.server");
     const res = await syncActiveShipments(await admin(), { shipmentId: data.shipmentId, limit: 1 });
-    if (res.skipped) return { ok: false, message: `${carrierName(okRow.carrier_key, okRow.carrier)} için otomatik takip bağlantısı yok; durumu elle güncelleyin.` };
+    if (res.skipped)
+      return {
+        ok: false,
+        message: `${carrierName(okRow.carrier_key, okRow.carrier)} için otomatik takip bağlantısı yok; durumu elle güncelleyin.`,
+      };
     if (res.errors.length) return { ok: false, message: res.errors[0] };
     return { ok: true, message: res.updated ? "Kargo durumu güncellendi" : "Yeni hareket yok" };
   });

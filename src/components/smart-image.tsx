@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 
 import { DEFAULT_IMAGE_WIDTHS, imageSrcSet, optimizedImageUrl } from "@/lib/image";
 
@@ -31,13 +31,16 @@ export function SmartImage({
   className,
   style,
 }: SmartImageProps) {
-  if (!src) return null;
+  const [failure, setFailure] = useState<{ source: typeof src; stage: number } | null>(null);
+  const stage = failure && failure.source === src ? failure.stage : 0;
   const optimized = optimizedImageUrl(src, height ? { width, height } : { width }) ?? src;
-  const srcSet = imageSrcSet(src, widths, height ? { height } : {});
+  const displayed =
+    !src || stage >= 2 ? "/placeholder-product.svg" : stage === 1 ? src : (optimized ?? src);
+  const srcSet = stage === 0 ? imageSrcSet(src, widths, height ? { height } : {}) : null;
 
   return (
     <img
-      src={optimized}
+      src={displayed}
       {...(srcSet ? { srcSet, sizes } : {})}
       alt={alt}
       width={width}
@@ -47,6 +50,11 @@ export function SmartImage({
       fetchPriority={priority ? "high" : "auto"}
       className={className}
       style={style}
+      onError={() => {
+        if (!src || stage >= 2) return;
+        // Dönüşüm servisi başarısızsa önce orijinal URL'yi, sonra yerel yedeği dene.
+        setFailure({ source: src, stage: stage === 0 && optimized !== src ? 1 : 2 });
+      }}
     />
   );
 }

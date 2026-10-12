@@ -1,3 +1,4 @@
+import { readAllPages } from "@/lib/read-all-pages";
 import { queryOptions } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -51,12 +52,15 @@ export const customersQuery = (storeId: string) =>
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("customers")
-        .select("*, customer_addresses(id, city, district, line1, is_default)")
-        .eq("store_id", storeId)
-        .order("created_at", { ascending: false })
-        .limit(500);
+      const { data, error } = await readAllPages((from, to) =>
+        supabase
+          .from("customers")
+          .select("*, customer_addresses(id, city, district, line1, is_default)")
+          .eq("store_id", storeId)
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(from, to),
+      );
       if (error) throw error;
       return data ?? [];
     },

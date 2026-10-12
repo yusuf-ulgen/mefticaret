@@ -1,3 +1,5 @@
+import { readAllPages } from "@/lib/read-all-pages";
+import { supplierOwnsItem } from "@/lib/supplier-item-ownership";
 /**
  * Tedarikçi portalı fulfillment masası sunucu katmanı.
  * Sipariş parçalama sonuçları, kargo etiketi verisi, komisyon defteri,
@@ -38,7 +40,8 @@ export type DeskOrder = {
   customerPhone: string | null;
   addressLines: string[];
   items: DeskItem[];
-  itemsTotal: number;
+  itemsTotal: number | null;
+  relationIssue: boolean;
   commissionTotal: number;
   netTotal: number;
   note: string | null;
@@ -56,6 +59,10 @@ export type SupplierCatalogRow = {
   supplierPrice: number;
   salePrice: number;
   stock: number;
+  sourceStock: number;
+  storeStock: number | null;
+  sourceUpdatedAt: string;
+  storeUpdatedAt: string | null;
   currency: string;
   images: string[];
   description: string | null;
@@ -76,7 +83,13 @@ export type SupplierRfqRow = {
   status: string;
   validUntil: string | null;
   purchaseOrderId: string | null;
-  items: Array<{ supplierProductId?: string; title: string; sku?: string; quantity: number; unitPrice: number }>;
+  items: Array<{
+    supplierProductId?: string;
+    title: string;
+    sku?: string;
+    quantity: number;
+    unitPrice: number;
+  }>;
   createdAt: string;
 };
 
@@ -143,7 +156,9 @@ export async function loadSupplierDeskOrders(
 
   const { data: dropship, error } = await admin
     .from("dropship_orders")
-    .select("id, supplier_id, order_id, status, carrier, tracking_number, created_at, suppliers(name)")
+    .select(
+      "id, supplier_id, order_id, status, carrier, tracking_number, created_at, suppliers(name)",
+    )
     .in("supplier_id", supplierIds)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -154,23 +169,35 @@ export async function loadSupplierDeskOrders(
   const orderIds = Array.from(new Set(rows.map((row) => row.order_id as string)));
 
   const [{ data: orders }, { data: items }, { data: commissions }] = await Promise.all([
-    admin
-      .from("orders")
-      .select(
-        "id, order_number, created_at, currency, shipping_carrier, customer_name, customer_phone, shipping_address, note, payment_status",
-      )
-      .in("id", orderIds),
-    admin
-      .from("order_items")
-      .select(
-        "id, order_id, product_id, variant_id, title, variant_title, sku, quantity, unit_price, line_total",
-      )
-      .in("order_id", orderIds),
-    admin
-      .from("supplier_commission_entries")
-      .select("order_id, supplier_id, order_item_id, gross_amount, commission_amount, net_amount")
-      .in("order_id", orderIds)
-      .in("supplier_id", supplierIds),
+    readAllPages((from, to) =>
+      admin
+        .from("orders")
+        .select(
+          "id, order_number, created_at, currency, shipping_carrier, customer_name, customer_phone, shipping_address, note, payment_status",
+        )
+        .in("id", orderIds)
+        .order("id")
+        .range(from, to),
+    ),
+    readAllPages((from, to) =>
+      admin
+        .from("order_items")
+        .select(
+          "id, order_id, product_id, variant_id, title, variant_title, sku, quantity, unit_price, line_total",
+        )
+        .in("order_id", orderIds)
+        .order("id")
+        .range(from, to),
+    ),
+    readAllPages((from, to) =>
+      admin
+        .from("supplier_commission_entries")
+        .select("order_id, supplier_id, order_item_id, gross_amount, commission_amount, net_amount")
+        .in("order_id", orderIds)
+        .in("supplier_id", supplierIds)
+        .order("id")
+        .range(from, to),
+    ),
   ]);
 
   const orderMap = new Map(((orders ?? []) as any[]).map((order) => [order.id as string, order]));
@@ -184,42 +211,70 @@ export async function loadSupplierDeskOrders(
     new Set(itemRows.map((item) => item.variant_id).filter((id): id is string => Boolean(id))),
   );
 
-  const [{ data: products }, { data: variants }, { data: mappings }, { data: images }] = await Promise.all([
-    productIds.length
-      ? admin.from("products").select("id, description, sku, barcode").in("id", productIds)
-      : Promise.resolve({ data: [] }),
-    variantIds.length
-      ? admin.from("product_variants").select("id, sku, barcode").in("id", variantIds)
-      : Promise.resolve({ data: [] }),
-    productIds.length || variantIds.length
-      ? admin
-          .from("supplier_products")
-          .select("supplier_id, product_id, variant_id")
-          .in("supplier_id", supplierIds)
-      : Promise.resolve({ data: [] }),
-    productIds.length
-      ? admin.from("product_images").select("product_id, url, position").in("product_id", productIds).order("position")
-      : Promise.resolve({ data: [] }),
-  ]);
+  const [{ data: products }, { data: variants }, { data: mappings }, { data: images }] =
+    await Promise.all([
+      productIds.length
+        ? readAllPages((from, to) =>
+            admin
+              .from("products")
+              .select("id, description, sku, barcode")
+              .in("id", productIds)
+              .order("id")
+              .range(from, to),
+          )
+        : Promise.resolve({ data: [] }),
+      variantIds.length
+        ? readAllPages((from, to) =>
+            admin
+              .from("product_variants")
+              .select("id, sku, barcode")
+              .in("id", variantIds)
+              .order("id")
+              .range(from, to),
+          )
+        : Promise.resolve({ data: [] }),
+      itemRows.length
+        ? readAllPages((from, to) =>
+            admin
+              .from("order_item_suppliers")
+              .select("supplier_id, order_item_id")
+              .in("order_id", orderIds)
+              .order("order_item_id")
+              .order("supplier_id")
+              .range(from, to),
+          )
+        : Promise.resolve({ data: [] }),
+      productIds.length
+        ? readAllPages((from, to) =>
+            admin
+              .from("product_images")
+              .select("product_id, url, position")
+              .in("product_id", productIds)
+              .order("position")
+              .order("id")
+              .range(from, to),
+          )
+        : Promise.resolve({ data: [] }),
+    ]);
 
   const productMap = new Map(((products ?? []) as any[]).map((row) => [row.id as string, row]));
   const variantMap = new Map(((variants ?? []) as any[]).map((row) => [row.id as string, row]));
   const mappingRows = (mappings ?? []) as any[];
   const imageRows = (images ?? []) as any[];
 
-  const ownsItem = (supplierId: string, item: any) =>
-    mappingRows.some(
-      (map) =>
-        map.supplier_id === supplierId &&
-        ((item.variant_id && map.variant_id === item.variant_id) ||
-          (!item.variant_id && map.product_id === item.product_id)),
-    ) ||
-    commissionRows.some((entry) => entry.supplier_id === supplierId && entry.order_item_id === item.id);
+  const ownsItem = (supplierId: string, item: { id: string }) =>
+    supplierOwnsItem(supplierId, item.id, mappingRows);
 
   return rows.map((row) => {
     const order = orderMap.get(row.order_id as string);
+    if (!order) throw new Error("Sipariş ayrıntıları alınamadı. Lütfen tekrar deneyin.");
     const orderItems = itemRows.filter((item) => item.order_id === row.order_id);
     const mine = orderItems.filter((item) => ownsItem(row.supplier_id as string, item));
+    const relationIssue =
+      !mine.length ||
+      orderItems.some(
+        (item) => !mappingRows.some((snapshot) => snapshot.order_item_id === item.id),
+      );
     const visible = mine;
 
     const deskItems: DeskItem[] = visible.map((item) => {
@@ -259,7 +314,10 @@ export async function loadSupplierDeskOrders(
       customerPhone: order?.customer_phone ?? null,
       addressLines: formatAddress(order?.shipping_address),
       items: deskItems,
-      itemsTotal: deskItems.reduce((total, item) => total + item.lineTotal, 0),
+      itemsTotal: relationIssue
+        ? null
+        : deskItems.reduce((total, item) => total + item.lineTotal, 0),
+      relationIssue,
       commissionTotal: entries.reduce((total, entry) => total + num(entry.commission_amount), 0),
       netTotal: entries.reduce((total, entry) => total + num(entry.net_amount), 0),
       note: order?.note ?? null,
@@ -269,61 +327,175 @@ export async function loadSupplierDeskOrders(
 }
 
 /** Tedarikçiye ait katalog, cari hesap, RFQ ve stok/fiyat hareketleri. */
-export async function loadSupplierWorkspace(admin: Client, suppliers: { id: string; store_id: string }[]) {
-  if (!suppliers.length) return { products: [] as SupplierCatalogRow[], rfqs: [] as SupplierRfqRow[], credit: null, transactions: [], movements: [] };
+export async function loadSupplierWorkspace(
+  admin: Client,
+  suppliers: { id: string; store_id: string }[],
+  catalog: { search?: string; page?: number; category?: string; sort?: string } = {},
+) {
+  if (!suppliers.length)
+    return {
+      products: [] as SupplierCatalogRow[],
+      totalProducts: 0,
+      pageSize: 25,
+      rfqs: [] as SupplierRfqRow[],
+      credit: null,
+      transactions: [],
+      movements: [],
+    };
   const supplierIds = suppliers.map((supplier) => supplier.id);
   const storeIds = Array.from(new Set(suppliers.map((supplier) => supplier.store_id)));
-  const [{ data: products }, { data: rfqs }, { data: accounts }] = await Promise.all([
-    admin.from("supplier_products")
-      .select("id, title, sku, barcode, category, brand, supplier_price, computed_price, stock, currency, images, raw, product_id, variant_id, updated_at")
-      .in("supplier_id", supplierIds).order("updated_at", { ascending: false }).limit(1000),
-    admin.from("rfq_requests")
-      .select("id, reference, company_name, currency, quoted_total, requested_total, status, valid_until, purchase_order_id, items, created_at")
-      .in("supplier_id", supplierIds).order("created_at", { ascending: false }).limit(100),
-    admin.from("b2b_credit_accounts")
-      .select("id, supplier_id, company_name, currency, credit_limit, balance, term_days, status")
-      .in("supplier_id", supplierIds).limit(10),
-  ]);
+  const size = 25;
+  let productQuery = admin
+    .from("supplier_products")
+    .select(
+      "id, title, sku, barcode, category, brand, supplier_price, computed_price, stock, currency, images, raw, product_id, variant_id, updated_at",
+      { count: "exact" },
+    )
+    .in("supplier_id", supplierIds);
+  const term = (catalog.search ?? "").trim().replace(/[%,()]/g, " ");
+  if (term)
+    productQuery = productQuery.or(
+      `title.ilike.%${term}%,sku.ilike.%${term}%,barcode.ilike.%${term}%`,
+    );
+  if (catalog.category)
+    productQuery = productQuery.ilike("category", `%${catalog.category.replace(/[%,()]/g, " ")}%`);
+  productQuery = productQuery
+    .order(
+      catalog.sort === "price"
+        ? "computed_price"
+        : catalog.sort === "stock"
+          ? "stock"
+          : "updated_at",
+      { ascending: catalog.sort === "price" },
+    )
+    .order("id")
+    .range((catalog.page ?? 0) * size, ((catalog.page ?? 0) + 1) * size - 1);
+  const [{ data: products, count: totalProducts }, { data: rfqs }, { data: accounts }] =
+    await Promise.all(
+      [
+        productQuery,
+        admin
+          .from("rfq_requests")
+          .select(
+            "id, reference, company_name, currency, quoted_total, requested_total, status, valid_until, purchase_order_id, items, created_at",
+          )
+          .in("supplier_id", supplierIds)
+          .order("created_at", { ascending: false })
+          .limit(100),
+        admin
+          .from("b2b_credit_accounts")
+          .select(
+            "id, supplier_id, company_name, currency, credit_limit, balance, term_days, status",
+          )
+          .in("supplier_id", supplierIds)
+          .limit(10),
+      ].map(checkedQuery),
+    );
   const productRows = (products ?? []) as any[];
   const productIds = productRows.map((row) => row.product_id).filter(Boolean);
   const variantIds = productRows.map((row) => row.variant_id).filter(Boolean);
   const accountRows = (accounts ?? []) as any[];
-  const [{ data: liveProducts }, { data: liveVariants }, { data: transactions }, { data: movements }] = await Promise.all([
-    productIds.length ? admin.from("products").select("id, status, base_price, updated_at").in("id", productIds) : Promise.resolve({ data: [] }),
-    variantIds.length ? admin.from("product_variants").select("id, price, stock, updated_at").in("id", variantIds) : Promise.resolve({ data: [] }),
-    accountRows.length ? admin.from("b2b_credit_transactions").select("id, account_id, kind, amount, currency, note, created_at").in("account_id", accountRows.map((row) => row.id)).order("created_at", { ascending: false }).limit(100) : Promise.resolve({ data: [] }),
-    productIds.length ? admin.from("inventory_movements").select("id, product_id, variant_id, kind, quantity, stock_before, stock_after, reason, created_at").in("store_id", storeIds).in("product_id", productIds).order("created_at", { ascending: false }).limit(100) : Promise.resolve({ data: [] }),
-  ]);
+  const [
+    { data: liveProducts },
+    { data: liveVariants },
+    { data: transactions },
+    { data: movements },
+  ] = await Promise.all(
+    [
+      productIds.length
+        ? admin.from("products").select("id, status, base_price, updated_at").in("id", productIds)
+        : Promise.resolve({ data: [] }),
+      variantIds.length
+        ? admin.from("product_variants").select("id, price, stock, updated_at").in("id", variantIds)
+        : Promise.resolve({ data: [] }),
+      accountRows.length
+        ? admin
+            .from("b2b_credit_transactions")
+            .select("id, account_id, kind, amount, currency, note, created_at")
+            .in(
+              "account_id",
+              accountRows.map((row) => row.id),
+            )
+            .order("created_at", { ascending: false })
+            .limit(100)
+        : Promise.resolve({ data: [] }),
+      productIds.length
+        ? admin
+            .from("inventory_movements")
+            .select(
+              "id, product_id, variant_id, kind, quantity, stock_before, stock_after, reason, created_at",
+            )
+            .in("store_id", storeIds)
+            .in("product_id", productIds)
+            .order("created_at", { ascending: false })
+            .limit(100)
+        : Promise.resolve({ data: [] }),
+    ].map(checkedQuery),
+  );
   const liveProductMap = new Map(((liveProducts ?? []) as any[]).map((row) => [row.id, row]));
   const liveVariantMap = new Map(((liveVariants ?? []) as any[]).map((row) => [row.id, row]));
   return {
+    totalProducts: totalProducts ?? 0,
+    pageSize: size,
     products: productRows.map((row): SupplierCatalogRow => {
       const raw = row.raw && typeof row.raw === "object" ? row.raw : {};
       const liveProduct = row.product_id ? liveProductMap.get(row.product_id) : null;
       const liveVariant = row.variant_id ? liveVariantMap.get(row.variant_id) : null;
       return {
-        id: row.id, feedId: "", title: row.title, sku: row.sku, barcode: row.barcode,
-        category: row.category, brand: row.brand, supplierPrice: num(row.supplier_price),
-        salePrice: num(row.computed_price ?? liveVariant?.price ?? liveProduct?.base_price ?? row.supplier_price),
-        stock: Number(liveVariant?.stock ?? row.stock ?? 0), currency: row.currency ?? "TRY",
-        images: Array.isArray(row.images) ? row.images.filter((url: unknown) => typeof url === "string") : [],
+        id: row.id,
+        feedId: "",
+        title: row.title,
+        sku: row.sku,
+        barcode: row.barcode,
+        category: row.category,
+        brand: row.brand,
+        supplierPrice: num(row.supplier_price),
+        salePrice: num(
+          row.computed_price ?? liveVariant?.price ?? liveProduct?.base_price ?? row.supplier_price,
+        ),
+        stock: Number(row.stock ?? 0),
+        currency: row.currency ?? "TRY",
+        sourceStock: Number(row.stock ?? 0),
+        storeStock: liveVariant ? Number(liveVariant.stock) : null,
+        sourceUpdatedAt: row.updated_at,
+        storeUpdatedAt: liveVariant?.updated_at ?? liveProduct?.updated_at ?? null,
+        images: Array.isArray(row.images)
+          ? row.images.filter((url: unknown) => typeof url === "string")
+          : [],
         description: typeof raw.description === "string" ? raw.description : null,
-        color: typeof raw.color === "string" ? raw.color : null, size: typeof raw.size === "string" ? raw.size : null,
-        productId: row.product_id, variantId: row.variant_id, isPublished: liveProduct?.status === "active",
+        color: typeof raw.color === "string" ? raw.color : null,
+        size: typeof raw.size === "string" ? raw.size : null,
+        productId: row.product_id,
+        variantId: row.variant_id,
+        isPublished: liveProduct?.status === "active",
         updatedAt: liveVariant?.updated_at ?? liveProduct?.updated_at ?? row.updated_at,
       };
     }),
     rfqs: ((rfqs ?? []) as any[]).map((row): SupplierRfqRow => ({
-      id: row.id, reference: row.reference, companyName: row.company_name, currency: row.currency ?? "TRY",
-      total: num(row.quoted_total ?? row.requested_total), status: row.status, validUntil: row.valid_until,
-      purchaseOrderId: row.purchase_order_id, items: Array.isArray(row.items) ? row.items : [], createdAt: row.created_at,
+      id: row.id,
+      reference: row.reference,
+      companyName: row.company_name,
+      currency: row.currency ?? "TRY",
+      total: num(row.quoted_total ?? row.requested_total),
+      status: row.status,
+      validUntil: row.valid_until,
+      purchaseOrderId: row.purchase_order_id,
+      items: Array.isArray(row.items) ? row.items : [],
+      createdAt: row.created_at,
     })),
-    credit: accountRows[0] ? {
-      id: accountRows[0].id, companyName: accountRows[0].company_name, currency: accountRows[0].currency,
-      creditLimit: num(accountRows[0].credit_limit), balance: num(accountRows[0].balance),
-      termDays: Number(accountRows[0].term_days ?? 30), status: accountRows[0].status,
-    } : null,
-    transactions: (transactions ?? []) as any[], movements: (movements ?? []) as any[],
+    credit: accountRows[0]
+      ? {
+          id: accountRows[0].id,
+          companyName: accountRows[0].company_name,
+          currency: accountRows[0].currency,
+          creditLimit: num(accountRows[0].credit_limit),
+          balance: num(accountRows[0].balance),
+          termDays: Number(accountRows[0].term_days ?? 30),
+          status: accountRows[0].status,
+        }
+      : null,
+    transactions: (transactions ?? []) as any[],
+    movements: (movements ?? []) as any[],
   };
 }
 
@@ -335,24 +507,30 @@ export async function loadSupplierLedger(
   if (!suppliers.length) return { ledger: [], payouts: [] };
   const supplierIds = suppliers.map((supplier) => supplier.id);
 
-  const [{ data: entries }, { data: payouts }, { data: details }, { data: dropship }] = await Promise.all([
-    admin
-      .from("supplier_commission_entries")
-      .select("supplier_id, gross_amount, commission_amount, net_amount, status, currency")
-      .in("supplier_id", supplierIds),
-    admin
-      .from("supplier_payout_requests")
-      .select("id, supplier_id, amount, currency, iban, status, note, admin_note, created_at, processed_at")
-      .in("supplier_id", supplierIds)
-      .order("created_at", { ascending: false })
-      .limit(50),
-    admin.from("suppliers").select("id, commission_rate, iban, bank_account_name").in("id", supplierIds),
-    admin
-      .from("dropship_orders")
-      .select("supplier_id, status, created_at, updated_at, order_id")
-      .in("supplier_id", supplierIds)
-      .limit(1000),
-  ]);
+  const [{ data: entries }, { data: payouts }, { data: details }, { data: dropship }] =
+    await Promise.all([
+      admin
+        .from("supplier_commission_entries")
+        .select("supplier_id, gross_amount, commission_amount, net_amount, status, currency")
+        .in("supplier_id", supplierIds),
+      admin
+        .from("supplier_payout_requests")
+        .select(
+          "id, supplier_id, amount, currency, iban, status, note, admin_note, created_at, processed_at",
+        )
+        .in("supplier_id", supplierIds)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      admin
+        .from("suppliers")
+        .select("id, commission_rate, iban, bank_account_name")
+        .in("id", supplierIds),
+      admin
+        .from("dropship_orders")
+        .select("supplier_id, status, created_at, updated_at, order_id")
+        .in("supplier_id", supplierIds)
+        .limit(1000),
+    ]);
 
   const entryRows = (entries ?? []) as any[];
   const detailMap = new Map(((details ?? []) as any[]).map((row) => [row.id as string, row]));
@@ -376,7 +554,10 @@ export async function loadSupplierLedger(
     const cancelled = jobs.filter((row) => ["cancelled", "failed"].includes(row.status as string));
     const returned = jobs.filter((row) => returnOrderIds.has(row.order_id as string));
     const shipHours = shipped
-      .map((row) => (new Date(row.updated_at).getTime() - new Date(row.created_at).getTime()) / 3_600_000)
+      .map(
+        (row) =>
+          (new Date(row.updated_at).getTime() - new Date(row.created_at).getTime()) / 3_600_000,
+      )
       .filter((hours) => Number.isFinite(hours) && hours >= 0);
 
     const detail = detailMap.get(supplier.id);
@@ -402,9 +583,13 @@ export async function loadSupplierLedger(
         cancelled: cancelled.length,
         returned: returned.length,
         avgShipHours: shipHours.length
-          ? Math.round((shipHours.reduce((total, hours) => total + hours, 0) / shipHours.length) * 10) / 10
+          ? Math.round(
+              (shipHours.reduce((total, hours) => total + hours, 0) / shipHours.length) * 10,
+            ) / 10
           : null,
-        cancellationRate: jobs.length ? Math.round((cancelled.length / jobs.length) * 1000) / 10 : 0,
+        cancellationRate: jobs.length
+          ? Math.round((cancelled.length / jobs.length) * 1000) / 10
+          : 0,
         returnRate: jobs.length ? Math.round((returned.length / jobs.length) * 1000) / 10 : 0,
         revenue,
         commission,
@@ -431,7 +616,8 @@ export async function loadSupplierLedger(
 
 /** Kargo etiketi / irsaliye için yazdırılabilir veri. */
 export function buildCargoLabel(order: DeskOrder) {
-  const barcodeValue = order.trackingNumber?.trim() || order.orderNumber.replace(/[^A-Za-z0-9-]/g, "");
+  const barcodeValue =
+    order.trackingNumber?.trim() || order.orderNumber.replace(/[^A-Za-z0-9-]/g, "");
   return {
     orderNumber: order.orderNumber,
     supplierName: order.supplierName,
@@ -448,4 +634,10 @@ export function buildCargoLabel(order: DeskOrder) {
     })),
     createdAt: order.orderCreatedAt,
   };
+}
+
+async function checkedQuery(query: any) {
+  const result = await query;
+  if (result.error) throw new Error(result.error.message);
+  return result;
 }
