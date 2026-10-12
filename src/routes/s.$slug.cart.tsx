@@ -11,7 +11,7 @@ import { previewCheckoutDiscount } from "@/lib/checkout.functions";
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
-import { formatMoney } from "@/lib/display-currency";
+import { GeorgiaCustomsNotice, formatMoney } from "@/lib/display-currency";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 
 
@@ -400,6 +400,9 @@ function CartPage() {
               </div>
             ) : null}
 
+            <div style={{ marginBottom: 10 }}>
+              <GeorgiaCustomsNotice amount={subtotal} currency={currency} />
+            </div>
             <Row label="Ara toplam" value={formatMoney(subtotal, currency)} muted={muted} />
             {discountTotal > 0 ? (
               <Row label="İndirim" value={`- ${formatMoney(discountTotal, currency)}`} muted={muted} />
