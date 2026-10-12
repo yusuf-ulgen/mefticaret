@@ -555,6 +555,7 @@ export async function createStorefrontOrder(
         postal_code: input.billingAddress.postalCode ?? null,
         tax_id: input.billingAddress.taxId ?? null,
         company: input.billingAddress.company ?? null,
+        ...(exportInvoice ? { export_invoice: { label: EXPORT_INVOICE_LABEL, regime: "ETGB", vat_rate: 0 } } : {}),
       }
     : addressJson;
 
