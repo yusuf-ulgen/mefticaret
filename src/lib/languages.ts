@@ -27,6 +27,7 @@ export const LANGUAGE_CATALOG: LanguageDef[] = [
   { code: "ar", locale: "ar-AE", label: "Arapça (BAE)", native: "العربية (الإمارات)", dir: "rtl", flag: "🇦🇪", currency: "AED" },
   { code: "fa", locale: "fa-IR", label: "Farsça", native: "فارسی", dir: "rtl", flag: "🇮🇷" },
   { code: "he", locale: "he-IL", label: "İbranice", native: "עברית", dir: "rtl", flag: "🇮🇱" },
+  { code: "ka", locale: "ka-GE", label: "Gürcüce", native: "ქართული", dir: "ltr", flag: "🇬🇪", currency: "GEL" },
   { code: "ru", locale: "ru-RU", label: "Rusça", native: "Русский", dir: "ltr", flag: "🇷🇺", currency: "RUB" },
   { code: "uk", locale: "uk-UA", label: "Ukraynaca", native: "Українська", dir: "ltr", flag: "🇺🇦" },
   { code: "nl", locale: "nl-NL", label: "Hollandaca", native: "Nederlands", dir: "ltr", flag: "🇳🇱", currency: "EUR" },
