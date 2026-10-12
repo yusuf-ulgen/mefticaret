@@ -16,7 +16,17 @@ import { useAuth } from "@/lib/auth-context";
 import { getCheckoutQuote, placeMemberOrder, placeOrder, previewCheckoutDiscount } from "@/lib/checkout.functions";
 import { startOrderPayment } from "@/lib/order-payment.functions";
 import { checkGiftCardBalance } from "@/lib/gift-cards-public.functions";
-import { formatMoney } from "@/lib/mefti";
+import { GeorgiaCustomsNotice, formatMoney, useDisplayCurrency, useExportLang } from "@/lib/display-currency";
+import {
+  CUSTOMS_ID_PATTERN,
+  DOMESTIC_ONLY_PAYMENT_CODES,
+  EXPORT_INVOICE_LABEL,
+  GE_CITIES,
+  INTERNATIONAL_POS_CODES,
+  SHIP_COUNTRIES,
+  exportT,
+  isGeorgia,
+} from "@/lib/export-ge";
 import { fetchStorefrontPickupLocations } from "@/lib/retail-ops.functions";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 
@@ -61,7 +71,22 @@ function CheckoutPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [country, setCountry] = useState("Türkiye");
+  const display = useDisplayCurrency();
+  const lang = useExportLang();
+  const [country, setCountryState] = useState("Türkiye");
+  const [customsId, setCustomsId] = useState("");
+  // Header'daki teslimat ülkesi ile kasadaki ülke aynı kalır.
+  const setCountry = (next: string) => {
+    setCountryState(next);
+    if (SHIP_COUNTRIES.some((row) => row.value === next)) display.setShipCountry(next);
+  };
+  const shipSynced = useRef(false);
+  useEffect(() => {
+    if (shipSynced.current || display.shipCountry === "Türkiye") return;
+    shipSynced.current = true;
+    setCountryState(display.shipCountry);
+  }, [display.shipCountry]);
+  const exportOrder = isGeorgia(country);
   const [city, setCity] = useState("");
   const [district, setDistrict] = useState("");
   const [line1, setLine1] = useState("");
@@ -152,7 +177,13 @@ function CheckoutPage() {
   const selectedPickup = pickupLocations.find((location) => location.id === pickupLocationId) ?? null;
 
   const rates = options.data?.shippingRates ?? [];
-  const methods = options.data?.paymentMethods ?? [];
+  const allMethods = options.data?.paymentMethods ?? [];
+  const methodCode = (method: (typeof allMethods)[number]) =>
+    (method as { connectors?: { code?: string } | null }).connectors?.code ?? "";
+  // Yurt dışı siparişte yalnız Türkiye'de geçerli yöntemler (havale, kapıda ödeme) gizlenir.
+  const methods = exportOrder
+    ? allMethods.filter((method) => !(DOMESTIC_ONLY_PAYMENT_CODES as readonly string[]).includes(methodCode(method)))
+    : allMethods;
   const selectedRate = useMemo(() => rates.find((rate) => rate.id === shippingRateId) ?? null, [rates, shippingRateId]);
 
   // Kargo seçilmeden sipariş verilmesini engelle: ilk uygun yöntemi ön seç.
@@ -262,6 +293,7 @@ function CheckoutPage() {
       shippingRateId,
       paymentMethodId,
       gift.wrap,
+      exportOrder,
     ],
     enabled: lines.length > 0,
     staleTime: 5_000,
@@ -275,6 +307,7 @@ function CheckoutPage() {
           discountCode: appliedDiscount?.code || undefined,
           giftCardCode: appliedGiftCard?.code || undefined,
           giftWrap: gift.wrap || undefined,
+          country: country || undefined,
         },
       }),
   });
@@ -353,6 +386,10 @@ function CheckoutPage() {
         toast.error("Lütfen şehir yazın.");
         return;
       }
+      if (exportOrder && !CUSTOMS_ID_PATTERN.test(customsId.trim())) {
+        toast.error(exportT(lang, "customsIdError"));
+        return;
+      }
       if (line1.trim().length < 5) {
         toast.error("Lütfen açık adresinizi yazın (en az 5 karakter).");
         return;
@@ -383,6 +420,7 @@ function CheckoutPage() {
               district: district || undefined,
               line1,
               postalCode: postalCode || undefined,
+              customsId: exportOrder ? customsId.trim() : undefined,
             },
         billingAddress: billingSame || digitalOnly
           ? undefined
@@ -544,11 +582,20 @@ function CheckoutPage() {
                 </Field>
                 {digitalOnly ? null : (
                   <>
-                    <Field label="Ülke" muted={muted}>
-                      <input style={inputStyle} value={country} onChange={(e) => setCountry(e.target.value)} />
+                    <Field label={`${exportT(lang, "country")} *`} muted={muted}>
+                      <select style={inputStyle} autoComplete="country-name" value={country} onChange={(e) => { setCountry(e.target.value); setCity(""); }}>
+                        {SHIP_COUNTRIES.map((row) => <option key={row.code} value={row.value}>{row.value}</option>)}
+                        {!SHIP_COUNTRIES.some((row) => row.value === country) && !isGeorgia(country) ? <option value={country}>{country}</option> : null}
+                      </select>
                     </Field>
                     <Field label="Şehir *" muted={muted}>
-                      {/^(tr|türkiye|turkiye|turkey)$/i.test(country.trim()) || !country.trim() ? (
+                      {exportOrder ? (
+                        <select style={inputStyle} autoComplete="address-level1" value={city} onChange={(e) => setCity(e.target.value)}>
+                          <option value="">{exportT(lang, "selectCity")}</option>
+                          {city && !(GE_CITIES as readonly string[]).includes(city) ? <option value={city}>{city}</option> : null}
+                          {GE_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      ) : /^(tr|türkiye|turkiye|turkey)$/i.test(country.trim()) || !country.trim() ? (
                         <select style={inputStyle} autoComplete="address-level1" value={city} onChange={(e) => setCity(e.target.value)}>
                           <option value="">İl seçin</option>
                           {city && !(TR_PROVINCES as readonly string[]).includes(city) ? <option value={city}>{city}</option> : null}
@@ -564,6 +611,20 @@ function CheckoutPage() {
                     <Field label="Posta kodu" muted={muted}>
                       <input style={inputStyle} value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
                     </Field>
+                    {exportOrder ? (
+                      <Field label={`${exportT(lang, "customsId")} *`} muted={muted}>
+                        <input
+                          style={inputStyle}
+                          required
+                          aria-required="true"
+                          autoComplete="off"
+                          maxLength={20}
+                          value={customsId}
+                          onChange={(e) => setCustomsId(e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase())}
+                        />
+                        <span style={{ display: "block", marginTop: 4, fontSize: 11 }}>{exportT(lang, "customsIdHint")}</span>
+                      </Field>
+                    ) : null}
                   </>
                 )}
               </div>
@@ -707,6 +768,18 @@ function CheckoutPage() {
 
             <section style={{ border: `1px solid ${border}`, borderRadius: radius, background: cardBg, padding: 20 }}>
               <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>Ödeme yöntemi</h2>
+              {display.active !== store.currency || exportOrder ? (
+                <div style={{ border: `1px dashed ${border}`, borderRadius: radius, padding: "10px 12px", marginBottom: 10, fontSize: 12.5, lineHeight: 1.5 }}>
+                  <strong style={{ display: "block", marginBottom: 2 }}>{exportT(lang, "posTitle")} · {display.active}</strong>
+                  {methods.some((m) => (INTERNATIONAL_POS_CODES as readonly string[]).includes(methodCode(m)))
+                    ? exportT(lang, "posNote", {
+                        base: store.currency,
+                        display: display.active,
+                        amount: formatMoney(q?.grandTotal ?? estimatedTotal, store.currency),
+                      })
+                    : exportT(lang, "noPos")}
+                </div>
+              ) : null}
               {methods.length === 0 ? (
                 <p style={{ margin: 0, fontSize: 13, color: muted }}>
                   Ödeme yöntemi tanımlı değil. Sipariş, ödeme beklemede olarak oluşturulur.
@@ -722,7 +795,12 @@ function CheckoutPage() {
                       radius={radius}
                       accent={t.accent_color}
                       title={method.display_name}
-                      subtitle={method.instructions ?? (method.installments_enabled ? "Taksit imkanı" : "")}
+                      subtitle={
+                        (display.active !== store.currency || exportOrder) &&
+                        (INTERNATIONAL_POS_CODES as readonly string[]).includes(methodCode(method))
+                          ? exportT(lang, "posForeign")
+                          : method.instructions ?? (method.installments_enabled ? "Taksit imkanı" : "")
+                      }
                       right={Number(method.extra_fee_rate) > 0 ? `+%${method.extra_fee_rate}` : ""}
                       muted={muted}
                     />
@@ -850,6 +928,18 @@ function CheckoutPage() {
                 </button>
               </p>
             ) : null}
+            {!digitalOnly ? (
+              <div style={{ marginTop: 12 }}>
+                <GeorgiaCustomsNotice amount={q?.grandTotal ?? estimatedTotal} currency={store.currency} country={country} />
+              </div>
+            ) : null}
+            {q?.exportInvoice ? (
+              <div style={{ marginTop: 10 }}>
+                <span className="inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                  {EXPORT_INVOICE_LABEL}
+                </span>
+              </div>
+            ) : null}
             <div style={{ marginTop: 12, borderTop: `1px solid ${border}`, paddingTop: 12 }}>
               <SummaryRow
                 label="Ara toplam"
@@ -872,7 +962,9 @@ function CheckoutPage() {
                 value={formatMoney(q?.shippingTotal ?? shippingTotal, store.currency)}
                 muted={muted}
               />
-              {q && !q.taxIncluded ? (
+              {q?.exportInvoice ? (
+                <SummaryRow label={exportT(lang, "vatZero")} value={formatMoney(0, store.currency)} muted={muted} />
+              ) : q && !q.taxIncluded ? (
                 <SummaryRow
                   label={`Vergi${q.taxRate ? ` (%${q.taxRate})` : ""}`}
                   value={formatMoney(q.taxTotal, store.currency)}

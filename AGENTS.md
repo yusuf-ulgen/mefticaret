@@ -23,3 +23,4 @@
 
 - QNB e-belge gönderimi yalnız einvoice.server.ts sendInvoice üzerinden; otomatik gönderim invoices.status=paid tetikleyicisi + kuyruk (einvoice-auto.server.ts) ile yapılır ve başarısız gönderim otomatik tekrar edilmez — neden: mükerrer resmî fatura riskini önlemek.
 - Sunucu paketindeki createRequire(import.meta.url) satırları build sonrası vite.config.ts içindeki workerImportMetaUrlFix ile sabit URL'e düşürülür — neden: edge worker'da import.meta.url tanımsız, aksi halde tüm sayfalar 500 döner.
+- Vitrin görüntüleme para birimi (TRY/GEL/USD) yalnız src/lib/display-currency.tsx üzerinden; tahsilat ve kayıtlar mağaza ana para biriminde kalır, Gürcistan/mikro ihracat kuralları (KDV %0, ETGB, kimlik zorunluluğu) src/lib/export-ge.ts + checkout.server.ts içinde sunucuda uygulanır — neden: istemci tutarına güvenilmesin, tek kaynak olsun.

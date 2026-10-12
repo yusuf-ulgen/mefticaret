@@ -9,10 +9,9 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
-import { formatMoney } from "@/lib/mefti";
+import { CurrencyScope, DisplayCurrencyBridge, StorefrontGlobalSelector, formatMoney, useDisplayCurrency } from "@/lib/display-currency";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import { platformFooterPagesQuery } from "@/lib/platform-pages-queries";
-import { LanguageSwitcher } from "@/components/storefront-language";
 import { storefrontUI } from "@/lib/storefront-ui";
 import { PredictiveSearch } from "@/components/wokiee/predictive-search";
 import { MegaMenu } from "@/components/wokiee/mega-menu";
@@ -209,6 +208,7 @@ export function StorefrontChrome({
   const supportLocale = useRouterState({
     select: (state) => String((state.location.search as Record<string, unknown>)?.["lang"] ?? "tr"),
   });
+  useDisplayCurrency();
   const cart = useCart();
   const favorites = useFavorites();
   const compare = useCompare();
@@ -298,6 +298,7 @@ export function StorefrontChrome({
             mefticaret
           </Link>
           <nav className="hm-storefront-actions" aria-label="Mağaza işlemleri">
+            <StorefrontGlobalSelector storeSlug={storeSlug} />
             <Button variant="ghost" size="icon" asChild aria-label="Ürün ara">
               <Link to="/s/$slug/search" params={{ slug: storeSlug }}><Search /></Link>
             </Button>
@@ -313,7 +314,7 @@ export function StorefrontChrome({
             </Button>
           </nav>
         </header>
-        <main className="hm-storefront-main">{children}</main>
+        <main className="hm-storefront-main"><DisplayCurrencyBridge slug={storeSlug} /><CurrencyScope>{children}</CurrencyScope></main>
         <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
         <QuickViewModal theme={t} storeSlug={storeSlug} />
         <StorefrontSupportChat slug={storeSlug} locale={supportLocale} />
@@ -339,7 +340,8 @@ export function StorefrontChrome({
         <SiteKitScripts storeSlug={storeSlug} />
         <CampaignBanner slug={storeSlug} />
         <CoutureHeader storeSlug={storeSlug} storeName={storeName} logoUrl={logoUrl} announcement={barText} flags={coutureFlags} />
-        <main id="ct-main" className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>{children}</main>
+        <div style={{ display: "flex", justifyContent: "flex-end", maxWidth: contentWidth, margin: "0 auto", padding: "8px 24px" }}><StorefrontGlobalSelector storeSlug={storeSlug} color={muted} /></div>
+        <main id="ct-main" className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}><DisplayCurrencyBridge slug={storeSlug} /><CurrencyScope>{children}</CurrencyScope></main>
         <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
         <QuickViewModal theme={t} storeSlug={storeSlug} />
         <MobileBottomNav theme={t} storeSlug={storeSlug} />
@@ -603,7 +605,7 @@ export function StorefrontChrome({
           ) : null}
 
 
-          <LanguageSwitcher storeSlug={storeSlug} color={muted} />
+          <StorefrontGlobalSelector storeSlug={storeSlug} color={muted} />
         </nav>
 
       </header>
@@ -705,14 +707,15 @@ export function StorefrontChrome({
               Sepetim{cartCount ? ` (${cartCount})` : ""}
             </button>
             <div style={{ marginTop: 12 }}>
-              <LanguageSwitcher storeSlug={storeSlug} color={muted} />
+              <StorefrontGlobalSelector storeSlug={storeSlug} color={muted} />
             </div>
           </div>
         </div>
       ) : null}
 
       <main className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>
-        {children}
+        <DisplayCurrencyBridge slug={storeSlug} />
+        <CurrencyScope>{children}</CurrencyScope>
       </main>
 
       <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
