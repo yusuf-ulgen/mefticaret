@@ -1,0 +1,2 @@
+INSERT INTO public.suppliers (store_id, name, contact_name, email, currency, lead_time_days, is_active, is_dropship, portal_user_id, portal_enabled, commission_rate)
+VALUES ('a4f1c2d8-9b3e-4c17-8f6a-2b5d7e9c1043', 'Eslem Tedarik', 'Eslem', 'eslemsin13@gmail.com', 'TRY', 3, true, true, 'e564883a-edb4-4d44-ab33-71af36d8e4bf', true, 0.50);

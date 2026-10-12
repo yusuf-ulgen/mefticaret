@@ -1,0 +1,3 @@
+REVOKE EXECUTE ON FUNCTION public.enqueue_job(job_kind, jsonb, uuid, integer, timestamp with time zone, integer, text) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.enqueue_job(job_kind, jsonb, uuid, integer, timestamp with time zone, integer, text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.enqueue_job(job_kind, jsonb, uuid, integer, timestamp with time zone, integer, text) TO service_role;

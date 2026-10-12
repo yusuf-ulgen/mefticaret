@@ -1,0 +1,1 @@
+CREATE POLICY "Server only - no direct access" ON public.fw_captcha_passes FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);

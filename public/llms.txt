@@ -1,0 +1,29 @@
+# Mefticaret
+
+> Mefticaret, Türkiye merkezli çok kiracılı bir e-ticaret altyapısıdır: mağaza kurma, ürün/sipariş yönetimi, ödeme, kargo, SEO, blog, pazaryeri entegrasyonları ve yapay zekâ araçları tek panelde.
+
+Satıcılar kendi alan adıyla mağaza açar; Ev Hanımları (Kolay Panel), B2B tedarikçiler ve Mefticaret Mesajlar uygulaması da platformun parçasıdır.
+
+## Sayfalar
+
+- [Ana sayfa](https://mefticaret.com/): Platform tanıtımı, özellikler ve paketler.
+- [Rehberler](https://mefticaret.com/rehberler): Satıcı, tedarikçi ve müşteriler için adım adım kılavuzlar.
+- [Blog](https://mefticaret.com/blog): E-ticaret ipuçları ve platform duyuruları.
+- [SEO ve Raporlama](https://mefticaret.com/seo-ve-raporlama): Arama motoru ve raporlama araçları.
+- [Kayıt ol](https://mefticaret.com/register): Ücretsiz mağaza açın.
+
+## Diller
+
+- [English](https://mefticaret.com/en/llms.txt): İngilizce sürüm.
+- [Deutsch](https://mefticaret.com/de/llms.txt): Almanca sürüm.
+- [Français](https://mefticaret.com/fr/llms.txt): Fransızca sürüm.
+- [العربية](https://mefticaret.com/ar/llms.txt): Arapça sürüm.
+
+## Ajanlar için
+
+- [MCP sunucusu](https://mefticaret.com/mcp): Mağaza verisi için OAuth korumalı MCP uç noktası.
+- [API kataloğu](https://mefticaret.com/.well-known/api-catalog): Genel API tanımları.
+
+## Optional
+
+- [Site haritası](https://mefticaret.com/sitemap-index.xml): Tüm genel sayfalar.

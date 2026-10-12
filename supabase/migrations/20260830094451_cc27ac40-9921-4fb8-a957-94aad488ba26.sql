@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.notify_new_review() FROM PUBLIC, anon, authenticated;

@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.customers_guard_sensitive_self_update() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.return_requests_guard_customer_update() FROM PUBLIC, anon, authenticated;

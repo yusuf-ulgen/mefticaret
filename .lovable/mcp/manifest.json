@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "sdk_version": "2.3.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://ersvkiiwbmwtbxvswrsa.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "evo-commerce-suite",
+      "version": "0.1.0",
+      "title": "Evo Commerce Suite"
+    },
+    "tools": [
+      {
+        "name": "list_stores",
+        "title": "Mağazaları listele",
+        "description": "Oturum açan kullanıcının erişebildiği mağazaları listeler (ad, slug, durum, para birimi).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_products",
+        "title": "Ürünleri listele",
+        "description": "Belirtilen mağazanın ürünlerini listeler; başlığa göre arama yapılabilir.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$",
+              "description": "Mağaza kimliği (list_stores ile alınır)."
+            },
+            "search": {
+              "description": "Ürün başlığında geçen metin.",
+              "type": "string",
+              "minLength": 1
+            },
+            "limit": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "required": [
+            "store_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_orders",
+        "title": "Siparişleri listele",
+        "description": "Belirtilen mağazanın son siparişlerini listeler; duruma göre filtrelenebilir.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$",
+              "description": "Mağaza kimliği."
+            },
+            "status": {
+              "description": "Sipariş durumu filtresi (örn. pending, paid, cancelled).",
+              "type": "string",
+              "minLength": 1
+            },
+            "limit": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "required": [
+            "store_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "store_summary",
+        "title": "Mağaza özeti",
+        "description": "Bir mağaza için son X gündeki sipariş sayısı, ciro, aktif ürün sayısı ve bekleyen sipariş sayısını döndürür.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "store_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$",
+              "description": "Mağaza kimliği."
+            },
+            "days": {
+              "description": "Kaç günlük dönem.",
+              "default": 30,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            }
+          },
+          "required": [
+            "store_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_product",
+        "title": "Ürünü güncelle",
+        "description": "Bir ürünün fiyatını ve/veya yayın durumunu günceller. RLS mağaza yetkisini doğrular.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "product_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$",
+              "description": "Güncellenecek ürünün kimliği."
+            },
+            "base_price": {
+              "description": "Yeni satış fiyatı.",
+              "type": "number",
+              "minimum": 0
+            },
+            "status": {
+              "description": "Yeni ürün durumu.",
+              "type": "string",
+              "enum": [
+                "draft",
+                "active",
+                "archived"
+              ]
+            }
+          },
+          "required": [
+            "product_id"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

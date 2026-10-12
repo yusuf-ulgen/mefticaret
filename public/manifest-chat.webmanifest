@@ -1,0 +1,90 @@
+{
+  "name": "Mefticaret Chat",
+  "short_name": "Mesajlar",
+  "description": "Mefticaret gerçek zamanlı mesajlaşma.",
+  "start_url": "/mesajlar-giris",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "/chat-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/chat-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/chat-icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "mefticaret-chat",
+  "categories": [
+    "social",
+    "business",
+    "shopping"
+  ],
+  "dir": "ltr",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Sohbetler",
+      "short_name": "Sohbetler",
+      "url": "/mesajlar",
+      "icons": [
+        {
+          "src": "/chat-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Giriş",
+      "short_name": "Giriş",
+      "url": "/mesajlar-giris",
+      "icons": [
+        {
+          "src": "/chat-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "focus-existing",
+      "auto"
+    ]
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "related_applications": [],
+  "share_target": {
+    "action": "/mesajlar",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

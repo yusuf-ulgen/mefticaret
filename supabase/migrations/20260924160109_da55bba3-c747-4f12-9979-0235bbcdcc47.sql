@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.public_track_shipment(text) FROM anon, authenticated;

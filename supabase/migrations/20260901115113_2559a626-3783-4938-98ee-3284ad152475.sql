@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.sync_variant_stock_from_levels() FROM PUBLIC, anon, authenticated;

@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.guard_support_ticket_update() FROM PUBLIC, anon, authenticated;

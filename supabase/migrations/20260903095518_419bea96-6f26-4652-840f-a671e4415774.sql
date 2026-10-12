@@ -1,0 +1,19 @@
+insert into public.apps (code, name, category, tagline, description, developer, developer_url, version, logo_emoji, permissions, pricing_model, price, currency, settings_schema, is_featured, is_active, sort_order)
+values
+('hepsiburada-marketplace','Hepsiburada','marketplace','Hepsiburada mağaza entegrasyonu','Ürün, fiyat, stok ve sipariş verilerinizi Hepsiburada MPOP servisleriyle senkronize eder.','MefTicaret','https://developers.hepsiburada.com/tr/','1.0.0','🛍️',array['read_products','write_products','read_orders','write_orders','read_inventory','write_inventory'],'free',0,'TRY','[{"key":"merchant_id","label":"Merchant ID","type":"text"},{"key":"username","label":"Kullanıcı adı","type":"text"},{"key":"password","label":"Şifre","type":"password"}]'::jsonb,true,true,140),
+('n11-marketplace','n11','marketplace','n11 mağaza entegrasyonu','n11 REST API ile ürün, fiyat, stok ve sipariş senkronizasyonu.','MefTicaret','https://magazadestek.n11.com/faydali-dokumanlar','1.0.0','🧡',array['read_products','write_products','read_orders','write_orders','read_inventory','write_inventory'],'free',0,'TRY','[{"key":"app_key","label":"App Key","type":"text"},{"key":"app_secret","label":"App Secret","type":"password"}]'::jsonb,false,true,141),
+('aliexpress-marketplace','AliExpress','marketplace','AliExpress global satış entegrasyonu','AliExpress Open Platform ile ürün listeleme ve sipariş takibi.','MefTicaret','https://open.aliexpress.com/','1.0.0','🌏',array['read_products','write_products','read_orders','read_inventory','write_inventory'],'free',0,'TRY','[{"key":"client_id","label":"App Key","type":"text"},{"key":"client_secret","label":"App Secret","type":"password"},{"key":"refresh_token","label":"Refresh token","type":"password"}]'::jsonb,false,true,142),
+('walmart-marketplace','Walmart Marketplace','marketplace','Walmart satıcı entegrasyonu','Walmart Marketplace API ile ürün, fiyat, stok ve sipariş yönetimi.','MefTicaret','https://developer.walmart.com/','1.0.0','🇺🇸',array['read_products','write_products','read_orders','write_orders','read_inventory','write_inventory'],'free',0,'TRY','[{"key":"client_id","label":"Client ID","type":"text"},{"key":"client_secret","label":"Client secret","type":"password"},{"key":"environment","label":"Ortam","type":"select","options":["production","sandbox"],"default":"production"}]'::jsonb,false,true,143),
+('allegro-marketplace','Allegro','marketplace','Allegro (Polonya) entegrasyonu','Allegro REST API ile teklif, stok ve sipariş senkronizasyonu.','MefTicaret','https://developer.allegro.pl/','1.0.0','🇵🇱',array['read_products','write_products','read_orders','write_orders','read_inventory','write_inventory'],'free',0,'TRY','[{"key":"client_id","label":"Client ID","type":"text"},{"key":"client_secret","label":"Client secret","type":"password"},{"key":"environment","label":"Ortam","type":"select","options":["production","sandbox"],"default":"production"}]'::jsonb,false,true,144),
+('pazarama-marketplace','Pazarama','marketplace','Pazarama İş Ortağım entegrasyonu','Pazarama API ile ürün, fiyat, stok ve sipariş entegrasyonu.','MefTicaret','https://isortagim.pazarama.com/auth/integration/amac-ve-kapsam','1.0.0','🟣',array['read_products','write_products','read_orders','write_orders','read_inventory','write_inventory'],'free',0,'TRY','[{"key":"client_id","label":"Client ID","type":"text"},{"key":"client_secret","label":"Client secret","type":"password"}]'::jsonb,false,true,145)
+on conflict (code) do update set
+  name = excluded.name,
+  category = excluded.category,
+  tagline = excluded.tagline,
+  description = excluded.description,
+  developer_url = excluded.developer_url,
+  logo_emoji = excluded.logo_emoji,
+  permissions = excluded.permissions,
+  settings_schema = excluded.settings_schema,
+  is_active = true,
+  sort_order = excluded.sort_order;

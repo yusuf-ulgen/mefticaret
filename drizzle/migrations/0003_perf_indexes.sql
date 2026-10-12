@@ -1,0 +1,2 @@
+CREATE INDEX IF NOT EXISTS products_store_status_updated_idx ON public.products (store_id, status, updated_at DESC);
+CREATE INDEX IF NOT EXISTS products_status_store_id_idx ON public.products (store_id, status) INCLUDE (id);

@@ -1,0 +1,25 @@
+# Mefticaret
+
+> Mefticaret est une plateforme e-commerce multi-locataires basée en Turquie : création de boutique, gestion des produits et commandes, paiements, livraison, SEO, blog, intégrations marketplace et outils d'IA dans un seul panneau.
+
+Les vendeurs ouvrent leur boutique sur leur propre domaine ; les vendeurs à domicile (Kolay Panel), les fournisseurs B2B et l'application Mefticaret Messages font aussi partie de la plateforme.
+
+## Pages
+
+- [Accueil](https://mefticaret.com/fr): Présentation de la plateforme, fonctionnalités et offres.
+
+## Autres langues
+
+- [Türkçe](https://mefticaret.com/llms.txt): Version turque.
+- [English](https://mefticaret.com/en/llms.txt): Version anglaise.
+- [Deutsch](https://mefticaret.com/de/llms.txt): Version allemande.
+- [العربية](https://mefticaret.com/ar/llms.txt): Version arabe.
+
+## Pour les agents
+
+- [Serveur MCP](https://mefticaret.com/mcp): Point d'accès MCP protégé par OAuth pour les données de boutique.
+- [Catalogue d'API](https://mefticaret.com/.well-known/api-catalog): Descriptions des API publiques.
+
+## Optional
+
+- [Plan du site français](https://mefticaret.com/sitemap-fr.xml): Toutes les pages publiques en français.

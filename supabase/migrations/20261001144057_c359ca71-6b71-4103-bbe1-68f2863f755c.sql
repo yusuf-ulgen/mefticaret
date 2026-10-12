@@ -1,0 +1,2 @@
+ALTER TABLE public.supplier_xml_feeds ADD COLUMN IF NOT EXISTS sale_markup_percent numeric NOT NULL DEFAULT 0;
+ALTER TABLE public.supplier_xml_feeds ADD CONSTRAINT supplier_xml_feeds_markup_range CHECK (sale_markup_percent >= 0 AND sale_markup_percent <= 1000);

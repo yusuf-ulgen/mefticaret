@@ -1,0 +1,1562 @@
+/**
+ * XmlIntegrator — sunucu fonksiyonları (panel ↔ veritabanı köprüsü).
+ *
+ * Her çağrı, isteği yapan kullanıcının o mağazayı yönetme yetkisini doğrular.
+ * Kaynak kimlik bilgileri tarayıcıya geri gönderilmez.
+ */
+
+import {
+  DEFAULT_PRICING_RULES,
+  parsePricingRules,
+  serializePricingRules,
+  type PricingRules,
+} from "@/lib/xml-pricing-rules";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Json } from "@/integrations/supabase/types";
+import {
+  XML_AUTH_TYPES,
+  XML_DIRECTIONS,
+  XML_PLATFORMS,
+  XML_SCHEDULES,
+  XML_SCHEDULE_HOURS,
+  XML_SOURCE_FORMATS,
+  isValidCron,
+  nextCronRun,
+  type XmlSchedule,
+} from "@/lib/xml-integrator";
+
+import {
+  DEFAULT_CURRENCY_CONFIG,
+  parseCurrencyConfig,
+  serializeCurrencyConfig,
+  SUPPORTED_FEED_CURRENCIES,
+  type CurrencyConfig,
+} from "@/lib/xml-currency";
+import {
+  DEFAULT_VARIANT_CONFIG,
+  parseVariantConfig,
+  parseVariantMode,
+  serializeVariantConfig,
+  type VariantConfig,
+  type VariantMode,
+} from "@/lib/xml-variant-parser";
+import {
+  DEFAULT_DELTA_SYNC_CONFIG,
+  DELTA_HASH_FIELDS,
+  parseDeltaSyncConfig,
+  serializeDeltaSyncConfig,
+  type DeltaSyncConfig,
+} from "@/lib/xml-delta-sync";
+
+import {
+  DEFAULT_GUARDRAIL_CONFIG,
+  parseGuardrailConfig,
+  serializeGuardrailConfig,
+  QUARANTINE_STATUSES,
+  ZERO_PRICE_ACTIONS,
+  ZERO_STOCK_ACTIONS,
+  type GuardrailConfig,
+} from "@/lib/xml-guardrail";
+
+import {
+  CONNECTION_TYPES,
+  DEFAULT_FTP_CONFIG,
+  maskFtpConfig,
+  parseConnectionType,
+  parseFtpConfig,
+  serializeFtpConfig,
+  type ConnectionType,
+} from "@/lib/xml-connection";
+
+const storeSchema = z.object({ storeId: z.guid() });
+
+const authConfigSchema = z
+  .object({
+    username: z.string().trim().max(200).optional(),
+    password: z.string().max(400).optional(),
+    token: z.string().max(2000).optional(),
+    headerName: z.string().trim().max(100).optional(),
+    headerValue: z.string().max(2000).optional(),
+    queryName: z.string().trim().max(100).optional(),
+    queryValue: z.string().max(2000).optional(),
+  })
+  .default({});
+
+const feedSchema = z.object({
+  storeId: z.guid(),
+  feedId: z.guid().optional(),
+  name: z.string().trim().min(2).max(120),
+  direction: z.enum(XML_DIRECTIONS),
+  platform: z.enum(XML_PLATFORMS).default("generic"),
+  sourceFormat: z.enum(XML_SOURCE_FORMATS).default("xml"),
+  sourceUrl: z.string().trim().max(2000).optional(),
+  itemPath: z.string().trim().max(200).optional(),
+  authType: z.enum(XML_AUTH_TYPES).default("none"),
+  authConfig: authConfigSchema,
+  connectionType: z.enum(CONNECTION_TYPES).default("url"),
+  ftpConfig: z
+    .object({
+      host: z.string().trim().max(253).default(""),
+      port: z.number().int().min(1).max(65535).default(21),
+      username: z.string().trim().max(200).default(""),
+      /* Boş bırakılırsa kayıtlı şifre korunur. */
+      password: z.string().max(400).default(""),
+      passive: z.boolean().default(true),
+      ssl: z.boolean().default(false),
+      filePath: z.string().trim().max(500).default(DEFAULT_FTP_CONFIG.filePath),
+    })
+    .default(() => ({ ...DEFAULT_FTP_CONFIG })),
+  outputFilename: z.string().trim().max(120).optional(),
+  schedule: z.enum(XML_SCHEDULES).default("manual"),
+  cronExpression: z.string().trim().min(9).max(100).optional(),
+  fieldMapping: z.record(z.string(), z.string()).default({}),
+  filterRules: z.record(z.string(), z.any()).default({}),
+  transformRules: z.record(z.string(), z.any()).default({}),
+  priceMarkup: z.number().min(-90).max(900).nullable().default(null),
+  currency: z.string().trim().length(3).default("TRY"),
+  isActive: z.boolean().default(true),
+  currencyConfig: z
+    .object({
+      sourceCurrency: z.enum(SUPPORTED_FEED_CURRENCIES).default("TRY"),
+      targetCurrency: z.enum(SUPPORTED_FEED_CURRENCIES).default("TRY"),
+      autoConvert: z.boolean().default(false),
+      exchangeRateType: z.enum(["auto", "manual"]).default("auto"),
+      manualRate: z.number().min(0).max(100000).default(1),
+      profitMarginPercent: z.number().min(-90).max(900).default(0),
+    })
+    .default(() => ({ ...DEFAULT_CURRENCY_CONFIG })),
+  pricingRules: z
+    .object({
+      marginType: z.enum(["flat", "tiered"]).default("flat"),
+      flatMarginPercent: z.number().min(-90).max(900).default(0),
+      flatAddAmount: z.number().min(-100000).max(1000000).default(0),
+      vatAction: z.enum(["none", "add_vat", "remove_vat"]).default("none"),
+      vatRate: z.number().min(0).max(100).default(20),
+      roundingType: z.enum(["none", "round_99", "round_90", "integer"]).default("none"),
+      tieredMargins: z
+        .array(
+          z.object({
+            min: z.number().min(0).max(10000000).default(0),
+            max: z.number().min(0).max(10000000).nullable().default(null),
+            margin: z.number().min(-90).max(900).default(0),
+            addAmount: z.number().min(-100000).max(1000000).default(0),
+          }),
+        )
+        .max(20)
+        .default([]),
+      marketplaceFees: z
+        .object({
+          commissionPercent: z.number().min(0).max(100).default(0),
+          shippingFee: z.number().min(0).max(1000000).default(0),
+        })
+        .default(() => ({ commissionPercent: 0, shippingFee: 0 })),
+    })
+    .default(() => ({ ...DEFAULT_PRICING_RULES })),
+  deltaSyncConfig: z
+    .object({
+      enabled: z.boolean().default(true),
+      hashFields: z
+        .array(z.enum(DELTA_HASH_FIELDS.map((item) => item.key) as [string, ...string[]]))
+        .max(DELTA_HASH_FIELDS.length)
+        .default([...DEFAULT_DELTA_SYNC_CONFIG.hashFields]),
+      forceFullSyncHours: z.number().int().min(1).max(24 * 90).default(168),
+    })
+    .default(() => ({ ...DEFAULT_DELTA_SYNC_CONFIG })),
+  guardrailConfig: z
+    .object({
+      enabled: z.boolean().default(true),
+      maxPriceDropPercent: z.number().min(0).max(100000).default(50),
+      maxPriceIncreasePercent: z.number().min(0).max(100000).default(200),
+      zeroPriceAction: z.enum(ZERO_PRICE_ACTIONS).default("quarantine"),
+      zeroStockAction: z.enum(ZERO_STOCK_ACTIONS).default("update"),
+      autoQuarantine: z.boolean().default(true),
+      notificationEmail: z.string().trim().max(200).default(""),
+    })
+    .default(() => ({ ...DEFAULT_GUARDRAIL_CONFIG })),
+  variantMode: z.enum(["none", "nested", "flat"]).default("none"),
+  variantConfig: z
+    .object({
+      parentNodePath: z.string().trim().max(300).default(""),
+      variantNodePath: z.string().trim().max(300).default(""),
+      parentSkuField: z.string().trim().max(300).default(""),
+      optionAttributes: z.array(z.string().trim().max(300)).max(12).default([]),
+      variantMapping: z.record(z.string(), z.string().max(300)).default({}),
+    })
+    .default(() => ({ ...DEFAULT_VARIANT_CONFIG })),
+});
+
+const nextRunFor = (schedule: XmlSchedule, cronExpression?: string | null): string | null => {
+  if (schedule === "custom") {
+    const next = cronExpression ? nextCronRun(cronExpression) : null;
+    return next ? next.toISOString() : null;
+  }
+  const hours = XML_SCHEDULE_HOURS[schedule];
+  return hours === null ? null : new Date(Date.now() + hours * 3_600_000).toISOString();
+};
+
+/** Kimlik bilgilerinin dolu olup olmadığını gösterir; değerleri döndürmez. */
+const authSummary = (authType: string, config: Record<string, unknown> | null) => ({
+  authType,
+  hasCredentials: Boolean(
+    config && Object.entries(config).some(([, value]) => typeof value === "string" && value.length > 0),
+  ),
+});
+
+/** Pano: beslemeler, son çalışmalar ve özet sayılar. */
+export const getXmlIntegratorOverview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => storeSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const [{ data: feeds, error }, { data: importLogs }, { data: exportLogs }] = await Promise.all([
+      context.supabase
+        .from("xml_feeds")
+        .select(
+          "id, name, direction, platform, source_format, source_url, item_path, auth_type, auth_config, output_filename, export_token, schedule, cron_expression, field_mapping, filter_rules, transform_rules, price_markup, currency, is_active, last_run_at, next_run_at, last_status, last_error, total_runs, stats, created_at, variant_mode, variant_config, currency_config, pricing_rules, delta_sync_config, last_full_sync_at, connection_type, ftp_config, webhook_token, guardrail_config",
+        )
+        .eq("store_id", data.storeId)
+        .order("created_at", { ascending: false }),
+      context.supabase
+        .from("xml_import_logs")
+        .select("id, feed_id, status, trigger, total_rows, created_count, updated_count, skipped_count, unchanged_count, delta_sync_enabled, error_count, error_categories, error_message, duration_seconds, started_at, finished_at")
+        .eq("store_id", data.storeId)
+        .order("started_at", { ascending: false })
+        .limit(25),
+      context.supabase
+        .from("xml_export_logs")
+        .select("id, feed_id, status, trigger, exported_count, failed_count, file_size_bytes, output_url, error_message, duration_seconds, started_at, finished_at")
+        .eq("store_id", data.storeId)
+        .order("started_at", { ascending: false })
+        .limit(25),
+    ]);
+    if (error) throw new Error(error.message);
+
+    const rows = (feeds ?? []) as Array<Record<string, any>>;
+    return {
+      feeds: rows.map((row) => ({
+        id: String(row["id"]),
+        name: String(row["name"]),
+        direction: String(row["direction"]) as "import" | "export",
+        platform: String(row["platform"]),
+        sourceFormat: String(row["source_format"]),
+        sourceUrl: (row["source_url"] as string | null) ?? null,
+        itemPath: (row["item_path"] as string | null) ?? null,
+        outputFilename: (row["output_filename"] as string | null) ?? null,
+        exportToken: String(row["export_token"] ?? ""),
+        schedule: String(row["schedule"]),
+        cronExpression: (row["cron_expression"] as string | null) ?? null,
+        fieldMapping: (row["field_mapping"] ?? {}) as Record<string, string>,
+        filterRules: (row["filter_rules"] ?? {}) as Record<string, Json>,
+        transformRules: (row["transform_rules"] ?? {}) as Record<string, Json>,
+        priceMarkup: row["price_markup"] === null ? null : Number(row["price_markup"]),
+        currency: String(row["currency"] ?? "TRY"),
+        isActive: Boolean(row["is_active"]),
+        currencyConfig: parseCurrencyConfig(row["currency_config"]) as CurrencyConfig,
+        pricingRules: parsePricingRules(row["pricing_rules"]) as PricingRules,
+        variantMode: parseVariantMode(row["variant_mode"]) as VariantMode,
+        variantConfig: parseVariantConfig(row["variant_config"]) as VariantConfig,
+        deltaSyncConfig: parseDeltaSyncConfig(row["delta_sync_config"]) as DeltaSyncConfig,
+        guardrailConfig: parseGuardrailConfig(row["guardrail_config"]) as GuardrailConfig,
+        lastFullSyncAt: (row["last_full_sync_at"] as string | null) ?? null,
+        connectionType: parseConnectionType(row["connection_type"]) as ConnectionType,
+        /* Şifre tarayıcıya gönderilmez; yalnızca kayıtlı olup olmadığı bildirilir. */
+        ftpConfig: maskFtpConfig(row["ftp_config"]),
+        webhookToken: String(row["webhook_token"] ?? ""),
+        lastRunAt: (row["last_run_at"] as string | null) ?? null,
+        nextRunAt: (row["next_run_at"] as string | null) ?? null,
+        lastStatus: (row["last_status"] as string | null) ?? null,
+        lastError: (row["last_error"] as string | null) ?? null,
+        totalRuns: Number(row["total_runs"] ?? 0),
+        stats: (row["stats"] ?? {}) as Record<string, Json>,
+        createdAt: String(row["created_at"]),
+        ...authSummary(String(row["auth_type"] ?? "none"), (row["auth_config"] ?? null) as Record<string, unknown>),
+      })),
+      importLogs: (importLogs ?? []) as Array<Record<string, Json>>,
+      exportLogs: (exportLogs ?? []) as Array<Record<string, Json>>,
+    };
+  });
+
+/** Besleme oluşturur veya günceller. */
+export const saveXmlFeed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => feedSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    /* Dışa aktarım beslemeleri her zaman adres tabanlıdır. */
+    const connectionType: ConnectionType = data.direction === "export" ? "url" : data.connectionType;
+
+    if (data.direction === "import" && connectionType === "url" && !data.sourceUrl) {
+      throw new Error("İçe aktarım beslemesi için kaynak bağlantısı zorunludur");
+    }
+    if (connectionType === "ftp" || connectionType === "sftp") {
+      if (!data.ftpConfig.host) throw new Error("FTP sunucu adresi zorunludur");
+      if (!data.ftpConfig.username) throw new Error("FTP kullanıcı adı zorunludur");
+      if (!data.ftpConfig.filePath) throw new Error("İndirilecek dosya yolu zorunludur");
+    }
+    if (data.schedule === "custom" && !isValidCron(data.cronExpression ?? "")) {
+      throw new Error("Özel zamanlama için geçerli bir cron ifadesi girin (örn. 0 */4 * * *)");
+    }
+    if (data.sourceUrl) {
+      const { assertPublicUrl } = await import("@/lib/safe-fetch.server");
+      assertPublicUrl(data.sourceUrl);
+    }
+
+    const payload = {
+      store_id: data.storeId,
+      name: data.name,
+      direction: data.direction,
+      platform: data.platform,
+      source_format: data.sourceFormat,
+      source_url: data.sourceUrl ?? null,
+      item_path: data.itemPath || null,
+      auth_type: data.authType,
+      auth_config: data.authConfig,
+      connection_type: connectionType,
+      output_filename: data.outputFilename || null,
+      schedule: data.schedule,
+      cron_expression: data.schedule === "custom" ? (data.cronExpression ?? null) : null,
+      field_mapping: data.fieldMapping,
+      filter_rules: data.filterRules,
+      transform_rules: data.transformRules,
+      price_markup: data.priceMarkup,
+      currency: data.currency.toUpperCase(),
+      is_active: data.isActive,
+      currency_config: serializeCurrencyConfig(data.currencyConfig),
+      pricing_rules: serializePricingRules(data.pricingRules),
+      delta_sync_config: serializeDeltaSyncConfig(data.deltaSyncConfig as DeltaSyncConfig),
+      guardrail_config: serializeGuardrailConfig(data.guardrailConfig as GuardrailConfig),
+      variant_mode: data.variantMode,
+      variant_config: serializeVariantConfig(parseVariantConfig({
+        parent_node_path: data.variantConfig.parentNodePath,
+        variant_node_path: data.variantConfig.variantNodePath,
+        parent_sku_field: data.variantConfig.parentSkuField,
+        option_attributes: data.variantConfig.optionAttributes,
+        variant_field_mapping: data.variantConfig.variantMapping,
+      })),
+      ftp_config: serializeFtpConfig(data.ftpConfig),
+      next_run_at: data.isActive ? nextRunFor(data.schedule, data.cronExpression ?? null) : null,
+      created_by: context.userId,
+    };
+
+    if (data.feedId) {
+      // Kimlik bilgisi alanları boş gönderildiyse mevcut değer korunur.
+      const { data: existing } = await context.supabase
+        .from("xml_feeds")
+        .select("auth_config, ftp_config")
+        .eq("id", data.feedId)
+        .eq("store_id", data.storeId)
+        .maybeSingle();
+      const row = existing as { auth_config?: Record<string, string>; ftp_config?: unknown } | null;
+      const previous = (row?.auth_config ?? {}) as Record<string, string>;
+      const merged: Record<string, string> = { ...previous };
+      for (const [key, value] of Object.entries(data.authConfig)) {
+        if (typeof value === "string" && value.length > 0) merged[key] = value;
+      }
+      /* FTP şifresi boş gönderildiyse kayıtlı şifre korunur. */
+      const previousFtp = parseFtpConfig(row?.ftp_config);
+      const ftpConfig = serializeFtpConfig({
+        ...data.ftpConfig,
+        password: data.ftpConfig.password.length > 0 ? data.ftpConfig.password : previousFtp.password,
+      });
+
+      const { error } = await context.supabase
+        .from("xml_feeds")
+        .update({ ...payload, auth_config: merged, ftp_config: ftpConfig } as never)
+        .eq("id", data.feedId)
+        .eq("store_id", data.storeId);
+      if (error) throw new Error(error.message);
+      return { id: data.feedId };
+    }
+
+    const { data: created, error } = await context.supabase
+      .from("xml_feeds")
+      .insert(payload as never)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: String((created as { id: string }).id) };
+  });
+
+/** Beslemeyi ve bağlı kayıtlarını siler. */
+export const deleteXmlFeed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+    const { error } = await context.supabase
+      .from("xml_feeds")
+      .delete()
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId);
+    if (error) throw new Error(error.message);
+    return { ok: true as boolean };
+  });
+
+/** Beslemeyi açar/kapatır. */
+export const toggleXmlFeed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.guid(), feedId: z.guid(), isActive: z.boolean() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+    const { data: feed, error: readError } = await context.supabase
+      .from("xml_feeds")
+      .select("schedule, cron_expression")
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!feed) throw new Error("Besleme bulunamadı");
+
+    const scheduleRow = feed as { schedule: string; cron_expression: string | null };
+    const schedule = String(scheduleRow.schedule) as XmlSchedule;
+    const { error } = await context.supabase
+      .from("xml_feeds")
+      .update({
+        is_active: data.isActive,
+        next_run_at: data.isActive ? nextRunFor(schedule, scheduleRow.cron_expression) : null,
+      } as never)
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId);
+    if (error) throw new Error(error.message);
+    return { ok: true as boolean };
+  });
+
+/**
+ * Kaynağı indirir, ürün düğümünü bulur, ilk satırları ve alan envanterini
+ * döndürür. Besleme kimliği verilirse alan envanteri kaydedilir.
+ */
+export const analyzeXmlSource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        feedId: z.guid().optional(),
+        sourceUrl: z.string().trim().max(2000).default(""),
+        sourceFormat: z.enum(XML_SOURCE_FORMATS).optional(),
+        itemPath: z.string().trim().max(200).optional(),
+        authType: z.enum(XML_AUTH_TYPES).default("none"),
+        authConfig: authConfigSchema,
+        connectionType: z.enum(CONNECTION_TYPES).default("url"),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_analyze:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla deneme yapıldı, birkaç dakika sonra tekrar deneyin");
+
+    // Kayıtlı beslemede kimlik bilgileri sunucudan okunur.
+    let authType = data.authType;
+    let authConfig: Record<string, string> = Object.fromEntries(
+      Object.entries(data.authConfig).filter(([, value]) => typeof value === "string" && value.length > 0),
+    ) as Record<string, string>;
+    let ftpConfig: unknown = {};
+    if (data.feedId) {
+      const { data: feed } = await context.supabase
+        .from("xml_feeds")
+        .select("auth_type, auth_config, ftp_config")
+        .eq("id", data.feedId)
+        .eq("store_id", data.storeId)
+        .maybeSingle();
+      const row = feed as
+        | { auth_type?: string; auth_config?: Record<string, string>; ftp_config?: unknown }
+        | null;
+      if (row) {
+        authType = (row.auth_type as typeof authType) ?? authType;
+        authConfig = { ...(row.auth_config ?? {}), ...authConfig };
+        ftpConfig = row.ftp_config ?? {};
+      }
+    }
+
+    const connectionType = data.connectionType;
+    if (connectionType === "url" && data.sourceUrl.length < 8) {
+      throw new Error("Geçerli bir kaynak bağlantısı girin");
+    }
+    if ((connectionType === "ftp" || connectionType === "sftp") && !data.feedId) {
+      throw new Error("FTP kaynağını incelemek için beslemeyi önce kaydedin");
+    }
+    if (connectionType === "webhook") {
+      throw new Error("Webhook beslemesinde inceleme yapılamaz; tedarikçinin dosya göndermesi gerekir");
+    }
+
+    const { analyzeSource, saveFieldSchema } = await import("@/lib/xml-integrator.server");
+    const analysis = await analyzeSource({
+      url: data.sourceUrl,
+      authType,
+      authConfig,
+      format: data.sourceFormat ?? null,
+      itemPath: data.itemPath ?? null,
+      limit: 100,
+      connectionType,
+      ftpConfig,
+    });
+
+    if (data.feedId) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await saveFieldSchema(supabaseAdmin as never, {
+        storeId: data.storeId,
+        feedId: data.feedId,
+        parsed: analysis,
+      });
+    }
+
+    return {
+      format: analysis.format,
+      rootPath: analysis.rootPath,
+      rootCandidates: analysis.rootCandidates,
+      columns: analysis.columns,
+      sampleRows: analysis.rows.slice(0, 10),
+      totalRows: analysis.totalRows,
+      bytes: analysis.bytes,
+      suggestedMapping: analysis.suggestedMapping,
+    };
+  });
+
+/**
+ * FTP bağlantısını dener ve dosyayı indirir (sadece deneme — içe aktarım yapmaz).
+ * Şifre boş gönderilirse kayıtlı beslemenin şifresi kullanılır.
+ */
+export const testFeedConnection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        feedId: z.guid().optional(),
+        connectionType: z.enum(CONNECTION_TYPES).default("ftp"),
+        ftpConfig: feedSchema.shape.ftpConfig,
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_conn_test:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla deneme yapıldı, birkaç dakika sonra tekrar deneyin");
+
+    if (data.connectionType !== "ftp" && data.connectionType !== "sftp") {
+      throw new Error("Bağlantı denemesi yalnızca FTP/SFTP kaynakları için yapılır");
+    }
+
+    let config = { ...data.ftpConfig };
+    if (config.password.length === 0 && data.feedId) {
+      const { data: feed } = await context.supabase
+        .from("xml_feeds")
+        .select("ftp_config")
+        .eq("id", data.feedId)
+        .eq("store_id", data.storeId)
+        .maybeSingle();
+      const stored = parseFtpConfig((feed as { ftp_config?: unknown } | null)?.ftp_config ?? {});
+      config = { ...config, password: stored.password };
+    }
+    if (!config.host) throw new Error("FTP sunucu adresi zorunludur");
+    if (!config.username) throw new Error("FTP kullanıcı adı zorunludur");
+    if (!config.filePath) throw new Error("İndirilecek dosya yolu zorunludur");
+
+    const { fetchFromFtp } = await import("@/lib/xml-ftp.server");
+    const started = Date.now();
+    const result = await fetchFromFtp(serializeFtpConfig(config), data.connectionType);
+    return {
+      ok: true,
+      bytes: result.bytes,
+      filePath: result.filePath,
+      durationMs: Date.now() - started,
+      preview: result.content.slice(0, 400),
+    };
+  });
+
+
+/** Bir beslemenin kayıtlı alan envanteri (eşleştirme ekranı için). */
+export const listXmlFieldSchema = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+    const { data: rows, error } = await context.supabase
+      .from("xml_field_schemas")
+      .select("field_path, label, sample_values, occurrence, detected_type")
+      .eq("store_id", data.storeId)
+      .eq("feed_id", data.feedId)
+      .order("field_path");
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as Array<{
+      field_path: string;
+      label: string | null;
+      sample_values: string[];
+      occurrence: number;
+      detected_type: string | null;
+    }>;
+  });
+
+/** Pano grafikleri: son 14 günün içe/dışa aktarım çalışmaları ve ürün sonuçları. */
+export const getXmlIntegratorStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => storeSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const days = 14;
+    const since = new Date();
+    since.setUTCHours(0, 0, 0, 0);
+    since.setUTCDate(since.getUTCDate() - (days - 1));
+    const sinceIso = since.toISOString();
+
+    const [{ data: importRows, error: importError }, { data: exportRows, error: exportError }] = await Promise.all([
+      context.supabase
+        .from("xml_import_logs")
+        .select("status, started_at, total_rows, created_count, updated_count, skipped_count, error_count")
+        .eq("store_id", data.storeId)
+        .gte("started_at", sinceIso),
+      context.supabase
+        .from("xml_export_logs")
+        .select("status, started_at, exported_count, failed_count")
+        .eq("store_id", data.storeId)
+        .gte("started_at", sinceIso),
+    ]);
+    if (importError) throw new Error(importError.message);
+    if (exportError) throw new Error(exportError.message);
+
+    const dayKey = (value: unknown) => String(value ?? "").slice(0, 10);
+    const series: Array<{
+      date: string;
+      importRuns: number;
+      exportRuns: number;
+      successItems: number;
+      failedItems: number;
+    }> = [];
+    const index = new Map<string, number>();
+    for (let i = 0; i < days; i += 1) {
+      const d = new Date(since);
+      d.setUTCDate(since.getUTCDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      index.set(key, series.length);
+      series.push({ date: key, importRuns: 0, exportRuns: 0, successItems: 0, failedItems: 0 });
+    }
+
+    let importRuns = 0;
+    let importSuccessRuns = 0;
+    let exportRuns = 0;
+    let exportSuccessRuns = 0;
+    let todayRuns = 0;
+    const today = new Date().toISOString().slice(0, 10);
+
+    for (const row of (importRows ?? []) as Array<Record<string, unknown>>) {
+      const key = dayKey(row["started_at"]);
+      const bucket = index.has(key) ? series[index.get(key)!]! : null;
+      importRuns += 1;
+      if (String(row["status"]) === "success") importSuccessRuns += 1;
+      if (key === today) todayRuns += 1;
+      if (!bucket) continue;
+      bucket.importRuns += 1;
+      bucket.successItems += Number(row["created_count"] ?? 0) + Number(row["updated_count"] ?? 0);
+      bucket.failedItems += Number(row["error_count"] ?? 0);
+    }
+    for (const row of (exportRows ?? []) as Array<Record<string, unknown>>) {
+      const key = dayKey(row["started_at"]);
+      const bucket = index.has(key) ? series[index.get(key)!]! : null;
+      exportRuns += 1;
+      if (String(row["status"]) === "success") exportSuccessRuns += 1;
+      if (key === today) todayRuns += 1;
+      if (!bucket) continue;
+      bucket.exportRuns += 1;
+      bucket.successItems += Number(row["exported_count"] ?? 0);
+      bucket.failedItems += Number(row["failed_count"] ?? 0);
+    }
+
+    const totalRuns = importRuns + exportRuns;
+    const successRuns = importSuccessRuns + exportSuccessRuns;
+
+    return {
+      series,
+      totals: {
+        importRuns,
+        exportRuns,
+        todayRuns,
+        totalRuns,
+        successRuns,
+        successRate: totalRuns ? Math.round((successRuns / totalRuns) * 100) : null,
+      },
+    };
+  });
+
+/**
+ * Beslemeyi elle çalıştırır: kaynağı indirir (3 denemeli), satırlara çevirir,
+ * eşleştirmeyi uygular ve ürünleri 100'erli paketler halinde yazar.
+ */
+export const runXmlFeedNow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({ storeId: z.guid(), feedId: z.guid(), forceFullSync: z.boolean().default(false) })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_run:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla çalıştırma denemesi, birkaç dakika sonra tekrar deneyin");
+
+    const { data: feedRow, error: readError } = await context.supabase
+      .from("xml_feeds")
+      .select(
+        "id, direction, platform, schedule, cron_expression, source_url, source_format, item_path, auth_type, auth_config, field_mapping, transform_rules, price_markup, currency, output_filename, export_token, filter_rules, variant_mode, variant_config, pricing_rules, delta_sync_config, last_full_sync_at, connection_type, ftp_config, guardrail_config",
+      )
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!feedRow) throw new Error("Besleme bulunamadı");
+    const feed = feedRow as Record<string, any>;
+
+    const nextRunAt = nextRunFor(
+      String(feed["schedule"]) as XmlSchedule,
+      (feed["cron_expression"] as string | null) ?? null,
+    );
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    if (String(feed["direction"]) === "export") {
+      const { runExportFeed } = await import("@/lib/xml-export-engine.server");
+      const result = await runExportFeed(
+        supabaseAdmin as never,
+        {
+          id: String(feed["id"]),
+          storeId: data.storeId,
+          platform: feed["platform"] as never,
+          currency: (feed["currency"] as string | null) ?? null,
+          priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
+          outputFilename: (feed["output_filename"] as string | null) ?? null,
+          exportToken: (feed["export_token"] as string | null) ?? null,
+          filterRules: feed["filter_rules"] ?? {},
+        },
+        { trigger: "manual", nextRunAt },
+      );
+
+      return {
+        ok: true as boolean,
+        direction: "export" as const,
+        exported: result.included,
+        skipped: result.skipped,
+        fileSizeBytes: result.fileSizeBytes,
+        publicUrl: result.publicUrl,
+        issues: result.issues.slice(0, 20),
+      };
+    }
+
+    const { runImportFeed } = await import("@/lib/xml-import-engine.server");
+
+    const result = await runImportFeed(
+      supabaseAdmin as never,
+      {
+        id: String(feed["id"]),
+        storeId: data.storeId,
+        direction: "import",
+        sourceUrl: (feed["source_url"] as string | null) ?? null,
+        connectionType: parseConnectionType(feed["connection_type"]),
+        ftpConfig: feed["ftp_config"] ?? {},
+        sourceFormat: (feed["source_format"] as never) ?? null,
+        itemPath: (feed["item_path"] as string | null) ?? null,
+        authType: String(feed["auth_type"] ?? "none") as never,
+        authConfig: (feed["auth_config"] ?? {}) as Record<string, string>,
+        fieldMapping: (feed["field_mapping"] ?? {}) as Record<string, string>,
+        transformRules: feed["transform_rules"] ?? {},
+        priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
+        currency: String(feed["currency"] ?? "TRY"),
+        pricingRules: feed["pricing_rules"] ?? {},
+        variantMode: (feed["variant_mode"] as string | null) ?? "none",
+        variantConfig: feed["variant_config"] ?? {},
+        deltaSyncConfig: feed["delta_sync_config"] ?? {},
+        guardrailConfig: feed["guardrail_config"] ?? {},
+        lastFullSyncAt: (feed["last_full_sync_at"] as string | null) ?? null,
+        forceFullSync: data.forceFullSync,
+      },
+      { trigger: "manual", nextRunAt },
+    );
+
+    return {
+      ok: true as boolean,
+      direction: "import" as const,
+      totalRows: result.totalRows,
+      created: result.created,
+      updated: result.updated,
+      skipped: result.skipped,
+      errorCount: result.errorCount,
+      format: result.format,
+      forcedFullSync: data.forceFullSync,
+    };
+  });
+
+/** Dışa aktarım beslemesinin önizlemesi: kaç ürün uygun, hangileri neden atlanıyor. */
+export const previewXmlExport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.guid(), feedId: z.guid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { data: feedRow, error } = await context.supabase
+      .from("xml_feeds")
+      .select("id, direction, platform, currency, price_markup, output_filename, export_token")
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!feedRow) throw new Error("Besleme bulunamadı");
+    const feed = feedRow as Record<string, any>;
+    if (String(feed["direction"]) !== "export") {
+      throw new Error("Önizleme yalnızca dışa aktarım beslemeleri için geçerlidir");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { buildExportXml, feedPublicUrl } = await import("@/lib/xml-export-engine.server");
+    const generated = await buildExportXml(supabaseAdmin as never, {
+      id: String(feed["id"]),
+      storeId: data.storeId,
+      platform: feed["platform"] as never,
+      currency: (feed["currency"] as string | null) ?? null,
+      priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
+      outputFilename: (feed["output_filename"] as string | null) ?? null,
+      exportToken: (feed["export_token"] as string | null) ?? null,
+    });
+
+    return {
+      platform: generated.platform,
+      included: generated.included,
+      skipped: generated.skipped,
+      issues: generated.issues.slice(0, 50),
+      sample: generated.xml.slice(0, 4000),
+      publicUrl: feed["export_token"] ? feedPublicUrl(String(feed["export_token"])) : null,
+    };
+  });
+
+
+/* --------------------------- kategori eşleştirme -------------------------- */
+
+const feedRefSchema = z.object({ storeId: z.guid(), feedId: z.guid() });
+
+/** Besleme kategorileri + mağazanın kategori ağacı (eşleştirme tablosu için). */
+export const listXmlCategoryMappings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => feedRefSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const [{ data: mappings, error }, { data: categories }] = await Promise.all([
+      context.supabase
+        .from("xml_category_mappings")
+        .select(
+          "id, source_category, target_category_id, target_category_code, target_category_name, product_count, ai_confidence, is_ai_suggested, ai_reasoning",
+        )
+        .eq("store_id", data.storeId)
+        .eq("feed_id", data.feedId)
+        .order("product_count", { ascending: false }),
+      context.supabase
+        .from("categories")
+        .select("id, name, path, level")
+        .eq("store_id", data.storeId)
+        .order("path", { ascending: true })
+        .limit(500),
+    ]);
+    if (error) throw new Error(error.message);
+
+    return {
+      mappings: ((mappings ?? []) as Array<Record<string, any>>).map((row) => ({
+        id: String(row["id"]),
+        sourceCategory: String(row["source_category"]),
+        targetCategoryId: (row["target_category_id"] as string | null) ?? null,
+        targetCategoryCode: (row["target_category_code"] as string | null) ?? null,
+        targetCategoryName: (row["target_category_name"] as string | null) ?? null,
+        productCount: Number(row["product_count"] ?? 0),
+        aiConfidence: Number(row["ai_confidence"] ?? 0),
+        isAiSuggested: Boolean(row["is_ai_suggested"]),
+        aiReasoning: (row["ai_reasoning"] as string | null) ?? null,
+      })),
+      categories: ((categories ?? []) as Array<Record<string, any>>).map((row) => ({
+        id: String(row["id"]),
+        name: String(row["name"]),
+        path: (row["path"] as string | null) ?? null,
+        level: Number(row["level"] ?? 0),
+      })),
+    };
+  });
+
+/**
+ * Kaynaktaki kategori değerlerini tarar ve ürün sayılarıyla birlikte
+ * eşleştirme tablosuna yazar. Var olan hedef seçimleri korunur.
+ */
+export const scanXmlSourceCategories = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => feedRefSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_categories:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla tarama denemesi, birkaç dakika sonra tekrar deneyin");
+
+    const { data: feedRow, error: readError } = await context.supabase
+      .from("xml_feeds")
+      .select("source_url, source_format, item_path, auth_type, auth_config, field_mapping, connection_type, ftp_config")
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!feedRow) throw new Error("Besleme bulunamadı");
+    const feed = feedRow as Record<string, any>;
+
+    const mapping = (feed["field_mapping"] ?? {}) as Record<string, string>;
+    const categoryField = mapping["category_path"] || mapping["category"];
+    if (!categoryField) throw new Error("Önce kategori veya kategori yolu alanını eşleştirin");
+    const connectionType = parseConnectionType(feed["connection_type"]);
+    const sourceUrl = (feed["source_url"] as string | null) ?? "";
+    if (connectionType === "url" && !sourceUrl) {
+      throw new Error("Bu beslemede kaynak bağlantısı tanımlı değil");
+    }
+
+    const { fetchFeedSource, parseFeedRows } = await import("@/lib/xml-import-engine.server");
+    const { readMapped } = await import("@/lib/xml-integrator");
+
+    const fetched = await fetchFeedSource({
+      url: sourceUrl,
+      authType: String(feed["auth_type"] ?? "none") as never,
+      authConfig: (feed["auth_config"] ?? {}) as Record<string, string>,
+      format: (feed["source_format"] as never) ?? null,
+      connectionType,
+      ftpConfig: feed["ftp_config"] ?? {},
+    });
+    const parsed = parseFeedRows(fetched, { itemPath: (feed["item_path"] as string | null) ?? null, limit: 3000 });
+
+    const counts = new Map<string, number>();
+    for (const row of parsed.rows) {
+      const value = readMapped(row, categoryField).trim().slice(0, 300);
+      if (!value) continue;
+      counts.set(value, (counts.get(value) ?? 0) + 1);
+    }
+    if (!counts.size) throw new Error("Kaynakta kategori değeri bulunamadı");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const rows = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 500)
+      .map(([sourceCategory, productCount]) => ({
+        store_id: data.storeId,
+        feed_id: data.feedId,
+        source_category: sourceCategory,
+        product_count: productCount,
+      }));
+
+    const { error } = await supabaseAdmin
+      .from("xml_category_mappings")
+      .upsert(rows as never, { onConflict: "feed_id,source_category", ignoreDuplicates: false });
+    if (error) throw new Error(error.message);
+
+    return { found: rows.length, rows: parsed.rows.length };
+  });
+
+/** Bir kaynak kategorisinin hedefini kaydeder (boş değer eşleşmeyi kaldırır). */
+export const saveXmlCategoryMapping = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        feedId: z.guid(),
+        sourceCategory: z.string().trim().min(1).max(300),
+        targetCategoryId: z.guid().nullable().default(null),
+        targetCategoryCode: z.string().trim().max(60).nullable().default(null),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    let targetName: string | null = null;
+    if (data.targetCategoryId) {
+      const { data: category } = await context.supabase
+        .from("categories")
+        .select("name")
+        .eq("id", data.targetCategoryId)
+        .eq("store_id", data.storeId)
+        .maybeSingle();
+      if (!category) throw new Error("Hedef kategori bulunamadı");
+      targetName = String((category as { name: string }).name);
+    }
+
+    const { error } = await context.supabase.from("xml_category_mappings").upsert(
+      {
+        store_id: data.storeId,
+        feed_id: data.feedId,
+        source_category: data.sourceCategory,
+        target_category_id: data.targetCategoryId,
+        target_category_code: data.targetCategoryCode,
+        target_category_name: targetName,
+        is_ai_suggested: false,
+        ai_confidence: 0,
+        ai_reasoning: null,
+      } as never,
+      { onConflict: "feed_id,source_category" },
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true as boolean };
+  });
+
+/**
+ * Eşleşmesi olmayan kaynak kategoriler için yapay zekâ önerisi üretir.
+ * Öneriler `is_ai_suggested` işaretiyle kaydedilir; satıcı elle değiştirdiğinde işaret kalkar.
+ */
+export const aiSuggestXmlCategoryMappings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z.object({ storeId: z.guid(), feedId: z.guid(), onlyUnmapped: z.boolean().default(true) }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_ai_map:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla deneme, birkaç dakika sonra tekrar deneyin");
+
+    const [{ data: mappingRows, error }, { data: categoryRows }] = await Promise.all([
+      context.supabase
+        .from("xml_category_mappings")
+        .select("source_category, target_category_id, product_count")
+        .eq("store_id", data.storeId)
+        .eq("feed_id", data.feedId)
+        .order("product_count", { ascending: false })
+        .limit(200),
+      context.supabase
+        .from("categories")
+        .select("id, name, path")
+        .eq("store_id", data.storeId)
+        .order("path", { ascending: true })
+        .limit(300),
+    ]);
+    if (error) throw new Error(error.message);
+
+    const pending = ((mappingRows ?? []) as Array<Record<string, any>>)
+      .filter((row) => (data.onlyUnmapped ? !row["target_category_id"] : true))
+      .map((row) => String(row["source_category"]))
+      .slice(0, 60);
+    if (!pending.length) throw new Error("Önerilecek kaynak kategori yok — önce kaynağı tarayın");
+
+    const targets = ((categoryRows ?? []) as Array<Record<string, any>>).map((row) => ({
+      id: String(row["id"]),
+      name: String(row["path"] || row["name"]),
+    }));
+    if (!targets.length) throw new Error("Mağazanızda kategori bulunmuyor, önce kategori oluşturun");
+
+    const { suggestCategoryMappings } = await import("@/lib/ai-category-mapping.server");
+    const { suggestions, creditsUsed } = await suggestCategoryMappings({
+      sourceCategories: pending,
+      targetCategories: targets,
+      charge: { storeId: data.storeId, userId: context.userId },
+    });
+
+    const matched = suggestions.filter((row) => row.targetId);
+    if (matched.length) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { error: writeError } = await supabaseAdmin.from("xml_category_mappings").upsert(
+        matched.map((row) => ({
+          store_id: data.storeId,
+          feed_id: data.feedId,
+          source_category: row.source,
+          target_category_id: row.targetId,
+          target_category_name: row.targetName,
+          is_ai_suggested: true,
+          ai_confidence: row.confidence,
+          ai_reasoning: row.reason,
+        })) as never,
+        { onConflict: "feed_id,source_category" },
+      );
+      if (writeError) throw new Error(writeError.message);
+    }
+
+    return {
+      requested: pending.length,
+      suggested: matched.length,
+      unmatched: suggestions.length - matched.length,
+      highConfidence: matched.filter((row) => row.confidence >= 0.9).length,
+      creditsUsed,
+    };
+  });
+
+/**
+ * Kaynak alan yollarını Mefticaret ürün alanlarına yapay zekâ ile eşleştirir.
+ * Öneriler kaydedilmez; panelde önizlenir ve satıcı kaydettiğinde beslemeye yazılır.
+ */
+export const aiSuggestXmlFieldMapping = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => feedRefSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_ai_field:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla deneme, birkaç dakika sonra tekrar deneyin");
+
+    const { data: schemaRows, error } = await context.supabase
+      .from("xml_field_schemas")
+      .select("field_path, sample_values")
+      .eq("store_id", data.storeId)
+      .eq("feed_id", data.feedId)
+      .limit(200);
+    if (error) throw new Error(error.message);
+
+    const sourceFields = ((schemaRows ?? []) as Array<Record<string, any>>)
+      .map((row) => ({
+        path: String(row["field_path"]),
+        sample: String((row["sample_values"] as string[] | null)?.[0] ?? "").slice(0, 120),
+      }))
+      .filter((row) => row.path);
+    if (!sourceFields.length) throw new Error("Önce “Kaynağı oku” ile alan listesini oluşturun");
+
+    const { TARGET_FIELDS } = await import("@/lib/xml-integrator");
+    const { suggestFieldMapping } = await import("@/lib/ai-category-mapping.server");
+    const { suggestions, creditsUsed } = await suggestFieldMapping({
+      sourceFields,
+      targetFields: TARGET_FIELDS.map((field) => ({
+        key: field.key,
+        label: field.label,
+        hint: field.hint ?? null,
+      })),
+      charge: { storeId: data.storeId, userId: context.userId },
+    });
+
+    return {
+      suggestions,
+      matched: suggestions.length,
+      highConfidence: suggestions.filter((row) => row.confidence >= 0.9).length,
+      creditsUsed,
+    };
+  });
+
+/**
+ * İçe aktarım önizlemesi: kaynağın ilk satırları ekrandaki (henüz kaydedilmemiş)
+ * eşleme ve varyasyon ayarlarıyla işlenir, ilk 10 ürün ağaç olarak döndürülür.
+ */
+export const previewXmlImport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        feedId: z.guid(),
+        fieldMapping: z.record(z.string(), z.string()).default({}),
+        fieldRules: z.record(z.string(), z.unknown()).default({}),
+        transformRules: z.record(z.string(), z.any()).default({}),
+        pricingRules: z.record(z.string(), z.any()).default({}),
+        variantMode: z.enum(["none", "nested", "flat"]).default("none"),
+        variantConfig: z
+          .object({
+            parentNodePath: z.string().trim().max(300).default(""),
+            variantNodePath: z.string().trim().max(300).default(""),
+            parentSkuField: z.string().trim().max(300).default(""),
+            optionAttributes: z.array(z.string().trim().max(300)).max(12).default([]),
+            variantMapping: z.record(z.string(), z.string().max(300)).default({}),
+          })
+          .default(() => ({ ...DEFAULT_VARIANT_CONFIG })),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(`xml_preview:${context.userId}`, RATE_LIMITS.import_trigger);
+    if (!limit.allowed) throw new Error("Çok fazla önizleme denemesi, birkaç dakika sonra tekrar deneyin");
+
+    const { data: feedRow, error } = await context.supabase
+      .from("xml_feeds")
+      .select("source_url, source_format, item_path, auth_type, auth_config, price_markup, currency, pricing_rules, connection_type, ftp_config")
+      .eq("id", data.feedId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!feedRow) throw new Error("Besleme bulunamadı");
+    const feed = feedRow as Record<string, any>;
+    const connectionType = parseConnectionType(feed["connection_type"]);
+    const sourceUrl = (feed["source_url"] as string | null) ?? null;
+    if (connectionType === "url" && !sourceUrl) throw new Error("Bu beslemede kaynak bağlantısı yok");
+    if (connectionType === "webhook") {
+      throw new Error("Webhook beslemesinde önizleme yapılamaz; önce tedarikçinin dosya göndermesi gerekir");
+    }
+
+    const { fetchFeedSource, parseFeedRows, normalizeRows } = await import("@/lib/xml-import-engine.server");
+    const { applyFieldRules, parseFieldRules } = await import("@/lib/xml-field-rules");
+    const { buildVariantGroups } = await import("@/lib/xml-variant-parser");
+
+    const fetched = await fetchFeedSource({
+      url: sourceUrl,
+      authType: String(feed["auth_type"] ?? "none") as never,
+      authConfig: (feed["auth_config"] ?? {}) as Record<string, string>,
+      format: (feed["source_format"] as never) ?? null,
+      connectionType,
+      ftpConfig: feed["ftp_config"] ?? {},
+    });
+    const parsed = parseFeedRows(fetched, { itemPath: (feed["item_path"] as string | null) ?? null, limit: 200 });
+
+    const variantConfig = parseVariantConfig({
+      parent_node_path: data.variantConfig.parentNodePath,
+      variant_node_path: data.variantConfig.variantNodePath,
+      parent_sku_field: data.variantConfig.parentSkuField,
+      option_attributes: data.variantConfig.optionAttributes,
+      variant_field_mapping: data.variantConfig.variantMapping,
+    });
+    const mode = parseVariantMode(data.variantMode);
+    const groups = buildVariantGroups(parsed.rows, mode, variantConfig);
+
+    const ruled = applyFieldRules(
+      groups.map((group) => group.mainRow),
+      data.fieldMapping,
+      parseFieldRules(data.fieldRules),
+    );
+    const requiredMissing = new Set(ruled.missing.map((item) => item.row));
+    const originalVariantRows = groups
+      .filter((_, index) => !requiredMissing.has(index))
+      .flatMap((group) => group.variantRows);
+    const variantRuleMapping = { ...data.fieldMapping, ...variantConfig.variantMapping };
+    const ruledVariants = applyFieldRules(originalVariantRows, variantRuleMapping, parseFieldRules(data.fieldRules));
+    let variantCursor = 0;
+    const variantRows = groups
+      .filter((_, index) => !requiredMissing.has(index))
+      .map((group) => {
+        const rows = ruledVariants.rows.slice(variantCursor, variantCursor + group.variantRows.length);
+        variantCursor += group.variantRows.length;
+        return rows;
+      });
+    const { items, errors: normalizeErrors } = normalizeRows(
+      ruled.rows.filter((_, index) => !requiredMissing.has(index)),
+      ruled.mapping,
+      {
+        priceMarkup: feed["price_markup"] === null ? null : Number(feed["price_markup"]),
+        pricingRules: parsePricingRules(
+          Object.keys(data.pricingRules).length > 0 ? data.pricingRules : feed["pricing_rules"],
+        ),
+        currency: String(feed["currency"] ?? "TRY"),
+        transformRules: data.transformRules as never,
+        ...(mode === "none"
+          ? {}
+          : {
+              variantRows,
+              optionAttributes: variantConfig.optionAttributes,
+              variantMapping: ruledVariants.mapping,
+            }),
+      },
+    );
+    const errors = [
+      ...ruled.missing.map((item) => ({ row: item.row + 1, reason: `Zorunlu alan eksik: ${item.field}` })),
+      ...normalizeErrors,
+    ];
+
+    return {
+      totalRows: parsed.rows.length,
+      format: parsed.format,
+      errorCount: errors.length,
+      errors: errors.slice(0, 10),
+      products: items.slice(0, 10).map((item) => ({
+        sku: item.sku,
+        barcode: item.barcode,
+        title: item.title,
+        price: item.price,
+        stock: item.stock,
+        currency: item.currency,
+        images: item.images.slice(0, 3),
+        options: item.options,
+        variants: item.variants.slice(0, 50).map((variant) => ({
+          sku: variant.sku,
+          barcode: variant.barcode,
+          title: variant.title,
+          price: variant.price,
+          stock: variant.stock,
+          options: variant.options,
+        })),
+      })),
+    };
+  });
+
+/** Platform döviz kurları (TL karşılığı) — para birimi çevirimi ekranı için. */
+export const listPlatformCurrencyRates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("platform_currency_rates")
+      .select("code, rate, source, updated_at")
+      .order("code");
+    if (error) throw new Error(error.message);
+    return ((data ?? []) as Array<Record<string, any>>).map((row) => ({
+      code: String(row["code"]),
+      rate: Number(row["rate"]),
+      source: String(row["source"] ?? "tcmb"),
+      updatedAt: (row["updated_at"] as string | null) ?? null,
+    }));
+  });
+
+/** İncelemeye alınan (karantina) ürünler — liste ve bekleyen sayısı. */
+export const listXmlQuarantine = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        status: z.enum(QUARANTINE_STATUSES).default("pending_review"),
+        limit: z.number().int().min(1).max(200).default(100),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { data: rows, error } = await context.supabase
+      .from("xml_quarantine_items")
+      .select("id, feed_id, sku, product_title, old_price, new_price, old_stock, new_stock, issue_type, status, raw_data, created_at, reviewed_at")
+      .eq("store_id", data.storeId)
+      .eq("status", data.status)
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (error) throw new Error(error.message);
+
+    const { count } = await context.supabase
+      .from("xml_quarantine_items")
+      .select("id", { count: "exact", head: true })
+      .eq("store_id", data.storeId)
+      .eq("status", "pending_review");
+
+    return {
+      pendingCount: count ?? 0,
+      items: ((rows ?? []) as Array<Record<string, unknown>>).map((row) => ({
+        id: String(row["id"]),
+        feedId: String(row["feed_id"]),
+        sku: String(row["sku"]),
+        productTitle: (row["product_title"] as string | null) ?? null,
+        oldPrice: row["old_price"] === null ? null : Number(row["old_price"]),
+        newPrice: row["new_price"] === null ? null : Number(row["new_price"]),
+        oldStock: row["old_stock"] === null ? null : Number(row["old_stock"]),
+        newStock: row["new_stock"] === null ? null : Number(row["new_stock"]),
+        issueType: String(row["issue_type"]),
+        status: String(row["status"]),
+        reason: String(((row["raw_data"] ?? {}) as Record<string, unknown>)["reason"] ?? ""),
+        createdAt: String(row["created_at"]),
+      })),
+    };
+  });
+
+/**
+ * İncelemeye alınan ürünleri onaylar (yeni fiyatı canlıya uygular) veya reddeder
+ * (ürün olduğu gibi kalır). Toplu işlem için birden fazla kayıt kabul eder.
+ */
+export const resolveXmlQuarantine = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        itemIds: z.array(z.guid()).min(1).max(200),
+        action: z.enum(["approve", "reject"]),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const { data: rows, error } = await context.supabase
+      .from("xml_quarantine_items")
+      .select("id, sku, new_price, new_stock, status")
+      .eq("store_id", data.storeId)
+      .in("id", data.itemIds)
+      .eq("status", "pending_review");
+    if (error) throw new Error(error.message);
+
+    const items = (rows ?? []) as Array<{
+      id: string;
+      sku: string;
+      new_price: number | null;
+      new_stock: number | null;
+    }>;
+    if (items.length === 0) return { applied: 0, rejected: 0, notFound: data.itemIds.length };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let applied = 0;
+
+    if (data.action === "approve") {
+      for (const item of items) {
+        /* Ürün stok kodu ya da barkodu ile bulunur; bulunamazsa kayıt yine kapatılır. */
+        const findBy = async (column: "sku" | "barcode") => {
+          const { data: rows } = await supabaseAdmin
+            .from("products")
+            .select("id")
+            .eq("store_id", data.storeId)
+            .eq(column, item.sku)
+            .limit(1);
+          return (rows as Array<{ id: string }> | null)?.[0]?.id ?? null;
+        };
+        const productId = (await findBy("sku")) ?? (await findBy("barcode"));
+        if (!productId) continue;
+
+        if (item.new_price !== null) {
+          await supabaseAdmin
+            .from("products")
+            .update({ base_price: item.new_price, updated_at: new Date().toISOString() })
+            .eq("id", productId)
+            .eq("store_id", data.storeId);
+        }
+        if (item.new_stock !== null) {
+          await supabaseAdmin
+            .from("product_variants")
+            .update({ stock: item.new_stock })
+            .eq("product_id", productId);
+        }
+        applied += 1;
+      }
+    }
+
+    const { error: updateError } = await supabaseAdmin
+      .from("xml_quarantine_items")
+      .update({
+        status: data.action === "approve" ? "approved" : "rejected",
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: context.userId,
+      })
+      .eq("store_id", data.storeId)
+      .in("id", items.map((item) => item.id));
+    if (updateError) throw new Error(updateError.message);
+
+    return {
+      applied,
+      rejected: data.action === "reject" ? items.length : 0,
+      notFound: data.itemIds.length - items.length,
+    };
+  });
+
+/** Tedarikçi performans raporu: besleme bazında günlük istatistiklerin özeti. */
+export const xmlSupplierPerformanceReport = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z.object({ storeId: z.guid(), days: z.number().int().min(1).max(365).default(30) }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+
+    const start = new Date(Date.now() - data.days * 86_400_000).toISOString().slice(0, 10);
+    const { data: rows, error } = await context.supabase
+      .from("xml_analytics_daily")
+      .select(
+        "feed_id, date, total_products_count, out_of_stock_count, price_changed_count, stock_changed_count, sync_duration_avg_seconds, success_rate_percent, quarantined_items_count, xml_feeds(name)",
+      )
+      .eq("store_id", data.storeId)
+      .gte("date", start)
+      .order("date", { ascending: true })
+      .limit(5000);
+    if (error) throw new Error(error.message);
+
+    type Row = {
+      feed_id: string;
+      date: string;
+      total_products_count: number | null;
+      out_of_stock_count: number | null;
+      price_changed_count: number | null;
+      stock_changed_count: number | null;
+      sync_duration_avg_seconds: number | null;
+      success_rate_percent: number | null;
+      quarantined_items_count: number | null;
+      xml_feeds: { name: string | null } | null;
+    };
+
+    const grouped = new Map<
+      string,
+      {
+        feedId: string;
+        supplierName: string;
+        days: number;
+        catalogSum: number;
+        outOfStockSum: number;
+        priceUpdates: number;
+        stockUpdates: number;
+        durationSum: number;
+        successSum: number;
+        errors: number;
+      }
+    >();
+
+    for (const row of (rows ?? []) as unknown as Row[]) {
+      const entry = grouped.get(row.feed_id) ?? {
+        feedId: row.feed_id,
+        supplierName: row.xml_feeds?.name ?? "Besleme",
+        days: 0,
+        catalogSum: 0,
+        outOfStockSum: 0,
+        priceUpdates: 0,
+        stockUpdates: 0,
+        durationSum: 0,
+        successSum: 0,
+        errors: 0,
+      };
+      entry.days += 1;
+      entry.catalogSum += Number(row.total_products_count ?? 0);
+      entry.outOfStockSum += Number(row.out_of_stock_count ?? 0);
+      entry.priceUpdates += Number(row.price_changed_count ?? 0);
+      entry.stockUpdates += Number(row.stock_changed_count ?? 0);
+      entry.durationSum += Number(row.sync_duration_avg_seconds ?? 0);
+      entry.successSum += Number(row.success_rate_percent ?? 0);
+      entry.errors += Number(row.quarantined_items_count ?? 0);
+      grouped.set(row.feed_id, entry);
+    }
+
+    const round = (value: number) => Math.round(value * 100) / 100;
+
+    return {
+      since: start,
+      days: data.days,
+      suppliers: [...grouped.values()]
+        .map((entry) => ({
+          feedId: entry.feedId,
+          supplierName: entry.supplierName,
+          avgCatalogSize: round(entry.catalogSum / entry.days),
+          avgOutOfStock: round(entry.outOfStockSum / entry.days),
+          totalPriceUpdates: entry.priceUpdates,
+          totalStockUpdates: entry.stockUpdates,
+          avgSpeedSeconds: round(entry.durationSum / entry.days),
+          avgSuccessPercent: round(entry.successSum / entry.days),
+          totalQuarantined: entry.errors,
+        }))
+        .sort((a, b) => b.avgCatalogSize - a.avgCatalogSize),
+      daily: ((rows ?? []) as unknown as Row[]).map((row) => ({
+        feedId: row.feed_id,
+        date: row.date,
+        totalProducts: Number(row.total_products_count ?? 0),
+        outOfStock: Number(row.out_of_stock_count ?? 0),
+        priceChanged: Number(row.price_changed_count ?? 0),
+        stockChanged: Number(row.stock_changed_count ?? 0),
+        durationSeconds: Number(row.sync_duration_avg_seconds ?? 0),
+        successPercent: Number(row.success_rate_percent ?? 0),
+        quarantined: Number(row.quarantined_items_count ?? 0),
+      })),
+    };
+  });

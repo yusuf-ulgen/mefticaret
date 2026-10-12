@@ -1,0 +1,26 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+
+Sitemap: https://mefticaret.com/sitemap-index.xml
+Sitemap: https://mefticaret.com/sitemap.xml
+Sitemap: https://mefticaret.com/sitemap-products.xml
+Sitemap: https://mefticaret.com/sitemap-categories.xml
+Sitemap: https://mefticaret.com/sitemap-pages.xml
+Sitemap: https://mefticaret.com/sitemap-blog.xml
+Sitemap: https://mefticaret.com/sitemap-tr.xml
+Sitemap: https://mefticaret.com/sitemap-en.xml
+Sitemap: https://mefticaret.com/sitemap-de.xml
+Sitemap: https://mefticaret.com/sitemap-ar.xml

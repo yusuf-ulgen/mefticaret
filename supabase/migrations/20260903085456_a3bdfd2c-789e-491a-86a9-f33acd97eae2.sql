@@ -1,0 +1,1 @@
+alter type public.app_category add value if not exists 'marketplace';

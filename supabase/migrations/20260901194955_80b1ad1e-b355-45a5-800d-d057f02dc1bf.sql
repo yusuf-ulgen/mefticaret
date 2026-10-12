@@ -1,0 +1,1 @@
+ALTER FUNCTION public.seed_demo_store(uuid) SET search_path = public, extensions;
