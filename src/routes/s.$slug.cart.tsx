@@ -11,7 +11,7 @@ import { previewCheckoutDiscount } from "@/lib/checkout.functions";
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
-import { formatMoney } from "@/lib/mefti";
+import { formatMoney } from "@/lib/display-currency";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 
 

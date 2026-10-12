@@ -16,7 +16,7 @@ import { useAuth } from "@/lib/auth-context";
 import { getCheckoutQuote, placeMemberOrder, placeOrder, previewCheckoutDiscount } from "@/lib/checkout.functions";
 import { startOrderPayment } from "@/lib/order-payment.functions";
 import { checkGiftCardBalance } from "@/lib/gift-cards-public.functions";
-import { formatMoney } from "@/lib/mefti";
+import { formatMoney } from "@/lib/display-currency";
 import { fetchStorefrontPickupLocations } from "@/lib/retail-ops.functions";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 

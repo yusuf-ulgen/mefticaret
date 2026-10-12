@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { buttonStyles, cardStyles, storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
-import { formatMoney } from "@/lib/mefti";
+import { formatMoney } from "@/lib/display-currency";
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import type { SectionSettings } from "@/lib/theme-sections";
 

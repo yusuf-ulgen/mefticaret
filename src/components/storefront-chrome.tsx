@@ -714,7 +714,8 @@ export function StorefrontChrome({
       ) : null}
 
       <main className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>
-        {children}
+        <DisplayCurrencyBridge slug={storeSlug} />
+        <CurrencyScope>{children}</CurrencyScope>
       </main>
 
       <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
