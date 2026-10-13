@@ -196,7 +196,10 @@ function CheckoutPage() {
 
   // Ödeme yöntemi de ön seçilir; kullanıcı isterse değiştirir.
   useEffect(() => {
-    if (methods.length === 0) return;
+    if (methods.length === 0) {
+      if (paymentMethodId) setPaymentMethodId("");
+      return;
+    }
     if (paymentMethodId && methods.some((method) => method.id === paymentMethodId)) return;
     const first = methods[0];
     if (first) setPaymentMethodId(first.id);
@@ -583,10 +586,14 @@ function CheckoutPage() {
                 {digitalOnly ? null : (
                   <>
                     <Field label={`${exportT(lang, "country")} *`} muted={muted}>
-                      <select style={inputStyle} autoComplete="country-name" value={country} onChange={(e) => { setCountry(e.target.value); setCity(""); }}>
-                        {SHIP_COUNTRIES.map((row) => <option key={row.code} value={row.value}>{row.value}</option>)}
-                        {!SHIP_COUNTRIES.some((row) => row.value === country) && !isGeorgia(country) ? <option value={country}>{country}</option> : null}
-                      </select>
+                      {SHIP_COUNTRIES.some((row) => row.value === country) || isGeorgia(country) ? (
+                        <select style={inputStyle} autoComplete="country-name" value={country} onChange={(e) => { setCountry(e.target.value === "__other" ? " " : e.target.value); setCity(""); }}>
+                          {SHIP_COUNTRIES.map((row) => <option key={row.code} value={row.value}>{row.value}</option>)}
+                          <option value="__other">Diğer ülke…</option>
+                        </select>
+                      ) : (
+                        <input style={inputStyle} autoComplete="country-name" placeholder="Ülke adı" value={country.trimStart()} onChange={(e) => { setCountry(e.target.value); setCity(""); }} onBlur={() => { if (!country.trim()) setCountry("Türkiye"); }} />
+                      )}
                     </Field>
                     <Field label="Şehir *" muted={muted}>
                       {exportOrder ? (
