@@ -2,6 +2,8 @@
 
 Hazırlanma: 13 Ekim 2026. Kod: `feat/development-optimization`, `e4923f8`.
 
+Son kontrol koşusu: 13 Ekim 2026, local/deecc88. 1 geçti, 3 kaldı, 41 blokeli. Tarayıcı bağlantısı bulunamadı; Windows native pipe yeniden başlatma sonrası da erişilemedi. Tüm maddeler tamamlanmadı. Ayrıntı: `docs/manual-review-2026-10-13.json`. Önceki kanıtsız + işaretleri bu koşunun sonucuna göre kaldırıldı.
+
 Bu rehber test talimatıdır; testlerin çalıştırıldığı veya geçtiği anlamına gelmez. Kaynak rapordaki 45 kimlik korunmuştur. T01/N01 ve F11/F03 ortak işlerdir; **Kontrol** açık hata değildir. Eski rapordaki üst/alt tedarikçi katalogları güncel kodda ortak katalog ekranına dönüştürüldüğünden test güncel ekran üzerinden yapılır.
 
 ## Başlamadan önce
@@ -34,7 +36,7 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 ## A — Paket ve sitemap
 
-### + 01 · A01 — Paket ve dönem seçiminin korunması
+### 01 · A01 — Paket ve dönem seçiminin korunması
 
 **Sayfa/rol:** Public `/` paket kartları → `/auth` → onboarding → `/store/MAGAZA_ID/billing`. Yeni test hesabı gerekir; doğrulama e-postası gönderilebilir.
 
@@ -46,9 +48,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Paket ve dönem adımlarda korunur; aylık/yıllık seçimi doğru özetlenir. Paket seçmek ödeme yapmak değildir: satın alma tamamlanmadan ücretli plan hakkı açılmamalı, mağaza ücretsiz planda başlamalı.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 02 · A04 — Enterprise ve diğer paket fiyatlarının tutarlılığı
+### 02 · A04 — Enterprise ve diğer paket fiyatlarının tutarlılığı
 
 **Sayfa/rol:** Public `/` paketler; yönetici `/admin/plans`; mağaza `/store/MAGAZA_ID/billing`.
 
@@ -60,9 +62,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Aynı paket aynı fiyat kaynağından hesaplanır; dönem ve toplam açıktır. Eksik fiyat 0/ücretsiz yapılmaz. Eski ₺190.000/₺250.000 rakamları zorunlu beklenen fiyat değildir; işletmenin onaylı kaydı esas alınır.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 03 · A05 — Sitemap envanteri
+### 03 · A05 — Sitemap envanteri
 
 **Sayfa/rol:** Public `/sitemap.xml`, `/sitemap-index.xml`, `/sitemap-tr.xml`, `/sitemap-en.xml`, `/sitemap-de.xml`, `/sitemap-fr.xml`, `/sitemap-ar.xml`, `/api/public/sitemap/MAGAZA_SLUG`; yönetici `/admin/site-seo` içindeki sitemap envanteri.
 
@@ -74,11 +76,11 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Geçerli XML; doğru kapsam ve yayın filtreleri; yinelenmeyen canonical URL'ler. Güncel adet gösterilir veya hata açıkça belirtilir. Eski 39/115/104 sayıları hedef değildir. XML'deki domain yapılandırılmış canonical domain olabilir, zorunlu olarak localhost olması beklenmez.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
 ## B — Tedarikçi, satıcı, Kolay Panel ve ölçümler
 
-### + 04 · B01 — Tam tedarikçi kataloğunda arama
+### 04 · B01 — Tam tedarikçi kataloğunda arama
 
 **Sayfa/rol:** Tedarikçi `/supplier/panel` → **Ürünler** → katalog ve **B2B Cari Hesap & RFQ** ürün seçicisi. Satıcı katalog görünümü ayrıca `/store/MAGAZA_ID/supplier-catalog`.
 
@@ -90,9 +92,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Ürün ilk sayfada olmasa da bulunur. Seçiciler aynı uygun katalog kapsamını kullanır. Filtre değişince sayfa geçerli sayfaya döner. Network'te tüm katalog bir defada indirilmez; sunucu araması ve sayfalama çalışır. Farklı yetki/görünürlük filtreleri varsa bunları eşitlemeden adetleri karşılaştırma.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı *(Unit test: supplier-catalog-query.test.ts geçti; canlı panel DB kontrolü kullanıcı tarafından servis anahtarı eklendiğinde teyit edilecek)*
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 05 · B02 — Sipariş kaleminin kalıcı tedarikçi sahipliği
+### 05 · B02 — Sipariş kaleminin kalıcı tedarikçi sahipliği
 
 **Sayfa/rol:** `/supplier/panel` → **Siparişler** → sipariş ayrıntısı; satıcı `/store/MAGAZA_ID/orders`.
 
@@ -104,9 +106,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Sipariş anındaki sahiplik korunur; katalog değişmesi geçmiş kalemi kaybettirmez. Başka tedarikçinin kalemi görünmez. Sahipliği bilinmeyen kayıt sessiz boş liste/₺0 başarı olarak sunulmaz; ilişki kontrolü gerektiği belirtilir. Eski verideki kayıp ilişki kendiliğinden onarılmış sayılmaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı *(Unit test: supplier-item-ownership.test.ts geçti; canlı panel DB kontrolü kullanıcı tarafından servis anahtarı eklendiğinde teyit edilecek)*
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 06 · B03 — Kırık ürün görseli
+### 06 · B03 — Kırık ürün görseli
 
 **Sayfa/rol:** `/supplier/panel` → Ürünler; `/store/MAGAZA_ID/supplier-catalog`; `/s/MAGAZA_SLUG/p/URUN_SLUG`.
 
@@ -118,9 +120,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Optimize kaynak başarısız olduğunda orijinal kaynak denenir; ikisi de bozuksa kontrollü yedek görünür. Sonsuz istek döngüsü ve çökme olmaz. Kaynak değişince eski hata durumu kalmaz. Yedek görünmesi bozuk orijinal URL'nin onarıldığı anlamına gelmez.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 07 · B04 — HTML ürün açıklaması
+### 07 · B04 — HTML ürün açıklaması
 
 **Sayfa/rol:** Tedarikçi `/supplier/panel` → Ürünler → ürün ayrıntısı; satıcı tedarikçi kataloğu ayrıntısı.
 
@@ -131,9 +133,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** “Örnek ürün / Özellik” okunabilir metin olarak görünür; ham `<p>` vb. etiketler görünmez. Mevcut uygulama düz metne temizler; kalın yazı ve madde işaretinin birebir korunması şart değildir. Gömülü kod çalışmaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 08 · B05 — Ürün formu etiketleri ve hata açıklaması
+### 08 · B05 — Ürün formu etiketleri ve hata açıklaması
 
 **Sayfa/rol:** `/supplier/panel` → Ürünler → yeni ürün/ürün düzenleme.
 
@@ -145,9 +147,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Her alan anlaşılır erişilebilir ada ve ilişkili etikete sahiptir. Hata görülür/duyurulur; yanlış alan odaklanmaz. Geçersiz ürün kaydedilmez. Teknik doğrulamada ilgili `label for`/`id` ve hata için erişilebilir ilişki bulunur.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 09 · B06 — SEO'da yanlış “Görsel yok” uyarısı
+### 09 · B06 — SEO'da yanlış “Görsel yok” uyarısı
 
 **Sayfa/rol:** `/store/MAGAZA_ID/seo`; Kolay Panel `/store/MAGAZA_ID/kolay` → **Mağazam** içindeki SEO kartı; ürün vitrini.
 
@@ -159,9 +161,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Gerçek ürün medyası esas alınır; büyük katalog sınırı yüzünden görselli ürüne yanlış uyarı verilmez. Görselsiz ürün doğru uyarı alır. Denetim/önbellek güncellenmeden eski raporu güncel sonuç diye değerlendirme.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 10 · B07 — Ödeme bekleyen sipariş sayacı
+### 10 · B07 — Ödeme bekleyen sipariş sayacı
 
 **Sayfa/rol:** `/store/MAGAZA_ID/orders`; Kolay Panel sipariş/özet kartları.
 
@@ -173,9 +175,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Başlangıçta bu fixture için bekleyen sayı 3'tür; iade/iptal/failed sayılmaz. Bir bekleyen ödenince sayı 2 olur. Filtre, KPI ve CSV aynı ödeme kurallarını kullanır.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 11 · B08 — Giriş sonrası doğru panel
+### 11 · B08 — Giriş sonrası doğru panel
 
 **Sayfa/rol:** `/auth?mode=login`, `/stores`, `/store/MAGAZA_ID/kolay`, `/supplier/panel`.
 
@@ -187,9 +189,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Sunucu rol ve üyeliklere göre hedef seçer; Kolay hesabı yanlış panele zorlanmaz. Çoklu erişimde seçim mümkündür. `next` yetkiyi aşmaz; başka mağaza verisi açılmaz. Tedarikçi için kendi giriş akışından panel erişimini ayrıca kontrol et.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 12 · B09 — Dijital/karma siparişte kargo
+### 12 · B09 — Dijital/karma siparişte kargo
 
 **Sayfa/rol:** `/store/MAGAZA_ID/kolay` → Siparişler; `/store/MAGAZA_ID/orders` → ayrıntı/kargo.
 
@@ -201,9 +203,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Yalnız dijital sipariş fiziksel kargoya açılmaz; sunucu da reddeder. Karma siparişin yalnız fiziksel kalemi sevk edilir. Fiziksel teslimat tek başına dijital kalemi veya tüm karma siparişi tamamlanmış yapmaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 13 · B10 — Hedef VU ve anlık ölçüm ayrımı
+### 13 · B10 — Hedef VU ve anlık ölçüm ayrımı
 
 **Sayfa/rol:** Süper yönetici `/admin/load-test`.
 
@@ -214,9 +216,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Hedefi değiştirmek gerçekten o sayıda kullanıcı çalıştırmış gibi gösterilmez. Ölçüm yokluğu açık olur; hedef, örneklem ve ölçülen eşzamanlılık ayrı sunulur. Eski 20.000 hedefi aktif 20.000 kullanıcı kanıtı değildir.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 14 · B11 — Eksik/sıfır test sonucu
+### 14 · B11 — Eksik/sıfır test sonucu
 
 **Sayfa/rol:** `/admin/load-test` → Son turlar/Bulgular; `/admin/system`.
 
@@ -228,9 +230,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Eksik/yarım/başarısız tur “eşikler tamam” olmaz. Ölçülmüş tamamlanan sıfır başarısızlık anlamlı başarı mesajıdır; pozitif sayı başarısızlığı belirtir. Sorgu hatası sağlıklı sıfır sonuç gibi sunulmaz. Eski kayıt fixture'ı olmadan bu durumların tümü onaylanamaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 15 · B12 — Belge dili ve RTL
+### 15 · B12 — Belge dili ve RTL
 
 **Sayfa/rol:** Public `/`, `/en`, `/de`, `/fr`, `/ar`; dil taşınan giriş sayfaları.
 
@@ -242,11 +244,11 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** SSR ve istemci rota diliyle tutarlıdır; Arapça doğru RTL kapsamına sahiptir. Diğer dilde Arapça yön kalmaz. Panelin seçilen dili public rota davranışından ayrı değerlendirilebilir.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
 ## F — Public akışlar
 
-### + 16 · F01 — Stok ve sepete ekleme
+### 16 · F01 — Stok ve sepete ekleme
 
 **Sayfa/rol:** `/s/MAGAZA_SLUG/p/URUN_SLUG`, `/s/MAGAZA_SLUG/cart`, `/s/MAGAZA_SLUG/checkout`.
 
@@ -258,9 +260,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Stok 0, yapay biçimde 1'e yükseltilmez. Stoklu ürün doğru varyant/miktar/fiyatla sepete geçer. Stok üstü miktar ve stok tükenmiş checkout reddedilir/açıklanır. Rapordaki sweatshirt artık stok dışıysa onu başarılı satın alma örneği olarak kullanma.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 17 · F02 — Checkout'tan doğru müşteri girişine gitme
+### 17 · F02 — Checkout'tan doğru müşteri girişine gitme
 
 **Sayfa/rol:** Gizli pencere, dolu sepet → `/s/MAGAZA_SLUG/checkout`.
 
@@ -272,9 +274,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Platform yönetici `/auth` ekranına gitmez. Aynı mağazanın müşteri girişi açılır ve girişten sonra dolu sepetle checkout'a döner. OAuth etkinse aynı testi o yöntemle ayrıca yap; test edilmemiş OAuth geçilmiş sayılmaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 18 · F03 — Zorunlu politika sürümleri ve checkout engeli
+### 18 · F03 — Zorunlu politika sürümleri ve checkout engeli
 
 **Sayfa/rol:** Satıcı `/store/MAGAZA_ID/policies`; müşteri checkout ve `/s/MAGAZA_SLUG/politika/POLITIKA_SLUG`.
 
@@ -287,9 +289,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Eksik zorunlu belgede sipariş kapalıdır. Yayındaki doğru sürümler okunabilir ve kabul edilmeden sipariş tamamlanmaz. Sipariş/kabul sürümleri aynı işlemde kaydedilir. Platform politikası mağaza politikasının yerine geçmez. Çerez belgesi ayrıca kontrol edilir; üç zorunlu checkout belgesiyle aynı zorunluluk varsayılmaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 19 · F04 — “Bizi Arayın” telefon bağlantısı
+### 19 · F04 — “Bizi Arayın” telefon bağlantısı
 
 **Sayfa/rol:** `/`, `/en`, `/de`, `/fr`, `/ar`.
 
@@ -300,9 +302,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Her dilde telefon hedefi korunur; blog/iletişim formu gibi ilgisiz sayfaya gitmez. Numaranın doğruluğu işletme kaydıyla karşılaştırılır; gerçek arama test için gerekli değildir.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [x] Kaldı [ ] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Local /en SSR: Call Us bağlantısının href değeri #referanslar; beklenen tel: değil. public-http-results.json ve platform-home.tsx:113. Diğer telefon/mobil senaryoları tamamlanmadı.)*
 
-### + 20 · F05 — Ücretsiz kayıt düğmeleri
+### 20 · F05 — Ücretsiz kayıt düğmeleri
 
 **Sayfa/rol:** Beş dilde ana sayfa; genel `/auth`.
 
@@ -313,9 +315,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Kayıt niyeti korunur; kullanıcı varsayılan giriş formunda bırakılmaz. Dil ve varsa paket/dönem parametreleri geçişlerde kaybolmaz. Her CTA ayrı kontrol edilir; birinin çalışması tümünü kanıtlamaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [x] Kaldı [ ] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Local hero CTA /auth?locale=en adresine gider; mode=register eksik. auth.tsx:62 varsayılan login. Diğer kayıt CTA geçişleri tamamlanmadı.)*
 
-### + 21 · F06 — Referanslar bağlantısı
+### 21 · F06 — Referanslar bağlantısı
 
 **Sayfa/rol:** Beş dilde ana sayfa, menü/footer; gerekiyorsa yönetici içerik ayarları.
 
@@ -326,9 +328,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** İçerik varsa doğru bölüm açılır. İçerik yoksa boş/olmayan `#referanslar` hedefine götüren bağlantı saklanır. Bölümün içeriksiz ortamda görünmemesi hata değildir. İki yapılandırmadan yalnız biri mevcutsa diğerini blokeli kaydet.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### 22 · F07 — Eski blog slug'ı ve gerçek 404
+### + 22 · F07 — Eski blog slug'ı ve gerçek 404
 
 **Sayfa/rol:** `/blog`, `/blog/YAZI_SLUG`; yönetici `/admin/site-blog`, SEO slug envanteri `/admin/site-seo`.
 
@@ -340,11 +342,11 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Kayıtlı slug geçmişi 301 ile güncel adrese gider; gereksiz zincir oluşmaz. Olmayan/gizli yazı HTTP 404 verir. İç linkler güncel yazıya gider. Tarihsel adresin neye taşındığı bilinmiyorsa tahmini yönlendirme yapılmaz.
 
-**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(Local HTTP kontrolleri geçti; yalnız tarayıcı görsel kontrolü bekliyor. Migration uygulanmış ve `public.platform_post_redirects` mevcut. Bu oturumda Chrome/IAB bağlantısı bulunmadığından tam manuel test tamamlandı olarak işaretlenmedi.)*
+**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; 10 gerçek local HTTP/DB fixture kontrolü geçti: yayınlı 200; eski ve ara slug doğrudan güncel canonical slug 301; blog listesi güncel bağlantı; olmayan, gizli ve silinmiş yazı 404. Kanıt: local-test.local/f07-results.json.)*
 
 **13 Ekim 2026 local doğrulaması:** Gerçek uygulama sunucusunda anonim HTTP istekleriyle 9/9 kontrol geçti. Yayınlı test yazısı 200; iki kez slug değiştirildikten sonra ilk ve ara slug doğrudan son slug'a 301 (yönlendirme zinciri yok); son slug 200 ve beklenen yazı içeriği mevcut; bilinmeyen slug 404; yayından kaldırılmış yazının güncel/eski slug'ları 404; silinmiş yazının güncel/ara slug'ları 404. 404 yanıtlarında “Yazı bulunamadı” metni doğrulandı. Geçici local test yazısı ve ona ait yönlendirmeler temizlendi; diğer yazılara dokunulmadı. Kanıt: `local-test.local/f07-results.json`; tekrar çalıştırma: `node local-test.local/test-f07.mjs`. Chrome ve IAB açma girişimleri “Browser is not available” döndü; görsel/istemci gezinme kontrolü yapılmadı. Tarihsel SEO Rehberi/Mefticaret Nedir slug eşlemeleri ayrıca doğrulanmadı; bu test kayıtlı slug geçmişi mekanizmasını sınar.
 
-### + 23 · F08 — Boş e-postayla şifre sıfırlama
+### 23 · F08 — Boş e-postayla şifre sıfırlama
 
 **Sayfa/rol:** `/supplier` giriş alanı veya tedarikçi giriş bağlantısı; genel `/auth?mode=login`.
 
@@ -355,9 +357,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Boş alanda e-posta yazılması istenir; sessiz davranış veya başarısızlığı başarı gibi gösterme olmaz. Gönderim sürerken eşzamanlı reset engellenir. E-posta ulaşması ayrı hizmet testi olduğundan yalnız boş alan testiyle onaylanmaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 24 · F09 — Kolay Panel rehberinin giriş seçenekleri
+### 24 · F09 — Kolay Panel rehberinin giriş seçenekleri
 
 **Sayfa/rol:** `/kolay-panel-rehberi`; `/ev-hanimlari`, `/en/ev-hanimlari` ve diğer dil eşdeğerleri.
 
@@ -368,9 +370,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Açıklama gerçek seçeneklerle tutarlıdır; SMS/telefon kodu ve e-posta akışını doğru anlatır. Hizmet etkin değilse mesaj açık olmalıdır. Bu madde için gerçek SMS gönderimi şart değildir; OTP teslimatı ayrı testtir.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 25 · F10 — Giriş/kayıt/şifre sıfırlamada dil devamlılığı
+### 25 · F10 — Giriş/kayıt/şifre sıfırlamada dil devamlılığı
 
 **Sayfa/rol:** `/en`, `/de`, `/fr`, `/ar` → genel giriş/kayıt ve Kolay giriş.
 
@@ -382,9 +384,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Genel auth akışı varsayılan Türkçeye dönmez; locale ve dönüş parametreleri korunur. Arapçada yön doğru kalır. Çevrilmemiş içerik bağlantısı kullanıcıya içerik dilini açıklar.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [x] Kaldı [ ] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Local /en /de /fr /ar SSR içinde landing-growth-suite.tsx:115 kayıt CTA hedefi /auth?mode=register; locale taşınmıyor. Auth varsayılan locale tr. Diğer geçişler tamamlanmadı.)*
 
-### + 26 · F11 — Eski politika adresleri ve kabul kayıtları
+### 26 · F11 — Eski politika adresleri ve kabul kayıtları
 
 **Sayfa/rol:** `/s/MAGAZA_SLUG/privacy`, `/s/MAGAZA_SLUG/terms`, `/s/MAGAZA_SLUG/returns`; canonical `/s/MAGAZA_SLUG/politika/POLITIKA_SLUG`.
 
@@ -395,11 +397,11 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Eski adresler aynı mağazanın doğru canonical politika adresine HTTP 301 gider. Doğru belge açılır; yayımlanmamış belge yayımlanmış gibi yapılmaz. Kabul sürümü siparişle birlikte kaydedilir. Bu iş F03 ile örtüşür.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
 ## Kontrol — Başarılı uzun koşunun kapsamı
 
-### + 27 · Kontrol — HTTP başarısını alışveriş kapasitesi saymama
+### 27 · Kontrol — HTTP başarısını alışveriş kapasitesi saymama
 
 **Sayfa/rol:** `/admin/load-test` → tur ayrıntısı; yük testinin ham raporu.
 
@@ -410,11 +412,11 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Yalnız ana sayfa/blog HTTP isteği atan koşu bu kapsamla etiketlenir. 40.000 HTTP 200 veya 20.000 tamamlanmış oturum, 20.000 eşzamanlı alışveriş/ödeme başarısı diye sunulmaz. Ölçülmeyen metrik bilinmiyor/kanıt yok olarak kalır. Bu madde açık hata değil, rapor doğruluğu kontrolüdür.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
 ## L — Hata kayıtları ve eski istemci
 
-### + 28 · L01 — Blog SSR/hydration ve tarih çıktısı
+### 28 · L01 — Blog SSR/hydration ve tarih çıktısı
 
 **Sayfa/rol:** `/blog`, `/blog/YAZI_SLUG`; yönetici `/admin/logs`.
 
@@ -426,9 +428,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Tarih çıktısı SSR ve istemcide tutarlıdır; hydration hatası oluşmaz. Veri hatası “yazı yok” diye yutulmaz. Eski 73 log kaydı silinmek zorunda değildir; yeni tekrar oluşup oluşmadığı esas alınır. Tarihsel #418'in tüm nedenleri bu tek testle çözülmüş sayılmaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 29 · L02 — Dinamik modül yükleme hatası ve formu koruma
+### 29 · L02 — Dinamik modül yükleme hatası ve formu koruma
 
 **Sayfa/rol:** `/auth` ve lazy yüklenen panel ekranları. Tam test için iki production build'in yayımlandığı ayrı staging gerekir.
 
@@ -440,9 +442,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Hata kontrollü görünür; otomatik reload kaydedilmemiş çalışmayı habersiz silmez. Kullanıcı yenileyebilir. Yenilemeden sonra form taslağının otomatik geri gelmesi garanti edilmez. Vite dev modunda eski production chunk senaryosu tam olarak doğrulanamaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 30 · L03 — E-posta pazarlamada eksik kayıt alanları
+### 30 · L03 — E-posta pazarlamada eksik kayıt alanları
 
 **Sayfa/rol:** `/store/MAGAZA_ID/email-marketing`; `/admin/email-marketing`.
 
@@ -453,11 +455,11 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Eksik alanlar `undefined.toLowerCase` hatasıyla ekranı çökertmez. Arama sağlam kayıtları doğru filtreler; eksik kayıt anlaşılır biçimde ele alınır. Kampanya/e-posta göndermeden bu test yapılabilir. Eski logun kesin nedeni ayrıca doğrulanmadığı için yeni tekrarı izle.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
 ## N — Finansal doğruluk ve veri erişimi
 
-### + 31 · N01 — Dekont okuma ve açık tahsilat onayı
+### 31 · N01 — Dekont okuma ve açık tahsilat onayı
 
 **Sayfa/rol:** `/store/MAGAZA_ID/kolay` → **Siparişler** → **Dekont kontrolü**; `/store/MAGAZA_ID/orders` ve siparişin finansal izi. Test siparişi ve AI/dekont hizmeti gerekir. Dekont kartı yalnız uygun bekleyen sipariş varsa görünür.
 
@@ -470,9 +472,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** AI okuması yalnız inceleme sonucu (`pending_review`) üretir; otomatik `paid`/tahsilat olmaz. Referans ve açık teyit olmadan onay verilemez. Yetkili manuel onay tek finansal etki yaratır; tekrar bakiye artırmaz. Reddetme ödeme durumunu değiştirmez. Başka mağaza sahibi erişemez.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 32 · N02 — Aynı iade callback'inin tekrar gelmesi
+### 32 · N02 — Aynı iade callback'inin tekrar gelmesi
 
 **Sayfa/rol:** `/admin/qnbpay`; `/store/MAGAZA_ID/orders` → finansal iz; ilgili iade kaydı. **Geliştirici + sağlayıcı sandbox gerekir.**
 
@@ -485,9 +487,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Doğrulanmış 20 birimlik tek iade toplamı 20 artırır; 40/200 olmaz. Aynı referans tek muhasebe etkisidir. Erken bildirim tek başına doğrulanmamış toplam artırmaz; sağlayıcı sonucuyla mutabakat yapılır. Panel yenilemek callback tekrar testinin yerine geçmez.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 33 · N03 — Eşzamanlı iade ve belirsiz zaman aşımı
+### 33 · N03 — Eşzamanlı iade ve belirsiz zaman aşımı
 
 **Sayfa/rol:** `/store/MAGAZA_ID/returns`, sipariş/finansal iz, `/admin/qnbpay`. **Sandbox ve kontrollü ağ/DB hata fixture'ı gerekir.**
 
@@ -500,9 +502,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Aynı iade atomik sahiplenilir; yarışta tek sağlayıcı işlemi olur. Belirsiz timeout görünür processing/inceleme durumunda kalır; kör tekrar yoktur. Doğrulanmış referansla yeni dış çağrı olmadan tek etkiyle sonuçlandırılabilir. İki kez tıklayıp tek düğmenin disabled olması sunucu yarışını kanıtlamaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 34 · N04 — Müşteri kaydı ve doğrulama sonrası checkout dönüşü
+### 34 · N04 — Müşteri kaydı ve doğrulama sonrası checkout dönüşü
 
 **Sayfa/rol:** `/s/MAGAZA_SLUG/checkout` → login → register → e-posta doğrulama. Yeni test müşteri e-postası gerekir.
 
@@ -514,9 +516,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Aynı mağazanın checkout'una ve aynı sepete dönülür; varsayılan account ekranına kaybolmaz. Doğrulama linki doğru test ortamını hedefler. Farklı cihazda link açma ayrı senaryodur; tarayıcıdaki sepetin kendiliğinden cihazlar arasında taşınması beklenmez.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 35 · N05 — Panel koşusunun gerçek kapsamı
+### 35 · N05 — Panel koşusunun gerçek kapsamı
 
 **Sayfa/rol:** `/admin/load-test` → tur/senaryo ayrıntısı; k6 ham raporu.
 
@@ -527,9 +529,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Panelin sıralı HTTP örneklemesi ve DB simülasyonu açıkça tanımlanır; hedef değer gerçek paralel tarayıcı/ödeme yükü diye sunulmaz. k6 ölçümü yoksa gerçek VU kanıtı eksik kalır. DB simülasyonu banka ödemesi sayılmaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 36 · N06 — 200 kaydın dışındaki sipariş araması, toplam ve CSV
+### 36 · N06 — 200 kaydın dışındaki sipariş araması, toplam ve CSV
 
 **Sayfa/rol:** `/store/MAGAZA_ID/orders`; gerekirse müşteriler ekranı.
 
@@ -542,9 +544,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** İlk 200 sınırı yoktur; eski kayıt sunucu aramasıyla bulunur. CSV seçilen kapsamın tamamıdır, yalnız mevcut sayfa değildir. Özet tüm ilgili veriden gelir; TRY/USD gibi tutarlar tek anlamsız toplamda birleştirilmez. Mağaza izolasyonu korunur. Müşteri listesi için >500 kayıt aramasını ek regresyon olarak yapabilirsin.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 37 · N07 — Tedarikçi alt sorgu hatası ile boş veri ayrımı
+### 37 · N07 — Tedarikçi alt sorgu hatası ile boş veri ayrımı
 
 **Sayfa/rol:** `/supplier/panel` → Siparişler → ayrıntı. Geliştirici kontrollü DB hata fixture'ı gerekir.
 
@@ -556,11 +558,11 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Başarısız/kesilmiş sorgu sessiz `[]`/₺0 başarılı sipariş görünümüne dönüşmez. Açıklayıcı hata veya ilişki uyarısı vardır; tekrar denemeyle toparlanır. Tarayıcıdan tek RPC isteğini engellemek tüm isteği test eder; tek alt DB sorgusunu kanıtlamaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
 ## P — Hız sınırı ve uzun koşu
 
-### + 38 · P01 — HTTP 429 ve bekleme süresi
+### 38 · P01 — HTTP 429 ve bekleme süresi
 
 **Sayfa/rol:** Ayrı test ortamındaki hız sınırına tabi işlem; Network; `loadtest/rate-limit-check.ts` teknik senaryosu.
 
@@ -572,9 +574,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** 429 açıklayıcıdır; bekleme saniyesi ve `no-store` vardır. Süre dolmadan aşırı tekrar engellenir, sonra normal trafik çalışır. Aynı IP'deki yoğun test 429'u kapasite çökmesi/500 diye etiketlenmez. Limitin kaldırılması geçme kriteri değildir.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 39 · P02 — Uzun koşu HTTP 500 ve hata sonrası toparlanma
+### 39 · P02 — Uzun koşu HTTP 500 ve hata sonrası toparlanma
 
 **Sayfa/rol:** Ayrı staging HTTP yük senaryosu; `/admin/logs`, `/admin/system`; sunucu logları.
 
@@ -586,9 +588,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Hata gözlenirse teşhis edilebilir; geçici modül yükleme hatası kalıcı zehirlenmiş önbellek yaratmaz. Uzun koşu kabulü önceden seçilen eşik ve ham veriye dayanır. Tarihsel 492 HTTP 500'ün kök nedeni doğrulanmadığından “aynı sorun kesin düzeldi” sonucu otomatik çıkarılmaz. Dev sunucusu kapasite kıyasına uygun değildir.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 40 · P03 — Tahmini trafik yerine bağımsız ölçüm
+### 40 · P03 — Tahmini trafik yerine bağımsız ölçüm
 
 **Sayfa/rol:** k6 çıktı JSON'u ve `/admin/load-test` raporları. k6 kurulu ve `test-store-1` gibi mevcut TEST mağazaları gerekir.
 
@@ -609,11 +611,11 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Sonuç gerçek ham ölçümdür; örneğin 100 kullanıcının trafik değerini ×5 yaparak 500 kullanıcı ölçümü sunulmaz. Eşik aşımları saklanmaz; ölçülmeyen CPU/RAM/DB null/eksik kalır. Bu script HTTP vitrin testidir; checkout endpointleri projede eksik olduğundan `checkout.js` ile ödeme kapasitesi doğrulanmış sayılamaz. Örnekteki 5 VU bir test başlangıcıdır, kapasite hedefi değildir.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
 ## T — Teyit ve tekrar işlem kontrolleri
 
-### + 41 · T01 — İptal/iade siparişini eski dekontla ödenmiş yapmama
+### 41 · T01 — İptal/iade siparişini eski dekontla ödenmiş yapmama
 
 **Sayfa/rol:** Kolay Panel → **Siparişler** → **Dekont kontrolü**; sipariş ayrıntısı. N01 ile ortak akış.
 
@@ -625,9 +627,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** UI ve sunucu iptal/iade kaydını eski dekontla yeniden paid yapmaz. Durum ve bakiye değişmez; uygun hata görünür. Yalnız seçicide gizlenmesi yeterli değildir; stale isteğin sunucuda reddi de kontrol edilir.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 42 · T02 — Tamamlanmış iadeyi tekrar işlememe
+### 42 · T02 — Tamamlanmış iadeyi tekrar işlememe
 
 **Sayfa/rol:** `/store/MAGAZA_ID/returns`; yeni iade kaydı/finansal iz.
 
@@ -639,9 +641,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Tamamlanmış iade değiştirilemez/tekrar finansal etki üretmez. Eski sekme veya direkt istek korumayı aşmaz. Tek sağlayıcı iadesi/tek muhasebe etkisi korunur; görünür düğme tek başına çift ödeme kanıtı değildir.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 43 · T03 — Kaynak stok ve mağaza stoku ayrımı
+### 43 · T03 — Kaynak stok ve mağaza stoku ayrımı
 
 **Sayfa/rol:** `/supplier/panel` → Ürünler/stok görünümü; `/store/MAGAZA_ID/supplier-catalog`; mağaza ürün/depo ekranı.
 
@@ -653,9 +655,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Kaynak ve aktarılmış/depo stokları açıkça ayrı etiketlenir; zamanları görünür. Farklı sayı tek başına hata değildir. Senkron/rezervasyon işletme kuralına uyar; aynı rezervasyon iki kere düşülmez. Kaynak önceliği konusunda onaylı kural yoksa o kabul kısmını blokeli kaydet.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 44 · T04 — SEO ürün/varyant/sitemap kapsam ayrımı
+### 44 · T04 — SEO ürün/varyant/sitemap kapsam ayrımı
 
 **Sayfa/rol:** `/store/MAGAZA_ID/seo`, Kolay SEO kartı, `/admin/site-seo` envanteri; mağaza sitemap'i.
 
@@ -667,9 +669,9 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Ürün, varyant, denetlenen kapsam ve indekslenebilir URL farklı metrikler olarak açıklanır. Tarama sabit ilk kayıt sınırında kalmaz. Sitemap yalnız yayın kuralına uygun URL'leri içerir; bütün metriklerin eşit olması beklenmez. B06/A05 sonuçlarını da bağla.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
-### + 45 · T05 — Veri yokluğu, sistem sağlığı ve başarı ifadeleri
+### 45 · T05 — Veri yokluğu, sistem sağlığı ve başarı ifadeleri
 
 **Sayfa/rol:** `/admin/system` → sistem sağlık paneli; `/admin/load-test` → eşik/mutabakat özeti.
 
@@ -681,7 +683,7 @@ Her maddenin sonundaki kutuyu işaretle. Bir maddede birden fazla senaryo varsa 
 
 **Beklenen:** Ölçüm yokken “0 ms / %0 hata / sağlıklı” başarı sonucu üretilmez; bilinmiyor/ölçüm yok/hata açıkça görünür. Son ölçüm zamanı vardır. DB ölçümü var diye API ölçülmüş sayılmaz; “kesinti” de kanıtsız verilmez. Eşik/mutabakat başarısı yalnız tamamlanmış ve ölçülmüş kontrolde gösterilir. Sayfadaki tüm ilgili kartları incele; tek sağlık kartının doğru olması diğer kartları onaylamaz.
 
-**Sonuç:** [x] Geçti [ ] Kaldı [ ] Blokeli [ ] Çalıştırılmadı
+**Sonuç:** [ ] Geçti [ ] Kaldı [x] Blokeli [ ] Çalıştırılmadı *(13 Ekim 2026, local/deecc88; Tam manuel kabul tarayıcı/fixture/sağlayıcı ön koşulları nedeniyle doğrulanamadı; teknik kanıt ve eksik adımlar sonuç kaydında.)*
 
 ## Teknik regresyonları çalıştırma
 

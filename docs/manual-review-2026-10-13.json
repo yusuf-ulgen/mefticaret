@@ -1,0 +1,698 @@
+{
+  "startedAt": "2026-10-13T20:07:38.722Z",
+  "build": "deecc88",
+  "environment": "http://127.0.0.1:5173",
+  "scope": "Bu koşu: teknik regresyon ve erişim kontrolleri. Önceki rehberdeki + işaretleri yeni kanıt sayılmadı.",
+  "technical": {
+    "vitest": {
+      "files": 34,
+      "passed": 129,
+      "failed": 0
+    },
+    "links": {
+      "checked": 137,
+      "missingRoutes": 0,
+      "contentOrAnchorPending": 49
+    },
+    "types": "passed",
+    "localAccountsAndIsolation": "passed",
+    "sqlBugfix": {
+      "passed": 32,
+      "environment": "isolated PGlite fixture"
+    },
+    "sqlOptimization": {
+      "passed": 7,
+      "environment": "isolated PGlite fixture; >2000 orders and tenant isolation"
+    },
+    "publicHttp": "Five locales HTTP 200; SSR lang/dir passed; F04/F05/F10 failures recorded"
+  },
+  "browserBlocker": "cua: browsers=[]; iab unavailable. Windows sky.list_apps: native pipe unavailable (os error 2), reset sonrası tekrarlandı.",
+  "items": [
+    {
+      "number": 1,
+      "id": "A01",
+      "title": "Paket ve dönem seçiminin korunması",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.723Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: landing-destinations.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 2,
+      "id": "A04",
+      "title": "Enterprise ve diğer paket fiyatlarının tutarlılığı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.730Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: plan-price.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 3,
+      "id": "A05",
+      "title": "Sitemap envanteri",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.730Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: sitemap-inspection.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 4,
+      "id": "B01",
+      "title": "Tam tedarikçi kataloğunda arama",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.731Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: supplier-catalog-query.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 5,
+      "id": "B02",
+      "title": "Sipariş kaleminin kalıcı tedarikçi sahipliği",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.732Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: supplier-item-ownership.test; manuel kabulün tamamını kanıtlamaz. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 6,
+      "id": "B03",
+      "title": "Kırık ürün görseli",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.733Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: image.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 7,
+      "id": "B04",
+      "title": "HTML ürün açıklaması",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.734Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 8,
+      "id": "B05",
+      "title": "Ürün formu etiketleri ve hata açıklaması",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.736Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı."
+      ]
+    },
+    {
+      "number": 9,
+      "id": "B06",
+      "title": "SEO'da yanlış “Görsel yok” uyarısı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.737Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: product-seo-data.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 10,
+      "id": "B07",
+      "title": "Ödeme bekleyen sipariş sayacı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.739Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: order-payment-state.test; manuel kabulün tamamını kanıtlamaz. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 11,
+      "id": "B08",
+      "title": "Giriş sonrası doğru panel",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.740Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: auth-navigation, store-access.server.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı."
+      ]
+    },
+    {
+      "number": 12,
+      "id": "B09",
+      "title": "Dijital/karma siparişte kargo",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.741Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: shipment-items.test; manuel kabulün tamamını kanıtlamaz. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 13,
+      "id": "B10",
+      "title": "Hedef VU ve anlık ölçüm ayrımı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.742Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: loadtest-result.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı."
+      ]
+    },
+    {
+      "number": 14,
+      "id": "B11",
+      "title": "Eksik/sıfır test sonucu",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.743Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: loadtest-result.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 15,
+      "id": "B12",
+      "title": "Belge dili ve RTL",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:10:15.692Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Beş local public HTTP 200; SSR html lang sırasıyla tr/en/de/fr/ar, dir ltr/ltr/ltr/ltr/rtl doğru. İstemci geçişi ve görsel RTL tarayıcı engeli nedeniyle doğrulanmadı.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı."
+      ]
+    },
+    {
+      "number": 16,
+      "id": "F01",
+      "title": "Stok ve sepete ekleme",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.745Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: cart-quantity.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 17,
+      "id": "F02",
+      "title": "Checkout'tan doğru müşteri girişine gitme",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.746Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: customer-return.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı."
+      ]
+    },
+    {
+      "number": 18,
+      "id": "F03",
+      "title": "Zorunlu politika sürümleri ve checkout engeli",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.746Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 19,
+      "id": "F04",
+      "title": "“Bizi Arayın” telefon bağlantısı",
+      "status": "Kaldı",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:10:15.688Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Local /en SSR: Call Us bağlantısının href değeri #referanslar; beklenen tel: değil. public-http-results.json ve platform-home.tsx:113. Diğer telefon/mobil senaryoları tamamlanmadı.",
+      "blockers": [
+        "Diğer alt senaryolar tamamlanmadı; kaydedilen fark maddenin kalması için yeterli."
+      ]
+    },
+    {
+      "number": 20,
+      "id": "F05",
+      "title": "Ücretsiz kayıt düğmeleri",
+      "status": "Kaldı",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:10:15.689Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Local hero CTA /auth?locale=en adresine gider; mode=register eksik. auth.tsx:62 varsayılan login. Diğer kayıt CTA geçişleri tamamlanmadı.",
+      "blockers": [
+        "Diğer alt senaryolar tamamlanmadı; kaydedilen fark maddenin kalması için yeterli."
+      ]
+    },
+    {
+      "number": 21,
+      "id": "F06",
+      "title": "Referanslar bağlantısı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.750Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 22,
+      "id": "F07",
+      "title": "Eski blog slug'ı ve gerçek 404",
+      "status": "Geçti",
+      "plus": true,
+      "evaluatedAt": "2026-10-13T20:08:41.943Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "10 gerçek local HTTP/DB fixture kontrolü geçti: yayınlı 200; eski ve ara slug doğrudan güncel canonical slug 301; blog listesi güncel bağlantı; olmayan, gizli ve silinmiş yazı 404. Kanıt: local-test.local/f07-results.json.",
+      "blockers": []
+    },
+    {
+      "number": 23,
+      "id": "F08",
+      "title": "Boş e-postayla şifre sıfırlama",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.752Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı."
+      ]
+    },
+    {
+      "number": 24,
+      "id": "F09",
+      "title": "Kolay Panel rehberinin giriş seçenekleri",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.753Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı."
+      ]
+    },
+    {
+      "number": 25,
+      "id": "F10",
+      "title": "Giriş/kayıt/şifre sıfırlamada dil devamlılığı",
+      "status": "Kaldı",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:10:15.691Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Local /en /de /fr /ar SSR içinde landing-growth-suite.tsx:115 kayıt CTA hedefi /auth?mode=register; locale taşınmıyor. Auth varsayılan locale tr. Diğer geçişler tamamlanmadı.",
+      "blockers": [
+        "Diğer alt senaryolar tamamlanmadı; kaydedilen fark maddenin kalması için yeterli."
+      ]
+    },
+    {
+      "number": 26,
+      "id": "F11",
+      "title": "Eski politika adresleri ve kabul kayıtları",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.754Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 27,
+      "id": "Kontrol",
+      "title": "HTTP başarısını alışveriş kapasitesi saymama",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.755Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: loadtest-result.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı."
+      ]
+    },
+    {
+      "number": 28,
+      "id": "L01",
+      "title": "Blog SSR/hydration ve tarih çıktısı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.756Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: date-rendering.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı."
+      ]
+    },
+    {
+      "number": 29,
+      "id": "L02",
+      "title": "Dinamik modül yükleme hatası ve formu koruma",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.757Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: chunk-recovery.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Sağlayıcı sandbox, e-posta doğrulama, iki staging build veya ayrı kontrollü yük/hata ortamı gerektiren senaryolar çalıştırılmadı."
+      ]
+    },
+    {
+      "number": 30,
+      "id": "L03",
+      "title": "E-posta pazarlamada eksik kayıt alanları",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.757Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: email-marketing.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 31,
+      "id": "N01",
+      "title": "Dekont okuma ve açık tahsilat onayı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.758Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: receipt-review.test; manuel kabulün tamamını kanıtlamaz. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 32,
+      "id": "N02",
+      "title": "Aynı iade callback'inin tekrar gelmesi",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.758Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Sağlayıcı sandbox, e-posta doğrulama, iki staging build veya ayrı kontrollü yük/hata ortamı gerektiren senaryolar çalıştırılmadı."
+      ]
+    },
+    {
+      "number": 33,
+      "id": "N03",
+      "title": "Eşzamanlı iade ve belirsiz zaman aşımı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.759Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Sağlayıcı sandbox, e-posta doğrulama, iki staging build veya ayrı kontrollü yük/hata ortamı gerektiren senaryolar çalıştırılmadı."
+      ]
+    },
+    {
+      "number": 34,
+      "id": "N04",
+      "title": "Müşteri kaydı ve doğrulama sonrası checkout dönüşü",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.759Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: customer-return.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Sağlayıcı sandbox, e-posta doğrulama, iki staging build veya ayrı kontrollü yük/hata ortamı gerektiren senaryolar çalıştırılmadı."
+      ]
+    },
+    {
+      "number": 35,
+      "id": "N05",
+      "title": "Panel koşusunun gerçek kapsamı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.760Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: loadtest-result.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı."
+      ]
+    },
+    {
+      "number": 36,
+      "id": "N06",
+      "title": "200 kaydın dışındaki sipariş araması, toplam ve CSV",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.760Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: read-all-pages.test; manuel kabulün tamamını kanıtlamaz. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 37,
+      "id": "N07",
+      "title": "Tedarikçi alt sorgu hatası ile boş veri ayrımı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.761Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 38,
+      "id": "P01",
+      "title": "HTTP 429 ve bekleme süresi",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.762Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: rate-limit.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Sağlayıcı sandbox, e-posta doğrulama, iki staging build veya ayrı kontrollü yük/hata ortamı gerektiren senaryolar çalıştırılmadı."
+      ]
+    },
+    {
+      "number": 39,
+      "id": "P02",
+      "title": "Uzun koşu HTTP 500 ve hata sonrası toparlanma",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.762Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: retryable-module.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Sağlayıcı sandbox, e-posta doğrulama, iki staging build veya ayrı kontrollü yük/hata ortamı gerektiren senaryolar çalıştırılmadı."
+      ]
+    },
+    {
+      "number": 40,
+      "id": "P03",
+      "title": "Tahmini trafik yerine bağımsız ölçüm",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.763Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: loadtest/k6/run-summary.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Sağlayıcı sandbox, e-posta doğrulama, iki staging build veya ayrı kontrollü yük/hata ortamı gerektiren senaryolar çalıştırılmadı."
+      ]
+    },
+    {
+      "number": 41,
+      "id": "T01",
+      "title": "İptal/iade siparişini eski dekontla ödenmiş yapmama",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.763Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: receipt-review.test; manuel kabulün tamamını kanıtlamaz. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 42,
+      "id": "T02",
+      "title": "Tamamlanmış iadeyi tekrar işlememe",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.764Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir. İzole SQL fixture paketi de geçti (32 kontrol); gerçek sağlayıcı ve panel kabul adımlarının tamamı değildir.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 43,
+      "id": "T03",
+      "title": "Kaynak stok ve mağaza stoku ayrımı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.765Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Bu madde için tam kabul kanıtı yok.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 44,
+      "id": "T04",
+      "title": "SEO ürün/varyant/sitemap kapsam ayrımı",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.766Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: product-seo-data, sitemap-inspection.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    },
+    {
+      "number": 45,
+      "id": "T05",
+      "title": "Veri yokluğu, sistem sağlığı ve başarı ifadeleri",
+      "status": "Blokeli",
+      "plus": false,
+      "evaluatedAt": "2026-10-13T20:07:38.767Z",
+      "role": null,
+      "dataId": null,
+      "evidence": "Yerel regresyon geçti: loadtest-result.test; manuel kabulün tamamını kanıtlamaz.",
+      "blockers": [
+        "Tarayıcı erişimi yok: ekran/klavye/Console/Network senaryoları çalıştırılamadı.",
+        "Maddenin tüm veri durumları ve değişiklik senaryoları bu koşuda doğrulanmadı."
+      ]
+    }
+  ],
+  "completedAt": "2026-10-13T20:11:11.827Z",
+  "completed": false,
+  "summary": {
+    "passed": 1,
+    "failed": 3,
+    "blocked": 41
+  }
+}
