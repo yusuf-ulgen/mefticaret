@@ -49,11 +49,14 @@ export function translate(
 export function I18nProvider({
   children,
   initialLocale = DEFAULT_LOCALE,
+  routeLocale,
 }: {
   children: ReactNode;
   initialLocale?: Locale;
+  routeLocale?: Locale | undefined;
 }) {
-  const [locale, setLocaleState] = useState<Locale>(initialLocale);
+  const [selectedLocale, setLocaleState] = useState<Locale>(initialLocale);
+  const locale = routeLocale ?? selectedLocale;
 
   useEffect(() => {
     try {

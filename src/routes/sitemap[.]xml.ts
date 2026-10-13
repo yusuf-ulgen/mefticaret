@@ -1,3 +1,5 @@
+import { readAllPages } from "@/lib/read-all-pages";
+import { readStoreSeo } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
@@ -16,15 +18,13 @@ const STORE_PATHS = [
   "/about",
   "/contact",
   "/faq",
-  "/privacy",
-  "/terms",
 ];
 
 /**
  * Kolay Panel (micro) vitrinlerinde koleksiyon / blog / kurumsal sayfalar yok;
  * yalnızca gerçekten içerik taşıyan adresler haritaya girer.
  */
-const MICRO_STORE_PATHS = ["", "/products", "/privacy", "/terms"];
+const MICRO_STORE_PATHS = ["", "/products"];
 
 type SitemapEntry = { path: string; changefreq?: string; priority?: string };
 
@@ -44,6 +44,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/en", changefreq: "monthly", priority: "0.7" },
           { path: "/de", changefreq: "monthly", priority: "0.6" },
           { path: "/ar", changefreq: "monthly", priority: "0.6" },
+          { path: "/fr", changefreq: "monthly", priority: "0.6" },
           { path: "/e-ticaret-paketleri", changefreq: "monthly", priority: "0.9" },
           { path: "/seo-ve-raporlama", changefreq: "monthly", priority: "0.8" },
           { path: "/tedarikci-giris", changefreq: "monthly", priority: "0.6" },
@@ -67,17 +68,26 @@ export const Route = createFileRoute("/sitemap.xml")({
           },
         });
 
+        const settings = await readAllPages((from, to) =>
+          supabase.from("store_settings").select("store_id,seo").order("store_id").range(from, to),
+        );
+        const hiddenStores = new Set(
+          (settings.data ?? [])
+            .filter((row) => readStoreSeo(row.seo).noindexStore)
+            .map((row) => row.store_id),
+        );
         const pageSize = 1000;
-        for (let offset = 0; ; offset += pageSize) {
+        for (let offset = 0; ;) {
           const { data, error } = await supabase
             .from("stores")
-            .select("slug, store_kind")
+            .select("id, slug, store_kind")
             .eq("status", "active")
             .order("slug")
             .range(offset, offset + pageSize - 1);
-          if (error) break;
+          if (error) throw new Error(error.message);
           const rows = data ?? [];
           for (const store of rows) {
+            if (hiddenStores.has(store.id)) continue;
             const slug = encodeURIComponent(String(store.slug));
             const paths = store.store_kind === "micro" ? MICRO_STORE_PATHS : STORE_PATHS;
             for (const suffix of paths) {
@@ -88,7 +98,8 @@ export const Route = createFileRoute("/sitemap.xml")({
               });
             }
           }
-          if (rows.length < pageSize) break;
+          if (!rows.length) break;
+          offset += rows.length;
         }
 
         const urls = entries.map((entry) =>

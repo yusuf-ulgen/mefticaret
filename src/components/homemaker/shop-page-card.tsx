@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 import { SoftCard } from "@/components/homemaker/kolay-parts";
 import type { SimpleProduct } from "@/lib/homemaker-queries";
-import { formatMoney } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 
 /**
  * "Mağaza sayfam": ev üreticisinin gerçek web sayfası ve ürün sayfalarının bağlantıları.

@@ -28,7 +28,10 @@ function workerImportMetaUrlFix() {
         else if (/\.m?js$/.test(ent.name)) {
           const code = fs.readFileSync(full, "utf8");
           if (!/createRequire/.test(code) || !code.includes("(import.meta.url)")) continue;
-          fs.writeFileSync(full, code.replaceAll("(import.meta.url)", '(import.meta.url ?? "file:///worker/index.mjs")'));
+          fs.writeFileSync(
+            full,
+            code.replaceAll("(import.meta.url)", '(import.meta.url ?? "file:///worker/index.mjs")'),
+          );
         }
       }
     };
@@ -43,6 +46,18 @@ function workerImportMetaUrlFix() {
 }
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url));
+
+// Vite uses slash-separated roots on Windows; MCP checks containment using native separators.
+function mcpWithNativeRoot() {
+  const plugin = mcpPlugin();
+  const original = plugin.configResolved;
+  if (typeof original === "function") {
+    plugin.configResolved = function (config) {
+      return original.call(this, { ...config, root: path.resolve(config.root) });
+    };
+  }
+  return plugin;
+}
 
 const REFLECT_METADATA_BANNER = `if (typeof Reflect.getMetadata !== "function") {
   const __mefti_meta = new WeakMap();
@@ -70,9 +85,10 @@ export default defineConfig({
       { path: "/e-ticaret-sitesi-kurma" },
       { path: "/dropshipping-nasil-yapilir" },
     ],
-    prerender: { enabled: true, autoStaticPathsDiscovery: false },
+    prerender: { enabled: true, autoStaticPathsDiscovery: false, crawlLinks: false },
   },
   vite: {
+    define: { __MEFTI_RELEASE__: JSON.stringify(`${process.env["CF_PAGES_COMMIT_SHA"] ?? process.env["BUILD_ID"] ?? "local"}:${new Date().toISOString()}`) },
     // Excel okuyucu tarayıcıda gerektiğinde yüklenir. Önceden paketlenmiş
     // geliştirme önbelleği sürüm değişimlerinde eski parça adlarına bağlanıp
     // sayfayı boş bırakabildiği için doğrudan Vite üzerinden sunulur.
@@ -95,11 +111,7 @@ export default defineConfig({
         },
       },
     },
-    plugins: [
-      suppressClientAbort(),
-      mcpPlugin(),
-      workerImportMetaUrlFix(),
-    ],
+    plugins: [suppressClientAbort(), mcpWithNativeRoot(), workerImportMetaUrlFix()],
     resolve: {
       alias: {
         "entities/lib/decode.js": path.resolve(ROOT_DIR, "node_modules/entities/lib/decode.js"),

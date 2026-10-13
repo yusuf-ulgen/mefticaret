@@ -1,7 +1,7 @@
 import { requireHomeMaker } from "@/lib/home-maker-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-
+import { receiptReading } from "@/lib/receipt-review";
 
 /**
  * Ev Hanımları Portalı v8 sunucu işlemleri.
@@ -82,7 +82,10 @@ export const verifyPhoneOtp = createServerFn({ method: "POST" })
     z
       .object({
         phone: z.string().trim().min(10).max(20),
-        code: z.string().trim().regex(/^\d{4}$/, "Kod 4 haneli olmalı"),
+        code: z
+          .string()
+          .trim()
+          .regex(/^\d{4}$/, "Kod 4 haneli olmalı"),
       })
       .parse(data),
   )
@@ -456,7 +459,10 @@ export const getStoreBoosters = createServerFn({ method: "POST" })
 
     return {
       production: promo?.production_mode
-        ? { message: promo.production_message || "Şu an üretimdeyim, siparişiniz taze hazırlanacak." }
+        ? {
+            message:
+              promo.production_message || "Şu an üretimdeyim, siparişiniz taze hazırlanacak.",
+          }
         : null,
       giftWrap: promo?.gift_wrap_enabled ? { fee: Number(promo.gift_wrap_fee ?? 0) } : null,
       rates,
@@ -638,14 +644,17 @@ export const orderPackagingItem = createServerFn({ method: "POST" })
     if (!item.in_stock) throw new Error("Bu ambalaj ürünü şu anda tükendi");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: result, error } = await supabaseAdmin.rpc("kolay_order_packaging_srv" as never, {
-      _user_id: userId,
-      _store_id: data.storeId,
-      _item_id: item.id,
-      _quantity: data.quantity,
-      _note: data.deliveryNote,
-      _use_points: data.usePoints ?? false,
-    } as never);
+    const { data: result, error } = await supabaseAdmin.rpc(
+      "kolay_order_packaging_srv" as never,
+      {
+        _user_id: userId,
+        _store_id: data.storeId,
+        _item_id: item.id,
+        _quantity: data.quantity,
+        _note: data.deliveryNote,
+        _use_points: data.usePoints ?? false,
+      } as never,
+    );
     if (error) throw new Error(error.message);
     const r = (result ?? {}) as { pointsUsed?: number };
     return { ok: true as const, pointsUsed: Number(r.pointsUsed ?? 0) };
@@ -693,8 +702,7 @@ export const listReceiptChecks = createServerFn({ method: "POST" })
   });
 
 /**
- * Havale dekontunu yapay zekâ ile okur. Tutar siparişle uyuşuyorsa siparişin
- * ödemesi "ödendi" olarak işaretlenir; uyuşmuyorsa karar satıcıya bırakılır.
+ * Havale dekontunu okur; eşleşme yalnız inceleme önerisidir. Tahsilat ayrıca onaylanır.
  */
 export const verifyPaymentReceipt = createServerFn({ method: "POST" })
   .middleware([requireHomeMaker])
@@ -715,14 +723,47 @@ export const verifyPaymentReceipt = createServerFn({ method: "POST" })
 
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("id, grand_total, currency, payment_status, order_number, customer_name")
+      .select("id, status, grand_total, currency, payment_status, order_number, customer_name")
       .eq("id", data.orderId)
       .eq("store_id", data.storeId)
       .maybeSingle();
     if (orderError) throw new Error(orderError.message);
     if (!order) throw new Error("Sipariş bulunamadı veya yetkiniz yok");
-    if (order.payment_status === "paid")
-      throw new Error("Bu siparişin ödemesi zaten alınmış görünüyor");
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(supabase, data.storeId, userId);
+    if (
+      order.payment_status !== "pending" ||
+      ["cancelled", "returned", "refunded"].includes(order.status)
+    )
+      throw new Error("Bu sipariş dekont incelemesine uygun değil");
+    const bytes = Uint8Array.from(atob(data.imageDataUrl.split(",")[1]!), (c) => c.charCodeAt(0));
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    const receiptHash = [...new Uint8Array(digest)]
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: previous, error: previousError } = await supabaseAdmin
+      .from("kolay_receipt_checks")
+      .select("id, order_id, status, notes, detected_amount, detected_sender, detected_at")
+      .eq("store_id", data.storeId)
+      .eq("receipt_sha256", receiptHash)
+      .maybeSingle();
+    if (previousError) throw new Error(previousError.message);
+    if (previous) {
+      if (previous.order_id !== order.id)
+        throw new Error("Bu dekont başka bir sipariş için kullanılmış");
+      return {
+        checkId: previous.id,
+        status: previous.status,
+        notes: previous.notes ?? "Dekont daha önce incelendi",
+        amount: previous.detected_amount,
+        expected: Number(order.grand_total),
+        currency: order.currency,
+        sender: previous.detected_sender,
+        date: previous.detected_at,
+        orderNumber: order.order_number,
+      };
+    }
 
     const { consumeRateLimit } = await import("@/lib/rate-limit.server");
     const limit = await consumeRateLimit(`receipt_verify:${data.storeId}`, {
@@ -753,7 +794,12 @@ export const verifyPaymentReceipt = createServerFn({ method: "POST" })
       ],
     });
 
-    let parsed: { amount?: number | null; date?: string | null; sender?: string | null; is_receipt?: boolean } = {};
+    let parsed: {
+      amount?: number | null;
+      date?: string | null;
+      sender?: string | null;
+      is_receipt?: boolean;
+    } = {};
     try {
       const clean = result.text.replace(/```json|```/g, "").trim();
       parsed = JSON.parse(clean) as typeof parsed;
@@ -761,40 +807,39 @@ export const verifyPaymentReceipt = createServerFn({ method: "POST" })
       parsed = {};
     }
 
-    const amount = typeof parsed.amount === "number" && Number.isFinite(parsed.amount) ? parsed.amount : null;
-    const isReceipt = parsed.is_receipt !== false && amount !== null;
-    const matches = isReceipt && amount !== null && Math.abs(amount - expected) <= 0.5;
+    const { amount, status, matches } = receiptReading(parsed, expected);
+    const notes =
+      status === "unreadable"
+        ? "Görselden tutar okunamadı. Lütfen dekontun tamamının göründüğü net bir fotoğraf yükleyin."
+        : matches
+          ? "Tutar eşleşti. İnceleme bekliyor; banka tahsilatı doğrulanıp açıkça onaylanana kadar ödeme durumu değişmez."
+          : `Dekonttaki tutar (${amount}) sipariş tutarından (${expected}) farklı. Ödeme durumu değiştirilmedi.`;
 
-    const status = !isReceipt ? "unreadable" : matches ? "matched" : "mismatch";
-    const notes = !isReceipt
-      ? "Görselden tutar okunamadı. Lütfen dekontun tamamının göründüğü net bir fotoğraf yükleyin."
-      : matches
-        ? "Dekonttaki tutar sipariş tutarıyla eşleşti, ödeme alındı olarak işaretlendi."
-        : `Dekonttaki tutar (${amount}) sipariş tutarından (${expected}) farklı. Ödeme durumu değiştirilmedi.`;
-
-    if (matches) {
-      const { error: updateError } = await supabase
-        .from("orders")
-        .update({ payment_status: "paid" } as never)
-        .eq("id", order.id)
-        .eq("store_id", data.storeId);
-      if (updateError) throw new Error(updateError.message);
-    }
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("kolay_receipt_checks").insert({
-      store_id: data.storeId,
-      order_id: order.id,
-      status,
-      detected_amount: amount,
-      detected_at: typeof parsed.date === "string" ? parsed.date.slice(0, 40) : null,
-      detected_sender: typeof parsed.sender === "string" ? parsed.sender.slice(0, 80) : null,
-      expected_amount: expected,
-      notes,
-      created_by: userId,
-    } as never);
+    const { data: saved, error: saveError } = await supabaseAdmin
+      .from("kolay_receipt_checks")
+      .insert({
+        store_id: data.storeId,
+        order_id: order.id,
+        status,
+        detected_amount: amount,
+        detected_at: typeof parsed.date === "string" ? parsed.date.slice(0, 40) : null,
+        detected_sender: typeof parsed.sender === "string" ? parsed.sender.slice(0, 80) : null,
+        expected_amount: expected,
+        notes,
+        created_by: userId,
+        receipt_sha256: receiptHash,
+      })
+      .select("id")
+      .single();
+    if (saveError)
+      throw new Error(
+        saveError.code === "23505"
+          ? "Bu dekont zaten incelemeye alındı. Tekrar yükleyerek mevcut sonucu görebilirsiniz."
+          : saveError.message,
+      );
 
     return {
+      checkId: saved.id,
       status,
       amount,
       expected,
@@ -804,4 +849,37 @@ export const verifyPaymentReceipt = createServerFn({ method: "POST" })
       notes,
       orderNumber: order.order_number,
     };
+  });
+
+export const reviewPaymentReceipt = createServerFn({ method: "POST" })
+  .middleware([requireHomeMaker])
+  .inputValidator((data) =>
+    z
+      .object({
+        storeId: z.guid(),
+        checkId: z.guid(),
+        approve: z.boolean(),
+        bankReference: z.string().trim().max(160).default(""),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+    const { data: check, error } = await context.supabase
+      .from("kolay_receipt_checks")
+      .select("id")
+      .eq("id", data.checkId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
+    if (error || !check) throw new Error("Dekont bulunamadı veya yetkiniz yok");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const result = await supabaseAdmin.rpc("review_payment_receipt", {
+      p_check_id: check.id,
+      p_actor: context.userId,
+      p_approve: data.approve,
+      p_bank_reference: data.bankReference,
+    });
+    if (result.error) throw new Error(result.error.message);
+    return result.data as unknown as { status: string; alreadyReviewed: boolean };
   });

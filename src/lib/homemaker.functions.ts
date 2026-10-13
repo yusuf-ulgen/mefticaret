@@ -34,6 +34,8 @@ export const createPickupCode = createServerFn({ method: "POST" })
       .maybeSingle();
     if (orderError) throw new Error(orderError.message);
     if (!order) throw new Error("Sipariş bulunamadı veya yetkiniz yok");
+    const { loadPhysicalShipmentItems } = await import("@/lib/shipment-items.server");
+    const physical = await loadPhysicalShipmentItems(supabase, order.id, order.store_id);
 
     const code = order.tracking_number || generateCode();
     const carrier = "Mefticaret Kodlu Teslim";
@@ -44,7 +46,7 @@ export const createPickupCode = createServerFn({ method: "POST" })
         tracking_number: code,
         shipping_carrier: carrier,
         status: "shipped",
-        fulfillment_status: "fulfilled",
+        fulfillment_status: physical.hasDigital ? "partially_fulfilled" : "fulfilled",
       } as never)
       .eq("id", order.id)
       .select("id, tracking_number, status")
@@ -52,14 +54,27 @@ export const createPickupCode = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!updated) throw new Error("Bu siparişi güncelleme yetkiniz yok");
 
-    await supabase.from("shipments").insert({
-      store_id: order.store_id,
-      order_id: order.id,
-      carrier,
-      tracking_number: code,
-      status: "in_transit",
-      shipped_at: new Date().toISOString(),
-    } as never);
+    const { data: shipment, error: shipmentError } = await supabase
+      .from("shipments")
+      .insert({
+        store_id: order.store_id,
+        order_id: order.id,
+        carrier,
+        tracking_number: code,
+        status: "in_transit",
+        shipped_at: new Date().toISOString(),
+      } as never)
+      .select("id")
+      .single();
+    if (shipmentError) throw new Error(shipmentError.message);
+    const { error: itemsError } = await supabase.from("shipment_items").insert(
+      physical.lines.map((line) => ({
+        shipment_id: shipment.id,
+        order_item_id: line.orderItemId,
+        quantity: line.quantity,
+      })),
+    );
+    if (itemsError) throw new Error(itemsError.message);
 
     await supabase.from("order_events").insert({
       order_id: order.id,

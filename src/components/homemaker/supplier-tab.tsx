@@ -1,3 +1,4 @@
+import { CatalogImportPreview } from "@/components/supplier-catalog/import-preview";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Loader2, Search } from "lucide-react";
@@ -19,6 +20,7 @@ export function SupplierTab({ storeId }: { storeId: string }) {
   const listSuppliers = useServerFn(listCatalogSuppliers);
   const listProducts = useServerFn(listCatalogProducts);
   const runImport = useServerFn(importCatalogProducts);
+  const [pendingImport, setPendingImport] = useState<string[] | null>(null);
   const fetchQuota = useServerFn(getKolayImportQuota);
 
   const [supplierId, setSupplierId] = useState("");
@@ -44,6 +46,7 @@ export function SupplierTab({ storeId }: { storeId: string }) {
   const importMut = useMutation({
     mutationFn: (ids: string[]) => runImport({ data: { storeId, ids, markup: 0 } }),
     onSuccess: (res) => {
+      setPendingImport(null);
       if (res.imported) toast.success(`${res.imported} ürün mağazanıza eklendi`);
       if (res.failed.length) toast.error(res.failed[0]);
       setSelected(new Set());
@@ -172,11 +175,12 @@ export function SupplierTab({ storeId }: { storeId: string }) {
 
       {selected.size ? (
         <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4">
-          <BigButton disabled={importMut.isPending} onClick={() => importMut.mutate([...selected])} className="w-full">
+          <BigButton disabled={importMut.isPending} onClick={() => setPendingImport([...selected])} className="w-full">
             {importMut.isPending ? "Ekleniyor…" : `Mağazama ekle (${selected.size})`}
           </BigButton>
         </div>
       ) : null}
+      <CatalogImportPreview storeId={storeId} ids={pendingImport} markup={0} busy={importMut.isPending} onClose={() => setPendingImport(null)} onConfirm={(ids) => importMut.mutate(ids)} />
     </div>
   );
 }

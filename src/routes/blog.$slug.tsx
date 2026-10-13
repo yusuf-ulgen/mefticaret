@@ -1,27 +1,30 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { publicPlatformPostQuery } from "@/lib/platform-blog-queries";
 import { formatDateTime } from "@/lib/mefti";
+import { resolvePublicPostSlug } from "@/lib/platform-blog.functions";
 
 /** Platform blog yazısı detay sayfası. */
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ context, params }) => {
-    try {
-      const post = await context.queryClient.ensureQueryData(publicPlatformPostQuery(params.slug));
-      return { post: post ?? null };
-    } catch (error) {
-      console.error(error);
-      return { post: null };
+    const post = await context.queryClient.ensureQueryData(publicPlatformPostQuery(params.slug));
+    if (!post) {
+      const target = await resolvePublicPostSlug({ data: { slug: params.slug } });
+      if (target) throw redirect({ to: "/blog/$slug", params: { slug: target }, statusCode: 301 });
+      throw notFound();
     }
+    return { post: post ?? null };
   },
   errorComponent: ({ error }) => (
     <main className="mx-auto w-full max-w-3xl px-5 py-14" role="alert">
       <h1 className="text-2xl font-semibold">Yazı şu anda görüntülenemiyor</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : String(error)}</p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        {error instanceof Error ? error.message : String(error)}
+      </p>
     </main>
   ),
   notFoundComponent: () => (
@@ -39,7 +42,7 @@ export const Route = createFileRoute("/blog/$slug")({
       post?.excerpt ||
       (post?.body ?? "")
         .replace(/<[^>]+>/g, " ")
-        .replace(/[#*_>`|\-]+/g, " ")
+        .replace(/[#*_>`|-]+/g, " ")
         .replace(/\s+/g, " ")
         .trim() ||
       "Mefticaret blogunda e-ticaret, pazaryeri ve büyüme rehberleri.";
@@ -48,7 +51,8 @@ export const Route = createFileRoute("/blog/$slug")({
         ? rawDescription
         : `${rawDescription.slice(0, 159).replace(/[\s,;.:-]+$/, "")}…`;
     const cover = post?.cover_url;
-    const absoluteCover = cover && /^https:\/\//.test(cover) ? cover : "https://mefticaret.com/og-mefticaret.jpg";
+    const absoluteCover =
+      cover && /^https:\/\//.test(cover) ? cover : "https://mefticaret.com/og-mefticaret.jpg";
     const canonical =
       post?.canonical_url && /^https?:\/\//.test(post.canonical_url)
         ? post.canonical_url
@@ -98,10 +102,9 @@ export const Route = createFileRoute("/blog/$slug")({
   component: BlogPostPage,
 });
 
-
 function BlogPostPage() {
   const { slug } = Route.useParams();
-  const { data, isLoading } = useQuery(publicPlatformPostQuery(slug));
+  const { data, isLoading } = useSuspenseQuery(publicPlatformPostQuery(slug));
 
   return (
     <main className="mx-auto w-full max-w-3xl px-5 py-14">

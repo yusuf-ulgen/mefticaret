@@ -1,7 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { planPrice } from "@/lib/plan-price";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { z } from "zod";
 import { AlertTriangle, Check, FileText, Gauge, History, Lock, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
@@ -52,6 +54,11 @@ import {
 } from "@/lib/subscription.functions";
 
 export const Route = createFileRoute("/_authenticated/store/$storeId/billing")({
+  validateSearch: z.object({
+    plan: z.string().max(40).optional(),
+    interval: z.enum(["monthly", "yearly"]).optional(),
+    locale: z.enum(["tr", "en", "de", "fr", "ar"]).optional(),
+  }),
   head: () => ({
     meta: [
       { title: "Abonelik & Limitler — Mefticaret" },
@@ -61,7 +68,10 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/billing")({
           "Paketini yükselt, aylık/yıllık aboneliğini yönet, limit kullanımını izle ve faturalarını görüntüle.",
       },
       { property: "og:title", content: "Abonelik & Limitler — Mefticaret" },
-      { property: "og:description", content: "Abonelik, limit kullanımı ve faturalar tek ekranda." },
+      {
+        property: "og:description",
+        content: "Abonelik, limit kullanımı ve faturalar tek ekranda.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -71,11 +81,21 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/billing")({
 
 function BillingPage() {
   const { storeId } = Route.useParams();
+  const selection = Route.useSearch();
   const queryClient = useQueryClient();
-  const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
+  const [interval, setInterval] = useState<"monthly" | "yearly">(selection.interval ?? "monthly");
+  const intervalInitialized = useRef(Boolean(selection.interval));
 
   const { data: store } = useQuery(storeQuery(storeId));
   const { data: plans, isPending: plansPending } = useQuery(plansQuery());
+  useEffect(() => {
+    if (!store || intervalInitialized.current) return;
+    intervalInitialized.current = true;
+    setInterval(store.requested_billing_interval === "yearly" ? "yearly" : "monthly");
+  }, [store]);
+  const requestedPlan = plans?.find(
+    (plan) => plan.code === selection.plan || plan.id === store?.requested_plan_id,
+  );
   const { data: planFeatures } = useQuery(planFeaturesQuery());
   const { data: subscription } = useQuery(storeSubscriptionQuery(storeId));
   const { data: items } = useQuery(subscriptionItemsQuery(storeId));
@@ -84,7 +104,6 @@ function BillingPage() {
   const { data: invoices } = useQuery(invoicesQuery(storeId));
   const { data: audit } = useQuery(storeAuditQuery(storeId));
   const { data: reminders } = useQuery(billingRemindersQuery(storeId));
-
 
   const subscribeFn = useServerFn(upsertSubscription);
   const cancelFn = useServerFn(setSubscriptionCancellation);
@@ -138,7 +157,6 @@ function BillingPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
-
 
   const cancelMutation = useMutation({
     mutationFn: (cancel: boolean) => cancelFn({ data: { storeId, cancel } }),
@@ -205,7 +223,6 @@ function BillingPage() {
         }
       : null;
 
-
   return (
     <AppShell
       storeId={storeId}
@@ -213,6 +230,14 @@ function BillingPage() {
       description="Paket, aylık/yıllık abonelik, limit kullanımı ve faturalar."
     >
       <div className="space-y-8">
+        {requestedPlan && (store?.plan_id !== requestedPlan.id || subscription?.billing_interval !== interval) ? (
+          <p className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
+            Kayıt sırasında seçilen paket: <strong>{requestedPlan.name}</strong> ·{" "}
+            {BILLING_INTERVAL_LABELS[interval]}. Paket ve dönem seçiminiz korundu; etkinleştirmek
+            için aşağıdaki ödeme adımını tamamlayın.
+            <Link to="/store/$storeId/support" params={{ storeId }} className="ml-2 underline">Paket için destek talebi aç</Link>
+          </p>
+        ) : null}
         {dunningState ? (
           <section
             className={`flex flex-wrap items-start justify-between gap-4 rounded-xl border p-5 ${
@@ -299,10 +324,7 @@ function BillingPage() {
                 const used = usage?.[feature.metric_key] ?? 0;
                 const ratio = limitRatio(used, feature.limit_value);
                 return (
-                  <div
-                    key={feature.id}
-                    className="space-y-2 rounded-lg border bg-background p-4"
-                  >
+                  <div key={feature.id} className="space-y-2 rounded-lg border bg-background p-4">
                     <div className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-1.5 font-medium">
                         <Gauge className="size-3.5 text-muted-foreground" />
@@ -349,7 +371,8 @@ function BillingPage() {
               ))}
             </div>
             <p className="text-xs text-muted-foreground">
-              Kapalı özellikler menüde görünmez ve işlem yapılamaz. Üst pakete geçerek açabilirsiniz.
+              Kapalı özellikler menüde görünmez ve işlem yapılamaz. Üst pakete geçerek
+              açabilirsiniz.
             </p>
           </div>
         </section>
@@ -400,10 +423,7 @@ function BillingPage() {
                       .filter((feature) => isModuleKey(feature.metric_key))
                       .sort((a, b) => a.sort_order - b.sort_order);
                     const extras = readFeatures(plan.features).slice(0, 2);
-                    const price =
-                      interval === "yearly"
-                        ? Number(plan.price_yearly ?? 0)
-                        : Number(plan.price_monthly ?? 0);
+                    const price = planPrice(plan, interval);
                     return (
                       <article
                         key={plan.id}
@@ -417,14 +437,16 @@ function BillingPage() {
                             {active ? <Badge>Aktif</Badge> : null}
                           </div>
                           <p className="text-2xl font-semibold">
-                            {formatMoney(price, plan.currency ?? "TRY")}
+                            {price === null
+                              ? "Fiyat için iletişime geçin"
+                              : formatMoney(price, plan.currency ?? "TRY")}
                             <span className="text-sm font-normal text-muted-foreground">
                               {interval === "yearly" ? " / yıl" : " / ay"}
                             </span>
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Komisyon {Number(plan.commission_rate ?? 0) * 100}% ·{" "}
-                            {plan.trial_days} gün deneme
+                            Komisyon {Number(plan.commission_rate ?? 0) * 100}% · {plan.trial_days}{" "}
+                            gün deneme
                           </p>
                           {plan.description ? (
                             <p className="text-sm text-muted-foreground">{plan.description}</p>
@@ -460,6 +482,7 @@ function BillingPage() {
                               : "default"
                           }
                           disabled={
+                            price === null ||
                             (active && subscription?.billing_interval === interval) ||
                             subscribeMutation.isPending ||
                             checkoutMutation.isPending
@@ -555,7 +578,6 @@ function BillingPage() {
             </div>
           </TabsContent>
 
-
           <TabsContent value="cycles">
             <div className="divide-y rounded-xl border bg-card">
               {(cycles ?? []).length === 0 ? (
@@ -609,7 +631,9 @@ function BillingPage() {
                       <History className="size-3.5 text-muted-foreground" />
                       {entry.action}
                     </span>
-                    <span className="text-muted-foreground">{formatDateTime(entry.created_at)}</span>
+                    <span className="text-muted-foreground">
+                      {formatDateTime(entry.created_at)}
+                    </span>
                   </div>
                 ))
               )}
@@ -640,7 +664,9 @@ function BillingPage() {
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-muted-foreground">Dönem</span>
-                  <span className="font-medium">{BILLING_INTERVAL_LABELS[interval] ?? interval}</span>
+                  <span className="font-medium">
+                    {BILLING_INTERVAL_LABELS[interval] ?? interval}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
                   <span className="font-semibold">Ödenecek tutar</span>
@@ -651,8 +677,8 @@ function BillingPage() {
               </div>
             ) : null}
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Lock className="size-4 shrink-0" /> Kart bilgileriniz Mefticaret'e iletilmez; ödeme QNBpay
-              güvencesiyle 3D Secure ile alınır.
+              <Lock className="size-4 shrink-0" /> Kart bilgileriniz Mefticaret'e iletilmez; ödeme
+              QNBpay güvencesiyle 3D Secure ile alınır.
             </p>
             <div className="grid gap-2">
               <Button

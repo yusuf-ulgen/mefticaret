@@ -9,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart";
 import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
-import { CurrencyScope, DisplayCurrencyBridge, StorefrontGlobalSelector, formatMoney, useDisplayCurrency } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 import { storefrontMenuQuery, type MenuItem } from "@/lib/menus-queries";
 import { platformFooterPagesQuery } from "@/lib/platform-pages-queries";
+import { LanguageSwitcher } from "@/components/storefront-language";
 import { storefrontUI } from "@/lib/storefront-ui";
 import { PredictiveSearch } from "@/components/wokiee/predictive-search";
 import { MegaMenu } from "@/components/wokiee/mega-menu";
@@ -32,7 +33,6 @@ import type { ResolvedSection } from "@/lib/theme-sections";
 import { storefrontQuery } from "@/lib/storefront-queries";
 import { CoutureFooter, CoutureHeader } from "@/components/storefront/couture-chrome";
 
-
 /** Menü bağlantısını vitrin adresine çevirir. */
 export function menuHref(slug: string, item: Pick<MenuItem, "kind" | "target">) {
   const base = `/s/${slug}`;
@@ -51,10 +51,11 @@ export function menuHref(slug: string, item: Pick<MenuItem, "kind" | "target">) 
     case "product":
       return `${base}/p/${target}`;
     default:
-      return target.startsWith("http") ? target : `${base}${target.startsWith("/") ? target : `/${target}`}`;
+      return target.startsWith("http")
+        ? target
+        : `${base}${target.startsWith("/") ? target : `/${target}`}`;
   }
 }
-
 
 export type StoreTheme = {
   preset?: string | null;
@@ -143,10 +144,20 @@ export function buttonStyles(theme: StoreTheme): Record<string, string | number>
     borderRadius: buttonStyle === "pill" ? "999px" : buttonStyle === "square" ? "0px" : radius,
   } as Record<string, string | number>;
   if (buttonStyle === "outline") {
-    return { ...base, background: "transparent", color: text, border: `1.5px solid ${t.accent_color}` };
+    return {
+      ...base,
+      background: "transparent",
+      color: text,
+      border: `1.5px solid ${t.accent_color}`,
+    };
   }
   if (buttonStyle === "ghost") {
-    return { ...base, background: `${t.accent_color}1f`, color: text, border: "1px solid transparent" };
+    return {
+      ...base,
+      background: `${t.accent_color}1f`,
+      color: text,
+      border: "1px solid transparent",
+    };
   }
   return {
     ...base,
@@ -160,10 +171,20 @@ export function buttonStyles(theme: StoreTheme): Record<string, string | number>
 export function cardStyles(theme: StoreTheme): Record<string, string | number> {
   const { cardBg, border, radius, cardStyle } = storefrontTokens(theme);
   if (cardStyle === "flat") {
-    return { background: "transparent", border: "1px solid transparent", borderRadius: radius, padding: 4 };
+    return {
+      background: "transparent",
+      border: "1px solid transparent",
+      borderRadius: radius,
+      padding: 4,
+    };
   }
   if (cardStyle === "bordered") {
-    return { background: "transparent", border: `1.5px solid ${border}`, borderRadius: radius, padding: 16 };
+    return {
+      background: "transparent",
+      border: `1.5px solid ${border}`,
+      borderRadius: radius,
+      padding: 16,
+    };
   }
   if (cardStyle === "shadow") {
     return {
@@ -203,12 +224,12 @@ export function StorefrontChrome({
   simpleStorefront?: boolean;
   children: ReactNode;
 }) {
-  const { t, fonts, text, muted, border, radius, logoUrl, contentWidth, design } = storefrontTokens(theme);
+  const { t, fonts, text, muted, border, radius, logoUrl, contentWidth, design } =
+    storefrontTokens(theme);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const supportLocale = useRouterState({
     select: (state) => String((state.location.search as Record<string, unknown>)?.["lang"] ?? "tr"),
   });
-  useDisplayCurrency();
   const cart = useCart();
   const favorites = useFavorites();
   const compare = useCompare();
@@ -234,20 +255,32 @@ export function StorefrontChrome({
   };
 
   const chrome = (type: string) =>
-    (sections ?? []).find((section) => section.type === type && section.isEnabled)?.settings ?? null;
+    (sections ?? []).find((section) => section.type === type && section.isEnabled)?.settings ??
+    null;
   const headerCfg = chrome("header");
   const footerCfg = chrome("footer");
   const barCfg = chrome("announcement_bar");
 
-  const flag = (settings: Record<string, string | number | boolean> | null, key: string, fallback = true) =>
-    settings ? Boolean(settings[key]) : fallback;
+  const flag = (
+    settings: Record<string, string | number | boolean> | null,
+    key: string,
+    fallback = true,
+  ) => (settings ? Boolean(settings[key]) : fallback);
   const value = (settings: Record<string, string | number | boolean> | null, key: string) =>
     settings ? String(settings[key] ?? "") : "";
 
-  const barText = barCfg ? value(barCfg, "text") : t.show_announcement ? (t.announcement ?? "") : "";
+  const barText = barCfg
+    ? value(barCfg, "text")
+    : t.show_announcement
+      ? (t.announcement ?? "")
+      : "";
   const barTone = barCfg ? value(barCfg, "tone") : "primary";
   const barBackground =
-    barTone === "accent" ? t.accent_color : barTone === "soft" ? `${t.accent_color}22` : t.primary_color;
+    barTone === "accent"
+      ? t.accent_color
+      : barTone === "soft"
+        ? `${t.accent_color}22`
+        : t.primary_color;
 
   // Analitik: her vitrin sayfası görüntülemesini ziyaretçi/oturum bazında kaydet.
   useEffect(() => {
@@ -256,11 +289,23 @@ export function StorefrontChrome({
     const leave = () => {
       if (sent) return;
       sent = true;
-      trackEvent(storeSlug, "page_leave", { path: pathname, timeOnPageMs: Math.min(Date.now() - started, 86_400_000) });
+      trackEvent(storeSlug, "page_leave", {
+        path: pathname,
+        timeOnPageMs: Math.min(Date.now() - started, 86_400_000),
+      });
     };
-    const onVis = () => { if (document.visibilityState === "hidden") leave(); };
+    const onVis = () => {
+      if (document.visibilityState === "hidden") leave();
+    };
     // Başlık, sayfanın head() güncellemesinden sonra okunur.
-    const t = window.setTimeout(() => trackEvent(storeSlug, "page_view", { path: pathname, pageTitle: document.title.slice(0, 200) }), 50);
+    const t = window.setTimeout(
+      () =>
+        trackEvent(storeSlug, "page_view", {
+          path: pathname,
+          pageTitle: document.title.slice(0, 200),
+        }),
+      50,
+    );
     document.addEventListener("visibilitychange", onVis);
     setMenuOpen(false);
     return () => {
@@ -293,29 +338,50 @@ export function StorefrontChrome({
         <SiteKitScripts storeSlug={storeSlug} />
         <CampaignBanner slug={storeSlug} />
 
-        <div className="hm-storefront-locale"><StorefrontGlobalSelector storeSlug={storeSlug} /></div>
         <header className="hm-storefront-header">
-          <Link to="/s/$slug" params={{ slug: storeSlug }} className="hm-storefront-brand" aria-label={`${storeName} ana sayfa`}>
+          <Link
+            to="/s/$slug"
+            params={{ slug: storeSlug }}
+            className="hm-storefront-brand"
+            aria-label={`${storeName} ana sayfa`}
+          >
             mefticaret
           </Link>
           <nav className="hm-storefront-actions" aria-label="Mağaza işlemleri">
             <Button variant="ghost" size="icon" asChild aria-label="Ürün ara">
-              <Link to="/s/$slug/search" params={{ slug: storeSlug }}><Search /></Link>
+              <Link to="/s/$slug/search" params={{ slug: storeSlug }}>
+                <Search />
+              </Link>
             </Button>
             <Button variant="ghost" size="icon" asChild aria-label="Sipariş takibi">
-              <Link to="/s/$slug/orders" params={{ slug: storeSlug }}><Truck /></Link>
+              <Link to="/s/$slug/orders" params={{ slug: storeSlug }}>
+                <Truck />
+              </Link>
             </Button>
             <Button variant="ghost" size="icon" asChild aria-label="Hesabım">
-              <Link to="/s/$slug/account" params={{ slug: storeSlug }}><UserRound /></Link>
+              <Link to="/s/$slug/account" params={{ slug: storeSlug }}>
+                <UserRound />
+              </Link>
             </Button>
-            <Button variant="ghost" size="icon" className="relative" aria-label={`Sepetim${cartCount ? `, ${cartCount} ürün` : ""}`} onClick={() => storefrontUI.openCart()}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              aria-label={`Sepetim${cartCount ? `, ${cartCount} ürün` : ""}`}
+              onClick={() => storefrontUI.openCart()}
+            >
               <ShoppingBag />
               {cartCount ? <span className="hm-storefront-badge">{cartCount}</span> : null}
             </Button>
           </nav>
         </header>
-        <main className="hm-storefront-main"><DisplayCurrencyBridge slug={storeSlug} /><CurrencyScope>{children}</CurrencyScope></main>
-        <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
+        <main className="hm-storefront-main">{children}</main>
+        <CartDrawer
+          theme={t}
+          storeSlug={storeSlug}
+          currency={commerce?.currency ?? "TRY"}
+          commerce={commerce}
+        />
         <QuickViewModal theme={t} storeSlug={storeSlug} />
         <StorefrontSupportChat slug={storeSlug} locale={supportLocale} />
         <GamificationPopup storeSlug={storeSlug} />
@@ -323,31 +389,78 @@ export function StorefrontChrome({
     );
   }
 
-  const coutureFlags = (storefront as { couture?: Record<string, boolean> } | undefined)?.couture ?? {};
+  const coutureFlags =
+    (storefront as { couture?: Record<string, boolean> } | undefined)?.couture ?? {};
   if (coutureFlags["enabled"]) {
     const social = (["instagram", "facebook", "tiktok", "youtube", "pinterest"] as const)
       .map((k) => ({ label: k[0]!.toUpperCase() + k.slice(1), url: value(footerCfg, k) }))
       .filter((s) => /^https:\/\//.test(s.url));
     return (
-      <div className="sf-root" style={{ background: t.background_color, color: text, fontFamily: fonts.body, minHeight: "100vh" }}>
+      <div
+        className="sf-root"
+        style={{
+          background: t.background_color,
+          color: text,
+          fontFamily: fonts.body,
+          minHeight: "100vh",
+        }}
+      >
         {t.font_pair?.startsWith("v2:") ? (
-          <link rel="stylesheet" href={`https://fonts.googleapis.com/css2?${[...new Set(t.font_pair.slice(3).split("|"))].filter((f) => /^[a-zA-Z0-9 ]+$/.test(f)).map((f) => `family=${encodeURIComponent(f)}:wght@400;500;600;700`).join("&")}&display=swap`} />
+          <link
+            rel="stylesheet"
+            href={`https://fonts.googleapis.com/css2?${[...new Set(t.font_pair.slice(3).split("|"))]
+              .filter((f) => /^[a-zA-Z0-9 ]+$/.test(f))
+              .map((f) => `family=${encodeURIComponent(f)}:wght@400;500;600;700`)
+              .join("&")}&display=swap`}
+          />
         ) : null}
-        <style dangerouslySetInnerHTML={{ __html: designCss(design) + "@media (max-width:720px){.sf-bottom-nav{display:grid!important}}" }} />
-        {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: safeCss(customCss) }} /> : null}
-        <a href="#ct-main" className="sr-only focus:not-sr-only">İçeriğe geç</a>
+        <style
+          dangerouslySetInnerHTML={{
+            __html:
+              designCss(design) +
+              "@media (max-width:720px){.sf-bottom-nav{display:grid!important}}",
+          }}
+        />
+        {customCss?.trim() ? (
+          <style dangerouslySetInnerHTML={{ __html: safeCss(customCss) }} />
+        ) : null}
+        <a href="#ct-main" className="sr-only focus:not-sr-only">
+          İçeriğe geç
+        </a>
         <CookieConsent storeSlug={storeSlug} />
         <SiteKitScripts storeSlug={storeSlug} />
         <CampaignBanner slug={storeSlug} />
-        <CoutureHeader storeSlug={storeSlug} storeName={storeName} logoUrl={logoUrl} announcement={barText} flags={coutureFlags} />
-        <div style={{ display: "flex", justifyContent: "flex-end", maxWidth: contentWidth, margin: "0 auto", padding: "8px 24px" }}><StorefrontGlobalSelector storeSlug={storeSlug} color={muted} /></div>
-        <main id="ct-main" className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}><DisplayCurrencyBridge slug={storeSlug} /><CurrencyScope>{children}</CurrencyScope></main>
-        <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
+        <CoutureHeader
+          storeSlug={storeSlug}
+          storeName={storeName}
+          logoUrl={logoUrl}
+          announcement={barText}
+          flags={coutureFlags}
+        />
+        <main
+          id="ct-main"
+          className="sf-main"
+          style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}
+        >
+          {children}
+        </main>
+        <CartDrawer
+          theme={t}
+          storeSlug={storeSlug}
+          currency={commerce?.currency ?? "TRY"}
+          commerce={commerce}
+        />
         <QuickViewModal theme={t} storeSlug={storeSlug} />
         <MobileBottomNav theme={t} storeSlug={storeSlug} />
         <StorefrontSupportChat slug={storeSlug} locale={supportLocale} />
         <GamificationPopup storeSlug={storeSlug} />
-        <CoutureFooter storeSlug={storeSlug} storeName={storeName} about={value(footerCfg, "about")} commerce={commerce} social={social}>
+        <CoutureFooter
+          storeSlug={storeSlug}
+          storeName={storeName}
+          about={value(footerCfg, "about")}
+          commerce={commerce}
+          social={social}
+        >
           <NewsletterSignup slug={storeSlug} muted={muted} />
         </CoutureFooter>
       </div>
@@ -365,7 +478,13 @@ export function StorefrontChrome({
       }}
     >
       {t.font_pair?.startsWith("v2:") ? (
-        <link rel="stylesheet" href={`https://fonts.googleapis.com/css2?${[...new Set(t.font_pair.slice(3).split("|"))].filter((f) => /^[a-zA-Z0-9 ]+$/.test(f)).map((f) => `family=${encodeURIComponent(f)}:wght@400;600;700`).join("&")}&display=swap`} />
+        <link
+          rel="stylesheet"
+          href={`https://fonts.googleapis.com/css2?${[...new Set(t.font_pair.slice(3).split("|"))]
+            .filter((f) => /^[a-zA-Z0-9 ]+$/.test(f))
+            .map((f) => `family=${encodeURIComponent(f)}:wght@400;600;700`)
+            .join("&")}&display=swap`}
+        />
       ) : null}
       <style dangerouslySetInnerHTML={{ __html: designCss(design) }} />
       <style
@@ -392,7 +511,9 @@ export function StorefrontChrome({
 `,
         }}
       />
-      {customCss?.trim() ? <style dangerouslySetInnerHTML={{ __html: safeCss(customCss) }} /> : null}
+      {customCss?.trim() ? (
+        <style dangerouslySetInnerHTML={{ __html: safeCss(customCss) }} />
+      ) : null}
 
       <CookieConsent storeSlug={storeSlug} />
       <SiteKitScripts storeSlug={storeSlug} />
@@ -412,7 +533,10 @@ export function StorefrontChrome({
           {barCfg && value(barCfg, "linkLabel") && value(barCfg, "linkUrl") ? (
             <>
               {" "}
-              <a href={value(barCfg, "linkUrl")} style={{ color: "inherit", textDecoration: "underline" }}>
+              <a
+                href={value(barCfg, "linkUrl")}
+                style={{ color: "inherit", textDecoration: "underline" }}
+              >
                 {value(barCfg, "linkLabel")}
               </a>
             </>
@@ -421,7 +545,6 @@ export function StorefrontChrome({
       ) : null}
 
       <CampaignBanner slug={storeSlug} />
-
 
       <header
         className="sf-header"
@@ -455,12 +578,18 @@ export function StorefrontChrome({
             }}
           >
             {logoUrl ? (
-              <img src={logoUrl} alt={storeName} style={{ height: 34, width: "auto", display: "block" }} />
+              <img
+                src={logoUrl}
+                alt={storeName}
+                style={{ height: 34, width: "auto", display: "block" }}
+              />
             ) : null}
             {storeName}
           </Link>
           {value(headerCfg, "tagline") ? (
-            <div style={{ color: muted, fontSize: 12, marginTop: 2 }}>{value(headerCfg, "tagline")}</div>
+            <div style={{ color: muted, fontSize: 12, marginTop: 2 }}>
+              {value(headerCfg, "tagline")}
+            </div>
           ) : null}
         </div>
         <button
@@ -491,7 +620,10 @@ export function StorefrontChrome({
           </span>
           Menü
         </button>
-        <nav className="sf-header-nav" style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 13, color: muted }}>
+        <nav
+          className="sf-header-nav"
+          style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 13, color: muted }}
+        >
           <MegaMenu theme={t} storeSlug={storeSlug} />
           {headerItems.length ? (
             headerItems.map((item) => (
@@ -547,11 +679,12 @@ export function StorefrontChrome({
               >
                 Hesabım
               </Link>
-
             </>
           )}
 
-          {flag(headerCfg, "showSearch") ? <PredictiveSearch theme={t} storeSlug={storeSlug} /> : null}
+          {flag(headerCfg, "showSearch") ? (
+            <PredictiveSearch theme={t} storeSlug={storeSlug} />
+          ) : null}
 
           {flag(headerCfg, "showFavorites") ? (
             <Link
@@ -563,7 +696,6 @@ export function StorefrontChrome({
             </Link>
           ) : null}
 
-
           <Link
             to="/s/$slug/gift-card"
             params={{ slug: storeSlug }}
@@ -571,8 +703,6 @@ export function StorefrontChrome({
           >
             Hediye kartı
           </Link>
-
-
 
           {compareCount > 0 ? (
             <Link
@@ -604,10 +734,8 @@ export function StorefrontChrome({
             </button>
           ) : null}
 
-
-          <StorefrontGlobalSelector storeSlug={storeSlug} color={muted} />
+          <LanguageSwitcher storeSlug={storeSlug} color={muted} />
         </nav>
-
       </header>
 
       {menuOpen ? (
@@ -638,7 +766,14 @@ export function StorefrontChrome({
               gap: 6,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 8,
+              }}
+            >
               <span style={{ fontFamily: fonts.heading, fontWeight: 700, fontSize: 16 }}>Menü</span>
               <button
                 type="button"
@@ -661,28 +796,68 @@ export function StorefrontChrome({
             <Link to="/s/$slug" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
               Ana sayfa
             </Link>
-            <Link to="/s/$slug/products" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+            <Link
+              to="/s/$slug/products"
+              params={{ slug: storeSlug }}
+              onClick={closeMenu}
+              style={drawerLink}
+            >
               Ürünler
             </Link>
-            <Link to="/s/$slug/categories" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+            <Link
+              to="/s/$slug/categories"
+              params={{ slug: storeSlug }}
+              onClick={closeMenu}
+              style={drawerLink}
+            >
               Kategoriler
             </Link>
-            <Link to="/s/$slug/collections" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+            <Link
+              to="/s/$slug/collections"
+              params={{ slug: storeSlug }}
+              onClick={closeMenu}
+              style={drawerLink}
+            >
               Koleksiyonlar
             </Link>
-            <Link to="/s/$slug/blog" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+            <Link
+              to="/s/$slug/blog"
+              params={{ slug: storeSlug }}
+              onClick={closeMenu}
+              style={drawerLink}
+            >
               Blog
             </Link>
-            <Link to="/s/$slug/favorites" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+            <Link
+              to="/s/$slug/favorites"
+              params={{ slug: storeSlug }}
+              onClick={closeMenu}
+              style={drawerLink}
+            >
               Favoriler{favoriteCount ? ` (${favoriteCount})` : ""}
             </Link>
-            <Link to="/s/$slug/gift-card" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+            <Link
+              to="/s/$slug/gift-card"
+              params={{ slug: storeSlug }}
+              onClick={closeMenu}
+              style={drawerLink}
+            >
               Hediye kartı
             </Link>
-            <Link to="/s/$slug/orders" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+            <Link
+              to="/s/$slug/orders"
+              params={{ slug: storeSlug }}
+              onClick={closeMenu}
+              style={drawerLink}
+            >
               Siparişlerim
             </Link>
-            <Link to="/s/$slug/account" params={{ slug: storeSlug }} onClick={closeMenu} style={drawerLink}>
+            <Link
+              to="/s/$slug/account"
+              params={{ slug: storeSlug }}
+              onClick={closeMenu}
+              style={drawerLink}
+            >
               Hesabım
             </Link>
             <button
@@ -707,24 +882,29 @@ export function StorefrontChrome({
               Sepetim{cartCount ? ` (${cartCount})` : ""}
             </button>
             <div style={{ marginTop: 12 }}>
-              <StorefrontGlobalSelector storeSlug={storeSlug} color={muted} />
+              <LanguageSwitcher storeSlug={storeSlug} color={muted} />
             </div>
           </div>
         </div>
       ) : null}
 
-      <main className="sf-main" style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}>
-        <DisplayCurrencyBridge slug={storeSlug} />
-        <CurrencyScope>{children}</CurrencyScope>
+      <main
+        className="sf-main"
+        style={{ maxWidth: contentWidth, margin: "0 auto", padding: "0 24px 64px" }}
+      >
+        {children}
       </main>
 
-      <CartDrawer theme={t} storeSlug={storeSlug} currency={commerce?.currency ?? "TRY"} commerce={commerce} />
+      <CartDrawer
+        theme={t}
+        storeSlug={storeSlug}
+        currency={commerce?.currency ?? "TRY"}
+        commerce={commerce}
+      />
       <QuickViewModal theme={t} storeSlug={storeSlug} />
       <MobileBottomNav theme={t} storeSlug={storeSlug} />
       <StorefrontSupportChat slug={storeSlug} locale={supportLocale} />
       <GamificationPopup storeSlug={storeSlug} />
-
-
 
       <footer
         style={{
@@ -744,7 +924,15 @@ export function StorefrontChrome({
         ) : null}
 
         {value(footerCfg, "email") || value(footerCfg, "phone") ? (
-          <div style={{ marginBottom: 14, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
+          <div
+            style={{
+              marginBottom: 14,
+              display: "flex",
+              gap: 14,
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
             {value(footerCfg, "email") ? <span>{value(footerCfg, "email")}</span> : null}
             {value(footerCfg, "phone") ? <span>{value(footerCfg, "phone")}</span> : null}
           </div>
@@ -794,34 +982,34 @@ export function StorefrontChrome({
         ) : null}
 
         {flag(footerCfg, "showLegalLinks") ? (
-        <nav
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 16,
-            justifyContent: "center",
-            marginBottom: 14,
-          }}
-        >
-          {[
-            { to: "/s/$slug/about", label: "Hakkımızda" },
-            { to: "/s/$slug/contact", label: "İletişim" },
-            { to: "/s/$slug/faq", label: "SSS" },
-            { to: "/s/$slug/returns", label: "İade politikası" },
-            { to: "/s/$slug/privacy", label: "Gizlilik politikası" },
-            { to: "/s/$slug/terms", label: "Kullanım şartları" },
-            { to: "/s/$slug/politikalar", label: "Tüm politikalar" },
-          ].map((link) => (
-            <Link
-              key={link.label}
-              to={link.to as "/s/$slug/about"}
-              params={{ slug: storeSlug }}
-              style={{ color: muted, textDecoration: "none" }}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+          <nav
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 16,
+              justifyContent: "center",
+              marginBottom: 14,
+            }}
+          >
+            {[
+              { to: "/s/$slug/about", label: "Hakkımızda" },
+              { to: "/s/$slug/contact", label: "İletişim" },
+              { to: "/s/$slug/faq", label: "SSS" },
+              { to: "/s/$slug/politika/iade-degisim", label: "İade politikası" },
+              { to: "/s/$slug/politika/gizlilik", label: "Gizlilik politikası" },
+              { to: "/s/$slug/politika/kullanim-kosullari", label: "Kullanım şartları" },
+              { to: "/s/$slug/politikalar", label: "Tüm politikalar" },
+            ].map((link) => (
+              <Link
+                key={link.label}
+                to={link.to as "/s/$slug/about"}
+                params={{ slug: storeSlug }}
+                style={{ color: muted, textDecoration: "none" }}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         ) : null}
 
         {commerce && (commerce.payments.length || commerce.shipping.length) ? (
@@ -845,12 +1033,17 @@ export function StorefrontChrome({
               </span>
             ))}
             {commerce.freeShippingThreshold ? (
-              <span style={{ border: `1px solid ${border}`, borderRadius: 999, padding: "4px 12px" }}>
-                {formatMoney(commerce.freeShippingThreshold, commerce.currency)} üzeri ücretsiz kargo
+              <span
+                style={{ border: `1px solid ${border}`, borderRadius: 999, padding: "4px 12px" }}
+              >
+                {formatMoney(commerce.freeShippingThreshold, commerce.currency)} üzeri ücretsiz
+                kargo
               </span>
             ) : null}
             {commerce.fastestEtaDays ? (
-              <span style={{ border: `1px solid ${border}`, borderRadius: 999, padding: "4px 12px" }}>
+              <span
+                style={{ border: `1px solid ${border}`, borderRadius: 999, padding: "4px 12px" }}
+              >
                 {commerce.fastestEtaDays} iş günü teslim
               </span>
             ) : null}
@@ -859,7 +1052,6 @@ export function StorefrontChrome({
 
         {value(footerCfg, "copyright") || `${storeName} — Mefticaret altyapısıyla çalışır.`}
       </footer>
-
     </div>
   );
 }

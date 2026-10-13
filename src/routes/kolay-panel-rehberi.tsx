@@ -26,80 +26,82 @@ const TOC = [
   { href: "#siparis", label: "6. İlk sipariş" },
 ];
 
-const STEPS: { id: string; icon: typeof Store; title: string; body: string; bullets: string[] }[] = [
-  {
-    id: "giris",
-    icon: LogIn,
-    title: "1. Kolay Panel'e giriş yap",
-    body: "Kolay Panel e-posta ve şifreyle çalışır. SMS kodu yoktur; hesabın yok ise aynı ekranda oluşturabilirsin.",
-    bullets: [
-      "Kolay Panel girişi ekranında e-postanı ve şifreni yaz.",
-      "İlk kez giriyorsan 'Hesap oluştur' sekmesinden adını, e-postanı ve en az 8 karakterli şifreni gir.",
-      "E-posta onay bağlantısı geldiğinde tıkla; sonra giriş ekranına dön.",
-      "Şifreni unuttuysan aynı ekrandaki 'Şifremi unuttum' bağlantısını kullan.",
-    ],
-  },
-  {
-    id: "magaza",
-    icon: Store,
-    title: "2. Mağazanı aç",
-    body: "Giriş yaptıktan sonra kurulum ekranı açılır. Mağaza adı ve ürün kategorini seçtiğin anda mağazan ve vitrin adresin otomatik oluşur.",
-    bullets: [
-      "Mağaza adını yaz (ör. 'Ayşe'nin El Örgüsü'). Vitrin adresi bu addan üretilir.",
-      "Kategori seç: el emeği örgü, yöresel gıda, takı, ev kozmetiği gibi.",
-      "Kurulum bitince Kolay Panel'in 'Mağazam' sekmesine düşersin.",
-      "Kolay Panel mağazaları kurumsal paketlerden bağımsızdır; ücretli paket seçmen gerekmez.",
-    ],
-  },
-  {
-    id: "vitrin",
-    icon: LayoutTemplate,
-    title: "3. Vitrini kur ve yayına al",
-    body: "Vitrin, müşterinin gördüğü mağaza sayfandır. Logo, kısa tanıtım ve iletişim bilgisi eklediğinde profesyonel görünür.",
-    bullets: [
-      "Logo veya profil fotoğrafı yükle; yuvarlak alanda görünür.",
-      "Bir iki cümlelik tanıtım yaz: ne ürettiğin ve hangi şehirde olduğun.",
-      "WhatsApp numaranı ekle; müşteriler tek dokunuşla yazabilir.",
-      "Üst taraftaki durum düğmesini 'Canlı' yap; 'Bakımda' iken vitrin sipariş almaz.",
-    ],
-  },
-  {
-    id: "urun",
-    icon: Package,
-    title: "4. İlk ürününü yükle",
-    body: "Ürünlerim sekmesinden ürün eklersin. Fotoğraf, fiyat ve stok girdiğin anda vitrinde görünür.",
-    bullets: [
-      "Fotoğrafı telefonundan çek; arka planı temizlemek için yapay zekâ aracını kullanabilirsin.",
-      "Ürün adı, fiyat ve stok adedi gir. Hazırlık süresi yazarsan müşteri kaç günde geleceğini bilir.",
-      "Açıklama yazmakta zorlanırsan yapay zekâ açıklama aracına ürün adını söyle.",
-      "Kaydettiğin anda ürün vitrinde ve ürün listesi sayfasında yayınlanır.",
-    ],
-  },
-  {
-    id: "odeme",
-    icon: CreditCard,
-    title: "5. Tahsilat yöntemini ayarla",
-    body: "Müşterinin ödemeyi nasıl yapacağını seçersin: kartla online ödeme veya havale/WhatsApp ile anlaşma.",
-    bullets: [
-      "Kartla tahsilat açıksa müşteri 'Hemen satın al' ile doğrudan ödeme sayfasına gider.",
-      "Kart kapalıysa IBAN ve hesap sahibi adını yaz; vitrinde havale bilgisi ve WhatsApp bağlantısı gösterilir.",
-      "Günlük sipariş kapasitesi belirleyebilirsin; dolduğunda mağaza o gün yeni sipariş almaz.",
-      "Kazançlarını 'Mağazam' üstündeki kazanç şeridinden takip edersin.",
-    ],
-  },
-  {
-    id: "siparis",
-    icon: ShoppingBag,
-    title: "6. İlk siparişin geldiğinde",
-    body: "Sipariş geldiğinde panelde bildirim çıkar, istersen sesli uyarı okur. Siparişler sekmesinden adım adım ilerletirsin.",
-    bullets: [
-      "Siparişi 'Hazırlanıyor' yap; müşteriye durum bilgisi gider.",
-      "Kargoya vereceksen kargo kodu üret; elden teslim edeceksen teslim kodunu müşteriden iste.",
-      "WhatsApp veya telefonla gelen siparişleri de 'Elle sipariş' ile aynı listeye kaydet.",
-      "Teslim edilen siparişler kazanç ve raporlara otomatik işlenir.",
-    ],
-  },
-];
+const STEPS: { id: string; icon: typeof Store; title: string; body: string; bullets: string[] }[] =
+  [
+    {
+      id: "giris",
+      icon: LogIn,
+      title: "1. Kolay Panel'e giriş yap",
+      body: "Kolay Panel'e telefonuna gönderilen doğrulama koduyla veya e-posta ve şifreyle giriş yapabilirsin. Hesabın yoksa aynı ekrandan kayıt olabilirsin.",
+      bullets: [
+        "Telefonla giriş için numaranı yaz, kod iste ve gelen doğrulama kodunu gir.",
+        "E-posta ile giriş seçeneğinde e-postanı ve şifreni yaz.",
+        "İlk kez giriyorsan 'Hesap oluştur' sekmesinden adını, e-postanı ve en az 8 karakterli şifreni gir.",
+        "E-posta onay bağlantısı geldiğinde tıkla; sonra giriş ekranına dön.",
+        "Şifreni unuttuysan aynı ekrandaki 'Şifremi unuttum' bağlantısını kullan.",
+      ],
+    },
+    {
+      id: "magaza",
+      icon: Store,
+      title: "2. Mağazanı aç",
+      body: "Giriş yaptıktan sonra kurulum ekranı açılır. Mağaza adı ve ürün kategorini seçtiğin anda mağazan ve vitrin adresin otomatik oluşur.",
+      bullets: [
+        "Mağaza adını yaz (ör. 'Ayşe'nin El Örgüsü'). Vitrin adresi bu addan üretilir.",
+        "Kategori seç: el emeği örgü, yöresel gıda, takı, ev kozmetiği gibi.",
+        "Kurulum bitince Kolay Panel'in 'Mağazam' sekmesine düşersin.",
+        "Kolay Panel mağazaları kurumsal paketlerden bağımsızdır; ücretli paket seçmen gerekmez.",
+      ],
+    },
+    {
+      id: "vitrin",
+      icon: LayoutTemplate,
+      title: "3. Vitrini kur ve yayına al",
+      body: "Vitrin, müşterinin gördüğü mağaza sayfandır. Logo, kısa tanıtım ve iletişim bilgisi eklediğinde profesyonel görünür.",
+      bullets: [
+        "Logo veya profil fotoğrafı yükle; yuvarlak alanda görünür.",
+        "Bir iki cümlelik tanıtım yaz: ne ürettiğin ve hangi şehirde olduğun.",
+        "WhatsApp numaranı ekle; müşteriler tek dokunuşla yazabilir.",
+        "Üst taraftaki durum düğmesini 'Canlı' yap; 'Bakımda' iken vitrin sipariş almaz.",
+      ],
+    },
+    {
+      id: "urun",
+      icon: Package,
+      title: "4. İlk ürününü yükle",
+      body: "Ürünlerim sekmesinden ürün eklersin. Fotoğraf, fiyat ve stok girdiğin anda vitrinde görünür.",
+      bullets: [
+        "Fotoğrafı telefonundan çek; arka planı temizlemek için yapay zekâ aracını kullanabilirsin.",
+        "Ürün adı, fiyat ve stok adedi gir. Hazırlık süresi yazarsan müşteri kaç günde geleceğini bilir.",
+        "Açıklama yazmakta zorlanırsan yapay zekâ açıklama aracına ürün adını söyle.",
+        "Kaydettiğin anda ürün vitrinde ve ürün listesi sayfasında yayınlanır.",
+      ],
+    },
+    {
+      id: "odeme",
+      icon: CreditCard,
+      title: "5. Tahsilat yöntemini ayarla",
+      body: "Müşterinin ödemeyi nasıl yapacağını seçersin: kartla online ödeme veya havale/WhatsApp ile anlaşma.",
+      bullets: [
+        "Kartla tahsilat açıksa müşteri 'Hemen satın al' ile doğrudan ödeme sayfasına gider.",
+        "Kart kapalıysa IBAN ve hesap sahibi adını yaz; vitrinde havale bilgisi ve WhatsApp bağlantısı gösterilir.",
+        "Günlük sipariş kapasitesi belirleyebilirsin; dolduğunda mağaza o gün yeni sipariş almaz.",
+        "Kazançlarını 'Mağazam' üstündeki kazanç şeridinden takip edersin.",
+      ],
+    },
+    {
+      id: "siparis",
+      icon: ShoppingBag,
+      title: "6. İlk siparişin geldiğinde",
+      body: "Sipariş geldiğinde panelde bildirim çıkar, istersen sesli uyarı okur. Siparişler sekmesinden adım adım ilerletirsin.",
+      bullets: [
+        "Siparişi 'Hazırlanıyor' yap; müşteriye durum bilgisi gider.",
+        "Kargoya vereceksen kargo kodu üret; elden teslim edeceksen teslim kodunu müşteriden iste.",
+        "WhatsApp veya telefonla gelen siparişleri de 'Elle sipariş' ile aynı listeye kaydet.",
+        "Teslim edilen siparişler kazanç ve raporlara otomatik işlenir.",
+      ],
+    },
+  ];
 
 const FAQ = [
   {
@@ -163,7 +165,12 @@ export const Route = createFileRoute("/kolay-panel-rehberi")({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Ana sayfa", item: "https://mefticaret.com/" },
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Ana sayfa",
+              item: "https://mefticaret.com/",
+            },
             { "@type": "ListItem", position: 2, name: "Kolay Panel rehberi", item: URL },
           ],
         }),

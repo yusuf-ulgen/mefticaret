@@ -22,7 +22,14 @@ export const qnbpaySettingsSchema = z.object({
 });
 export type QnbpaySettingsInput = z.infer<typeof qnbpaySettingsSchema>;
 
-export const chargePurposeSchema = z.enum(["plan", "theme", "app", "commission", "invoice", "other"]);
+export const chargePurposeSchema = z.enum([
+  "plan",
+  "theme",
+  "app",
+  "commission",
+  "invoice",
+  "other",
+]);
 
 export const createChargeLinkSchema = z.object({
   purpose: chargePurposeSchema,
@@ -47,6 +54,7 @@ export const transactionIdSchema = z.object({ transactionId: z.guid() });
 export const refundSchema = z.object({
   transactionId: z.guid(),
   amount: z.number().min(0).max(1_000_000),
+  requestKey: z.string().min(8).max(120).optional(),
 });
 
 export const completeSchema = z.object({

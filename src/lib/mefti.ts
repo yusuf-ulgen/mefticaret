@@ -130,7 +130,6 @@ export function isApexDomain(hostname: string): boolean {
   return hostname.split(".").length === 2;
 }
 
-
 export function slugify(value: string): string {
   const map: Record<string, string> = {
     ç: "c",
@@ -156,13 +155,26 @@ export function slugify(value: string): string {
     .slice(0, 48);
 }
 
-const CURRENCY_ALIASES: Record<string, string> = { TL: "TRY", YTL: "TRY", "₺": "TRY", "$": "USD", "€": "EUR", "£": "GBP" };
+const CURRENCY_ALIASES: Record<string, string> = {
+  TL: "TRY",
+  YTL: "TRY",
+  "₺": "TRY",
+  $: "USD",
+  "€": "EUR",
+  "£": "GBP",
+};
 
 export function formatMoney(value: number, currency = "TRY", locale = "tr-TR"): string {
-  const raw = String(currency || "TRY").trim().toUpperCase();
+  const raw = String(currency || "TRY")
+    .trim()
+    .toUpperCase();
   const code = CURRENCY_ALIASES[raw] ?? raw;
   try {
-    return new Intl.NumberFormat(locale, { style: "currency", currency: code, maximumFractionDigits: 0 }).format(value);
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: code,
+      maximumFractionDigits: 0,
+    }).format(value);
   } catch {
     return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(value)} ${raw}`;
   }
@@ -210,7 +222,6 @@ export const ORDER_STATUS_FLOW = [
   "delivered",
 ] as const;
 
-
 export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   pending: "Ödeme bekliyor",
   paid: "Ödendi",
@@ -242,14 +253,28 @@ export const SHIPPING_CARRIERS = [
   "DHL",
 ] as const;
 
-export function formatDateTime(value: string | null | undefined, locale = "tr-TR"): string {
+export function formatDateTime(
+  value: string | null | undefined,
+  locale = "tr-TR",
+  timeZone = "Europe/Istanbul",
+): string {
   if (!value) return "—";
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
-    new Date(value),
-  );
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "—";
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone,
+  }).format(date);
 }
 
-export function formatDate(value: string | null | undefined, locale = "tr-TR"): string {
+export function formatDate(
+  value: string | null | undefined,
+  locale = "tr-TR",
+  timeZone = "Europe/Istanbul",
+): string {
   if (!value) return "—";
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(value));
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "—";
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone }).format(date);
 }

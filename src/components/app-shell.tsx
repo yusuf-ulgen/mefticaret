@@ -35,7 +35,7 @@ import { useAuth } from "@/lib/auth-context";
 import { myStoresQuery, storeActionItemsQuery } from "@/lib/store-queries";
 import { STORE_ROLE_LABELS } from "@/lib/mefti";
 import { PanelBottomNav } from "@/components/panel-bottom-nav";
-import { storeNavGroups, storeQuickLinks, type StoreNavItem } from "@/lib/store-nav";
+import { storeTaskNavGroups, storeQuickLinks, type StoreNavItem } from "@/lib/store-nav";
 import { useRecentPaths } from "@/lib/store-recent-nav";
 import { storeEntitlementsQuery } from "@/lib/entitlements-queries";
 import { moduleKeyForPath } from "@/lib/plan-features";
@@ -48,18 +48,28 @@ const PIN_STORAGE_KEY = "mefti:pinned-nav";
 export function CockpitRail({ storeId }: { storeId: string }) {
   const { data } = useQuery(storeActionItemsQuery(storeId));
   const items = [
-    { label: "Bekleyen sipariş", count: data?.pendingOrders, to: "/store/$storeId/orders" as const },
+    {
+      label: "Bekleyen sipariş",
+      count: data?.pendingOrders,
+      to: "/store/$storeId/orders" as const,
+    },
     { label: "Sevk bekleyen", count: data?.unfulfilled, to: "/store/$storeId/shipments" as const },
     { label: "Kritik stok", count: data?.lowStock, to: "/store/$storeId/inventory" as const },
     { label: "İade talebi", count: data?.pendingReturns, to: "/store/$storeId/returns" as const },
-    { label: "Onay bekleyen yorum", count: data?.pendingReviews, to: "/store/$storeId/reviews" as const },
+    {
+      label: "Onay bekleyen yorum",
+      count: data?.pendingReviews,
+      to: "/store/$storeId/reviews" as const,
+    },
   ];
   return (
     <aside
       aria-label="Kokpit"
       className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-72 shrink-0 overflow-y-auto border-l border-sidebar-border bg-sidebar/60 p-4 2xl:block"
     >
-      <p className="mb-3 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-primary">Kokpit · Bekleyen işler</p>
+      <p className="mb-3 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-primary">
+        Kokpit · Bekleyen işler
+      </p>
       <ul className="space-y-1.5">
         {items.map((item) => {
           const n = item.count ?? 0;
@@ -71,7 +81,12 @@ export function CockpitRail({ storeId }: { storeId: string }) {
                 className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5 text-sm hover:border-primary/60"
               >
                 <span className="text-muted-foreground">{item.label}</span>
-                <span className={cn("font-mono text-base font-semibold", n > 0 ? "text-primary" : "text-success")}>
+                <span
+                  className={cn(
+                    "font-mono text-base font-semibold",
+                    n > 0 ? "text-primary" : "text-success",
+                  )}
+                >
                   {data ? n : "—"}
                 </span>
               </Link>
@@ -79,28 +94,36 @@ export function CockpitRail({ storeId }: { storeId: string }) {
           );
         })}
       </ul>
-      <p className="mt-4 text-xs text-muted-foreground">Sayılar mağazanızın kayıtlarından gelir; sayfa açıldığında yenilenir.</p>
+      <p className="mt-4 text-xs text-muted-foreground">
+        Sayılar mağazanızın kayıtlarından gelir; sayfa açıldığında yenilenir.
+      </p>
     </aside>
   );
 }
 
-function usePinnedNav() {
+function usePinnedNav(storeId: string) {
+  const key = `${PIN_STORAGE_KEY}:${storeId}`;
   const [pinned, setPinned] = useState<string[]>([]);
 
   useEffect(() => {
     try {
-      const raw = window.localStorage.getItem(PIN_STORAGE_KEY);
-      if (raw) setPinned(JSON.parse(raw) as string[]);
+      const raw = window.localStorage.getItem(key);
+      const parsed: unknown = raw ? JSON.parse(raw) : [];
+      setPinned(
+        Array.isArray(parsed)
+          ? parsed.filter((value): value is string => typeof value === "string")
+          : [],
+      );
     } catch {
       /* yoksay */
     }
-  }, []);
+  }, [key]);
 
   function toggle(label: string) {
     setPinned((prev) => {
       const next = prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label];
       try {
-        window.localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(next));
+        window.localStorage.setItem(key, JSON.stringify(next));
       } catch {
         /* yoksay */
       }
@@ -140,7 +163,7 @@ function NavLinkRow({
       </Link>
       <button
         type="button"
-        onClick={() => onTogglePin(item.label)}
+        onClick={() => onTogglePin(item.to)}
         aria-label={pinned ? `${item.label} sabitlemesini kaldır` : `${item.label} sabitle`}
         className={cn(
           "absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-sidebar-foreground/45 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:opacity-100 group-hover/nav:opacity-100",
@@ -156,8 +179,8 @@ function NavLinkRow({
 function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [query, setQuery] = useState("");
-  const { pinned, toggle } = usePinnedNav();
-  const baseGroups = useMemo(() => storeNavGroups(storeId), [storeId]);
+  const { pinned, toggle } = usePinnedNav(storeId);
+  const baseGroups = useMemo(() => storeTaskNavGroups(storeId), [storeId]);
   const { data: entitlements } = useQuery(storeEntitlementsQuery(storeId));
 
   // Paketin kapsamadığı modüller menüde gösterilmez; asıl kontrol sunucudadır.
@@ -188,7 +211,7 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
   }, [groups, term]);
 
   const pinnedItems = useMemo(
-    () => groups.flatMap((group) => group.items).filter((item) => pinned.includes(item.label)),
+    () => groups.flatMap((group) => group.items).filter((item) => pinned.includes(item.to)),
     [groups, pinned],
   );
 
@@ -199,13 +222,13 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
     return recent
       .map((path) => all.find((item) => item.to === path))
       .filter((item): item is StoreNavItem => Boolean(item))
-      .filter((item) => !pinned.includes(item.label))
+      .filter((item) => !pinned.includes(item.to))
       .slice(0, 5);
   }, [groups, recent, pinned]);
 
   const [openGroups, setOpenGroups] = useState<string[]>([]);
   const activeGroup = groups.find((group) =>
-    group.items.some((item) => pathname.startsWith(item.to)),
+    group.items.some((item) => pathname === item.to || pathname.startsWith(`${item.to}/`)),
   )?.group;
 
   const isOpen = (group: string) =>
@@ -329,7 +352,7 @@ function NavList({ storeId, onNavigate }: { storeId: string; onNavigate?: () => 
                       key={item.label}
                       item={item}
                       active={pathname === item.to}
-                      pinned={pinned.includes(item.label)}
+                      pinned={pinned.includes(item.to)}
                       onTogglePin={toggle}
                       onNavigate={onNavigate}
                     />
@@ -508,13 +531,20 @@ export function AppShell({
   ) : null;
 
   return (
-    <div className={cn("min-h-screen", v2 ? "seller-v2 bg-background text-foreground" : "bg-muted/40")}>
+    <div
+      className={cn("min-h-screen", v2 ? "seller-v2 bg-background text-foreground" : "bg-muted/40")}
+    >
       <a href="#panel-content" className="skip-link">
         İçeriğe geç
       </a>
 
       {/* Koyu üst çubuk — referans panel düzeniyle aynı hizada */}
-      <header className={cn("sticky top-0 z-30 flex h-14 items-center gap-2 bg-sidebar-primary px-3 text-sidebar-primary-foreground lg:px-4", v2 && "seller-v2-topbar")}>
+      <header
+        className={cn(
+          "sticky top-0 z-30 flex h-14 items-center gap-2 bg-sidebar-primary px-3 text-sidebar-primary-foreground lg:px-4",
+          v2 && "seller-v2-topbar",
+        )}
+      >
         {sidebar ? (
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -527,7 +557,10 @@ export function AppShell({
                 <Menu className="size-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className={cn("w-80 border-sidebar-border bg-sidebar p-0", v2 && "seller-v2")}>
+            <SheetContent
+              side="left"
+              className={cn("w-80 border-sidebar-border bg-sidebar p-0", v2 && "seller-v2")}
+            >
               <SheetTitle className="sr-only">Mağaza menüsü</SheetTitle>
               {sidebar}
             </SheetContent>
@@ -555,7 +588,12 @@ export function AppShell({
 
       <div className="flex">
         {sidebar ? (
-          <aside className={cn("sticky top-14 hidden h-[calc(100vh-3.5rem)] w-[17rem] shrink-0 border-r border-sidebar-border/70 lg:block", v2 ? "bg-sidebar" : "bg-card")}>
+          <aside
+            className={cn(
+              "sticky top-14 hidden h-[calc(100vh-3.5rem)] w-[17rem] shrink-0 border-r border-sidebar-border/70 lg:block",
+              v2 ? "bg-sidebar" : "bg-card",
+            )}
+          >
             {sidebar}
           </aside>
         ) : null}
@@ -570,10 +608,22 @@ export function AppShell({
         >
           <div className={cn("mx-auto w-full space-y-4", v2 ? "max-w-[78rem]" : "max-w-6xl")}>
             {storeId && !v2 ? <QuickLinks storeId={storeId} /> : null}
-            <div className={cn("flex flex-wrap items-end justify-between gap-3", v2 ? "pt-2 lg:pt-6" : "rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:px-6 lg:py-5")}>
+            <div
+              className={cn(
+                "flex flex-wrap items-end justify-between gap-3",
+                v2
+                  ? "pt-2 lg:pt-6"
+                  : "rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:px-6 lg:py-5",
+              )}
+            >
               <div className="min-w-0">
                 {v2 ? null : <p className="eyebrow mb-1">Mağaza paneli</p>}
-                <h1 className={cn("font-display font-semibold tracking-tight", v2 ? "text-2xl sm:text-[1.7rem]" : "text-xl sm:text-2xl")}>
+                <h1
+                  className={cn(
+                    "font-display font-semibold tracking-tight",
+                    v2 ? "text-2xl sm:text-[1.7rem]" : "text-xl sm:text-2xl",
+                  )}
+                >
                   {title}
                 </h1>
                 {description ? (
@@ -585,7 +635,6 @@ export function AppShell({
             {children}
           </div>
         </main>
-        
       </div>
 
       {storeId ? <PanelBottomNav storeId={storeId} /> : null}

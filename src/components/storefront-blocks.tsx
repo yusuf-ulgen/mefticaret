@@ -19,7 +19,7 @@ import {
   type SectionProduct,
   type SectionProps,
 } from "@/components/storefront-primitives";
-import { formatMoney } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 import { WokieeProductCard } from "@/components/wokiee/product-card";
 import type { ResolvedSection } from "@/lib/theme-sections";
 

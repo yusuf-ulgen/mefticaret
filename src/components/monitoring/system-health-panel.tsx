@@ -14,9 +14,11 @@ const STATUS_LABEL: Record<string, string> = {
   healthy: "Sağlıklı",
   degraded: "Bozulma",
   outage: "Kesinti",
+  unknown: "Ölçüm eksik",
 };
 
 function statusDot(status: string) {
+  if (status === "unknown") return "bg-monitor-muted";
   return status === "outage"
     ? "bg-status-outage"
     : status === "degraded"
@@ -25,6 +27,7 @@ function statusDot(status: string) {
 }
 
 function statusText(status: string) {
+  if (status === "unknown") return "text-monitor-muted";
   return status === "outage"
     ? "text-status-outage"
     : status === "degraded"
@@ -51,26 +54,33 @@ export function SystemHealthPanel() {
     <section className="rounded-3xl border border-monitor-border bg-monitor-surface p-6 text-monitor-foreground">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.18em] text-monitor-muted">Altyapı izleme</p>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-monitor-muted">
+            Altyapı izleme
+          </p>
           <h2 className="mt-1 flex items-center gap-2 font-display text-xl font-semibold">
             Sistem Sağlığı
             <span
-              className={`inline-flex size-2.5 rounded-full ${statusDot(data?.overall ?? "healthy")}`}
+              className={`inline-flex size-2.5 rounded-full ${statusDot(error ? "unknown" : data?.overall ?? "unknown")}`}
               aria-hidden
             />
-            <span className={`text-sm font-medium ${statusText(data?.overall ?? "healthy")}`}>
-              {STATUS_LABEL[data?.overall ?? "healthy"]}
+            <span className={`text-sm font-medium ${statusText(error ? "unknown" : data?.overall ?? "unknown")}`}>
+              {STATUS_LABEL[error ? "unknown" : data?.overall ?? "unknown"]}
             </span>
           </h2>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-monitor-muted">
-            {dataUpdatedAt ? formatDateTime(new Date(dataUpdatedAt).toISOString()) : "ölçülüyor…"}
+            {data?.measuredAt ? `${error ? "Son başarılı ölçüm: " : ""}${formatDateTime(data.measuredAt)}` : error ? "Ölçüm alınamadı" : "Ölçülüyor…"}
           </span>
           <Button size="sm" variant="secondary" onClick={() => void refetch()}>
             Yenile
           </Button>
-          <Button size="sm" variant="outline" disabled={testMutation.isPending} onClick={() => testMutation.mutate()}>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={testMutation.isPending}
+            onClick={() => testMutation.mutate()}
+          >
             Uyarıyı test et
           </Button>
         </div>
@@ -88,7 +98,10 @@ export function SystemHealthPanel() {
           >
             <div className="flex items-start justify-between gap-2">
               <p className="text-xs text-monitor-muted">{metric.label}</p>
-              <span className={`mt-1 inline-flex size-2 rounded-full ${statusDot(metric.status)}`} aria-hidden />
+              <span
+                className={`mt-1 inline-flex size-2 rounded-full ${statusDot(metric.status)}`}
+                aria-hidden
+              />
             </div>
             <p className={`mt-2 font-display text-2xl font-semibold ${statusText(metric.status)}`}>
               {metric.display}

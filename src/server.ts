@@ -3,13 +3,21 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
-import { agentDiscoveryResponse, DISCOVERY_LINK_HEADER, htmlToMarkdown } from "./lib/agent-discovery";
+import { retryableModule } from "./lib/retryable-module";
+import {
+  agentDiscoveryResponse,
+  DISCOVERY_LINK_HEADER,
+  htmlToMarkdown,
+} from "./lib/agent-discovery";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
 
-let serverEntryPromise: Promise<ServerEntry> | undefined;
+const getServerEntry = retryableModule(async () => {
+  const entry = await import("@tanstack/react-start/server-entry");
+  return (entry.default ?? entry) as ServerEntry;
+});
 
 // Tarayıcı isteği iptal ettiğinde ("aborted") bu bir uygulama hatası değildir.
 function isClientAbortError(error: unknown, depth = 0): boolean {
@@ -25,15 +33,6 @@ function isClientAbortError(error: unknown, depth = 0): boolean {
     return true;
   }
   return isClientAbortError(err.cause, depth + 1);
-}
-
-async function getServerEntry(): Promise<ServerEntry> {
-  if (!serverEntryPromise) {
-    serverEntryPromise = import("@tanstack/react-start/server-entry").then(
-      (m) => (m.default ?? m) as ServerEntry,
-    );
-  }
-  return serverEntryPromise;
 }
 
 // h3 swallows in-handler throws into a normal 500 Response with body
@@ -81,12 +80,43 @@ async function decorateForAgents(response: Response, request: Request): Promise<
     headers.delete("content-encoding");
     return new Response(md, { status: response.status, headers });
   }
-  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     const url = new URL(request.url);
+    const requestId = crypto.randomUUID();
+    const startedAt = Date.now();
+    const finish = (response: Response) => {
+      const durationMs = Date.now() - startedAt;
+      const headers = new Headers(response.headers);
+      headers.set("x-request-id", requestId);
+      headers.append("server-timing", `app;dur=${durationMs}`);
+      if (response.status >= 500) {
+        console.error(
+          JSON.stringify({
+            event: "http_server_error",
+            requestId,
+            timestamp: new Date().toISOString(),
+            method: request.method,
+            path: url.pathname,
+            status: response.status,
+            durationMs,
+          }),
+        );
+        headers.set("cache-control", "no-store");
+      }
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
+    };
     if (request.method === "GET" || request.method === "HEAD") {
       const discovery = agentDiscoveryResponse(url.pathname);
       if (discovery) return discovery;
@@ -95,17 +125,19 @@ export default {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       const normalized = await normalizeCatastrophicSsrResponse(response, request);
-      return await decorateForAgents(normalized, request);
+      return finish(await decorateForAgents(normalized, request));
     } catch (error) {
       // İstemci bağlantıyı kapattıysa (sayfadan ayrılma/yenileme) hata raporlamayız.
       if (isClientAbortError(error) || request.signal?.aborted) {
         return new Response(null, { status: 499 });
       }
       console.error(error);
-      return new Response(renderErrorPage(), {
-        status: 500,
-        headers: { "content-type": "text/html; charset=utf-8" },
-      });
+      return finish(
+        new Response(renderErrorPage(), {
+          status: 500,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        }),
+      );
     }
   },
 };

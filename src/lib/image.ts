@@ -14,7 +14,12 @@ const RENDER_PUBLIC = "/storage/v1/render/image/public/";
 /** Bu adres depo dönüşümünü destekliyor mu? */
 export function isTransformable(url: string | null | undefined): url is string {
   if (!url) return false;
-  return url.includes(OBJECT_SIGN) || url.includes(OBJECT_PUBLIC) || url.includes(RENDER_SIGN) || url.includes(RENDER_PUBLIC);
+  try {
+    const parsed = new URL(url);
+    return parsed.pathname.startsWith(OBJECT_PUBLIC) || parsed.pathname.startsWith(RENDER_PUBLIC);
+  } catch {
+    return false;
+  }
 }
 
 export type ImageTransform = {
@@ -46,10 +51,14 @@ export const DEFAULT_IMAGE_WIDTHS = [240, 480, 720, 1080, 1440];
 export function imageSrcSet(
   url: string | null | undefined,
   widths: number[] = DEFAULT_IMAGE_WIDTHS,
-  options: Omit<ImageTransform, "width"> = {},
+  options: Omit<ImageTransform, "width"> & { baseWidth?: number } = {},
 ) {
   if (!isTransformable(url)) return null;
   return widths
-    .map((width) => `${optimizedImageUrl(url, { ...options, width })} ${width}w`)
+    .filter((width) => Number.isFinite(width) && width > 0 && width <= 2500)
+    .map(
+      (width) =>
+        `${optimizedImageUrl(url, { ...options, width, ...(options.height && options.baseWidth ? { height: Math.round((options.height * width) / options.baseWidth) } : {}) })} ${width}w`,
+    )
     .join(", ");
 }

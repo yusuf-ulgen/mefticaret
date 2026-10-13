@@ -4,7 +4,7 @@ import { ChefHat, Gift, Globe, Sparkles, Truck } from "lucide-react";
 import { useState } from "react";
 
 import { getStoreBoosters } from "@/lib/kolay-v8.functions";
-import { formatMoney } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 
 /**
  * Ödeme adımında gösterilen satış artırıcılar: kargo bedava çubuğu, paket

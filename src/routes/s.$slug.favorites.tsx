@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { useFavorites } from "@/lib/favorites";
-import { formatMoney } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 import { storefrontQuery } from "@/lib/storefront-queries";
 
 export const Route = createFileRoute("/s/$slug/favorites")({

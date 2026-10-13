@@ -7,7 +7,7 @@ import { storefrontMenuQuery } from "@/lib/menus-queries";
 import { useCart } from "@/lib/cart";
 import { useFavorites } from "@/lib/favorites";
 import { storefrontUI } from "@/lib/storefront-ui";
-import { formatMoney } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import { menuHref } from "@/components/storefront-chrome";
 

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { openAdminPanelSession } from "@/lib/admin-auth.functions";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Eye, EyeOff, Lock, Mail, Rocket, User } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -13,23 +13,35 @@ import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth-context";
 import { logAuthEvent } from "@/lib/audit.functions";
 import { cn } from "@/lib/utils";
+import { getPanelDestinations } from "@/lib/panel-destinations.functions";
+import { authText, safeAuthNext, withLocale } from "@/lib/auth-i18n";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "register"]).optional(),
   next: z.string().optional(),
+  locale: z.enum(["tr", "en", "de", "fr", "ar"]).default("tr"),
+  plan: z
+    .string()
+    .regex(/^[a-z0-9_-]{1,40}$/)
+    .optional(),
+  interval: z.enum(["monthly", "yearly"]).default("monthly"),
 });
 
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
-  head: () => ({
+  head: ({ match }) => ({
     meta: [
-      { title: "Panel Girişi — Mefticaret" },
+      { title: authText(match.search.locale, "Panel Girişi — Mefticaret") },
       {
         name: "description",
-        content: "Mefticaret mağaza panelinize giriş yapın veya saniyeler içinde ücretsiz hesap oluşturun.",
+        content:
+          "Mefticaret mağaza panelinize giriş yapın veya saniyeler içinde ücretsiz hesap oluşturun.",
       },
-      { property: "og:title", content: "Panel Girişi — Mefticaret" },
-      { property: "og:description", content: "Mefticaret mağaza panelinize erişin veya ücretsiz kayıt olun." },
+      { property: "og:title", content: authText(match.search.locale, "Panel Girişi — Mefticaret") },
+      {
+        property: "og:description",
+        content: "Mefticaret mağaza panelinize erişin veya ücretsiz kayıt olun.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -37,12 +49,14 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const fieldLabel = "block text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground";
+const fieldLabel =
+  "block text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground";
 const inputClass =
   "h-[50px] rounded-[10px] border-[1.5px] bg-card/90 pl-11 text-sm shadow-sm transition-all focus-visible:bg-card";
 
 function AuthPage() {
-  const { mode, next } = Route.useSearch();
+  const { mode, next, locale, plan, interval } = Route.useSearch();
+  const tx = (text: string) => authText(locale, text);
   const navigate = useNavigate();
   const { session, loading } = useAuth();
   const [tab, setTab] = useState<"login" | "register">(mode === "register" ? "register" : "login");
@@ -52,14 +66,28 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
 
-  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/stores";
+  const onboardingTarget = plan
+    ? `/onboarding?plan=${encodeURIComponent(plan)}&interval=${interval}`
+    : "/onboarding";
+  const safeNext = safeAuthNext(next ?? (plan ? onboardingTarget : undefined));
+  const authReturn = withLocale(
+    `/auth?mode=login&next=${encodeURIComponent(safeNext)}${plan ? `&plan=${encodeURIComponent(plan)}&interval=${interval}` : ""}`,
+    locale,
+  );
+  const go = useCallback(
+    (path: string) => window.location.replace(withLocale(path, locale)),
+    [locale],
+  );
   const openAdminPanel = useServerFn(openAdminPanelSession);
+  const readPanels = useServerFn(getPanelDestinations);
+  const [panels, setPanels] = useState<Array<{ label: string; path: string }>>([]);
+  const [routeError, setRouteError] = useState<string | null>(null);
   const [routing, setRouting] = useState(false);
   // Kayıt akışı kendi yönlendirmesini yapar; genel yönlendirme onu ezmemeli.
   const signingUpRef = useRef(false);
 
   useEffect(() => {
-    if (loading || !session || routing || signingUpRef.current) return;
+    if (loading || !session || routing || routeError || signingUpRef.current) return;
     setRouting(true);
     void (async () => {
       // Süper yönetici hesapları doğrudan platform paneline gider; yetki
@@ -68,16 +96,29 @@ function AuthPage() {
         try {
           const result = await openAdminPanel();
           if (result.allowed) {
-            await navigate({ to: "/admin", replace: true });
+            go("/admin");
             return;
           }
         } catch {
           /* yetkisiz hesaplar normal panele yönlendirilir */
         }
       }
-      await navigate({ to: safeNext === "/admin" ? "/stores" : safeNext, replace: true });
+      if (safeNext === "/stores") {
+        try {
+          const choices = await readPanels();
+          if (choices.length > 1) {
+            setPanels(choices);
+            return;
+          }
+          go(choices[0]!.path);
+        } catch (error) {
+          setRouteError(error instanceof Error ? error.message : "Panel bilgileri yüklenemedi");
+        }
+        return;
+      }
+      go(safeNext === "/admin" ? "/stores" : safeNext);
     })();
-  }, [loading, session, navigate, safeNext, routing, openAdminPanel]);
+  }, [loading, session, safeNext, routing, routeError, openAdminPanel, readPanels, go]);
 
   async function handleLogin(event: React.FormEvent) {
     event.preventDefault();
@@ -85,11 +126,15 @@ function AuthPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) {
-      toast.error(error.message === "Invalid login credentials" ? "E-posta veya şifre hatalı" : error.message);
+      toast.error(
+        error.message === "Invalid login credentials"
+          ? tx("E-posta veya şifre hatalı")
+          : error.message,
+      );
       return;
     }
     void logAuthEvent({ data: { event: "login", method: "password" } }).catch(() => {});
-    toast.success("Hoş geldin!");
+    toast.success(tx("Hoş geldin!"));
   }
 
   async function handleRegister(event: React.FormEvent) {
@@ -100,8 +145,12 @@ function AuthPage() {
       email,
       password,
       options: {
-        data: { full_name: fullName },
-        emailRedirectTo: `${window.location.origin}${safeNext}`,
+        data: {
+          full_name: fullName,
+          requested_plan: plan ?? null,
+          requested_billing_interval: interval,
+        },
+        emailRedirectTo: `${window.location.origin}${authReturn}`,
       },
     });
     setBusy(false);
@@ -113,29 +162,55 @@ function AuthPage() {
     if (data.session) {
       setRouting(true);
       void logAuthEvent({ data: { event: "login", method: "signup" } }).catch(() => {});
-      toast.success("Hesabın hazır, ilk mağazanı kuralım.");
-      void navigate({ to: "/onboarding", replace: true });
+      toast.success(tx("Hesabın hazır, ilk mağazanı kuralım."));
+      go(onboardingTarget);
       return;
     }
     signingUpRef.current = false;
-    toast.success("Hesabını doğrulamak için e-postanı kontrol et.");
+    toast.success(tx("Hesabını doğrulamak için e-postanı kontrol et."));
   }
 
   async function handleGoogle() {
     setBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}${safeNext}`,
+      redirect_uri: `${window.location.origin}${authReturn}`,
     });
     if (result.error) {
       setBusy(false);
-      toast.error("Google ile giriş başarısız oldu");
+      toast.error(tx("Google ile giriş başarısız oldu"));
       return;
     }
     if (result.redirected) return;
-    void navigate({ to: safeNext, replace: true });
+    go(safeNext);
   }
 
   const isLogin = tab === "login";
+
+  if (session && panels.length > 1)
+    return (
+      <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 px-6">
+        <h1 className="text-xl font-semibold">{tx("Panelini seç")}</h1>
+        {panels.map((panel) => (
+          <Button key={panel.path} onClick={() => go(panel.path)}>
+            {tx(panel.label)}
+          </Button>
+        ))}
+      </main>
+    );
+  if (routeError)
+    return (
+      <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 px-6">
+        <p role="alert">{routeError}</p>
+        <Button
+          onClick={() => {
+            setRouteError(null);
+            setRouting(false);
+          }}
+        >
+          {tx("Tekrar dene")}
+        </Button>
+      </main>
+    );
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-muted/40 px-5 py-12">
@@ -147,14 +222,14 @@ function AuthPage() {
       <div className="relative z-10 w-full max-w-[520px]">
         <div className="rounded-[20px] border border-border bg-card/70 p-8 shadow-[0_16px_48px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] backdrop-blur-2xl sm:p-10">
           <div className="mb-9 flex flex-col items-center text-center">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={locale === "tr" ? "/" : `/${locale}`} className="flex items-center gap-2">
               <span className="brand-gradient text-brand-foreground grid size-10 place-items-center rounded-xl">
                 <Rocket className="size-4" />
               </span>
               <span className="font-display text-lg font-semibold tracking-tight">Mefticaret</span>
             </Link>
             <p className="mt-4 text-[13px] text-muted-foreground">
-              {isLogin ? "Mağaza panelinize erişin" : "Ücretsiz hesabınızı oluşturun"}
+              {isLogin ? tx("Mağaza panelinize erişin") : tx("Ücretsiz hesabınızı oluşturun")}
             </p>
           </div>
 
@@ -171,23 +246,29 @@ function AuthPage() {
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {value === "login" ? "Giriş yap" : "Kayıt ol"}
+                {value === "login" ? tx("Giriş yap") : tx("Kayıt ol")}
               </button>
             ))}
           </div>
 
           <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-[18px]">
+            {plan ? (
+              <p className="rounded-lg border p-3 text-sm">
+                {tx("Seçilen paket")}: <strong>{plan}</strong> ·{" "}
+                {tx(interval === "yearly" ? "Yıllık" : "Aylık")}
+              </p>
+            ) : null}
             {!isLogin ? (
               <div className="space-y-2">
                 <label className={fieldLabel} htmlFor="register-name">
-                  Ad Soyad
+                  {tx("Ad Soyad")}
                 </label>
                 <div className="relative flex items-center">
                   <User className="pointer-events-none absolute left-[14px] size-[18px] text-muted-foreground" />
                   <Input
                     id="register-name"
                     required
-                    placeholder="Adınız Soyadınız"
+                    placeholder={tx("Adınız Soyadınız")}
                     className={inputClass}
                     value={fullName}
                     onChange={(event) => setFullName(event.target.value)}
@@ -198,7 +279,7 @@ function AuthPage() {
 
             <div className="space-y-2">
               <label className={fieldLabel} htmlFor="auth-email">
-                E-posta Adresi
+                {tx("E-posta Adresi")}
               </label>
               <div className="relative flex items-center">
                 <Mail className="pointer-events-none absolute left-[14px] size-[18px] text-muted-foreground" />
@@ -217,7 +298,7 @@ function AuthPage() {
 
             <div className="space-y-2">
               <label className={fieldLabel} htmlFor="auth-password">
-                Şifre
+                {tx("Şifre")}
               </label>
               <div className="relative flex items-center">
                 <Lock className="pointer-events-none absolute left-[14px] size-[18px] text-muted-foreground" />
@@ -234,34 +315,44 @@ function AuthPage() {
                 />
                 <button
                   type="button"
-                  aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"}
+                  aria-label={showPassword ? tx("Şifreyi gizle") : tx("Şifreyi göster")}
                   onClick={() => setShowPassword((value) => !value)}
                   className="absolute right-[14px] text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  {showPassword ? <EyeOff className="size-[18px]" /> : <Eye className="size-[18px]" />}
+                  {showPassword ? (
+                    <EyeOff className="size-[18px]" />
+                  ) : (
+                    <Eye className="size-[18px]" />
+                  )}
                 </button>
               </div>
               {isLogin ? (
                 <div className="pt-1 text-right">
                   <Link
                     to="/forgot-password"
+                    search={{ locale }}
                     className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    Şifremi unuttum
+                    {tx("Şifremi unuttum")}
                   </Link>
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground">En az 8 karakter kullan.</p>
+                <p className="text-xs text-muted-foreground">{tx("En az 8 karakter kullan.")}</p>
               )}
             </div>
 
-            <Button type="submit" className="h-[52px] w-full rounded-[10px] text-sm font-semibold" disabled={busy}>
-              {busy ? "Lütfen bekleyin..." : isLogin ? "Devam Et" : "Hesabımı oluştur"}
+            <Button
+              type="submit"
+              className="h-[52px] w-full rounded-[10px] text-sm font-semibold"
+              disabled={busy}
+            >
+              {busy ? tx("Lütfen bekleyin...") : isLogin ? tx("Devam Et") : tx("Hesabımı oluştur")}
             </Button>
           </form>
 
           <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" /> veya <span className="h-px flex-1 bg-border" />
+            <span className="h-px flex-1 bg-border" /> {tx("veya")}{" "}
+            <span className="h-px flex-1 bg-border" />
           </div>
 
           <Button
@@ -270,30 +361,30 @@ function AuthPage() {
             onClick={handleGoogle}
             disabled={busy}
           >
-            Google ile devam et
+            {tx("Google ile devam et")}
           </Button>
 
           <p className="mt-7 text-center text-[13px] text-muted-foreground">
             {isLogin ? (
               <>
-                Henüz hesabınız yok mu?{" "}
+                {tx("Henüz hesabınız yok mu?")}{" "}
                 <button
                   type="button"
                   onClick={() => setTab("register")}
                   className="font-medium text-foreground underline-offset-4 hover:underline"
                 >
-                  Kayıt Olun
+                  {tx("Kayıt Olun")}
                 </button>
               </>
             ) : (
               <>
-                Hesabınız var mı?{" "}
+                {tx("Hesabınız var mı?")}{" "}
                 <button
                   type="button"
                   onClick={() => setTab("login")}
                   className="font-medium text-foreground underline-offset-4 hover:underline"
                 >
-                  Giriş Yapın
+                  {tx("Giriş Yapın")}
                 </button>
               </>
             )}
@@ -301,7 +392,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-[11px] text-muted-foreground">
-          KVKK & GDPR uyumlu • Rol bazlı erişim • Denetim kayıtları
+          {tx("KVKK & GDPR uyumlu • Rol bazlı erişim • Denetim kayıtları")}
         </p>
       </div>
     </div>

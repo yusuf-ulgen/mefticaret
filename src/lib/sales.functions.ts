@@ -23,13 +23,7 @@ const orderStatusEnum = z.enum([
   "returned",
   "refunded",
 ]);
-const paymentStatusEnum = z.enum([
-  "pending",
-  "paid",
-  "partially_refunded",
-  "refunded",
-  "failed",
-]);
+const paymentStatusEnum = z.enum(["pending", "paid", "partially_refunded", "refunded", "failed"]);
 const fulfillmentStatusEnum = z.enum([
   "unfulfilled",
   "partially_fulfilled",
@@ -64,10 +58,27 @@ export const updateOrder = createServerFn({ method: "POST" })
     const patch = compact(data.patch);
     if (Object.keys(patch).length === 0) throw new Error("Güncellenecek alan yok");
 
+    const { data: previous, error: previousError } = await supabase
+      .from("orders")
+      .select("payment_status, status")
+      .eq("id", data.orderId)
+      .maybeSingle();
+    if (previousError) throw new Error(previousError.message);
+    if (!previous) throw new Error("Sipariş bulunamadı veya yetkiniz yok");
+    if (
+      patch["payment_status"] === "paid" &&
+      (previous.payment_status !== "pending" ||
+        ["cancelled", "returned", "refunded"].includes(previous.status))
+    ) {
+      throw new Error("Bu sipariş yeniden tahsil edildi olarak işaretlenemez");
+    }
+
     const { data: order, error } = await supabase
       .from("orders")
       .update(patch as never)
       .eq("id", data.orderId)
+      .eq("payment_status", previous.payment_status)
+      .eq("status", previous.status)
       .select("*")
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -99,9 +110,7 @@ export const updateOrder = createServerFn({ method: "POST" })
 export const addOrderNote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z
-      .object({ orderId: z.guid(), message: z.string().trim().min(1).max(1000) })
-      .parse(data),
+    z.object({ orderId: z.guid(), message: z.string().trim().min(1).max(1000) }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -168,7 +177,6 @@ export const upsertCustomer = createServerFn({ method: "POST" })
     const { data: customer, error } = await query.select("*").maybeSingle();
     if (error) throw new Error(error.message);
     if (!customer) throw new Error("Müşteri kaydedilemedi");
-
 
     await insertAuditRow(supabase, {
       store_id: data.storeId,
@@ -277,9 +285,7 @@ export const upsertDiscount = createServerFn({ method: "POST" })
 
 export const toggleDiscount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    z.object({ discountId: z.guid(), isActive: z.boolean() }).parse(data),
-  )
+  .inputValidator((data) => z.object({ discountId: z.guid(), isActive: z.boolean() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: discount, error } = await supabase

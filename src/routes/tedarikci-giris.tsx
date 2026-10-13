@@ -28,7 +28,8 @@ export const Route = createFileRoute("/tedarikci-giris")({
       { property: "og:title", content: "Tedarikçi Girişi — Mefticaret" },
       {
         property: "og:description",
-        content: "Tedarikçi hesabınızla giriş yapın; sipariş masası, senkron durumu ve komisyon defteri tek ekranda.",
+        content:
+          "Tedarikçi hesabınızla giriş yapın; sipariş masası, senkron durumu ve komisyon defteri tek ekranda.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -114,6 +115,9 @@ function SupplierLoginPage() {
     });
     setBusy(false);
     if (error) {
+      setResetNote(
+        "Sıfırlama bağlantısı gönderilemedi. E-posta adresinizi kontrol edip tekrar deneyin.",
+      );
       toast.error("Sıfırlama bağlantısı gönderilemedi", { description: error.message });
       return;
     }
@@ -129,7 +133,8 @@ function SupplierLoginPage() {
         </span>
         <h1 className="text-2xl font-semibold tracking-tight">Tedarikçi girişi</h1>
         <p className="text-sm text-muted-foreground">
-          Siparişlerinizi karşılayın, ürün dosyanızı yükleyin, senkron durumunuzu ve komisyon defterinizi takip edin.
+          Siparişlerinizi karşılayın, ürün dosyanızı yükleyin, senkron durumunuzu ve komisyon
+          defterinizi takip edin.
         </p>
       </div>
 
@@ -145,6 +150,7 @@ function SupplierLoginPage() {
               <Label htmlFor="supplier-email">E-posta</Label>
               <Input
                 id="supplier-email"
+                aria-describedby={resetNote ? "supplier-reset-note" : undefined}
                 type="email"
                 autoComplete="email"
                 required
@@ -170,12 +176,18 @@ function SupplierLoginPage() {
             <button
               type="button"
               onClick={handleReset}
+              disabled={busy}
               className="w-full text-xs text-muted-foreground underline underline-offset-4"
             >
               Şifremi unuttum
             </button>
             {resetNote ? (
-              <p role="status" className="text-center text-xs text-muted-foreground">
+              <p
+                id="supplier-reset-note"
+                role="status"
+                aria-live="polite"
+                className="text-center text-xs text-muted-foreground"
+              >
                 {resetNote}
               </p>
             ) : null}
@@ -221,20 +233,26 @@ function SupplierLoginPage() {
               Hesap oluştur
             </Button>
             <p className="text-xs text-muted-foreground">
-              Kaydınızı doğruladıktan sonra çalıştığınız mağaza yöneticisi aynı e-posta ile tedarikçi kaydınıza portal
-              erişimi verir; panel o anda açılır.
+              Kaydınızı doğruladıktan sonra çalıştığınız mağaza yöneticisi aynı e-posta ile
+              tedarikçi kaydınıza portal erişimi verir; panel o anda açılır.
             </p>
           </form>
         </TabsContent>
       </Tabs>
 
       {notice ? (
-        <p className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">{notice}</p>
+        <p className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+          {notice}
+        </p>
       ) : null}
 
       <p className="text-center text-xs text-muted-foreground">
         Mağaza yöneticisi misiniz?{" "}
-        <Link to="/auth" search={{ mode: "login" as const }} className="underline underline-offset-4">
+        <Link
+          to="/auth"
+          search={{ mode: "login" as const }}
+          className="underline underline-offset-4"
+        >
           Mağaza girişine geçin
         </Link>
       </p>

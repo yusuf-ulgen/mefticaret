@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useTx } from "@/lib/landing-i18n";
+import { useLandingLocale, useTx } from "@/lib/landing-i18n";
 
 const SUITE_FEATURES = [
   {
@@ -62,6 +62,7 @@ const SUMMARY_ITEMS = [
 
 export function LandingGrowthSuite() {
   const tx = useTx();
+  const locale = useLandingLocale();
   return (
     <section id="global-ticaret" className="overflow-hidden py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 lg:px-8">
@@ -112,7 +113,7 @@ export function LandingGrowthSuite() {
 
         <div className="mt-12 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg" className="rounded-full px-6">
-            <Link to="/auth" search={{ mode: "register" }}>
+            <Link to="/auth" search={{ mode: "register", locale }}>
               {tx("Ücretsiz başlayın")} <ArrowRight className="ml-2 size-4" />
             </Link>
           </Button>

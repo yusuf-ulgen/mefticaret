@@ -1,3 +1,4 @@
+import { planPrice } from "@/lib/plan-price";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -23,9 +24,7 @@ const featureSchema = z.object({
 export const savePlanFeatures = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z
-      .object({ planId: z.guid(), features: z.array(featureSchema).max(60) })
-      .parse(data),
+    z.object({ planId: z.guid(), features: z.array(featureSchema).max(60) }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -98,7 +97,8 @@ export const upsertSubscription = createServerFn({ method: "POST" })
       .eq("id", data.storeId)
       .maybeSingle();
     if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
-    if (store.store_kind === "micro") throw new Error("Kolay Panel kurumsal aboneliklere bağlı değildir");
+    if (store.store_kind === "micro")
+      throw new Error("Kolay Panel kurumsal aboneliklere bağlı değildir");
 
     const { data: plan, error: planError } = await supabase
       .from("plans")
@@ -130,10 +130,8 @@ export const upsertSubscription = createServerFn({ method: "POST" })
       ? new Date(now.getTime() + trialDays * 86_400_000).toISOString()
       : (existing?.trial_ends_at ?? null);
 
-    const amount =
-      data.billingInterval === "yearly"
-        ? Number(plan.price_yearly ?? 0)
-        : Number(plan.price_monthly ?? 0);
+    const amount = planPrice(plan, data.billingInterval);
+    if (amount === null) throw new Error("Plan price is not configured for this billing interval");
 
     const payload = {
       store_id: data.storeId,
@@ -193,7 +191,10 @@ export const upsertSubscription = createServerFn({ method: "POST" })
       action: "store.subscription_changed",
       entity: "subscriptions",
       entity_id: saved.id,
-      old_value: { plan_id: existing?.plan_id ?? null, interval: existing?.billing_interval ?? null },
+      old_value: {
+        plan_id: existing?.plan_id ?? null,
+        interval: existing?.billing_interval ?? null,
+      },
       new_value: { plan_id: plan.id, interval: data.billingInterval, trial_ends_at: trialEndsAt },
     });
 
@@ -203,9 +204,7 @@ export const upsertSubscription = createServerFn({ method: "POST" })
 /** Aboneliği dönem sonunda iptal eder veya iptali geri alır. */
 export const setSubscriptionCancellation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    z.object({ storeId: z.guid(), cancel: z.boolean() }).parse(data),
-  )
+  .inputValidator((data) => z.object({ storeId: z.guid(), cancel: z.boolean() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -272,9 +271,7 @@ export const recordUsage = createServerFn({ method: "POST" })
 /** Açık faturalama dönemini kapatıp fatura üretir. */
 export const issueInvoiceForCycle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    z.object({ storeId: z.guid(), cycleId: z.guid() }).parse(data),
-  )
+  .inputValidator((data) => z.object({ storeId: z.guid(), cycleId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -327,7 +324,11 @@ export const issueInvoiceForCycle = createServerFn({ method: "POST" })
 
     const { error: closeError } = await supabase
       .from("billing_cycles")
-      .update({ status: "invoiced", closed_at: new Date().toISOString(), amount_due: subtotal + taxTotal })
+      .update({
+        status: "invoiced",
+        closed_at: new Date().toISOString(),
+        amount_due: subtotal + taxTotal,
+      })
       .eq("id", cycle.id);
     if (closeError) throw new Error(closeError.message);
 
@@ -346,9 +347,7 @@ export const issueInvoiceForCycle = createServerFn({ method: "POST" })
 /** Faturayı ödendi olarak işaretler. */
 export const markInvoicePaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    z.object({ storeId: z.guid(), invoiceId: z.guid() }).parse(data),
-  )
+  .inputValidator((data) => z.object({ storeId: z.guid(), invoiceId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -362,10 +361,7 @@ export const markInvoicePaid = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!invoice) throw new Error("Fatura bulunamadı veya yetkiniz yok");
 
-    await supabase
-      .from("subscriptions")
-      .update({ status: "active" })
-      .eq("store_id", data.storeId);
+    await supabase.from("subscriptions").update({ status: "active" }).eq("store_id", data.storeId);
 
     // Kademeli kısıtlamayı kaldır: dondurulmuş mağazayı yeniden aç.
     const [{ supabaseAdmin }, { restoreAfterPayment }] = await Promise.all([
@@ -373,7 +369,6 @@ export const markInvoicePaid = createServerFn({ method: "POST" })
       import("@/lib/billing-lifecycle.server"),
     ]);
     await restoreAfterPayment(supabaseAdmin, data.storeId);
-
 
     await insertAuditRow(supabase, {
       store_id: data.storeId,

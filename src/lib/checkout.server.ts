@@ -1,16 +1,8 @@
 import { z } from "zod";
+import { checkoutPolicies } from "@/lib/checkout-policies.server";
+import { samePolicyVersions } from "@/lib/checkout-policies";
 
-import {
-  DEFAULT_STORE_TIMEZONE,
-  QUOTA_EXCLUDED_STATUSES,
-  storeDayStart,
-} from "@/lib/day-window";
-import {
-  CUSTOMS_ID_PATTERN,
-  DOMESTIC_ONLY_PAYMENT_CODES,
-  EXPORT_INVOICE_LABEL,
-  isGeorgia,
-} from "@/lib/export-ge";
+import { DEFAULT_STORE_TIMEZONE, QUOTA_EXCLUDED_STATUSES, storeDayStart } from "@/lib/day-window";
 import { isGiftCardUsable, normalizeGiftCardCode, redeemableAmount } from "@/lib/gift-cards";
 
 /**
@@ -42,8 +34,6 @@ export const placeOrderSchema = z.object({
       district: z.string().trim().max(80).optional(),
       line1: z.string().trim().min(5).max(240),
       postalCode: z.string().trim().max(20).optional(),
-      /** ETGB (mikro ihracat) için pasaport/kimlik no — Gürcistan teslimatında zorunlu. */
-      customsId: z.string().trim().regex(CUSTOMS_ID_PATTERN).optional(),
     })
     .optional(),
   billingAddress: z
@@ -69,6 +59,7 @@ export const placeOrderSchema = z.object({
   giftMessage: z.string().trim().max(300).optional(),
   /** Gizlilik politikası ve mesafeli satış sözleşmesi onayı (zorunlu, sunucuda kontrol edilir). */
   policyAccepted: z.boolean().optional(),
+  policyVersionIds: z.array(z.guid()).length(3).optional(),
 });
 
 export const orderStatusSchema = z.object({
@@ -99,17 +90,20 @@ export async function loadCheckoutOptions(input: z.infer<typeof checkoutOptionsS
   const store = await publishedStore(input.slug);
   if (!store) return null;
   const supabase = await admin();
+  const policies = await checkoutPolicies(supabase, store.id);
 
   const [paymentsRes, ratesRes, settingsRes] = await Promise.all([
     supabase
       .from("store_payment_methods")
-      .select("id, display_name, instructions, installments_enabled, extra_fee_rate, sort_order, connectors(code)")
+      .select("id, display_name, instructions, installments_enabled, extra_fee_rate, sort_order")
       .eq("store_id", store.id)
       .eq("is_active", true)
       .order("sort_order"),
     supabase
       .from("shipping_rates")
-      .select("id, title, price, free_over, eta_days, sort_order, zone_id, shipping_zones!inner(name, is_active)")
+      .select(
+        "id, title, price, free_over, eta_days, sort_order, zone_id, shipping_zones!inner(name, is_active)",
+      )
       .eq("store_id", store.id)
       .eq("is_active", true)
       .order("sort_order"),
@@ -127,7 +121,10 @@ export async function loadCheckoutOptions(input: z.infer<typeof checkoutOptionsS
     store: { id: store.id, name: store.name, slug: store.slug, currency: store.currency },
     paymentMethods: paymentsRes.data ?? [],
     shippingRates: (ratesRes.data ?? [])
-      .filter((rate) => (rate as { shipping_zones?: { is_active: boolean } }).shipping_zones?.is_active !== false)
+      .filter(
+        (rate) =>
+          (rate as { shipping_zones?: { is_active: boolean } }).shipping_zones?.is_active !== false,
+      )
       .map((rate) => ({
         id: rate.id,
         title: rate.title,
@@ -137,6 +134,7 @@ export async function loadCheckoutOptions(input: z.infer<typeof checkoutOptionsS
         zone_name: (rate as { shipping_zones?: { name: string } }).shipping_zones?.name ?? null,
       })),
     settings: settingsRes.data,
+    policies,
   };
 }
 
@@ -158,9 +156,6 @@ type PricingInput = {
   discountCode?: string | undefined;
   giftCardCode?: string | undefined;
   giftWrap?: boolean | undefined;
-  /** Teslimat ülkesi; yurt dışı (mikro ihracat) siparişlerinde KDV %0 uygulanır. */
-  country?: string | undefined;
-  address?: { country: string } | undefined;
 };
 
 async function priceCart(
@@ -171,22 +166,34 @@ async function priceCart(
   const variantIds = [...new Set(input.items.map((item) => item.variantId))];
   const { data: variants, error: variantsError } = await supabase
     .from("product_variants")
-    .select("id, product_id, title, sku, price, stock, products!inner(id, title, status, base_price, store_id, is_digital)")
+    .select(
+      "id, product_id, title, sku, price, stock, products!inner(id, title, status, base_price, store_id, is_digital)",
+    )
     .eq("store_id", store.id)
     .in("id", variantIds);
   if (variantsError) throw new Error(variantsError.message);
 
   type VariantRow = NonNullable<typeof variants>[number] & {
-    products: { id: string; title: string; status: string; base_price: number; store_id: string; is_digital: boolean };
+    products: {
+      id: string;
+      title: string;
+      status: string;
+      base_price: number;
+      store_id: string;
+      is_digital: boolean;
+    };
   };
   const rows = (variants ?? []) as VariantRow[];
 
   const lines = input.items.map((item) => {
     const variant = rows.find((row) => row.id === item.variantId);
     if (!variant) throw new Error("Sepetteki bir ürün artık mevcut değil");
-    if (variant.products.status !== "active") throw new Error(`${variant.products.title} satışta değil`);
+    if (variant.products.status !== "active")
+      throw new Error(`${variant.products.title} satışta değil`);
     if ((variant.stock ?? 0) < item.quantity) {
-      throw new Error(`${variant.products.title} için yeterli stok yok (kalan ${variant.stock ?? 0})`);
+      throw new Error(
+        `${variant.products.title} için yeterli stok yok (kalan ${variant.stock ?? 0})`,
+      );
     }
     const unitPrice = Number(variant.price ?? variant.products.base_price);
     return {
@@ -206,7 +213,9 @@ async function priceCart(
   if (input.discountCode) {
     const { data: discount, error: discountError } = await supabase
       .from("discounts")
-      .select("id, code, type, value, min_subtotal, usage_limit, used_count, starts_at, ends_at, is_active")
+      .select(
+        "id, code, type, value, min_subtotal, usage_limit, used_count, starts_at, ends_at, is_active",
+      )
       .eq("store_id", store.id)
       .ilike("code", input.discountCode)
       .maybeSingle();
@@ -231,7 +240,8 @@ async function priceCart(
   }
 
   // Yalnız dijital ürünlerden oluşan sepet kargo gerektirmez.
-  const digitalOnly = lines.length > 0 && lines.every((line) => line.variant.products.is_digital === true);
+  const digitalOnly =
+    lines.length > 0 && lines.every((line) => line.variant.products.is_digital === true);
 
   // Kargo
   let shippingTotal = 0;
@@ -247,7 +257,8 @@ async function priceCart(
     if (!rate || !rate.is_active) throw new Error("Seçilen kargo yöntemi kullanılamıyor");
     shippingTitle = rate.title;
     shippingTotal = Number(rate.price);
-    if (rate.free_over !== null && subtotal - discountTotal >= Number(rate.free_over)) shippingTotal = 0;
+    if (rate.free_over !== null && subtotal - discountTotal >= Number(rate.free_over))
+      shippingTotal = 0;
   }
   // Kolay Panel promosyonları: kargo bedava eşiği ve hediye paketi ücreti
   const { data: promo } = await supabase
@@ -272,33 +283,31 @@ async function priceCart(
     .select("default_tax_rate, tax_included_prices")
     .eq("store_id", store.id)
     .maybeSingle();
-  // Mikro ihracat (Gürcistan teslimatı): KDV %0, ETGB ihracat faturası.
-  const exportInvoice = !digitalOnly && isGeorgia(input.address?.country ?? input.country);
-  const taxRate = exportInvoice ? 0 : Number(settings?.default_tax_rate ?? 0);
-  const taxIncluded = exportInvoice ? false : Boolean(settings?.tax_included_prices);
+  const taxRate = Number(settings?.default_tax_rate ?? 0);
+  const taxIncluded = Boolean(settings?.tax_included_prices);
   const taxable = Math.max(0, subtotal - discountTotal);
-  const taxTotal = taxIncluded || exportInvoice ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
+  const taxTotal = taxIncluded ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
 
   let paymentLabel: string | null = null;
   let extraFee = 0;
   if (input.paymentMethodId) {
     const { data: method, error: methodError } = await supabase
       .from("store_payment_methods")
-      .select("id, display_name, extra_fee_rate, is_active, connectors(code)")
+      .select("id, display_name, extra_fee_rate, is_active")
       .eq("store_id", store.id)
       .eq("id", input.paymentMethodId)
       .maybeSingle();
     if (methodError) throw new Error(methodError.message);
     if (!method || !method.is_active) throw new Error("Seçilen ödeme yöntemi kullanılamıyor");
-    const methodCode = (method as { connectors?: { code?: string } | null }).connectors?.code ?? "";
-    if (exportInvoice && (DOMESTIC_ONLY_PAYMENT_CODES as readonly string[]).includes(methodCode)) {
-      throw new Error("Bu ödeme yöntemi yurt dışı siparişlerde kullanılamaz; lütfen kartla ödemeyi seçin.");
-    }
     paymentLabel = method.display_name;
-    extraFee = Number((((taxable + shippingTotal) * Number(method.extra_fee_rate ?? 0)) / 100).toFixed(2));
+    extraFee = Number(
+      (((taxable + shippingTotal) * Number(method.extra_fee_rate ?? 0)) / 100).toFixed(2),
+    );
   }
 
-  const orderTotal = Number((taxable + shippingTotal + taxTotal + extraFee + giftWrapFee).toFixed(2));
+  const orderTotal = Number(
+    (taxable + shippingTotal + taxTotal + extraFee + giftWrapFee).toFixed(2),
+  );
 
   // Hediye kartı: kod, aktiflik, son kullanma ve bakiye sunucuda doğrulanır
   let giftCardApplied = 0;
@@ -312,7 +321,14 @@ async function priceCart(
       .ilike("code", code);
     if (giftError) throw new Error(giftError.message);
     const card = (cards ?? []).find((row) => normalizeGiftCardCode(row.code) === code);
-    if (!card || !isGiftCardUsable({ status: card.status, balance: Number(card.balance), expires_at: card.expires_at })) {
+    if (
+      !card ||
+      !isGiftCardUsable({
+        status: card.status,
+        balance: Number(card.balance),
+        expires_at: card.expires_at,
+      })
+    ) {
       throw new Error("Hediye kartı geçersiz veya bakiyesi yok");
     }
     giftCardApplied = redeemableAmount(Number(card.balance), orderTotal);
@@ -340,7 +356,6 @@ async function priceCart(
     giftCardApplied,
     grandTotal,
     digitalOnly,
-    exportInvoice,
     currency: store.currency,
   };
 }
@@ -356,7 +371,6 @@ export const quoteCheckoutSchema = z.object({
   discountCode: z.string().trim().max(60).optional(),
   giftCardCode: z.string().trim().max(60).optional(),
   giftWrap: z.boolean().optional(),
-  country: z.string().trim().max(60).optional(),
 });
 
 /**
@@ -396,7 +410,6 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
       giftCardApplied: quote.giftCardApplied,
       grandTotal: quote.grandTotal,
       digitalOnly: quote.digitalOnly,
-      exportInvoice: quote.exportInvoice,
     };
   } catch (error) {
     return {
@@ -419,7 +432,6 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
       giftCardApplied: 0,
       grandTotal: 0,
       digitalOnly: false,
-      exportInvoice: false,
     };
   }
 }
@@ -431,6 +443,28 @@ export async function createStorefrontOrder(
   const store = await publishedStore(input.slug);
   if (!store) throw new Error("Mağaza bulunamadı veya yayında değil");
   const supabase = await admin();
+  const policies = await checkoutPolicies(supabase, store.id);
+  if (
+    input.policyAccepted !== true ||
+    !policies.ready ||
+    !samePolicyVersions(
+      policies.versions.map((policy) => policy.versionId),
+      input.policyVersionIds,
+    )
+  )
+    throw new Error(
+      "Mağaza politika metinleri eksik veya değişti. Güncel metinleri yeniden onaylayın.",
+    );
+  const { getRequest } = await import("@tanstack/react-start/server");
+  const request = getRequest();
+  const acceptanceMeta = {
+    userId: auth?.userId ?? null,
+    ip:
+      request?.headers.get("cf-connecting-ip") ??
+      request?.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      null,
+    userAgent: request?.headers.get("user-agent")?.slice(0, 500) ?? null,
+  };
 
   const { data: checkoutSettings } = await supabase
     .from("store_settings")
@@ -487,15 +521,9 @@ export async function createStorefrontOrder(
     giftCardApplied,
     grandTotal,
     digitalOnly,
-    exportInvoice,
   } = priced;
   // Fiziki ürün içeren sepetlerde teslimat adresi zorunludur (sunucu karar verir).
   if (!digitalOnly && !input.address) throw new Error("Teslimat adresi gerekli.");
-  if (exportInvoice && !input.address?.customsId) {
-    throw new Error("Gürcistan teslimatı için pasaport veya kimlik numarası (ETGB) zorunludur.");
-  }
-
-
 
   // Müşteri kaydı (e-posta ile tekilleştirilir)
   const { data: existingCustomer } = await supabase
@@ -523,7 +551,11 @@ export async function createStorefrontOrder(
     customerId = inserted.id;
   } else if (auth) {
     // Üyelikle ödeme: e-postası doğrulanmış misafir kaydını hesaba bağla.
-    await supabase.from("customers").update({ user_id: auth.userId }).eq("id", customerId).is("user_id", null);
+    await supabase
+      .from("customers")
+      .update({ user_id: auth.userId })
+      .eq("id", customerId)
+      .is("user_id", null);
   }
 
   const addressJson = input.address
@@ -535,18 +567,14 @@ export async function createStorefrontOrder(
         district: input.address.district ?? null,
         line1: input.address.line1,
         postal_code: input.address.postalCode ?? null,
-        ...(exportInvoice
-          ? {
-              customs_id: input.address.customsId ?? null,
-              export_invoice: { label: EXPORT_INVOICE_LABEL, regime: "ETGB", vat_rate: 0 },
-            }
-          : {}),
       }
     : { recipient: input.customer.fullName, phone: input.customer.phone, digital_delivery: true };
 
   const billingJson = input.billingAddress
     ? {
-        recipient: input.billingAddress.recipient?.length ? input.billingAddress.recipient : input.customer.fullName,
+        recipient: input.billingAddress.recipient?.length
+          ? input.billingAddress.recipient
+          : input.customer.fullName,
         phone: input.customer.phone,
         country: input.billingAddress.country,
         city: input.billingAddress.city,
@@ -555,10 +583,8 @@ export async function createStorefrontOrder(
         postal_code: input.billingAddress.postalCode ?? null,
         tax_id: input.billingAddress.taxId ?? null,
         company: input.billingAddress.company ?? null,
-        ...(exportInvoice ? { export_invoice: { label: EXPORT_INVOICE_LABEL, regime: "ETGB", vat_rate: 0 } } : {}),
       }
     : addressJson;
-
 
   // Kur kilidi: sipariş anındaki kur snapshot olarak yazılır; sonradan kur değişse bile
   // bu sipariş asla yeniden hesaplanmaz (geçmiş siparişler eski kurda kalır).
@@ -579,15 +605,7 @@ export async function createStorefrontOrder(
       exchangeRate = rate;
       rateSource = rateRow?.source === "manual" ? "manual" : "auto";
     } else {
-      // Mağaza kur tablosunda yoksa vitrinde gösterilen canlı kur kilitlenir.
-      const { liveRate } = await import("@/lib/live-fx.server");
-      const live = await liveRate(baseCurrency, displayCurrency);
-      if (live) {
-        exchangeRate = live;
-        rateSource = "auto";
-      } else {
-        rateSource = "missing";
-      }
+      rateSource = "missing";
     }
   }
 
@@ -621,6 +639,8 @@ export async function createStorefrontOrder(
       note: input.note?.length ? input.note : null,
       gift_wrap: input.giftWrap === true,
       gift_message: input.giftWrap && input.giftMessage?.length ? input.giftMessage : null,
+      checkout_policy_version_ids: policies.versions.map((policy) => policy.versionId),
+      checkout_acceptance_meta: acceptanceMeta,
     })
     .select("id, order_number, grand_total, currency")
     .single();
@@ -651,17 +671,20 @@ export async function createStorefrontOrder(
       _qty: line.quantity,
     });
     const row = (Array.isArray(data) ? data[0] : data) as
-      | { stock_before: number; stock_after: number }
-      | undefined;
+      { stock_before: number; stock_after: number } | undefined;
     if (error || !row) {
       // Rezerve edilen stokları geri bırak ve siparişi geri al.
       for (const item of reserved) {
-        await supabase.rpc("release_variant_stock", { _variant_id: item.variantId, _qty: item.quantity });
+        await supabase.rpc("release_variant_stock", {
+          _variant_id: item.variantId,
+          _qty: item.quantity,
+        });
       }
       await supabase.from("order_items").delete().eq("order_id", order.id);
       await supabase.from("orders").delete().eq("id", order.id);
       throw new Error(
-        error?.message ?? `"${line.variant.products.title}" için yeterli stok kalmadı, lütfen adedi güncelleyin.`,
+        error?.message ??
+          `"${line.variant.products.title}" için yeterli stok kalmadı, lütfen adedi güncelleyin.`,
       );
     }
     reserved.push({
@@ -740,7 +763,10 @@ export async function createStorefrontOrder(
       })
       .eq("id", existingCustomer.id);
   } else if (customerId) {
-    await supabase.from("customers").update({ orders_count: 1, total_spent: grandTotal }).eq("id", customerId);
+    await supabase
+      .from("customers")
+      .update({ orders_count: 1, total_spent: grandTotal })
+      .eq("id", customerId);
   }
 
   return {
@@ -776,7 +802,9 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
 
   const { data: shipments } = await supabase
     .from("shipments")
-    .select("id, carrier, tracking_number, tracking_url, status, shipped_at, delivered_at, created_at")
+    .select(
+      "id, carrier, tracking_number, tracking_url, status, shipped_at, delivered_at, created_at",
+    )
     .eq("order_id", order.id)
     .order("created_at", { ascending: false });
 
@@ -789,12 +817,18 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
     .maybeSingle();
 
   const paymentMode = (settings?.payment_mode ?? null) as string | null;
-  const unpaid = order.payment_status !== "paid" && !["cancelled", "refunded"].includes(order.status);
+  const unpaid =
+    order.payment_status !== "paid" && !["cancelled", "refunded"].includes(order.status);
   let cardAvailable = false;
-  const { data: kindRow } = await supabase.from("stores").select("store_kind").eq("id", store.id).maybeSingle();
+  const { data: kindRow } = await supabase
+    .from("stores")
+    .select("store_kind")
+    .eq("id", store.id)
+    .maybeSingle();
   // Satıcının kurduğu iyzico / PayTR ile seçilmiş siparişler kartla ödenebilir.
   if (unpaid && Number(order.grand_total) > 0) {
-    const { orderPaymentMethodId, resolveOrderGateway } = await import("@/lib/store-gateways.server");
+    const { orderPaymentMethodId, resolveOrderGateway } =
+      await import("@/lib/store-gateways.server");
     const gateway = await resolveOrderGateway(
       supabase as never,
       store.id,
@@ -803,7 +837,13 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
     if (gateway) cardAvailable = true;
   }
   // QNBpay yalnız Kolay Panel mağazalarında kullanılır.
-  if (!cardAvailable && unpaid && paymentMode === "mefpay" && kindRow?.store_kind === "micro" && Number(order.grand_total) > 0) {
+  if (
+    !cardAvailable &&
+    unpaid &&
+    paymentMode === "mefpay" &&
+    kindRow?.store_kind === "micro" &&
+    Number(order.grand_total) > 0
+  ) {
     const { cardPaymentAvailable } = await import("@/lib/qnbpay-admin.server");
     cardAvailable = await cardPaymentAvailable();
   }
@@ -811,7 +851,9 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
   // Dijital teslimat: dosya/bağlantı yalnız ödeme onaylandıktan sonra ve
   // kısa ömürlü imzalı adresle verilir.
   const digitalProductIds = [
-    ...new Set((items ?? []).map((item) => item.product_id).filter((id): id is string => Boolean(id))),
+    ...new Set(
+      (items ?? []).map((item) => item.product_id).filter((id): id is string => Boolean(id)),
+    ),
   ];
   let digital: {
     productId: string;
@@ -839,7 +881,9 @@ export async function loadOrderStatus(input: z.infer<typeof orderStatusSchema>) 
           }
           return {
             productId: asset.product_id,
-            title: (items ?? []).find((item) => item.product_id === asset.product_id)?.title ?? "Dijital ürün",
+            title:
+              (items ?? []).find((item) => item.product_id === asset.product_id)?.title ??
+              "Dijital ürün",
             downloadUrl,
             fileName: asset.file_name,
             accessUrl: asset.access_url,
@@ -885,7 +929,9 @@ export async function previewDiscount(input: z.infer<typeof previewDiscountSchem
 
   const { data: discount, error } = await supabase
     .from("discounts")
-    .select("code, title, type, value, min_subtotal, usage_limit, used_count, starts_at, ends_at, is_active")
+    .select(
+      "code, title, type, value, min_subtotal, usage_limit, used_count, starts_at, ends_at, is_active",
+    )
     .eq("store_id", store.id)
     .ilike("code", input.code)
     .maybeSingle();
@@ -902,7 +948,9 @@ export async function previewDiscount(input: z.infer<typeof previewDiscountSchem
 
   const minSubtotal = Number(discount.min_subtotal ?? 0);
   if (input.subtotal < minSubtotal) {
-    throw new Error(`Bu kupon için minimum sepet tutarı ${minSubtotal.toFixed(2)} ${store.currency}`);
+    throw new Error(
+      `Bu kupon için minimum sepet tutarı ${minSubtotal.toFixed(2)} ${store.currency}`,
+    );
   }
 
   let discountTotal = 0;

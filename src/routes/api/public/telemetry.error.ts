@@ -12,6 +12,7 @@ const payloadSchema = z.object({
   route: z.string().max(500).optional(),
   severity: z.enum(["CRITICAL", "WARNING", "INFO"]).default("WARNING"),
   source: z.string().trim().max(120).default("browser"),
+  release: z.string().max(150).optional(),
 });
 
 export const Route = createFileRoute("/api/public/telemetry/error")({
@@ -49,7 +50,7 @@ export const Route = createFileRoute("/api/public/telemetry/error")({
           message: parsed.data.message,
           ...(parsed.data.stack ? { stack: parsed.data.stack } : {}),
           ...(parsed.data.route ? { route: parsed.data.route } : {}),
-          meta: { userAgent: request.headers.get("user-agent")?.slice(0, 300) ?? null },
+          meta: { userAgent: request.headers.get("user-agent")?.slice(0, 300) ?? null, clientRelease: parsed.data.release ?? null },
         });
 
         return new Response(JSON.stringify({ ok: true }), {

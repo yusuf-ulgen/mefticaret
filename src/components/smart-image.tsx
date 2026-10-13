@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 
 import { DEFAULT_IMAGE_WIDTHS, imageSrcSet, optimizedImageUrl } from "@/lib/image";
 
@@ -12,6 +12,7 @@ type SmartImageProps = {
   priority?: boolean;
   sizes?: string;
   widths?: number[];
+  sources?: Array<{ width: number; url: string }>;
   className?: string;
   style?: CSSProperties;
 };
@@ -28,16 +29,31 @@ export function SmartImage({
   priority = false,
   sizes = "(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 320px",
   widths = DEFAULT_IMAGE_WIDTHS,
+  sources,
   className,
   style,
 }: SmartImageProps) {
-  if (!src) return null;
-  const optimized = optimizedImageUrl(src, height ? { width, height } : { width }) ?? src;
-  const srcSet = imageSrcSet(src, widths, height ? { height } : {});
+  const [failure, setFailure] = useState<{ source: typeof src; stage: number } | null>(null);
+  const stage = failure && failure.source === src ? failure.stage : 0;
+  const signed =
+    sources
+      ?.slice()
+      .sort((a, b) => a.width - b.width)
+      .find((source) => source.width >= width) ?? sources?.at(-1);
+  const optimized =
+    signed?.url ?? optimizedImageUrl(src, height ? { width, height } : { width }) ?? src;
+  const displayed =
+    !src || stage >= 2 ? "/placeholder-product.svg" : stage === 1 ? src : (optimized ?? src);
+  const srcSet =
+    stage === 0
+      ? sources?.length
+        ? sources.map((source) => `${source.url} ${source.width}w`).join(", ")
+        : imageSrcSet(src, widths, height ? { height, baseWidth: width } : {})
+      : null;
 
   return (
     <img
-      src={optimized}
+      src={displayed}
       {...(srcSet ? { srcSet, sizes } : {})}
       alt={alt}
       width={width}
@@ -47,6 +63,11 @@ export function SmartImage({
       fetchPriority={priority ? "high" : "auto"}
       className={className}
       style={style}
+      onError={() => {
+        if (!src || stage >= 2) return;
+        // Dönüşüm servisi başarısızsa önce orijinal URL'yi, sonra yerel yedeği dene.
+        setFailure({ source: src, stage: stage === 0 && optimized !== src ? 1 : 2 });
+      }}
     />
   );
 }

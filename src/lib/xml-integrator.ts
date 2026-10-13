@@ -380,8 +380,9 @@ function buildParsed(
   chosen: Candidate | null,
   candidates: Candidate[],
   limit: number,
+  offset = 0,
 ): ParsedSource {
-  const rows = (chosen?.rows ?? []).slice(0, limit).map((row) => flattenRecord(row));
+  const rows = (chosen?.rows ?? []).slice(offset, offset + limit).map((row) => flattenRecord(row));
   const columns: string[] = [];
   for (const row of rows) {
     for (const key of Object.keys(row)) {
@@ -403,9 +404,10 @@ function buildParsed(
 export function parseSourceText(
   content: string,
   format: XmlSourceFormat,
-  options: { itemPath?: string | null; limit?: number } = {},
+  options: { itemPath?: string | null; limit?: number; offset?: number } = {},
 ): ParsedSource {
   const limit = options.limit ?? 500;
+  const offset = Math.max(0, Math.floor(options.offset ?? 0));
 
   if (format === "csv") {
     const result = Papa.parse<Record<string, string>>(content, {
@@ -421,7 +423,7 @@ export function parseSourceText(
       rootPath: null,
       rootCandidates: [],
       columns,
-      rows: rows.slice(0, limit).map((row) => flattenRecord(row)),
+      rows: rows.slice(offset, offset + limit).map((row) => flattenRecord(row)),
       totalRows: rows.length,
     };
   }
@@ -436,11 +438,11 @@ export function parseSourceText(
     if (Array.isArray(tree)) {
       const objects = tree.filter(isPlainObject);
       const chosen: Candidate = { path: "", count: objects.length, rows: objects };
-      return buildParsed(format, chosen, [chosen], limit);
+      return buildParsed(format, chosen, [chosen], limit, offset);
     }
     const { chosen, candidates } = rowsFromTree(tree, options.itemPath ?? null);
     if (!chosen) throw new Error("JSON içinde ürün listesi bulunamadı");
-    return buildParsed(format, chosen, candidates, limit);
+    return buildParsed(format, chosen, candidates, limit, offset);
   }
 
   // XML
@@ -464,9 +466,9 @@ export function parseSourceText(
     // Tek ürünlü beslemelerde dizi oluşmaz; en derin tekil nesneyi satır kabul et.
     const flat = flattenRecord(tree);
     if (!Object.keys(flat).length) throw new Error("XML içinde ürün düğümü bulunamadı");
-    return { format, rootPath: null, rootCandidates: [], columns: Object.keys(flat), rows: [flat], totalRows: 1 };
+    return { format, rootPath: null, rootCandidates: [], columns: Object.keys(flat), rows: offset === 0 ? [flat] : [], totalRows: 1 };
   }
-  return buildParsed(format, chosen, candidates, limit);
+  return buildParsed(format, chosen, candidates, limit, offset);
 }
 
 /* ----------------------------- eşleştirme ------------------------------- */

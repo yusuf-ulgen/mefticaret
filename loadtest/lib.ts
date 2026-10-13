@@ -24,13 +24,13 @@ export async function timed(request: () => Promise<Response>): Promise<Sample> {
   const started = Date.now();
   try {
     const response = await request();
-    return { ok: response.status < 500, status: response.status, ms: Date.now() - started };
+    return { ok: response.status >= 200 && response.status < 400, status: response.status, ms: Date.now() - started };
   } catch {
     return { ok: false, status: 0, ms: Date.now() - started };
   }
 }
 
-export function summarize(label: string, samples: Sample[]) {
+export function summarize(label: string, samples: Sample[], elapsedMs?: number) {
   const durations = samples.map((sample) => sample.ms);
   const errors = samples.filter((sample) => !sample.ok).length;
   const rateLimited = samples.filter((sample) => sample.status === 429).length;
@@ -38,11 +38,12 @@ export function summarize(label: string, samples: Sample[]) {
     label,
     requests: samples.length,
     errors,
-    errorRate: samples.length ? errors / samples.length : 0,
+    errorRate: samples.length ? errors / samples.length : null,
+    requestsPerSecond: elapsedMs && elapsedMs > 0 ? samples.length / (elapsedMs / 1000) : null,
     rateLimited,
-    p50: percentile(durations, 50),
-    p95: percentile(durations, 95),
-    max: Math.max(0, ...durations),
+    p50: samples.length ? percentile(durations, 50) : null,
+    p95: samples.length ? percentile(durations, 95) : null,
+    max: samples.length ? durations.reduce((max, value) => Math.max(max, value), 0) : null,
   };
   console.log(JSON.stringify(summary, null, 2));
   return summary;

@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { FavoriteButton } from "@/components/favorite-button";
 import { isDark, storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
 import { useCompare } from "@/lib/compare";
-import { formatMoney } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 import { storefrontUI } from "@/lib/storefront-ui";
 import { useCart } from "@/lib/cart";
 import { getQuickAddVariant } from "@/lib/storefront.functions";

@@ -232,7 +232,10 @@ export function renderBlock(block: EmailBlock, context: RenderContext): string {
     }
     case "countdown": {
       const label = block.deadline
-        ? new Date(block.deadline).toLocaleString("tr-TR", { dateStyle: "long", timeStyle: "short" })
+        ? new Date(block.deadline).toLocaleString("tr-TR", {
+            dateStyle: "long",
+            timeStyle: "short",
+          })
         : "";
       return `<tr><td style="padding:12px 24px;text-align:center;${font}">
         <div style="font-size:15px;font-weight:600;color:#111111">${escapeHtml(text)}</div>
@@ -313,18 +316,68 @@ export const TEMPLATE_SECTORS: TemplateSector[] = [
 ];
 
 export const TEMPLATE_CAMPAIGNS: TemplateCampaign[] = [
-  { id: "black-friday", label: "Black Friday", headline: "Black Friday başladı", cta: "Fırsatları gör" },
-  { id: "cyber-monday", label: "Cyber Monday", headline: "Cyber Monday'e özel", cta: "Hemen incele" },
-  { id: "yilbasi", label: "Yılbaşı & Yeni Yıl", headline: "Yeni yıla hazır mısın?", cta: "Hediyelere bak" },
-  { id: "sevgililer", label: "Sevgililer Günü", headline: "Sevgililer Günü seçkisi", cta: "Hediyeni seç" },
+  {
+    id: "black-friday",
+    label: "Black Friday",
+    headline: "Black Friday başladı",
+    cta: "Fırsatları gör",
+  },
+  {
+    id: "cyber-monday",
+    label: "Cyber Monday",
+    headline: "Cyber Monday'e özel",
+    cta: "Hemen incele",
+  },
+  {
+    id: "yilbasi",
+    label: "Yılbaşı & Yeni Yıl",
+    headline: "Yeni yıla hazır mısın?",
+    cta: "Hediyelere bak",
+  },
+  {
+    id: "sevgililer",
+    label: "Sevgililer Günü",
+    headline: "Sevgililer Günü seçkisi",
+    cta: "Hediyeni seç",
+  },
   { id: "anneler", label: "Anneler Günü", headline: "Anneler Günü için", cta: "Hediyeleri gör" },
   { id: "babalar", label: "Babalar Günü", headline: "Babalar Günü seçkisi", cta: "Hediyeleri gör" },
-  { id: "okula-donus", label: "Okula Dönüş", headline: "Okula dönüş hazırlığı", cta: "Listeyi incele" },
-  { id: "yaz-indirimi", label: "Yaz İndirimi", headline: "Yaz indirimi sürüyor", cta: "İndirimleri gör" },
-  { id: "kis-indirimi", label: "Kış İndirimi", headline: "Kış indirimi başladı", cta: "İndirimleri gör" },
-  { id: "flash-sale", label: "Flash Sale", headline: "24 saatlik flaş indirim", cta: "Kaçırmadan al" },
-  { id: "dogum-gunu", label: "Doğum Günü", headline: "Doğum günün kutlu olsun", cta: "Hediyeni kullan" },
-  { id: "yeni-koleksiyon", label: "Yeni Koleksiyon", headline: "Yeni koleksiyon yayında", cta: "Koleksiyonu gör" },
+  {
+    id: "okula-donus",
+    label: "Okula Dönüş",
+    headline: "Okula dönüş hazırlığı",
+    cta: "Listeyi incele",
+  },
+  {
+    id: "yaz-indirimi",
+    label: "Yaz İndirimi",
+    headline: "Yaz indirimi sürüyor",
+    cta: "İndirimleri gör",
+  },
+  {
+    id: "kis-indirimi",
+    label: "Kış İndirimi",
+    headline: "Kış indirimi başladı",
+    cta: "İndirimleri gör",
+  },
+  {
+    id: "flash-sale",
+    label: "Flash Sale",
+    headline: "24 saatlik flaş indirim",
+    cta: "Kaçırmadan al",
+  },
+  {
+    id: "dogum-gunu",
+    label: "Doğum Günü",
+    headline: "Doğum günün kutlu olsun",
+    cta: "Hediyeni kullan",
+  },
+  {
+    id: "yeni-koleksiyon",
+    label: "Yeni Koleksiyon",
+    headline: "Yeni koleksiyon yayında",
+    cta: "Koleksiyonu gör",
+  },
 ];
 
 export const TEMPLATE_LAYOUTS = [
@@ -403,33 +456,67 @@ function layoutBlocks(
 
   switch (layout) {
     case "hero-urun":
-      return [header, { id: id("img"), kind: "image", text: campaign.headline, href: "{{magaza_linki}}" }, intro, carousel, cta, footer];
+      return [
+        header,
+        { id: id("img"), kind: "image", text: campaign.headline, href: "{{magaza_linki}}" },
+        intro,
+        carousel,
+        cta,
+        footer,
+      ];
     case "kupon-odakli":
       return [header, coupon, intro, cta, carousel, footer];
     case "tek-urun":
       return [
         header,
         { id: id("img"), kind: "image", text: campaign.headline, href: "{{magaza_linki}}" },
-        { id: id("txt"), kind: "text", align: "center", text: "{{product.last_viewed}} yeniden stokta." },
+        {
+          id: id("txt"),
+          kind: "text",
+          align: "center",
+          text: "{{product.last_viewed}} yeniden stokta.",
+        },
         cta,
         footer,
       ];
     case "hikaye":
       return [
         header,
-        { id: id("story"), kind: "text", align: "left", text: `${sector.label} dünyasında hikâyemiz: küçük atölyeden binlerce mutlu müşteriye.` },
+        {
+          id: id("story"),
+          kind: "text",
+          align: "left",
+          text: `${sector.label} dünyasında hikâyemiz: küçük atölyeden binlerce mutlu müşteriye.`,
+        },
         { id: id("divider"), kind: "divider" },
         carousel,
         cta,
         footer,
       ];
     case "geri-sayim":
-      return [header, { id: id("count"), kind: "countdown", text: "Kampanya bitiyor" }, coupon, cta, carousel, footer];
+      return [
+        header,
+        { id: id("count"), kind: "countdown", text: "Kampanya bitiyor" },
+        coupon,
+        cta,
+        carousel,
+        footer,
+      ];
     case "sepet-hatirlatma":
       return [
         header,
-        { id: id("cart"), kind: "cart_items", text: "Sepetinde bekleyenler", subtext: "{{cart.items_grid}}" },
-        { id: id("warn"), kind: "text", align: "center", text: "Stoklar tükeniyor, sepetin 24 saat daha saklanacak." },
+        {
+          id: id("cart"),
+          kind: "cart_items",
+          text: "Sepetinde bekleyenler",
+          subtext: "{{cart.items_grid}}",
+        },
+        {
+          id: id("warn"),
+          kind: "text",
+          align: "center",
+          text: "Stoklar tükeniyor, sepetin 24 saat daha saklanacak.",
+        },
         coupon,
         cta,
         footer,
@@ -439,7 +526,12 @@ function layoutBlocks(
     case "sosyal-kanit":
       return [
         header,
-        { id: id("quote"), kind: "text", align: "center", text: `"${sector.label} alışverişimi artık sadece buradan yapıyorum." — 5 yıldız` },
+        {
+          id: id("quote"),
+          kind: "text",
+          align: "center",
+          text: `"${sector.label} alışverişimi artık sadece buradan yapıyorum." — 5 yıldız`,
+        },
         carousel,
         cta,
         { id: id("social"), kind: "social", text: "Bizi takip et", href: "{{magaza_linki}}" },
@@ -452,7 +544,12 @@ function layoutBlocks(
         carousel,
         { id: id("divider"), kind: "divider" },
         coupon,
-        { id: id("second"), kind: "text", align: "left", text: "Ayrıca bu hafta ücretsiz kargo fırsatı devam ediyor." },
+        {
+          id: id("second"),
+          kind: "text",
+          align: "left",
+          text: "Ayrıca bu hafta ücretsiz kargo fırsatı devam ediyor.",
+        },
         cta,
         { id: id("social"), kind: "social", text: "Bizi takip et", href: "{{magaza_linki}}" },
         footer,
@@ -488,7 +585,13 @@ export function buildTemplateLibrary(): LibraryTemplate[] {
   return templates;
 }
 
-export const TEMPLATE_LIBRARY_SIZE = TEMPLATE_SECTORS.length * TEMPLATE_CAMPAIGNS.length * TEMPLATE_LAYOUTS.length;
+export const TEMPLATE_LIBRARY_SIZE =
+  TEMPLATE_SECTORS.length * TEMPLATE_CAMPAIGNS.length * TEMPLATE_LAYOUTS.length;
+
+// Eski veya eksik kayıtlar aramayı ve tüm kampanya ekranını düşürmemeli.
+function searchableText(value: unknown): string {
+  return typeof value === "string" ? value.toLocaleLowerCase("tr") : "";
+}
 
 /** Kütüphanede arama + sektör/kampanya filtresi. */
 export function filterTemplates(
@@ -497,12 +600,17 @@ export function filterTemplates(
 ) {
   const search = (filters.search ?? "").trim().toLocaleLowerCase("tr");
   return templates.filter((template) => {
-    if (filters.sector && filters.sector !== "all" && template.sector !== filters.sector) return false;
-    if (filters.campaign && filters.campaign !== "all" && template.campaign !== filters.campaign) return false;
-    if (filters.layout && filters.layout !== "all" && template.layout !== filters.layout) return false;
+    if (filters.sector && filters.sector !== "all" && template.sector !== filters.sector)
+      return false;
+    if (filters.campaign && filters.campaign !== "all" && template.campaign !== filters.campaign)
+      return false;
+    if (filters.layout && filters.layout !== "all" && template.layout !== filters.layout)
+      return false;
     if (!search) return true;
-    return template.name.toLocaleLowerCase("tr").includes(search) ||
-      template.subject.toLocaleLowerCase("tr").includes(search);
+    return (
+      searchableText(template.name).includes(search) ||
+      searchableText(template.subject).includes(search)
+    );
   });
 }
 
@@ -514,7 +622,16 @@ export type FlowStepPreset = {
   waitMinutes?: number;
   subject?: string;
   body?: string;
-  condition?: "order_placed" | "order_paid" | "cart_still_active" | "ltv_above" | "order_count_above" | "spent_above" | "category_interest" | "email_opened" | "has_tag";
+  condition?:
+    | "order_placed"
+    | "order_paid"
+    | "cart_still_active"
+    | "ltv_above"
+    | "order_count_above"
+    | "spent_above"
+    | "category_interest"
+    | "email_opened"
+    | "has_tag";
   onTrue?: "continue" | "end";
   onFalse?: "continue" | "end";
   config?: Record<string, string | number>;
@@ -549,7 +666,13 @@ export const FLOW_PRESETS: FlowPreset[] = [
         subject: "{{musteri_adi}}, sepetin seni bekliyor",
         body: "Sepetindeki ürünler hâlâ seni bekliyor. Alışverişi tamamla: {{sepet_linki}}",
       },
-      { kind: "condition", title: "Sepet hâlâ dolu mu?", condition: "cart_still_active", onTrue: "continue", onFalse: "end" },
+      {
+        kind: "condition",
+        title: "Sepet hâlâ dolu mu?",
+        condition: "cart_still_active",
+        onTrue: "continue",
+        onFalse: "end",
+      },
       { kind: "wait", title: "23 saat bekle", waitMinutes: 1380 },
       {
         kind: "email",
@@ -610,7 +733,13 @@ export const FLOW_PRESETS: FlowPreset[] = [
         subject: "Seni özledik {{musteri_adi}}",
         body: "Sana özel indirim çekin hazır: {{indirim_kodu}} — {{magaza_linki}}",
       },
-      { kind: "condition", title: "Sipariş verdi mi?", condition: "order_placed", onTrue: "end", onFalse: "continue" },
+      {
+        kind: "condition",
+        title: "Sipariş verdi mi?",
+        condition: "order_placed",
+        onTrue: "end",
+        onFalse: "continue",
+      },
       { kind: "wait", title: "15 gün bekle", waitMinutes: 21600 },
       {
         kind: "email",
@@ -628,7 +757,14 @@ export const FLOW_PRESETS: FlowPreset[] = [
     trigger: "ltv_threshold",
     steps: [
       { kind: "wait", title: "1 gün bekle", waitMinutes: 1440 },
-      { kind: "condition", title: "Harcama eşiği aşıldı mı?", condition: "spent_above", onTrue: "continue", onFalse: "end", config: { amount: 5000 } },
+      {
+        kind: "condition",
+        title: "Harcama eşiği aşıldı mı?",
+        condition: "spent_above",
+        onTrue: "continue",
+        onFalse: "end",
+        config: { amount: 5000 },
+      },
       {
         kind: "email",
         title: "VIP teşekkür",
@@ -701,15 +837,26 @@ export function filterAudience(
     if (filters.ordersMin && customer.ordersCount < filters.ordersMin) return false;
     if (filters.tag) {
       const tag = filters.tag.toLocaleLowerCase("tr");
-      if (!customer.tags.some((value) => value.toLocaleLowerCase("tr") === tag)) return false;
+      if (
+        !(Array.isArray(customer.tags) ? customer.tags : []).some(
+          (value) => searchableText(value) === tag,
+        )
+      )
+        return false;
     }
     if (filters.categoryInterest) {
       const category = filters.categoryInterest.toLocaleLowerCase("tr");
-      if (!customer.categories.some((value) => value.toLocaleLowerCase("tr").includes(category))) return false;
+      if (
+        !(Array.isArray(customer.categories) ? customer.categories : []).some((value) =>
+          searchableText(value).includes(category),
+        )
+      )
+        return false;
     }
     if (filters.activeWithinDays && filters.activeWithinDays > 0) {
       if (!customer.lastOrderAt) return false;
-      if (now.getTime() - new Date(customer.lastOrderAt).getTime() > filters.activeWithinDays * day) return false;
+      if (now.getTime() - new Date(customer.lastOrderAt).getTime() > filters.activeWithinDays * day)
+        return false;
     }
     if (filters.inactiveOverDays && filters.inactiveOverDays > 0) {
       const reference = customer.lastOrderAt ? new Date(customer.lastOrderAt).getTime() : 0;
@@ -769,7 +916,8 @@ export type CampaignMetrics = {
   revenuePerRecipient: number;
 };
 
-const ratio = (value: number, total: number) => (total > 0 ? Math.round((value / total) * 1000) / 10 : 0);
+const ratio = (value: number, total: number) =>
+  total > 0 ? Math.round((value / total) * 1000) / 10 : 0;
 
 /** Gönderim kayıtlarından açılma, tıklama, ciro ve iptal oranlarını hesaplar. */
 export function campaignMetrics(sends: SendRow[]): CampaignMetrics {
@@ -795,7 +943,14 @@ export function campaignMetrics(sends: SendRow[]): CampaignMetrics {
 
 /** İki varyant arasında kazananı belirler (dönüşüm önce ciro, sonra tıklama). */
 export function abWinner(
-  variants: { id: string; label: string; sent: number; opens: number; clicks: number; revenue: number }[],
+  variants: {
+    id: string;
+    label: string;
+    sent: number;
+    opens: number;
+    clicks: number;
+    revenue: number;
+  }[],
 ) {
   const scored = variants
     .filter((variant) => variant.sent > 0)

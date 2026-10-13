@@ -1,3 +1,5 @@
+import { readAllPages } from "@/lib/read-all-pages";
+import { categoryLeaf } from "@/lib/import-category";
 /**
  * Tedarikçi kataloğu: tüm mağazalar platformdaki aktif tedarikçilerin
  * ürünlerini görür ve kendi mağazasına eksiksiz aktarır. Yalnız sunucuda
@@ -95,7 +97,7 @@ const slugify = (s: string) =>
     .normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_-]+/g, "-").slice(0, 80) || "urun";
 
 async function ensureCategory(db: Client, storeId: string, name: string | null, cache: Map<string, string | null>) {
-  const label = (name ?? "").split(/[>/]/).pop()?.trim();
+  const label = categoryLeaf(name);
   if (!label) return null;
   if (cache.has(label)) return cache.get(label)!;
   const { data } = await db.from("categories").select("id").eq("store_id", storeId).ilike("name", label).limit(1);
@@ -263,34 +265,39 @@ export async function kolayImportQuota(db: Client, storeId: string): Promise<{ l
 
 /** Tedarikçi ürünü değişince aktaran tüm mağazalarda fiyat ve stok günceller. */
 export async function propagateToImporters(db: Client, supplierId: string) {
-  const { data: links } = await db
+  const { data: links } = await readAllPages((from, to) => db
     .from("store_supplier_imports")
     .select("id, product_id, supplier_product_id, markup_percent")
     .eq("supplier_id", supplierId)
-    .eq("sync_enabled", true);
+    .eq("sync_enabled", true).order("id").range(from, to));
   const list = (links ?? []) as any[];
   for (let i = 0; i < list.length; i += 100) {
     const chunk = list.slice(i, i + 100);
-    const { data: sps } = await db.from("supplier_products").select(SP_COLUMNS).in("id", chunk.map((l) => l.supplier_product_id));
+    const { data: sps, error: sourceError } = await db.from("supplier_products").select(SP_COLUMNS).in("id", chunk.map((l) => l.supplier_product_id));
+    if (sourceError) throw new Error(sourceError.message);
     const byId = new Map(((sps ?? []) as any[]).map((s) => [s.id, s]));
     for (const link of chunk) {
       const sp = byId.get(link.supplier_product_id);
       if (!sp) continue;
       const markup = Number(link.markup_percent ?? 0) || 0;
-      await db.from("products").update({ base_price: salePriceOf(sp, markup), cost_price: Number(sp.supplier_price ?? 0) || null }).eq("id", link.product_id);
+      const productUpdate = await db.from("products").update({ base_price: salePriceOf(sp, markup), cost_price: Number(sp.supplier_price ?? 0) || null }).eq("id", link.product_id);
+      if (productUpdate.error) throw new Error(productUpdate.error.message);
       const variants = parseVariants(sp.raw);
-      const { data: pvs } = await db.from("product_variants").select("id, barcode, sku, position").eq("product_id", link.product_id);
+      const { data: pvs, error: variantError } = await db.from("product_variants").select("id, barcode, sku, position").eq("product_id", link.product_id);
+      if (variantError) throw new Error(variantError.message);
       for (const pv of (pvs ?? []) as any[]) {
         const match =
           variants.find((v) => v.barcode && v.barcode === pv.barcode) ??
           (variants.length ? variants[pv.position ?? 0] : null);
         const stock = match ? match.stock : Number(sp.stock ?? 0);
-        await db
+        const variantUpdate = await db
           .from("product_variants")
           .update({ stock, price: salePriceOf(sp, markup, match?.price ?? null) })
           .eq("id", pv.id);
+        if (variantUpdate.error) throw new Error(variantUpdate.error.message);
       }
-      await db.from("store_supplier_imports").update({ last_synced_at: new Date().toISOString() }).eq("id", link.id);
+      const linkUpdate = await db.from("store_supplier_imports").update({ last_synced_at: new Date().toISOString() }).eq("id", link.id);
+      if (linkUpdate.error) throw new Error(linkUpdate.error.message);
     }
   }
   return list.length;
@@ -310,13 +317,13 @@ export async function runAutoImports(db: Client, filter: { supplierId?: string; 
   const { data: rules } = await q;
   const results: { storeId: string; supplierId: string; imported: number; remaining: number }[] = [];
   for (const rule of (rules ?? []) as any[]) {
-    const { data: have } = await db.from("store_supplier_imports").select("supplier_product_id").eq("store_id", rule.store_id).eq("supplier_id", rule.supplier_id).limit(20000);
+    const { data: have } = await readAllPages((from, to) => db.from("store_supplier_imports").select("id, supplier_product_id").eq("store_id", rule.store_id).eq("supplier_id", rule.supplier_id).order("id").range(from, to));
     const done = new Set(((have ?? []) as any[]).map((r) => r.supplier_product_id));
-    const { data: all } = await db.from("supplier_products").select("id").eq("supplier_id", rule.supplier_id).eq("catalog_visible", true).limit(20000);
+    const { data: all } = await readAllPages((from, to) => db.from("supplier_products").select("id").eq("supplier_id", rule.supplier_id).eq("catalog_visible", true).order("id").range(from, to));
     const todo = ((all ?? []) as any[]).map((r) => r.id as string).filter((id) => !done.has(id));
     const batch = todo.slice(0, 200);
     const res = batch.length ? await importToStore(db, rule.store_id, batch, Number(rule.markup_percent ?? 0) || 0) : { imported: 0, skipped: 0, failed: [] };
-    const remaining = todo.length - batch.length;
+    const remaining = Math.max(0, todo.length - res.imported - res.skipped);
     await db.from("store_supplier_auto_imports").update({ last_run_at: new Date().toISOString(), last_result: { imported: res.imported, failed: res.failed.length, remaining } }).eq("id", rule.id);
     results.push({ storeId: rule.store_id, supplierId: rule.supplier_id, imported: res.imported, remaining });
   }

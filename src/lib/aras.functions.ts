@@ -28,6 +28,8 @@ export const sendOrderToAras = createServerFn({ method: "POST" })
       .maybeSingle();
     if (orderError) throw new Error(orderError.message);
     if (!order) throw new Error("Sipariş bulunamadı veya yetkiniz yok");
+    const { loadPhysicalShipmentItems } = await import("@/lib/shipment-items.server");
+    const physical = await loadPhysicalShipmentItems(supabase, order.id, order.store_id);
 
     const address = (order.shipping_address ?? {}) as Record<string, unknown>;
     const receiverName = text(address["full_name"]) || text(order.customer_name);
@@ -53,9 +55,9 @@ export const sendOrderToAras = createServerFn({ method: "POST" })
     const integrationCode = `MEF${order.order_number}`.replace(/[^A-Za-z0-9-]/g, "").slice(0, 40);
     const pieceCount = Math.max(
       1,
-      (order.order_items ?? []).reduce((sum, item) => sum + (item.quantity ?? 0), 0),
+      physical.items.reduce((sum, item) => sum + item.quantity, 0),
     );
-    const description = (order.order_items ?? [])
+    const description = physical.items
       .map((item) => `${item.quantity} x ${item.title}`)
       .join(", ")
       .slice(0, 200);
@@ -90,6 +92,14 @@ export const sendOrderToAras = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (insertError) throw new Error(insertError.message);
+    const { error: itemsError } = await supabase.from("shipment_items").insert(
+      physical.lines.map((line) => ({
+        shipment_id: shipment.id,
+        order_item_id: line.orderItemId,
+        quantity: line.quantity,
+      })),
+    );
+    if (itemsError) throw new Error(itemsError.message);
 
     await supabase
       .from("orders")

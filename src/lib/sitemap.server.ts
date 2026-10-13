@@ -1,3 +1,5 @@
+import { readAllPages } from "@/lib/read-all-pages";
+import { policySlug } from "@/lib/policy-content";
 import { publicSupabase } from "@/lib/public-supabase.server";
 import { readSeo, readStoreSeo } from "@/lib/seo";
 
@@ -15,9 +17,6 @@ const STATIC_PATHS = [
   { path: "/about", priority: "0.4", changefreq: "monthly" },
   { path: "/contact", priority: "0.4", changefreq: "monthly" },
   { path: "/faq", priority: "0.4", changefreq: "monthly" },
-  { path: "/returns", priority: "0.3", changefreq: "yearly" },
-  { path: "/terms", priority: "0.3", changefreq: "yearly" },
-  { path: "/privacy", priority: "0.3", changefreq: "yearly" },
 ];
 
 function escapeXml(value: string) {
@@ -29,7 +28,12 @@ function escapeXml(value: string) {
     .replace(/'/g, "&apos;");
 }
 
-type SitemapEntry = { loc: string; lastmod?: string | null; changefreq?: string; priority?: string };
+type SitemapEntry = {
+  loc: string;
+  lastmod?: string | null;
+  changefreq?: string;
+  priority?: string;
+};
 
 function renderSitemap(entries: SitemapEntry[]) {
   const body = entries
@@ -50,41 +54,55 @@ export async function buildStoreSitemap(slug: string, origin: string) {
 
   const { data: store, error } = await supabase
     .from("stores")
-    .select("id, slug, status")
+    .select("id, slug, status, store_kind")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!store || store.status === "archived" || store.status === "suspended") return null;
+  if (!store || store.status !== "active") return null;
 
   const base = `${origin.replace(/\/$/, "")}/s/${store.slug}`;
 
   const [settingsRes, productsRes, collectionsRes, pagesRes] = await Promise.all([
     supabase.from("store_settings").select("seo").eq("store_id", store.id).maybeSingle(),
-    supabase
-      .from("products")
-      .select("slug, seo, updated_at")
-      .eq("store_id", store.id)
-      .eq("status", "active")
-      .order("updated_at", { ascending: false })
-      .limit(5000),
-    supabase
-      .from("collections")
-      .select("slug, seo, updated_at")
-      .eq("store_id", store.id)
-      .order("sort_order")
-      .limit(1000),
-    supabase
-      .from("store_pages")
-      .select("slug, seo, page_kind, updated_at")
-      .eq("store_id", store.id)
-      .eq("is_published", true)
-      .limit(2000),
+    readAllPages((from, to) =>
+      supabase
+        .from("products")
+        .select("slug, seo, updated_at")
+        .eq("store_id", store.id)
+        .eq("status", "active")
+        .order("updated_at", { ascending: false })
+        .order("id")
+        .range(from, to),
+    ),
+    readAllPages((from, to) =>
+      supabase
+        .from("collections")
+        .select("slug, seo, updated_at")
+        .eq("store_id", store.id)
+        .order("sort_order")
+        .order("id")
+        .range(from, to),
+    ),
+    readAllPages((from, to) =>
+      supabase
+        .from("store_pages")
+        .select("slug, seo, page_kind, updated_at")
+        .eq("store_id", store.id)
+        .eq("is_published", true)
+        .order("id")
+        .range(from, to),
+    ),
   ]);
 
+  if (settingsRes.error) throw new Error(settingsRes.error.message);
   const storeSeo = readStoreSeo(settingsRes.data?.seo);
   if (storeSeo.noindexStore) return null;
 
-  const entries: SitemapEntry[] = STATIC_PATHS.map((item) => ({
+  const entries: SitemapEntry[] = (
+    store.store_kind === "micro"
+      ? STATIC_PATHS.filter((item) => ["", "/products"].includes(item.path))
+      : STATIC_PATHS
+  ).map((item) => ({
     loc: `${base}${item.path}`,
     changefreq: item.changefreq,
     priority: item.priority,
@@ -120,7 +138,34 @@ export async function buildStoreSitemap(slug: string, origin: string) {
     });
   }
 
-  return renderSitemap(entries);
+  const { data: policies, error: policyError } = await supabase
+    .from("policies")
+    .select("policy_key, current_version_id")
+    .eq("store_id", store.id)
+    .eq("is_visible", true)
+    .not("current_version_id", "is", null);
+  if (policyError) throw new Error(policyError.message);
+  const ids = (policies ?? []).map((policy) => policy.current_version_id!).filter(Boolean);
+  const { data: versions, error: versionError } = ids.length
+    ? await supabase
+        .from("policy_versions")
+        .select("id, published_at")
+        .eq("store_id", store.id)
+        .in("id", ids)
+        .eq("is_active", true)
+    : { data: [], error: null };
+  if (versionError) throw new Error(versionError.message);
+  for (const policy of policies ?? []) {
+    const version = versions?.find((v) => v.id === policy.current_version_id);
+    if (version)
+      entries.push({
+        loc: `${base}/politika/${policySlug("store", policy.policy_key)}`,
+        lastmod: version.published_at,
+        changefreq: "yearly",
+        priority: "0.3",
+      });
+  }
+  return renderSitemap([...new Map(entries.map((entry) => [entry.loc, entry])).values()]);
 }
 
 /** Mağazanın vitrin robots.txt içeriğini üretir. */
@@ -151,7 +196,16 @@ export async function buildStoreRobots(slug: string, origin: string) {
   }
 
   lines.push("Allow: /");
-  for (const path of ["/cart", "/checkout", "/account", "/orders", "/login", "/register", "/favorites", "/compare"]) {
+  for (const path of [
+    "/cart",
+    "/checkout",
+    "/account",
+    "/orders",
+    "/login",
+    "/register",
+    "/favorites",
+    "/compare",
+  ]) {
     lines.push(`Disallow: /s/${store.slug}${path}`);
   }
   if (storeSeo.robotsExtra?.trim()) lines.push(storeSeo.robotsExtra.trim());

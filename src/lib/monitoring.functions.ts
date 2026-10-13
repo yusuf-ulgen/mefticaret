@@ -43,6 +43,22 @@ export const resolveErrorLog = createServerFn({ method: "POST" })
     return monitoring.setErrorLogResolved(data.id, data.resolved, context.userId);
   });
 
+export const changeErrorLogStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ id: z.guid(), status: z.enum(["open", "investigating", "resolved"]) }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { assertPlatformAdmin } = await import("@/lib/platform-admin.server");
+    await assertPlatformAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const current = await supabaseAdmin.from("app_error_logs").select("meta").eq("id", data.id).maybeSingle();
+    if (current.error) throw new Error(current.error.message);
+    if (!current.data) throw new Error("Hata kaydı bulunamadı");
+    const meta = current.data.meta && typeof current.data.meta === "object" && !Array.isArray(current.data.meta) ? current.data.meta : {};
+    const result = await supabaseAdmin.from("app_error_logs").update({ resolved_at: data.status === "resolved" ? new Date().toISOString() : null, resolved_by: data.status === "resolved" ? context.userId : null, meta: { ...meta, investigationStatus: data.status, statusChangedAt: new Date().toISOString(), statusChangedBy: context.userId } }).eq("id", data.id);
+    if (result.error) throw new Error(result.error.message);
+    return { status: data.status };
+  });
+
 /** Uyarı kanalını gerçek bir test mesajıyla doğrular. */
 export const sendMonitoringTestAlert = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

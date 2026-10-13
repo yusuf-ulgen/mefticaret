@@ -26,6 +26,27 @@ const admin = async () => {
 
 /* ----------------------------- Tedarikçi -------------------------------- */
 
+export const supplierSearchCatalog = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({
+        supplierId: z.guid(),
+        search: z.string().max(100).default(""),
+        page: z.number().int().min(0).max(100000).default(0),
+        category: z.string().max(200).default(""),
+        sort: z.enum(["recent", "price", "stock"]).default("recent"),
+        filter: z.enum(["all", "visible", "hidden", "out"]).default("all"),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
+    const { loadSupplierWorkspace } = await import("@/lib/supplier-desk.server");
+    const result = await loadSupplierWorkspace(await admin(), [supplier], data);
+    return { products: result.products, total: result.totalProducts, pageSize: result.pageSize };
+  });
+
 export const supplierWorkflowOverview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ supplierId: z.guid() }).parse(data))
@@ -38,7 +59,9 @@ export const supplierWorkflowOverview = createServerFn({ method: "POST" })
       lib.loadMessages(db, supplier.id),
       db
         .from("supplier_xml_feeds")
-        .select("id, name, source_url, is_active, last_run_at, last_status, last_error, stats, sale_markup_percent")
+        .select(
+          "id, name, source_url, is_active, last_run_at, last_status, last_error, stats, sale_markup_percent",
+        )
         .eq("supplier_id", supplier.id)
         .order("created_at", { ascending: true }),
       lib.loadSupplierPaymentSettings(db, supplier.id),
@@ -56,12 +79,22 @@ export const supplierWorkflowOverview = createServerFn({ method: "POST" })
         lastRunAt: (feed.last_run_at as string | null) ?? null,
         lastStatus: (feed.last_status as string | null) ?? null,
         lastError: (feed.last_error as string | null) ?? null,
-        stats: (feed.stats ?? {}) as { totalRows?: number; created?: number; updated?: number; skipped?: number },
+        stats: (feed.stats ?? {}) as {
+          nextOffset?: number;
+          phase?: string; startedAt?: string; finishedAt?: string; lastSuccessAt?: string; processed?: number; remaining?: number | null; failedFields?: number; failedUpdates?: number; syncError?: string | null; errors?: string[]; autoImported?: number; autoRemaining?: number;
+          totalRows?: number;
+          created?: number;
+          updated?: number;
+          skipped?: number;
+        },
       })),
       payment: payment
         ? {
             provider: payment.provider,
-            test: payment.provider === "iyzico" ? payment.settings["sandbox"] !== false : payment.settings["test_mode"] !== false,
+            test:
+              payment.provider === "iyzico"
+                ? payment.settings["sandbox"] !== false
+                : payment.settings["test_mode"] !== false,
           }
         : null,
     };
@@ -90,7 +123,8 @@ export const supplierUpdatePurchaseOrder = createServerFn({ method: "POST" })
       .eq("supplier_id", supplier.id)
       .maybeSingle();
     if (!row || row.status === "draft") throw new Error("Sipariş bulunamadı");
-    if (row.status === "cancelled" || row.status === "received") throw new Error("Bu sipariş kapanmış");
+    if (row.status === "cancelled" || row.status === "received")
+      throw new Error("Bu sipariş kapanmış");
     if (data.supplierStatus === "shipped" && !data.trackingNumber) {
       throw new Error("Kargoya vermek için takip numarası girin");
     }
@@ -100,7 +134,12 @@ export const supplierUpdatePurchaseOrder = createServerFn({ method: "POST" })
     if (data.supplierStatus === "shipped") patch["shipped_at"] = new Date().toISOString();
     const { error } = await db.from("purchase_orders").update(patch).eq("id", row.id);
     if (error) throw new Error(error.message);
-    const labels = { accepted: "kabul edildi", preparing: "hazırlanıyor", shipped: "kargoya verildi", rejected: "reddedildi" };
+    const labels = {
+      accepted: "kabul edildi",
+      preparing: "hazırlanıyor",
+      shipped: "kargoya verildi",
+      rejected: "reddedildi",
+    };
     await db.from("supplier_messages").insert({
       store_id: row.store_id,
       supplier_id: supplier.id,
@@ -109,7 +148,9 @@ export const supplierUpdatePurchaseOrder = createServerFn({ method: "POST" })
       sender_user_id: context.userId,
       body:
         `${row.code} siparişi ${labels[data.supplierStatus]}.` +
-        (data.supplierStatus === "shipped" ? ` ${data.carrier ?? ""} takip no: ${data.trackingNumber}` : ""),
+        (data.supplierStatus === "shipped"
+          ? ` ${data.carrier ?? ""} takip no: ${data.trackingNumber}`
+          : ""),
     });
     return { ok: true };
   });
@@ -118,14 +159,23 @@ export const supplierSendMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ supplierId: z.guid(), body: z.string().trim().min(1).max(4000), purchaseOrderId: z.guid().optional() })
+      .object({
+        supplierId: z.guid(),
+        body: z.string().trim().min(1).max(4000),
+        purchaseOrderId: z.guid().optional(),
+      })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
     const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
     const db = await admin();
     if (data.purchaseOrderId) {
-      const { data: po } = await db.from("purchase_orders").select("id").eq("id", data.purchaseOrderId).eq("supplier_id", supplier.id).maybeSingle();
+      const { data: po } = await db
+        .from("purchase_orders")
+        .select("id")
+        .eq("id", data.purchaseOrderId)
+        .eq("supplier_id", supplier.id)
+        .maybeSingle();
       if (!po) throw new Error("Sipariş bulunamadı");
     }
     const { error } = await db.from("supplier_messages").insert({
@@ -167,11 +217,20 @@ export const supplierSaveFeed = createServerFn({ method: "POST" })
     const { assertPublicUrl } = await import("@/lib/safe-fetch.server");
     assertPublicUrl(data.sourceUrl);
     const db = await admin();
-    const { count } = await db.from("supplier_xml_feeds").select("id", { count: "exact", head: true }).eq("supplier_id", supplier.id);
+    const { count } = await db
+      .from("supplier_xml_feeds")
+      .select("id", { count: "exact", head: true })
+      .eq("supplier_id", supplier.id);
     if ((count ?? 0) >= 10) throw new Error("En fazla 10 XML beslemesi eklenebilir");
     const { data: created, error } = await db
       .from("supplier_xml_feeds")
-      .insert({ supplier_id: supplier.id, store_id: supplier.store_id, name: data.name, source_url: data.sourceUrl, sale_markup_percent: data.markupPercent })
+      .insert({
+        supplier_id: supplier.id,
+        store_id: supplier.store_id,
+        name: data.name,
+        source_url: data.sourceUrl,
+        sale_markup_percent: data.markupPercent,
+      })
       .select("id, supplier_id, store_id, source_url, field_mapping, sale_markup_percent")
       .single();
     if (error) throw new Error(error.message);
@@ -181,18 +240,34 @@ export const supplierSaveFeed = createServerFn({ method: "POST" })
       const stats = await runSupplierFeed(db, created as never, supplier.currency || "TRY");
       return { id: String(created.id), stats, error: null as string | null };
     } catch (cause) {
-      return { id: String(created.id), stats: null, error: cause instanceof Error ? cause.message : "Besleme yüklenemedi" };
+      return {
+        id: String(created.id),
+        stats: null,
+        error: cause instanceof Error ? cause.message : "Besleme yüklenemedi",
+      };
     }
   });
 
 /** Beslemenin mağaza satış fiyatı kâr oranını günceller. */
 export const supplierSetFeedMarkup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ supplierId: z.guid(), feedId: z.guid(), markupPercent: z.number().min(0).max(1000) }).parse(data))
+  .inputValidator((data) =>
+    z
+      .object({
+        supplierId: z.guid(),
+        feedId: z.guid(),
+        markupPercent: z.number().min(0).max(1000),
+      })
+      .parse(data),
+  )
   .handler(async ({ data, context }) => {
     const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
     const db = await admin();
-    const { error } = await db.from("supplier_xml_feeds").update({ sale_markup_percent: data.markupPercent }).eq("id", data.feedId).eq("supplier_id", supplier.id);
+    const { error } = await db
+      .from("supplier_xml_feeds")
+      .update({ sale_markup_percent: data.markupPercent })
+      .eq("id", data.feedId)
+      .eq("supplier_id", supplier.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -200,11 +275,25 @@ export const supplierSetFeedMarkup = createServerFn({ method: "POST" })
 /** Tek bir tedarikçi ürününün mağaza satış fiyatını belirler. */
 export const supplierSetSalePrice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ supplierId: z.guid(), productId: z.guid(), salePrice: z.number().min(0).max(100_000_000) }).parse(data))
+  .inputValidator((data) =>
+    z
+      .object({
+        supplierId: z.guid(),
+        productId: z.guid(),
+        salePrice: z.number().min(0).max(100_000_000),
+      })
+      .parse(data),
+  )
   .handler(async ({ data, context }) => {
     const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
     const db = await admin();
-    const { data: row, error } = await db.from("supplier_products").update({ computed_price: data.salePrice }).eq("id", data.productId).eq("supplier_id", supplier.id).select("id").maybeSingle();
+    const { data: row, error } = await db
+      .from("supplier_products")
+      .update({ computed_price: data.salePrice })
+      .eq("id", data.productId)
+      .eq("supplier_id", supplier.id)
+      .select("id")
+      .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Ürün bulunamadı");
     const { propagateToImporters } = await import("@/lib/supplier-catalog.server");
@@ -218,7 +307,11 @@ export const supplierDeleteFeed = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
     const db = await admin();
-    const { error } = await db.from("supplier_xml_feeds").delete().eq("id", data.feedId).eq("supplier_id", supplier.id);
+    const { error } = await db
+      .from("supplier_xml_feeds")
+      .delete()
+      .eq("id", data.feedId)
+      .eq("supplier_id", supplier.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -228,9 +321,12 @@ export const supplierRunFeed = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ supplierId: z.guid(), feedId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
-    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
-    const limit = await consumeRateLimit(`supplier_feed:${context.userId}`, RATE_LIMITS.import_trigger);
-    if (!limit.allowed) throw new Error("Çok fazla deneme. Bir dakika sonra tekrar deneyin.");
+    const { consumeRateLimit, RATE_LIMITS, rateLimitMessage } = await import("@/lib/rate-limit.server");
+    const limit = await consumeRateLimit(
+      `supplier_feed:${context.userId}`,
+      RATE_LIMITS.import_trigger,
+    );
+    if (!limit.allowed) throw new Error(rateLimitMessage(limit));
     const db = await admin();
     const { data: feed } = await db
       .from("supplier_xml_feeds")
@@ -241,6 +337,19 @@ export const supplierRunFeed = createServerFn({ method: "POST" })
     if (!feed) throw new Error("Besleme bulunamadı");
     const { runSupplierFeed } = await import("@/lib/supplier-workflow.server");
     return runSupplierFeed(db, feed, supplier.currency || "TRY");
+  });
+
+/** Kesilmiş HTTP işi açık kullanıcı eylemiyle tekrar denenebilir hale getirilir. */
+export const supplierRecoverFeed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ supplierId: z.guid(), feedId: z.guid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
+    const db = await admin();
+    const result = await db.from("supplier_xml_feeds").update({ last_status: "failed", last_error: "Kesilmiş çalışma kullanıcı tarafından tekrar denemeye açıldı." }).eq("id", data.feedId).eq("supplier_id", supplier.id).eq("last_status", "running").lte("last_run_at", new Date(Date.now() - 10 * 60_000).toISOString()).select("id").maybeSingle();
+    if (result.error) throw new Error(result.error.message);
+    if (!result.data) throw new Error("Çalışma henüz kurtarma süresini aşmadı veya zaten tamamlandı. Durumu yenileyin.");
+    return { recovered: true };
   });
 
 const paymentSchema = z.discriminatedUnion("provider", [
@@ -270,11 +379,19 @@ export const supplierSavePaymentSettings = createServerFn({ method: "POST" })
     const settings =
       data.provider === "iyzico"
         ? { api_key: data.apiKey, secret_key: data.secretKey, sandbox: data.test }
-        : { merchant_id: data.merchantId, merchant_key: data.merchantKey, merchant_salt: data.merchantSalt, test_mode: data.test };
+        : {
+            merchant_id: data.merchantId,
+            merchant_key: data.merchantKey,
+            merchant_salt: data.merchantSalt,
+            test_mode: data.test,
+          };
     const db = await admin();
-    const { error } = await db
-      .from("supplier_payment_settings")
-      .upsert({ supplier_id: supplier.id, provider: data.provider, settings, updated_at: new Date().toISOString() });
+    const { error } = await db.from("supplier_payment_settings").upsert({
+      supplier_id: supplier.id,
+      provider: data.provider,
+      settings,
+      updated_at: new Date().toISOString(),
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -292,7 +409,10 @@ export const storeSupplierWorkflow = createServerFn({ method: "POST" })
     const orders = await lib.loadPurchaseOrders(db, { storeId: data.storeId });
     const supplierIds = Array.from(new Set(orders.map((o) => o.supplierId).filter(Boolean)));
     const { data: payRows } = supplierIds.length
-      ? await db.from("supplier_payment_settings").select("supplier_id, provider").in("supplier_id", supplierIds)
+      ? await db
+          .from("supplier_payment_settings")
+          .select("supplier_id, provider")
+          .in("supplier_id", supplierIds)
       : { data: [] };
     const { data: unreadRows } = await db
       .from("supplier_messages")
@@ -301,11 +421,14 @@ export const storeSupplierWorkflow = createServerFn({ method: "POST" })
       .eq("sender_role", "supplier")
       .is("read_at", null);
     const unread: Record<string, number> = {};
-    for (const row of (unreadRows ?? []) as any[]) unread[row.supplier_id] = (unread[row.supplier_id] ?? 0) + 1;
+    for (const row of (unreadRows ?? []) as any[])
+      unread[row.supplier_id] = (unread[row.supplier_id] ?? 0) + 1;
     return {
       orders: orders.map((order) => ({
         ...order,
-        payProvider: ((payRows ?? []) as any[]).find((row) => row.supplier_id === order.supplierId)?.provider ?? null,
+        payProvider:
+          ((payRows ?? []) as any[]).find((row) => row.supplier_id === order.supplierId)
+            ?.provider ?? null,
       })),
       unread,
     };
@@ -318,7 +441,12 @@ export const storeSupplierThread = createServerFn({ method: "POST" })
     const { assertStoreManager } = await import("@/lib/store-access.server");
     await assertStoreManager(context.supabase, data.storeId, context.userId);
     const db = await admin();
-    const { data: supplier } = await db.from("suppliers").select("id").eq("id", data.supplierId).eq("store_id", data.storeId).maybeSingle();
+    const { data: supplier } = await db
+      .from("suppliers")
+      .select("id")
+      .eq("id", data.supplierId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
     if (!supplier) throw new Error("Tedarikçi bulunamadı");
     const lib = await import("@/lib/supplier-workflow.server");
     await lib.markRead(db, data.supplierId, "store");
@@ -329,14 +457,24 @@ export const storeSendSupplierMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
     z
-      .object({ storeId: z.guid(), supplierId: z.guid(), body: z.string().trim().min(1).max(4000), purchaseOrderId: z.guid().optional() })
+      .object({
+        storeId: z.guid(),
+        supplierId: z.guid(),
+        body: z.string().trim().min(1).max(4000),
+        purchaseOrderId: z.guid().optional(),
+      })
       .parse(data),
   )
   .handler(async ({ data, context }) => {
     const { assertStoreManager } = await import("@/lib/store-access.server");
     await assertStoreManager(context.supabase, data.storeId, context.userId);
     const db = await admin();
-    const { data: supplier } = await db.from("suppliers").select("id").eq("id", data.supplierId).eq("store_id", data.storeId).maybeSingle();
+    const { data: supplier } = await db
+      .from("suppliers")
+      .select("id")
+      .eq("id", data.supplierId)
+      .eq("store_id", data.storeId)
+      .maybeSingle();
     if (!supplier) throw new Error("Tedarikçi bulunamadı");
     const { error } = await db.from("supplier_messages").insert({
       store_id: data.storeId,
@@ -359,7 +497,11 @@ export const storePayPurchaseOrder = createServerFn({ method: "POST" })
     await assertStoreManager(context.supabase, data.storeId, context.userId);
     const db = await admin();
     const lib = await import("@/lib/supplier-workflow.server");
-    const [order] = await lib.loadPurchaseOrders(db, { storeId: data.storeId, ids: [data.purchaseOrderId] }, 1);
+    const [order] = await lib.loadPurchaseOrders(
+      db,
+      { storeId: data.storeId, ids: [data.purchaseOrderId] },
+      1,
+    );
     if (!order) throw new Error("Sipariş bulunamadı");
     if (order.paymentStatus === "paid") throw new Error("Bu sipariş zaten ödendi");
     if (order.status === "cancelled") throw new Error("İptal edilen sipariş ödenemez");
@@ -367,11 +509,21 @@ export const storePayPurchaseOrder = createServerFn({ method: "POST" })
     const pay = await lib.loadSupplierPaymentSettings(db, order.supplierId);
     if (!pay) throw new Error("Tedarikçi henüz ödeme hesabı (iyzico/PayTR) tanımlamadı");
 
-    const { data: store } = await db.from("stores").select("name, slug").eq("id", data.storeId).maybeSingle();
+    const { data: store } = await db
+      .from("stores")
+      .select("name, slug")
+      .eq("id", data.storeId)
+      .maybeSingle();
     const { data: me } = await context.supabase.auth.getUser();
     const request = getRequest();
     const origin = new URL(request.url).origin;
-    const ip = (request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for") ?? "127.0.0.1").split(",")[0]!.trim();
+    const ip = (
+      request.headers.get("cf-connecting-ip") ??
+      request.headers.get("x-forwarded-for") ??
+      "127.0.0.1"
+    )
+      .split(",")[0]!
+      .trim();
     const gw = await import("@/lib/store-gateways.server");
     const gatewayOrder = {
       id: order.id,
@@ -388,9 +540,17 @@ export const storePayPurchaseOrder = createServerFn({ method: "POST" })
     const back = `${origin}/store/${data.storeId}/purchasing?po=${order.id}`;
     const url =
       pay.provider === "iyzico"
-        ? await gw.createIyzicoPayment(pay.settings, gatewayOrder, { origin, ip, callbackUrl: `${origin}/api/public/pay/supplier-iyzico/${order.id}` })
+        ? await gw.createIyzicoPayment(pay.settings, gatewayOrder, {
+            origin,
+            ip,
+            callbackUrl: `${origin}/api/public/pay/supplier-iyzico/${order.id}`,
+          })
         : await gw.createPaytrPayment(pay.settings, gatewayOrder, { origin, ip, backUrl: back });
-    await db.from("purchase_orders").update({ payment_status: "pending", payment_provider: pay.provider }).eq("id", order.id).neq("payment_status", "paid");
+    await db
+      .from("purchase_orders")
+      .update({ payment_status: "pending", payment_provider: pay.provider })
+      .eq("id", order.id)
+      .neq("payment_status", "paid");
     return { url };
   });
 
@@ -415,7 +575,9 @@ export const adminSupplierOverview = createServerFn({ method: "POST" })
         .limit(300),
       db
         .from("supplier_payout_requests")
-        .select("id, store_id, supplier_id, amount, currency, iban, account_name, status, note, created_at")
+        .select(
+          "id, store_id, supplier_id, amount, currency, iban, account_name, status, note, created_at",
+        )
         .order("created_at", { ascending: false })
         .limit(100),
       db.from("stores").select("id, name").order("name").limit(1000),
@@ -425,14 +587,30 @@ export const adminSupplierOverview = createServerFn({ method: "POST" })
     const orders = ids.length ? await lib.loadPurchaseOrders(db, { supplierIds: ids }, 100) : [];
     // Tedarikçi sayfasından kayıt olup henüz bir tedarikçi kaydına bağlanmamış hesaplar.
     const linked = new Set(((suppliers ?? []) as any[]).map((s) => s.portal_user_id as string));
-    const pending: { userId: string; email: string; name: string | null; createdAt: string; confirmed: boolean }[] = [];
+    const pending: {
+      userId: string;
+      email: string;
+      name: string | null;
+      createdAt: string;
+      confirmed: boolean;
+    }[] = [];
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     for (let page = 1; page <= 20; page += 1) {
-      const { data: list, error: listError } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+      const { data: list, error: listError } = await supabaseAdmin.auth.admin.listUsers({
+        page,
+        perPage: 200,
+      });
       if (listError) break;
       for (const u of list.users) {
-        if (u.user_metadata?.["signup_kind"] !== "supplier" || linked.has(u.id) || !u.email) continue;
-        pending.push({ userId: u.id, email: u.email, name: (u.user_metadata?.["full_name"] as string | null) ?? null, createdAt: u.created_at, confirmed: Boolean(u.email_confirmed_at) });
+        if (u.user_metadata?.["signup_kind"] !== "supplier" || linked.has(u.id) || !u.email)
+          continue;
+        pending.push({
+          userId: u.id,
+          email: u.email,
+          name: (u.user_metadata?.["full_name"] as string | null) ?? null,
+          createdAt: u.created_at,
+          confirmed: Boolean(u.email_confirmed_at),
+        });
       }
       if (list.users.length < 200) break;
     }
@@ -461,7 +639,11 @@ export const adminSupplierOverview = createServerFn({ method: "POST" })
         note: (p.note as string | null) ?? null,
         createdAt: String(p.created_at),
       })),
-      orders: orders.map((o) => ({ ...o, supplierName: supplierName.get(o.supplierId) ?? "—", storeName: storeName.get(o.storeId) ?? "—" })),
+      orders: orders.map((o) => ({
+        ...o,
+        supplierName: supplierName.get(o.supplierId) ?? "—",
+        storeName: storeName.get(o.storeId) ?? "—",
+      })),
     };
   });
 
@@ -485,7 +667,10 @@ export const adminGrantSupplierAccess = createServerFn({ method: "POST" })
     let userId: string | null = null;
     let metaName: string | null = null;
     for (let page = 1; page <= 20 && !userId; page += 1) {
-      const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+      const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({
+        page,
+        perPage: 200,
+      });
       if (error) throw new Error(error.message);
       const hit = list.users.find((u) => (u.email ?? "").toLowerCase() === email);
       if (hit) {
@@ -504,11 +689,13 @@ export const adminGrantSupplierAccess = createServerFn({ method: "POST" })
           .eq("portal_user_id", userId)
           .eq("store_id", data.buyerStoreId)
           .limit(1)
-          
       : await db.from("suppliers").select("id").eq("portal_user_id", userId).limit(1);
     const existing = existingRows?.[0];
     if (existing) {
-      await db.from("suppliers").update({ portal_enabled: true, is_active: true }).eq("id", existing.id);
+      await db
+        .from("suppliers")
+        .update({ portal_enabled: true, is_active: true })
+        .eq("id", existing.id);
       return { id: String(existing.id), created: false };
     }
 
@@ -516,7 +703,12 @@ export const adminGrantSupplierAccess = createServerFn({ method: "POST" })
     // katalog herkese açık olduğundan tüm mağazalar tedarikçiyi görür.
     let storeId = data.buyerStoreId ?? null;
     if (!storeId) {
-      const { data: own } = await db.from("stores").select("id").eq("owner_id", context.userId).order("created_at").limit(1);
+      const { data: own } = await db
+        .from("stores")
+        .select("id")
+        .eq("owner_id", context.userId)
+        .order("created_at")
+        .limit(1);
       storeId = own?.[0]?.id ?? null;
     }
     if (!storeId) {
@@ -524,7 +716,9 @@ export const adminGrantSupplierAccess = createServerFn({ method: "POST" })
       storeId = first?.[0]?.id ?? null;
     }
     if (!storeId) throw new Error("Tedarikçi kaydı için platformda en az bir mağaza olmalı");
-    const name = (data.supplierName && data.supplierName.length >= 2 ? data.supplierName : metaName) || email.split("@")[0];
+    const name =
+      (data.supplierName && data.supplierName.length >= 2 ? data.supplierName : metaName) ||
+      email.split("@")[0];
 
     const { data: created, error } = await db
       .from("suppliers")
@@ -549,7 +743,10 @@ export const adminSetSupplierPortal = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const db = await admin();
-    const { error } = await db.from("suppliers").update({ portal_enabled: data.enabled }).eq("id", data.supplierId);
+    const { error } = await db
+      .from("suppliers")
+      .update({ portal_enabled: data.enabled })
+      .eq("id", data.supplierId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -558,7 +755,13 @@ export const adminSetSupplierPortal = createServerFn({ method: "POST" })
 export const adminProcessSupplierPayout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
-    z.object({ payoutId: z.guid(), status: z.enum(["approved", "paid", "rejected"]), adminNote: z.string().trim().max(500).optional() }).parse(data),
+    z
+      .object({
+        payoutId: z.guid(),
+        status: z.enum(["approved", "paid", "rejected"]),
+        adminNote: z.string().trim().max(500).optional(),
+      })
+      .parse(data),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
@@ -569,10 +772,15 @@ export const adminProcessSupplierPayout = createServerFn({ method: "POST" })
       .eq("id", data.payoutId)
       .maybeSingle();
     if (!request) throw new Error("Ödeme talebi bulunamadı");
-    if (request.status === "paid" || request.status === "rejected") throw new Error("Bu talep zaten kapanmış");
+    if (request.status === "paid" || request.status === "rejected")
+      throw new Error("Bu talep zaten kapanmış");
     const { error } = await db
       .from("supplier_payout_requests")
-      .update({ status: data.status, admin_note: data.adminNote ?? null, processed_at: new Date().toISOString() })
+      .update({
+        status: data.status,
+        admin_note: data.adminNote ?? null,
+        processed_at: new Date().toISOString(),
+      })
       .eq("id", request.id);
     if (error) throw new Error(error.message);
     if (data.status !== "paid") return { ok: true, settled: 0 };
@@ -591,7 +799,10 @@ export const adminProcessSupplierPayout = createServerFn({ method: "POST" })
       settled.push(String(entry.id));
     }
     if (settled.length) {
-      await db.from("supplier_commission_entries").update({ status: "paid", payout_request_id: request.id }).in("id", settled);
+      await db
+        .from("supplier_commission_entries")
+        .update({ status: "paid", payout_request_id: request.id })
+        .in("id", settled);
     }
     return { ok: true, settled: settled.length };
   });

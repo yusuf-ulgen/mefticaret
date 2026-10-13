@@ -245,9 +245,7 @@ function NewReturnSheet({ storeId, onDone }: { storeId: string; onDone: () => vo
 
           <div className="flex items-center justify-between rounded-xl bg-muted/50 px-3 py-2 text-sm">
             <span className="text-muted-foreground">Tahmini iade tutarı</span>
-            <span className="font-semibold">
-              {formatMoney(total, order?.currency ?? "TRY")}
-            </span>
+            <span className="font-semibold">{formatMoney(total, order?.currency ?? "TRY")}</span>
           </div>
 
           <Button
@@ -317,9 +315,7 @@ function ReturnsPage() {
           <p className="mt-1 text-2xl font-semibold">{pendingCount}</p>
         </div>
         <div className="rounded-2xl border border-border/60 bg-card p-4">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Geri ödenen tutar
-          </p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Geri ödenen tutar</p>
           <p className="mt-1 text-2xl font-semibold">{formatMoney(refundTotal, "TRY")}</p>
         </div>
       </div>
@@ -366,8 +362,7 @@ function ReturnsPage() {
                     </Badge>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {row.orders?.order_number ?? "—"} ·{" "}
-                    {row.orders?.customer_name ?? "Misafir"} ·{" "}
+                    {row.orders?.order_number ?? "—"} · {row.orders?.customer_name ?? "Misafir"} ·{" "}
                     {RETURN_REASON_LABELS[row.reason as ReturnReason]} ·{" "}
                     {formatDateTime(row.created_at)}
                   </p>
@@ -399,6 +394,7 @@ function ReturnsPage() {
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <Select
                   value={status}
+                  disabled={status === "refunded" || mutation.isPending}
                   onValueChange={(value) =>
                     mutation.mutate({ returnId: row.id, status: value as ReturnStatus })
                   }
@@ -427,6 +423,7 @@ function ReturnsPage() {
                     }
                   }}
                   aria-label="İade tutarı"
+                  disabled={status === "refunded" || mutation.isPending}
                 />
                 <Button
                   variant="outline"
@@ -434,7 +431,8 @@ function ReturnsPage() {
                   disabled={status === "refunded" || mutation.isPending}
                   onClick={() => mutation.mutate({ returnId: row.id, status: "refunded" })}
                 >
-                  <RotateCcw className="mr-2 size-4" /> Geri ödemeyi tamamla
+                  <RotateCcw className="mr-2 size-4" />{" "}
+                  {status === "refunded" ? "İade tamamlandı" : "Geri ödemeyi tamamla"}
                 </Button>
               </div>
             </article>

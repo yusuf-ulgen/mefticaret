@@ -2,7 +2,6 @@ import { requireHomeMaker } from "@/lib/home-maker-guard";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-
 /**
  * Kolay Panel müşteri uçları.
  *
@@ -25,11 +24,15 @@ export type KolayCustomer = {
 };
 
 const storeInput = z.object({ storeId: z.string().uuid() });
+const customerListInput = storeInput.extend({
+  page: z.number().int().min(0).max(100000).default(0),
+  search: z.string().max(100).default(""),
+});
 
 export const listKolayCustomers = createServerFn({ method: "GET" })
   .middleware([requireHomeMaker])
-  .inputValidator((input: unknown) => storeInput.parse(input))
-  .handler(async ({ data, context }): Promise<KolayCustomer[]> => {
+  .inputValidator((input: unknown) => customerListInput.parse(input))
+  .handler(async ({ data, context }) => {
     const { supabase } = context;
 
     const { data: store, error: storeError } = await supabase
@@ -41,45 +44,34 @@ export const listKolayCustomers = createServerFn({ method: "GET" })
     if (!store) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
     const currency = (store as { currency?: string | null }).currency ?? "TRY";
 
-    const { data: rows, error } = await supabase
+    let query = supabase
       .from("customers")
       .select(
         "id, full_name, phone, email, notes, tags, orders_count, total_spent, last_activity_at, created_at",
+        { count: "exact" },
       )
       .eq("store_id", data.storeId)
       .order("last_activity_at", { ascending: false, nullsFirst: false })
-      .limit(500);
+      .order("id");
+    const term = data.search.trim().replace(/[%,().]/g, " ");
+    if (term)
+      query = query.or(
+        `full_name.ilike.%${term}%,phone.ilike.%${term}%,email.ilike.%${term}%,notes.ilike.%${term}%`,
+      );
+    const pageSize = 25;
+    const {
+      data: rows,
+      count,
+      error,
+    } = await query.range(data.page * pageSize, (data.page + 1) * pageSize - 1);
     if (error) throw new Error(error.message);
 
-    // Gerçek sipariş verisiyle telefon/e-posta üzerinden eşleştirilmiş özet.
-    const { data: orders, error: ordersError } = await supabase
-      .from("orders")
-      .select("customer_phone, customer_email, grand_total, payment_status, status, placed_at")
-      .eq("store_id", data.storeId)
-      .limit(2000);
-    if (ordersError) throw new Error(ordersError.message);
+    const aggregate = rows?.length ? await supabase.rpc("customer_page_summaries", { p_store_id: data.storeId, p_customer_ids: rows.map((row) => row.id) }) : { data: [], error: null };
+    if (aggregate.error) throw new Error(aggregate.error.message);
+    const summary = new Map((aggregate.data ?? []).map((row) => [row.customer_id, row]));
 
-    const digits = (value: string | null | undefined) => (value ?? "").replace(/\D/g, "").slice(-10);
-    const summary = new Map<string, { count: number; total: number; last: string | null }>();
-    for (const order of orders ?? []) {
-      if (["cancelled", "refunded", "returned"].includes(String(order.status))) continue;
-      const keys = [digits(order.customer_phone), (order.customer_email ?? "").toLowerCase()].filter(
-        Boolean,
-      );
-      for (const key of keys) {
-        const current = summary.get(key) ?? { count: 0, total: 0, last: null };
-        current.count += 1;
-        if (String(order.payment_status) === "paid") current.total += Number(order.grand_total ?? 0);
-        const placed = order.placed_at ?? null;
-        if (placed && (!current.last || placed > current.last)) current.last = placed;
-        summary.set(key, current);
-      }
-    }
-
-    return (rows ?? []).map((row) => {
-      const byPhone = summary.get(digits(row.phone));
-      const byMail = summary.get((row.email ?? "").toLowerCase());
-      const match = byPhone ?? byMail;
+    const items: KolayCustomer[] = (rows ?? []).map((row) => {
+      const match = summary.get(row.id);
       return {
         id: row.id,
         fullName: row.full_name,
@@ -87,12 +79,13 @@ export const listKolayCustomers = createServerFn({ method: "GET" })
         email: row.email,
         notes: row.notes,
         tags: (row.tags ?? []) as string[],
-        ordersCount: match?.count ?? Number(row.orders_count ?? 0),
-        totalSpent: match?.total ?? Number(row.total_spent ?? 0),
-        lastOrderAt: match?.last ?? row.last_activity_at ?? null,
+        ordersCount: Number(match?.orders_count ?? 0),
+        totalSpent: Number(match?.total_spent ?? 0),
+        lastOrderAt: match?.last_order_at ?? row.last_activity_at ?? null,
         currency,
       };
     });
+    return { items, total: count ?? 0, pageSize, currency };
   });
 
 const saveInput = z.object({

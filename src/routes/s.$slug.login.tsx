@@ -1,3 +1,4 @@
+import { customerReturnTarget } from "@/lib/customer-return";
 import { useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -45,7 +46,7 @@ function LoginPage() {
   const { slug } = Route.useParams();
   const navigate = useNavigate();
   const search = Route.useSearch();
-  const target = search.return === "checkout" ? "checkout" : "account";
+  const target = customerReturnTarget(search.return);
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   const { user } = useAuth();
   const [email, setEmail] = useState("");
@@ -77,7 +78,10 @@ function LoginPage() {
       return;
     }
     toast.success("Hoş geldin!");
-    void navigate({ to: target === "checkout" ? "/s/$slug/checkout" : "/s/$slug/account", params: { slug } });
+    void navigate({
+      to: target === "checkout" ? "/s/$slug/checkout" : "/s/$slug/account",
+      params: { slug },
+    });
   }
 
   async function google() {
@@ -89,12 +93,20 @@ function LoginPage() {
   }
 
   return (
-    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} footerPages={footerPages}>
+    <StorefrontChrome
+      theme={theme}
+      storeName={store.name}
+      storeSlug={store.slug}
+      footerPages={footerPages}
+    >
       <Breadcrumb theme={theme} slug={slug} storeName={store.name} current="Giriş" />
       <section style={{ padding: "24px 0 64px", maxWidth: 420 }}>
-        <h1 style={{ fontFamily: fonts.heading, fontSize: 30, fontWeight: 700, margin: 0 }}>Giriş yap</h1>
+        <h1 style={{ fontFamily: fonts.heading, fontSize: 30, fontWeight: 700, margin: 0 }}>
+          Giriş yap
+        </h1>
         <p style={{ color: muted, marginTop: 10, fontSize: 14 }}>
-          Hesabınla giriş yaparak siparişlerini, adreslerini ve favorilerini tek yerden yönetebilirsin.
+          Hesabınla giriş yaparak siparişlerini, adreslerini ve favorilerini tek yerden
+          yönetebilirsin.
         </p>
 
         {user ? (
@@ -109,8 +121,12 @@ function LoginPage() {
             }}
           >
             Zaten giriş yaptın.{" "}
-            <Link to="/s/$slug/account" params={{ slug }} style={{ color: "inherit", fontWeight: 600 }}>
-              Hesabıma git
+            <Link
+              to={target === "checkout" ? "/s/$slug/checkout" : "/s/$slug/account"}
+              params={{ slug }}
+              style={{ color: "inherit", fontWeight: 600 }}
+            >
+              {target === "checkout" ? "Ödemeye dön" : "Hesabıma git"}
             </Link>
           </div>
         ) : (
@@ -172,7 +188,12 @@ function LoginPage() {
 
         <p style={{ color: muted, fontSize: 13, marginTop: 18 }}>
           Hesabın yok mu?{" "}
-          <Link to="/s/$slug/register" params={{ slug }} style={{ color: "inherit", fontWeight: 600 }}>
+          <Link
+            to="/s/$slug/register"
+            params={{ slug }}
+            search={{ return: search.return }}
+            style={{ color: "inherit", fontWeight: 600 }}
+          >
             Kayıt ol
           </Link>
         </p>

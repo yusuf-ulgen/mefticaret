@@ -5,11 +5,11 @@ import { getKolayInsights } from "@/lib/kolay-insights.functions";
 
 /** Kolay Panel müşteri ve analitik okuma katmanı. */
 
-export const kolayCustomersQuery = (storeId: string) =>
+export const kolayCustomersQuery = (storeId: string, search = "", page = 0) =>
   queryOptions({
-    queryKey: ["kolay-customers", storeId],
+    queryKey: ["kolay-customers", storeId, search, page],
     staleTime: 30_000,
-    queryFn: () => listKolayCustomers({ data: { storeId } }),
+    queryFn: () => listKolayCustomers({ data: { storeId, search, page } }),
   });
 
 export const kolayInsightsQuery = (storeId: string, days = 30) =>

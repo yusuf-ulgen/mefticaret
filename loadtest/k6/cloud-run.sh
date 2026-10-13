@@ -5,15 +5,15 @@
 # Kullanım:
 #   export K6_CLOUD_TOKEN="grafana-cloud-k6-token"
 #   export K6_CLOUD_PROJECT_ID="1234567"
-#   BASE_URL=https://mefticaret.com VUS=20000 DURATION=15m \
+#   BASE_URL=https://staging.example.test VUS=20000 DURATION=15m \
 #     bash loadtest/k6/cloud-run.sh storefront
-#   BASE_URL=https://mefticaret.com VUS=1000 ORDERS=10000 \
+#   BASE_URL=https://staging.example.test VUS=1000 ORDERS=10000 \
 #     bash loadtest/k6/cloud-run.sh checkout
 set -euo pipefail
 
 : "${K6_CLOUD_TOKEN:?Grafana Cloud k6 API token gerekli: export K6_CLOUD_TOKEN=...}"
 : "${K6_CLOUD_PROJECT_ID:?Grafana Cloud k6 proje kimliği gerekli: export K6_CLOUD_PROJECT_ID=...}"
-: "${BASE_URL:?HEDEF gerekli: export BASE_URL=https://mefticaret.com}"
+: "${BASE_URL:?HEDEF gerekli: export BASE_URL=https://staging.example.test}"
 
 SCENARIO="${1:-storefront}"
 case "$SCENARIO" in

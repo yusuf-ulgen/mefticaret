@@ -344,10 +344,13 @@ export const getStorefrontProduct = createServerFn({ method: "GET" })
         if (row.path && row.signedUrl) signed[row.path] = row.signedUrl;
       }
     }
+    const { signProductImageSizes } = await import("@/lib/signed-image.server");
+    const responsive = await signProductImageSizes(supabase, storedPaths);
     const images = imageRows.map((row) => ({
       id: row.id,
       alt: row.alt,
       position: row.position,
+      responsiveSources: row.storage_path ? responsive[row.storage_path] ?? [] : [],
       url: row.storage_path ? (signed[row.storage_path] ?? row.url) : row.url,
     }));
 

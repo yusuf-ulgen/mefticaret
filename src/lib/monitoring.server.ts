@@ -4,6 +4,7 @@
  */
 
 export type ErrorSeverity = "CRITICAL" | "WARNING" | "INFO";
+import { APP_RELEASE } from "@/lib/build-version";
 
 export type RecordErrorInput = {
   severity?: ErrorSeverity;
@@ -27,7 +28,7 @@ export const HEALTH_THRESHOLDS = {
   criticalErrors24h: { degraded: 1, outage: 10 },
 } as const;
 
-export type HealthStatus = "healthy" | "degraded" | "outage";
+export type HealthStatus = "healthy" | "degraded" | "outage" | "unknown";
 
 export function statusFor(
   value: number,
@@ -61,7 +62,7 @@ function fingerprintOf(input: RecordErrorInput): string {
     .find((line) => line.startsWith("at "))
     ?.replace(/:\d+:\d+/g, "")
     .slice(0, 160);
-  const raw = `${input.source}|${normalizedMessage}|${frame ?? ""}`;
+  const raw = `${input.source}|${normalizedMessage}|${frame ?? ""}|${APP_RELEASE}|${input.meta?.["clientRelease"] ?? ""}`;
   // FNV-1a: Worker ortamında bağımlılık gerektirmeyen hızlı özet.
   let hash = 0x811c9dc5;
   for (let i = 0; i < raw.length; i++) {
@@ -88,12 +89,11 @@ export async function recordAppError(input: RecordErrorInput): Promise<void> {
       ...(input.route ? { _route: input.route } : {}),
       ...(input.userId ? { _user_id: input.userId } : {}),
       ...(input.storeId ? { _store_id: input.storeId } : {}),
-      _meta: (input.meta ?? {}) as never,
+      _meta: { ...input.meta, serverRelease: APP_RELEASE, component: input.source } as never,
     });
     if (error) return;
     const row = (Array.isArray(data) ? data[0] : data) as
-      | { id: string; occurrences: number; is_new: boolean }
-      | undefined;
+      { id: string; occurrences: number; is_new: boolean } | undefined;
     if (!row) return;
 
     if (severity === "CRITICAL" || row.is_new) {
@@ -101,7 +101,9 @@ export async function recordAppError(input: RecordErrorInput): Promise<void> {
         key: `error:${row.id}`,
         severity: severity === "CRITICAL" ? "CRITICAL" : "WARNING",
         title: `${severity === "CRITICAL" ? "Kritik hata" : "Yeni hata"}: ${input.message.slice(0, 160)}`,
-        detail: [input.source, input.route, `tekrar: ${row.occurrences}`].filter(Boolean).join(" · "),
+        detail: [input.source, input.route, `tekrar: ${row.occurrences}`]
+          .filter(Boolean)
+          .join(" · "),
       });
     }
   } catch {
@@ -161,7 +163,12 @@ export async function sendMonitoringAlert(input: {
     await fetch(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text, severity: input.severity, title: input.title, detail: input.detail ?? null }),
+      body: JSON.stringify({
+        text,
+        severity: input.severity,
+        title: input.title,
+        detail: input.detail ?? null,
+      }),
     });
     return true;
   } catch {
@@ -179,7 +186,7 @@ function percentile(values: number[], p: number): number {
 export type HealthMetric = {
   key: string;
   label: string;
-  value: number;
+  value: number | null;
   display: string;
   status: HealthStatus;
   hint: string;
@@ -193,19 +200,23 @@ export async function infrastructureHealth() {
   const nowIso = new Date().toISOString();
 
   const pingStart = Date.now();
-  await db.rpc("db_ping");
+  const { error: pingError } = await db.rpc("db_ping");
   const dbLatency = Date.now() - pingStart;
 
   const countOf = async (table: string, apply?: (query: any) => any) => {
     let query = (db as any).from(table).select("id", { count: "exact", head: true });
     if (apply) query = apply(query);
-    const { count } = await query;
-    return Number(count ?? 0);
+    const { count, error } = await query;
+    return error || count === null ? null : Number(count);
   };
 
   const [cacheRes, apiRes, queued, running, failed, delayed, errorRes] = await Promise.all([
     db.from("cache_metrics").select("hits, misses").gte("bucket", since1h),
-    db.from("api_request_logs").select("status_code, duration_ms").gte("created_at", since24h).limit(20000),
+    db
+      .from("api_request_logs")
+      .select("status_code, duration_ms")
+      .gte("created_at", since24h)
+      .limit(20000),
     countOf("job_queue", (q: any) => q.eq("status", "queued")),
     countOf("job_queue", (q: any) => q.eq("status", "running")),
     countOf("job_queue", (q: any) => q.eq("status", "failed")),
@@ -224,7 +235,9 @@ export async function infrastructureHealth() {
   const cacheHitRatio = cacheTotal > 0 ? cacheHits / cacheTotal : 1;
 
   const apiRows = (apiRes.data ?? []) as { status_code: number; duration_ms: number | null }[];
-  const durations = apiRows.map((row) => Number(row.duration_ms ?? 0));
+  const durations = apiRows
+    .filter((row) => row.duration_ms !== null && Number.isFinite(Number(row.duration_ms)))
+    .map((row) => Number(row.duration_ms));
   const apiErrors = apiRows.filter((row) => row.status_code >= 500).length;
   const apiErrorRate = apiRows.length > 0 ? apiErrors / apiRows.length : 0;
 
@@ -236,14 +249,14 @@ export async function infrastructureHealth() {
     .filter((row) => row.severity === "WARNING")
     .reduce((sum, row) => sum + Number(row.occurrences ?? 1), 0);
 
-  const backlog = queued + running;
+  const backlog = (queued ?? 0) + (running ?? 0);
   const metrics: HealthMetric[] = [
     {
       key: "db_latency",
       label: "Veritabanı gecikmesi",
       value: dbLatency,
       display: `${dbLatency} ms`,
-      status: statusFor(dbLatency, HEALTH_THRESHOLDS.dbLatencyMs),
+      status: pingError ? "outage" : statusFor(dbLatency, HEALTH_THRESHOLDS.dbLatencyMs),
       hint: `Eşik ${HEALTH_THRESHOLDS.dbLatencyMs.degraded}/${HEALTH_THRESHOLDS.dbLatencyMs.outage} ms`,
     },
     {
@@ -252,7 +265,10 @@ export async function infrastructureHealth() {
       value: cacheHitRatio,
       display: `${(cacheHitRatio * 100).toFixed(1)}%`,
       status: statusFor(cacheHitRatio, HEALTH_THRESHOLDS.cacheHitRatio, "lower-is-worse"),
-      hint: cacheTotal > 0 ? `${cacheHits} isabet / ${cacheMisses} ıskalama (1 saat)` : "Son 1 saatte ölçüm yok",
+      hint:
+        cacheTotal > 0
+          ? `${cacheHits} isabet / ${cacheMisses} ıskalama (1 saat)`
+          : "Son 1 saatte ölçüm yok",
     },
     {
       key: "api_p95",
@@ -283,7 +299,7 @@ export async function infrastructureHealth() {
       label: "Başarısız işler",
       value: failed,
       display: `${failed} iş`,
-      status: statusFor(failed, HEALTH_THRESHOLDS.queueFailed),
+      status: statusFor(failed ?? 0, HEALTH_THRESHOLDS.queueFailed),
       hint: "3 denemeden sonra başarısız olan işler",
     },
     {
@@ -296,19 +312,51 @@ export async function infrastructureHealth() {
     },
   ];
 
+  const unavailable = new Set<string>();
+  if (cacheRes.error || cacheTotal === 0) unavailable.add("cache_hit_ratio");
+  if (apiRes.error || durations.length === 0) unavailable.add("api_p95");
+  if (apiRes.error || apiRows.length === 0) unavailable.add("api_error_rate");
+  if (queued === null || running === null || delayed === null) unavailable.add("queue_backlog");
+  if (failed === null) unavailable.add("queue_failed");
+  if (errorRes.error) unavailable.add("critical_errors");
+  for (const metric of metrics) {
+    if (unavailable.has(metric.key)) {
+      metric.value = null;
+      metric.display = "Ölçüm yok";
+      metric.status = "unknown";
+      metric.hint = "Veri alınamadı veya bu zaman aralığında ölçüm bulunmuyor.";
+    }
+    if (metric.key === "db_latency" && pingError) {
+      metric.value = null;
+      metric.display = "DB kontrolü başarısız";
+      metric.hint = "Veritabanı ping isteği başarısız oldu.";
+    }
+  }
+
   const overall: HealthStatus = metrics.some((metric) => metric.status === "outage")
     ? "outage"
     : metrics.some((metric) => metric.status === "degraded")
       ? "degraded"
-      : "healthy";
+      : metrics.some((metric) => metric.status === "unknown")
+        ? "unknown"
+        : "healthy";
 
   return {
     overall,
     metrics,
     measuredAt: nowIso,
     queue: { queued, running, failed, delayed },
-    cache: { hits: cacheHits, misses: cacheMisses, ratio: cacheHitRatio },
-    api: { requests: apiRows.length, errors: apiErrors, p50: percentile(durations, 50), p95: percentile(durations, 95) },
+    cache: {
+      hits: cacheHits,
+      misses: cacheMisses,
+      ratio: unavailable.has("cache_hit_ratio") ? null : cacheHitRatio,
+    },
+    api: {
+      requests: apiRes.error ? null : apiRows.length,
+      errors: apiRes.error ? null : apiErrors,
+      p50: unavailable.has("api_p95") ? null : percentile(durations, 50),
+      p95: unavailable.has("api_p95") ? null : percentile(durations, 95),
+    },
     errors: { critical: criticalErrors, warning: warningErrors },
   };
 }
@@ -318,7 +366,7 @@ export async function evaluateHealthAlerts() {
   const health = await infrastructureHealth();
   const sent: string[] = [];
   for (const metric of health.metrics) {
-    if (metric.status === "healthy") continue;
+    if (metric.status === "healthy" || metric.status === "unknown") continue;
     const ok = await sendMonitoringAlert({
       key: `health:${metric.key}:${metric.status}`,
       severity: metric.status === "outage" ? "CRITICAL" : "WARNING",
@@ -344,6 +392,7 @@ export type ErrorLogRow = {
   first_seen_at: string;
   last_seen_at: string;
   resolved_at: string | null;
+  meta: { component: string | null; clientRelease: string | null; serverRelease: string | null; investigationStatus: string | null };
 };
 
 export async function listErrorLogs(input: {
@@ -356,7 +405,7 @@ export async function listErrorLogs(input: {
   let query = db
     .from("app_error_logs")
     .select(
-      "id, severity, source, message, stack, route, user_id, store_id, occurrences, first_seen_at, last_seen_at, resolved_at",
+      "id, severity, source, message, stack, route, user_id, store_id, occurrences, first_seen_at, last_seen_at, resolved_at, meta",
     )
     .order("last_seen_at", { ascending: false })
     .limit(Math.min(input.limit ?? 100, 300));
@@ -370,7 +419,11 @@ export async function listErrorLogs(input: {
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return (data ?? []) as unknown as ErrorLogRow[];
+  return (data ?? []).map((row) => {
+    const raw = row.meta && typeof row.meta === "object" && !Array.isArray(row.meta) ? row.meta : {};
+    const text = (key: string) => typeof raw[key] === "string" ? raw[key] as string : null;
+    return { ...row, meta: { component: text("component"), clientRelease: text("clientRelease"), serverRelease: text("serverRelease"), investigationStatus: text("investigationStatus") } };
+  }) as ErrorLogRow[];
 }
 
 /** Hatayı çözüldü / yeniden açık olarak işaretler. */

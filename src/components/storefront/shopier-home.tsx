@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { AlertCircle, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 
 import type { WokieeProduct } from "@/components/wokiee/product-card";
-import { formatMoney } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 
 type Collection = { id: string; title: string; slug: string };
 type FooterPage = { title: string; slug: string };

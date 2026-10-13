@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
+import { inspectStoreSitemap } from "@/lib/seo.functions";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SeoAuditTab } from "@/components/seo/seo-audit";
@@ -29,11 +30,7 @@ import { SeoUrlsTab } from "@/components/seo/seo-urls";
 import { storePagesQuery } from "@/lib/pages-queries";
 import { readStoreSeo, type StoreSeoSettings } from "@/lib/seo";
 import { seo404Query, seoRedirectsQuery } from "@/lib/seo-management-queries";
-import {
-  latestSeoAuditQuery,
-  seoAuditPagesQuery,
-  seoIssuesQuery,
-} from "@/lib/seo-audit-queries";
+import { latestSeoAuditQuery, seoAuditPagesQuery, seoIssuesQuery } from "@/lib/seo-audit-queries";
 import { fixSeoIssuesBulk, runSeoAudit, updateSeoIssueStatus } from "@/lib/seo-audit.functions";
 import {
   createRedirectFrom404,
@@ -68,6 +65,12 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/seo")({
 
 function SeoCenterPage() {
   const { storeId } = Route.useParams();
+  const inspectSitemap = useServerFn(inspectStoreSitemap);
+  const sitemap = useQuery({
+    queryKey: ["store-sitemap-inventory", storeId],
+    queryFn: () => inspectSitemap({ data: { storeId } }),
+    staleTime: 60_000,
+  });
   const client = useQueryClient();
   const { data: store } = useQuery(storeQuery(storeId));
   const { data: settings } = useQuery(storeSettingsQuery(storeId));
@@ -125,7 +128,6 @@ function SeoCenterPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
-
 
   const [tab, setTab] = useState("overview");
   const [draft, setDraft] = useState<StoreSeoSettings>({});
@@ -321,6 +323,12 @@ function SeoCenterPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               İçerik, teknik yapı ve hata takibini tek merkezden yönetin.
             </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Denetim kapsamı: tüm mağaza ürünleri · Toplam {products?.length ?? "—"} · Aktif{" "}
+              {products ? activeCount : "—"} · Yayın dışı{" "}
+              {products ? products.length - activeCount : "—"}. Sitemap yalnız yayın kurallarına
+              uygun sayfaları içerir; stok listesi varyantları sayar.
+            </p>
           </div>
           {store?.slug ? (
             <Button asChild variant="outline" className="gap-2">
@@ -330,6 +338,27 @@ function SeoCenterPage() {
             </Button>
           ) : null}
         </header>
+        <div className="rounded-lg border p-3 text-xs text-muted-foreground">
+          {sitemap.isError ? (
+            <span role="alert">Sitemap sayımı alınamadı: {sitemap.error.message}</span>
+          ) : sitemap.data?.inventory ? (
+            <span>
+              Sitemap: {sitemap.data.inventory.unique} benzersiz URL ·{" "}
+              {sitemap.data.inventory.products} ürün · {sitemap.data.inventory.policies} politika ·{" "}
+              {sitemap.data.inventory.duplicates} tekrar. Son üretim:{" "}
+              {new Date(sitemap.data.generatedAt).toLocaleString("tr-TR")}
+            </span>
+          ) : (
+            <span>
+              {sitemap.isLoading
+                ? "Sitemap sayılıyor…"
+                : "Mağaza yayın/indeksleme ayarı sitemap üretimine uygun değil."}
+            </span>
+          )}
+          <Button size="sm" variant="ghost" onClick={() => void sitemap.refetch()}>
+            Yeniden say
+          </Button>
+        </div>
 
         <Tabs value={tab} onValueChange={setTab} className="space-y-5">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
@@ -387,7 +416,6 @@ function SeoCenterPage() {
             />
           </TabsContent>
 
-
           <TabsContent value="meta" className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
             <SeoMetaTab
               current={current}
@@ -415,10 +443,11 @@ function SeoCenterPage() {
               storeId={storeId}
               storeSlug={slug}
               pages={pages ?? []}
-              origin={typeof window === "undefined" ? "https://mefticaret.com" : window.location.origin}
+              origin={
+                typeof window === "undefined" ? "https://mefticaret.com" : window.location.origin
+              }
             />
           </TabsContent>
-
 
           <TabsContent value="urls">
             <SeoUrlsTab
@@ -449,9 +478,7 @@ function SeoCenterPage() {
             <SeoErrorsTab
               rows={errors404 ?? []}
               targets={errorTargets}
-              setTarget={(id, value) =>
-                setErrorTargets((old) => ({ ...old, [id]: value }))
-              }
+              setTarget={(id, value) => setErrorTargets((old) => ({ ...old, [id]: value }))}
               create={(id, path) => errorMutation.mutate({ id, path })}
               pending={errorMutation.isPending}
             />

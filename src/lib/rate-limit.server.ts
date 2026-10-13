@@ -40,7 +40,10 @@ export function clientIp(request: Request): string {
 }
 
 /** Sayaç artırır ve limitin aşılıp aşılmadığını döner. Hata durumunda isteği engellemez. */
-export async function consumeRateLimit(bucketKey: string, rule: RateLimitRule): Promise<RateLimitResult> {
+export async function consumeRateLimit(
+  bucketKey: string,
+  rule: RateLimitRule,
+): Promise<RateLimitResult> {
   const fallback: RateLimitResult = {
     allowed: true,
     hits: 0,
@@ -77,15 +80,31 @@ export async function consumeRateLimit(bucketKey: string, rule: RateLimitRule): 
 }
 
 /** Limit aşıldığında dönülecek standart JSON yanıtı. */
+export function retryAfterSeconds(result: Pick<RateLimitResult, "resetAt">, now = Date.now()) {
+  const resetTime = new Date(result.resetAt).getTime();
+  return Number.isFinite(resetTime)
+    ? Math.max(1, Math.ceil((resetTime - now) / 1000))
+    : 60;
+}
+export function rateLimitMessage(result: Pick<RateLimitResult, "resetAt">) {
+  return `Çok fazla deneme yaptınız. ${retryAfterSeconds(result)} saniye sonra tekrar deneyebilirsiniz.`;
+}
 export function rateLimitResponse(result: RateLimitResult): Response {
-  const retryAfter = Math.max(1, Math.ceil((new Date(result.resetAt).getTime() - Date.now()) / 1000));
+  const retryAfter = retryAfterSeconds(result);
   return new Response(
-    JSON.stringify({ error: "rate_limited", limit: result.limit, reset_at: result.resetAt }),
+    JSON.stringify({
+      error: "rate_limited",
+      message: rateLimitMessage(result),
+      limit: result.limit,
+      reset_at: result.resetAt,
+      retry_after_seconds: retryAfter,
+    }),
     {
       status: 429,
       headers: {
         "content-type": "application/json; charset=utf-8",
         "retry-after": String(retryAfter),
+        "cache-control": "no-store",
         "x-ratelimit-limit": String(result.limit),
         "x-ratelimit-remaining": "0",
       },

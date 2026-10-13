@@ -1,3 +1,4 @@
+import { isAwaitingPayment } from "@/lib/order-payment-state";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -174,10 +175,7 @@ export function OrdersTab({
     (order) => order.placed_at && new Date(order.placed_at).toDateString() === todayKey,
   );
   const todayTotal = todayOrders.reduce((sum, order) => sum + (order.grand_total ?? 0), 0);
-  const unpaidCount = orders.filter(
-    (order) => bucketOf(order) !== "done" && order.payment_status !== "paid",
-  ).length;
-
+  const unpaidCount = orders.filter((order) => isAwaitingPayment(order)).length;
 
   const createCode = async (order: SimpleOrder) => {
     setBusy(order.id);
@@ -268,7 +266,6 @@ export function OrdersTab({
         listeye ve kazancınıza otomatik işlenir.
       </p>
 
-
       <div className="relative">
         <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
         <input
@@ -280,7 +277,6 @@ export function OrdersTab({
       </div>
 
       <div className="grid grid-cols-3 gap-1 rounded-3xl border border-hm-line bg-white p-1.5">
-
         {(Object.keys(BUCKET_LABELS) as Bucket[]).map((key) => {
           const count = orders.filter((order) => bucketOf(order) === key).length;
           return (
@@ -350,7 +346,8 @@ export function OrdersTab({
                           onClick={() => toast.success("WhatsApp açılıyor, mesajı gönderin")}
                           className="inline-flex min-h-10 items-center gap-1 rounded-full bg-hm-emerald-soft px-3 text-xs font-semibold text-hm-emerald"
                         >
-                          <MessageCircle className="size-3.5" /> İndirme bağlantısını WhatsApp'tan gönder
+                          <MessageCircle className="size-3.5" /> İndirme bağlantısını WhatsApp'tan
+                          gönder
                         </a>
                       ) : null}
                     </div>
@@ -456,7 +453,7 @@ export function OrdersTab({
                     <MessageCircle className="size-4" /> WhatsApp'tan yaz
                   </a>
                 ) : null}
-                {order.payment_status !== "paid" ? (
+                {isAwaitingPayment(order) ? (
                   <BigButton
                     tone="emerald"
                     disabled={busy === order.id}
@@ -465,7 +462,7 @@ export function OrdersTab({
                     <Banknote className="size-4" /> Ödemeyi aldım
                   </BigButton>
                 ) : null}
-                {order.payment_status !== "paid" && storeSlug ? (
+                {isAwaitingPayment(order) && storeSlug ? (
                   <BigButton
                     tone="ghost"
                     disabled={busy === order.id}
@@ -479,7 +476,7 @@ export function OrdersTab({
                     Kartla ödeme bağlantısı
                   </BigButton>
                 ) : null}
-                {tab !== "done" && !isAras && !order.tracking_number ? (
+                {!order.is_digital && tab !== "done" && !isAras && !order.tracking_number ? (
                   <BigButton
                     tone="teal"
                     disabled={busy === order.id}
@@ -493,7 +490,7 @@ export function OrdersTab({
                     Aras Kargo ile gönder
                   </BigButton>
                 ) : null}
-                {tab !== "done" && !isAras && !order.tracking_number ? (
+                {!order.is_digital && tab !== "done" && !isAras && !order.tracking_number ? (
                   <BigButton
                     tone="ghost"
                     disabled={busy === order.id}
@@ -530,7 +527,8 @@ export function OrdersTab({
         {collecting ? (
           <div className="grid gap-3">
             <p className="rounded-2xl bg-hm-sand px-4 py-3 text-sm text-hm-ink-soft">
-              #{collecting.order_number} · {formatMoney(collecting.grand_total, collecting.currency)}
+              #{collecting.order_number} ·{" "}
+              {formatMoney(collecting.grand_total, collecting.currency)}
             </p>
             {["Kapıda nakit", "Kapıda kart", "Havale / EFT", "WhatsApp dekontu"].map((method) => (
               <BigButton

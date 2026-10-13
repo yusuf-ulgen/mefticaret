@@ -87,6 +87,8 @@ export const completePasskeyCheckout = createServerFn({ method: "POST" })
           .max(30),
         response: z.unknown(),
         note: z.string().trim().max(500).optional(),
+        policyAccepted: z.literal(true),
+        policyVersionIds: z.array(z.guid()).length(3),
       })
       .parse(data),
   )
@@ -139,6 +141,8 @@ export const completePasskeyCheckout = createServerFn({ method: "POST" })
       {
         slug: data.slug,
         items: data.items,
+        policyAccepted: data.policyAccepted,
+        policyVersionIds: data.policyVersionIds,
         customer: {
           fullName: address.recipient ?? customer?.full_name ?? email,
           email,

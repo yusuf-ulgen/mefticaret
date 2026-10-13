@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { PLAN_RANK, type PlanInterval } from "@/lib/plan-tiers";
 import { recordAudit } from "@/lib/audit.server";
+import { planPrice } from "@/lib/plan-price";
 
 /**
  * Paket satın alma / yükseltme akışı — tahsilat QNBpay üzerinden yapılır.
@@ -30,7 +31,9 @@ function metaOf(summary: unknown): { planId?: string; interval?: PlanInterval } 
   const planId = typeof record["planId"] === "string" ? record["planId"] : undefined;
   const rawInterval = record["interval"];
   const interval =
-    rawInterval === "monthly" || rawInterval === "yearly" ? (rawInterval as PlanInterval) : undefined;
+    rawInterval === "monthly" || rawInterval === "yearly"
+      ? (rawInterval as PlanInterval)
+      : undefined;
   return { ...(planId ? { planId } : {}), ...(interval ? { interval } : {}) };
 }
 
@@ -64,10 +67,8 @@ export async function startPlanCheckout(
   if (error) throw new Error(error.message);
   if (!plan || !plan.is_active) throw new Error("Paket bulunamadı");
 
-  const amount = Number(
-    (input.billingInterval === "yearly" ? plan.price_yearly : plan.price_monthly) ?? 0,
-  );
-  if (!(amount > 0)) {
+  const amount = planPrice(plan, input.billingInterval);
+  if (amount === null || !(amount > 0)) {
     throw new Error("Bu paket için çevrimiçi ödeme alınmıyor, lütfen bizimle iletişime geçin.");
   }
 
@@ -77,9 +78,7 @@ export async function startPlanCheckout(
     .eq("id", input.storeId)
     .maybeSingle();
 
-  const currency = (["TRY", "USD", "EUR"] as const).includes(
-    (plan.currency ?? "TRY") as "TRY",
-  )
+  const currency = (["TRY", "USD", "EUR"] as const).includes((plan.currency ?? "TRY") as "TRY")
     ? ((plan.currency ?? "TRY") as "TRY" | "USD" | "EUR")
     : "TRY";
 
@@ -196,7 +195,10 @@ export async function activatePlanFromTransaction(
       };
 
   if (existing) {
-    await db.from("subscriptions").update(payload as never).eq("id", existing.id);
+    await db
+      .from("subscriptions")
+      .update(payload as never)
+      .eq("id", existing.id);
   } else {
     await db.from("subscriptions").insert({ ...payload, started_at: periodStart } as never);
   }

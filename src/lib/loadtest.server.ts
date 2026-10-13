@@ -92,7 +92,9 @@ export async function getLoadTestConfig(): Promise<LoadTestConfig> {
   };
 }
 
-export async function updateLoadTestConfig(patch: { [K in keyof LoadTestConfig]?: LoadTestConfig[K] | undefined }): Promise<LoadTestConfig> {
+export async function updateLoadTestConfig(patch: {
+  [K in keyof LoadTestConfig]?: LoadTestConfig[K] | undefined;
+}): Promise<LoadTestConfig> {
   const db = await admin();
   const row: Record<string, number | boolean> = {};
   if (patch.enabled !== undefined) row["enabled"] = patch.enabled;
@@ -103,7 +105,10 @@ export async function updateLoadTestConfig(patch: { [K in keyof LoadTestConfig]?
   if (patch.vusersTarget !== undefined) row["vusers_target"] = patch.vusersTarget;
   if (patch.ordersTarget !== undefined) row["orders_target"] = patch.ordersTarget;
   if (Object.keys(row).length > 0) {
-    const { error } = await db.from("load_test_config").update(row as never).eq("id", 1);
+    const { error } = await db
+      .from("load_test_config")
+      .update(row as never)
+      .eq("id", 1);
     if (error) throw new Error(error.message);
   }
   return getLoadTestConfig();
@@ -162,7 +167,10 @@ async function logEvent(
 }
 
 async function patchRun(db: Admin, runId: string, patch: Record<string, Json>) {
-  await db.from("load_test_runs").update(patch as never).eq("id", runId);
+  await db
+    .from("load_test_runs")
+    .update(patch as never)
+    .eq("id", runId);
 }
 
 async function addFinding(
@@ -173,13 +181,17 @@ async function addFinding(
   detail: string,
   meta: Record<string, Json> = {},
 ) {
-  await db.from("load_test_findings").insert({ run_id: runId, kind, severity, detail, meta } as never);
+  await db
+    .from("load_test_findings")
+    .insert({ run_id: runId, kind, severity, detail, meta } as never);
 }
 
 /* ------------------------------------------------------------------- purge */
 
 async function runPurge(db: Admin, run: LoadTestRun, dropStores: boolean) {
-  const { data, error } = await db.rpc("purge_load_test_data", { _drop_stores: dropStores } as never);
+  const { data, error } = await db.rpc("purge_load_test_data", {
+    _drop_stores: dropStores,
+  } as never);
   if (error) throw new Error(`Temizlik başarısız: ${error.message}`);
   resetTestStoreCache();
 
@@ -193,7 +205,8 @@ async function runPurge(db: Admin, run: LoadTestRun, dropStores: boolean) {
 function variantMatrix(basePrice: number) {
   const sizes = ["S", "M", "L"];
   const colors = ["Siyah", "Beyaz"];
-  const out: { title: string; options: Record<string, string>; price: number; stock: number }[] = [];
+  const out: { title: string; options: Record<string, string>; price: number; stock: number }[] =
+    [];
   for (const size of sizes) {
     for (const color of colors) {
       out.push({
@@ -298,7 +311,11 @@ async function seedProducts(db: Admin, run: LoadTestRun, target: number, deadlin
     if (error) throw new Error(`Ürün tohumlama hatası: ${error.message}`);
 
     const variantRows: Record<string, Json>[] = [];
-    for (const product of (inserted ?? []) as { id: string; store_id: string; base_price: number }[]) {
+    for (const product of (inserted ?? []) as {
+      id: string;
+      store_id: string;
+      base_price: number;
+    }[]) {
       for (const [position, variant] of variantMatrix(Number(product.base_price)).entries()) {
         variantRows.push({
           product_id: product.id,
@@ -313,7 +330,9 @@ async function seedProducts(db: Admin, run: LoadTestRun, target: number, deadlin
       }
     }
     if (variantRows.length > 0) {
-      const { error: variantError } = await db.from("product_variants").insert(variantRows as never);
+      const { error: variantError } = await db
+        .from("product_variants")
+        .insert(variantRows as never);
       if (variantError) throw new Error(`Varyant tohumlama hatası: ${variantError.message}`);
     }
 
@@ -333,7 +352,9 @@ async function measureStorefront(db: Admin, slugs: string[], baseUrl: string) {
   for (const slug of slugs) {
     const started = Date.now();
     try {
-      const res = await fetch(`${baseUrl}/s/${slug}`, { headers: { "user-agent": "mefticaret-loadtest" } });
+      const res = await fetch(`${baseUrl}/s/${slug}`, {
+        headers: { "user-agent": "mefticaret-loadtest" },
+      });
       samples.push(Date.now() - started);
       if (!res.ok) errors++;
       await res.arrayBuffer();
@@ -343,7 +364,10 @@ async function measureStorefront(db: Admin, slugs: string[], baseUrl: string) {
     }
   }
   samples.sort((a, b) => a - b);
-  const p = (q: number) => (samples.length === 0 ? 0 : samples[Math.min(samples.length - 1, Math.floor(samples.length * q))]!);
+  const p = (q: number) =>
+    samples.length === 0
+      ? 0
+      : samples[Math.min(samples.length - 1, Math.floor(samples.length * q))]!;
   return { requests: samples.length, errors, p50: p(0.5), p95: p(0.95) };
 }
 
@@ -363,7 +387,9 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
     }
     const { data: variantRows, error: variantError } = await db
       .from("product_variants")
-      .select("id, product_id, store_id, price, stock, title, sku, products!inner(title, tax_rate, store_id)")
+      .select(
+        "id, product_id, store_id, price, stock, title, sku, products!inner(title, tax_rate, store_id)",
+      )
       .in("store_id", [...testStoreIdsForQuery])
       .gt("stock", 0)
       .order("updated_at", { ascending: true })
@@ -404,7 +430,8 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
       const taxRate = Number(variant.products?.tax_rate ?? 20);
       const taxTotal = money((subtotal * taxRate) / 100);
       const grandTotal = money(subtotal + taxTotal);
-      const orderNumber = `TEST-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+      const orderNumber =
+        `TEST-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
 
       const { data: orderRow, error: orderError } = await db
         .from("orders")
@@ -429,9 +456,16 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
         await db.rpc("release_variant_stock", { _variant_id: variant.id, _qty: quantity } as never);
         if (!loggedOrderError) {
           loggedOrderError = true;
-          await logEvent(db, run.id, "traffic", "Sipariş oluşturulamadı", {
-            error: orderError?.message ?? "bilinmeyen",
-          }, "CRITICAL");
+          await logEvent(
+            db,
+            run.id,
+            "traffic",
+            "Sipariş oluşturulamadı",
+            {
+              error: orderError?.message ?? "bilinmeyen",
+            },
+            "CRITICAL",
+          );
         }
         continue;
       }
@@ -473,7 +507,10 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
 
       // Kargo yaşam döngüsü: hazırlanıyor → kargoda (barkod) → teslim
       const barcode = `AR${Date.now().toString().slice(-8)}${Math.floor(Math.random() * 900 + 100)}`;
-      await db.from("orders").update({ status: "processing" } as never).eq("id", orderId);
+      await db
+        .from("orders")
+        .update({ status: "processing" } as never)
+        .eq("id", orderId);
       await db
         .from("orders")
         .update({
@@ -483,7 +520,10 @@ async function simulateOrders(db: Admin, run: LoadTestRun, target: number, deadl
           tracking_number: barcode,
         } as never)
         .eq("id", orderId);
-      await db.from("orders").update({ status: "delivered" } as never).eq("id", orderId);
+      await db
+        .from("orders")
+        .update({ status: "delivered" } as never)
+        .eq("id", orderId);
 
       // Her 5. sipariş için iade talebi
       if (orders % 5 === 0) {
@@ -549,27 +589,37 @@ export async function verifyIntegrity(db: Admin, runId: string) {
   const findings: { kind: string; detail: string }[] = [];
 
   // 1) Negatif stok = aşırı satış
-  const { data: negative } = await db
+  const { data: negative, error: negativeError } = await db
     .from("product_variants")
     .select("id, stock, store_id")
     .lt("stock", 0)
     .in("store_id", storeIds.slice(0, 1000))
     .limit(50);
+  if (negativeError) throw new Error(`Stok bütünlüğü kontrol edilemedi: ${negativeError.message}`);
   const oversold = (negative ?? []) as { id: string; stock: number }[];
   for (const row of oversold) {
     findings.push({ kind: "oversell", detail: `Varyant ${row.id} stoğu ${row.stock} (negatif)` });
-    await addFinding(db, runId, "oversell", "CRITICAL", `Varyant ${row.id} negatif stok: ${row.stock}`, {
-      variantId: row.id,
-      stock: row.stock,
-    });
+    await addFinding(
+      db,
+      runId,
+      "oversell",
+      "CRITICAL",
+      `Varyant ${row.id} negatif stok: ${row.stock}`,
+      {
+        variantId: row.id,
+        stock: row.stock,
+      },
+    );
   }
 
   // 2) Komisyon mutabakatı (kuruş hassasiyeti)
-  const { data: commissionRows } = await db
+  const { data: commissionRows, error: commissionError } = await db
     .from("commissions")
     .select("id, rate, base_amount, commission_amount, store_id")
     .in("store_id", storeIds.slice(0, 1000))
     .limit(3000);
+  if (commissionError)
+    throw new Error(`Komisyon mutabakatı kontrol edilemedi: ${commissionError.message}`);
   let checked = 0;
   let mismatches = 0;
   for (const row of (commissionRows ?? []) as {
@@ -666,7 +716,8 @@ export async function advanceLoadTestCycle(request?: Request): Promise<Record<st
       case "seed": {
         const stores = await seedStores(db, run, config.storesTarget, deadline);
         testStoreCache = undefined;
-        const products = Date.now() < deadline ? await seedProducts(db, run, config.productsTarget, deadline) : 0;
+        const products =
+          Date.now() < deadline ? await seedProducts(db, run, config.productsTarget, deadline) : 0;
         const done = stores >= config.storesTarget && products >= config.productsTarget;
         await patchRun(db, run.id, {
           ...(done ? { phase: "traffic", phase_started_at: new Date().toISOString() } : {}),
@@ -693,7 +744,10 @@ export async function advanceLoadTestCycle(request?: Request): Promise<Record<st
             storefrontP95: traffic.p95,
             storefrontRequests: Number(run.metrics["storefrontRequests"] ?? 0) + traffic.requests,
             storefrontErrors: Number(run.metrics["storefrontErrors"] ?? 0) + traffic.errors,
-            vusers: config.vusersTarget,
+            testKind: "sequential_http_sampling",
+            storefrontConcurrency: 1,
+            storefrontSampleUrls: slugs.length,
+            vusers: null,
           },
         });
         await logEvent(db, run.id, "traffic", "Trafik ve sipariş simülasyonu ilerledi", {
@@ -713,22 +767,38 @@ export async function advanceLoadTestCycle(request?: Request): Promise<Record<st
           metrics: { ...run.metrics, health },
           findings_count: integrity.findings,
         });
-        await logEvent(db, run.id, "verify", "Bütünlük ve mutabakat doğrulandı", { integrity }, integrity.findings > 0 ? "CRITICAL" : "INFO");
+        await logEvent(
+          db,
+          run.id,
+          "verify",
+          "Bütünlük ve mutabakat doğrulandı",
+          { integrity },
+          integrity.findings > 0 ? "CRITICAL" : "INFO",
+        );
         return { run: run.id, phase: "verify", integrity };
       }
       case "report": {
         const fresh = await db.from("load_test_runs").select("*").eq("id", run.id).single();
         const current = mapRun(fresh.data as Record<string, Json>);
         const metrics = current.metrics as Record<string, Json>;
-        const health = (metrics["health"] ?? {}) as { api?: { p95?: number } };
-        const latency = Number(health.api?.p95 ?? metrics["storefrontP95"] ?? 0);
+        const health = (metrics["health"] ?? {}) as { api?: { p95?: number | null } };
+        const latencyValue = health.api?.p95 ?? metrics["storefrontP95"];
+        const latency =
+          typeof latencyValue === "number" && Number.isFinite(latencyValue) ? latencyValue : null;
         const errorRate =
           Number(metrics["storefrontRequests"] ?? 0) > 0
-            ? (Number(metrics["storefrontErrors"] ?? 0) / Number(metrics["storefrontRequests"])) * 100
-            : 0;
+            ? (Number(metrics["storefrontErrors"] ?? 0) / Number(metrics["storefrontRequests"])) *
+              100
+            : null;
         const failed: string[] = [];
-        if (latency > LOADTEST_THRESHOLDS.apiLatencyMs) failed.push(`API gecikmesi ${Math.round(latency)} ms > ${LOADTEST_THRESHOLDS.apiLatencyMs} ms`);
-        if (errorRate > LOADTEST_THRESHOLDS.errorRatePct) failed.push(`Hata oranı %${errorRate.toFixed(2)}`);
+        if (latency === null) failed.push("Gecikme ölçümü yok");
+        else if (latency > LOADTEST_THRESHOLDS.apiLatencyMs)
+          failed.push(
+            `API gecikmesi ${Math.round(latency)} ms > ${LOADTEST_THRESHOLDS.apiLatencyMs} ms`,
+          );
+        if (errorRate === null) failed.push("HTTP hata oranı ölçümü yok");
+        else if (errorRate > LOADTEST_THRESHOLDS.errorRatePct)
+          failed.push(`Hata oranı %${errorRate.toFixed(2)}`);
         if (current.findingsCount > 0) failed.push(`${current.findingsCount} bütünlük bulgusu`);
 
         const purge = await runPurge(db, current, true);
@@ -742,8 +812,8 @@ export async function advanceLoadTestCycle(request?: Request): Promise<Record<st
             ...current.summary,
             cleanup: purge,
             thresholdFailures: failed,
-            errorRatePct: Number(errorRate.toFixed(2)),
-            latencyMs: Math.round(latency),
+            errorRatePct: errorRate === null ? null : Number(errorRate.toFixed(2)),
+            latencyMs: latency === null ? null : Math.round(latency),
           },
         });
 
@@ -757,7 +827,14 @@ export async function advanceLoadTestCycle(request?: Request): Promise<Record<st
             muteSeconds: 60,
           });
         }
-        await logEvent(db, run.id, "report", "Tur tamamlandı", { failed, purge }, failed.length > 0 ? "WARNING" : "INFO");
+        await logEvent(
+          db,
+          run.id,
+          "report",
+          "Tur tamamlandı",
+          { failed, purge },
+          failed.length > 0 ? "WARNING" : "INFO",
+        );
         return { run: run.id, phase: "report", failed, purge };
       }
       default:
@@ -765,7 +842,11 @@ export async function advanceLoadTestCycle(request?: Request): Promise<Record<st
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "bilinmeyen hata";
-    await patchRun(db, run.id, { status: "failed", error: message, finished_at: new Date().toISOString() });
+    await patchRun(db, run.id, {
+      status: "failed",
+      error: message,
+      finished_at: new Date().toISOString(),
+    });
     await logEvent(db, run.id, run.phase, `Faz hatası: ${message}`, {}, "CRITICAL");
     const { recordAppError } = await import("@/lib/monitoring.server");
     await recordAppError({
@@ -838,7 +919,14 @@ export async function stopLoadTest(cleanup: boolean) {
       finished_at: new Date().toISOString(),
       next_cycle_at: null,
     });
-    await logEvent(db, run.id, run.phase, "Tur yönetici tarafından durduruldu", purge ?? {}, "WARNING");
+    await logEvent(
+      db,
+      run.id,
+      run.phase,
+      "Tur yönetici tarafından durduruldu",
+      purge ?? {},
+      "WARNING",
+    );
   } else if (cleanup) {
     const { data } = await db.rpc("purge_load_test_data", { _drop_stores: true } as never);
     purge = (data ?? {}) as Record<string, Json>;

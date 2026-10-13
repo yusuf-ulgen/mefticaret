@@ -1,8 +1,8 @@
 /**
- * k6 vitrin senaryosu: TEST mağazalarında gezinme, filtreleme ve sepete ekleme.
+ * k6 vitrin senaryosu: TEST mağazalarında HTTP vitrin ve liste gezinmesi.
  *
  * Çalıştırma:
- *   BASE_URL=https://mefticaret.com VUS=500 DURATION=10m k6 run loadtest/k6/storefront.js
+ *   BASE_URL=https://staging.example.test VUS=500 DURATION=10m k6 run loadtest/k6/storefront.js
  *
  * 20.000 gerçek eşzamanlı kullanıcı tek makineden üretilemez; bu senaryoyu
  * k6 Cloud veya dağıtık k6 operator ile çalıştırın:
@@ -10,7 +10,8 @@
  */
 import http from "k6/http";
 import { check, sleep } from "k6";
-import { Trend } from "k6/metrics";
+import { Trend, Counter } from "k6/metrics";
+import { buildK6Summary, durationMs } from "./run-summary.js";
 
 const BASE_URL = __ENV.BASE_URL || "http://localhost:8080";
 const VUS = Number(__ENV.VUS || 500);
@@ -19,6 +20,7 @@ const STORE_COUNT = Number(__ENV.STORE_COUNT || 1000);
 const PROJECT_ID = Number(__ENV.K6_CLOUD_PROJECT_ID || 0);
 
 const browseLatency = new Trend("storefront_latency", true);
+const limited = new Counter("rate_limited");
 
 export const options = {
   // k6 Cloud (Grafana Cloud k6) ayarları — yerel `k6 run` bunları yok sayar.
@@ -64,8 +66,11 @@ export default function () {
   const products = http.get(`${BASE_URL}/s/${slug}/products?sort=price_asc`, { tags: { page: "list" } });
   check(products, { "liste 200": (res) => res.status === 200 });
 
-  const search = http.get(`${BASE_URL}/s/${slug}/search?q=TEST`, { tags: { page: "search" } });
-  check(search, { "arama 200": (res) => res.status === 200 });
+  for (const response of [home, products]) if (response.status === 429) limited.add(1);
 
   sleep(Math.random() * 2);
+}
+
+export function handleSummary(data) {
+  return { "loadtest-storefront-summary.json": JSON.stringify(buildK6Summary(data, { kind: "concurrent_http_browsing", target: BASE_URL, targetVus: VUS, expectedDurationMs: 90000 + durationMs(DURATION) }), null, 2) };
 }

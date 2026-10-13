@@ -5,7 +5,7 @@ import { ExtendedBlock } from "@/components/storefront-blocks";
 import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { buttonStyles, cardStyles, storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
-import { formatMoney } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import {
   parsePairs,

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { isDark, storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
-import { formatMoney } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 import { storefrontProductQuery } from "@/lib/storefront-queries";
 import { storefrontUI, useStorefrontUI } from "@/lib/storefront-ui";
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { isDark, storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
-import { formatMoney } from "@/lib/display-currency";
+import { formatMoney } from "@/lib/mefti";
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 
 /** Ürün detayında dönüşümü artıran widget'lar: canlı izleyici, stok çubuğu, teslimat hesabı. */

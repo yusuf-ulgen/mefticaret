@@ -1,3 +1,4 @@
+import { QueryStatus } from "@/components/query-status";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { checkKolayAccess } from "@/lib/home-maker.functions";
@@ -67,7 +68,8 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/kolay")({
   // Sunucuda rol, mikro mağaza ve mağaza üyeliği doğrulanmadan panel açılmaz.
   beforeLoad: async ({ params }) => {
     const access = await checkKolayAccess({ data: { storeId: params.storeId } });
-    if (!access.ok) throw redirect({ to: access.reason === "role" ? "/ev-hanimlari" : "/ev-hanimlari/kurulum" });
+    if (!access.ok)
+      throw redirect({ to: access.reason === "role" ? "/ev-hanimlari" : "/ev-hanimlari/kurulum" });
   },
   component: KolayPanel,
 });
@@ -87,15 +89,18 @@ function KolayPanel() {
   const liveEvents = useStoreRealtime(storeId, { notify: true });
   const unread = Math.max(0, liveEvents.length - seenCount);
 
-  const { data: store } = useQuery(storeQuery(storeId));
+  const storeState = useQuery(storeQuery(storeId));
+  const store = storeState.data;
   const {
     data: settings,
     isPending: settingsPending,
     isError: settingsError,
     refetch: refetchSettings,
   } = useQuery(storeSettingsQuery(storeId));
-  const { data: products } = useQuery(simpleProductsQuery(storeId));
-  const { data: orders } = useQuery(simpleOrdersQuery(storeId));
+  const productsState = useQuery(simpleProductsQuery(storeId));
+  const products = productsState.data;
+  const ordersState = useQuery(simpleOrdersQuery(storeId));
+  const orders = ordersState.data;
   const saveStore = useServerFn(updateStore);
 
   useEffect(() => {
@@ -144,7 +149,7 @@ function KolayPanel() {
   if (!store) {
     return (
       <div className="grid min-h-screen place-items-center bg-hm-sand text-hm-ink-soft">
-        Yükleniyor…
+        <QueryStatus label="Mağaza" error={storeState.error} loading={storeState.isPending} hasData={false} onRetry={() => void storeState.refetch()} />
       </div>
     );
   }
@@ -230,7 +235,11 @@ function KolayPanel() {
             <GraduationCap className="size-5" />
           </button>
           <KitchenModeButton storeId={storeId} />
-          <Link to="/ev-hanimlari/sablonlar" aria-label="Hazır şablonlar" className="grid size-11 place-items-center rounded-2xl bg-hm-amber-soft text-hm-amber">
+          <Link
+            to="/ev-hanimlari/sablonlar"
+            aria-label="Hazır şablonlar"
+            className="grid size-11 place-items-center rounded-2xl bg-hm-amber-soft text-hm-amber"
+          >
             <LayoutTemplate className="size-5" />
           </Link>
         </div>
@@ -268,10 +277,11 @@ function KolayPanel() {
             </button>
           </div>
         ) : null}
-        {tab === "store" && !settingsPending && !settingsError ? (
+        {tab === "store" && !settingsPending && (!settingsError || settings !== undefined) ? (
           <>
             <div className="mb-4">
               <SetupGuide
+                storeId={storeId}
                 storeName={store.name}
                 logoUrl={store.logo_url ?? null}
                 settings={settings ?? null}
@@ -280,7 +290,7 @@ function KolayPanel() {
                 onGoToProducts={() => setTab("products")}
               />
             </div>
-            <StoreTab store={store} settings={settings ?? null} storeUrl={storeUrl} />
+            <StoreTab key={storeId} store={store} settings={settings ?? null} storeUrl={storeUrl} />
             <div className="mt-4">
               <MentorCard storeId={storeId} storeSlug={store.slug} />
             </div>
@@ -310,7 +320,9 @@ function KolayPanel() {
             </div>
           </>
         ) : null}
-        {tab === "products" ? (
+        {tab === "products" ? <QueryStatus label="Ürünler" error={productsState.error} loading={productsState.isPending} hasData={products !== undefined} onRetry={() => void productsState.refetch()} /> : null}
+        {tab === "orders" ? <QueryStatus label="Siparişler" error={ordersState.error} loading={ordersState.isPending} hasData={orders !== undefined} onRetry={() => void ordersState.refetch()} /> : null}
+        {tab === "products" && products !== undefined ? (
           <ProductsTab
             storeId={storeId}
             storeName={store.name}
@@ -320,7 +332,7 @@ function KolayPanel() {
             currency={store.currency ?? "TRY"}
           />
         ) : null}
-        {tab === "orders" ? (
+        {tab === "orders" && orders !== undefined ? (
           <div className="grid gap-4">
             <ReceiptVerifier
               storeId={storeId}

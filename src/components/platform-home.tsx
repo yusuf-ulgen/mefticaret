@@ -1,7 +1,19 @@
+import { planPrice, yearlyPlanSummary } from "@/lib/plan-price";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ArrowUpRight, Boxes, Check, Heart, Menu, MessageCircle, PackagePlus, Smartphone, X } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Boxes,
+  Check,
+  Heart,
+  Menu,
+  MessageCircle,
+  PackagePlus,
+  Smartphone,
+  X,
+} from "lucide-react";
 
 import gdprBadge from "@/assets/gdpr-badge.webp.asset.json";
 import { CommerceFlowAnimation } from "@/components/commerce-flow-animation";
@@ -17,13 +29,26 @@ import {
 } from "@/components/landing-sections";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
-import { LandingLocaleProvider, localizeSection, useTx, type LandingLocale } from "@/lib/landing-i18n";
+import {
+  LandingLocaleProvider,
+  landingHref,
+  localizeSection,
+  useLandingLocale,
+  useTx,
+  type LandingLocale,
+} from "@/lib/landing-i18n";
 import { formatMoney, planLimitLabel } from "@/lib/mefti";
 import { pickSection, sectionIcon, siteSectionsQuery, type SiteSection } from "@/lib/site-content";
 import { plansQuery } from "@/lib/store-queries";
 
 /** Mefticaret ana sayfası: tüm dillerde aynı düzen, yalnız metinler çevrilir. */
-function ShowcaseCard({ title, price }: { title?: string | undefined; price?: string | undefined }) {
+function ShowcaseCard({
+  title,
+  price,
+}: {
+  title?: string | undefined;
+  price?: string | undefined;
+}) {
   return (
     <article className="showcase-card">
       <div
@@ -56,7 +81,11 @@ function ShowcaseColumn({
     <div className={`fade-mask-y h-[560px] overflow-hidden ${className ?? ""}`} aria-hidden="true">
       <div className={`space-y-4 ${slow ? "marquee-col-slow" : "marquee-col"}`}>
         {loop.map((item, index) => (
-          <ShowcaseCard key={`${item["title"]}-${index}`} title={item["title"]} price={item["price"]} />
+          <ShowcaseCard
+            key={`${item["title"]}-${index}`}
+            title={item["title"]}
+            price={item["price"]}
+          />
         ))}
       </div>
     </div>
@@ -77,10 +106,11 @@ function LinkButton({
   size?: "lg";
   children?: React.ReactNode;
 }) {
+  const locale = useLandingLocale();
   if (!label) return null;
   return (
     <Button asChild variant={variant ?? "default"} size={size} className="rounded-full">
-      <a href={href || "/auth"}>
+      <a href={landingHref(href || "/auth", locale)}>
         {label}
         {children}
       </a>
@@ -102,7 +132,19 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
   const { data: plans } = useQuery(plansQuery());
   const { data: sections } = useQuery(siteSectionsQuery());
 
-  const get = (key: string): SiteSection | null => localizeSection(pickSection(sections, key), locale);
+  const references = localizeSection(pickSection(sections, "references"), locale);
+  const referenceItems =
+    references?.items.filter((item) => item["brand"]?.trim() || item["quote"]?.trim()) ?? [];
+  const get = (key: string): SiteSection | null => {
+    const section = localizeSection(pickSection(sections, key), locale);
+    if (!section || referenceItems.length) return section;
+    return {
+      ...section,
+      items: section.items.filter((item) => item["href"] !== "#referanslar"),
+      primary_label: section.primary_href === "#referanslar" ? null : section.primary_label,
+      secondary_label: section.secondary_href === "#referanslar" ? null : section.secondary_label,
+    };
+  };
   // Kolay Panel sayfası beş dilde var; seçilen dil korunur.
   const homeMakerHref = locale === "tr" ? "/ev-hanimlari" : `/${locale}/ev-hanimlari`;
   const header = get("header");
@@ -134,7 +176,10 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
       {header ? (
         <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
           <div className="mx-auto grid min-h-18 max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-3 md:flex md:gap-4 lg:px-8">
-            <Link to="/" className="min-w-0 truncate font-display text-xl font-extrabold tracking-tighter sm:text-2xl">
+            <Link
+              to="/"
+              className="min-w-0 truncate font-display text-xl font-extrabold tracking-tighter sm:text-2xl"
+            >
               {header.title}
             </Link>
 
@@ -167,16 +212,16 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
                 </Button>
               ) : (
                 <>
-                   <span className="hidden sm:inline-flex">
-                     <LinkButton
-                       href={header.secondary_href}
-                       label={header.secondary_label}
-                       variant="ghost"
-                     />
-                   </span>
-                   <span className="hidden min-[360px]:inline-flex">
-                     <LinkButton href={header.primary_href} label={header.primary_label} />
-                   </span>
+                  <span className="hidden sm:inline-flex">
+                    <LinkButton
+                      href={header.secondary_href}
+                      label={header.secondary_label}
+                      variant="ghost"
+                    />
+                  </span>
+                  <span className="hidden min-[360px]:inline-flex">
+                    <LinkButton href={header.primary_href} label={header.primary_label} />
+                  </span>
                 </>
               )}
               <Button
@@ -202,10 +247,12 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
         </header>
       ) : null}
 
-
       <main id="icerik" tabIndex={-1}>
         {hero ? (
-          <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
+          <section
+            className="relative overflow-hidden"
+            style={{ background: "var(--gradient-hero)" }}
+          >
             <div className="mx-auto max-w-7xl px-4 py-16 text-center lg:px-8 lg:py-24">
               <div className="mx-auto max-w-3xl">
                 {hero.eyebrow ? <span className="eyebrow">{hero.eyebrow}</span> : null}
@@ -250,22 +297,32 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
                 {tx("Siparişten ödemeye, her adım tek yerde")}
               </h2>
               <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-                {tx("Ürün seçimi, güvenli ödeme ve sipariş bildirimi kesintisiz bir akışta ilerler.")}
+                {tx(
+                  "Ürün seçimi, güvenli ödeme ve sipariş bildirimi kesintisiz bir akışta ilerler.",
+                )}
               </p>
             </div>
             <CommerceFlowAnimation locale={locale} />
           </div>
         </section>
 
-        <section className="border-y border-border bg-secondary/40 py-16 lg:py-20" aria-labelledby="evde-uretenler">
+        <section
+          className="border-y border-border bg-secondary/40 py-16 lg:py-20"
+          aria-labelledby="evde-uretenler"
+        >
           <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:px-8">
             <div>
               <span className="eyebrow">{tx("Evde Üretenlere Özel")}</span>
-              <h2 id="evde-uretenler" className="mt-5 max-w-2xl text-3xl font-extrabold sm:text-4xl lg:text-5xl">
+              <h2
+                id="evde-uretenler"
+                className="mt-5 max-w-2xl text-3xl font-extrabold sm:text-4xl lg:text-5xl"
+              >
                 {tx("Ürettiklerinizi kolayca internette satın")}
               </h2>
               <p className="mt-5 max-w-xl leading-relaxed text-muted-foreground">
-                {tx("Teknik bilgi gerekmeden ürün ekleyin, siparişlerinizi telefondan takip edin ve müşterilerinizle tek ekrandan iletişim kurun.")}
+                {tx(
+                  "Teknik bilgi gerekmeden ürün ekleyin, siparişlerinizi telefondan takip edin ve müşterilerinizle tek ekrandan iletişim kurun.",
+                )}
               </p>
 
               <div className="mt-7 grid gap-3 sm:grid-cols-3">
@@ -295,14 +352,16 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
                 </span>
               </div>
               <ul className="mt-6 space-y-3 text-sm">
-                {[tx("Mağazanızı kurun"), tx("Ürünlerinizi ekleyin"), tx("Kolay Panel’den siparişleri yönetin")].map(
-                  (item) => (
-                    <li key={item} className="flex items-center gap-3">
-                      <Check className="size-4 shrink-0 text-success" />
-                      {item}
-                    </li>
-                  ),
-                )}
+                {[
+                  tx("Mağazanızı kurun"),
+                  tx("Ürünlerinizi ekleyin"),
+                  tx("Kolay Panel’den siparişleri yönetin"),
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-3">
+                    <Check className="size-4 shrink-0 text-success" />
+                    {item}
+                  </li>
+                ))}
               </ul>
               <div className="mt-7 grid gap-3 sm:grid-cols-2">
                 <Button asChild size="lg" className="rounded-full">
@@ -311,15 +370,13 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
                   </a>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="rounded-full">
-                  <a href={homeMakerHref}>
-                    {tx("Kolay Panel girişi")}
-                  </a>
+                  <a href={homeMakerHref}>{tx("Kolay Panel girişi")}</a>
                 </Button>
               </div>
               <div className="mt-4 border-t border-border pt-4 text-center">
                 <Link
                   to="/auth"
-                  search={{ mode: "login" }}
+                  search={{ mode: "login", locale }}
                   className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                 >
                   {tx("Standart mağaza paneline giriş")}
@@ -371,7 +428,9 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
           <section id="paketler" className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
             <div className="text-center">
               {pricing.eyebrow ? <span className="eyebrow">{pricing.eyebrow}</span> : null}
-              <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl lg:text-5xl">{pricing.title}</h2>
+              <h2 className="mt-6 text-3xl font-extrabold sm:text-4xl lg:text-5xl">
+                {pricing.title}
+              </h2>
               <p className="mx-auto mt-5 max-w-xl text-muted-foreground">{pricing.subtitle}</p>
               <div
                 role="group"
@@ -410,17 +469,14 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
                     <p className="mt-1 text-xs text-muted-foreground">{tx(plan.description)}</p>
                     <p className="mt-5 font-display text-2xl font-extrabold">
                       {(() => {
-                        const price =
-                          planInterval === "yearly"
-                            ? Number(plan.price_yearly ?? 0)
-                            : Number(plan.price_monthly ?? 0);
-                        return price === 0
-                          ? tx("Ücretsiz")
-                          : formatMoney(price, plan.currency);
+                        const price = planPrice(plan, planInterval);
+                        return price === null
+                          ? tx("Fiyat için iletişime geçin")
+                          : price === 0
+                            ? tx("Ücretsiz")
+                            : formatMoney(price, plan.currency);
                       })()}
-                      {(planInterval === "yearly"
-                        ? Number(plan.price_yearly ?? 0)
-                        : Number(plan.price_monthly ?? 0)) > 0 ? (
+                      {(planPrice(plan, planInterval) ?? 0) > 0 ? (
                         <span className="text-sm font-medium text-muted-foreground">
                           {planInterval === "yearly" ? tx("/yıl") : tx("/ay")}
                         </span>
@@ -428,7 +484,15 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
                     </p>
                     {planInterval === "yearly" && Number(plan.price_yearly ?? 0) > 0 ? (
                       <p className="mt-1 text-xs text-success">
-                        {tx("Aylık {price} — yıllık ödemede 2 ay avantaj", { price: formatMoney(Number(plan.price_yearly) / 12, plan.currency) })}
+                        {tx("Aylık karşılığı {price}", {
+                          price: formatMoney(
+                            yearlyPlanSummary(plan)?.monthlyEquivalent ?? 0,
+                            plan.currency,
+                          ),
+                        })}
+                        {yearlyPlanSummary(plan)?.savingsPercent != null
+                          ? ` · %${yearlyPlanSummary(plan)!.savingsPercent} ${tx("tasarruf")}`
+                          : ""}
                       </p>
                     ) : null}
 
@@ -448,14 +512,24 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
                       ))}
                     </ul>
                     {plan.trial_days > 0 ? (
-                      <p className="mt-3 text-xs text-muted-foreground">{tx("{n} gün deneme", { n: plan.trial_days })}</p>
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        {tx("{n} gün deneme", { n: plan.trial_days })}
+                      </p>
                     ) : null}
                     <Button
                       asChild
                       className="mt-6 w-full rounded-full"
                       variant={featured ? "default" : "outline"}
                     >
-                      <Link to="/auth" search={{ mode: "register" }}>
+                      <Link
+                        to="/auth"
+                        search={{
+                          mode: "register",
+                          locale,
+                          plan: plan.code,
+                          interval: planInterval,
+                        }}
+                      >
                         {pricing.primary_label ?? tx("Başla")}
                       </Link>
                     </Button>
@@ -466,14 +540,44 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
           </section>
         ) : null}
 
+        {references && referenceItems.length > 0 ? (
+          <section id="referanslar" className="mx-auto max-w-7xl px-4 py-20 lg:px-8">
+            <span className="eyebrow">{references.eyebrow}</span>
+            <h2 className="mt-4 text-3xl font-extrabold">{references.title}</h2>
+            {references.subtitle ? (
+              <p className="mt-4 text-muted-foreground">{references.subtitle}</p>
+            ) : null}
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {referenceItems.map((item, index) => (
+                <article key={`${item["brand"]}-${index}`} className="showcase-card p-6">
+                  {item["brand"] ? <h3 className="font-semibold">{item["brand"]}</h3> : null}
+                  {item["quote"] ? (
+                    <blockquote className="mt-4 text-sm leading-relaxed">
+                      {item["quote"]}
+                    </blockquote>
+                  ) : null}
+                  {item["person"] ? (
+                    <p className="mt-4 text-xs text-muted-foreground">
+                      {item["person"]}
+                      {item["role"] ? ` · ${item["role"]}` : ""}
+                    </p>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         <GuidesSection />
 
         <BlogSection section={get("blog")} />
 
-
         <FaqSection section={get("faq")} />
 
-        <section className="border-y border-border bg-secondary/30 py-12" aria-labelledby="tedarikci-portali">
+        <section
+          className="border-y border-border bg-secondary/30 py-12"
+          aria-labelledby="tedarikci-portali"
+        >
           <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:flex-row sm:items-center sm:justify-between lg:px-8">
             <div className="flex max-w-2xl items-start gap-4">
               <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border bg-background text-brand">
@@ -485,16 +589,22 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
                   {tx("Mefticaret tedarikçisi misiniz?")}
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  {tx("Siparişlerinizi, ürün aktarımlarınızı, stok senkronunu ve hakedişlerinizi tedarikçi panelinden yönetin.")}
+                  {tx(
+                    "Siparişlerinizi, ürün aktarımlarınızı, stok senkronunu ve hakedişlerinizi tedarikçi panelinden yönetin.",
+                  )}
                 </p>
               </div>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
               <Button asChild className="rounded-full px-5">
-                <Link to="/tedarikci-giris" search={{ mode: "login" }}>{tx("Tedarikçi girişi")}</Link>
+                <Link to="/tedarikci-giris" search={{ mode: "login" }}>
+                  {tx("Tedarikçi girişi")}
+                </Link>
               </Button>
               <Button asChild variant="outline" className="rounded-full px-5">
-                <Link to="/tedarikci-giris" search={{ mode: "register" }}>{tx("Yeni kayıt")}</Link>
+                <Link to="/tedarikci-giris" search={{ mode: "register" }}>
+                  {tx("Yeni kayıt")}
+                </Link>
               </Button>
             </div>
           </div>
@@ -588,7 +698,6 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
               />
               <span>{footer.badge}</span>
             </div>
-
           </div>
         </footer>
       ) : null}
@@ -615,8 +724,7 @@ const GUIDES = [
     to: "/dropshipping-nasil-yapilir",
     eyebrow: "Başlangıç",
     title: "Dropshipping nasıl yapılır?",
-    description:
-      "Tedarikçi bulmadan XML aktarımına kadar stoksuz satışın adım adım kurulumu.",
+    description: "Tedarikçi bulmadan XML aktarımına kadar stoksuz satışın adım adım kurulumu.",
   },
   {
     to: "/pazaryeri-entegrasyonu",
@@ -659,7 +767,9 @@ function GuidesSection() {
           {tx("Satışa başlamadan önce okunması gereken rehberler")}
         </h2>
         <p className="max-w-sm text-sm text-muted-foreground">
-          {tx("Mefticaret ekibinin hazırladığı ücretsiz Türkçe rehberlerle doğru kararı ilk seferde verin.")}
+          {tx(
+            "Mefticaret ekibinin hazırladığı ücretsiz Türkçe rehberlerle doğru kararı ilk seferde verin.",
+          )}
         </p>
       </div>
 
@@ -672,7 +782,9 @@ function GuidesSection() {
           >
             <span className="eyebrow">{tx(guide.eyebrow)}</span>
             <span className="mt-3 text-xl font-bold tracking-tight">{tx(guide.title)}</span>
-            <span className="mt-3 flex-1 text-sm text-muted-foreground">{tx(guide.description)}</span>
+            <span className="mt-3 flex-1 text-sm text-muted-foreground">
+              {tx(guide.description)}
+            </span>
             <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold">
               {tx("Rehberi oku")}
               <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

@@ -5,6 +5,24 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 import { insertAuditRow } from "./audit.server";
 
+export const inspectStoreSitemap = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ storeId: z.guid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+    const { data: store, error } = await context.supabase
+      .from("stores")
+      .select("slug")
+      .eq("id", data.storeId)
+      .maybeSingle();
+    if (error || !store) throw new Error("Mağaza bulunamadı");
+    const { buildStoreSitemap } = await import("@/lib/sitemap.server");
+    const { inspectSitemap } = await import("@/lib/sitemap-inspection");
+    const xml = await buildStoreSitemap(store.slug, "https://mefticaret.com");
+    return { generatedAt: new Date().toISOString(), inventory: xml ? inspectSitemap(xml) : null };
+  });
+
 /**
  * SEO editörü yazma işlemleri: ürün, koleksiyon, sayfa/blog ve mağaza
  * düzeyinde SEO alanları. Tenant izolasyonu RLS ile zorlanır.
@@ -46,7 +64,11 @@ export const saveEntitySeo = createServerFn({ method: "POST" })
     const seo = cleanSeo(data.seo) as Json;
 
     const table =
-      data.entity === "product" ? "products" : data.entity === "collection" ? "collections" : "store_pages";
+      data.entity === "product"
+        ? "products"
+        : data.entity === "collection"
+          ? "collections"
+          : "store_pages";
 
     const { data: row, error } = await supabase
       .from(table)
@@ -98,10 +120,15 @@ const storeSeoInput = z.object({
       localePrefix: z.boolean().optional(),
     })
     .optional(),
-  templates: z.record(z.enum(["product", "collection", "page", "blog"]), z.object({
-    title: z.string().trim().max(180).optional(),
-    description: z.string().trim().max(400).optional(),
-  })).optional(),
+  templates: z
+    .record(
+      z.enum(["product", "collection", "page", "blog"]),
+      z.object({
+        title: z.string().trim().max(180).optional(),
+        description: z.string().trim().max(400).optional(),
+      }),
+    )
+    .optional(),
 });
 
 export const saveStoreSeo = createServerFn({ method: "POST" })
@@ -120,12 +147,12 @@ export const saveStoreSeo = createServerFn({ method: "POST" })
       seo[key] = typeof value === "string" ? value.trim() : value;
     }
     if (rest.faq) {
-      seo['faq'] = rest.faq.filter((entry) => entry.question.trim() && entry.answer.trim());
+      seo["faq"] = rest.faq.filter((entry) => entry.question.trim() && entry.answer.trim());
     }
-    if (rest.urlStructure) seo['urlStructure'] = rest.urlStructure;
-    if (rest.templates) seo['templates'] = rest.templates;
-    if (typeof rest.latitude === "number") seo['latitude'] = rest.latitude;
-    if (typeof rest.longitude === "number") seo['longitude'] = rest.longitude;
+    if (rest.urlStructure) seo["urlStructure"] = rest.urlStructure;
+    if (rest.templates) seo["templates"] = rest.templates;
+    if (typeof rest.latitude === "number") seo["latitude"] = rest.latitude;
+    if (typeof rest.longitude === "number") seo["longitude"] = rest.longitude;
 
     const { error } = await supabase
       .from("store_settings")
@@ -191,10 +218,11 @@ export const applySeoTemplates = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { readSeo, readStoreSeo, renderSeoTemplate, plainText } = await import("@/lib/seo");
 
-    const [{ data: store, error: storeError }, { data: settings, error: settingsError }] = await Promise.all([
-      supabase.from("stores").select("id, name").eq("id", data.storeId).maybeSingle(),
-      supabase.from("store_settings").select("seo").eq("store_id", data.storeId).maybeSingle(),
-    ]);
+    const [{ data: store, error: storeError }, { data: settings, error: settingsError }] =
+      await Promise.all([
+        supabase.from("stores").select("id, name").eq("id", data.storeId).maybeSingle(),
+        supabase.from("store_settings").select("seo").eq("store_id", data.storeId).maybeSingle(),
+      ]);
     if (storeError) throw new Error(storeError.message);
     if (settingsError) throw new Error(settingsError.message);
     if (!store) throw new Error("Mağaza bulunamadı.");
@@ -223,7 +251,8 @@ export const applySeoTemplates = createServerFn({ method: "POST" })
       }
       const existing = readSeo(current);
       const tokens = { store_name: storeName, ...extraTokens };
-      const nextTitle = overwrite || !existing.title ? renderSeoTemplate(template.title, tokens) : null;
+      const nextTitle =
+        overwrite || !existing.title ? renderSeoTemplate(template.title, tokens) : null;
       const nextDescription =
         overwrite || !existing.description ? renderSeoTemplate(template.description, tokens) : null;
 
@@ -274,9 +303,17 @@ export const applySeoTemplates = createServerFn({ method: "POST" })
         .limit(500);
       if (error) throw new Error(error.message);
       for (const row of rows ?? []) {
-        await applyRow("collections", String(row.id), row.seo, row.title, row.description, "collection", {
-          collection_name: row.title,
-        });
+        await applyRow(
+          "collections",
+          String(row.id),
+          row.seo,
+          row.title,
+          row.description,
+          "collection",
+          {
+            collection_name: row.title,
+          },
+        );
       }
     }
 
@@ -291,7 +328,10 @@ export const applySeoTemplates = createServerFn({ method: "POST" })
       for (const row of rows ?? []) {
         const kind = row.page_kind === "blog" ? "blog" : "page";
         if (!pageKinds.includes(kind)) continue;
-        const excerpt = plainText(row.seo_description ?? row.excerpt ?? row.body ?? "").slice(0, 200);
+        const excerpt = plainText(row.seo_description ?? row.excerpt ?? row.body ?? "").slice(
+          0,
+          200,
+        );
         await applyRow("store_pages", String(row.id), row.seo, row.title, excerpt, kind, {
           page_title: row.title,
           page_excerpt: excerpt,

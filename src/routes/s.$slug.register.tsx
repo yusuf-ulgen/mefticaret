@@ -1,7 +1,9 @@
+import { customerReturnTarget } from "@/lib/customer-return";
 import { useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { Breadcrumb, StorefrontFallback } from "@/components/storefront-parts";
@@ -10,6 +12,7 @@ import { useAuth } from "@/lib/auth-context";
 import { storefrontQuery } from "@/lib/storefront-queries";
 
 export const Route = createFileRoute("/s/$slug/register")({
+  validateSearch: z.object({ return: z.enum(["checkout"]).optional() }),
   loader: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(storefrontQuery(params.slug));
     if (!data) throw notFound();
@@ -41,12 +44,15 @@ export const Route = createFileRoute("/s/$slug/register")({
 function RegisterPage() {
   const { slug } = Route.useParams();
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const target = customerReturnTarget(search.return);
   const { data } = useSuspenseQuery(storefrontQuery(slug));
   const { user } = useAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
 
   if (!data) return <StorefrontFallback text="Bu adreste yayınlanmış bir mağaza yok." />;
   const { store, theme, footerPages } = data;
@@ -70,12 +76,12 @@ function RegisterPage() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
+    const { data: registration, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
         data: { full_name: fullName.trim() || null },
-        emailRedirectTo: `${window.location.origin}/s/${slug}/account`,
+        emailRedirectTo: `${window.location.origin}/s/${encodeURIComponent(slug)}/${target}`,
       },
     });
     setBusy(false);
@@ -83,20 +89,46 @@ function RegisterPage() {
       toast.error("Kayıt tamamlanamadı", { description: error.message });
       return;
     }
-    toast.success("Kayıt alındı", { description: "E-postana gelen doğrulama bağlantısını onayla." });
-    void navigate({ to: "/s/$slug/account", params: { slug } });
+    if (registration.session) {
+      toast.success("Hesabın oluşturuldu");
+      void navigate({
+        to: target === "checkout" ? "/s/$slug/checkout" : "/s/$slug/account",
+        params: { slug },
+      });
+    } else {
+      setConfirmationSent(true);
+      toast.success("Kayıt alındı", {
+        description:
+          "E-postana gelen doğrulama bağlantısını onayla. Seçtiğin adıma geri döneceksin.",
+      });
+    }
   }
 
   return (
-    <StorefrontChrome theme={theme} storeName={store.name} storeSlug={store.slug} footerPages={footerPages}>
+    <StorefrontChrome
+      theme={theme}
+      storeName={store.name}
+      storeSlug={store.slug}
+      footerPages={footerPages}
+    >
       <Breadcrumb theme={theme} slug={slug} storeName={store.name} current="Kayıt" />
       <section style={{ padding: "24px 0 64px", maxWidth: 420 }}>
-        <h1 style={{ fontFamily: fonts.heading, fontSize: 30, fontWeight: 700, margin: 0 }}>Kayıt ol</h1>
+        <h1 style={{ fontFamily: fonts.heading, fontSize: 30, fontWeight: 700, margin: 0 }}>
+          Kayıt ol
+        </h1>
         <p style={{ color: muted, marginTop: 10, fontSize: 14 }}>
-          Üyelik oluşturduğunda ödeme adımı otomatik dolar, siparişlerini ve iade taleplerini takip edebilirsin.
+          Üyelik oluşturduğunda ödeme adımı otomatik dolar, siparişlerini ve iade taleplerini takip
+          edebilirsin.
         </p>
 
-        {user ? (
+        {confirmationSent ? (
+          <p role="status" style={{ marginTop: 20 }}>
+            E-posta adresine gelen doğrulama bağlantısını aç.{" "}
+            {target === "checkout"
+              ? "Doğrulama sonrası aynı mağazanın ödeme adımına döneceksin; sepetin korunur."
+              : "Doğrulama sonrası müşteri hesabına döneceksin."}
+          </p>
+        ) : user ? (
           <div
             style={{
               marginTop: 20,
@@ -108,15 +140,23 @@ function RegisterPage() {
             }}
           >
             Zaten bir hesapla giriş yaptın.{" "}
-            <Link to="/s/$slug/account" params={{ slug }} style={{ color: "inherit", fontWeight: 600 }}>
-              Hesabıma git
+            <Link
+              to={target === "checkout" ? "/s/$slug/checkout" : "/s/$slug/account"}
+              params={{ slug }}
+              style={{ color: "inherit", fontWeight: 600 }}
+            >
+              {target === "checkout" ? "Ödemeye dön" : "Hesabıma git"}
             </Link>
           </div>
         ) : (
           <form onSubmit={submit} style={{ display: "grid", gap: 12, marginTop: 22 }}>
             <label style={{ display: "grid", gap: 6, fontSize: 13, color: muted }}>
               Ad soyad
-              <input value={fullName} onChange={(event) => setFullName(event.target.value)} style={inputStyle} />
+              <input
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
+                style={inputStyle}
+              />
             </label>
             <label style={{ display: "grid", gap: 6, fontSize: 13, color: muted }}>
               E-posta
@@ -170,7 +210,12 @@ function RegisterPage() {
 
         <p style={{ color: muted, fontSize: 13, marginTop: 18 }}>
           Hesabın var mı?{" "}
-          <Link to="/s/$slug/login" params={{ slug }} style={{ color: "inherit", fontWeight: 600 }}>
+          <Link
+            to="/s/$slug/login"
+            params={{ slug }}
+            search={{ return: search.return }}
+            style={{ color: "inherit", fontWeight: 600 }}
+          >
             Giriş yap
           </Link>
         </p>

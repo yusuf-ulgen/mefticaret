@@ -8,11 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { loadTestStatusQuery } from "@/lib/loadtest-queries";
-import {
-  saveLoadTestConfig,
-  stepLoadTestCycle,
-  stopLoadTestSuite,
-} from "@/lib/loadtest.functions";
+import { integrityResult, thresholdResult, loadTestScope } from "@/lib/loadtest-result";
+import { saveLoadTestConfig, stepLoadTestCycle, stopLoadTestSuite } from "@/lib/loadtest.functions";
 import { formatDateTime, formatNumber } from "@/lib/mefti";
 
 /** Süper admin yük monitörü: geri sayım, göstergeler, faz akışı ve acil durdurma. */
@@ -20,7 +17,7 @@ import { formatDateTime, formatNumber } from "@/lib/mefti";
 const PHASE_LABELS: Record<string, string> = {
   purge: "Sıfırlama",
   seed: "Veri tohumlama",
-  traffic: "Yük & trafik",
+  traffic: "HTTP örnekleme ve sipariş simülasyonu",
   verify: "Doğrulama",
   report: "Raporlama",
 };
@@ -54,22 +51,26 @@ function Gauge({
   display,
   ratio,
   tone,
+  hint = "Son ölçüm",
 }: {
   label: string;
   value: number;
   display: string;
   ratio: number;
-  tone: "healthy" | "degraded" | "outage";
+  tone: "healthy" | "degraded" | "outage" | "unknown";
+  hint?: string;
 }) {
   const clamped = Math.max(0, Math.min(1, ratio));
   const radius = 46;
   const circumference = Math.PI * radius;
   const color =
-    tone === "outage"
-      ? "var(--status-outage)"
-      : tone === "degraded"
-        ? "var(--status-degraded)"
-        : "var(--status-healthy)";
+    tone === "unknown"
+      ? "var(--monitor-muted)"
+      : tone === "outage"
+        ? "var(--status-outage)"
+        : tone === "degraded"
+          ? "var(--status-degraded)"
+          : "var(--status-healthy)";
   return (
     <div
       className="rounded-xl border p-4"
@@ -94,12 +95,19 @@ function Gauge({
           strokeLinecap="round"
           strokeDasharray={`${circumference * clamped} ${circumference}`}
         />
-        <text x="60" y="56" textAnchor="middle" fontSize="16" fill="var(--monitor-foreground)" fontWeight="600">
+        <text
+          x="60"
+          y="56"
+          textAnchor="middle"
+          fontSize="16"
+          fill="var(--monitor-foreground)"
+          fontWeight="600"
+        >
           {display}
         </text>
       </svg>
       <p className="text-[11px]" style={{ color: "var(--monitor-muted)" }}>
-        Anlık: {formatNumber(Math.round(value))}
+        {hint}
       </p>
     </div>
   );
@@ -117,7 +125,8 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["load-test-status"] });
 
   const configMutation = useMutation({
-    mutationFn: (patch: Record<string, number | boolean>) => saveLoadTestConfig({ data: patch as never }),
+    mutationFn: (patch: Record<string, number | boolean>) =>
+      saveLoadTestConfig({ data: patch as never }),
     onSuccess: () => {
       toast.success("Test ayarları kaydedildi");
       invalidate();
@@ -147,9 +156,9 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
   const summary = (run?.summary ?? {}) as Record<string, number | Record<string, number>>;
   const metrics = (run?.metrics ?? {}) as Record<string, number | Record<string, unknown>>;
   const health = (metrics["health"] ?? {}) as {
-    api?: { p95?: number; requests?: number; errors?: number };
-    cache?: { ratio?: number };
-    queue?: { queued?: number; running?: number; failed?: number };
+    api?: { p95?: number | null; requests?: number | null; errors?: number | null };
+    cache?: { ratio?: number | null };
+    queue?: { queued?: number | null; running?: number | null; failed?: number | null };
     overall?: string;
   };
 
@@ -162,8 +171,10 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
 
   const errorRate = health.api?.requests
     ? ((health.api.errors ?? 0) / health.api.requests) * 100
-    : 0;
-  const latency = Number(health.api?.p95 ?? metrics["storefrontP95"] ?? 0);
+    : null;
+  const latencyValue = health.api?.p95 ?? metrics["storefrontP95"];
+  const latency =
+    typeof latencyValue === "number" && Number.isFinite(latencyValue) ? latencyValue : null;
   const backlog = Number(health.queue?.queued ?? 0) + Number(health.queue?.running ?? 0);
 
   const field = (key: string, fallback: number) => form[key] ?? fallback;
@@ -179,7 +190,7 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="font-display text-lg font-semibold">Otomatik yük testi orkestratörü</h2>
+          <h2 className="font-display text-lg font-semibold">Otomatik akış ve HTTP kontrolü</h2>
           <p className="mt-1 text-xs" style={{ color: "var(--monitor-muted)" }}>
             {run
               ? `Tur ${run.cycleNo} · ${PHASE_LABELS[run.phase] ?? run.phase} fazı · ${formatDateTime(run.startedAt)}`
@@ -188,14 +199,16 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
                 : "Aktif tur yok. Testi başlatmak için süiti etkinleştirin."}
           </p>
           <p className="mt-1 text-[11px]" style={{ color: "var(--monitor-muted)" }}>
-            Test verisi yalnızca TEST işaretli mağazalarda tutulur ({formatNumber(data?.testStores ?? 0)} mağaza) ve
-            her turun sonunda silinir. 20.000 gerçek eşzamanlı kullanıcı için `loadtest/k6` senaryoları harici bir
-            yük sağlayıcısında çalıştırılmalıdır.
+            Test verisi yalnızca TEST işaretli mağazalarda tutulur (
+            {formatNumber(data?.testStores ?? 0)} mağaza) ve her turun sonunda silinir. Vitrin
+            adresleri sırayla kontrol edilir; siparişler test verisiyle simüle edilir. Eşzamanlı
+            kullanıcı kapasitesi ayrıca yük testiyle ölçülür. Kullanıcı hedefinden çarpılarak
+            bulunan trafik ölçüm değildir; panel bu tahmini kapasite sonucu olarak göstermez.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={run ? "default" : "secondary"}>
-            {run ? STATUS_LABELS[run.status] ?? run.status : "Beklemede"}
+            {run ? (STATUS_LABELS[run.status] ?? run.status) : "Beklemede"}
           </Badge>
           <div className="flex items-center gap-2 text-xs">
             <Switch
@@ -211,10 +224,20 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
             />
             <span>Duraklat</span>
           </div>
-          <Button size="sm" variant="secondary" onClick={() => stepMutation.mutate()} disabled={stepMutation.isPending}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => stepMutation.mutate()}
+            disabled={stepMutation.isPending}
+          >
             Adımı şimdi çalıştır
           </Button>
-          <Button size="sm" variant="destructive" onClick={() => stopMutation.mutate()} disabled={stopMutation.isPending}>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => stopMutation.mutate()}
+            disabled={stopMutation.isPending}
+          >
             TEST SÜİTİNİ DURDUR
           </Button>
         </div>
@@ -224,11 +247,12 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
 
       <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Gauge
-          label="Sanal kullanıcı (hedef)"
+          label="Harici yük testi VU hedefi"
           value={Number(config?.vusersTarget ?? 0)}
           display={formatNumber(Number(config?.vusersTarget ?? 0))}
           ratio={Number(config?.vusersTarget ?? 0) / 20000}
           tone="healthy"
+          hint="Bu kontrolün aktif kullanıcı ölçümü değildir"
         />
         <Gauge
           label="Sipariş / saniye"
@@ -239,28 +263,69 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
         />
         <Gauge
           label="API p95 gecikme (ms)"
-          value={latency}
-          display={`${Math.round(latency)} ms`}
-          ratio={latency / 600}
-          tone={latency > 200 ? "outage" : latency > 150 ? "degraded" : "healthy"}
+          value={latency ?? 0}
+          display={latency === null ? "Ölçüm yok" : `${Math.round(latency)} ms`}
+          ratio={(latency ?? 0) / 600}
+          tone={
+            latency === null
+              ? "unknown"
+              : latency > 200
+                ? "outage"
+                : latency > 150
+                  ? "degraded"
+                  : "healthy"
+          }
         />
         <Gauge
           label="Hata oranı"
-          value={errorRate}
-          display={`${errorRate.toFixed(2)}%`}
-          ratio={errorRate / 5}
-          tone={errorRate > 1 ? "outage" : errorRate > 0.2 ? "degraded" : "healthy"}
+          value={errorRate ?? 0}
+          display={errorRate === null ? "Ölçüm yok" : `${errorRate.toFixed(2)}%`}
+          ratio={(errorRate ?? 0) / 5}
+          tone={
+            errorRate === null
+              ? "unknown"
+              : errorRate > 1
+                ? "outage"
+                : errorRate > 0.2
+                  ? "degraded"
+                  : "healthy"
+          }
         />
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-3 text-sm lg:grid-cols-4">
+        <Stat label="Aktif eşzamanlı kullanıcı" value="Ölçülmüyor" />
+        <Stat label="Vitrin kontrolü" value="Sıralı HTTP örnekleme" />
+        <Stat
+          label="Kontrol edilen adres"
+          value={
+            typeof metrics["storefrontSampleUrls"] === "number"
+              ? formatNumber(metrics["storefrontSampleUrls"])
+              : "Ölçüm yok"
+          }
+        />
         <Stat label="Tohumlanan mağaza" value={formatNumber(Number(summary["stores"] ?? 0))} />
         <Stat label="Tohumlanan ürün" value={formatNumber(Number(summary["products"] ?? 0))} />
         <Stat label="Oluşan sipariş" value={formatNumber(Number(summary["orders"] ?? 0))} />
         <Stat label="İade talebi" value={formatNumber(Number(summary["returns"] ?? 0))} />
-        <Stat label="Stok engeli (aşırı satış önlendi)" value={formatNumber(Number(summary["stockBlocked"] ?? 0))} />
-        <Stat label="Önbellek isabet" value={`${(((health.cache?.ratio ?? 0) as number) * 100).toFixed(1)}%`} />
-        <Stat label="Kuyruk birikimi" value={formatNumber(backlog)} />
+        <Stat
+          label="Stok engeli (aşırı satış önlendi)"
+          value={formatNumber(Number(summary["stockBlocked"] ?? 0))}
+        />
+        <Stat
+          label="Önbellek isabet"
+          value={
+            health.cache?.ratio == null ? "Ölçüm yok" : `${(health.cache.ratio * 100).toFixed(1)}%`
+          }
+        />
+        <Stat
+          label="Kuyruk birikimi"
+          value={
+            health.queue?.queued == null || health.queue.running == null
+              ? "Ölçüm yok"
+              : formatNumber(backlog)
+          }
+        />
         <Stat label="Bulgu" value={formatNumber(run?.findingsCount ?? 0)} />
       </div>
 
@@ -271,7 +336,11 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
             {[
               { key: "storesTarget", label: "Mağaza", value: config?.storesTarget ?? 1000 },
               { key: "productsTarget", label: "Ürün", value: config?.productsTarget ?? 50000 },
-              { key: "vusersTarget", label: "Sanal kullanıcı", value: config?.vusersTarget ?? 500 },
+              {
+                key: "vusersTarget",
+                label: "Harici VU hedefi",
+                value: config?.vusersTarget ?? 500,
+              },
               { key: "ordersTarget", label: "Sipariş", value: config?.ordersTarget ?? 10000 },
               { key: "cycleMinutes", label: "Tur süresi (dk)", value: config?.cycleMinutes ?? 180 },
             ].map((item) => (
@@ -306,14 +375,22 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
             {(data?.events ?? []).map((event) => {
               const row = event as Record<string, string>;
               return (
-                <li key={row["id"]} className="border-b pb-2" style={{ borderColor: "var(--monitor-border)" }}>
+                <li
+                  key={row["id"]}
+                  className="border-b pb-2"
+                  style={{ borderColor: "var(--monitor-border)" }}
+                >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium">
                       {PHASE_LABELS[row["phase"] ?? ""] ?? row["phase"]} — {row["message"]}
                     </span>
-                    <Badge variant={row["level"] === "CRITICAL" ? "destructive" : "secondary"}>{row["level"]}</Badge>
+                    <Badge variant={row["level"] === "CRITICAL" ? "destructive" : "secondary"}>
+                      {row["level"]}
+                    </Badge>
                   </div>
-                  <p style={{ color: "var(--monitor-muted)" }}>{formatDateTime(row["created_at"] ?? "")}</p>
+                  <p style={{ color: "var(--monitor-muted)" }}>
+                    {formatDateTime(row["created_at"] ?? "")}
+                  </p>
                 </li>
               );
             })}
@@ -331,7 +408,11 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
             {(data?.findings ?? []).map((finding) => {
               const row = finding as Record<string, string>;
               return (
-                <li key={row["id"]} className="border-b pb-2" style={{ borderColor: "var(--monitor-border)" }}>
+                <li
+                  key={row["id"]}
+                  className="border-b pb-2"
+                  style={{ borderColor: "var(--monitor-border)" }}
+                >
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium">{row["kind"]}</span>
                     <Badge variant="destructive">{row["severity"]}</Badge>
@@ -342,7 +423,7 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
             })}
             {!isLoading && (data?.findings ?? []).length === 0 ? (
               <li style={{ color: "var(--monitor-muted)" }}>
-                Bulgu yok — aşırı satış ve komisyon hesapları kuruşuna kadar tutuyor.
+                {integrityResult(data?.runs?.[0]?.status, data?.runs?.[0]?.summary?.["integrity"])}
               </li>
             ) : null}
           </ul>
@@ -352,16 +433,28 @@ export function LoadTestMonitor({ enabled }: { enabled: boolean }) {
           <h3 className="text-sm font-semibold">Son turlar</h3>
           <ul className="mt-3 max-h-56 space-y-2 overflow-auto text-xs">
             {(data?.runs ?? []).map((item) => (
-              <li key={item.id} className="border-b pb-2" style={{ borderColor: "var(--monitor-border)" }}>
+              <li
+                key={item.id}
+                className="border-b pb-2"
+                style={{ borderColor: "var(--monitor-border)" }}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-medium">Tur {item.cycleNo}</span>
-                  <Badge variant={item.status.startsWith("completed") ? "secondary" : "destructive"}>
+                  <Badge
+                    variant={item.status.startsWith("completed") ? "secondary" : "destructive"}
+                  >
                     {STATUS_LABELS[item.status] ?? item.status}
                   </Badge>
                 </div>
                 <p style={{ color: "var(--monitor-muted)" }}>
                   {formatDateTime(item.startedAt)} · {formatNumber(item.findingsCount)} bulgu ·{" "}
-                  {String((item.summary as Record<string, unknown>)["thresholdFailures"] ?? "") || "eşikler tamam"}
+                  {thresholdResult(
+                    item.status,
+                    (item.summary as Record<string, unknown>)["thresholdFailures"],
+                  )}
+                </p>
+                <p className="mt-1" style={{ color: "var(--monitor-muted)" }}>
+                  {loadTestScope(item.metrics)}
                 </p>
               </li>
             ))}

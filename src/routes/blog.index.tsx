@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -15,17 +15,15 @@ const DESCRIPTION =
 
 export const Route = createFileRoute("/blog/")({
   loader: async ({ context }) => {
-    try {
-      await context.queryClient.ensureQueryData(publicPlatformPostsQuery());
-    } catch (error) {
-      console.error(error);
-    }
+    await context.queryClient.ensureQueryData(publicPlatformPostsQuery());
     return null;
   },
   errorComponent: ({ error }) => (
     <main className="mx-auto w-full max-w-4xl px-5 py-14" role="alert">
       <h1 className="text-2xl font-semibold">Blog şu anda görüntülenemiyor</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : String(error)}</p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        {error instanceof Error ? error.message : String(error)}
+      </p>
     </main>
   ),
   notFoundComponent: () => (
@@ -47,7 +45,7 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndexPage() {
-  const { data: posts, isLoading } = useQuery(publicPlatformPostsQuery());
+  const { data: posts, isLoading } = useSuspenseQuery(publicPlatformPostsQuery());
   const [category, setCategory] = useState<string>("all");
   const [term, setTerm] = useState("");
 

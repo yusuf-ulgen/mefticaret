@@ -31,6 +31,7 @@ export const createStore = createServerFn({ method: "POST" })
         currency: z.enum(["TRY", "USD", "EUR", "GBP", "AED", "SAR"]).default("TRY"),
         locale: z.enum(["tr", "en", "de", "fr", "es", "ar"]).default("tr"),
         planCode: z.string().trim().max(40).optional(),
+        billingInterval: z.enum(["monthly", "yearly"]).default("monthly"),
       })
       .parse(data),
   )
@@ -49,12 +50,21 @@ export const createStore = createServerFn({ method: "POST" })
       slug = `${base}-${Math.random().toString(36).slice(2, 6)}`;
     }
 
-    const { data: plan } = await supabase
+    const { data: plan, error: planError } = await supabase
       .from("plans")
       .select("id")
       // Ücretli paketler yalnızca ödeme/abonelik akışıyla atanır; yeni mağaza her zaman ücretsiz paketle açılır.
       .eq("code", "free")
       .maybeSingle();
+    if (planError || !plan) throw new Error("Ücretsiz başlangıç paketi bulunamadı");
+    const { data: requestedPlan, error: requestedPlanError } = await supabase
+      .from("plans")
+      .select("id")
+      .eq("code", data.planCode || "free")
+      .eq("is_active", true)
+      .maybeSingle();
+    if (requestedPlanError || !requestedPlan)
+      throw new Error("Seçilen paket bulunamadı veya aktif değil");
 
     const payload = {
       owner_id: userId,
@@ -64,6 +74,8 @@ export const createStore = createServerFn({ method: "POST" })
       currency: data.currency,
       locale: data.locale,
       plan_id: plan?.id ?? null,
+      requested_plan_id: requestedPlan.id,
+      requested_billing_interval: data.billingInterval,
       store_kind: "corporate",
       onboarding_step: 4,
       status: "draft" as const,
@@ -277,7 +289,8 @@ async function resolveRegional(name: string) {
           `https://dns.google/resolve?name=${encodeURIComponent(name)}&type=A&edns_client_subnet=${region.subnet}`,
           { headers: { accept: "application/dns-json" } },
         );
-        if (!res.ok) return { type: "REGION", region: region.label, status: "error", values: [] as string[] };
+        if (!res.ok)
+          return { type: "REGION", region: region.label, status: "error", values: [] as string[] };
         const payload = (await res.json()) as { Status?: number; Answer?: DohAnswer[] };
         const values = (payload.Answer ?? []).filter((a) => a.type === 1).map((a) => a.data);
         return {
@@ -294,10 +307,18 @@ async function resolveRegional(name: string) {
 }
 
 const NS_PROVIDERS: [RegExp, string][] = [
-  [/cloudflare/i, "Cloudflare"], [/domaincontrol|godaddy/i, "GoDaddy"], [/natro/i, "Natro"],
-  [/isimtescil/i, "İsimtescil"], [/turhost/i, "Turhost"], [/guzel\.net|guzelhosting/i, "Güzel Hosting"],
-  [/registrar-servers|namecheap/i, "Namecheap"], [/awsdns/i, "Amazon Route 53"], [/googledomains|google/i, "Google"],
-  [/hostinger|dns-parking/i, "Hostinger"], [/ovh/i, "OVH"], [/lovable/i, "Lovable"],
+  [/cloudflare/i, "Cloudflare"],
+  [/domaincontrol|godaddy/i, "GoDaddy"],
+  [/natro/i, "Natro"],
+  [/isimtescil/i, "İsimtescil"],
+  [/turhost/i, "Turhost"],
+  [/guzel\.net|guzelhosting/i, "Güzel Hosting"],
+  [/registrar-servers|namecheap/i, "Namecheap"],
+  [/awsdns/i, "Amazon Route 53"],
+  [/googledomains|google/i, "Google"],
+  [/hostinger|dns-parking/i, "Hostinger"],
+  [/ovh/i, "OVH"],
+  [/lovable/i, "Lovable"],
 ];
 
 function providerFromNs(ns: string[]): string | null {
@@ -324,7 +345,8 @@ export const addStoreSubdomain = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    if (RESERVED_SUBDOMAINS.has(data.label)) throw new Error("Bu alt alan adı sistem tarafından ayrılmış");
+    if (RESERVED_SUBDOMAINS.has(data.label))
+      throw new Error("Bu alt alan adı sistem tarafından ayrılmış");
 
     const hostname = `${data.label}.${SUBDOMAIN_SUFFIX}`;
     const { data: row, error } = await supabase
@@ -368,12 +390,7 @@ export const addStoreDomain = createServerFn({ method: "POST" })
     z
       .object({
         storeId: z.guid(),
-        hostname: z
-          .string()
-          .trim()
-          .toLowerCase()
-          .min(4)
-          .max(253),
+        hostname: z.string().trim().toLowerCase().min(4).max(253),
         /** true ise apex ile birlikte www kaydı da oluşturulur. */
         includeWww: z.boolean().default(true),
       })
@@ -424,7 +441,10 @@ export const addStoreDomain = createServerFn({ method: "POST" })
       )
       .select("*");
 
-    if (error) throw new Error(error.message.includes("duplicate") ? "Bu domain zaten kayıtlı" : error.message);
+    if (error)
+      throw new Error(
+        error.message.includes("duplicate") ? "Bu domain zaten kayıtlı" : error.message,
+      );
     if (!rows?.length) throw new Error("Domain ekleme yetkiniz yok");
 
     await insertAuditRow(supabase, {
@@ -583,9 +603,7 @@ export const setDomainRedirect = createServerFn({ method: "POST" })
 
 export const setPrimaryDomain = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
-    z.object({ storeId: z.guid(), domainId: z.guid() }).parse(data),
-  )
+  .inputValidator((data) => z.object({ storeId: z.guid(), domainId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: target } = await supabase
@@ -630,7 +648,8 @@ export const removeStoreDomain = createServerFn({ method: "POST" })
       .eq("id", data.domainId)
       .maybeSingle();
     if (!domain) throw new Error("Domain bulunamadı");
-    if (domain.is_primary) throw new Error("Ana domain kaldırılamaz — önce başka bir domaini ana yapın");
+    if (domain.is_primary)
+      throw new Error("Ana domain kaldırılamaz — önce başka bir domaini ana yapın");
 
     const { error } = await supabase.from("store_domains").delete().eq("id", data.domainId);
     if (error) throw new Error(error.message);
@@ -647,6 +666,66 @@ export const removeStoreDomain = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const listStoreMembers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ storeId: z.guid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+    const { readAllPages } = await import("@/lib/read-all-pages");
+    const { data: members } = await readAllPages((from, to) =>
+      context.supabase
+        .from("store_users")
+        .select("*")
+        .eq("store_id", data.storeId)
+        .order("id")
+        .range(from, to),
+    );
+    const ids = (members ?? []).map((member) => member.id);
+    const audits = ids.length
+      ? await readAllPages((from, to) =>
+          context.supabase
+            .from("audit_logs")
+            .select("entity_id, actor_id, created_at")
+            .eq("store_id", data.storeId)
+            .eq("action", "store.member.role_updated")
+            .in("entity_id", ids)
+            .order("created_at", { ascending: false })
+            .order("id")
+            .range(from, to),
+        )
+      : { data: [] };
+    const userIds = [
+      ...new Set([
+        ...(members ?? []).map((member) => member.user_id),
+        ...(audits.data ?? [])
+          .map((audit) => audit.actor_id)
+          .filter((id): id is string => Boolean(id)),
+      ]),
+    ];
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const profiles = new Map<string, { full_name: string | null; email: string | null }>();
+    for (let i = 0; i < userIds.length; i += 100) {
+      const result = await supabaseAdmin
+        .from("profiles")
+        .select("id, full_name, email")
+        .in("id", userIds.slice(i, i + 100));
+      if (result.error) throw new Error(result.error.message);
+      for (const profile of result.data ?? []) profiles.set(profile.id, profile);
+    }
+    return (members ?? []).map((member) => {
+      const profile = profiles.get(member.user_id);
+      const last = (audits.data ?? []).find((audit) => audit.entity_id === member.id);
+      const actor = last?.actor_id ? profiles.get(last.actor_id) : null;
+      return {
+        ...member,
+        displayName: profile?.full_name || profile?.email || "İsimsiz ekip üyesi",
+        email: profile?.email ?? null,
+        lastChangedAt: last?.created_at ?? null,
+        lastChangedBy: actor?.full_name || actor?.email || (last ? "Yetkili yönetici" : null),
+      };
+    });
+  });
 
 export const updateStoreMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -660,6 +739,15 @@ export const updateStoreMember = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
+    const current = await supabase
+      .from("store_users")
+      .select("id, store_id, role")
+      .eq("id", data.memberId)
+      .maybeSingle();
+    if (current.error) throw new Error(current.error.message);
+    if (!current.data) throw new Error("Ekip üyesi bulunamadı veya yetkiniz yok");
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(supabase, current.data.store_id, context.userId);
     const { data: row, error } = await supabase
       .from("store_users")
       .update({ role: data.role })
@@ -669,5 +757,15 @@ export const updateStoreMember = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Yetkiniz yok veya mağaza sahibi değiştirilemez");
+    const { recordAudit } = await import("@/lib/audit.server");
+    await recordAudit(supabase, {
+      action: "store.member.role_updated",
+      storeId: row.store_id,
+      actorId: context.userId,
+      entity: "store_users",
+      entityId: row.id,
+      oldValue: { role: current.data.role },
+      newValue: { role: row.role },
+    });
     return row;
   });
