@@ -293,12 +293,12 @@ export function StorefrontChrome({
         <SiteKitScripts storeSlug={storeSlug} />
         <CampaignBanner slug={storeSlug} />
 
+        <div className="hm-storefront-locale"><StorefrontGlobalSelector storeSlug={storeSlug} /></div>
         <header className="hm-storefront-header">
           <Link to="/s/$slug" params={{ slug: storeSlug }} className="hm-storefront-brand" aria-label={`${storeName} ana sayfa`}>
             mefticaret
           </Link>
           <nav className="hm-storefront-actions" aria-label="Mağaza işlemleri">
-            <StorefrontGlobalSelector storeSlug={storeSlug} />
             <Button variant="ghost" size="icon" asChild aria-label="Ürün ara">
               <Link to="/s/$slug/search" params={{ slug: storeSlug }}><Search /></Link>
             </Button>
