@@ -1,3 +1,4 @@
+import { readAllPages } from "@/lib/read-all-pages";
 /**
  * Tedarikçi iş akışı (satın alma siparişi, mesajlaşma, XML besleme, ödeme)
  * sunucu yardımcıları. Çağıranlar yetkiyi daima önce doğrular; burada yalnız
@@ -41,7 +42,11 @@ export async function loadPurchaseOrders(
     .neq("status", "draft")
     .order("created_at", { ascending: false })
     .limit(limit);
-  if (filter.supplierIds) query = query.in("supplier_id", filter.supplierIds.length ? filter.supplierIds : ["00000000-0000-0000-0000-000000000000"]);
+  if (filter.supplierIds)
+    query = query.in(
+      "supplier_id",
+      filter.supplierIds.length ? filter.supplierIds : ["00000000-0000-0000-0000-000000000000"],
+    );
   if (filter.storeId) query = query.eq("store_id", filter.storeId);
   if (filter.ids) query = query.in("id", filter.ids);
   const { data, error } = await query;
@@ -72,7 +77,8 @@ export async function loadPurchaseOrders(
       expectedAt: row.expected_at,
       note: row.note,
       createdAt: row.created_at,
-      total: Math.round(items.reduce((sum, item) => sum + item.quantity * item.unitCost, 0) * 100) / 100,
+      total:
+        Math.round(items.reduce((sum, item) => sum + item.quantity * item.unitCost, 0) * 100) / 100,
       items,
     };
   });
@@ -88,7 +94,11 @@ export type WorkflowMessage = {
   readAt: string | null;
 };
 
-export async function loadMessages(admin: Client, supplierId: string, limit = 200): Promise<WorkflowMessage[]> {
+export async function loadMessages(
+  admin: Client,
+  supplierId: string,
+  limit = 200,
+): Promise<WorkflowMessage[]> {
   const { data, error } = await admin
     .from("supplier_messages")
     .select("id, supplier_id, purchase_order_id, sender_role, body, created_at, read_at")
@@ -110,7 +120,11 @@ export async function loadMessages(admin: Client, supplierId: string, limit = 20
 }
 
 /** Karşı tarafın mesajlarını okundu işaretler. */
-export async function markRead(admin: Client, supplierId: string, readerRole: "store" | "supplier") {
+export async function markRead(
+  admin: Client,
+  supplierId: string,
+  readerRole: "store" | "supplier",
+) {
   await admin
     .from("supplier_messages")
     .update({ read_at: new Date().toISOString() })
@@ -123,7 +137,10 @@ export async function markRead(admin: Client, supplierId: string, readerRole: "s
 
 const toNumber = (value: string) => {
   const cleaned = value.replace(/[^\d,.-]/g, "");
-  const normalized = cleaned.includes(",") && !cleaned.includes(".") ? cleaned.replace(",", ".") : cleaned.replace(/,/g, "");
+  const normalized =
+    cleaned.includes(",") && !cleaned.includes(".")
+      ? cleaned.replace(",", ".")
+      : cleaned.replace(/,/g, "");
   const parsed = Number(normalized);
   return Number.isFinite(parsed) ? parsed : 0;
 };
@@ -134,7 +151,11 @@ const STOCK_KEY = /(stok|stock|qty|quantity|miktar|adet|inventory)/i;
 const NOT_STOCK = /(kod|code|durum|status|birim|unit|id$)/i;
 
 /** Stok: eşlenen alanın tüm varyant değerleri toplanır; alan yoksa stok adlı alanlar aranır. */
-export function collectStock(row: Record<string, string>, mapped: string | undefined, toNum: (v: string) => number): number {
+export function collectStock(
+  row: Record<string, string>,
+  mapped: string | undefined,
+  toNum: (v: string) => number,
+): number {
   const sumPath = (path: string) => {
     let total = 0;
     let hit = false;
@@ -157,7 +178,9 @@ export function collectStock(row: Record<string, string>, mapped: string | undef
     if (STOCK_KEY.test(last) && !NOT_STOCK.test(last)) paths.add(generic);
   }
   const list = [...paths];
-  const top = list.filter((p) => !Object.keys(row).some((k) => k.includes("[") && k.replace(/\[\d*\]/g, "") === p));
+  const top = list.filter(
+    (p) => !Object.keys(row).some((k) => k.includes("[") && k.replace(/\[\d*\]/g, "") === p),
+  );
   const pick = top.find((p) => /total|toplam/i.test(p)) ?? top[0] ?? list[0];
   if (!pick) return 0;
   return Math.round(sumPath(pick) ?? 0);
@@ -183,17 +206,59 @@ export function collectImages(row: Record<string, string>, mapped: string | unde
 /** Tedarikçi XML'ini indirir, eşleştirir ve tedarikçi ürünlerine yazar. */
 export async function runSupplierFeed(
   admin: Client,
-  feed: { id: string; supplier_id: string; store_id: string; source_url: string; field_mapping: Record<string, string>; sale_markup_percent?: number | string | null },
+  feed: {
+    id: string;
+    supplier_id: string;
+    store_id: string;
+    source_url: string;
+    field_mapping: Record<string, string>;
+    sale_markup_percent?: number | string | null;
+  },
   currency: string,
 ) {
   const { fetchSource } = await import("@/lib/xml-integrator.server");
   const { parseSourceText, suggestMapping, readMapped } = await import("@/lib/xml-integrator");
   const startedAt = new Date().toISOString();
+  const claim = await admin
+    .from("supplier_xml_feeds")
+    .update({ last_status: "running", last_run_at: startedAt, last_error: null })
+    .eq("id", feed.id)
+    .or("last_status.is.null,last_status.neq.running")
+    .select("stats")
+    .maybeSingle();
+  if (claim.error) throw new Error(claim.error.message);
+  if (!claim.data) throw new Error("Bu besleme zaten çalışıyor. Durum kartını yenileyin.");
+  const previous = (claim.data.stats ?? {}) as { lastSuccessAt?: string; sourceFingerprint?: string; nextOffset?: number; created?: number; updated?: number; skipped?: number; failedFields?: number; failedUpdates?: number };
+  let progress: Record<string, unknown> = {
+    phase: "fetching",
+    startedAt,
+    lastSuccessAt: previous.lastSuccessAt ?? null,
+    processed: 0,
+    failedFields: 0,
+    failedUpdates: 0,
+    remaining: null,
+    retry: "manual",
+  };
+  const publish = async () => {
+    const result = await admin
+      .from("supplier_xml_feeds")
+      .update({ stats: progress })
+      .eq("id", feed.id);
+    if (result.error) throw new Error(result.error.message);
+  };
   try {
+    await publish();
     const fetched = await fetchSource({ url: feed.source_url });
-    const parsed = parseSourceText(fetched.content, fetched.format, { limit: 20000 });
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(fetched.content));
+    const sourceFingerprint = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    const offset = previous.sourceFingerprint === sourceFingerprint ? Number(previous.nextOffset ?? 0) : 0;
+    const parsed = parseSourceText(fetched.content, fetched.format, { limit: 200, offset });
+    const carry = offset > 0;
+    progress = { ...progress, sourceFingerprint, nextOffset: offset, processed: offset, remaining: Math.max(0, parsed.totalRows - offset) };
     const suggested = suggestMapping(parsed.columns) as Record<string, string>;
-    const saved = Object.fromEntries(Object.entries(feed.field_mapping ?? {}).filter(([, v]) => typeof v === "string" && v.trim()));
+    const saved = Object.fromEntries(
+      Object.entries(feed.field_mapping ?? {}).filter(([, v]) => typeof v === "string" && v.trim()),
+    );
     // Kayıtlı eşleme önceliklidir; boş kalan alanlar (ör. stok, görsel) otomatik tamamlanır.
     const mapping: Record<string, string> = { ...suggested, ...saved };
     if (!mapping["sku"] || !mapping["title"]) {
@@ -201,24 +266,32 @@ export async function runSupplierFeed(
     }
 
     // Tümü sayfalanarak okunur (varsayılan 1000 satır sınırı tekrar kayıt oluşturuyordu).
-    const existing: any[] = [];
-    for (let from = 0; ; from += 1000) {
-      const { data: page, error: pageError } = await admin
+    const { data: existing } = await readAllPages((from, to) =>
+      admin
         .from("supplier_products")
         .select("id, external_id")
         .eq("supplier_id", feed.supplier_id)
-        .order("created_at", { ascending: true })
-        .range(from, from + 999);
-      if (pageError) throw new Error(pageError.message);
-      existing.push(...(page ?? []));
-      if (!page || page.length < 1000) break;
-    }
-    const byExternal = new Map(((existing ?? []) as any[]).map((row) => [String(row.external_id ?? ""), String(row.id)]));
+        .order("id")
+        .range(from, to),
+    );
+    progress = {
+      ...progress,
+      phase: "mapping",
+      totalRows: parsed.totalRows,
+      parsedRows: parsed.rows.length,
+    };
+    await publish();
+    const byExternal = new Map(
+      ((existing ?? []) as any[]).map((row) => [String(row.external_id ?? ""), String(row.id)]),
+    );
 
     const markup = Math.max(0, Number(feed.sale_markup_percent ?? 0) || 0);
-    let created = 0;
-    let updated = 0;
-    let skipped = 0;
+    let created = carry ? Number(previous.created ?? 0) : 0;
+    let updated = carry ? Number(previous.updated ?? 0) : 0;
+    let skipped = carry ? Number(previous.skipped ?? 0) : 0;
+    let failedFields = carry ? Number(previous.failedFields ?? 0) : 0;
+    let failedUpdates = carry ? Number(previous.failedUpdates ?? 0) : 0;
+    const errors: string[] = [];
     const inserts: any[] = [];
     const updates: { id: string; patch: any }[] = [];
     const seen = new Set<string>();
@@ -228,13 +301,21 @@ export async function runSupplierFeed(
       const title = readMapped(row, mapping["title"]);
       if (!sku || !title || seen.has(sku)) {
         skipped += 1;
+        if (!sku || !title) failedFields += 1;
         continue;
       }
       seen.add(sku);
       const images = collectImages(row, mapping["images"]);
-      const purchase = toNumber(readMapped(row, mapping["cost_price"]) || readMapped(row, mapping["price"]));
+      const purchase = toNumber(
+        readMapped(row, mapping["cost_price"]) || readMapped(row, mapping["price"]),
+      );
       const retail = mapping["cost_price"] ? toNumber(readMapped(row, mapping["price"])) : 0;
-      const salePrice = markup > 0 ? Math.round(purchase * (1 + markup / 100) * 100) / 100 : retail > 0 ? retail : null;
+      const salePrice =
+        markup > 0
+          ? Math.round(purchase * (1 + markup / 100) * 100) / 100
+          : retail > 0
+            ? retail
+            : null;
       const description = readMapped(row, mapping["description"]).slice(0, 200_000);
       const record = {
         store_id: feed.store_id,
@@ -247,7 +328,12 @@ export async function runSupplierFeed(
         category: readMapped(row, mapping["category"]) || null,
         supplier_price: purchase,
         ...(salePrice !== null ? { computed_price: salePrice } : {}),
-        currency: ((c) => (c === "TL" || c === "YTL" ? "TRY" : c))((readMapped(row, mapping["currency"]) || currency || "TRY").trim().toUpperCase().slice(0, 10)),
+        currency: ((c) => (c === "TL" || c === "YTL" ? "TRY" : c))(
+          (readMapped(row, mapping["currency"]) || currency || "TRY")
+            .trim()
+            .toUpperCase()
+            .slice(0, 10),
+        ),
         stock: collectStock(row, mapping["stock"], toNumber),
         images,
         raw: description ? { ...row, description } : row,
@@ -259,35 +345,103 @@ export async function runSupplierFeed(
     }
 
     for (let index = 0; index < inserts.length; index += 500) {
-      const { error } = await admin.from("supplier_products").insert(inserts.slice(index, index + 500));
+      const { error } = await admin
+        .from("supplier_products")
+        .insert(inserts.slice(index, index + 500));
       if (error) throw new Error(error.message);
       created += Math.min(500, inserts.length - index);
+      progress = {
+        ...progress,
+        phase: "writing",
+        created,
+        updated,
+        skipped,
+        failedFields,
+        processed: created + updated + skipped,
+        remaining: Math.max(0, parsed.totalRows - created - updated - skipped),
+      };
+      await publish();
     }
     for (const row of updates) {
       const { error } = await admin.from("supplier_products").update(row.patch).eq("id", row.id);
       if (!error) updated += 1;
-      else skipped += 1;
+      else {
+        skipped += 1;
+        failedUpdates += 1;
+        if (errors.length < 10) errors.push(`${row.id}: ${error.message}`);
+      }
+      if ((updated + failedUpdates) % 50 === 0) {
+        progress = {
+          ...progress,
+          phase: "writing",
+          created,
+          updated,
+          skipped,
+          failedFields,
+          failedUpdates,
+          processed: created + updated + skipped,
+          remaining: Math.max(0, parsed.totalRows - created - updated - skipped),
+        };
+        await publish();
+      }
     }
 
+    let syncError: string | null = null;
+    let autoImports: { imported: number; remaining: number }[] = [];
     try {
       const { propagateToImporters } = await import("@/lib/supplier-catalog.server");
       await propagateToImporters(admin, feed.supplier_id);
       const { runAutoImports } = await import("@/lib/supplier-catalog.server");
-      await runAutoImports(admin, { supplierId: feed.supplier_id });
-    } catch {
-      /* eşitleme hatası beslemeyi bozmaz */
+      autoImports = await runAutoImports(admin, { supplierId: feed.supplier_id });
+    } catch (error) {
+      syncError = error instanceof Error ? error.message : "Mağaza eşitlemesi başarısız";
     }
-    const stats = { totalRows: parsed.totalRows, created, updated, skipped, format: fetched.format };
-    await admin
+    const processed = Math.min(parsed.totalRows, offset + parsed.rows.length);
+    const remaining = Math.max(0, parsed.totalRows - processed);
+    const complete = remaining === 0 && failedFields === 0 && failedUpdates === 0 && !syncError;
+    const stats = {
+      ...progress,
+      phase: "finished",
+      totalRows: parsed.totalRows,
+      created,
+      updated,
+      skipped,
+      failedFields,
+      failedUpdates,
+      errors,
+      processed,
+      nextOffset: remaining > 0 ? processed : 0,
+      remaining,
+      format: fetched.format,
+      finishedAt: new Date().toISOString(),
+      lastSuccessAt: complete ? new Date().toISOString() : (previous.lastSuccessAt ?? null),
+      autoImported: autoImports.reduce((sum, r) => sum + r.imported, 0),
+      autoRemaining: autoImports.reduce((sum, r) => sum + r.remaining, 0),
+      syncError,
+      retry: "manual",
+    };
+    const finished = await admin
       .from("supplier_xml_feeds")
-      .update({ last_run_at: startedAt, last_status: "success", last_error: null, stats, field_mapping: mapping })
+      .update({
+        last_run_at: startedAt,
+        last_status: complete ? "success" : "partial",
+        last_error: syncError,
+        stats,
+        field_mapping: mapping,
+      })
       .eq("id", feed.id);
+    if (finished.error) throw new Error(finished.error.message);
     return stats;
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : "Besleme işlenemedi";
     await admin
       .from("supplier_xml_feeds")
-      .update({ last_run_at: startedAt, last_status: "failed", last_error: message.slice(0, 500) })
+      .update({
+        last_run_at: startedAt,
+        last_status: "failed",
+        last_error: message.slice(0, 500),
+        stats: { ...progress, phase: "failed", finishedAt: new Date().toISOString() },
+      })
       .eq("id", feed.id);
     throw new Error(message);
   }
@@ -302,7 +456,10 @@ export async function loadSupplierPaymentSettings(admin: Client, supplierId: str
     .eq("supplier_id", supplierId)
     .maybeSingle();
   if (!data) return null;
-  return { provider: data.provider as "iyzico" | "paytr", settings: (data.settings ?? {}) as Record<string, unknown> };
+  return {
+    provider: data.provider as "iyzico" | "paytr",
+    settings: (data.settings ?? {}) as Record<string, unknown>,
+  };
 }
 
 /** Sağlayıcı teyidi alınmış satın alma ödemesini işler (tekrarda güvenli). */

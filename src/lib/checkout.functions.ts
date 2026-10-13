@@ -21,7 +21,7 @@ import {
  */
 async function guardCheckoutRate(bucket: string, kind: "checkout_quote" | "checkout_order") {
   const { getRequest } = await import("@tanstack/react-start/server");
-  const { consumeRateLimit, clientIp, RATE_LIMITS, recordSecurityEvent } =
+  const { consumeRateLimit, clientIp, RATE_LIMITS, recordSecurityEvent, rateLimitMessage } =
     await import("@/lib/rate-limit.server");
   const request = getRequest();
   const ip = clientIp(request);
@@ -33,7 +33,7 @@ async function guardCheckoutRate(bucket: string, kind: "checkout_quote" | "check
       request,
       meta: { bucket },
     });
-    throw new Error("Çok fazla deneme yaptınız. Lütfen birkaç dakika sonra tekrar deneyin.");
+    throw new Error(rateLimitMessage(limit));
   }
 }
 

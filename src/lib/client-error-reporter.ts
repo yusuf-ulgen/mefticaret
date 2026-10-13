@@ -4,6 +4,7 @@
  */
 
 const seen = new Set<string>();
+import { APP_RELEASE } from "@/lib/build-version";
 let installed = false;
 
 export function reportClientError(input: {
@@ -27,6 +28,7 @@ export function reportClientError(input: {
       route: window.location.pathname,
       severity: input.severity ?? "WARNING",
       source: input.source ?? "window",
+      release: APP_RELEASE,
     }),
     keepalive: true,
   }).catch(() => {

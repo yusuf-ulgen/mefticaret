@@ -1,3 +1,5 @@
+import { QueryStatus } from "@/components/query-status";
+import { formatDate } from "@/lib/mefti";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -41,7 +43,7 @@ function TeamPage() {
   const { storeId } = Route.useParams();
   const queryClient = useQueryClient();
   const { data: store } = useQuery(storeQuery(storeId));
-  const { data: members } = useQuery(storeMembersQuery(storeId));
+  const { data: members, error, isPending, refetch } = useQuery(storeMembersQuery(storeId));
   const updateMember = useServerFn(updateStoreMember);
 
   const mutation = useMutation({
@@ -67,8 +69,9 @@ function TeamPage() {
         </Badge>
       }
     >
-      <div className="surface-card overflow-hidden">
-        <table className="w-full text-sm">
+      <QueryStatus label="Ekip üyeleri" error={error} loading={isPending} hasData={members !== undefined} onRetry={() => void refetch()} />
+      <div className="surface-card overflow-x-auto">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-5 py-3">Kullanıcı</th>
@@ -77,7 +80,7 @@ function TeamPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {(members ?? []).length === 0 ? (
+            {members === undefined ? null : members.length === 0 ? (
               <tr>
                 <td colSpan={3} className="px-5 py-8 text-center text-muted-foreground">
                   Henüz ekip üyesi yok.
@@ -86,7 +89,7 @@ function TeamPage() {
             ) : (
               (members ?? []).map((member) => (
                 <tr key={member.id}>
-                  <td className="px-5 py-3 font-mono text-xs">{member.user_id}</td>
+                  <td className="px-5 py-3 text-sm"><p className="font-medium">{member.displayName}</p>{member.email ? <p className="text-xs text-muted-foreground">{member.email}</p> : null}<p className="mt-1 text-xs text-muted-foreground">{ROLE_SCOPES[member.role]}</p></td>
                   <td className="px-5 py-3">
                     {member.role === "owner" ? (
                       <Badge className="gap-1">
@@ -94,6 +97,7 @@ function TeamPage() {
                       </Badge>
                     ) : (
                       <Select
+                        disabled={mutation.isPending}
                         value={member.role}
                         onValueChange={(value) =>
                           mutation.mutate({
@@ -114,7 +118,8 @@ function TeamPage() {
                     )}
                   </td>
                   <td className="px-5 py-3 text-xs text-muted-foreground">
-                    {new Date(member.created_at).toLocaleDateString("tr-TR")}
+                    {formatDate(member.created_at)}
+                    {member.lastChangedAt ? <p>Son kayıtlı değişiklik: {member.lastChangedBy} · {formatDate(member.lastChangedAt)}</p> : null}
                   </td>
                 </tr>
               ))

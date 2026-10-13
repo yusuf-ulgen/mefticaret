@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth-context";
 import { formatDateTime, formatNumber } from "@/lib/mefti";
 import { errorLogsQuery } from "@/lib/monitoring-queries";
-import { resolveErrorLog } from "@/lib/monitoring.functions";
+import { changeErrorLogStatus } from "@/lib/monitoring.functions";
 
 /** Aranabilir hata kayıt masası: seviye etiketleri, stack trace ve çözüm durumu. */
 
@@ -31,12 +31,12 @@ export function ErrorLogDesk() {
   const [onlyOpen, setOnlyOpen] = useState(true);
   const [openRow, setOpenRow] = useState<string | null>(null);
 
-  const { data, isLoading, error } = useQuery(
+  const { data, isLoading, error, refetch } = useQuery(
     errorLogsQuery({ search: term, severity, onlyOpen }, isPlatformAdmin),
   );
-  const resolveFn = useServerFn(resolveErrorLog);
+  const resolveFn = useServerFn(changeErrorLogStatus);
   const resolveMutation = useMutation({
-    mutationFn: (input: { id: string; resolved: boolean }) => resolveFn({ data: input }),
+    mutationFn: (input: { id: string; status: "open" | "investigating" | "resolved" }) => resolveFn({ data: input }),
     onSuccess: () => {
       toast.success("Kayıt güncellendi");
       void queryClient.invalidateQueries({ queryKey: ["error-logs"] });
@@ -81,7 +81,7 @@ export function ErrorLogDesk() {
         </div>
       </div>
 
-      {error ? <p className="text-sm text-destructive">{(error as Error).message}</p> : null}
+      {error ? <div role="alert"><p className="text-sm text-destructive">{(error as Error).message}</p><Button onClick={() => void refetch()}>Tekrar dene</Button></div> : null}
 
       <ul className="divide-y divide-border rounded-2xl border border-border">
         {(data ?? []).map((row) => (
@@ -92,7 +92,8 @@ export function ErrorLogDesk() {
                   <Badge variant={row.severity === "CRITICAL" ? "destructive" : "secondary"}>{row.severity}</Badge>
                   <span className="text-xs text-muted-foreground">{row.source}</span>
                   {row.route ? <span className="text-xs text-muted-foreground">· {row.route}</span> : null}
-                  {row.resolved_at ? <Badge variant="outline">çözüldü</Badge> : null}
+                  <Badge variant="outline">{row.resolved_at ? "Çözüldü" : row.meta?.["investigationStatus"] === "investigating" ? "İnceleniyor" : "Açık"}</Badge>
+                  <span className="text-xs text-muted-foreground">Bileşen: {String(row.meta?.["component"] ?? row.source)} · Sürüm: {String(row.meta?.["clientRelease"] ?? row.meta?.["serverRelease"] ?? "Kaydedilmemiş")}</span>
                 </div>
                 <p className="mt-2 break-words text-sm font-medium">{row.message}</p>
                 <p className="mt-1 text-[11px] text-muted-foreground">
@@ -107,11 +108,12 @@ export function ErrorLogDesk() {
                     {openRow === row.id ? "Gizle" : "Stack"}
                   </Button>
                 ) : null}
+                {!row.resolved_at ? <Button size="sm" variant="outline" disabled={resolveMutation.isPending} onClick={() => resolveMutation.mutate({ id: row.id, status: row.meta?.["investigationStatus"] === "investigating" ? "open" : "investigating" })}>{row.meta?.["investigationStatus"] === "investigating" ? "Açık" : "İncele"}</Button> : null}
                 <Button
                   size="sm"
                   variant="secondary"
                   disabled={resolveMutation.isPending}
-                  onClick={() => resolveMutation.mutate({ id: row.id, resolved: !row.resolved_at })}
+                  onClick={() => resolveMutation.mutate({ id: row.id, status: row.resolved_at ? "open" : "resolved" })}
                 >
                   {row.resolved_at ? "Yeniden aç" : "Çözüldü"}
                 </Button>
@@ -124,7 +126,7 @@ export function ErrorLogDesk() {
             ) : null}
           </li>
         ))}
-        {!isLoading && (data ?? []).length === 0 ? (
+        {!isLoading && !error && (data ?? []).length === 0 ? (
           <li className="p-8 text-center text-sm text-muted-foreground">Kayıt bulunamadı.</li>
         ) : null}
         {isLoading ? <li className="p-8 text-center text-sm text-muted-foreground">Yükleniyor…</li> : null}

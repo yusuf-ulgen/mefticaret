@@ -60,17 +60,17 @@ export function SystemHealthPanel() {
           <h2 className="mt-1 flex items-center gap-2 font-display text-xl font-semibold">
             Sistem Sağlığı
             <span
-              className={`inline-flex size-2.5 rounded-full ${statusDot(data?.overall ?? "unknown")}`}
+              className={`inline-flex size-2.5 rounded-full ${statusDot(error ? "unknown" : data?.overall ?? "unknown")}`}
               aria-hidden
             />
-            <span className={`text-sm font-medium ${statusText(data?.overall ?? "unknown")}`}>
-              {STATUS_LABEL[data?.overall ?? "unknown"]}
+            <span className={`text-sm font-medium ${statusText(error ? "unknown" : data?.overall ?? "unknown")}`}>
+              {STATUS_LABEL[error ? "unknown" : data?.overall ?? "unknown"]}
             </span>
           </h2>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-monitor-muted">
-            {data?.measuredAt ? formatDateTime(data.measuredAt) : "ölçülüyor…"}
+            {data?.measuredAt ? `${error ? "Son başarılı ölçüm: " : ""}${formatDateTime(data.measuredAt)}` : error ? "Ölçüm alınamadı" : "Ölçülüyor…"}
           </span>
           <Button size="sm" variant="secondary" onClick={() => void refetch()}>
             Yenile

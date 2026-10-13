@@ -57,9 +57,15 @@ export type SupplierCatalogRow = {
   category: string | null;
   brand: string | null;
   supplierPrice: number;
+  configuredSalePrice: number | null;
+  suggestedPrice: number | null;
+  catalogVisible: boolean;
   salePrice: number;
   stock: number;
   sourceStock: number;
+  warehouseReserved: number | null;
+  warehouseOnHand: number | null;
+  warehouseUpdatedAt: string | null;
   storeStock: number | null;
   sourceUpdatedAt: string;
   storeUpdatedAt: string | null;
@@ -151,6 +157,7 @@ export async function loadSupplierDeskOrders(
   admin: Client,
   supplierIds: string[],
   limit = 200,
+  offset = 0,
 ): Promise<DeskOrder[]> {
   if (!supplierIds.length) return [];
 
@@ -161,7 +168,8 @@ export async function loadSupplierDeskOrders(
     )
     .in("supplier_id", supplierIds)
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .order("id")
+    .range(offset, offset + limit - 1);
   if (error) throw new Error(error.message);
   const rows = (dropship ?? []) as any[];
   if (!rows.length) return [];
@@ -330,7 +338,7 @@ export async function loadSupplierDeskOrders(
 export async function loadSupplierWorkspace(
   admin: Client,
   suppliers: { id: string; store_id: string }[],
-  catalog: { search?: string; page?: number; category?: string; sort?: string } = {},
+  catalog: { search?: string; page?: number; category?: string; sort?: string; filter?: string } = {},
 ) {
   if (!suppliers.length)
     return {
@@ -348,7 +356,7 @@ export async function loadSupplierWorkspace(
   let productQuery = admin
     .from("supplier_products")
     .select(
-      "id, title, sku, barcode, category, brand, supplier_price, computed_price, stock, currency, images, raw, product_id, variant_id, updated_at",
+      "id, title, sku, barcode, category, brand, supplier_price, computed_price, suggested_price, catalog_visible, stock, currency, images, raw, product_id, variant_id, updated_at",
       { count: "exact" },
     )
     .in("supplier_id", supplierIds);
@@ -359,6 +367,9 @@ export async function loadSupplierWorkspace(
     );
   if (catalog.category)
     productQuery = productQuery.ilike("category", `%${catalog.category.replace(/[%,()]/g, " ")}%`);
+  if (catalog.filter === "visible") productQuery = productQuery.eq("catalog_visible", true);
+  if (catalog.filter === "hidden") productQuery = productQuery.eq("catalog_visible", false);
+  if (catalog.filter === "out") productQuery = productQuery.lte("stock", 0);
   productQuery = productQuery
     .order(
       catalog.sort === "price"
@@ -400,6 +411,7 @@ export async function loadSupplierWorkspace(
     { data: liveVariants },
     { data: transactions },
     { data: movements },
+    { data: inventory },
   ] = await Promise.all(
     [
       productIds.length
@@ -430,6 +442,7 @@ export async function loadSupplierWorkspace(
             .order("created_at", { ascending: false })
             .limit(100)
         : Promise.resolve({ data: [] }),
+      variantIds.length ? admin.from("inventory_levels").select("variant_id, reserved, on_hand, updated_at").in("store_id", storeIds).in("variant_id", variantIds) : Promise.resolve({ data: [] }),
     ].map(checkedQuery),
   );
   const liveProductMap = new Map(((liveProducts ?? []) as any[]).map((row) => [row.id, row]));
@@ -450,12 +463,18 @@ export async function loadSupplierWorkspace(
         category: row.category,
         brand: row.brand,
         supplierPrice: num(row.supplier_price),
+        configuredSalePrice: row.computed_price == null ? null : num(row.computed_price),
+        suggestedPrice: row.suggested_price == null ? null : num(row.suggested_price),
+        catalogVisible: row.catalog_visible !== false,
         salePrice: num(
           row.computed_price ?? liveVariant?.price ?? liveProduct?.base_price ?? row.supplier_price,
         ),
         stock: Number(row.stock ?? 0),
         currency: row.currency ?? "TRY",
         sourceStock: Number(row.stock ?? 0),
+        warehouseReserved: (inventory ?? []).some((r: any) => r.variant_id === row.variant_id) ? (inventory ?? []).filter((r: any) => r.variant_id === row.variant_id).reduce((sum: number, r: any) => sum + Number(r.reserved ?? 0), 0) : null,
+        warehouseOnHand: (inventory ?? []).some((r: any) => r.variant_id === row.variant_id) ? (inventory ?? []).filter((r: any) => r.variant_id === row.variant_id).reduce((sum: number, r: any) => sum + Number(r.on_hand ?? 0), 0) : null,
+        warehouseUpdatedAt: (inventory ?? []).filter((r: any) => r.variant_id === row.variant_id).map((r: any) => String(r.updated_at)).sort().at(-1) ?? null,
         storeStock: liveVariant ? Number(liveVariant.stock) : null,
         sourceUpdatedAt: row.updated_at,
         storeUpdatedAt: liveVariant?.updated_at ?? liveProduct?.updated_at ?? null,

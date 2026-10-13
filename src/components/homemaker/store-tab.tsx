@@ -1,4 +1,6 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { storeReadinessQuery } from "@/lib/store-readiness-query";
+import { Link } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Banknote,
@@ -79,6 +81,7 @@ export function StoreTab({
   storeUrl: string;
 }) {
   const queryClient = useQueryClient();
+  const readiness = useQuery(storeReadinessQuery(store.id));
   const saveStore = useServerFn(updateStore);
   const saveSettings = useServerFn(updateStoreSettings);
 
@@ -93,6 +96,8 @@ export function StoreTab({
   const [iban, setIban] = useState(settings?.bank_iban ?? "");
   const [holder, setHolder] = useState(settings?.bank_account_holder ?? "");
   const [saving, setSaving] = useState(false);
+  const [section, setSection] = useState("profile");
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [dailyLimit, setDailyLimit] = useState(
     settings?.daily_order_limit ? String(settings.daily_order_limit) : "",
@@ -116,13 +121,14 @@ export function StoreTab({
     name: name.trim(),
     bio: bio.trim(),
     whatsapp: whatsapp.trim(),
-    instagram: instagram.trim(),
-    facebook: facebook.trim(),
+    instagram: toUrl(instagram, "https://instagram.com/"),
+    facebook: toUrl(facebook, "https://facebook.com/"),
     mode,
     iban: iban.replace(/\s/g, "").toUpperCase(),
     holder: holder.trim(),
     dailyLimit: dailyLimit.trim(),
     badges: [...badges].sort(),
+    gallery: [...gallery],
     delivery: [...delivery].sort(),
     coldPack,
     coldFee: Number(coldFee.replace(",", ".")) || 0,
@@ -139,6 +145,7 @@ export function StoreTab({
     holder: (settings?.bank_account_holder ?? "").trim(),
     dailyLimit: settings?.daily_order_limit ? String(settings.daily_order_limit) : "",
     badges: [...(settings?.trust_badges ?? [])].sort(),
+    gallery: Array.isArray(settings?.gallery) ? settings.gallery : [],
     delivery: [
       ...((settings?.delivery_methods ?? ["shipping"]) as DeliveryMethod[]).filter((method) =>
         ["shipping", "local_delivery", "pickup"].includes(method),
@@ -162,7 +169,11 @@ export function StoreTab({
     { id: "hm-photo", label: "Mağaza fotoğrafı ekle", done: Boolean(store.logo_url) },
     { id: "hm-basic", label: "Mağaza adını yaz", done: name.trim().length >= 2 },
     { id: "hm-basic", label: "Kendini tanıt (hikayen)", done: bio.trim().length >= 20 },
-    { id: "hm-basic", label: "WhatsApp numarası ekle", done: whatsapp.replace(/\D/g, "").length >= 10 },
+    {
+      id: "hm-basic",
+      label: "WhatsApp numarası ekle",
+      done: whatsapp.replace(/\D/g, "").length >= 10,
+    },
     {
       id: "hm-payment",
       label: "Para alma yöntemini seç",
@@ -171,14 +182,40 @@ export function StoreTab({
     { id: "hm-delivery", label: "Teslimat yöntemi seç", done: delivery.length > 0 },
     { id: "hm-badges", label: "Güven rozeti seç", done: badges.length > 0 },
     { id: "hm-gallery", label: "Galeriye fotoğraf ekle", done: gallery.length > 0 },
+    {
+      id: "hm-products",
+      label: "Yayında ürün ekle",
+      done: (readiness.data?.publishedProducts ?? 0) > 0,
+    },
+    {
+      id: "hm-policies",
+      label: "Politikaları yayınla",
+      done: readiness.data?.policies.ready === true,
+    },
   ];
   const doneCount = steps.filter((step) => step.done).length;
   const percent = Math.round((doneCount / steps.length) * 100);
   const missing = steps.filter((step) => !step.done);
 
-  const goTo = (id: string) =>
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-
+  const goTo = (id: string) => {
+    if (id === "hm-policies" || id === "hm-products") {
+      setSection("seo");
+      return;
+    }
+    const groups: Record<string, string> = {
+      "hm-photo": "profile",
+      "hm-basic": "profile",
+      "hm-payment": "payment",
+      "hm-delivery": "delivery",
+      "hm-quota": "delivery",
+      "hm-badges": "marketing",
+      "hm-gallery": "marketing",
+    };
+    setSection(groups[id] ?? "profile");
+    requestAnimationFrame(() =>
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
+  };
 
   const toggleBadge = (badge: string) =>
     setBadges((current) =>
@@ -223,10 +260,6 @@ export function StoreTab({
     }
   };
 
-  useEffect(() => {
-    setName(store.name);
-  }, [store.name]);
-
   const save = async () => {
     if (name.trim().length < 2) {
       toast.error("Mağaza adı en az 2 harf olmalı.");
@@ -236,6 +269,7 @@ export function StoreTab({
       toast.error("Havale için geçerli bir IBAN yazın.");
       return;
     }
+    setSaveError(null);
     setSaving(true);
     try {
       if (name.trim() !== store.name) {
@@ -265,7 +299,9 @@ export function StoreTab({
       await queryClient.invalidateQueries();
       toast.success("Mağaza bilgileriniz kaydedildi");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Kaydedilemedi");
+      const message = error instanceof Error ? error.message : "Kaydedilemedi";
+      setSaveError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -324,332 +360,409 @@ export function StoreTab({
         ) : null}
       </SoftCard>
 
-      <SoftCard id="hm-photo">
-        <div className="flex items-center gap-4">
-          <div className="size-20 shrink-0 overflow-hidden rounded-3xl border border-hm-line bg-hm-sand">
-            {store.logo_url ? (
-              <img src={store.logo_url} alt="" className="size-full object-cover" />
-            ) : null}
+      <nav aria-label="Mağaza ayarları" className="flex flex-wrap gap-2">
+        {[
+          ["profile", "Profil"],
+          ["delivery", "Teslimat"],
+          ["payment", "Ödeme"],
+          ["seo", "SEO"],
+          ["marketing", "Pazarlama"],
+        ].map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={section === value}
+            onClick={() => setSection(value!)}
+            className={`min-h-11 rounded-2xl border px-4 text-sm font-semibold ${section === value ? "bg-hm-rose text-white" : "bg-white text-hm-ink"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+      <div hidden={section !== "profile"} className="space-y-4">
+        <SoftCard id="hm-photo">
+          <div className="flex items-center gap-4">
+            <div className="size-20 shrink-0 overflow-hidden rounded-3xl border border-hm-line bg-hm-sand">
+              {store.logo_url ? (
+                <img src={store.logo_url} alt="" className="size-full object-cover" />
+              ) : null}
+            </div>
+            <label className="flex-1">
+              <span className="text-sm font-semibold text-hm-ink">Mağaza fotoğrafı</span>
+              <p className="text-xs text-hm-ink-soft">Kare bir fotoğraf en güzel görünür.</p>
+              <span className="mt-2 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl bg-hm-rose-soft px-4 text-sm font-semibold text-hm-rose">
+                {uploading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <ImagePlus className="size-4" />
+                )}
+                Fotoğraf seç
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => void onLogo(event.target.files?.[0])}
+                />
+              </span>
+            </label>
           </div>
-          <label className="flex-1">
-            <span className="text-sm font-semibold text-hm-ink">Mağaza fotoğrafı</span>
-            <p className="text-xs text-hm-ink-soft">Kare bir fotoğraf en güzel görünür.</p>
-            <span className="mt-2 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl bg-hm-rose-soft px-4 text-sm font-semibold text-hm-rose">
-              {uploading ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <ImagePlus className="size-4" />
-              )}
-              Fotoğraf seç
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(event) => void onLogo(event.target.files?.[0])}
-              />
-            </span>
-          </label>
-        </div>
-      </SoftCard>
+        </SoftCard>
 
-      <SoftCard id="hm-basic" className="grid gap-4">
-        <Field label="Mağaza adı">
-          <input
-            className={inputClass}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Örn. Ayşe'nin El Emeği"
-          />
-        </Field>
-        <Field label="Hikayem / Biyografi" hint="Müşterileriniz mağaza sayfanızda görecek.">
-          <textarea
-            className={`${inputClass} min-h-32 resize-y`}
-            value={bio}
-            maxLength={400}
-            onChange={(event) => setBio(event.target.value)}
-            placeholder="Evimde el yapımı sabun ve mum üretiyorum…"
-          />
-        </Field>
-        <Field label="WhatsApp numaranız" hint="Siparişlerde müşteriye tek dokunuşla yazarsınız.">
-          <input
-            className={inputClass}
-            value={whatsapp}
-            inputMode="tel"
-            onChange={(event) => setWhatsapp(event.target.value)}
-            placeholder="0555 555 55 55"
-          />
-        </Field>
-        <Field label="Instagram sayfanız" hint="Kullanıcı adınızı yazmanız yeterli.">
-          <div className="relative">
-            <Instagram className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
-            <input
-              className={`${inputClass} pl-11`}
-              value={instagram}
-              inputMode="url"
-              onChange={(event) => setInstagram(event.target.value)}
-              placeholder="ornek: elyapimiseker"
-            />
-          </div>
-        </Field>
-        <Field label="Facebook sayfanız" hint="Sayfa adınızı veya tam bağlantıyı yazabilirsiniz.">
-          <div className="relative">
-            <Facebook className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
-            <input
-              className={`${inputClass} pl-11`}
-              value={facebook}
-              inputMode="url"
-              onChange={(event) => setFacebook(event.target.value)}
-              placeholder="ornek: elyapimiseker"
-            />
-          </div>
-        </Field>
-      </SoftCard>
-
-      <SoftCard id="hm-badges" className="grid gap-3">
-        <p className="text-sm font-semibold text-hm-ink">Güven rozetleriniz</p>
-        <p className="text-sm text-hm-ink-soft">
-          Size uyanları seçin; mağaza sayfanızda müşterilere gösterilir.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {BADGES.map((badge) => {
-            const active = badges.includes(badge);
-            return (
-              <button
-                key={badge}
-                type="button"
-                onClick={() => toggleBadge(badge)}
-                className={`inline-flex min-h-11 items-center gap-1.5 rounded-2xl px-3 text-sm font-semibold ${
-                  active ? "bg-hm-emerald text-white" : "bg-hm-sand text-hm-ink-soft"
-                }`}
-              >
-                <ShieldCheck className="size-4" />
-                {badge}
-              </button>
-            );
-          })}
-        </div>
-      </SoftCard>
-
-      <SoftCard id="hm-gallery" className="grid gap-3">
-        <p className="text-sm font-semibold text-hm-ink">Fotoğraf galerim</p>
-        <p className="text-sm text-hm-ink-soft">
-          Mutfağınızdan, atölyenizden veya ürünlerinizden kareler ekleyin.
-        </p>
-        {gallery.length ? (
-          <div className="grid grid-cols-3 gap-2">
-            {gallery.map((url) => (
-              <div key={url} className="relative overflow-hidden rounded-2xl bg-hm-sand">
-                <img src={url} alt="" className="aspect-square w-full object-cover" />
-                <button
-                  type="button"
-                  aria-label="Fotoğrafı kaldır"
-                  onClick={() => void removeGalleryPhoto(url)}
-                  className="absolute right-1.5 top-1.5 grid size-9 place-items-center rounded-xl bg-white/90 text-hm-rose"
-                >
-                  <Trash2 className="size-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : null}
-        <label className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-hm-line bg-white text-sm font-semibold text-hm-ink-soft">
-          {galleryBusy ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <ImagePlus className="size-4" />
-          )}
-          Fotoğraf ekle
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(event) => void addGalleryPhoto(event.target.files?.[0])}
-          />
-        </label>
-      </SoftCard>
-
-      <SoftCard id="hm-delivery" className="grid gap-3">
-        <p className="text-sm font-semibold text-hm-ink">Teslimat yöntemleriniz</p>
-        <div className="grid gap-2">
-          {(Object.keys(DELIVERY_LABELS) as DeliveryMethod[]).map((method) => {
-            const active = delivery.includes(method);
-            return (
-              <button
-                key={method}
-                type="button"
-                onClick={() => toggleDelivery(method)}
-                className={`flex min-h-14 items-center gap-3 rounded-2xl px-4 text-left text-sm font-semibold ${
-                  active ? "bg-hm-teal-soft text-hm-teal" : "bg-hm-sand text-hm-ink-soft"
-                }`}
-              >
-                <Truck className="size-5" />
-                {DELIVERY_LABELS[method]}
-              </button>
-            );
-          })}
-        </div>
-        <label className="flex min-h-14 items-center gap-3 rounded-2xl bg-hm-sand px-4">
-          <input
-            type="checkbox"
-            checked={coldPack}
-            onChange={(event) => setColdPack(event.target.checked)}
-            className="size-5 accent-hm-teal"
-          />
-          <Snowflake className="size-5 text-hm-teal" />
-          <span className="text-sm font-semibold text-hm-ink">Buz aküsü / soğuk paketleme</span>
-        </label>
-        {coldPack ? (
-          <Field label="Soğuk paketleme ücreti (₺)" hint="Sipariş tutarına eklenir.">
+        <SoftCard id="hm-basic" className="grid gap-4">
+          <Field label="Mağaza adı">
             <input
               className={inputClass}
-              inputMode="decimal"
-              value={coldFee}
-              onChange={(event) => setColdFee(event.target.value)}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Örn. Ayşe'nin El Emeği"
             />
           </Field>
-        ) : null}
-      </SoftCard>
-
-      <SoftCard id="hm-quota" className="grid gap-3">
-        <p className="text-sm font-semibold text-hm-ink">Günlük sipariş kotanız</p>
-        <Field
-          label="Bir günde en fazla kaç sipariş alabilirsiniz?"
-          hint="Boş bırakırsanız sınır olmaz. Kota dolduğunda mağazanız sipariş almayı durdurur."
-        >
-          <input
-            className={inputClass}
-            inputMode="numeric"
-            value={dailyLimit}
-            onChange={(event) => setDailyLimit(event.target.value)}
-            placeholder="Örn. 10"
-          />
-        </Field>
-        <label className="flex min-h-14 items-center gap-3 rounded-2xl bg-hm-sand px-4">
-          <input
-            type="checkbox"
-            checked={voiceAlerts}
-            onChange={(event) => setVoiceAlerts(event.target.checked)}
-            className="size-5 accent-hm-rose"
-          />
-          <Bell className="size-5 text-hm-rose" />
-          <span className="text-sm font-semibold text-hm-ink">
-            Yeni sipariş geldiğinde sesli haber ver
-          </span>
-        </label>
-      </SoftCard>
-
-      <SoftCard id="hm-payment" className="grid gap-3">
-        <p className="text-sm font-semibold text-hm-ink">Paranızı nasıl almak istersiniz?</p>
-        <div className="grid gap-2">
-          <button
-            type="button"
-            onClick={() => setMode("mefpay")}
-            className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors ${
-              mode === "mefpay" ? "border-hm-emerald bg-hm-emerald-soft" : "border-hm-line bg-white"
-            }`}
-          >
-            <ShieldCheck className="mt-0.5 size-5 text-hm-emerald" />
-            <span>
-              <span className="block font-semibold text-hm-ink">Kartla ödeme</span>
-              <span className="block text-sm text-hm-ink-soft">
-                Müşteri kredi kartıyla öder, para hesabınıza geçer. Vergi muafiyeti belgeniz varsa
-                da kullanabilirsiniz.
-              </span>
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("bank_transfer")}
-            className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors ${
-              mode === "bank_transfer"
-                ? "border-hm-teal bg-hm-teal-soft"
-                : "border-hm-line bg-white"
-            }`}
-          >
-            <Banknote className="mt-0.5 size-5 text-hm-teal" />
-            <span>
-              <span className="block font-semibold text-hm-ink">IBAN ile havale/EFT</span>
-              <span className="block text-sm text-hm-ink-soft">
-                Müşteri paranızı doğrudan banka hesabınıza gönderir.
-              </span>
-            </span>
-          </button>
-        </div>
-        {mode === "bank_transfer" ? (
-          <div className="grid gap-3">
-            <Field label="IBAN">
+          <Field label="Hikayem / Biyografi" hint="Müşterileriniz mağaza sayfanızda görecek.">
+            <textarea
+              className={`${inputClass} min-h-32 resize-y`}
+              value={bio}
+              maxLength={400}
+              onChange={(event) => setBio(event.target.value)}
+              placeholder="Evimde el yapımı sabun ve mum üretiyorum…"
+            />
+          </Field>
+          <Field label="WhatsApp numaranız" hint="Siparişlerde müşteriye tek dokunuşla yazarsınız.">
+            <input
+              className={inputClass}
+              value={whatsapp}
+              inputMode="tel"
+              onChange={(event) => setWhatsapp(event.target.value)}
+              placeholder="0555 555 55 55"
+            />
+          </Field>
+          <Field label="Instagram sayfanız" hint="Kullanıcı adınızı yazmanız yeterli.">
+            <div className="relative">
+              <Instagram className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
               <input
-                className={inputClass}
-                value={iban}
-                onChange={(event) => setIban(event.target.value)}
-                placeholder="TR__ ____ ____ ____ ____ ____ __"
+                className={`${inputClass} pl-11`}
+                value={instagram}
+                inputMode="url"
+                onChange={(event) => setInstagram(event.target.value)}
+                placeholder="ornek: elyapimiseker"
               />
-            </Field>
-            <Field label="Hesap sahibinin adı">
+            </div>
+          </Field>
+          <Field label="Facebook sayfanız" hint="Sayfa adınızı veya tam bağlantıyı yazabilirsiniz.">
+            <div className="relative">
+              <Facebook className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
               <input
-                className={inputClass}
-                value={holder}
-                onChange={(event) => setHolder(event.target.value)}
-                placeholder="Ad Soyad"
+                className={`${inputClass} pl-11`}
+                value={facebook}
+                inputMode="url"
+                onChange={(event) => setFacebook(event.target.value)}
+                placeholder="ornek: elyapimiseker"
               />
-            </Field>
+            </div>
+          </Field>
+        </SoftCard>
+      </div>
+      <div hidden={section !== "marketing"} className="space-y-4">
+        <SoftCard id="hm-badges" className="grid gap-3">
+          <p className="text-sm font-semibold text-hm-ink">Güven rozetleriniz</p>
+          <p className="text-sm text-hm-ink-soft">
+            Size uyanları seçin; mağaza sayfanızda müşterilere gösterilir.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {BADGES.map((badge) => {
+              const active = badges.includes(badge);
+              return (
+                <button
+                  key={badge}
+                  type="button"
+                  onClick={() => toggleBadge(badge)}
+                  className={`inline-flex min-h-11 items-center gap-1.5 rounded-2xl px-3 text-sm font-semibold ${
+                    active ? "bg-hm-emerald text-white" : "bg-hm-sand text-hm-ink-soft"
+                  }`}
+                >
+                  <ShieldCheck className="size-4" />
+                  {badge}
+                </button>
+              );
+            })}
           </div>
-        ) : null}
-      </SoftCard>
+        </SoftCard>
 
-      <SoftCard id="hm-share" className="grid gap-3">
-        <p className="text-sm font-semibold text-hm-ink">Mağaza adresiniz</p>
-        <p className="break-all text-sm text-hm-ink-soft">{storeUrl}</p>
-        <p className="text-sm font-semibold text-hm-ink">Mağazanızı sosyal medyada paylaşın</p>
-        <div className="grid grid-cols-3 gap-2">
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(`${name.trim() || store.name} mağazama göz atın: ${storeUrl}`)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-hm-emerald-soft px-3 text-sm font-semibold text-hm-emerald"
+        <SoftCard id="hm-gallery" className="grid gap-3">
+          <p className="text-sm font-semibold text-hm-ink">Fotoğraf galerim</p>
+          <p className="text-sm text-hm-ink-soft">
+            Mutfağınızdan, atölyenizden veya ürünlerinizden kareler ekleyin.
+          </p>
+          {gallery.length ? (
+            <div className="grid grid-cols-3 gap-2">
+              {gallery.map((url) => (
+                <div key={url} className="relative overflow-hidden rounded-2xl bg-hm-sand">
+                  <img src={url} alt="" className="aspect-square w-full object-cover" />
+                  <button
+                    type="button"
+                    aria-label="Fotoğrafı kaldır"
+                    onClick={() => void removeGalleryPhoto(url)}
+                    className="absolute right-1.5 top-1.5 grid size-9 place-items-center rounded-xl bg-white/90 text-hm-rose"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          <label className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-hm-line bg-white text-sm font-semibold text-hm-ink-soft">
+            {galleryBusy ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <ImagePlus className="size-4" />
+            )}
+            Fotoğraf ekle
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => void addGalleryPhoto(event.target.files?.[0])}
+            />
+          </label>
+        </SoftCard>
+      </div>
+      <div hidden={section !== "delivery"} className="space-y-4">
+        <SoftCard id="hm-delivery" className="grid gap-3">
+          <p className="text-sm font-semibold text-hm-ink">Teslimat yöntemleriniz</p>
+          <div className="grid gap-2">
+            {(Object.keys(DELIVERY_LABELS) as DeliveryMethod[]).map((method) => {
+              const active = delivery.includes(method);
+              return (
+                <button
+                  key={method}
+                  type="button"
+                  onClick={() => toggleDelivery(method)}
+                  className={`flex min-h-14 items-center gap-3 rounded-2xl px-4 text-left text-sm font-semibold ${
+                    active ? "bg-hm-teal-soft text-hm-teal" : "bg-hm-sand text-hm-ink-soft"
+                  }`}
+                >
+                  <Truck className="size-5" />
+                  {DELIVERY_LABELS[method]}
+                </button>
+              );
+            })}
+          </div>
+          <label className="flex min-h-14 items-center gap-3 rounded-2xl bg-hm-sand px-4">
+            <input
+              type="checkbox"
+              checked={coldPack}
+              onChange={(event) => setColdPack(event.target.checked)}
+              className="size-5 accent-hm-teal"
+            />
+            <Snowflake className="size-5 text-hm-teal" />
+            <span className="text-sm font-semibold text-hm-ink">Buz aküsü / soğuk paketleme</span>
+          </label>
+          {coldPack ? (
+            <Field label="Soğuk paketleme ücreti (₺)" hint="Sipariş tutarına eklenir.">
+              <input
+                className={inputClass}
+                inputMode="decimal"
+                value={coldFee}
+                onChange={(event) => setColdFee(event.target.value)}
+              />
+            </Field>
+          ) : null}
+        </SoftCard>
+
+        <SoftCard id="hm-quota" className="grid gap-3">
+          <p className="text-sm font-semibold text-hm-ink">Günlük sipariş kotanız</p>
+          <Field
+            label="Bir günde en fazla kaç sipariş alabilirsiniz?"
+            hint="Boş bırakırsanız sınır olmaz. Kota dolduğunda mağazanız sipariş almayı durdurur."
           >
-            <Share2 className="size-4" />
-            WhatsApp
-          </a>
-          <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(storeUrl)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-hm-teal-soft px-3 text-sm font-semibold text-hm-teal"
-          >
-            <Facebook className="size-4" />
-            Facebook
-          </a>
-          <button
-            type="button"
-            onClick={() => {
-              void (async () => {
-                try {
-                  if (navigator.share) {
-                    await navigator.share({ title: store.name, url: storeUrl });
-                  } else {
-                    await navigator.clipboard.writeText(storeUrl);
-                    toast.success("Mağaza bağlantınız kopyalandı");
+            <input
+              className={inputClass}
+              inputMode="numeric"
+              value={dailyLimit}
+              onChange={(event) => setDailyLimit(event.target.value)}
+              placeholder="Örn. 10"
+            />
+          </Field>
+          <label className="flex min-h-14 items-center gap-3 rounded-2xl bg-hm-sand px-4">
+            <input
+              type="checkbox"
+              checked={voiceAlerts}
+              onChange={(event) => setVoiceAlerts(event.target.checked)}
+              className="size-5 accent-hm-rose"
+            />
+            <Bell className="size-5 text-hm-rose" />
+            <span className="text-sm font-semibold text-hm-ink">
+              Yeni sipariş geldiğinde sesli haber ver
+            </span>
+          </label>
+        </SoftCard>
+      </div>
+      <div hidden={section !== "payment"} className="space-y-4">
+        <SoftCard id="hm-payment" className="grid gap-3">
+          <p className="text-sm font-semibold text-hm-ink">Paranızı nasıl almak istersiniz?</p>
+          <div className="grid gap-2">
+            <button
+              type="button"
+              onClick={() => setMode("mefpay")}
+              className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors ${
+                mode === "mefpay"
+                  ? "border-hm-emerald bg-hm-emerald-soft"
+                  : "border-hm-line bg-white"
+              }`}
+            >
+              <ShieldCheck className="mt-0.5 size-5 text-hm-emerald" />
+              <span>
+                <span className="block font-semibold text-hm-ink">Kartla ödeme</span>
+                <span className="block text-sm text-hm-ink-soft">
+                  Müşteri kredi kartıyla öder, para hesabınıza geçer. Vergi muafiyeti belgeniz varsa
+                  da kullanabilirsiniz.
+                </span>
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("bank_transfer")}
+              className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors ${
+                mode === "bank_transfer"
+                  ? "border-hm-teal bg-hm-teal-soft"
+                  : "border-hm-line bg-white"
+              }`}
+            >
+              <Banknote className="mt-0.5 size-5 text-hm-teal" />
+              <span>
+                <span className="block font-semibold text-hm-ink">IBAN ile havale/EFT</span>
+                <span className="block text-sm text-hm-ink-soft">
+                  Müşteri paranızı doğrudan banka hesabınıza gönderir.
+                </span>
+              </span>
+            </button>
+          </div>
+          {mode === "bank_transfer" ? (
+            <div className="grid gap-3">
+              <Field label="IBAN">
+                <input
+                  className={inputClass}
+                  value={iban}
+                  onChange={(event) => setIban(event.target.value)}
+                  placeholder="TR__ ____ ____ ____ ____ ____ __"
+                />
+              </Field>
+              <Field label="Hesap sahibinin adı">
+                <input
+                  className={inputClass}
+                  value={holder}
+                  onChange={(event) => setHolder(event.target.value)}
+                  placeholder="Ad Soyad"
+                />
+              </Field>
+            </div>
+          ) : null}
+        </SoftCard>
+      </div>
+      <div hidden={section !== "marketing"} className="space-y-4">
+        <SoftCard id="hm-share" className="grid gap-3">
+          <p className="text-sm font-semibold text-hm-ink">Mağaza adresiniz</p>
+          <p className="break-all text-sm text-hm-ink-soft">{storeUrl}</p>
+          <p className="text-sm font-semibold text-hm-ink">Mağazanızı sosyal medyada paylaşın</p>
+          <div className="grid grid-cols-3 gap-2">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`${name.trim() || store.name} mağazama göz atın: ${storeUrl}`)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-hm-emerald-soft px-3 text-sm font-semibold text-hm-emerald"
+            >
+              <Share2 className="size-4" />
+              WhatsApp
+            </a>
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(storeUrl)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-hm-teal-soft px-3 text-sm font-semibold text-hm-teal"
+            >
+              <Facebook className="size-4" />
+              Facebook
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                void (async () => {
+                  try {
+                    if (navigator.share) {
+                      await navigator.share({ title: store.name, url: storeUrl });
+                    } else {
+                      await navigator.clipboard.writeText(storeUrl);
+                      toast.success("Mağaza bağlantınız kopyalandı");
+                    }
+                  } catch {
+                    // Kullanıcı paylaşım penceresini kapattıysa sessiz geç.
                   }
-                } catch {
-                  // Kullanıcı paylaşım penceresini kapattıysa sessiz geç.
-                }
-              })();
-            }}
-            className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-hm-rose-soft px-3 text-sm font-semibold text-hm-rose"
+                })();
+              }}
+              className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-hm-rose-soft px-3 text-sm font-semibold text-hm-rose"
+            >
+              <Link2 className="size-4" />
+              Paylaş
+            </button>
+          </div>
+        </SoftCard>
+
+        <ShopQrCard
+          storeName={name.trim() || store.name}
+          storeUrl={storeUrl}
+          campaignCode={(settings?.campaign_banner as { code?: string } | null)?.code ?? null}
+        />
+      </div>
+      <div hidden={section !== "seo"} className="space-y-4">
+        <SoftCard className="space-y-3">
+          <h2 className="font-semibold">Yayın hazırlığı</h2>
+          <p className="text-sm">
+            {readiness.isPending
+              ? "Kontrol ediliyor…"
+              : readiness.error
+                ? "Hazırlık kontrolü alınamadı."
+                : `${readiness.data?.publishedProducts ?? 0} yayında ürün · Politikalar ${readiness.data?.policies.ready ? "hazır" : "eksik"}`}
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/store/$storeId/products"
+              params={{ storeId: store.id }}
+              className="underline"
+            >
+              Ürünleri aç
+            </Link>
+            <Link
+              to="/store/$storeId/policies"
+              params={{ storeId: store.id }}
+              className="underline"
+            >
+              Politikaları düzenle
+            </Link>
+          </div>
+        </SoftCard>
+        <SoftCard className="space-y-3">
+          <h2 className="font-semibold text-hm-ink">Arama motoru görünürlüğü</h2>
+          <p className="text-sm text-hm-ink-soft">
+            Mağaza başlığını, açıklamasını ve ürünlerin SEO durumunu yönetin.
+          </p>
+          <Link
+            to="/store/$storeId/seo"
+            params={{ storeId: store.id }}
+            className="inline-flex min-h-11 items-center rounded-2xl bg-hm-rose px-4 font-semibold text-white"
           >
-            <Link2 className="size-4" />
-            Paylaş
-          </button>
-        </div>
-      </SoftCard>
-
-      <ShopQrCard
-        storeName={name.trim() || store.name}
-        storeUrl={storeUrl}
-        campaignCode={(settings?.campaign_banner as { code?: string } | null)?.code ?? null}
-      />
-
+            SEO ayarlarını aç
+          </Link>
+        </SoftCard>
+      </div>
+      {saveError ? (
+        <p role="alert" className="rounded-2xl border p-3 text-sm text-destructive">
+          {saveError} Değişiklikleriniz formda korunuyor; tekrar kaydedebilirsiniz.
+        </p>
+      ) : null}
+      <p role="status" className="text-sm text-hm-ink-soft">
+        {dirty
+          ? "Kaydedilmemiş değişiklikler var. Kaydet, tüm bölümlerdeki değişiklikleri kaydeder."
+          : "Tüm değişiklikler kayıtlı."}
+      </p>
       <BigButton onClick={save} disabled={saving || !dirty} className="w-full">
         {saving ? <Loader2 className="size-5 animate-spin" /> : <Save className="size-5" />}
         {dirty ? "Kaydet" : "Her şey kayıtlı"}

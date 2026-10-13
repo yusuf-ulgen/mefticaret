@@ -1,3 +1,5 @@
+import { SmartImage } from "@/components/smart-image";
+import { productSeoData, hasProductImage } from "@/lib/product-seo-data";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
@@ -92,11 +94,11 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
       storeName: data.store.name,
       seo,
       description:
-        seo.description ||
-        plainText(tr[`product.${productId}.description`] ?? data.product.description),
+        productSeoData({ title, seo, description: tr[`product.${productId}.description`] ?? data.product.description }).description,
       price: data.product.base_price,
       currency: data.product.currency,
-      images: data.images.map((image) => image.url).filter(Boolean).slice(0, 6),
+      images: data.images.filter(hasProductImage).map((image) => image.url).filter(Boolean).slice(0, 6),
+      imageSources: data.images[0]?.responsiveSources ?? [],
       brand: data.product.vendor || data.product.seller_name || data.store.name,
       sku: data.product.sku,
       barcode: data.product.barcode,
@@ -167,13 +169,14 @@ export const Route = createFileRoute("/s/$slug/p/$productSlug")({
       ],
     });
 
-    const lcp = image ? optimizedImageUrl(image, { width: 720 }) : null;
+    const signedSet = loaderData.imageSources.map((source) => `${source.url} ${source.width}w`).join(", ");
+    const lcp = loaderData.imageSources.find((source) => source.width >= 720)?.url ?? (image ? optimizedImageUrl(image, { width: 720 }) : null);
     return {
       ...head,
       links: [
         ...(head.links ?? []),
         ...(lcp && image
-          ? [{ rel: "preload", as: "image", href: lcp, fetchpriority: "high", ...(isTransformable(image) ? { imagesrcset: imageSrcSet(image) ?? undefined, imagesizes: "(max-width: 768px) 100vw, 50vw" } : {}) }]
+          ? [{ rel: "preload", as: "image", href: lcp, fetchpriority: "high", ...(signedSet || isTransformable(image) ? { imagesrcset: signedSet || imageSrcSet(image) || undefined, imagesizes: "(max-width: 768px) 100vw, 50vw" } : {}) }]
           : []),
       ],
       meta: [
@@ -280,7 +283,7 @@ function ProductPage() {
   const variantImage = selected?.imageUrl
     ? { url: selected.imageUrl, alt: selected.title }
     : null;
-  const heroImage = variantImage ?? (images.length ? { url: images[Math.min(activeImage, images.length - 1)]!.url, alt: images[Math.min(activeImage, images.length - 1)]!.alt } : null);
+  const heroImage = variantImage ?? (images.length ? images[Math.min(activeImage, images.length - 1)]! : null);
 
   // Seçenek grupları: ürün tanımı yoksa varyant seçeneklerinden türetilir.
   const definedGroups = (Array.isArray(product.variant_options) ? product.variant_options : []) as {
@@ -440,10 +443,11 @@ function ProductPage() {
               }}
               style={{ display: "block", width: "100%", padding: 0, border: `1px solid ${border}`, borderRadius: radius, overflow: "hidden", background: "transparent", cursor: "zoom-in", position: "relative" }}
             >
-              <img
+              <SmartImage
                 src={heroImage.url}
+                sources={"responsiveSources" in heroImage ? heroImage.responsiveSources : []}
                 alt={heroImage.alt ?? product.title}
-                loading="eager"
+                priority width={720} sizes="(max-width: 768px) 100vw, 50vw"
                 style={{ width: "100%", display: "block", transition: "transform 200ms ease", transform: lens ? "scale(2)" : "none", transformOrigin: lens ?? "center" }}
               />
               {images.length > 1 ? (

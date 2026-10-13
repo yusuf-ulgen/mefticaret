@@ -80,14 +80,21 @@ export async function consumeRateLimit(
 }
 
 /** Limit aşıldığında dönülecek standart JSON yanıtı. */
-export function rateLimitResponse(result: RateLimitResult): Response {
+export function retryAfterSeconds(result: Pick<RateLimitResult, "resetAt">, now = Date.now()) {
   const resetTime = new Date(result.resetAt).getTime();
-  const retryAfter = Number.isFinite(resetTime)
-    ? Math.max(1, Math.ceil((resetTime - Date.now()) / 1000))
+  return Number.isFinite(resetTime)
+    ? Math.max(1, Math.ceil((resetTime - now) / 1000))
     : 60;
+}
+export function rateLimitMessage(result: Pick<RateLimitResult, "resetAt">) {
+  return `Çok fazla deneme yaptınız. ${retryAfterSeconds(result)} saniye sonra tekrar deneyebilirsiniz.`;
+}
+export function rateLimitResponse(result: RateLimitResult): Response {
+  const retryAfter = retryAfterSeconds(result);
   return new Response(
     JSON.stringify({
       error: "rate_limited",
+      message: rateLimitMessage(result),
       limit: result.limit,
       reset_at: result.resetAt,
       retry_after_seconds: retryAfter,

@@ -1,3 +1,6 @@
+import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { storeReadinessQuery } from "@/lib/store-readiness-query";
 import { Check, CreditCard, Package, Palette, Store } from "lucide-react";
 
 import { SoftCard } from "@/components/homemaker/kolay-parts";
@@ -14,6 +17,7 @@ type GuideSettings = {
  * Her adım gerçek verilere bakar; hepsi tamamlanınca kart gizlenir.
  */
 export function SetupGuide({
+  storeId,
   storeName,
   logoUrl,
   settings,
@@ -21,6 +25,7 @@ export function SetupGuide({
   storeUrl,
   onGoToProducts,
 }: {
+  storeId: string;
   storeName: string;
   logoUrl: string | null;
   settings: GuideSettings;
@@ -28,14 +33,14 @@ export function SetupGuide({
   storeUrl: string;
   onGoToProducts: () => void;
 }) {
+  const readiness = useQuery(storeReadinessQuery(storeId));
   const hasStore = Boolean(storeName?.trim());
   const hasShopLook = Boolean(logoUrl) && Boolean(settings?.bio?.trim());
-  const hasProduct = productCount > 0;
+  const hasProduct = (readiness.data?.publishedProducts ?? 0) > 0;
   const mode = settings?.payment_mode ?? "";
   const hasPayment =
     mode === "mefpay" ||
-    (mode === "bank_transfer" && Boolean(settings?.bank_iban?.trim())) ||
-    Boolean(settings?.whatsapp_phone?.trim());
+    (mode === "bank_transfer" && Boolean(settings?.bank_iban?.trim()));
 
   const steps = [
     {
@@ -64,6 +69,13 @@ export function SetupGuide({
       title: "4. Ödemeyi ayarlayın",
       text: "Kartla tahsilat, IBAN'a havale veya WhatsApp ile anlaşma: paranızı nasıl alacağınızı seçin.",
       done: hasPayment,
+      action: null,
+    },
+    {
+      icon: Store,
+      title: "5. Politikalarınızı yayınlayın",
+      text: "Gizlilik, mesafeli satış ve iade belgelerinin yayınlanmış ve yürürlükteki sürümleri gereklidir.",
+      done: readiness.data?.policies.ready === true,
       action: null,
     },
   ];
@@ -123,6 +135,8 @@ export function SetupGuide({
             </li>
           ))}
         </ol>
+        {readiness.error ? <p role="alert" className="text-sm text-destructive">Hazırlık durumu alınamadı. <button type="button" className="underline" onClick={() => void readiness.refetch()}>Tekrar dene</button></p> : null}
+        <Link to="/store/$storeId/policies" params={{ storeId }} className="inline-flex min-h-11 items-center text-sm font-semibold underline">Politikaları düzenle ve yayınla</Link>
         <p className="text-xs text-hm-ink-soft">
           Vitrin bağlantınız: <span className="break-all font-medium text-hm-ink">{storeUrl}</span>
         </p>

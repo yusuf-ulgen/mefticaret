@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { MessageCircle, Phone, Plus, Search, Trash2, UserPlus, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { BigButton, Field, SoftCard, inputClass } from "@/components/homemaker/kolay-parts";
@@ -35,11 +35,15 @@ function waLink(phone: string | null, name: string | null) {
 
 export function CustomersTab({ storeId }: { storeId: string }) {
   const queryClient = useQueryClient();
-  const { data: customers, isPending } = useQuery(kolayCustomersQuery(storeId));
+  const [term, setTerm] = useState("");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const { data, isPending, isFetching, error, refetch } = useQuery(
+    kolayCustomersQuery(storeId, search, page),
+  );
   const save = useServerFn(saveKolayCustomer);
   const remove = useServerFn(deleteKolayCustomer);
 
-  const [term, setTerm] = useState("");
   const [form, setForm] = useState<Form | null>(null);
 
   const refresh = async () => {
@@ -76,20 +80,11 @@ export function CustomersTab({ storeId }: { storeId: string }) {
     onError: (error) => toast.error(error instanceof Error ? error.message : "Silinemedi"),
   });
 
-  const list = customers ?? [];
-  const filtered = useMemo(() => {
-    const needle = term.trim().toLocaleLowerCase("tr");
-    if (!needle) return list;
-    return list.filter((customer) =>
-      [customer.fullName, customer.phone ?? "", customer.email ?? "", customer.notes ?? ""]
-        .join(" ")
-        .toLocaleLowerCase("tr")
-        .includes(needle),
-    );
-  }, [list, term]);
+  const list = data?.items ?? [];
+  const filtered = list;
 
   const repeat = list.filter((customer) => customer.ordersCount > 1).length;
-  const currency = list[0]?.currency ?? "TRY";
+  const currency = data?.currency ?? "TRY";
   const spent = list.reduce((sum, customer) => sum + customer.totalSpent, 0);
 
   return (
@@ -97,9 +92,13 @@ export function CustomersTab({ storeId }: { storeId: string }) {
       <div className="grid grid-cols-3 gap-2">
         {(
           [
-            ["Müşteri", String(list.length), "bg-hm-rose-soft text-hm-rose"],
-            ["Tekrar alan", String(repeat), "bg-hm-teal-soft text-hm-teal"],
-            ["Toplam ciro", formatMoney(spent, currency), "bg-hm-emerald-soft text-hm-emerald"],
+            ["Müşteri", data ? String(data.total) : "—", "bg-hm-rose-soft text-hm-rose"],
+            ["Sayfada tekrar alan", data ? String(repeat) : "—", "bg-hm-teal-soft text-hm-teal"],
+            [
+              "Sayfadaki tahsilat",
+              data ? formatMoney(spent, currency) : "—",
+              "bg-hm-emerald-soft text-hm-emerald",
+            ],
           ] as const
         ).map(([label, value, tone]) => (
           <div key={label} className={`rounded-3xl px-3 py-3 ${tone}`}>
@@ -109,7 +108,14 @@ export function CustomersTab({ storeId }: { storeId: string }) {
         ))}
       </div>
 
-      <div className="flex gap-2">
+      <form
+        className="flex flex-wrap gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setSearch(term);
+          setPage(0);
+        }}
+      >
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-hm-ink-soft" />
           <input
@@ -120,11 +126,14 @@ export function CustomersTab({ storeId }: { storeId: string }) {
             className={`${inputClass} pl-9`}
           />
         </div>
-        <BigButton onClick={() => setForm({ ...emptyForm })}>
+        <BigButton type="submit" disabled={isFetching}>
+          Ara
+        </BigButton>
+        <BigButton type="button" onClick={() => setForm({ ...emptyForm })}>
           <UserPlus className="size-5" />
           Ekle
         </BigButton>
-      </div>
+      </form>
 
       {form ? (
         <SoftCard className="space-y-3">
@@ -186,13 +195,19 @@ export function CustomersTab({ storeId }: { storeId: string }) {
         </SoftCard>
       ) : null}
 
+      {error ? (
+        <SoftCard>
+          <p role="alert">{error.message}</p>
+          <BigButton onClick={() => void refetch()}>Tekrar dene</BigButton>
+        </SoftCard>
+      ) : null}
       {isPending ? (
         <div className="grid min-h-32 place-items-center rounded-3xl border border-hm-line bg-white text-sm text-hm-ink-soft">
           Müşterileriniz yükleniyor…
         </div>
       ) : null}
 
-      {!isPending && filtered.length === 0 ? (
+      {!isPending && !error && filtered.length === 0 ? (
         <SoftCard className="text-center">
           <p className="text-sm text-hm-ink-soft">
             {list.length === 0
@@ -223,6 +238,20 @@ export function CustomersTab({ storeId }: { storeId: string }) {
             }}
           />
         ))}
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <BigButton disabled={page === 0 || isFetching} onClick={() => setPage((p) => p - 1)}>
+          ?nceki
+        </BigButton>
+        <span className="text-sm">
+          Sayfa {page + 1} / {Math.max(1, Math.ceil((data?.total ?? 0) / 25))}
+        </span>
+        <BigButton
+          disabled={isFetching || !data || (page + 1) * data.pageSize >= data.total}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          Sonraki
+        </BigButton>
       </div>
     </div>
   );
@@ -266,7 +295,9 @@ function CustomerCard({
         ) : null}
       </div>
       {customer.notes ? (
-        <p className="rounded-2xl bg-hm-sand px-3 py-2 text-xs text-hm-ink-soft">{customer.notes}</p>
+        <p className="rounded-2xl bg-hm-sand px-3 py-2 text-xs text-hm-ink-soft">
+          {customer.notes}
+        </p>
       ) : null}
       <div className="flex flex-wrap gap-2">
         {wa ? (

@@ -13,14 +13,14 @@ import {
   Store,
   Warehouse,
 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { supplierCatalogQuery, type SupplierCatalogFilter } from "@/lib/supplier-catalog-query";
+import { SupplierCatalogActions } from "./catalog-actions";
 import { SmartImage } from "@/components/smart-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +45,9 @@ export type CatalogProduct = {
   category: string | null;
   brand: string | null;
   supplierPrice: number;
+  configuredSalePrice?: number | null;
+  suggestedPrice?: number | null;
+  catalogVisible?: boolean;
   salePrice: number;
   stock: number;
   currency: string;
@@ -55,6 +58,9 @@ export type CatalogProduct = {
   isPublished: boolean;
   updatedAt: string;
   sourceStock?: number;
+  warehouseReserved?: number | null;
+  warehouseOnHand?: number | null;
+  warehouseUpdatedAt?: string | null;
   storeStock?: number | null;
   sourceUpdatedAt?: string;
   storeUpdatedAt?: string | null;
@@ -167,13 +173,18 @@ export function SupplierCatalog({
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState<"recent" | "price" | "stock">("recent");
   const [page, setPage] = useState(0);
+  const [filter, setFilter] = useState<SupplierCatalogFilter>("all");
   const searchCatalog = useServerFn(supplierSearchCatalog);
-  const catalog = useQuery({
-    queryKey: ["supplier-catalog-search", supplierId, query, page, category, sort],
-    enabled: Boolean(supplierId),
-    queryFn: () =>
-      searchCatalog({ data: { supplierId: supplierId!, search: query, page, category, sort } }),
-  });
+  const catalog = useQuery(
+    supplierCatalogQuery(searchCatalog, {
+      supplierId: supplierId ?? "",
+      search: query,
+      page,
+      category,
+      sort,
+      filter,
+    }),
+  );
   const [selected, setSelected] = useState<string[]>([]);
   const [detail, setDetail] = useState<CatalogProduct | null>(null);
   const visible = supplierId ? (catalog.data?.products ?? []) : products;
@@ -208,16 +219,21 @@ export function SupplierCatalog({
       <section className="border-y bg-card p-4 sm:rounded-lg sm:border">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
-            <h2 className="font-semibold">Ürünlerim</h2>
+            <h2 className="font-semibold">Ürün çalışma alanı</h2>
             <p className="truncate text-xs text-muted-foreground">
-              {catalog.data?.total ?? products.length} ürün · Sayfa {page + 1}
+              {supplierId
+                ? catalog.data
+                  ? `${catalog.data.total} ürün`
+                  : "Ürün sayısı bekleniyor"
+                : `${products.length} ürün`}{" "}
+              · Sayfa {page + 1}
             </p>
           </div>
           <Badge className="shrink-0" variant="outline">
             <Store className="mr-1 size-3" /> Canlı
           </Badge>
         </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_12rem_10rem]">
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-[1fr_12rem_10rem_10rem]">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -253,8 +269,36 @@ export function SupplierCatalog({
             <option value="price">Fiyata göre</option>
             <option value="stock">Stoğa göre</option>
           </select>
+          <select
+            aria-label="Katalog görünürlüğü"
+            className="h-9 rounded-md border bg-background px-3 text-sm"
+            value={filter}
+            onChange={(e) => {
+              setFilter(e.target.value as SupplierCatalogFilter);
+              setPage(0);
+            }}
+          >
+            <option value="all">Tümü</option>
+            <option value="visible">Katalogda görünen</option>
+            <option value="hidden">Gizli</option>
+            <option value="out">Stoksuz</option>
+          </select>
         </div>
       </section>
+      {supplierId ? (
+        <SupplierCatalogActions
+          supplierId={supplierId}
+          selected={selected}
+          product={
+            selected.length === 1 ? (visible.find((p) => p.id === selected[0]) ?? null) : null
+          }
+          clear={() => setSelected([])}
+          onChanged={() => {
+            onChanged?.();
+            void catalog.refetch();
+          }}
+        />
+      ) : null}
       {supplierId ? pagination : null}
 
       {selected.length ? (
@@ -420,6 +464,14 @@ export function SupplierCatalog({
                     <p>{detail.storeStock ?? "—"}</p>
                   </div>
                   <div>
+                    <p className="text-xs text-muted-foreground">Depoda ayrılan</p>
+                    <p>{detail.warehouseReserved ?? "Depo kaydı yok"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Depodaki toplam</p>
+                    <p>{detail.warehouseOnHand ?? "Depo kaydı yok"}</p>
+                  </div>
+                  <div>
                     <p className="text-xs text-muted-foreground">Renk</p>
                     <p>{detail.color ?? "—"}</p>
                   </div>
@@ -428,6 +480,15 @@ export function SupplierCatalog({
                     <p>{detail.size ?? "—"}</p>
                   </div>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Katalog tedarikçi kaynak stokunu, vitrin ve sipariş mağaza varyant stokunu
+                  kullanır. Sipariş rezervasyonu varyant stokundan düşer. Depo rezervasyonu ayrı
+                  kaynaktır; ikinci kez düşülmez. Eşitleme kapalıysa stoklar farklı kalabilir.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Depo güncellemesi:{" "}
+                  {detail.warehouseUpdatedAt ? formatDate(detail.warehouseUpdatedAt) : "—"}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   Kaynak güncellemesi:{" "}
                   {detail.sourceUpdatedAt ? formatDate(detail.sourceUpdatedAt) : "—"} · Mağaza
@@ -489,19 +550,9 @@ export function SupplierCommercialDesk({
   const [productSearch, setProductSearch] = useState("");
   const [productPage, setProductPage] = useState(0);
   const searchCatalog = useServerFn(supplierSearchCatalog);
-  const optionsQuery = useQuery({
-    queryKey: ["supplier-rfq-products", supplierId, productSearch, productPage],
-    queryFn: () =>
-      searchCatalog({
-        data: {
-          supplierId,
-          search: productSearch,
-          page: productPage,
-          category: "",
-          sort: "recent",
-        },
-      }),
-  });
+  const optionsQuery = useQuery(
+    supplierCatalogQuery(searchCatalog, { supplierId, search: productSearch, page: productPage }),
+  );
   const productOptions = optionsQuery.data?.products ?? [];
   const [quantity, setQuantity] = useState("10");
   const create = useMutation({
@@ -741,160 +792,8 @@ export function SupplierChanges({
   );
 }
 
-export function SupplierAnalytics({
-  orders,
-  currency,
-}: {
-  orders: Array<{
-    orderCreatedAt: string;
-    itemsTotal: number | null;
-    netTotal: number;
-    commissionTotal: number;
-    items: Array<{ quantity: number; title: string }>;
-  }>;
-  currency: string;
-}) {
-  const [period, setPeriod] = useState("daily");
-  const [metric, setMetric] = useState("revenue");
-  const points = useMemo(() => {
-    const grouped = new Map<
-      string,
-      { label: string; revenue: number; quantity: number; commission: number }
-    >();
-    for (const order of orders) {
-      if (order.itemsTotal === null) continue;
-      const date = new Date(order.orderCreatedAt);
-      const key =
-        period === "yearly"
-          ? String(date.getFullYear())
-          : period === "monthly"
-            ? `${date.getFullYear()}-${date.getMonth() + 1}`
-            : period === "hourly"
-              ? `${date.toISOString().slice(0, 10)} ${date.getHours()}:00`
-              : date.toISOString().slice(0, 10);
-      const row = grouped.get(key) ?? { label: key, revenue: 0, quantity: 0, commission: 0 };
-      row.revenue += order.itemsTotal;
-      row.commission += order.commissionTotal;
-      row.quantity += order.items.reduce((sum, item) => sum + item.quantity, 0);
-      grouped.set(key, row);
-    }
-    return Array.from(grouped.values()).slice(-24);
-  }, [orders, period]);
-  const topProducts = useMemo(() => {
-    const map = new Map<string, number>();
-    orders
-      .flatMap((order) => order.items)
-      .forEach((item) => map.set(item.title, (map.get(item.title) ?? 0) + item.quantity));
-    return Array.from(map.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-  }, [orders]);
-  const revenue = orders.reduce((sum, row) => sum + (row.itemsTotal ?? 0), 0);
-  const quantity = orders.flatMap((row) => row.items).reduce((sum, row) => sum + row.quantity, 0);
-  const commission = orders.reduce((sum, row) => sum + row.commissionTotal, 0);
-  const periods: Array<[string, string]> = [
-    ["hourly", "Saatlik"],
-    ["daily", "Günlük"],
-    ["monthly", "Aylık"],
-    ["yearly", "Yıllık"],
-  ];
-  return (
-    <div className="min-w-0 space-y-4">
-      <div className="grid grid-cols-4 gap-1 bg-card p-1">
-        {periods.map(([value, label]) => (
-          <Button
-            className="min-w-0 px-1 text-xs"
-            key={value}
-            size="sm"
-            variant={period === value ? "default" : "ghost"}
-            onClick={() => setPeriod(value)}
-          >
-            {label}
-          </Button>
-        ))}
-      </div>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        <SmallMetric label="Adet" value={String(quantity)} />
-        <SmallMetric label="Ciro" value={formatMoney(revenue, currency)} />
-        <SmallMetric label="R/C" value={commission ? (revenue / commission).toFixed(1) : "—"} />
-      </div>
-      <section className="min-w-0 border-y bg-card p-3 sm:rounded-lg sm:border sm:p-4">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-          <h2 className="truncate font-semibold">Satış grafiği</h2>
-          <select
-            className="h-8 shrink-0 rounded-md border bg-background px-2 text-xs"
-            value={metric}
-            onChange={(event) => setMetric(event.target.value)}
-          >
-            <option value="quantity">Adet</option>
-            <option value="revenue">Ciro</option>
-            <option value="commission">Komisyon</option>
-          </select>
-        </div>
-        {points.length ? (
-          <ChartContainer
-            className="mt-4 h-64 w-full min-w-0 aspect-auto"
-            config={{ value: { label: metric, color: "var(--supplier-brand)" } }}
-          >
-            <AreaChart data={points}>
-              <defs>
-                <linearGradient id="supplierArea" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-value)" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="var(--color-value)" stopOpacity={0.02} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} />
-              <XAxis dataKey="label" tickLine={false} axisLine={false} />
-              <YAxis tickLine={false} axisLine={false} width={32} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Area
-                type="monotone"
-                dataKey={metric}
-                stroke="var(--color-value)"
-                fill="url(#supplierArea)"
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ChartContainer>
-        ) : (
-          <Empty text="Grafik için tamamlanmış sipariş verisi bekleniyor." />
-        )}
-      </section>
-      <section className="border-y bg-card p-4 sm:rounded-lg sm:border">
-        <h2 className="flex items-center gap-2 font-semibold">
-          <BarChart3 className="size-4 text-supplier-brand" /> Çok satanlar
-        </h2>
-        {topProducts.length ? (
-          <div className="mt-3 space-y-3">
-            {topProducts.map(([name, count], index) => (
-              <div key={name} className="flex min-w-0 items-center gap-3">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-xs font-semibold">
-                  {index + 1}
-                </span>
-                <span className="min-w-0 flex-1 truncate text-sm">{name}</span>
-                <strong className="shrink-0 text-sm">{count} adet</strong>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-4 text-sm text-muted-foreground">Henüz satılan ürün yok.</p>
-        )}
-      </section>
-      <div className="grid grid-cols-2 gap-2">
-        <SmallMetric label="Reklam" value={formatMoney(0, currency)} />
-        <SmallMetric
-          label="Sipariş ort."
-          value={formatMoney(orders.length ? revenue / orders.length : 0, currency)}
-        />
-        <SmallMetric
-          label="Net kazanç"
-          value={formatMoney(
-            orders.reduce((sum, row) => sum + row.netTotal, 0),
-            currency,
-          )}
-        />
-        <SmallMetric label="Komisyon" value={formatMoney(commission, currency)} />
-      </div>
-    </div>
-  );
+
+const LazySupplierAnalytics = lazy(() => import("./analytics-panel"));
+export function SupplierAnalytics(props: React.ComponentProps<typeof LazySupplierAnalytics>) {
+  return <Suspense fallback={<p role="status" className="p-6 text-sm">Analiz yükleniyor…</p>}><LazySupplierAnalytics {...props} /></Suspense>;
 }

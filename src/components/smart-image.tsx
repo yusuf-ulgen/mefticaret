@@ -12,6 +12,7 @@ type SmartImageProps = {
   priority?: boolean;
   sizes?: string;
   widths?: number[];
+  sources?: Array<{ width: number; url: string }>;
   className?: string;
   style?: CSSProperties;
 };
@@ -28,15 +29,27 @@ export function SmartImage({
   priority = false,
   sizes = "(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 320px",
   widths = DEFAULT_IMAGE_WIDTHS,
+  sources,
   className,
   style,
 }: SmartImageProps) {
   const [failure, setFailure] = useState<{ source: typeof src; stage: number } | null>(null);
   const stage = failure && failure.source === src ? failure.stage : 0;
-  const optimized = optimizedImageUrl(src, height ? { width, height } : { width }) ?? src;
+  const signed =
+    sources
+      ?.slice()
+      .sort((a, b) => a.width - b.width)
+      .find((source) => source.width >= width) ?? sources?.at(-1);
+  const optimized =
+    signed?.url ?? optimizedImageUrl(src, height ? { width, height } : { width }) ?? src;
   const displayed =
     !src || stage >= 2 ? "/placeholder-product.svg" : stage === 1 ? src : (optimized ?? src);
-  const srcSet = stage === 0 ? imageSrcSet(src, widths, height ? { height } : {}) : null;
+  const srcSet =
+    stage === 0
+      ? sources?.length
+        ? sources.map((source) => `${source.url} ${source.width}w`).join(", ")
+        : imageSrcSet(src, widths, height ? { height, baseWidth: width } : {})
+      : null;
 
   return (
     <img

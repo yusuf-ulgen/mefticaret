@@ -15,7 +15,9 @@ const access = async (supabase: unknown, userId: string, supplierId: string) => 
   if (!supplier) throw new Error("Bu tedarikçi kaydına erişiminiz yok");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db = supabaseAdmin as never as { from: (t: string) => any };
-  const { data: row } = await db.from("suppliers").select("id, store_id, currency, is_public_catalog").eq("id", supplierId).single();
+  const { data: row, error: supplierError } = await db.from("suppliers").select("id, store_id, currency, is_public_catalog").eq("id", supplierId).single();
+  if (supplierError) throw new Error(supplierError.message);
+  if (!row) throw new Error("Tedarikçi bulunamadı");
   return { db, supplier: row as { id: string; store_id: string; currency: string | null; is_public_catalog: boolean } };
 };
 
@@ -29,19 +31,23 @@ export const studioOverview = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ supplierId: z.guid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { db, supplier } = await access(context.supabase, context.userId, data.supplierId);
-    const [{ count: total }, { count: hidden }, { count: outOfStock }, { data: links }] = await Promise.all([
+    const sources = await Promise.all([
       db.from("supplier_products").select("id", { count: "exact", head: true }).eq("supplier_id", supplier.id),
       db.from("supplier_products").select("id", { count: "exact", head: true }).eq("supplier_id", supplier.id).eq("catalog_visible", false),
       db.from("supplier_products").select("id", { count: "exact", head: true }).eq("supplier_id", supplier.id).lte("stock", 0),
       db.from("store_supplier_imports").select("store_id, supplier_product_id, product_id").eq("supplier_id", supplier.id).limit(20000),
     ]);
+    for (const source of sources) if (source.error) throw new Error(source.error.message);
+    const [{ count: total }, { count: hidden }, { count: outOfStock }, { data: links }] = sources;
+    if (total == null || hidden == null || outOfStock == null) throw new Error("Katalog sayıları alınamadı");
     const list = (links ?? []) as any[];
     const byProduct = new Map<string, number>();
     for (const l of list) byProduct.set(l.supplier_product_id, (byProduct.get(l.supplier_product_id) ?? 0) + 1);
     const productIds = list.map((l) => l.product_id);
     const sold = new Map<string, { qty: number; revenue: number }>();
     for (let i = 0; i < productIds.length; i += 300) {
-      const { data: items } = await db.from("order_items").select("product_id, quantity, line_total").in("product_id", productIds.slice(i, i + 300)).limit(5000);
+      const { data: items, error: itemsError } = await db.from("order_items").select("product_id, quantity, line_total").in("product_id", productIds.slice(i, i + 300)).limit(5000);
+      if (itemsError) throw new Error(itemsError.message);
       for (const it of (items ?? []) as any[]) {
         const cur = sold.get(it.product_id) ?? { qty: 0, revenue: 0 };
         cur.qty += Number(it.quantity ?? 0);
@@ -59,7 +65,8 @@ export const studioOverview = createServerFn({ method: "POST" })
       soldBySp.set(l.supplier_product_id, cur);
     }
     const topIds = [...new Set([...[...byProduct.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map((e) => e[0]), ...[...soldBySp.entries()].sort((a, b) => b[1].qty - a[1].qty).slice(0, 10).map((e) => e[0])])];
-    const { data: titles } = topIds.length ? await db.from("supplier_products").select("id, title").in("id", topIds) : { data: [] };
+    const { data: titles, error: titlesError } = topIds.length ? await db.from("supplier_products").select("id, title").in("id", topIds) : { data: [], error: null };
+    if (titlesError) throw new Error(titlesError.message);
     const T = new Map(((titles ?? []) as any[]).map((t) => [t.id, t.title]));
     return {
       isPublic: !!supplier.is_public_catalog,

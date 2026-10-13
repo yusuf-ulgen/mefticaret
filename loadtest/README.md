@@ -17,7 +17,7 @@ Senaryolar gerçek uçlara istek atar; hiçbir sahte veri üretilmez. Hedef adre
 
 ```bash
 # 1) Vitrin ve API yük profili (eşzamanlı kullanıcı + süre)
-BASE_URL=https://mefticaret.com bun loadtest/storefront-load.ts --users 50 --seconds 60
+BASE_URL=https://staging.example.test bun loadtest/storefront-load.ts --users 50 --seconds 60
 
 # 2) Hız sınırı doğrulaması (100/dk ve 10/dk kurallarının devreye girmesi)
 bun loadtest/rate-limit-check.ts
@@ -51,7 +51,7 @@ kendini yeniler.
 
 - Tüm test verisi `TEST-` ön ekli ve `stores.is_test = true` olan mağazalarda tutulur;
   gerçek müşteri verisine dokunulmaz, vitrin/panel listelerinde görünmez.
-- Ödeme çağrıları sandbox/test modunda simüle edilir.
+- Panel koşusu test siparişlerini DB üzerinde simüle eder; gerçek ödeme sağlayıcısını çağırmaz.
 - 20.000 gerçek eşzamanlı kullanıcı tek kutudan üretilemez. Panelde ölçek hedefi
   20.000'e kadar ayarlanabilir (varsayılan 500); gerçek 20.000 VU için
   `loadtest/k6/storefront.js` ve `loadtest/k6/checkout.js` senaryolarını k6 Cloud
@@ -95,10 +95,10 @@ export K6_CLOUD_TOKEN="..."        # 1. adımdaki token
 export K6_CLOUD_PROJECT_ID="..."   # 1. adımdaki proje kimliği
 
 # Vitrin: 20.000 eşzamanlı gezinti/filtreleme (varsayılan bölge: Frankfurt)
-BASE_URL=https://mefticaret.com VUS=20000 DURATION=15m bash loadtest/k6/cloud-run.sh storefront
+BASE_URL=https://staging.example.test VUS=20000 DURATION=15m bash loadtest/k6/cloud-run.sh storefront
 
 # Kasa: 10.000 sipariş, sandbox ödeme
-BASE_URL=https://mefticaret.com VUS=1000 ORDERS=10000 bash loadtest/k6/cloud-run.sh checkout
+BASE_URL=https://staging.example.test VUS=1000 ORDERS=10000 bash loadtest/k6/cloud-run.sh checkout
 
 # Bölge değiştirmek için: K6_LOAD_ZONE=amazon:us:ashburn
 ```
@@ -119,3 +119,14 @@ Test bitince `/admin/load-test` panelinden turu **DURDUR** — TEST verisi
 - k6 Cloud trafiği Grafana'nın IP havuzundan gelir; genel API hız sınırı (100 istek/dk)
   IP başına uygulandığından yüksek VU'da 429'lar normaldir ve hata oranına dahildir.
   Vitrin ölçümünü önce 1.000–2.000 VU ile doğrulayıp artırın.
+
+
+## Revizyon 3 geliştirmeleri — gerçek ölçüm kapsamı
+
+- `k6/storefront.js` yalnız HTTP vitrin/liste gezinmesidir; tarayıcıda sepet veya CWV ölçmez. Olmayan `/search` isteği kaldırıldı.
+- k6 `handleSummary` JSON dosyası hedef VU, ölçülmüş en yüksek VU, süre, iterasyon, istek/sn, p95, hata ve 429 sayısını ayırır. Yarım/kanıtsız koşu tam başarı sayılmaz; CPU/RAM/DB alanı ölçüm kaydı olmadan `null` kalır.
+- `k6/checkout.js` yalnız endpoint sözleşmesini ölçer. 4xx başarılı checkout sayılmaz; eksik endpointte hazırlık aşamasında durur. Bu projede korumalı test checkout endpointleri henüz yoktur.
+- `storefront-load.ts` hedef worker ile ölçülen eşzamanlı istek sayısını ayırır; 404/429 hatadır. Boş ölçüm ve SIGINT ile durdurulan koşu başarı vermez.
+- `stock-race.ts`: tek stok senaryosunda tam bir başarılı işlem ve kalanların açık stok reddi gerekir. Bütün isteklerin 404/401 olması aşırı satış testini geçirmez.
+- Normal kullanıcı ve test trafiği raporda ayrı değerlendirilir. Rate limitler kaldırılmadı. Aynı senaryo/rota/cihaz/örnek veri/limitlerle önce-sonra ölçülmelidir.
+- Sonuç eşikleri işletmece seçilen test hedefidir; kapasite veya sabit hız garantisi değildir. Yeni gerçek koşu yapılmadan sonuç uydurulmaz.

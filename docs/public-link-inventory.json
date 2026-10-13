@@ -1,0 +1,831 @@
+{
+  "generatedAt": "2026-10-13T13:01:04.189Z",
+  "scope": "static public JSX links; dynamic expressions and database slugs require runtime verification",
+  "routes": 371,
+  "links": 137,
+  "failures": 0,
+  "entries": [
+    {
+      "source": "src/routes/auth.tsx",
+      "line": 332,
+      "target": "/forgot-password",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/blog.$slug.tsx",
+      "line": 111,
+      "target": "/blog",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/blog.index.tsx",
+      "line": 73,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/blog.index.tsx",
+      "line": 119,
+      "target": "/blog/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/demo.$slug.tsx",
+      "line": 51,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/dropshipping-nasil-yapilir.tsx",
+      "line": 196,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/dropshipping-nasil-yapilir.tsx",
+      "line": 202,
+      "target": "/e-ticaret-sitesi-kurma",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/dropshipping-nasil-yapilir.tsx",
+      "line": 268,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/dropshipping-nasil-yapilir.tsx",
+      "line": 276,
+      "target": "/en-iyi-e-ticaret-altyapisi",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-maliyeti.tsx",
+      "line": 121,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-maliyeti.tsx",
+      "line": 177,
+      "target": "/e-ticaret-paketleri",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-maliyeti.tsx",
+      "line": 218,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-maliyeti.tsx",
+      "line": 221,
+      "target": "/e-ticaret-sitesi-kurma",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-nasil-yapilir.tsx",
+      "line": 294,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-nasil-yapilir.tsx",
+      "line": 300,
+      "target": "/e-ticaret-paketleri",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-nasil-yapilir.tsx",
+      "line": 316,
+      "target": "/en/how-to-start-an-online-store",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-nasil-yapilir.tsx",
+      "line": 485,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-nasil-yapilir.tsx",
+      "line": 491,
+      "target": "/e-ticaret-sitesi-kurma",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-paketleri.tsx",
+      "line": 187,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-paketleri.tsx",
+      "line": 321,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-paketleri.tsx",
+      "line": 327,
+      "target": "/e-ticaret-nasil-yapilir",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-paketleri.tsx",
+      "line": 330,
+      "target": "/e-ticaret-maliyeti",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-sitesi-kurma.tsx",
+      "line": 210,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-sitesi-kurma.tsx",
+      "line": 216,
+      "target": "/en-iyi-e-ticaret-altyapisi",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-sitesi-kurma.tsx",
+      "line": 283,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/e-ticaret-sitesi-kurma.tsx",
+      "line": 291,
+      "target": "/en-iyi-e-ticaret-altyapisi",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/en-iyi-e-ticaret-altyapisi.tsx",
+      "line": 126,
+      "target": "/register",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/en-iyi-e-ticaret-altyapisi.tsx",
+      "line": 132,
+      "target": "/e-ticaret-sitesi-kurma",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/en-iyi-e-ticaret-altyapisi.tsx",
+      "line": 138,
+      "target": "/dropshipping-nasil-yapilir",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/en-iyi-e-ticaret-altyapisi.tsx",
+      "line": 144,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/en-iyi-e-ticaret-altyapisi.tsx",
+      "line": 213,
+      "target": "/s/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/en-iyi-e-ticaret-altyapisi.tsx",
+      "line": 239,
+      "target": "/register",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/en.how-to-start-an-online-store.tsx",
+      "line": 176,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/en.how-to-start-an-online-store.tsx",
+      "line": 182,
+      "target": "/e-ticaret-paketleri",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/en.how-to-start-an-online-store.tsx",
+      "line": 187,
+      "target": "/e-ticaret-nasil-yapilir",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/en.how-to-start-an-online-store.tsx",
+      "line": 291,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/en.how-to-start-an-online-store.tsx",
+      "line": 297,
+      "target": "/e-ticaret-paketleri",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/ev-hanimlari.sablonlar.tsx",
+      "line": 77,
+      "target": "/store/$storeId/kolay",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/fatura.$token.tsx",
+      "line": 87,
+      "target": "/login",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/fatura.$token.tsx",
+      "line": 149,
+      "target": "/login",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/forgot-password.tsx",
+      "line": 60,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/forgot-password.tsx",
+      "line": 91,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/kargo-takip.$tracking.tsx",
+      "line": 102,
+      "target": "/s/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/kolay-panel-rehberi.tsx",
+      "line": 213,
+      "target": "/ev-hanimlari",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/kolay-panel-rehberi.tsx",
+      "line": 219,
+      "target": "/e-ticaret-nasil-yapilir",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/kolay-panel-rehberi.tsx",
+      "line": 286,
+      "target": "/ev-hanimlari",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/kolay-panel-rehberi.tsx",
+      "line": 289,
+      "target": "/e-ticaret-sitesi-kurma",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/mesajlar-giris.tsx",
+      "line": 258,
+      "target": "/mesajlar-kosullar",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/mesajlar-giris.tsx",
+      "line": 258,
+      "target": "/mesajlar-gizlilik",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/mesajlar-gizlilik.tsx",
+      "line": 31,
+      "target": "/mesajlar-giris",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/mesajlar-kosullar.tsx",
+      "line": 27,
+      "target": "/mesajlar-giris",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/odeme-tamam.tsx",
+      "line": 40,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/pazaryeri-entegrasyonu.tsx",
+      "line": 158,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/pazaryeri-entegrasyonu.tsx",
+      "line": 163,
+      "target": "/en-iyi-e-ticaret-altyapisi",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/pazaryeri-entegrasyonu.tsx",
+      "line": 245,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/pazaryeri-entegrasyonu.tsx",
+      "line": 250,
+      "target": "/dropshipping-nasil-yapilir",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/politika.$policySlug.tsx",
+      "line": 32,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/politika.$policySlug.tsx",
+      "line": 39,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/preview.$slug.tsx",
+      "line": 46,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/rehberler.$slug.tsx",
+      "line": 49,
+      "target": "/rehberler",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/rehberler.$slug.tsx",
+      "line": 60,
+      "target": "/rehberler",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/rehberler.$slug.tsx",
+      "line": 96,
+      "target": "/rehberler/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/rehberler.index.tsx",
+      "line": 33,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/rehberler.index.tsx",
+      "line": 34,
+      "target": "/blog",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/rehberler.index.tsx",
+      "line": 57,
+      "target": "/rehberler/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.account.tsx",
+      "line": 92,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/s.$slug.account.tsx",
+      "line": 479,
+      "target": "/s/$slug/p/$productSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.blog.tsx",
+      "line": 113,
+      "target": "/s/$slug/galeri",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.blog.tsx",
+      "line": 188,
+      "target": "/s/$slug/page/$pageSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.blog.tsx",
+      "line": 245,
+      "target": "/s/$slug/page/$pageSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.c.$collectionSlug.tsx",
+      "line": 115,
+      "target": "/s/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.cart.tsx",
+      "line": 185,
+      "target": "/s/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.cart.tsx",
+      "line": 221,
+      "target": "/s/$slug/p/$productSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.cart.tsx",
+      "line": 252,
+      "target": "/s/$slug/p/$productSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.cart.tsx",
+      "line": 469,
+      "target": "/s/$slug/checkout",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.cart.tsx",
+      "line": 515,
+      "target": "/s/$slug/checkout",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.categories.tsx",
+      "line": 90,
+      "target": "/s/$slug/categories",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.categories.tsx",
+      "line": 108,
+      "target": "/s/$slug/categories",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.checkout.tsx",
+      "line": 517,
+      "target": "/s/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.checkout.tsx",
+      "line": 606,
+      "target": "/s/$slug/login",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.collections.tsx",
+      "line": 75,
+      "target": "/s/$slug/c/$collectionSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.compare.tsx",
+      "line": 41,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/s.$slug.compare.tsx",
+      "line": 108,
+      "target": "/s/$slug/products",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.compare.tsx",
+      "line": 148,
+      "target": "/s/$slug/p/$productSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.compare.tsx",
+      "line": 237,
+      "target": "/s/$slug/p/$productSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.favorites.tsx",
+      "line": 42,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/s.$slug.favorites.tsx",
+      "line": 100,
+      "target": "/s/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.favorites.tsx",
+      "line": 153,
+      "target": "/s/$slug/p/$productSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.galeri.tsx",
+      "line": 92,
+      "target": "/s/$slug/blog",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.galeri.tsx",
+      "line": 211,
+      "target": "/s/$slug/page/$pageSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.gift-card.tsx",
+      "line": 44,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/s.$slug.gift-card.tsx",
+      "line": 157,
+      "target": "/s/$slug/products",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.index.tsx",
+      "line": 80,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/s.$slug.kampanya.$campaignSlug.tsx",
+      "line": 90,
+      "target": "/s/$slug/products",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.login.tsx",
+      "line": 192,
+      "target": "/s/$slug/register",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.order.tsx",
+      "line": 305,
+      "target": "/s/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.orders.tsx",
+      "line": 99,
+      "target": "/s/$slug/login",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.orders.tsx",
+      "line": 103,
+      "target": "/s/$slug/order",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.orders.tsx",
+      "line": 164,
+      "target": "/s/$slug/account",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.p.$productSlug.tsx",
+      "line": 200,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/s.$slug.p.$productSlug.tsx",
+      "line": 399,
+      "target": "/s/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.p.$productSlug.tsx",
+      "line": 403,
+      "target": "/s/$slug/products",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.p.$productSlug.tsx",
+      "line": 540,
+      "target": "#yorumlar",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/s.$slug.p.$productSlug.tsx",
+      "line": 1029,
+      "target": "/s/$slug/p/$productSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.page.$pageSlug.tsx",
+      "line": 126,
+      "target": "/s/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.page.$pageSlug.tsx",
+      "line": 132,
+      "target": "/s/$slug/blog",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.page.$pageSlug.tsx",
+      "line": 281,
+      "target": "/s/$slug/page/$pageSlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.politikalar.tsx",
+      "line": 54,
+      "target": "/s/$slug/politika/$policySlug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.politikalar.tsx",
+      "line": 64,
+      "target": "/s/$slug/returns",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.politikalar.tsx",
+      "line": 65,
+      "target": "/s/$slug/privacy",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.products.tsx",
+      "line": 291,
+      "target": "/s/$slug",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.register.tsx",
+      "line": 199,
+      "target": "/s/$slug/terms",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.register.tsx",
+      "line": 203,
+      "target": "/s/$slug/privacy",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.register.tsx",
+      "line": 214,
+      "target": "/s/$slug/login",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/s.$slug.search.tsx",
+      "line": 161,
+      "target": "/s/$slug/search",
+      "status": "content_check_required"
+    },
+    {
+      "source": "src/routes/sayfa.$slug.tsx",
+      "line": 96,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/seo-ve-raporlama.tsx",
+      "line": 137,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/seo-ve-raporlama.tsx",
+      "line": 142,
+      "target": "/en-iyi-e-ticaret-altyapisi",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/seo-ve-raporlama.tsx",
+      "line": 195,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/seo-ve-raporlama.tsx",
+      "line": 200,
+      "target": "/pazaryeri-entegrasyonu",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/supplier.index.tsx",
+      "line": 53,
+      "target": "/tedarikci-giris",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/supplier.index.tsx",
+      "line": 56,
+      "target": "/supplier/panel",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/tedarikci-giris.tsx",
+      "line": 252,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/unauthorized.tsx",
+      "line": 41,
+      "target": "/stores",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/unauthorized.tsx",
+      "line": 44,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/__root.tsx",
+      "line": 38,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/routes/__root.tsx",
+      "line": 89,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/platform-home.tsx",
+      "line": 172,
+      "target": "#icerik",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/platform-home.tsx",
+      "line": 180,
+      "target": "/",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/platform-home.tsx",
+      "line": 211,
+      "target": "/stores",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/platform-home.tsx",
+      "line": 378,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/platform-home.tsx",
+      "line": 525,
+      "target": "/auth",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/platform-home.tsx",
+      "line": 600,
+      "target": "/tedarikci-giris",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/platform-home.tsx",
+      "line": 605,
+      "target": "/tedarikci-giris",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/platform-home.tsx",
+      "line": 638,
+      "target": "/mesajlar-giris",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/home-maker-auth-page.tsx",
+      "line": 377,
+      "target": "/forgot-password",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/home-maker-auth-page.tsx",
+      "line": 400,
+      "target": "/auth",
+      "status": "route_found"
+    }
+  ]
+}

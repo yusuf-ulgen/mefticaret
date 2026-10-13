@@ -666,6 +666,67 @@ export const removeStoreDomain = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const listStoreMembers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ storeId: z.guid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(context.supabase, data.storeId, context.userId);
+    const { readAllPages } = await import("@/lib/read-all-pages");
+    const { data: members } = await readAllPages((from, to) =>
+      context.supabase
+        .from("store_users")
+        .select("*")
+        .eq("store_id", data.storeId)
+        .order("id")
+        .range(from, to),
+    );
+    const ids = (members ?? []).map((member) => member.id);
+    const audits = ids.length
+      ? await readAllPages((from, to) =>
+          context.supabase
+            .from("audit_logs")
+            .select("entity_id, actor_id, created_at")
+            .eq("store_id", data.storeId)
+            .eq("action", "store.member.role_updated")
+            .in("entity_id", ids)
+            .order("created_at", { ascending: false })
+            .order("id")
+            .range(from, to),
+        )
+      : { data: [] };
+    const userIds = [
+      ...new Set([
+        ...(members ?? []).map((member) => member.user_id),
+        ...(audits.data ?? [])
+          .map((audit) => audit.actor_id)
+          .filter((id): id is string => Boolean(id)),
+      ]),
+    ];
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const profiles = new Map<string, { full_name: string | null; email: string | null }>();
+    for (let i = 0; i < userIds.length; i += 100) {
+      const result = await supabaseAdmin
+        .from("profiles")
+        .select("id, full_name, email")
+        .in("id", userIds.slice(i, i + 100));
+      if (result.error) throw new Error(result.error.message);
+      for (const profile of result.data ?? []) profiles.set(profile.id, profile);
+    }
+    return (members ?? []).map((member) => {
+      const profile = profiles.get(member.user_id);
+      const last = (audits.data ?? []).find((audit) => audit.entity_id === member.id);
+      const actor = last?.actor_id ? profiles.get(last.actor_id) : null;
+      return {
+        ...member,
+        displayName: profile?.full_name || profile?.email || "İsimsiz ekip üyesi",
+        email: profile?.email ?? null,
+        lastChangedAt: last?.created_at ?? null,
+        lastChangedBy: actor?.full_name || actor?.email || (last ? "Yetkili yönetici" : null),
+      };
+    });
+  });
+
 export const updateStoreMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
@@ -678,6 +739,15 @@ export const updateStoreMember = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
+    const current = await supabase
+      .from("store_users")
+      .select("id, store_id, role")
+      .eq("id", data.memberId)
+      .maybeSingle();
+    if (current.error) throw new Error(current.error.message);
+    if (!current.data) throw new Error("Ekip üyesi bulunamadı veya yetkiniz yok");
+    const { assertStoreManager } = await import("@/lib/store-access.server");
+    await assertStoreManager(supabase, current.data.store_id, context.userId);
     const { data: row, error } = await supabase
       .from("store_users")
       .update({ role: data.role })
@@ -687,5 +757,15 @@ export const updateStoreMember = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Yetkiniz yok veya mağaza sahibi değiştirilemez");
+    const { recordAudit } = await import("@/lib/audit.server");
+    await recordAudit(supabase, {
+      action: "store.member.role_updated",
+      storeId: row.store_id,
+      actorId: context.userId,
+      entity: "store_users",
+      entityId: row.id,
+      oldValue: { role: current.data.role },
+      newValue: { role: row.role },
+    });
     return row;
   });

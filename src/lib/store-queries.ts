@@ -1,3 +1,4 @@
+import { listStoreMembers } from "@/lib/stores.functions";
 import { queryOptions } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -122,18 +123,7 @@ export const storeDomainsQuery = (storeId: string) =>
   });
 
 export const storeMembersQuery = (storeId: string) =>
-  queryOptions({
-    queryKey: ["store-members", storeId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("store_users")
-        .select("*")
-        .eq("store_id", storeId)
-        .order("created_at", { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-  });
+  queryOptions({ queryKey: ["store-members", storeId], queryFn: () => listStoreMembers({ data: { storeId } }) });
 
 export const storeAuditQuery = (storeId: string) =>
   queryOptions({

@@ -1,5 +1,5 @@
 import { planPrice } from "@/lib/plan-price";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
@@ -230,11 +230,12 @@ function BillingPage() {
       description="Paket, aylık/yıllık abonelik, limit kullanımı ve faturalar."
     >
       <div className="space-y-8">
-        {requestedPlan && store?.plan_id !== requestedPlan.id ? (
+        {requestedPlan && (store?.plan_id !== requestedPlan.id || subscription?.billing_interval !== interval) ? (
           <p className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
             Kayıt sırasında seçilen paket: <strong>{requestedPlan.name}</strong> ·{" "}
             {BILLING_INTERVAL_LABELS[interval]}. Paket ve dönem seçiminiz korundu; etkinleştirmek
             için aşağıdaki ödeme adımını tamamlayın.
+            <Link to="/store/$storeId/support" params={{ storeId }} className="ml-2 underline">Paket için destek talebi aç</Link>
           </p>
         ) : null}
         {dunningState ? (

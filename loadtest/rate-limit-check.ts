@@ -16,7 +16,7 @@ const telemetryBurst = await burst("telemetry-burst-30", "/api/public/telemetry/
   body: JSON.stringify({ message: "loadtest rate limit probe", severity: "INFO", source: "loadtest" }),
 });
 
-const passed = apiBurst.summary.rateLimited > 0 || telemetryBurst.summary.rateLimited > 0;
+const passed = apiBurst.summary.rateLimited > 0 && telemetryBurst.summary.rateLimited > 0;
 console.log(passed ? "SONUÇ: hız sınırı devreye girdi" : "SONUÇ: hız sınırı tetiklenmedi (kontrol edin)");
 await writeReport("rate-limit-check", { apiBurst, telemetryBurst, passed });
 if (!passed) process.exitCode = 1;

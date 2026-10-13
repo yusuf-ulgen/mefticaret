@@ -4,6 +4,7 @@
  */
 
 export type ErrorSeverity = "CRITICAL" | "WARNING" | "INFO";
+import { APP_RELEASE } from "@/lib/build-version";
 
 export type RecordErrorInput = {
   severity?: ErrorSeverity;
@@ -61,7 +62,7 @@ function fingerprintOf(input: RecordErrorInput): string {
     .find((line) => line.startsWith("at "))
     ?.replace(/:\d+:\d+/g, "")
     .slice(0, 160);
-  const raw = `${input.source}|${normalizedMessage}|${frame ?? ""}`;
+  const raw = `${input.source}|${normalizedMessage}|${frame ?? ""}|${APP_RELEASE}|${input.meta?.["clientRelease"] ?? ""}`;
   // FNV-1a: Worker ortamında bağımlılık gerektirmeyen hızlı özet.
   let hash = 0x811c9dc5;
   for (let i = 0; i < raw.length; i++) {
@@ -88,7 +89,7 @@ export async function recordAppError(input: RecordErrorInput): Promise<void> {
       ...(input.route ? { _route: input.route } : {}),
       ...(input.userId ? { _user_id: input.userId } : {}),
       ...(input.storeId ? { _store_id: input.storeId } : {}),
-      _meta: (input.meta ?? {}) as never,
+      _meta: { ...input.meta, serverRelease: APP_RELEASE, component: input.source } as never,
     });
     if (error) return;
     const row = (Array.isArray(data) ? data[0] : data) as
@@ -391,6 +392,7 @@ export type ErrorLogRow = {
   first_seen_at: string;
   last_seen_at: string;
   resolved_at: string | null;
+  meta: { component: string | null; clientRelease: string | null; serverRelease: string | null; investigationStatus: string | null };
 };
 
 export async function listErrorLogs(input: {
@@ -403,7 +405,7 @@ export async function listErrorLogs(input: {
   let query = db
     .from("app_error_logs")
     .select(
-      "id, severity, source, message, stack, route, user_id, store_id, occurrences, first_seen_at, last_seen_at, resolved_at",
+      "id, severity, source, message, stack, route, user_id, store_id, occurrences, first_seen_at, last_seen_at, resolved_at, meta",
     )
     .order("last_seen_at", { ascending: false })
     .limit(Math.min(input.limit ?? 100, 300));
@@ -417,7 +419,11 @@ export async function listErrorLogs(input: {
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return (data ?? []) as unknown as ErrorLogRow[];
+  return (data ?? []).map((row) => {
+    const raw = row.meta && typeof row.meta === "object" && !Array.isArray(row.meta) ? row.meta : {};
+    const text = (key: string) => typeof raw[key] === "string" ? raw[key] as string : null;
+    return { ...row, meta: { component: text("component"), clientRelease: text("clientRelease"), serverRelease: text("serverRelease"), investigationStatus: text("investigationStatus") } };
+  }) as ErrorLogRow[];
 }
 
 /** Hatayı çözüldü / yeniden açık olarak işaretler. */

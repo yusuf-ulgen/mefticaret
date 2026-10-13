@@ -8,6 +8,8 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "check:links": "node scripts/check-public-links.mjs",
+    "verify:local": "node scripts/verify-local.mjs",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

@@ -98,11 +98,11 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       icon: Package,
       items: [
         { label: "Ürünler", to: p("catalog-v2"), icon: Package, keywords: "product varyant seçenek" },
-        { label: "Hızlı Güncelleme", to: p("quick-update"), icon: FileSpreadsheet, keywords: "toplu fiyat stok düzenle hızlı" },
+        { label: "Toplu Fiyat ve Stok", to: p("quick-update"), icon: FileSpreadsheet, keywords: "toplu fiyat stok düzenle hızlı güncelleme" },
         { label: "Kategoriler", to: p("collections-v2"), icon: Boxes, keywords: "koleksiyon kategori akıllı kural" },
         { label: "Stok Yönetimi", to: p("inventory"), icon: Warehouse, keywords: "stok depo" },
         { label: "Depolar & Şubeler", to: p("warehouses"), icon: Building2 },
-        { label: "Hızlı Güncelleme", to: p("pricing"), icon: Zap, keywords: "fiyat hızlı güncelle" },
+        { label: "Fiyatlandırma Kuralları", to: p("pricing"), icon: Zap, keywords: "fiyat hızlı güncelleme" },
         { label: "Toplu Güncelleme", to: p("import-export"), icon: FileSpreadsheet, keywords: "toplu csv excel" },
         { label: "Medya", to: p("media"), icon: Images, keywords: "görsel resim" },
         { label: "Barkod Etiketi", to: p("barcodes"), icon: Barcode },
@@ -281,6 +281,29 @@ export function storeNavGroups(storeId: string): StoreNavGroup[] {
       ],
     },
   ];
+}
+
+/** Ekranların işlevini değiştirmeden beş iş grubuna toplar. */
+export function storeTaskNavGroups(storeId: string): StoreNavGroup[] {
+  const groups: StoreNavGroup[] = [
+    { group: "Satış", icon: ShoppingBag, items: [] },
+    { group: "Katalog", icon: Package, items: [] },
+    { group: "Finans", icon: Wallet, items: [] },
+    { group: "Pazarlama", icon: Megaphone, items: [] },
+    { group: "Ayarlar", icon: Cog, items: [] },
+  ];
+  const finance = new Set(["finance", "ledger", "cashflow", "receivables", "profit", "tax", "gift-liability", "payment-notices", "settlements", "billing", "shipping-economics", "valuation"]);
+  const catalog = new Set(["stockout", "aging", "reorder", "vendors", "product-performance", "supplier-performance"]);
+  const settings = new Set(["policies", "navigation", "team-performance", "tasks", "health", "setup", "panels", "notifications", "jobs", "activity"]);
+  const seen = new Set<string>();
+  for (const original of storeNavGroups(storeId)) for (const item of original.items) {
+    if (seen.has(item.to)) continue;
+    seen.add(item.to);
+    const path = item.to.slice(`/store/${storeId}/`.length);
+    const destination = finance.has(path) ? "Finans" : catalog.has(path) || original.group === "Katalog" ? "Katalog" : settings.has(path) || original.group === "Genel Ayarlar" || original.group === "Uygulamalar" || original.group === "Operasyon Yönetimi" ? "Ayarlar" : original.group === "Pazarlama" || original.group === "İçerik" || ["marketing-consents", "customer-segments", "segments-v2", "retention"].includes(path) ? "Pazarlama" : "Satış";
+    groups.find((g) => g.group === destination)!.items.push({ ...item, keywords: `${item.keywords ?? ""} ${original.group}` });
+  }
+  return groups;
 }
 
 /** Panel üstünde gösterilen hızlı erişim kısayolları. */

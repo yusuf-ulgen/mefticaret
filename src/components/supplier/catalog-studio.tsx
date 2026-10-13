@@ -1,3 +1,4 @@
+import { QueryStatus } from "@/components/query-status";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Plus, Trash2 } from "lucide-react";
@@ -39,7 +40,7 @@ export function SupplierSellerStats({ supplierId }: { supplierId: string }) {
     onError: err,
   });
   const d = q.data;
-  if (!d) return q.isLoading ? <Loader2 className="mx-auto size-6 animate-spin" /> : null;
+  if (!d) return <QueryStatus label="Katalog istatistikleri" error={q.error} loading={q.isPending} hasData={false} onRetry={() => void q.refetch()} />;
   const stat = (label: string, value: string) => (
     <div className="rounded-xl border border-border bg-card p-3">
       <div className="text-xs uppercase text-muted-foreground">{label}</div>
@@ -104,7 +105,8 @@ function TopList({ title, rows }: { title: string; rows: [string, string][] }) {
 
 /* ------------------------------ Stüdyo ------------------------------ */
 
-type Item = Awaited<ReturnType<typeof studioListProducts>>["items"][number];
+export type StudioItem = Awaited<ReturnType<typeof studioListProducts>>["items"][number];
+type Item = StudioItem;
 
 export function SupplierCatalogStudio({ supplierId }: { supplierId: string }) {
   const qc = useQueryClient();
@@ -329,7 +331,7 @@ export function SupplierCatalogStudio({ supplierId }: { supplierId: string }) {
 
 type VariantRow = { size: string; color: string; barcode: string; stock: string; price: string };
 
-function ProductEditor({
+export function ProductEditor({
   supplierId,
   item,
   onClose,
@@ -344,9 +346,10 @@ function ProductEditor({
   const existing = item && item !== "new" ? item : null;
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-xl">
-        <SheetHeader>
+      <SheetContent side="right" className="h-[100dvh] w-full overflow-y-auto sm:max-w-xl">
+        <SheetHeader className="sticky top-0 z-20 flex-row items-center justify-between bg-background py-2 pr-8">
           <SheetTitle>{existing ? "Ürünü düzenle" : "Yeni ürün"}</SheetTitle>
+          <Button type="button" size="sm" variant="outline" onClick={onClose}>Kapat</Button>
         </SheetHeader>
         {open && (
           <EditorForm
@@ -393,7 +396,7 @@ function EditorForm({
   });
   const [variants, setVariants] = useState<VariantRow[]>([]);
   const detail = useQuery({
-    queryKey: ["studio-product", existing?.id],
+    queryKey: ["studio-product", supplierId, existing?.id],
     enabled: !!existing,
     queryFn: async () => {
       const d = await getDetail({ data: { supplierId, id: existing!.id } });
@@ -453,6 +456,13 @@ function EditorForm({
     onError: err,
   });
   if (existing && detail.isLoading) return <Loader2 className="mx-auto mt-6 size-6 animate-spin" />;
+  if (existing && detail.isError)
+    return (
+      <div role="alert" className="space-y-3 p-4">
+        <p>{detail.error.message}</p>
+        <Button onClick={() => void detail.refetch()}>Tekrar dene</Button>
+      </div>
+    );
   const field = (label: string, k: keyof typeof f, type = "text") => (
     <div className="space-y-1">
       <Label htmlFor={`${formId}-${k}`}>{label}</Label>
@@ -524,7 +534,7 @@ function EditorForm({
           </Button>
         </div>
         {variants.map((v, i) => (
-          <div key={i} className="grid grid-cols-[1fr_1fr_1fr_70px_80px_auto] gap-1">
+          <div key={i} className="grid grid-cols-2 gap-2 rounded-lg border p-2 sm:grid-cols-[1fr_1fr_1fr_70px_80px_auto] sm:border-0 sm:p-0">
             {(["size", "color", "barcode", "stock", "price"] as const).map((k) => (
               <div key={k}>
                 <Label className="text-[10px]" htmlFor={`${formId}-variant-${i}-${k}`}>
@@ -583,7 +593,7 @@ function EditorForm({
             : "Ürün kaydedilemedi. Alanları kontrol edin."}
         </p>
       ) : null}
-      <Button type="submit" className="w-full rounded-full" disabled={m.isPending}>
+      <Button type="submit" className="sticky bottom-0 z-10 w-full rounded-full shadow-lg" disabled={m.isPending}>
         {m.isPending && <Loader2 className="size-4 animate-spin" />} Kaydet
       </Button>
     </form>

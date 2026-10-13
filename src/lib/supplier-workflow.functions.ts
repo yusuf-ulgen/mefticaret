@@ -36,6 +36,7 @@ export const supplierSearchCatalog = createServerFn({ method: "POST" })
         page: z.number().int().min(0).max(100000).default(0),
         category: z.string().max(200).default(""),
         sort: z.enum(["recent", "price", "stock"]).default("recent"),
+        filter: z.enum(["all", "visible", "hidden", "out"]).default("all"),
       })
       .parse(data),
   )
@@ -79,6 +80,8 @@ export const supplierWorkflowOverview = createServerFn({ method: "POST" })
         lastStatus: (feed.last_status as string | null) ?? null,
         lastError: (feed.last_error as string | null) ?? null,
         stats: (feed.stats ?? {}) as {
+          nextOffset?: number;
+          phase?: string; startedAt?: string; finishedAt?: string; lastSuccessAt?: string; processed?: number; remaining?: number | null; failedFields?: number; failedUpdates?: number; syncError?: string | null; errors?: string[]; autoImported?: number; autoRemaining?: number;
           totalRows?: number;
           created?: number;
           updated?: number;
@@ -318,12 +321,12 @@ export const supplierRunFeed = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ supplierId: z.guid(), feedId: z.guid() }).parse(data))
   .handler(async ({ data, context }) => {
     const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
-    const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+    const { consumeRateLimit, RATE_LIMITS, rateLimitMessage } = await import("@/lib/rate-limit.server");
     const limit = await consumeRateLimit(
       `supplier_feed:${context.userId}`,
       RATE_LIMITS.import_trigger,
     );
-    if (!limit.allowed) throw new Error("Çok fazla deneme. Bir dakika sonra tekrar deneyin.");
+    if (!limit.allowed) throw new Error(rateLimitMessage(limit));
     const db = await admin();
     const { data: feed } = await db
       .from("supplier_xml_feeds")
@@ -334,6 +337,19 @@ export const supplierRunFeed = createServerFn({ method: "POST" })
     if (!feed) throw new Error("Besleme bulunamadı");
     const { runSupplierFeed } = await import("@/lib/supplier-workflow.server");
     return runSupplierFeed(db, feed, supplier.currency || "TRY");
+  });
+
+/** Kesilmiş HTTP işi açık kullanıcı eylemiyle tekrar denenebilir hale getirilir. */
+export const supplierRecoverFeed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ supplierId: z.guid(), feedId: z.guid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const supplier = await assertSupplier(context.supabase, context.userId, data.supplierId);
+    const db = await admin();
+    const result = await db.from("supplier_xml_feeds").update({ last_status: "failed", last_error: "Kesilmiş çalışma kullanıcı tarafından tekrar denemeye açıldı." }).eq("id", data.feedId).eq("supplier_id", supplier.id).eq("last_status", "running").lte("last_run_at", new Date(Date.now() - 10 * 60_000).toISOString()).select("id").maybeSingle();
+    if (result.error) throw new Error(result.error.message);
+    if (!result.data) throw new Error("Çalışma henüz kurtarma süresini aşmadı veya zaten tamamlandı. Durumu yenileyin.");
+    return { recovered: true };
   });
 
 const paymentSchema = z.discriminatedUnion("provider", [

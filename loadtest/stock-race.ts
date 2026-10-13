@@ -37,7 +37,7 @@ async function attempt(index: number) {
 console.log(`${concurrency} eşzamanlı sipariş denemesi · varyant ${variantId} · ${BASE_URL}`);
 const results = await Promise.all(Array.from({ length: concurrency }, (_, index) => attempt(index)));
 const succeeded = results.filter((result) => result.status >= 200 && result.status < 300);
-const stockErrors = results.filter((result) => /stok/i.test(result.body));
+const stockErrors = results.filter((result) => result.status === 409 && /stok|insufficient_stock/i.test(result.body));
 
 console.log(
   JSON.stringify(
@@ -46,7 +46,7 @@ console.log(
     2,
   ),
 );
-const passed = succeeded.length <= 1;
-console.log(passed ? "SONUÇ: aşırı satış yok" : "SONUÇ: AŞIRI SATIŞ tespit edildi");
+const passed = succeeded.length === 1 && stockErrors.length === concurrency - 1;
+console.log(passed ? "SONUÇ: tek stok için bir sipariş başarılı, diğerleri stok nedeniyle reddedildi" : "SONUÇ: stok garantisi doğrulanamadı; başarısız veya bilinmeyen yanıtlar incelenmeli");
 await writeReport("stock-race", { results, passed });
 if (!passed) process.exitCode = 1;

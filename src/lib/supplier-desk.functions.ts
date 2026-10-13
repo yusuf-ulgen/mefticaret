@@ -21,10 +21,10 @@ const assertSupplier = async (supabase: any, userId: string, supplierId?: string
 
 /** İçe aktarma tetikleyicileri: kullanıcı başına 10 istek/dakika. */
 const assertImportRate = async (userId: string) => {
-  const { consumeRateLimit, RATE_LIMITS } = await import("@/lib/rate-limit.server");
+  const { consumeRateLimit, RATE_LIMITS, rateLimitMessage } = await import("@/lib/rate-limit.server");
   const result = await consumeRateLimit(`supplier_import:${userId}`, RATE_LIMITS.import_trigger);
   if (!result.allowed) {
-    throw new Error("Çok fazla içe aktarma denemesi. Lütfen bir dakika sonra tekrar deneyin.");
+    throw new Error(rateLimitMessage(result));
   }
 };
 
@@ -149,6 +149,25 @@ export const supplierDeskOverview = createServerFn({ method: "POST" })
       payouts: ledger.payouts,
       ...workspace,
     };
+  });
+
+/** Kaybolmuş geçmiş ilişkiyi tahmin ederek onarmaz; yalnız yetkili tedarikçinin envanteri. */
+export const supplierOwnershipReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ supplierId: z.guid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supplier } = await assertSupplier(context.supabase, context.userId, data.supplierId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { loadSupplierDeskOrders } = await import("@/lib/supplier-desk.server");
+    const gaps: { orderId: string; orderNumber: string; dropshipOrderId: string; createdAt: string; ownedItems: number }[] = [];
+    let scanned = 0;
+    for (;;) {
+      const rows = await loadSupplierDeskOrders(supabaseAdmin as never, [supplier.id], 100, scanned);
+      if (!rows.length) break;
+      scanned += rows.length;
+      for (const row of rows) if (row.relationIssue) gaps.push({ orderId: row.orderId, orderNumber: row.orderNumber, dropshipOrderId: row.dropshipOrderId, createdAt: row.orderCreatedAt, ownedItems: row.items.length });
+    }
+    return { generatedAt: new Date().toISOString(), scanned, gaps };
   });
 
 /** Tedarikçinin kendi ürünlerinden gerçek RFQ teklifi oluşturur. */

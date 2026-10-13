@@ -1,3 +1,4 @@
+import { hasProductImage } from "@/lib/product-seo-data";
 import { readAllPages } from "@/lib/read-all-pages";
 /**
  * SEO Audit Engine — mağaza içeriğini gerçek veriyle tarar, kategori bazlı
@@ -160,7 +161,7 @@ export async function runStoreSeoAudit(
     readAllPages((from, to) =>
       db
         .from("product_images")
-        .select("id, product_id, url, alt")
+        .select("id, product_id, url, storage_path, alt")
         .eq("store_id", storeId)
         .order("id")
         .range(from, to),
@@ -362,6 +363,7 @@ export async function runStoreSeoAudit(
   }[];
   const imagesByProduct = new Map<string, typeof images>();
   for (const image of images) {
+    if (!hasProductImage(image)) continue;
     const list = imagesByProduct.get(image.product_id) ?? [];
     list.push(image);
     imagesByProduct.set(image.product_id, list);

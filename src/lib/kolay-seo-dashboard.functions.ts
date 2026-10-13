@@ -1,3 +1,5 @@
+import { readAllPages } from "@/lib/read-all-pages";
+import { productSeoData, hasProductImage } from "@/lib/product-seo-data";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -13,7 +15,11 @@ const GSC = "https://connector-gateway.lovable.dev/google_search_console";
 
 type Seo = Record<string, unknown>;
 const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-const plain = (v: string) => v.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+const plain = (v: string) =>
+  v
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 export type ProductSeoRow = {
   id: string;
@@ -29,10 +35,14 @@ export type ProductSeoRow = {
   issues: string[];
 };
 
-function scoreProduct(p: { title: string; description: string | null; seo: Seo }, imageCount: number) {
+function scoreProduct(
+  p: { title: string; description: string | null; seo: Seo },
+  imageCount: number,
+) {
   const issues: string[] = [];
-  const title = str(p.seo["title"]) || p.title;
-  const desc = str(p.seo["description"]) || plain(p.description ?? "");
+  const source = productSeoData(p);
+  const title = source.title;
+  const desc = source.description;
   let meta = 0;
   if (str(p.seo["title"])) meta += 20;
   else issues.push("Özel meta başlık yok");
@@ -46,14 +56,18 @@ function scoreProduct(p: { title: string; description: string | null; seo: Seo }
   let og = 0;
   if (title) og += 25;
   if (desc.length >= 50) og += 25;
-  if (imageCount > 0 || str(p.seo["ogImage"])) og += 35;
+  if (imageCount > 0 || source.ogImage) og += 35;
   else issues.push("Paylaşım görseli yok (ürün fotoğrafı ekleyin)");
   if (imageCount > 1) og += 15;
-  return { meta, og, issues, title: str(p.seo["title"]), desc: str(p.seo["description"]) };
+  return { meta, og, issues, title: source.customTitle, desc: source.customDescription };
 }
 
 async function storeSlug(supabase: { from: (t: "stores") => any }, storeId: string) {
-  const { data, error } = await supabase.from("stores").select("id, slug").eq("id", storeId).maybeSingle();
+  const { data, error } = await supabase
+    .from("stores")
+    .select("id, slug")
+    .eq("id", storeId)
+    .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Mağaza bulunamadı veya yetkiniz yok");
   return String(data.slug);
@@ -61,26 +75,56 @@ async function storeSlug(supabase: { from: (t: "stores") => any }, storeId: stri
 
 export const listProductSeoScores = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ storeId: z.guid() }).parse(d))
+  .inputValidator((d) =>
+    z
+      .object({
+        storeId: z.guid(),
+        page: z.number().int().min(0).max(100000).default(0),
+        search: z.string().max(100).default(""),
+      })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const slug = await storeSlug(supabase, data.storeId);
-    const [{ data: products, error }, { data: images }] = await Promise.all([
-      supabase
-        .from("products")
-        .select("id, title, slug, description, seo, status")
-        .eq("store_id", data.storeId)
-        .order("created_at", { ascending: false })
-        .limit(200),
-      supabase.from("product_images").select("product_id").eq("store_id", data.storeId),
-    ]);
+    const pageSize = 25;
+    let query = supabase
+      .from("products")
+      .select("id, title, slug, description, seo, status", { count: "exact" })
+      .eq("store_id", data.storeId);
+    const term = data.search.trim().replace(/[%,()]/g, " ");
+    if (term) query = query.or(`title.ilike.%${term}%,slug.ilike.%${term}%`);
+    const {
+      data: products,
+      count,
+      error,
+    } = await query
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(data.page * pageSize, (data.page + 1) * pageSize - 1);
     if (error) throw new Error(error.message);
+    const ids = (products ?? []).map((p) => p.id);
+    const { data: images } = ids.length
+      ? await readAllPages((from, to) =>
+          supabase
+            .from("product_images")
+            .select("id, product_id, url, storage_path")
+            .eq("store_id", data.storeId)
+            .in("product_id", ids)
+            .order("id")
+            .range(from, to),
+        )
+      : { data: [] };
     const counts = new Map<string, number>();
-    for (const img of images ?? []) counts.set(img.product_id, (counts.get(img.product_id) ?? 0) + 1);
+    for (const img of images ?? [])
+      if (hasProductImage(img)) counts.set(img.product_id, (counts.get(img.product_id) ?? 0) + 1);
 
     const rows: ProductSeoRow[] = (products ?? []).map((p) => {
       const seo = (p.seo ?? {}) as Seo;
-      const s = scoreProduct({ title: p.title, description: p.description, seo }, counts.get(p.id) ?? 0);
+      const s = scoreProduct(
+        { title: p.title, description: p.description, seo },
+        counts.get(p.id) ?? 0,
+      );
       const ps = seo["pagespeed"] as ProductSeoRow["speed"] | undefined;
       return {
         id: p.id,
@@ -96,7 +140,13 @@ export const listProductSeoScores = createServerFn({ method: "GET" })
         issues: s.issues,
       };
     });
-    return { slug, rows, pagespeedReady: Boolean(process.env["PAGESPEED_API_KEY"]) };
+    return {
+      slug,
+      rows,
+      total: count ?? 0,
+      pageSize,
+      pagespeedReady: Boolean(process.env["PAGESPEED_API_KEY"]),
+    };
   });
 
 async function patchSeo(supabase: any, storeId: string, productId: string, patch: Seo) {
@@ -175,7 +225,10 @@ export const suggestProductMeta = createServerFn({ method: "POST" })
       taskKey: "product_meta",
       values: {
         subject: product.title,
-        details: [product.product_type, plain(product.description ?? "")].filter(Boolean).join(" — ").slice(0, 800),
+        details: [product.product_type, plain(product.description ?? "")]
+          .filter(Boolean)
+          .join(" — ")
+          .slice(0, 800),
       },
     });
     const title = /BAŞLIK:\s*(.+)/i.exec(result.text)?.[1]?.trim() ?? "";
@@ -217,26 +270,43 @@ export const getStoreSearchPerformance = createServerFn({ method: "GET" })
 
     const sitesRes = await fetch(`${GSC}/webmasters/v3/sites`, { headers });
     if (!sitesRes.ok) return { status: "unavailable" as const, rows: [], totals: null };
-    const { siteEntry = [] } = (await sitesRes.json()) as { siteEntry?: { siteUrl: string; permissionLevel?: string }[] };
-    const site = siteEntry.find((e) => e.siteUrl === `${SITE}/` && e.permissionLevel !== "siteUnverifiedUser");
+    const { siteEntry = [] } = (await sitesRes.json()) as {
+      siteEntry?: { siteUrl: string; permissionLevel?: string }[];
+    };
+    const site = siteEntry.find(
+      (e) => e.siteUrl === `${SITE}/` && e.permissionLevel !== "siteUnverifiedUser",
+    );
     if (!site) return { status: "unavailable" as const, rows: [], totals: null };
 
     const end = new Date();
     const start = new Date(end.getTime() - 28 * 86400000);
     const day = (d: Date) => d.toISOString().slice(0, 10);
-    const res = await fetch(`${GSC}/webmasters/v3/sites/${encodeURIComponent(site.siteUrl)}/searchAnalytics/query`, {
-      method: "POST",
-      headers: { ...headers, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        startDate: day(start),
-        endDate: day(end),
-        dimensions: ["page"],
-        dimensionFilterGroups: [{ filters: [{ dimension: "page", operator: "contains", expression: `/s/${slug}` }] }],
-        rowLimit: 50,
-      }),
-    });
+    const res = await fetch(
+      `${GSC}/webmasters/v3/sites/${encodeURIComponent(site.siteUrl)}/searchAnalytics/query`,
+      {
+        method: "POST",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          startDate: day(start),
+          endDate: day(end),
+          dimensions: ["page"],
+          dimensionFilterGroups: [
+            { filters: [{ dimension: "page", operator: "contains", expression: `/s/${slug}` }] },
+          ],
+          rowLimit: 50,
+        }),
+      },
+    );
     if (!res.ok) return { status: "unavailable" as const, rows: [], totals: null };
-    const body = (await res.json()) as { rows?: { keys: string[]; clicks: number; impressions: number; ctr: number; position: number }[] };
+    const body = (await res.json()) as {
+      rows?: {
+        keys: string[];
+        clicks: number;
+        impressions: number;
+        ctr: number;
+        position: number;
+      }[];
+    };
     const rows = (body.rows ?? []).map((r) => ({
       page: r.keys[0] ?? "",
       clicks: r.clicks,

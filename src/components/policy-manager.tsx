@@ -54,7 +54,10 @@ export function PolicyManager({ storeId }: { storeId: string | null }) {
     if (!selected && policies.data?.[0]) setSelected(policies.data[0].id);
   }, [policies.data, selected]);
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ["policies", storeId] });
+  const refresh = () => {
+    void qc.invalidateQueries({ queryKey: ["store-readiness", storeId] });
+    return qc.invalidateQueries({ queryKey: ["policies", storeId] });
+  };
 
   return (
     <div className="space-y-4">

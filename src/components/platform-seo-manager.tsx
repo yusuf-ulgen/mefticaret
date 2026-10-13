@@ -1,3 +1,5 @@
+import { PlatformSitemapInventory } from "@/components/seo/sitemap-inventory";
+import { PlatformSlugInventory } from "@/components/seo/slug-inventory";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -81,6 +83,8 @@ export function PlatformSeoManager() {
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
+      <div className="lg:col-span-2"><PlatformSitemapInventory /></div>
+      <div className="lg:col-span-2"><PlatformSlugInventory /></div>
       <Card className="p-4">
         <div className="flex flex-wrap gap-1.5">
           {(["all", "home", "page", "post"] as Filter[]).map((item) => (

@@ -88,6 +88,7 @@ export default defineConfig({
     prerender: { enabled: true, autoStaticPathsDiscovery: false, crawlLinks: false },
   },
   vite: {
+    define: { __MEFTI_RELEASE__: JSON.stringify(`${process.env["CF_PAGES_COMMIT_SHA"] ?? process.env["BUILD_ID"] ?? "local"}:${new Date().toISOString()}`) },
     // Excel okuyucu tarayıcıda gerektiğinde yüklenir. Önceden paketlenmiş
     // geliştirme önbelleği sürüm değişimlerinde eski parça adlarına bağlanıp
     // sayfayı boş bırakabildiği için doğrudan Vite üzerinden sunulur.

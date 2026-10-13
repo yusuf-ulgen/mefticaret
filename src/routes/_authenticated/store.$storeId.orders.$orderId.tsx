@@ -1,3 +1,4 @@
+import { OrderFinancialTrail } from "@/components/orders/financial-trail";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -343,6 +344,7 @@ function OrderDetailPage() {
       </div>
 
       <div className="mb-6">
+        <OrderFinancialTrail storeId={storeId} orderId={order.id} />
         <OrderRefundHistory storeId={storeId} orderId={order.id} />
       </div>
 

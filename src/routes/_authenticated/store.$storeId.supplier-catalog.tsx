@@ -1,3 +1,4 @@
+import { CatalogImportPreview } from "@/components/supplier-catalog/import-preview";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -41,6 +42,7 @@ function SupplierCatalogPage() {
   const listSuppliers = useServerFn(listCatalogSuppliers);
   const listProducts = useServerFn(listCatalogProducts);
   const runImport = useServerFn(importCatalogProducts);
+  const [pendingImport, setPendingImport] = useState<string[] | null>(null);
 
   const [supplierId, setSupplierId] = useState<string>("");
   const [search, setSearch] = useState("");
@@ -83,6 +85,7 @@ function SupplierCatalogPage() {
   const importMut = useMutation({
     mutationFn: (ids: string[]) => runImport({ data: { storeId, ids, markup: Math.max(0, Number(markup) || 0) } }),
     onSuccess: (res) => {
+      setPendingImport(null);
       toast.success(`${res.imported} ürün mağazanıza aktarıldı${res.skipped ? `, ${res.skipped} zaten vardı` : ""}`);
       if (res.failed.length) toast.error(`${res.failed.length} ürün aktarılamadı: ${res.failed[0]}`);
       setSelected(new Set());
@@ -227,7 +230,7 @@ function SupplierCatalogPage() {
                         Mağazada
                       </Link>
                     ) : (
-                      <Button size="sm" className="rounded-full" disabled={importMut.isPending} onClick={() => importMut.mutate([item.id])}>
+                      <Button size="sm" className="rounded-full" disabled={importMut.isPending} onClick={() => setPendingImport([item.id])}>
                         Mağazaya aktar
                       </Button>
                     )}
@@ -270,7 +273,7 @@ function SupplierCatalogPage() {
             <Button
               className="flex-1 rounded-full"
               disabled={!selected.size || importMut.isPending}
-              onClick={() => importMut.mutate([...selected])}
+              onClick={() => setPendingImport([...selected])}
             >
               {importMut.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
               Seçilenleri aktar ({selected.size})
@@ -279,7 +282,8 @@ function SupplierCatalogPage() {
         </div>
       )}
 
-      <ProductSheet storeId={storeId} id={detailId} onClose={() => setDetailId(null)} onImport={(id) => importMut.mutate([id])} busy={importMut.isPending} />
+      <ProductSheet storeId={storeId} id={detailId} onClose={() => setDetailId(null)} onImport={(id) => setPendingImport([id])} busy={importMut.isPending} />
+      <CatalogImportPreview storeId={storeId} ids={pendingImport} markup={Math.max(0, Number(markup) || 0)} busy={importMut.isPending} onClose={() => setPendingImport(null)} onConfirm={(ids) => importMut.mutate(ids)} />
     </AppShell>
   );
 }

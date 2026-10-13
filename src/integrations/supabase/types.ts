@@ -12831,7 +12831,7 @@ export type Database = {
         Row: { old_slug: string; post_id: string; created_at: string };
         Insert: { old_slug: string; post_id: string; created_at?: string };
         Update: { old_slug?: string; post_id?: string; created_at?: string };
-        Relationships: [];
+        Relationships: [{ foreignKeyName: "platform_post_redirects_post_id_fkey"; columns: ["post_id"]; isOneToOne: false; referencedRelation: "platform_posts"; referencedColumns: ["id"] }];
       };
       platform_posts: {
         Row: {
@@ -23957,6 +23957,10 @@ export type Database = {
       };
     };
     Functions: {
+      customer_page_summaries: {
+        Args: { p_store_id: string; p_customer_ids: string[] };
+        Returns: { customer_id: string; orders_count: number; total_spent: number; last_order_at: string | null; currency: string }[];
+      };
       claim_order_refund: { Args: { p_refund_id: string; p_actor: string }; Returns: Json };
       claim_qnbpay_refund: {
         Args: { p_transaction_id: string; p_amount: number; p_request_key: string };

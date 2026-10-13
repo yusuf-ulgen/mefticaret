@@ -1,3 +1,4 @@
+import { downloadCsv, toCsv } from "@/lib/csv";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -22,7 +23,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { SmartImage } from "@/components/smart-image";
 import { printCargoLabels } from "@/components/supplier/cargo-label";
-import { SupplierCatalogStudio, SupplierSellerStats } from "@/components/supplier/catalog-studio";
+import { SupplierSellerStats } from "@/components/supplier/catalog-studio";
 import {
   SupplierAnalytics,
   SupplierCatalog,
@@ -47,6 +48,7 @@ import { formatDate, formatMoney } from "@/lib/mefti";
 import { LEDGER_STATUS_LABELS, PAYOUT_STATUS_LABELS } from "@/lib/supplier-import";
 import {
   supplierDeskOverview,
+  supplierOwnershipReport,
   supplierDeskRequestPayout,
   supplierDeskSaveBank,
 } from "@/lib/supplier-desk.functions";
@@ -93,6 +95,8 @@ function SupplierPortalPage() {
   const client = useQueryClient();
   const load = useServerFn(supplierDeskOverview);
   const update = useServerFn(supplierPortalUpdateOrder);
+  const loadOwnership = useServerFn(supplierOwnershipReport);
+  const ownershipReport = useMutation({ mutationFn: (supplierId: string) => loadOwnership({ data: { supplierId } }), onSuccess: (report) => { downloadCsv(`siparis-sahiplik-${report.generatedAt.slice(0, 10)}.csv`, toCsv(["Sipariş", "Sipariş kimliği", "Tedarikçi siparişi", "Tarih", "Doğrulanmış kalem"], report.gaps.map((row) => [row.orderNumber, row.orderId, row.dropshipOrderId, row.createdAt, String(row.ownedItems)]))); toast.success(`${report.scanned} sipariş tarandı; ${report.gaps.length} ilişki kontrolü gerekli`); }, onError: (error: Error) => toast.error(error.message) });
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["supplier-desk"],
@@ -200,7 +204,7 @@ function SupplierPortalPage() {
           </div>
         ) : !data ? null : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0 px-3 py-4 sm:p-6">
-            <TabsList className="mb-4 hidden w-full grid-cols-5 bg-card sm:grid">
+            <TabsList className="mb-4 hidden h-auto w-full grid-cols-3 bg-card sm:grid lg:grid-cols-6">
               {navigation.map((item) => (
                 <TabsTrigger key={item.value} value={item.value} className="gap-2">
                   <item.icon className="size-4" aria-hidden />
@@ -211,16 +215,6 @@ function SupplierPortalPage() {
 
             <TabsContent value="profile" className="mt-0 space-y-4">
               <ProfileSummary data={data} openOrders={openOrders.length} />
-              {supplierId ? (
-                <SupplierCommercialDesk
-                  supplierId={supplierId}
-                  products={data.products}
-                  rfqs={data.rfqs}
-                  credit={data.credit}
-                  transactions={data.transactions}
-                  onChanged={refresh}
-                />
-              ) : null}
               <FinancePanel data={data} onSaved={refresh} />
               {workflow.data ? (
                 <SupplierPaymentSettings
@@ -236,7 +230,7 @@ function SupplierPortalPage() {
               {workflow.data ? (
                 <SupplierPurchaseOrders supplierId={supplierId} data={workflow.data} />
               ) : null}
-              <h2 className="pt-2 text-sm font-medium">Müşteri siparişleri (dropshipping)</h2>
+              <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="pt-2 text-sm font-medium">Müşteri siparişleri (dropshipping)</h2><Button variant="outline" size="sm" disabled={ownershipReport.isPending || !supplierId} onClick={() => ownershipReport.mutate(supplierId)}>{ownershipReport.isPending ? "Geçmiş taranıyor…" : "Eksik sahiplik raporu (CSV)"}</Button></div>
               <div className="grid grid-cols-4 gap-1 rounded-lg bg-card p-1 shadow-sm">
                 {[
                   ["pending", "Bekleyen"],
@@ -275,7 +269,6 @@ function SupplierPortalPage() {
 
             <TabsContent value="products" className="mt-0 space-y-4">
               {supplierId ? <SupplierSellerStats supplierId={supplierId} /> : null}
-              {supplierId ? <SupplierCatalogStudio supplierId={supplierId} /> : null}
               {workflow.data ? (
                 <SupplierXmlFeeds supplierId={supplierId} data={workflow.data} />
               ) : null}
@@ -284,6 +277,16 @@ function SupplierPortalPage() {
                 supplierId={supplierId || undefined}
                 onChanged={refresh}
               />
+              {supplierId ? (
+                <SupplierCommercialDesk
+                  supplierId={supplierId}
+                  products={data.products}
+                  rfqs={data.rfqs}
+                  credit={data.credit}
+                  transactions={data.transactions}
+                  onChanged={refresh}
+                />
+              ) : null}
             </TabsContent>
 
             <TabsContent value="changes" className="mt-0 space-y-4">

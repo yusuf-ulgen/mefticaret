@@ -1,3 +1,4 @@
+import { QueryStatus } from "@/components/query-status";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -10,10 +11,30 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { createPayout, updatePayoutStatus } from "@/lib/finance.functions";
 import {
   LEDGER_KIND_LABELS,
@@ -37,10 +58,14 @@ export const Route = createFileRoute("/_authenticated/store/$storeId/finance")({
       { title: "Finans & Hakediş — Mefticaret" },
       {
         name: "description",
-        content: "Satış, kargo, indirim, komisyon ve iade kayıtlarını içeren finans defteri ile hakediş dönemleri.",
+        content:
+          "Satış, kargo, indirim, komisyon ve iade kayıtlarını içeren finans defteri ile hakediş dönemleri.",
       },
       { property: "og:title", content: "Finans & Hakediş — Mefticaret" },
-      { property: "og:description", content: "Mağazanın net hakedişini ve finans hareketlerini takip et." },
+      {
+        property: "og:description",
+        content: "Mağazanın net hakedişini ve finans hareketlerini takip et.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -58,8 +83,18 @@ function FinancePage() {
   const [open, setOpen] = useState(false);
 
   const { data: store } = useQuery(storeQuery(storeId));
-  const { data: ledger, isLoading } = useQuery(ledgerQuery(storeId, days));
-  const { data: payouts } = useQuery(payoutsQuery(storeId));
+  const {
+    data: ledger,
+    isLoading,
+    error: ledgerError,
+    refetch: retryLedger,
+  } = useQuery(ledgerQuery(storeId, days));
+  const {
+    data: payouts,
+    isPending: payoutsPending,
+    error: payoutsError,
+    refetch: retryPayouts,
+  } = useQuery(payoutsQuery(storeId));
 
   const createFn = useServerFn(createPayout);
   const statusFn = useServerFn(updatePayoutStatus);
@@ -92,8 +127,10 @@ function FinancePage() {
   });
 
   const setStatus = useMutation({
-    mutationFn: (input: { payoutId: string; status: "pending" | "processing" | "paid" | "failed" }) =>
-      statusFn({ data: { storeId, ...input } }),
+    mutationFn: (input: {
+      payoutId: string;
+      status: "pending" | "processing" | "paid" | "failed";
+    }) => statusFn({ data: { storeId, ...input } }),
     onSuccess: () => {
       toast.success("Hakediş durumu güncellendi");
       invalidate();
@@ -102,8 +139,16 @@ function FinancePage() {
   });
 
   const cards = [
-    { label: `Brüt gelir (${days} gün)`, value: formatMoney(summary.credit, currency), icon: ArrowUpRight },
-    { label: "Kesinti & indirim", value: formatMoney(summary.debit, currency), icon: ArrowDownRight },
+    {
+      label: `Brüt gelir (${days} gün)`,
+      value: formatMoney(summary.credit, currency),
+      icon: ArrowUpRight,
+    },
+    {
+      label: "Kesinti & indirim",
+      value: formatMoney(summary.debit, currency),
+      icon: ArrowDownRight,
+    },
     { label: "Net hakediş", value: formatMoney(summary.net, currency), icon: Wallet },
     { label: "Platform komisyonu", value: formatMoney(summary.fees, currency), icon: Receipt },
   ];
@@ -117,7 +162,12 @@ function FinancePage() {
         <div className="flex items-center gap-2">
           <div className="flex gap-1 rounded-lg border border-border/60 p-1">
             {RANGES.map((range) => (
-              <Button key={range} size="sm" variant={days === range ? "default" : "ghost"} onClick={() => setDays(range)}>
+              <Button
+                key={range}
+                size="sm"
+                variant={days === range ? "default" : "ghost"}
+                onClick={() => setDays(range)}
+              >
                 {range}g
               </Button>
             ))}
@@ -129,11 +179,12 @@ function FinancePage() {
                 Dönem kapat
               </Button>
             </SheetTrigger>
-            <SheetContent className="w-full sm:max-w-md">
+            <SheetContent className="h-[100dvh] w-full overflow-y-auto sm:max-w-md">
               <SheetHeader>
                 <SheetTitle>Hakediş dönemi kapat</SheetTitle>
                 <SheetDescription>
-                  Seçilen tarih aralığındaki finans kayıtları toplanır ve yeni bir hakediş kaydı oluşturulur.
+                  Seçilen tarih aralığındaki finans kayıtları toplanır ve yeni bir hakediş kaydı
+                  oluşturulur.
                 </SheetDescription>
               </SheetHeader>
               <div className="mt-6 space-y-4">
@@ -164,7 +215,11 @@ function FinancePage() {
                     placeholder="PAYOUT-2026-08"
                   />
                 </div>
-                <Button className="w-full" disabled={close.isPending} onClick={() => close.mutate()}>
+                <Button
+                  className="w-full"
+                  disabled={close.isPending}
+                  onClick={() => close.mutate()}
+                >
                   {close.isPending ? "Hesaplanıyor…" : "Dönemi kapat"}
                 </Button>
               </div>
@@ -173,6 +228,13 @@ function FinancePage() {
         </div>
       }
     >
+      <QueryStatus
+        label="Finans defteri"
+        error={ledgerError}
+        loading={isLoading}
+        hasData={ledger !== undefined}
+        onRetry={() => void retryLedger()}
+      />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
           <div key={card.label} className="surface-card p-4">
@@ -181,7 +243,13 @@ function FinancePage() {
               <card.icon className="size-4 text-brand-foreground" />
             </div>
             <div className="mt-2 font-display text-2xl font-semibold">
-              {isLoading ? <Skeleton className="h-7 w-24" /> : card.value}
+              {isLoading ? (
+                <Skeleton className="h-7 w-24" />
+              ) : ledger === undefined ? (
+                "—"
+              ) : (
+                card.value
+              )}
             </div>
           </div>
         ))}
@@ -189,12 +257,15 @@ function FinancePage() {
 
       <section className="surface-card p-6">
         <h2 className="font-display text-lg font-semibold">Kalem kırılımı</h2>
-        {summary.byKind.length === 0 ? (
+        {ledger === undefined ? null : summary.byKind.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">Bu dönemde finans hareketi yok.</p>
         ) : (
           <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {summary.byKind.map(([kind, amount]) => (
-              <li key={kind} className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-sm">
+              <li
+                key={kind}
+                className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-sm"
+              >
                 <span>{LEDGER_KIND_LABELS[kind] ?? kind}</span>
                 <span className="text-muted-foreground">{formatMoney(amount, currency)}</span>
               </li>
@@ -208,11 +279,18 @@ function FinancePage() {
           <Banknote className="size-4 text-brand-foreground" />
           <h2 className="font-display text-lg font-semibold">Hakediş dönemleri</h2>
         </div>
-        {(payouts ?? []).length === 0 ? (
+        <QueryStatus
+          label="Hakediş dönemleri"
+          error={payoutsError}
+          loading={payoutsPending}
+          hasData={payouts !== undefined}
+          onRetry={() => void retryPayouts()}
+        />
+        {payouts === undefined ? null : payouts.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">Henüz hakediş kaydı yok.</p>
         ) : (
           <div className="mt-4 overflow-x-auto">
-            <Table>
+            <Table className="min-w-[640px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Dönem</TableHead>
@@ -229,12 +307,18 @@ function FinancePage() {
                     <TableCell className="whitespace-nowrap">
                       {formatDate(payout.period_start)} – {formatDate(payout.period_end)}
                     </TableCell>
-                    <TableCell>{formatMoney(Number(payout.gross_amount ?? 0), payout.currency ?? currency)}</TableCell>
-                    <TableCell>{formatMoney(Number(payout.fee_amount ?? 0), payout.currency ?? currency)}</TableCell>
+                    <TableCell>
+                      {formatMoney(Number(payout.gross_amount ?? 0), payout.currency ?? currency)}
+                    </TableCell>
+                    <TableCell>
+                      {formatMoney(Number(payout.fee_amount ?? 0), payout.currency ?? currency)}
+                    </TableCell>
                     <TableCell className="font-medium">
                       {formatMoney(Number(payout.net_amount ?? 0), payout.currency ?? currency)}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{payout.reference ?? "—"}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {payout.reference ?? "—"}
+                    </TableCell>
                     <TableCell>
                       <Select
                         value={payout.status}
@@ -267,14 +351,16 @@ function FinancePage() {
 
       <section className="surface-card p-6">
         <h2 className="font-display text-lg font-semibold">Finans defteri</h2>
-        <p className="text-sm text-muted-foreground">Kayıtlar değiştirilemez; her sipariş otomatik olarak deftere işlenir.</p>
+        <p className="text-sm text-muted-foreground">
+          Kayıtlar değiştirilemez; her sipariş otomatik olarak deftere işlenir.
+        </p>
         {isLoading ? (
           <Skeleton className="mt-4 h-48 w-full" />
-        ) : rows.length === 0 ? (
+        ) : ledger === undefined ? null : rows.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">Kayıt bulunamadı.</p>
         ) : (
           <div className="mt-4 overflow-x-auto">
-            <Table>
+            <Table className="min-w-[640px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Tarih</TableHead>
@@ -294,7 +380,9 @@ function FinancePage() {
                         {LEDGER_KIND_LABELS[row.kind] ?? row.kind}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{row.description ?? "—"}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {row.description ?? "—"}
+                    </TableCell>
                     <TableCell
                       className={`text-right font-medium ${row.direction === "credit" ? "" : "text-destructive"}`}
                     >
