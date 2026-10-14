@@ -1,5 +1,7 @@
 # 45 maddelik bugfix incelemesi — yerel değişiklikler
 
+14 Ekim takip düzeltmeleri ve kullanıcının belirlediği kod bazında kabul kapsamı için [güncel takip raporuna](bugfix-followup-2026-10-14.md) bakın. Bu dosya ilk teslimin tarihsel kaydıdır.
+
 Kaynaklar: `Mefticaret_Bugfix_Oncesi_Sonrasi.html` ve `Mefticaret_Birlesik_Hatalar_ve_Kontrol_Listesi (1).pdf`.
 
 Değişiklikler `fix/45-report-bugfixes` branch'inde teslim edilir. Deploy, canlı migration, gerçek ödeme/iade, e-posta gönderimi veya canlı yük testi yapılmadı. Aşağıdaki tablo kod müdahalesini ve korunmuş davranışları kaydeder; 45 bağımsız canlı hatanın tekrar üretilip kapatıldığı anlamına gelmez. Raporun kendisinde kapalı, tarihsel ve birbiriyle örtüşen maddeler bulunuyor.

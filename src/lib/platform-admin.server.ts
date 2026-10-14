@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { PLATFORM_DATASETS, PLATFORM_DATASET_KEYS, type PlatformDatasetKey } from "@/lib/platform-datasets";
 import { insertAuditRow } from "./audit.server";
+import { apiHealthSummary } from "./api-health-summary";
 
 /** Süper admin panelinin sunucu tarafı: rol doğrulaması sonrası platform genelinde okuma/yazma. */
 
@@ -828,7 +829,9 @@ export async function systemHealth() {
   const count = async (table: string, apply?: (q: any) => any) => {
     let query = db.from(table).select("id", { count: "exact", head: true });
     if (apply) query = apply(query);
-    const { count: total } = await query;
+    const { count: total, error } = await query;
+    if (error) throw new Error(error.message);
+    if (total == null) throw new Error("Sistem sayımı alınamadı");
     return Number(total ?? 0);
   };
 
@@ -882,11 +885,7 @@ export async function systemHealth() {
   if (auditRes.error) throw new Error(auditRes.error.message);
 
   const apiLogs = (apiLogsRes.data ?? []) as { status_code: number; duration_ms: number | null }[];
-  const totalRequests = apiLogs.length;
-  const errorRequests = apiLogs.filter((row) => row.status_code >= 500 || row.status_code === 429).length;
-  const avgDuration = totalRequests
-    ? apiLogs.reduce((total, row) => total + Number(row.duration_ms ?? 0), 0) / totalRequests
-    : 0;
+  const api = apiHealthSummary(apiLogs);
 
   const securityRows = (securityRes.data ?? []) as unknown as PlatformRow[];
   const auditRows = (auditRes.data ?? []) as unknown as PlatformRow[];
@@ -902,7 +901,7 @@ export async function systemHealth() {
   return {
     queue: { queued, running, failed, succeeded24h },
     failedJobs,
-    api: { totalRequests, errorRequests, errorRate: totalRequests ? errorRequests / totalRequests : 0, avgDuration },
+    api,
     securityEvents: securityRows,
     auditLogs: auditRows,
     tableCounts: { stores: storesTotal, users: usersTotal, orders: ordersTotal, products: productsTotal },

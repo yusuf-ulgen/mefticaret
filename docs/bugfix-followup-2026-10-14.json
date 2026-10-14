@@ -1,0 +1,205 @@
+{
+  "generatedAt": "2026-10-14T17:50:06.395Z",
+  "branch": "main",
+  "baseCommit": "6f8261b582a5b7e5facada88dc04a2d048112742",
+  "acceptanceScope": "User requested code-based acceptance; historical replay requirements waived. No claim of production bank, browser hydration or load verification.",
+  "baseline": {
+    "passed": 26,
+    "open": 5,
+    "skipped": 14
+  },
+  "summary": {
+    "priorAcceptancesRetained": 26,
+    "formerlySkippedAcceptedByCode": 14,
+    "newLocalFixAccepted": 1,
+    "acceptedWithinAgreedScope": 41,
+    "productionDataPendingIds": [
+      "B02",
+      "B03",
+      "F03",
+      "F11"
+    ],
+    "productionDataPendingJobs": 3
+  },
+  "formerlySkipped": [
+    {
+      "id": "A01",
+      "status": "passed_code_scope",
+      "evidence": "`landing-destinations.test.ts` seçimi korur. Yeni `stores.functions.test.ts` gerçek `createStore` işleyicisinde aylık/yıllık seçimin kaydını ve ücretli seçimde bile ücretsiz başlangıç planını doğrular. Auth kayıt metadata ve e-posta dönüşü, onboarding ve billing parametre aktarımı kodda incelendi.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "A04",
+      "status": "passed_code_scope",
+      "evidence": "`plan-price.test.ts`: tek kayıtlı fiyat kaynağı, yıllık toplam/aylık eşdeğer, gerçek indirim ve eksik fiyat. Eski Enterprise rakamlarını işletme tarafından yeniden onaylatma koşulu bu teknik kabulden çıkarıldı; yeni ticari fiyat atanmadı.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "F07",
+      "status": "passed_code_scope",
+      "evidence": "Yeni yerel test yazısıyla 10 HTTP kontrolü geçti: yayın 200, iki eski slug'dan güncel sluga 301, listede güncel bağlantı, eksik/taslak/silinmiş yazıda 404. Tarihsel iki yazının geri getirilmesi kabul kapsamı dışında.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "Kontrol",
+      "status": "passed_code_scope",
+      "evidence": "`loadtest-result.test.ts` tarihsel toplamların ve hedef kullanıcı değerlerinin kapasite kanıtı yapılmadığını doğrular. Eski 40.000 istek koşusunu yeniden çalıştırma şartı kaldırıldı. Yeni yük koşusu yok.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "L01",
+      "status": "passed_code_scope",
+      "evidence": "`date-rendering.test.ts` farklı sunucu/istemci saat dilimlerinde aynı çıktıyı ve bozuk/eksik tarihi doğrular. Blog SSR başlangıç verisi ve sorgu hata yolları incelendi. Tarihsel React #418 olayının kesin kök nedeni veya tüm tarayıcı hydration senaryoları kanıtlanmış değildir.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "L02",
+      "status": "passed_code_scope",
+      "evidence": "`chunk-recovery.test.ts`; `ChunkRecovery` mevcut ekranı korur, otomatik reload yapmaz, kullanıcının yenilemesini bekler. Gerçek deploy sırasında eski sekme deneyi bu kabulün dışında.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "N01",
+      "status": "passed_code_scope",
+      "evidence": "`receipt-review.test.ts` tutar eşleşmesini yalnız `pending_review` yapar. SQL kontrolleri yetkisiz onay, aynı dekont/banka referansı tekrarı, iptal/iade durumlarını sınar. Gerçek banka tahsilatı yapılmadı.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "N02",
+      "status": "passed_code_scope",
+      "evidence": "İzole gerçek SQL'de tekrar webhook, sağlayıcı işlem anahtarı ve muhasebe tekilliği kontrolleri geçti. QNB sandbox çağrısı yok.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "N03",
+      "status": "passed_code_scope",
+      "evidence": "Atomik claim SQL kontrollerine ek olarak `refunds.server.test.ts` gerçek `processRefund` fonksiyonunda paralel çağrı ve sağlayıcı başarısından sonra DB hatası/toparlanma senaryolarında tek sağlayıcı çağrısını doğrular. Dış sağlayıcı sahtedir.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "N04",
+      "status": "passed_code_scope",
+      "evidence": "`customer-return.test.ts`; login/register hedefi, `emailRedirectTo` ve kayıt sonrası oturumlu/oturumsuz dönüş yolları incelendi. Aynı mağaza checkout hedefi korunur; sepet depolaması değişmedi. Gerçek e-posta teslimatı denenmedi.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "N06",
+      "status": "passed_code_scope",
+      "evidence": "Yeni `order-list.functions.test.ts`: gerçek sunucu işleyicilerinde 250 kayıt, en eski sipariş araması, beş sayfa, tam/seçili dışa aktarım, mağaza filtresi ve sorgu hataları. SQL özeti tüm dönem/para birimi/başka mağaza ayrımını doğrular.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "P01",
+      "status": "passed_code_scope",
+      "evidence": "`rate-limit.test.ts`: 429, `Retry-After`, `no-store` ve bekleme saniyesi. Eski 50/100 kullanıcı koşusunu yeniden çalıştırma şartı kaldırıldı; yeni kapasite sayısı üretilmedi.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "P02",
+      "status": "passed_code_scope",
+      "evidence": "`retryable-module.test.ts`: başarısız modül yüklemesi kalıcı cache olmaz, sonraki istek tekrar deneyebilir. Build ve normal HTTP kontrolleri ayrı kaydedilir. Eski 492 HTTP 500 olayının kesin nedeni veya uzun koşunun sonucu yeniden kanıtlanmış değildir.",
+      "productionEndToEndVerified": false
+    },
+    {
+      "id": "T01",
+      "status": "passed_code_scope",
+      "evidence": "N01 ile aynı iş; ikinci bağımsız finansal doğrulama sayılmaz.",
+      "productionEndToEndVerified": false
+    }
+  ],
+  "fixes": [
+    {
+      "id": "T05",
+      "status": "fixed_and_locally_verified",
+      "change": "Null metrics for absent samples; valid measured zero preserved; average uses measured durations only."
+    },
+    {
+      "id": "B02",
+      "status": "code_fixed_production_data_pending",
+      "change": "Exact unambiguous legacy commission fallback and idempotent recovery migration."
+    },
+    {
+      "id": "B03",
+      "status": "code_fixed_production_data_pending",
+      "change": "Same-product source recovery and alternate-image fallback; catalog studio uses SmartImage."
+    },
+    {
+      "id": "F03/F11",
+      "status": "code_fixed_production_publication_pending",
+      "change": "Atomic visible publication, scoped permission and stale draft validation, orphan version recovery, surfaced template errors. Missing-RPC-only compatibility path keeps the existing public version until replacement readiness and uses a conditional pointer update."
+    }
+  ],
+  "checks": {
+    "vitest": {
+      "status": "passed",
+      "total": 168,
+      "passed": 168,
+      "failed": 0,
+      "skipped": 0
+    },
+    "bugfixSql": {
+      "status": "passed",
+      "checks": 46,
+      "environment": "isolated PGlite fixture"
+    },
+    "optimizationSql": {
+      "status": "passed",
+      "checks": 7,
+      "environment": "isolated PGlite fixture, RLS tenant isolation and >2000 orders"
+    },
+    "localFullSchemaPolicy": {
+      "status": "passed",
+      "checks": 3,
+      "environment": "local Supabase PostgreSQL, authenticated publish and anon read, fixture rolled back"
+    },
+    "localAccounts": {
+      "status": "passed",
+      "accounts": 6,
+      "environment": "local Supabase Auth/RLS"
+    },
+    "localBlogHttp": {
+      "status": "passed",
+      "checks": 10,
+      "environment": "local Vite HTTP, temporary article cleaned up"
+    },
+    "types": {
+      "status": "passed",
+      "heapLimitMB": 6144,
+      "log": "C:/Users/YUSUF/AppData/Local/Temp/mefticaret-followup-types.log"
+    },
+    "build": {
+      "status": "passed",
+      "log": "C:/Users/YUSUF/AppData/Local/Temp/mefticaret-followup-build.log",
+      "notes": [
+        "Existing inputValidator deprecation warnings",
+        "Production service role key unavailable during prerender"
+      ]
+    },
+    "targetedLint": {
+      "status": "passed",
+      "scope": "New TypeScript modules/tests, policy publication compatibility module, SmartImage and ownership helper; no claim of whole-repository lint"
+    },
+    "drizzleMigrationConsistency": {
+      "status": "passed",
+      "scope": "0010 SQL matches canonical follow-up SQL and is registered in the production migration journal"
+    }
+  },
+  "migrations": [
+    "20261014100000_recover_supplier_commission_history.sql",
+    "20261014101000_publish_policy_atomically.sql",
+    "drizzle/migrations/0010_report_followup_repairs.sql"
+  ],
+  "deployment": {
+    "targetBranch": "main",
+    "pushRequested": true,
+    "pushStatus": "delivery recorded in Git",
+    "productionMigrationsApplied": "not_verified",
+    "productionDeployed": "not_verified",
+    "remainingDataWork": "Actual historical order data, the source gazebo photo and reviewed store policy publication require production verification.",
+    "remotes": [
+      "mefticaret",
+      "origin"
+    ]
+  },
+  "verifiedWorkingTreeBeforeDeliveryCommit": true
+}

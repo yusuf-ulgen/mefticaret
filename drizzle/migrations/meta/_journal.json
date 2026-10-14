@@ -71,6 +71,13 @@
       "when": 1791970481667,
       "tag": "0009_apply_pending_oct12_changes",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791999862937,
+      "tag": "0010_report_followup_repairs",
+      "breakpoints": true
     }
   ]
 }

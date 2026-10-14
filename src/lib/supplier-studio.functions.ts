@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { productImageSources } from "@/lib/product-image-sources";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -93,7 +94,7 @@ export const studioListProducts = createServerFn({ method: "POST" })
     const size = 25;
     let q = db
       .from("supplier_products")
-      .select("id, title, sku, barcode, brand, category, supplier_price, computed_price, suggested_price, stock, images, catalog_visible, currency", { count: "exact" })
+      .select("id, title, sku, barcode, brand, category, supplier_price, computed_price, suggested_price, stock, images, raw, catalog_visible, currency", { count: "exact" })
       .eq("supplier_id", supplier.id)
       .order("updated_at", { ascending: false })
       .range(data.page * size, data.page * size + size - 1);
@@ -118,7 +119,7 @@ export const studioListProducts = createServerFn({ method: "POST" })
         salePrice: r.computed_price != null ? Number(r.computed_price) : null,
         suggestedPrice: r.suggested_price != null ? Number(r.suggested_price) : null,
         stock: Number(r.stock ?? 0),
-        images: (Array.isArray(r.images) ? r.images : []) as string[],
+        images: productImageSources(r.images, r.raw),
         visible: r.catalog_visible !== false,
         currency: (r.currency as string) || "TRY",
       })),

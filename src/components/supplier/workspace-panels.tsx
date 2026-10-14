@@ -353,6 +353,7 @@ export function SupplierCatalog({
                   {product.images[0] ? (
                     <SmartImage
                       src={product.images[0]}
+                      fallbackSrcs={product.images.slice(1)}
                       alt={product.title}
                       width={360}
                       height={360}
@@ -399,6 +400,7 @@ export function SupplierCatalog({
                 {detail.images[0] ? (
                   <SmartImage
                     src={detail.images[0]}
+                    fallbackSrcs={detail.images.slice(1)}
                     alt={detail.title}
                     width={720}
                     height={540}

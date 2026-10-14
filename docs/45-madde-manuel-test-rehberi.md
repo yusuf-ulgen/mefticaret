@@ -1,5 +1,7 @@
 # Mefticaret — 45 madde için adım adım test rehberi
 
+**14 Ekim güncellemesi:** Kullanıcının talebiyle önceki 14 atlanan madde kod bazında kontrol edilerek kabul edildi; eski kayıt/yük koşusunu yeniden üretme koşulları kaldırıldı. Güncel sonuçlar ve canlı veri bekleyen işler [takip raporundadır](bugfix-followup-2026-10-14.md). Aşağıdaki 13 Ekim kutuları tarihsel manuel koşunun kaydıdır; güncel kod kabul durumunu göstermez.
+
 Hazırlanma: 13 Ekim 2026. Kod: `feat/development-optimization`, `e4923f8`.
 
 Son kontrol koşusu: 13 Ekim 2026, local/deecc88. 1 geçti, 3 kaldı, 41 blokeli. Tarayıcı bağlantısı bulunamadı; Windows native pipe yeniden başlatma sonrası da erişilemedi. Tüm maddeler tamamlanmadı. Ayrıntı: `docs/manual-review-2026-10-13.json`. Önceki kanıtsız + işaretleri bu koşunun sonucuna göre kaldırıldı.

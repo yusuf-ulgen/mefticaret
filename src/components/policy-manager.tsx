@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Download, History, Loader2, ScrollText } from "lucide-react";
 import { toast } from "sonner";
 import { sanitizeBlogHtml } from "@/lib/blog-sanitize";
+import { POLICY_LABELS } from "@/lib/policy-content";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,17 @@ export function PolicyManager({ storeId }: { storeId: string | null }) {
     queryFn: () => list({ data: { storeId } }),
   });
   const [selected, setSelected] = useState<string | null>(null);
+  const policyRows = policies.data;
+  const missing =
+    storeId && policyRows
+      ? ["privacy", "refund", "distance_selling", "cookie"].filter(
+          (key) =>
+            !policyRows.some(
+              (policy) =>
+                policy.policy_key === key && policy.current_version_id && policy.is_visible,
+            ),
+        )
+      : [];
 
   useEffect(() => {
     if (!selected && policies.data?.[0]) setSelected(policies.data[0].id);
@@ -68,18 +80,14 @@ export function PolicyManager({ storeId }: { storeId: string | null }) {
           işinize göre kontrol edin; gerekirse bir avukata danışın.
         </p>
       </div>
-      {storeId &&
-      policies.data?.some(
-        (policy) =>
-          ["privacy", "refund", "distance_selling"].includes(policy.policy_key) &&
-          (!policy.current_version_id || !policy.is_visible),
-      ) ? (
+      {missing.length ? (
         <p
           role="status"
           className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive"
         >
-          Checkout için Gizlilik, İade ve Mesafeli Satış metinleri görünür ve yayınlanmış olmalı.
-          Eksik belgeleri düzenleyip yayınlayın.
+          Yayınlanması gereken belgeler: {missing.map((key) => POLICY_LABELS[key]).join(", ")}.
+          Metinleri kontrol edip yayınlayın. Gizlilik, İade ve Mesafeli Satış tamamlanana kadar
+          checkout kapalıdır.
         </p>
       ) : null}
       <Tabs defaultValue="policies">
@@ -227,6 +235,7 @@ function PolicyEditor({
     },
     onSuccess: (r) => {
       toast.success(`v${r.version} yayınlandı`);
+      setForm((current) => (current ? { ...current, isVisible: true } : current));
       setPub((s) => ({ ...s, changeSummary: "" }));
       onChanged();
       void versions.refetch();

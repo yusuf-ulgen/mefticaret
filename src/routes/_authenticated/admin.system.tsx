@@ -14,7 +14,8 @@ export const Route = createFileRoute("/_authenticated/admin/system")({
       { title: "Sistem Durumu — Süper Admin" },
       {
         name: "description",
-        content: "Kuyruk sağlığı, API hata oranı, güvenlik olayları ve denetim akışı canlı görünüm.",
+        content:
+          "Kuyruk sağlığı, API hata oranı, güvenlik olayları ve denetim akışı canlı görünüm.",
       },
       { property: "og:title", content: "Sistem Durumu — Süper Admin" },
       { property: "og:description", content: "Mefticaret platformunun operasyonel sağlık paneli." },
@@ -23,7 +24,17 @@ export const Route = createFileRoute("/_authenticated/admin/system")({
   component: AdminSystemPage,
 });
 
-function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?: string | undefined; tone?: "danger" | "warn" | undefined }) {
+function Kpi({
+  label,
+  value,
+  hint,
+  tone,
+}: {
+  label: string;
+  value: string;
+  hint?: string | undefined;
+  tone?: "danger" | "warn" | undefined;
+}) {
   return (
     <div className="surface-card p-5">
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -63,7 +74,9 @@ function AdminSystemPage() {
       description="Kuyruk, API, güvenlik ve denetim akışının 15 saniyede bir yenilenen görünümü."
       actions={
         dataUpdatedAt ? (
-          <Badge variant="secondary">Son güncelleme: {formatDateTime(new Date(dataUpdatedAt).toISOString())}</Badge>
+          <Badge variant="secondary">
+            Son güncelleme: {formatDateTime(new Date(dataUpdatedAt).toISOString())}
+          </Badge>
         ) : null
       }
     >
@@ -76,15 +89,29 @@ function AdminSystemPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi label="Kuyrukta" value={formatNumber(queue?.queued ?? 0)} />
         <Kpi label="Çalışıyor" value={formatNumber(queue?.running ?? 0)} />
-        <Kpi label="Başarısız" value={formatNumber(queue?.failed ?? 0)} tone={queue && queue.failed > 0 ? "danger" : undefined} />
+        <Kpi
+          label="Başarısız"
+          value={formatNumber(queue?.failed ?? 0)}
+          tone={queue && queue.failed > 0 ? "danger" : undefined}
+        />
         <Kpi label="24s tamamlanan" value={formatNumber(queue?.succeeded24h ?? 0)} />
         <Kpi label="API isteği (24s)" value={formatNumber(api?.totalRequests ?? 0)} />
         <Kpi
           label="Hata oranı (24s)"
-          value={`${((api?.errorRate ?? 0) * 100).toFixed(2)}%`}
-          tone={(api?.errorRate ?? 0) > 0.05 ? "danger" : (api?.errorRate ?? 0) > 0.01 ? "warn" : undefined}
+          value={api?.errorRate == null ? "Ölçüm yok" : `${(api.errorRate * 100).toFixed(2)}%`}
+          tone={
+            (api?.errorRate ?? 0) > 0.05
+              ? "danger"
+              : (api?.errorRate ?? 0) > 0.01
+                ? "warn"
+                : undefined
+          }
         />
-        <Kpi label="Ortalama süre" value={`${Math.round(api?.avgDuration ?? 0)} ms`} />
+        <Kpi
+          label="Ortalama süre"
+          value={api?.avgDuration == null ? "Ölçüm yok" : `${Math.round(api.avgDuration)} ms`}
+          hint={api ? `${api.durationSamples} süre örneği · son 24 saat` : undefined}
+        />
         <Kpi label="Toplam mağaza" value={formatNumber(data?.tableCounts.stores ?? 0)} />
         <Kpi label="Toplam kullanıcı" value={formatNumber(data?.tableCounts.users ?? 0)} />
         <Kpi label="Toplam sipariş" value={formatNumber(data?.tableCounts.orders ?? 0)} />
@@ -123,17 +150,26 @@ function AdminSystemPage() {
               <li key={String(event["id"])} className="py-2">
                 <div className="flex items-center justify-between gap-3">
                   <span className="font-medium">{String(event["kind"])}</span>
-                  <Badge variant={event["severity"] === "critical" || event["severity"] === "high" ? "destructive" : "secondary"}>
+                  <Badge
+                    variant={
+                      event["severity"] === "critical" || event["severity"] === "high"
+                        ? "destructive"
+                        : "secondary"
+                    }
+                  >
                     {String(event["severity"])}
                   </Badge>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {storeNames[String(event["store_id"] ?? "")] ?? "—"} · {formatDateTime(String(event["created_at"] ?? ""))}
+                  {storeNames[String(event["store_id"] ?? "")] ?? "—"} ·{" "}
+                  {formatDateTime(String(event["created_at"] ?? ""))}
                 </p>
               </li>
             ))}
             {!isLoading && (data?.securityEvents ?? []).length === 0 ? (
-              <li className="py-6 text-center text-sm text-muted-foreground">Güvenlik olayı yok.</li>
+              <li className="py-6 text-center text-sm text-muted-foreground">
+                Güvenlik olayı yok.
+              </li>
             ) : null}
           </ul>
         </Panel>
@@ -144,10 +180,13 @@ function AdminSystemPage() {
               <li key={String(log["id"])} className="py-2">
                 <div className="flex items-center justify-between gap-3">
                   <span className="font-medium">{String(log["action"])}</span>
-                  <span className="text-xs text-muted-foreground">{formatDateTime(String(log["created_at"] ?? ""))}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatDateTime(String(log["created_at"] ?? ""))}
+                  </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {storeNames[String(log["store_id"] ?? "")] ?? "—"} · {String(log["entity"] ?? "—")}
+                  {storeNames[String(log["store_id"] ?? "")] ?? "—"} ·{" "}
+                  {String(log["entity"] ?? "—")}
                 </p>
               </li>
             ))}
@@ -161,19 +200,27 @@ function AdminSystemPage() {
           <ul className="divide-y divide-border text-sm">
             <li className="flex items-center justify-between py-2">
               <span>Mağazalar</span>
-              <span className="text-xs text-muted-foreground">{formatNumber(data?.tableCounts.stores ?? 0)}</span>
+              <span className="text-xs text-muted-foreground">
+                {formatNumber(data?.tableCounts.stores ?? 0)}
+              </span>
             </li>
             <li className="flex items-center justify-between py-2">
               <span>Kullanıcılar</span>
-              <span className="text-xs text-muted-foreground">{formatNumber(data?.tableCounts.users ?? 0)}</span>
+              <span className="text-xs text-muted-foreground">
+                {formatNumber(data?.tableCounts.users ?? 0)}
+              </span>
             </li>
             <li className="flex items-center justify-between py-2">
               <span>Siparişler</span>
-              <span className="text-xs text-muted-foreground">{formatNumber(data?.tableCounts.orders ?? 0)}</span>
+              <span className="text-xs text-muted-foreground">
+                {formatNumber(data?.tableCounts.orders ?? 0)}
+              </span>
             </li>
             <li className="flex items-center justify-between py-2">
               <span>Ürünler</span>
-              <span className="text-xs text-muted-foreground">{formatNumber(data?.tableCounts.products ?? 0)}</span>
+              <span className="text-xs text-muted-foreground">
+                {formatNumber(data?.tableCounts.products ?? 0)}
+              </span>
             </li>
           </ul>
         </Panel>

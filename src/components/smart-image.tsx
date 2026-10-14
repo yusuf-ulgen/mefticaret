@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from "react";
 
 import { DEFAULT_IMAGE_WIDTHS, imageSrcSet, optimizedImageUrl } from "@/lib/image";
+import { imageFallbackState } from "@/lib/product-image-sources";
 
 type SmartImageProps = {
   src: string | null | undefined;
@@ -13,6 +14,7 @@ type SmartImageProps = {
   sizes?: string;
   widths?: number[];
   sources?: Array<{ width: number; url: string }>;
+  fallbackSrcs?: string[];
   className?: string;
   style?: CSSProperties;
 };
@@ -30,25 +32,32 @@ export function SmartImage({
   sizes = "(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 320px",
   widths = DEFAULT_IMAGE_WIDTHS,
   sources,
+  fallbackSrcs = [],
   className,
   style,
 }: SmartImageProps) {
-  const [failure, setFailure] = useState<{ source: typeof src; stage: number } | null>(null);
-  const stage = failure && failure.source === src ? failure.stage : 0;
+  const [failure, setFailure] = useState<{ key: string; index: number; original: boolean } | null>(
+    null,
+  );
+  const state = imageFallbackState(src, fallbackSrcs, failure);
+  const current = state.source;
   const signed =
-    sources
+    (state.index === 0 ? sources : undefined)
       ?.slice()
       .sort((a, b) => a.width - b.width)
-      .find((source) => source.width >= width) ?? sources?.at(-1);
+      .find((source) => source.width >= width) ?? (state.index === 0 ? sources?.at(-1) : undefined);
   const optimized =
-    signed?.url ?? optimizedImageUrl(src, height ? { width, height } : { width }) ?? src;
-  const displayed =
-    !src || stage >= 2 ? "/placeholder-product.svg" : stage === 1 ? src : (optimized ?? src);
+    signed?.url ?? optimizedImageUrl(current, height ? { width, height } : { width }) ?? current;
+  const displayed = !current
+    ? "/placeholder-product.svg"
+    : state.original
+      ? current
+      : (optimized ?? current);
   const srcSet =
-    stage === 0
-      ? sources?.length
+    !state.original && current
+      ? state.index === 0 && sources?.length
         ? sources.map((source) => `${source.url} ${source.width}w`).join(", ")
-        : imageSrcSet(src, widths, height ? { height, baseWidth: width } : {})
+        : imageSrcSet(current, widths, height ? { height, baseWidth: width } : {})
       : null;
 
   return (
@@ -64,9 +73,13 @@ export function SmartImage({
       className={className}
       style={style}
       onError={() => {
-        if (!src || stage >= 2) return;
-        // Dönüşüm servisi başarısızsa önce orijinal URL'yi, sonra yerel yedeği dene.
-        setFailure({ source: src, stage: stage === 0 && optimized !== src ? 1 : 2 });
+        if (!current) return;
+        // Try the original, then other images of this product, then the local placeholder.
+        setFailure(
+          !state.original && optimized !== current
+            ? { key: state.key, index: state.index, original: true }
+            : { key: state.key, index: state.index + 1, original: false },
+        );
       }}
     />
   );

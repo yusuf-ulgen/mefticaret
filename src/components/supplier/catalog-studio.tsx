@@ -1,4 +1,5 @@
 import { QueryStatus } from "@/components/query-status";
+import { SmartImage } from "@/components/smart-image";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Plus, Trash2 } from "lucide-react";
@@ -263,10 +264,11 @@ export function SupplierCatalogStudio({ supplierId }: { supplierId: string }) {
               aria-label="Seç"
             />
             {it.images[0] ? (
-              <img
+              <SmartImage
                 src={it.images[0]}
-                alt=""
-                loading="lazy"
+                fallbackSrcs={it.images.slice(1)}
+                alt={it.title}
+                width={112}
                 className="size-14 rounded-lg object-cover"
               />
             ) : (

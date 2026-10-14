@@ -1,5 +1,6 @@
 import { readAllPages } from "@/lib/read-all-pages";
 import { categoryLeaf } from "@/lib/import-category";
+import { productImageSources } from "@/lib/product-image-sources";
 /**
  * Tedarikçi kataloğu: tüm mağazalar platformdaki aktif tedarikçilerin
  * ürünlerini görür ve kendi mağazasına eksiksiz aktarır. Yalnız sunucuda
@@ -190,7 +191,7 @@ export async function importToStore(db: Client, storeId: string, ids: string[], 
         .single();
       if (pErr || !product) throw new Error(pErr?.message ?? "ürün oluşturulamadı");
 
-      const images: string[] = Array.isArray(sp.images) ? sp.images.filter((u: unknown) => typeof u === "string") : [];
+      const images = productImageSources(sp.images, sp.raw);
       if (images.length) {
         await db.from("product_images").insert(
           images.slice(0, 100).map((url, position) => ({ product_id: product.id, store_id: storeId, url, position, alt: sp.title })),

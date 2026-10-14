@@ -1,5 +1,6 @@
 import { readAllPages } from "@/lib/read-all-pages";
-import { supplierOwnsItem } from "@/lib/supplier-item-ownership";
+import { supplierOwnsItem, supplierOwnershipWithHistory } from "@/lib/supplier-item-ownership";
+import { productImageSources } from "@/lib/product-image-sources";
 /**
  * Tedarikçi portalı fulfillment masası sunucu katmanı.
  * Sipariş parçalama sonuçları, kargo etiketi verisi, komisyon defteri,
@@ -202,7 +203,6 @@ export async function loadSupplierDeskOrders(
         .from("supplier_commission_entries")
         .select("order_id, supplier_id, order_item_id, gross_amount, commission_amount, net_amount")
         .in("order_id", orderIds)
-        .in("supplier_id", supplierIds)
         .order("id")
         .range(from, to),
     ),
@@ -267,7 +267,7 @@ export async function loadSupplierDeskOrders(
 
   const productMap = new Map(((products ?? []) as any[]).map((row) => [row.id as string, row]));
   const variantMap = new Map(((variants ?? []) as any[]).map((row) => [row.id as string, row]));
-  const mappingRows = (mappings ?? []) as any[];
+  const mappingRows = supplierOwnershipWithHistory(itemRows, (mappings ?? []) as any[], commissionRows);
   const imageRows = (images ?? []) as any[];
 
   const ownsItem = (supplierId: string, item: { id: string }) =>
@@ -478,9 +478,7 @@ export async function loadSupplierWorkspace(
         storeStock: liveVariant ? Number(liveVariant.stock) : null,
         sourceUpdatedAt: row.updated_at,
         storeUpdatedAt: liveVariant?.updated_at ?? liveProduct?.updated_at ?? null,
-        images: Array.isArray(row.images)
-          ? row.images.filter((url: unknown) => typeof url === "string")
-          : [],
+        images: productImageSources(row.images, raw),
         description: typeof raw.description === "string" ? raw.description : null,
         color: typeof raw.color === "string" ? raw.color : null,
         size: typeof raw.size === "string" ? raw.size : null,

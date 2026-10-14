@@ -8,6 +8,27 @@ const runtime = process.argv[2];
 if (!runtime) throw new Error("Pass the local @electric-sql/pglite/dist/index.js path");
 const { PGlite } = await import(pathToFileURL(path.resolve(runtime)).href);
 const db = new PGlite();
+// The connected production project consumes Drizzle's journal, not only supabase/migrations.
+const followupSql = (
+  await Promise.all(
+    [
+      "20261014100000_recover_supplier_commission_history.sql",
+      "20261014101000_publish_policy_atomically.sql",
+    ].map((name) => fs.readFile(path.join("supabase/migrations", name), "utf8")),
+  )
+).join("\n--> statement-breakpoint\n");
+assert.equal(
+  (await fs.readFile("drizzle/migrations/0010_report_followup_repairs.sql", "utf8")).replace(/\r\n/g, "\n"),
+  followupSql.replace(/\r\n/g, "\n"),
+);
+const migrationJournal = JSON.parse(
+  await fs.readFile("drizzle/migrations/meta/_journal.json", "utf8"),
+);
+assert.ok(
+  migrationJournal.entries.some(
+    (entry) => entry.idx === 10 && entry.tag === "0010_report_followup_repairs",
+  ),
+);
 await db.exec(`
 CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS;
 CREATE SCHEMA auth; CREATE SCHEMA app_private;
@@ -368,6 +389,179 @@ await db.query(
   "INSERT INTO orders(store_id,grand_total,payment_status) VALUES(gen_random_uuid(),900000,'paid')",
 );
 assert.deepEqual((await row("SELECT store_order_summary($1) result", [store])).result, aggregate);
+checks++;
+// Follow-up: restore only certain legacy commission ownership.
+const recoverySupplier = (await row("INSERT INTO suppliers DEFAULT VALUES RETURNING id")).id;
+const legacyItems = [];
+for (let n = 0; n < 2; n++) {
+  const item = (
+    await row("INSERT INTO order_items(store_id,order_id) VALUES($1,$2) RETURNING id", [
+      store,
+      order,
+    ])
+  ).id;
+  await db.query(
+    "INSERT INTO supplier_commission_entries(order_item_id,supplier_id,order_id) VALUES($1,$2,$3)",
+    [item, supplier, order],
+  );
+  if (n === 1)
+    await db.query(
+      "INSERT INTO supplier_commission_entries(order_item_id,supplier_id,order_id) VALUES($1,$2,$3)",
+      [item, recoverySupplier, order],
+    );
+  await db.query("DELETE FROM order_item_suppliers WHERE order_item_id=$1", [item]);
+  legacyItems.push(item);
+}
+const recoverySql = await fs.readFile(
+  "supabase/migrations/20261014100000_recover_supplier_commission_history.sql",
+  "utf8",
+);
+await db.exec(recoverySql);
+assert.equal(
+  (
+    await row("SELECT supplier_id FROM order_item_suppliers WHERE order_item_id=$1", [
+      legacyItems[0],
+    ])
+  ).supplier_id,
+  supplier,
+);
+checks++;
+assert.equal(
+  (
+    await row("SELECT count(*)::int n FROM order_item_suppliers WHERE order_item_id=$1", [
+      legacyItems[1],
+    ])
+  ).n,
+  0,
+);
+checks++;
+await db.exec(recoverySql);
+assert.equal(
+  (
+    await row("SELECT count(*)::int n FROM order_item_suppliers WHERE order_item_id=$1", [
+      legacyItems[0],
+    ])
+  ).n,
+  1,
+);
+checks++;
+
+// Follow-up: publication is one transaction and respects actor/store/draft scope.
+await db.exec(`
+ALTER TABLE policies ADD COLUMN title text DEFAULT 'QA policy', ADD COLUMN version text DEFAULT '1.0',
+  ADD COLUMN updated_at timestamptz DEFAULT now(), ADD COLUMN effective_date date,
+  ADD COLUMN change_summary text, ADD COLUMN requires_acceptance boolean,
+  ADD COLUMN last_reviewed_at timestamptz, ADD COLUMN last_reviewed_by uuid;
+ALTER TABLE policy_versions ADD COLUMN title text, ADD COLUMN change_summary text,
+  ADD COLUMN requires_acceptance boolean, ADD COLUMN created_by uuid;
+ALTER TABLE policy_versions ADD CONSTRAINT qa_policy_version_unique UNIQUE(policy_id,version);
+`);
+await db.exec(
+  await fs.readFile("supabase/migrations/20261014101000_publish_policy_atomically.sql", "utf8"),
+);
+const publication = await row(
+  "INSERT INTO policies(store_id,policy_key,is_visible) VALUES($1,'cookie',false) RETURNING id,updated_at",
+  [store],
+);
+const publishSql = "SELECT publish_policy_version($1,$2,$3,'minor',CURRENT_DATE,$4,true,$5) result";
+const publishArgs = [
+  publication.id,
+  store,
+  "<p>Reviewed store policy</p>",
+  "QA publication",
+  publication.updated_at,
+];
+await fails(publishSql, publishArgs); // No authenticated actor.
+await db.query("SELECT set_config('qa.actor',$1,false)", [actor]);
+await fails(publishSql, [
+  publication.id,
+  store,
+  "<p></p>",
+  "QA empty text",
+  publication.updated_at,
+]);
+await fails(publishSql, [
+  publication.id,
+  store,
+  publishArgs[2],
+  "QA stale draft",
+  "2020-01-01T00:00:00Z",
+]);
+const foreignStore = (
+  await row("INSERT INTO stores(owner_id) VALUES(gen_random_uuid()) RETURNING id")
+).id;
+await fails(publishSql, [
+  publication.id,
+  foreignStore,
+  publishArgs[2],
+  "QA wrong scope",
+  publication.updated_at,
+]);
+assert.equal((await row(publishSql, publishArgs)).result.version, "1.0");
+checks++;
+assert.equal(
+  (await row("SELECT is_visible FROM policies WHERE id=$1", [publication.id])).is_visible,
+  true,
+);
+checks++;
+assert.equal((await row(publishSql, publishArgs)).result.version, "1.1");
+checks++;
+assert.equal(
+  (
+    await row("SELECT count(*)::int n FROM policy_versions WHERE policy_id=$1 AND is_active", [
+      publication.id,
+    ])
+  ).n,
+  1,
+);
+checks++;
+await db.exec(`CREATE FUNCTION qa_fail_publication() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN IF NEW.change_summary = 'QA force rollback' THEN RAISE EXCEPTION 'QA write failure'; END IF; RETURN NEW; END $$;
+CREATE TRIGGER qa_fail_publication BEFORE UPDATE ON policies FOR EACH ROW EXECUTE FUNCTION qa_fail_publication();`);
+await fails(publishSql, [
+  publication.id,
+  store,
+  publishArgs[2],
+  "QA force rollback",
+  publication.updated_at,
+]);
+assert.equal(
+  (await row("SELECT version FROM policies WHERE id=$1", [publication.id])).version,
+  "1.1",
+);
+assert.equal(
+  (await row("SELECT count(*)::int n FROM policy_versions WHERE policy_id=$1", [publication.id])).n,
+  2,
+);
+assert.equal(
+  (
+    await row("SELECT version FROM policy_versions WHERE policy_id=$1 AND is_active", [
+      publication.id,
+    ])
+  ).version,
+  "1.1",
+);
+checks++;
+const orphanPolicy = await row(
+  "INSERT INTO policies(store_id,policy_key) VALUES($1,'qa_orphan') RETURNING id,updated_at",
+  [store],
+);
+await db.query(
+  "INSERT INTO policy_versions(policy_id,store_id,version,is_active) VALUES($1,$2,'1.0',false)",
+  [orphanPolicy.id, store],
+);
+assert.equal(
+  (
+    await row(publishSql, [
+      orphanPolicy.id,
+      store,
+      publishArgs[2],
+      "QA recover orphan",
+      orphanPolicy.updated_at,
+    ])
+  ).result.version,
+  "1.1",
+);
 checks++;
 console.log(`SQL QA passed: ${checks} checks, isolated database only`);
 await db.close();
