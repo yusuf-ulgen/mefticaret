@@ -33,7 +33,7 @@ export const importProducts = createServerFn({ method: "POST" })
 
     const { data: store, error: storeError } = await supabase
       .from("stores")
-      .select("id, currency, plans(limits)")
+      .select("id, currency, plans!stores_plan_id_fkey(limits)")
       .eq("id", data.storeId)
       .maybeSingle();
     if (storeError) throw new Error(storeError.message);

@@ -567,7 +567,7 @@ export const createProductAdvanced = createServerFn({ method: "POST" })
 
     const { data: store, error: storeError } = await supabase
       .from("stores")
-      .select("id, slug, currency, plan_id, plans(limits)")
+      .select("id, slug, currency, plan_id, plans!stores_plan_id_fkey(limits)")
       .eq("id", data.storeId)
       .maybeSingle();
     if (storeError) throw new Error(storeError.message);

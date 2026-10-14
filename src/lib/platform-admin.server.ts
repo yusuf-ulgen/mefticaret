@@ -551,7 +551,7 @@ export async function storeControlCenter(input: z.infer<typeof storeControlSchem
   const db = await admin();
   const { data: store, error } = await db
     .from("stores")
-    .select("*, plans(id, code, name, price_monthly, price_yearly)")
+    .select("*, plans!stores_plan_id_fkey(id, code, name, price_monthly, price_yearly)")
     .eq("id", input.storeId)
     .maybeSingle();
   if (error) throw new Error(error.message);

@@ -30,7 +30,7 @@ export async function loadEntitlements(
 ): Promise<PlanEntitlements> {
   const { data: store, error: storeError } = await supabase
     .from("stores")
-    .select("store_kind, plan_id, plans(id, code, name)")
+    .select("store_kind, plan_id, plans!stores_plan_id_fkey(id, code, name)")
     .eq("id", storeId)
     .maybeSingle();
   if (storeError) throw new Error(storeError.message);
