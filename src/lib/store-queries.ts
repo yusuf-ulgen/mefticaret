@@ -69,7 +69,7 @@ export const storeQuery = (storeId: string) =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("stores")
-        .select("*, plans(name, code, limits)")
+        .select("*, plans!stores_plan_id_fkey(name, code, limits)")
         .eq("id", storeId)
         .maybeSingle();
       if (error) throw error;
@@ -147,7 +147,7 @@ export const adminStoresQuery = (enabled: boolean, kind: "corporate" | "micro" =
     queryFn: async () => {
       const { data, error } = await supabase
         .from("stores")
-        .select("*, plans(name, code)")
+        .select("*, plans!stores_plan_id_fkey(name, code)")
         .eq("store_kind", kind)
         .order("created_at", { ascending: false })
         .limit(200);
