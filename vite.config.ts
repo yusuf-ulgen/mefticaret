@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import { suppressClientAbort } from "./vite-plugins/suppress-client-abort";
+import { readBuildInfo } from "./vite-plugins/build-info";
 
 /**
  * Edge worker'da import.meta.url tanımsız; sunucu paketleyicisinin CommonJS kütüphaneler
@@ -46,6 +47,7 @@ function workerImportMetaUrlFix() {
 }
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const BUILD_INFO = readBuildInfo(ROOT_DIR);
 
 // Vite uses slash-separated roots on Windows; MCP checks containment using native separators.
 function mcpWithNativeRoot() {
@@ -88,7 +90,10 @@ export default defineConfig({
     prerender: { enabled: true, autoStaticPathsDiscovery: false, crawlLinks: false },
   },
   vite: {
-    define: { __MEFTI_RELEASE__: JSON.stringify(`${process.env["CF_PAGES_COMMIT_SHA"] ?? process.env["BUILD_ID"] ?? "local"}:${new Date().toISOString()}`) },
+    define: {
+      __MEFTI_BUILD__: JSON.stringify(BUILD_INFO),
+      __MEFTI_RELEASE__: JSON.stringify(`${BUILD_INFO.commit ?? process.env["BUILD_ID"] ?? "local"}:${BUILD_INFO.builtAt}`),
+    },
     // Excel okuyucu tarayıcıda gerektiğinde yüklenir. Önceden paketlenmiş
     // geliştirme önbelleği sürüm değişimlerinde eski parça adlarına bağlanıp
     // sayfayı boş bırakabildiği için doğrudan Vite üzerinden sunulur.
