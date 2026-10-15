@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2026-10-15T16:29:44.862Z",
+  "readOnly": true,
+  "requestedOrders": [
+    "LOCAL-0005"
+  ],
+  "missingOrders": [],
+  "orders": [
+    {
+      "id": "a8ac4cbb-6bbc-4ded-873f-8d406fb03c68",
+      "order_number": "LOCAL-0005",
+      "store_id": "a8d65a0a-4512-4054-bbf2-c5be85144b0a",
+      "item_count": 3,
+      "supplier_count": 2
+    }
+  ],
+  "lines": [
+    {
+      "item_id": "3e96a2a3-10e1-4269-8cf6-49730aae8603",
+      "order_id": "a8ac4cbb-6bbc-4ded-873f-8d406fb03c68",
+      "store_id": "a8d65a0a-4512-4054-bbf2-c5be85144b0a",
+      "snapshot_owners": [],
+      "commission_owners": [],
+      "current_import_owners": [],
+      "current_catalog_owners": [],
+      "decision": "historical_evidence_required"
+    },
+    {
+      "item_id": "5316d944-925c-41ab-8912-f4c27199bb01",
+      "order_id": "a8ac4cbb-6bbc-4ded-873f-8d406fb03c68",
+      "store_id": "a8d65a0a-4512-4054-bbf2-c5be85144b0a",
+      "snapshot_owners": [
+        "7270be5b-ef12-4b09-85af-e8530035e896"
+      ],
+      "commission_owners": [],
+      "current_import_owners": [],
+      "current_catalog_owners": [],
+      "decision": "snapshot_exists"
+    },
+    {
+      "item_id": "7100592a-c8f3-414d-bd25-2d5992851a69",
+      "order_id": "a8ac4cbb-6bbc-4ded-873f-8d406fb03c68",
+      "store_id": "a8d65a0a-4512-4054-bbf2-c5be85144b0a",
+      "snapshot_owners": [
+        "eec08c2a-fff1-49df-92f0-9db5253bce0d"
+      ],
+      "commission_owners": [],
+      "current_import_owners": [],
+      "current_catalog_owners": [],
+      "decision": "snapshot_exists"
+    }
+  ],
+  "note": "Current catalog/import relationships are diagnostic only. They do not prove historical ownership. No writes performed."
+}

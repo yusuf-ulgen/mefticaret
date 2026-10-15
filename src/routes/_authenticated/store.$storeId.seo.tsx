@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { QueryStatus } from "@/components/query-status";
 import { AppShell } from "@/components/app-shell";
 import { inspectStoreSitemap } from "@/lib/seo.functions";
 import { Button } from "@/components/ui/button";
@@ -73,11 +74,18 @@ function SeoCenterPage() {
   });
   const client = useQueryClient();
   const { data: store } = useQuery(storeQuery(storeId));
-  const { data: settings } = useQuery(storeSettingsQuery(storeId));
-  const { data: theme } = useQuery(storeThemeQuery(storeId));
-  const { data: pages } = useQuery(storePagesQuery(storeId));
-  const { data: domains } = useQuery(storeDomainsQuery(storeId));
-  const { data: products, isLoading } = useQuery(storeSeoAuditQuery(storeId));
+  const settingsQuery = useQuery(storeSettingsQuery(storeId));
+  const { data: settings } = settingsQuery;
+  const themeQuery = useQuery(storeThemeQuery(storeId));
+  const { data: theme } = themeQuery;
+  const pagesQuery = useQuery(storePagesQuery(storeId));
+  const { data: pages } = pagesQuery;
+  const domainsQuery = useQuery(storeDomainsQuery(storeId));
+  const { data: domains } = domainsQuery;
+  const productsQuery = useQuery(storeSeoAuditQuery(storeId));
+  const { data: products, isLoading } = productsQuery;
+  const checkQueries = [productsQuery, settingsQuery, themeQuery, pagesQuery, domainsQuery];
+  const checksReady = checkQueries.every((query) => query.isSuccess || query.data !== undefined);
   const { data: redirects } = useQuery(seoRedirectsQuery(storeId));
   const { data: errors404 } = useQuery(seo404Query(storeId));
   const { data: audit } = useQuery(latestSeoAuditQuery(storeId));
@@ -360,130 +368,146 @@ function SeoCenterPage() {
           </Button>
         </div>
 
-        <Tabs value={tab} onValueChange={setTab} className="space-y-5">
-          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
-            <TabsTrigger value="overview" className="gap-2">
-              <ShieldCheck className="h-4 w-4" /> Genel bakış
-            </TabsTrigger>
-            <TabsTrigger value="audit" className="gap-2">
-              <Gauge className="h-4 w-4" /> Denetim &amp; skor
-            </TabsTrigger>
-            <TabsTrigger value="meta" className="gap-2">
-              <Settings2 className="h-4 w-4" /> Meta şablonları
-            </TabsTrigger>
-            <TabsTrigger value="content" className="gap-2">
-              <FileText className="h-4 w-4" /> İçerik SEO
-            </TabsTrigger>
-            <TabsTrigger value="traffic" className="gap-2">
-              <Gauge className="h-4 w-4" /> Trafik &amp; görünürlük
-            </TabsTrigger>
-            <TabsTrigger value="pages" className="gap-2">
-              <FileText className="h-4 w-4" /> Sayfa SEO
-            </TabsTrigger>
-            <TabsTrigger value="urls" className="gap-2">
-              <Link2 className="h-4 w-4" /> URL yapısı
-            </TabsTrigger>
-            <TabsTrigger value="redirects" className="gap-2">
-              <Link2 className="h-4 w-4" /> 301 / 302
-            </TabsTrigger>
-            <TabsTrigger value="errors" className="gap-2">
-              <FileWarning className="h-4 w-4" /> 404 izleme
-            </TabsTrigger>
-          </TabsList>
+        {checkQueries.map((query, index) => (
+          <QueryStatus
+            key={index}
+            error={query.error}
+            loading={query.isPending}
+            hasData={query.data !== undefined}
+            onRetry={() => void query.refetch()}
+            label={
+              ["Ürün SEO verileri", "Mağaza ayarları", "Tema", "Kurumsal sayfalar", "Alan adları"][
+                index
+              ]!
+            }
+          />
+        ))}
+        {checksReady ? (
+          <Tabs value={tab} onValueChange={setTab} className="space-y-5">
+            <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+              <TabsTrigger value="overview" className="gap-2">
+                <ShieldCheck className="h-4 w-4" /> Genel bakış
+              </TabsTrigger>
+              <TabsTrigger value="audit" className="gap-2">
+                <Gauge className="h-4 w-4" /> Denetim &amp; skor
+              </TabsTrigger>
+              <TabsTrigger value="meta" className="gap-2">
+                <Settings2 className="h-4 w-4" /> Meta şablonları
+              </TabsTrigger>
+              <TabsTrigger value="content" className="gap-2">
+                <FileText className="h-4 w-4" /> İçerik SEO
+              </TabsTrigger>
+              <TabsTrigger value="traffic" className="gap-2">
+                <Gauge className="h-4 w-4" /> Trafik &amp; görünürlük
+              </TabsTrigger>
+              <TabsTrigger value="pages" className="gap-2">
+                <FileText className="h-4 w-4" /> Sayfa SEO
+              </TabsTrigger>
+              <TabsTrigger value="urls" className="gap-2">
+                <Link2 className="h-4 w-4" /> URL yapısı
+              </TabsTrigger>
+              <TabsTrigger value="redirects" className="gap-2">
+                <Link2 className="h-4 w-4" /> 301 / 302
+              </TabsTrigger>
+              <TabsTrigger value="errors" className="gap-2">
+                <FileWarning className="h-4 w-4" /> 404 izleme
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="overview">
-            <SeoOverviewTab
-              checks={checks}
-              score={audit ? audit.score : score}
-              passed={passed}
-              activeCount={activeCount}
-              issues={issues}
-              loading={isLoading}
-              storeId={storeId}
-            />
-          </TabsContent>
+            <TabsContent value="overview">
+              <SeoOverviewTab
+                checks={checks}
+                score={audit ? audit.score : score}
+                passed={passed}
+                activeCount={activeCount}
+                issues={issues}
+                loading={isLoading}
+                storeId={storeId}
+              />
+            </TabsContent>
 
-          <TabsContent value="audit">
-            <SeoAuditTab
-              audit={audit ?? null}
-              pages={auditPages ?? []}
-              issues={seoIssues ?? []}
-              running={auditMutation.isPending}
-              pending={fixMutation.isPending || statusMutation.isPending}
-              runAudit={() => auditMutation.mutate()}
-              fixIssues={(ids) => fixMutation.mutate(ids)}
-              setStatus={(id, status) => statusMutation.mutate({ id, status })}
-            />
-          </TabsContent>
+            <TabsContent value="audit">
+              <SeoAuditTab
+                audit={audit ?? null}
+                pages={auditPages ?? []}
+                issues={seoIssues ?? []}
+                running={auditMutation.isPending}
+                pending={fixMutation.isPending || statusMutation.isPending}
+                runAudit={() => auditMutation.mutate()}
+                fixIssues={(ids) => fixMutation.mutate(ids)}
+                setStatus={(id, status) => statusMutation.mutate({ id, status })}
+              />
+            </TabsContent>
 
-          <TabsContent value="meta" className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
-            <SeoMetaTab
-              current={current}
-              templateKey={templateKey}
-              storeName={store?.name ?? "Mağazanız"}
-              previewUrl={`/s/${slug}`}
-              pending={saveMutation.isPending}
-              setTemplateKey={setTemplateKey}
-              updateSeo={updateSeo}
-              updateTemplate={updateTemplate}
-              save={() => saveMutation.mutate()}
-            />
-          </TabsContent>
+            <TabsContent value="meta" className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
+              <SeoMetaTab
+                current={current}
+                templateKey={templateKey}
+                storeName={store?.name ?? "Mağazanız"}
+                previewUrl={`/s/${slug}`}
+                pending={saveMutation.isPending}
+                setTemplateKey={setTemplateKey}
+                updateSeo={updateSeo}
+                updateTemplate={updateTemplate}
+                save={() => saveMutation.mutate()}
+              />
+            </TabsContent>
 
-          <TabsContent value="content">
-            <SeoContentTab storeId={storeId} storeSlug={slug} settings={current} />
-          </TabsContent>
+            <TabsContent value="content">
+              <SeoContentTab storeId={storeId} storeSlug={slug} settings={current} />
+            </TabsContent>
 
-          <TabsContent value="traffic">
-            <SeoTrafficTab storeId={storeId} />
-          </TabsContent>
+            <TabsContent value="traffic">
+              <SeoTrafficTab storeId={storeId} />
+            </TabsContent>
 
-          <TabsContent value="pages">
-            <StorePagesSeoTab
-              storeId={storeId}
-              storeSlug={slug}
-              pages={pages ?? []}
-              origin={
-                typeof window === "undefined" ? "https://mefticaret.com" : window.location.origin
-              }
-            />
-          </TabsContent>
+            <TabsContent value="pages">
+              <StorePagesSeoTab
+                storeId={storeId}
+                storeSlug={slug}
+                pages={pages ?? []}
+                origin={
+                  typeof window === "undefined" ? "https://mefticaret.com" : window.location.origin
+                }
+              />
+            </TabsContent>
 
-          <TabsContent value="urls">
-            <SeoUrlsTab
-              current={current}
-              storeSlug={slug}
-              updateSeo={updateSeo}
-              save={() => saveMutation.mutate()}
-              pending={saveMutation.isPending}
-            />
-          </TabsContent>
+            <TabsContent value="urls">
+              <SeoUrlsTab
+                current={current}
+                storeSlug={slug}
+                updateSeo={updateSeo}
+                save={() => saveMutation.mutate()}
+                pending={saveMutation.isPending}
+              />
+            </TabsContent>
 
-          <TabsContent value="redirects">
-            <SeoRedirectsTab
-              rows={redirects ?? []}
-              source={source}
-              target={target}
-              code={code}
-              setSource={setSource}
-              setTarget={setTarget}
-              setCode={setCode}
-              add={() => redirectMutation.mutate()}
-              remove={(id) => deleteMutation.mutate(id)}
-              pending={redirectMutation.isPending}
-            />
-          </TabsContent>
+            <TabsContent value="redirects">
+              <SeoRedirectsTab
+                rows={redirects ?? []}
+                source={source}
+                target={target}
+                code={code}
+                setSource={setSource}
+                setTarget={setTarget}
+                setCode={setCode}
+                add={() => redirectMutation.mutate()}
+                remove={(id) => deleteMutation.mutate(id)}
+                pending={redirectMutation.isPending}
+              />
+            </TabsContent>
 
-          <TabsContent value="errors">
-            <SeoErrorsTab
-              rows={errors404 ?? []}
-              targets={errorTargets}
-              setTarget={(id, value) => setErrorTargets((old) => ({ ...old, [id]: value }))}
-              create={(id, path) => errorMutation.mutate({ id, path })}
-              pending={errorMutation.isPending}
-            />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="errors">
+              <SeoErrorsTab
+                rows={errors404 ?? []}
+                targets={errorTargets}
+                setTarget={(id, value) => setErrorTargets((old) => ({ ...old, [id]: value }))}
+                create={(id, path) => errorMutation.mutate({ id, path })}
+                pending={errorMutation.isPending}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : null}
       </div>
     </AppShell>
   );

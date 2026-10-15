@@ -1,4 +1,5 @@
 import { readAllPages } from "@/lib/read-all-pages";
+import { feedImageUrls } from "@/lib/feed-image-urls";
 /**
  * Tedarikçi iş akışı (satın alma siparişi, mesajlaşma, XML besleme, ödeme)
  * sunucu yardımcıları. Çağıranlar yetkiyi daima önce doğrular; burada yalnız
@@ -193,9 +194,7 @@ export function collectImages(row: Record<string, string>, mapped: string | unde
   for (const [key, value] of Object.entries(row)) {
     const generic = key.replace(/\[\d+\]/g, "");
     const named = generic === wanted || IMAGE_KEY.test(generic);
-    for (const raw of String(value ?? "").split(/[\s,;|]+/)) {
-      const part = raw.replace(/^["'<]+|["'>]+$/g, "");
-      if (!/^https?:\/\//i.test(part)) continue;
+    for (const part of feedImageUrls(String(value ?? ""))) {
       if (!named && !IMAGE_EXT.test(part)) continue;
       if (!urls.includes(part)) urls.push(part);
     }

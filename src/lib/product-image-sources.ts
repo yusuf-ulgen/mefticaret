@@ -1,3 +1,5 @@
+import { feedImageUrls } from "@/lib/feed-image-urls";
+
 /** Recover only image fields belonging to this product, never another catalog row. */
 export function productImageSources(images: unknown, raw?: Record<string, unknown> | null) {
   const candidates: string[] = [];
@@ -8,8 +10,8 @@ export function productImageSources(images: unknown, raw?: Record<string, unknow
       .trim()
       .replace(/&amp;/gi, "&")
       .replace(/&#0*38;|&#x0*26;/gi, "&");
-    if (/^https?:\/\//i.test(url) || /^\/(?!\/)/.test(url)) candidates.push(url);
-    else if (url.startsWith("//")) candidates.push(`https:${url}`);
+    if (/^\/(?!\/)/.test(url)) candidates.push(url);
+    else candidates.push(...feedImageUrls(url));
   };
   add(images);
   for (const [key, value] of Object.entries(raw ?? {})) {

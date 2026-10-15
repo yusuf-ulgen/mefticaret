@@ -327,6 +327,8 @@ import { Route as ApiPublicCronSubscriptionRenewalRouteImport } from './routes/a
 import { Route as ApiPublicCronTiktokEventsRouteImport } from './routes/api/public/cron.tiktok-events'
 import { Route as ApiPublicCronWebhookRetriesRouteImport } from './routes/api/public/cron.webhook-retries'
 import { Route as ApiPublicInstagramStoreIdRouteImport } from './routes/api/public/instagram.$storeId'
+import { Route as ApiPublicLoadtestCartRouteImport } from './routes/api/public/loadtest.cart'
+import { Route as ApiPublicLoadtestCheckoutRouteImport } from './routes/api/public/loadtest.checkout'
 import { Route as ApiPublicMobileAppStoreSlugRouteImport } from './routes/api/public/mobile-app.$storeSlug'
 import { Route as ApiPublicOauthRevokeRouteImport } from './routes/api/public/oauth.revoke'
 import { Route as ApiPublicOauthTokenRouteImport } from './routes/api/public/oauth.token'
@@ -358,6 +360,7 @@ import { Route as AuthenticatedStoreStoreIdCatalogV2ProductIdRouteImport } from 
 import { Route as AuthenticatedStoreStoreIdCustomersV2IndexRouteImport } from './routes/_authenticated/store.$storeId.customers-v2.index'
 import { Route as AuthenticatedStoreStoreIdCustomersV2CustomerIdRouteImport } from './routes/_authenticated/store.$storeId.customers-v2.$customerId'
 import { Route as AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport } from './routes/_authenticated/store.$storeId.customers.$customerId'
+import { Route as AuthenticatedStoreStoreIdOrdersIndexRouteImport } from './routes/_authenticated/store.$storeId.orders.index'
 import { Route as AuthenticatedStoreStoreIdOrdersOrderIdRouteImport } from './routes/_authenticated/store.$storeId.orders.$orderId'
 import { Route as AuthenticatedStoreStoreIdOrdersNewRouteImport } from './routes/_authenticated/store.$storeId.orders.new'
 import { Route as AuthenticatedStoreStoreIdProductsIndexRouteImport } from './routes/_authenticated/store.$storeId.products.index'
@@ -2175,6 +2178,17 @@ const ApiPublicInstagramStoreIdRoute =
     path: '/api/public/instagram/$storeId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicLoadtestCartRoute = ApiPublicLoadtestCartRouteImport.update({
+  id: '/api/public/loadtest/cart',
+  path: '/api/public/loadtest/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicLoadtestCheckoutRoute =
+  ApiPublicLoadtestCheckoutRouteImport.update({
+    id: '/api/public/loadtest/checkout',
+    path: '/api/public/loadtest/checkout',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicMobileAppStoreSlugRoute =
   ApiPublicMobileAppStoreSlugRouteImport.update({
     id: '/api/public/mobile-app/$storeSlug',
@@ -2344,6 +2358,12 @@ const AuthenticatedStoreStoreIdCustomersCustomerIdRoute =
     id: '/$customerId',
     path: '/$customerId',
     getParentRoute: () => AuthenticatedStoreStoreIdCustomersRoute,
+  } as any)
+const AuthenticatedStoreStoreIdOrdersIndexRoute =
+  AuthenticatedStoreStoreIdOrdersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedStoreStoreIdOrdersRoute,
   } as any)
 const AuthenticatedStoreStoreIdOrdersOrderIdRoute =
   AuthenticatedStoreStoreIdOrdersOrderIdRouteImport.update({
@@ -2799,6 +2819,8 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
+  '/api/public/loadtest/cart': typeof ApiPublicLoadtestCartRoute
+  '/api/public/loadtest/checkout': typeof ApiPublicLoadtestCheckoutRoute
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -2847,6 +2869,7 @@ export interface FileRoutesByFullPath {
   '/api/public/pay/supplier-iyzico/$poId': typeof ApiPublicPaySupplierIyzicoPoIdRoute
   '/store/$storeId/catalog-v2/': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/store/$storeId/customers-v2/': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
+  '/store/$storeId/orders/': typeof AuthenticatedStoreStoreIdOrdersIndexRoute
   '/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
   '/store/$storeId/theme-library/': typeof AuthenticatedStoreStoreIdThemeLibraryIndexRoute
   '/store/$storeId/theme-marketplace/': typeof AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute
@@ -3088,7 +3111,6 @@ export interface FileRoutesByTo {
   '/store/$storeId/navigation': typeof AuthenticatedStoreStoreIdNavigationRoute
   '/store/$storeId/notifications': typeof AuthenticatedStoreStoreIdNotificationsRoute
   '/store/$storeId/oauth': typeof AuthenticatedStoreStoreIdOauthRoute
-  '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersRouteWithChildren
   '/store/$storeId/pages': typeof AuthenticatedStoreStoreIdPagesRoute
   '/store/$storeId/panels': typeof AuthenticatedStoreStoreIdPanelsRoute
   '/store/$storeId/payment-notices': typeof AuthenticatedStoreStoreIdPaymentNoticesRoute
@@ -3166,6 +3188,8 @@ export interface FileRoutesByTo {
   '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
+  '/api/public/loadtest/cart': typeof ApiPublicLoadtestCartRoute
+  '/api/public/loadtest/checkout': typeof ApiPublicLoadtestCheckoutRoute
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -3214,6 +3238,7 @@ export interface FileRoutesByTo {
   '/api/public/pay/supplier-iyzico/$poId': typeof ApiPublicPaySupplierIyzicoPoIdRoute
   '/store/$storeId/catalog-v2': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/store/$storeId/customers-v2': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
+  '/store/$storeId/orders': typeof AuthenticatedStoreStoreIdOrdersIndexRoute
   '/store/$storeId/products': typeof AuthenticatedStoreStoreIdProductsIndexRoute
   '/store/$storeId/theme-library': typeof AuthenticatedStoreStoreIdThemeLibraryIndexRoute
   '/store/$storeId/theme-marketplace': typeof AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute
@@ -3541,6 +3566,8 @@ export interface FileRoutesById {
   '/api/public/cron/tiktok-events': typeof ApiPublicCronTiktokEventsRoute
   '/api/public/cron/webhook-retries': typeof ApiPublicCronWebhookRetriesRoute
   '/api/public/instagram/$storeId': typeof ApiPublicInstagramStoreIdRoute
+  '/api/public/loadtest/cart': typeof ApiPublicLoadtestCartRoute
+  '/api/public/loadtest/checkout': typeof ApiPublicLoadtestCheckoutRoute
   '/api/public/mobile-app/$storeSlug': typeof ApiPublicMobileAppStoreSlugRoute
   '/api/public/oauth/revoke': typeof ApiPublicOauthRevokeRoute
   '/api/public/oauth/token': typeof ApiPublicOauthTokenRoute
@@ -3589,6 +3616,7 @@ export interface FileRoutesById {
   '/api/public/pay/supplier-iyzico/$poId': typeof ApiPublicPaySupplierIyzicoPoIdRoute
   '/_authenticated/store/$storeId/catalog-v2/': typeof AuthenticatedStoreStoreIdCatalogV2IndexRoute
   '/_authenticated/store/$storeId/customers-v2/': typeof AuthenticatedStoreStoreIdCustomersV2IndexRoute
+  '/_authenticated/store/$storeId/orders/': typeof AuthenticatedStoreStoreIdOrdersIndexRoute
   '/_authenticated/store/$storeId/products/': typeof AuthenticatedStoreStoreIdProductsIndexRoute
   '/_authenticated/store/$storeId/theme-library/': typeof AuthenticatedStoreStoreIdThemeLibraryIndexRoute
   '/_authenticated/store/$storeId/theme-marketplace/': typeof AuthenticatedStoreStoreIdThemeMarketplaceIndexRoute
@@ -3916,6 +3944,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
+    | '/api/public/loadtest/cart'
+    | '/api/public/loadtest/checkout'
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -3964,6 +3994,7 @@ export interface FileRouteTypes {
     | '/api/public/pay/supplier-iyzico/$poId'
     | '/store/$storeId/catalog-v2/'
     | '/store/$storeId/customers-v2/'
+    | '/store/$storeId/orders/'
     | '/store/$storeId/products/'
     | '/store/$storeId/theme-library/'
     | '/store/$storeId/theme-marketplace/'
@@ -4205,7 +4236,6 @@ export interface FileRouteTypes {
     | '/store/$storeId/navigation'
     | '/store/$storeId/notifications'
     | '/store/$storeId/oauth'
-    | '/store/$storeId/orders'
     | '/store/$storeId/pages'
     | '/store/$storeId/panels'
     | '/store/$storeId/payment-notices'
@@ -4283,6 +4313,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
+    | '/api/public/loadtest/cart'
+    | '/api/public/loadtest/checkout'
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -4331,6 +4363,7 @@ export interface FileRouteTypes {
     | '/api/public/pay/supplier-iyzico/$poId'
     | '/store/$storeId/catalog-v2'
     | '/store/$storeId/customers-v2'
+    | '/store/$storeId/orders'
     | '/store/$storeId/products'
     | '/store/$storeId/theme-library'
     | '/store/$storeId/theme-marketplace'
@@ -4657,6 +4690,8 @@ export interface FileRouteTypes {
     | '/api/public/cron/tiktok-events'
     | '/api/public/cron/webhook-retries'
     | '/api/public/instagram/$storeId'
+    | '/api/public/loadtest/cart'
+    | '/api/public/loadtest/checkout'
     | '/api/public/mobile-app/$storeSlug'
     | '/api/public/oauth/revoke'
     | '/api/public/oauth/token'
@@ -4705,6 +4740,7 @@ export interface FileRouteTypes {
     | '/api/public/pay/supplier-iyzico/$poId'
     | '/_authenticated/store/$storeId/catalog-v2/'
     | '/_authenticated/store/$storeId/customers-v2/'
+    | '/_authenticated/store/$storeId/orders/'
     | '/_authenticated/store/$storeId/products/'
     | '/_authenticated/store/$storeId/theme-library/'
     | '/_authenticated/store/$storeId/theme-marketplace/'
@@ -4823,6 +4859,8 @@ export interface RootRouteChildren {
   ApiPublicCronTiktokEventsRoute: typeof ApiPublicCronTiktokEventsRoute
   ApiPublicCronWebhookRetriesRoute: typeof ApiPublicCronWebhookRetriesRoute
   ApiPublicInstagramStoreIdRoute: typeof ApiPublicInstagramStoreIdRoute
+  ApiPublicLoadtestCartRoute: typeof ApiPublicLoadtestCartRoute
+  ApiPublicLoadtestCheckoutRoute: typeof ApiPublicLoadtestCheckoutRoute
   ApiPublicMobileAppStoreSlugRoute: typeof ApiPublicMobileAppStoreSlugRoute
   ApiPublicOauthRevokeRoute: typeof ApiPublicOauthRevokeRoute
   ApiPublicOauthTokenRoute: typeof ApiPublicOauthTokenRoute
@@ -7085,6 +7123,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicInstagramStoreIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/loadtest/cart': {
+      id: '/api/public/loadtest/cart'
+      path: '/api/public/loadtest/cart'
+      fullPath: '/api/public/loadtest/cart'
+      preLoaderRoute: typeof ApiPublicLoadtestCartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/loadtest/checkout': {
+      id: '/api/public/loadtest/checkout'
+      path: '/api/public/loadtest/checkout'
+      fullPath: '/api/public/loadtest/checkout'
+      preLoaderRoute: typeof ApiPublicLoadtestCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/mobile-app/$storeSlug': {
       id: '/api/public/mobile-app/$storeSlug'
       path: '/api/public/mobile-app/$storeSlug'
@@ -7301,6 +7353,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/store/$storeId/customers/$customerId'
       preLoaderRoute: typeof AuthenticatedStoreStoreIdCustomersCustomerIdRouteImport
       parentRoute: typeof AuthenticatedStoreStoreIdCustomersRoute
+    }
+    '/_authenticated/store/$storeId/orders/': {
+      id: '/_authenticated/store/$storeId/orders/'
+      path: '/'
+      fullPath: '/store/$storeId/orders/'
+      preLoaderRoute: typeof AuthenticatedStoreStoreIdOrdersIndexRouteImport
+      parentRoute: typeof AuthenticatedStoreStoreIdOrdersRoute
     }
     '/_authenticated/store/$storeId/orders/$orderId': {
       id: '/_authenticated/store/$storeId/orders/$orderId'
@@ -7648,6 +7707,7 @@ const AuthenticatedStoreStoreIdCustomersV2RouteWithChildren =
 interface AuthenticatedStoreStoreIdOrdersRouteChildren {
   AuthenticatedStoreStoreIdOrdersOrderIdRoute: typeof AuthenticatedStoreStoreIdOrdersOrderIdRoute
   AuthenticatedStoreStoreIdOrdersNewRoute: typeof AuthenticatedStoreStoreIdOrdersNewRoute
+  AuthenticatedStoreStoreIdOrdersIndexRoute: typeof AuthenticatedStoreStoreIdOrdersIndexRoute
 }
 
 const AuthenticatedStoreStoreIdOrdersRouteChildren: AuthenticatedStoreStoreIdOrdersRouteChildren =
@@ -7656,6 +7716,8 @@ const AuthenticatedStoreStoreIdOrdersRouteChildren: AuthenticatedStoreStoreIdOrd
       AuthenticatedStoreStoreIdOrdersOrderIdRoute,
     AuthenticatedStoreStoreIdOrdersNewRoute:
       AuthenticatedStoreStoreIdOrdersNewRoute,
+    AuthenticatedStoreStoreIdOrdersIndexRoute:
+      AuthenticatedStoreStoreIdOrdersIndexRoute,
   }
 
 const AuthenticatedStoreStoreIdOrdersRouteWithChildren =
@@ -8271,6 +8333,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronTiktokEventsRoute: ApiPublicCronTiktokEventsRoute,
   ApiPublicCronWebhookRetriesRoute: ApiPublicCronWebhookRetriesRoute,
   ApiPublicInstagramStoreIdRoute: ApiPublicInstagramStoreIdRoute,
+  ApiPublicLoadtestCartRoute: ApiPublicLoadtestCartRoute,
+  ApiPublicLoadtestCheckoutRoute: ApiPublicLoadtestCheckoutRoute,
   ApiPublicMobileAppStoreSlugRoute: ApiPublicMobileAppStoreSlugRoute,
   ApiPublicOauthRevokeRoute: ApiPublicOauthRevokeRoute,
   ApiPublicOauthTokenRoute: ApiPublicOauthTokenRoute,

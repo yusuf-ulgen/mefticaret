@@ -3,24 +3,26 @@
  * HTTPS zorlaması (HSTS), XSS/clickjacking sertleştirmesi ve referrer/izin politikaları.
  */
 
-const CSP = [
-  "default-src 'self'",
-  // Vitrin temaları mağaza sahibinin bilinçli özel CSS/JS'ini çalıştırabilir.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
-  "style-src 'self' 'unsafe-inline' https:",
-  "img-src 'self' data: blob: https:",
-  "media-src 'self' blob: https:",
-  "font-src 'self' data: https:",
-  "connect-src 'self' https: wss:",
-  // Ödeme sayfası (QNBpay) ve editör önizlemesi çerçeve olarak gömülür.
-  "frame-src 'self' https:",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  // Editör önizlemesi ve mağaza gömülü kullanımları için çerçeveleme kısıtlı biçimde açık.
-  "frame-ancestors 'self' https:",
-  "upgrade-insecure-requests",
-].join("; ");
+export function contentSecurityPolicy(development = false) {
+  return [
+    "default-src 'self'",
+    // Vitrin temaları mağaza sahibinin bilinçli özel CSS/JS'ini çalıştırabilir.
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+    "style-src 'self' 'unsafe-inline' https:",
+    "img-src 'self' data: blob: https:",
+    "media-src 'self' blob: https:",
+    "font-src 'self' data: https:",
+    `connect-src 'self' https: wss:${development ? " http://127.0.0.1:* http://localhost:* ws://127.0.0.1:* ws://localhost:*" : ""}`,
+    // Ödeme sayfası (QNBpay) ve editör önizlemesi çerçeve olarak gömülür.
+    "frame-src 'self' https:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    // Editör önizlemesi ve mağaza gömülü kullanımları için çerçeveleme kısıtlı biçimde açık.
+    "frame-ancestors 'self' https:",
+    "upgrade-insecure-requests",
+  ].join("; ");
+}
 
 export const SECURITY_HEADERS: Record<string, string> = {
   "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
@@ -29,7 +31,7 @@ export const SECURITY_HEADERS: Record<string, string> = {
   "x-xss-protection": "0",
   "permissions-policy": "camera=(), microphone=(), geolocation=(self), payment=(self)",
   "cross-origin-opener-policy": "same-origin-allow-popups",
-  "content-security-policy": CSP,
+  "content-security-policy": contentSecurityPolicy(import.meta.env.DEV),
 };
 
 /** Yanıt başlıklarını yerinde sertleştirir (mevcut başlıkları ezmez). */

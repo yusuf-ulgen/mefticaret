@@ -18,13 +18,17 @@ const ORDERS = Number(__ENV.ORDERS || 2000);
 const STORE_COUNT = Number(__ENV.STORE_COUNT || 1000);
 const PROJECT_ID = Number(__ENV.K6_CLOUD_PROJECT_ID || 0);
 
-const placedOrders = new Counter("simulated_orders");
+const placedOrders = new Counter("pending_orders");
 const stockBlocked = new Counter("stock_blocked");
 const limited = new Counter("rate_limited");
 
 export function setup() {
-  const probe = http.options(`${BASE_URL}/api/public/loadtest/cart`);
-  if (probe.status === 404) fail("Checkout contract endpoints are absent. This scenario cannot prove checkout or payment capacity.");
+  if (!__ENV.LOADTEST_SECRET) fail("LOADTEST_SECRET is required.");
+  const probe = http.options(`${BASE_URL}/api/public/loadtest/cart`, null, {
+    headers: { Authorization: `Bearer ${__ENV.LOADTEST_SECRET}` },
+  });
+  if (probe.status !== 200 || probe.json("contract") !== "test_store_pending_order")
+    fail("Test checkout is disabled or unauthorized. Enable the staging-only contract first.");
 }
 
 export const options = {
@@ -54,13 +58,12 @@ export const options = {
 
 export default function () {
   const slug = `test-store-${1 + Math.floor(Math.random() * STORE_COUNT)}`;
-  const jar = http.cookieJar();
-  jar.set(BASE_URL, "mefti_loadtest", "1");
+  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${__ENV.LOADTEST_SECRET}` };
 
   const cart = http.post(
     `${BASE_URL}/api/public/loadtest/cart`,
     JSON.stringify({ store: slug, quantity: 1 + Math.floor(Math.random() * 3) }),
-    { headers: { "Content-Type": "application/json" }, tags: { step: "cart" } },
+    { headers, tags: { step: "cart" } },
   );
 
   if (cart.status === 409) {
@@ -74,11 +77,11 @@ export default function () {
 
   const checkout = http.post(
     `${BASE_URL}/api/public/loadtest/checkout`,
-    JSON.stringify({ store: slug, gateway: "mefpay", mode: "sandbox" }),
-    { headers: { "Content-Type": "application/json" }, tags: { step: "checkout" } },
+    JSON.stringify({ cartToken: cart.json("cartToken"), mode: "sandbox" }),
+    { headers, tags: { step: "checkout" } },
   );
 
-  if (checkout.status === 200 || checkout.status === 201) placedOrders.add(1);
+  if (checkout.status === 201 && checkout.json("paymentStatus") === "pending") placedOrders.add(1);
   if (checkout.status === 429) limited.add(1);
   check(checkout, { "checkout sözleşmesi başarılı": (res) => res.status === 200 || res.status === 201 });
 

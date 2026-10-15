@@ -96,7 +96,28 @@ function SupplierPortalPage() {
   const load = useServerFn(supplierDeskOverview);
   const update = useServerFn(supplierPortalUpdateOrder);
   const loadOwnership = useServerFn(supplierOwnershipReport);
-  const ownershipReport = useMutation({ mutationFn: (supplierId: string) => loadOwnership({ data: { supplierId } }), onSuccess: (report) => { downloadCsv(`siparis-sahiplik-${report.generatedAt.slice(0, 10)}.csv`, toCsv(["Sipariş", "Sipariş kimliği", "Tedarikçi siparişi", "Tarih", "Doğrulanmış kalem"], report.gaps.map((row) => [row.orderNumber, row.orderId, row.dropshipOrderId, row.createdAt, String(row.ownedItems)]))); toast.success(`${report.scanned} sipariş tarandı; ${report.gaps.length} ilişki kontrolü gerekli`); }, onError: (error: Error) => toast.error(error.message) });
+  const ownershipReport = useMutation({
+    mutationFn: (supplierId: string) => loadOwnership({ data: { supplierId } }),
+    onSuccess: (report) => {
+      downloadCsv(
+        `siparis-sahiplik-${report.generatedAt.slice(0, 10)}.csv`,
+        toCsv(
+          ["Sipariş", "Sipariş kimliği", "Tedarikçi siparişi", "Tarih", "Doğrulanmış kalem"],
+          report.gaps.map((row) => [
+            row.orderNumber,
+            row.orderId,
+            row.dropshipOrderId,
+            row.createdAt,
+            String(row.ownedItems),
+          ]),
+        ),
+      );
+      toast.success(
+        `${report.scanned} sipariş tarandı; ${report.gaps.length} ilişki kontrolü gerekli`,
+      );
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["supplier-desk"],
@@ -230,7 +251,17 @@ function SupplierPortalPage() {
               {workflow.data ? (
                 <SupplierPurchaseOrders supplierId={supplierId} data={workflow.data} />
               ) : null}
-              <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="pt-2 text-sm font-medium">Müşteri siparişleri (dropshipping)</h2><Button variant="outline" size="sm" disabled={ownershipReport.isPending || !supplierId} onClick={() => ownershipReport.mutate(supplierId)}>{ownershipReport.isPending ? "Geçmiş taranıyor…" : "Eksik sahiplik raporu (CSV)"}</Button></div>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="pt-2 text-sm font-medium">Müşteri siparişleri (dropshipping)</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={ownershipReport.isPending || !supplierId}
+                  onClick={() => ownershipReport.mutate(supplierId)}
+                >
+                  {ownershipReport.isPending ? "Geçmiş taranıyor…" : "Eksik sahiplik raporu (CSV)"}
+                </Button>
+              </div>
               <div className="grid grid-cols-4 gap-1 rounded-lg bg-card p-1 shadow-sm">
                 {[
                   ["pending", "Bekleyen"],
@@ -516,13 +547,13 @@ function SupplierOrderCard({
         </div>
       ) : null}
 
+      {order.relationIssue ? (
+        <p role="alert" className="mb-3 text-destructive">
+          Siparişin tedarikçi kalem ilişkisi eksik. Alt toplam hesaplanamadı; geçmiş ilişki
+          incelenmeli.
+        </p>
+      ) : null}
       <div className="space-y-2 sm:hidden">
-        {order.relationIssue ? (
-          <p role="alert" className="mb-3 text-destructive">
-            Siparişin tedarikçi kalem ilişkisi eksik. Alt toplam hesaplanamadı; geçmiş ilişki
-            incelenmeli.
-          </p>
-        ) : null}
         {order.items.map((item) => (
           <article
             key={item.id}
@@ -608,10 +639,18 @@ function SupplierOrderCard({
           </strong>
         </span>
         <span className="min-w-0 text-muted-foreground">
-          Platform komisyonu: {formatMoney(order.commissionTotal, order.currency)}
+          Platform komisyonu:{" "}
+          {order.commissionTotal === null
+            ? "Hesaplanamadı"
+            : formatMoney(order.commissionTotal, order.currency)}
         </span>
         <span className="col-span-2 min-w-0 sm:col-span-1">
-          Hak edilen: <strong>{formatMoney(order.netTotal, order.currency)}</strong>
+          Hak edilen:{" "}
+          <strong>
+            {order.netTotal === null
+              ? "Hesaplanamadı"
+              : formatMoney(order.netTotal, order.currency)}
+          </strong>
         </span>
       </div>
 

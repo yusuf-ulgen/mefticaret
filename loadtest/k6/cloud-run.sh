@@ -18,7 +18,9 @@ set -euo pipefail
 SCENARIO="${1:-storefront}"
 case "$SCENARIO" in
   storefront) SCRIPT="loadtest/k6/storefront.js" ;;
-  checkout) SCRIPT="loadtest/k6/checkout.js" ;;
+  checkout)
+    : "${LOADTEST_SECRET:?Staging checkout LOADTEST_SECRET gerekli}"
+    SCRIPT="loadtest/k6/checkout.js" ;;
   *) echo "Bilinmeyen senaryo: $SCENARIO (storefront | checkout)" >&2; exit 1 ;;
 esac
 

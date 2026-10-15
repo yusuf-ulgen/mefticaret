@@ -97,7 +97,8 @@ export K6_CLOUD_PROJECT_ID="..."   # 1. adımdaki proje kimliği
 # Vitrin: 20.000 eşzamanlı gezinti/filtreleme (varsayılan bölge: Frankfurt)
 BASE_URL=https://staging.example.test VUS=20000 DURATION=15m bash loadtest/k6/cloud-run.sh storefront
 
-# Kasa: 10.000 sipariş, sandbox ödeme
+# Kasa: 10.000 ödeme bekleyen TEST siparişi (sağlayıcı çağrılmaz)
+# LOADTEST_SECRET hem staging sunucusunda hem k6 ortamında aynı olmalıdır.
 BASE_URL=https://staging.example.test VUS=1000 ORDERS=10000 bash loadtest/k6/cloud-run.sh checkout
 
 # Bölge değiştirmek için: K6_LOAD_ZONE=amazon:us:ashburn
@@ -114,8 +115,15 @@ Test bitince `/admin/load-test` panelinden turu **DURDUR** — TEST verisi
 ### Bilinen sınırlar
 
 - `checkout.js` senaryosu `/api/public/loadtest/cart` ve `/api/public/loadtest/checkout`
-  uç noktalarını çağırır; bu uç noktalar henüz projede yok — kasa yükü için önce
-  korumalı (yalnız TEST mağazaları + izin anahtarı) olarak eklenmeli.
+  uçlarını kullanır. Sunucuda `LOADTEST_ENABLED=true`, `LOADTEST_ENVIRONMENT=staging`
+  ve en az 32 karakterlik `LOADTEST_SECRET` gerekir; diğer ortamlarda 404 döner.
+  Her istek `Authorization: Bearer <LOADTEST_SECRET>` taşır. Sunucu her iki adımda
+  mağazanın `is_test=true` ve aktif olduğunu doğrular. Sepet içeriği beş dakika
+  geçerli imzalı token ile kasaya taşınır; ürün, adet ve politika sürümleri korunur.
+  TEST mağazasında zorunlu politikalar yayınlanmış, misafir ödeme açık ve fiziksel
+  ürünler için kargo tarifesi hazır olmalıdır. Gerçek `quoteCheckout` ve
+  `createStorefrontOrder` çalışır; stok rezerve edilir ve ödeme bekleyen sipariş
+  oluşturulur. Ödeme sağlayıcısı, tahsilat veya başarılı ödeme ölçülmez.
 - k6 Cloud trafiği Grafana'nın IP havuzundan gelir; genel API hız sınırı (100 istek/dk)
   IP başına uygulandığından yüksek VU'da 429'lar normaldir ve hata oranına dahildir.
   Vitrin ölçümünü önce 1.000–2.000 VU ile doğrulayıp artırın.
@@ -125,7 +133,7 @@ Test bitince `/admin/load-test` panelinden turu **DURDUR** — TEST verisi
 
 - `k6/storefront.js` yalnız HTTP vitrin/liste gezinmesidir; tarayıcıda sepet veya CWV ölçmez. Olmayan `/search` isteği kaldırıldı.
 - k6 `handleSummary` JSON dosyası hedef VU, ölçülmüş en yüksek VU, süre, iterasyon, istek/sn, p95, hata ve 429 sayısını ayırır. Yarım/kanıtsız koşu tam başarı sayılmaz; CPU/RAM/DB alanı ölçüm kaydı olmadan `null` kalır.
-- `k6/checkout.js` yalnız endpoint sözleşmesini ölçer. 4xx başarılı checkout sayılmaz; eksik endpointte hazırlık aşamasında durur. Bu projede korumalı test checkout endpointleri henüz yoktur.
+- `k6/checkout.js` TEST mağazasındaki sepet/fiyatlandırma/stok/sipariş yolunu ölçer. 4xx başarı sayılmaz; kapalı veya yetkisiz uçta hazırlık aşamasında durur. `pending_orders` ödeme bekleyen sipariş sayısıdır; ödeme başarısı değildir.
 - `storefront-load.ts` hedef worker ile ölçülen eşzamanlı istek sayısını ayırır; 404/429 hatadır. Boş ölçüm ve SIGINT ile durdurulan koşu başarı vermez.
 - `stock-race.ts`: tek stok senaryosunda tam bir başarılı işlem ve kalanların açık stok reddi gerekir. Bütün isteklerin 404/401 olması aşırı satış testini geçirmez.
 - Normal kullanıcı ve test trafiği raporda ayrı değerlendirilir. Rate limitler kaldırılmadı. Aynı senaryo/rota/cihaz/örnek veri/limitlerle önce-sonra ölçülmelidir.

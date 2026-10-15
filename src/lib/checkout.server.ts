@@ -77,7 +77,7 @@ async function publishedStore(slug: string) {
   const supabase = await admin();
   const { data, error } = await supabase
     .from("stores")
-    .select("id, name, slug, currency, locale, status, published_at")
+    .select("id, name, slug, currency, locale, status, published_at, is_test")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -439,9 +439,12 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
 export async function createStorefrontOrder(
   input: z.infer<typeof placeOrderSchema>,
   auth?: { userId: string; email: string } | undefined,
+  execution?: { testStoreId: string },
 ) {
   const store = await publishedStore(input.slug);
   if (!store) throw new Error("Mağaza bulunamadı veya yayında değil");
+  if (execution && (!store.is_test || execution.testStoreId !== store.id))
+    throw new Error("Test işlemi yalnız TEST mağazasında çalışabilir");
   const supabase = await admin();
   const policies = await checkoutPolicies(supabase, store.id);
   if (
@@ -609,7 +612,7 @@ export async function createStorefrontOrder(
     }
   }
 
-  const number = orderNumber();
+  const number = execution ? `TEST-${orderNumber()}` : orderNumber();
   const { data: order, error: orderError } = await supabase
     .from("orders")
     .insert({
@@ -718,7 +721,7 @@ export async function createStorefrontOrder(
     },
   });
 
-  {
+  if (!execution) {
     const { dispatchCustomerEvent } = await import("@/lib/customer-notify.server");
     await dispatchCustomerEvent(order.id, "ORDER_CREATED");
   }

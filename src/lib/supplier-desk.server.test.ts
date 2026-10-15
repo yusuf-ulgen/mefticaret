@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { loadSupplierDeskOrders } from "./supplier-desk.server";
 
 type Row = Record<string, unknown>;
-function database(fail?: string, ambiguous = false) {
+function database(fail?: string, ambiguous = false, missingCommission = false) {
   const tables: Record<string, Row[]> = {
     dropship_orders: [
       { id: "desk-a", supplier_id: "supplier-a", order_id: "order-a", created_at: "2026-10-14" },
@@ -39,7 +39,8 @@ function database(fail?: string, ambiguous = false) {
   };
   return {
     from: (table: string) => {
-      let data = tables[table] ?? [];
+      let data =
+        table === "supplier_commission_entries" && missingCommission ? [] : (tables[table] ?? []);
       let from = 0;
       let to = Infinity;
       const query = {
@@ -91,4 +92,14 @@ it("B02: the real order reader restores a legacy line from exact commission evid
 it("B02: contradictory legacy ownership stays unknown and is not exposed", async () => {
   const orders = await loadSupplierDeskOrders(database(undefined, true), ["supplier-a"]);
   expect(orders[0]).toMatchObject({ items: [], itemsTotal: null, relationIssue: true });
+});
+it("B02/G25: absent historical financial evidence is unknown, rather than zero earned", async () => {
+  const orders = await loadSupplierDeskOrders(database(undefined, false, true), ["supplier-a"]);
+  expect(orders[0]).toMatchObject({
+    items: [],
+    itemsTotal: null,
+    relationIssue: true,
+    commissionTotal: null,
+    netTotal: null,
+  });
 });

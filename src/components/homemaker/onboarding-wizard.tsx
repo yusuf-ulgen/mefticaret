@@ -7,7 +7,7 @@ const STEPS = [
   {
     icon: Heart,
     title: "Hoş geldiniz",
-    text: "Bu panel üç bölümden oluşur: Mağazam, Ürünlerim ve Siparişlerim. Hepsi alt taraftaki düğmelerde.",
+    text: "Alt menüden Mağazam, Ürünlerim, Tedarikçi, Siparişler, Ambalaj, Müşteriler ve Raporlar bölümlerine ulaşabilirsiniz.",
   },
   {
     icon: Wallet,

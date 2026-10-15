@@ -43,8 +43,8 @@ export type DeskOrder = {
   items: DeskItem[];
   itemsTotal: number | null;
   relationIssue: boolean;
-  commissionTotal: number;
-  netTotal: number;
+  commissionTotal: number | null;
+  netTotal: number | null;
   note: string | null;
   paymentStatus: string | null;
 };
@@ -267,7 +267,11 @@ export async function loadSupplierDeskOrders(
 
   const productMap = new Map(((products ?? []) as any[]).map((row) => [row.id as string, row]));
   const variantMap = new Map(((variants ?? []) as any[]).map((row) => [row.id as string, row]));
-  const mappingRows = supplierOwnershipWithHistory(itemRows, (mappings ?? []) as any[], commissionRows);
+  const mappingRows = supplierOwnershipWithHistory(
+    itemRows,
+    (mappings ?? []) as any[],
+    commissionRows,
+  );
   const imageRows = (images ?? []) as any[];
 
   const ownsItem = (supplierId: string, item: { id: string }) =>
@@ -326,8 +330,12 @@ export async function loadSupplierDeskOrders(
         ? null
         : deskItems.reduce((total, item) => total + item.lineTotal, 0),
       relationIssue,
-      commissionTotal: entries.reduce((total, entry) => total + num(entry.commission_amount), 0),
-      netTotal: entries.reduce((total, entry) => total + num(entry.net_amount), 0),
+      commissionTotal: entries.length
+        ? entries.reduce((total, entry) => total + num(entry.commission_amount), 0)
+        : null,
+      netTotal: entries.length
+        ? entries.reduce((total, entry) => total + num(entry.net_amount), 0)
+        : null,
       note: order?.note ?? null,
       paymentStatus: order?.payment_status ?? null,
     };
@@ -338,7 +346,13 @@ export async function loadSupplierDeskOrders(
 export async function loadSupplierWorkspace(
   admin: Client,
   suppliers: { id: string; store_id: string }[],
-  catalog: { search?: string; page?: number; category?: string; sort?: string; filter?: string } = {},
+  catalog: {
+    search?: string;
+    page?: number;
+    category?: string;
+    sort?: string;
+    filter?: string;
+  } = {},
 ) {
   if (!suppliers.length)
     return {
@@ -442,7 +456,13 @@ export async function loadSupplierWorkspace(
             .order("created_at", { ascending: false })
             .limit(100)
         : Promise.resolve({ data: [] }),
-      variantIds.length ? admin.from("inventory_levels").select("variant_id, reserved, on_hand, updated_at").in("store_id", storeIds).in("variant_id", variantIds) : Promise.resolve({ data: [] }),
+      variantIds.length
+        ? admin
+            .from("inventory_levels")
+            .select("variant_id, reserved, on_hand, updated_at")
+            .in("store_id", storeIds)
+            .in("variant_id", variantIds)
+        : Promise.resolve({ data: [] }),
     ].map(checkedQuery),
   );
   const liveProductMap = new Map(((liveProducts ?? []) as any[]).map((row) => [row.id, row]));
@@ -472,9 +492,22 @@ export async function loadSupplierWorkspace(
         stock: Number(row.stock ?? 0),
         currency: row.currency ?? "TRY",
         sourceStock: Number(row.stock ?? 0),
-        warehouseReserved: (inventory ?? []).some((r: any) => r.variant_id === row.variant_id) ? (inventory ?? []).filter((r: any) => r.variant_id === row.variant_id).reduce((sum: number, r: any) => sum + Number(r.reserved ?? 0), 0) : null,
-        warehouseOnHand: (inventory ?? []).some((r: any) => r.variant_id === row.variant_id) ? (inventory ?? []).filter((r: any) => r.variant_id === row.variant_id).reduce((sum: number, r: any) => sum + Number(r.on_hand ?? 0), 0) : null,
-        warehouseUpdatedAt: (inventory ?? []).filter((r: any) => r.variant_id === row.variant_id).map((r: any) => String(r.updated_at)).sort().at(-1) ?? null,
+        warehouseReserved: (inventory ?? []).some((r: any) => r.variant_id === row.variant_id)
+          ? (inventory ?? [])
+              .filter((r: any) => r.variant_id === row.variant_id)
+              .reduce((sum: number, r: any) => sum + Number(r.reserved ?? 0), 0)
+          : null,
+        warehouseOnHand: (inventory ?? []).some((r: any) => r.variant_id === row.variant_id)
+          ? (inventory ?? [])
+              .filter((r: any) => r.variant_id === row.variant_id)
+              .reduce((sum: number, r: any) => sum + Number(r.on_hand ?? 0), 0)
+          : null,
+        warehouseUpdatedAt:
+          (inventory ?? [])
+            .filter((r: any) => r.variant_id === row.variant_id)
+            .map((r: any) => String(r.updated_at))
+            .sort()
+            .at(-1) ?? null,
         storeStock: liveVariant ? Number(liveVariant.stock) : null,
         sourceUpdatedAt: row.updated_at,
         storeUpdatedAt: liveVariant?.updated_at ?? liveProduct?.updated_at ?? null,

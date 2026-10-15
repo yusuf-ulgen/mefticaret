@@ -24,8 +24,8 @@ export default function SupplierAnalytics({
   orders: Array<{
     orderCreatedAt: string;
     itemsTotal: number | null;
-    netTotal: number;
-    commissionTotal: number;
+    netTotal: number | null;
+    commissionTotal: number | null;
     items: Array<{ quantity: number; title: string }>;
   }>;
   currency: string;
@@ -43,7 +43,7 @@ export default function SupplierAnalytics({
       if (!key) continue;
       const row = grouped.get(key) ?? { label: key, revenue: 0, quantity: 0, commission: 0 };
       row.revenue += order.itemsTotal;
-      row.commission += order.commissionTotal;
+      row.commission += order.commissionTotal ?? 0;
       row.quantity += order.items.reduce((sum, item) => sum + item.quantity, 0);
       grouped.set(key, row);
     }
@@ -62,7 +62,7 @@ export default function SupplierAnalytics({
   }, [orders]);
   const revenue = orders.reduce((sum, row) => sum + (row.itemsTotal ?? 0), 0);
   const quantity = orders.flatMap((row) => row.items).reduce((sum, row) => sum + row.quantity, 0);
-  const commission = orders.reduce((sum, row) => sum + row.commissionTotal, 0);
+  const commission = orders.reduce((sum, row) => sum + (row.commissionTotal ?? 0), 0);
   const periods: Array<[string, string]> = [
     ["hourly", "Saatlik"],
     ["daily", "Günlük"],
@@ -159,12 +159,23 @@ export default function SupplierAnalytics({
         />
         <SmallMetric
           label="Net kazanç"
-          value={formatMoney(
-            orders.reduce((sum, row) => sum + row.netTotal, 0),
-            currency,
-          )}
+          value={
+            orders.some((row) => row.netTotal === null)
+              ? "Eksik finans kaydı"
+              : formatMoney(
+                  orders.reduce((sum, row) => sum + (row.netTotal ?? 0), 0),
+                  currency,
+                )
+          }
         />
-        <SmallMetric label="Komisyon" value={formatMoney(commission, currency)} />
+        <SmallMetric
+          label="Komisyon"
+          value={
+            orders.some((row) => row.commissionTotal === null)
+              ? "Eksik finans kaydı"
+              : formatMoney(commission, currency)
+          }
+        />
       </div>
     </div>
   );

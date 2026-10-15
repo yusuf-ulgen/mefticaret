@@ -1,0 +1,871 @@
+{
+  "generatedAt": "2026-10-15T16:38:58.439203+00:00",
+  "scope": {
+    "total": 72,
+    "excludedPassed": 30,
+    "reviewed": 42,
+    "sourceOpen": 11,
+    "sourceSkipped": 31
+  },
+  "productionChanged": false,
+  "productionDataRepaired": false,
+  "deployed": false,
+  "sources": [
+    {
+      "name": "Mefticaret_72_Madde_Yeniden_Kontrol_2026-10-15_1903.html",
+      "sha256": "30970c7066b273ab9d9682954729bf701b83d59c911d1806ce48fce4237182f0"
+    },
+    {
+      "name": "Mefticaret_Gelistirme_ve_Optimizasyon_Onerileri (1).pdf",
+      "sha256": "ae8a9bbb6351e81e2ebbe218b018214416b7cc0d302235b01ff783751247f09d"
+    },
+    {
+      "name": "Mefticaret_Gelistirme_Oncesi_Sonrasi.html",
+      "sha256": "fe04e9afc60e41c334a4e8b3b90774070d88fe58787cbefa854754fca13bdfa3"
+    },
+    {
+      "name": "Mefticaret_Birlesik_Hatalar_ve_Kontrol_Listesi (1).pdf",
+      "sha256": "ef1531782497ecca4d202240eb38e0dffaeb13871545b4c316b9bb9a7dd6a677"
+    },
+    {
+      "name": "Mefticaret_Bugfix_Oncesi_Sonrasi.html",
+      "sha256": "b39240b0839b0d05a621fafdf0e85c2a4d4ca53d617575d185c90ccdf00c0e31"
+    }
+  ],
+  "evidence": {
+    "local-qa-results": {
+      "generatedAt": "2026-10-15T16:31:42.624Z",
+      "branch": "feat/development-optimization",
+      "localStatus": "passed",
+      "tests": {
+        "total": 181,
+        "passed": 181,
+        "failed": 0
+      },
+      "steps": [
+        {
+          "name": "build",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 49451,
+          "log": "C:\\Users\\YUSUF\\AppData\\Local\\Temp\\mefticaret-optimization-qa-ytFfnG\\build.log"
+        },
+        {
+          "name": "types",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 105620,
+          "log": "C:\\Users\\YUSUF\\AppData\\Local\\Temp\\mefticaret-optimization-qa-ytFfnG\\types.log"
+        },
+        {
+          "name": "tests",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1840,
+          "log": "C:\\Users\\YUSUF\\AppData\\Local\\Temp\\mefticaret-optimization-qa-ytFfnG\\tests.log"
+        },
+        {
+          "name": "links",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 824,
+          "log": "C:\\Users\\YUSUF\\AppData\\Local\\Temp\\mefticaret-optimization-qa-ytFfnG\\links.log"
+        },
+        {
+          "name": "bugfix-sql",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2024,
+          "log": "C:\\Users\\YUSUF\\AppData\\Local\\Temp\\mefticaret-optimization-qa-ytFfnG\\bugfix-sql.log"
+        },
+        {
+          "name": "optimization-sql",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1853,
+          "log": "C:\\Users\\YUSUF\\AppData\\Local\\Temp\\mefticaret-optimization-qa-ytFfnG\\optimization-sql.log"
+        }
+      ],
+      "externalScenarios": [
+        {
+          "scenario": "authenticated role/RLS on real Supabase",
+          "status": "not_run",
+          "reason": "Separate configured test environment required"
+        },
+        {
+          "scenario": "supplier XML and import with real feed",
+          "status": "not_run",
+          "reason": "Separate configured test environment required"
+        },
+        {
+          "scenario": "360/375/768 px browser and keyboard interactions",
+          "status": "not_run",
+          "reason": "Separate configured test environment required"
+        },
+        {
+          "scenario": "customer login/register/cart and digital/mixed delivery",
+          "status": "not_run",
+          "reason": "Separate configured test environment required"
+        },
+        {
+          "scenario": "sandbox receipt/refund/callback/network-failure reconciliation",
+          "status": "not_run",
+          "reason": "Separate configured test environment required"
+        },
+        {
+          "scenario": "old-tab deploy recovery",
+          "status": "not_run",
+          "reason": "Separate configured test environment required"
+        },
+        {
+          "scenario": "same-scenario CWV/Lighthouse and CPU/RAM/DB load measurement",
+          "status": "not_run",
+          "reason": "Separate configured test environment required"
+        }
+      ]
+    },
+    "report-followup-local": {
+      "generatedAt": "2026-10-15T16:27:34.928Z",
+      "scope": "Loopback local Supabase and HTTP only. No external payment provider.",
+      "results": [
+        {
+          "scenario": "real-postgres-manager-role-owner",
+          "passed": true
+        },
+        {
+          "scenario": "real-postgres-manager-role-admin",
+          "passed": true
+        },
+        {
+          "scenario": "real-postgres-manager-role-staff",
+          "passed": true
+        },
+        {
+          "scenario": "real-postgres-manager-role-marketing",
+          "passed": true
+        },
+        {
+          "scenario": "real-postgres-manager-role-support",
+          "passed": true
+        },
+        {
+          "scenario": "loadtest-unauthorized-and-real-store-rejected",
+          "passed": true
+        },
+        {
+          "scenario": "unpublished-policy-checkout-block",
+          "passed": true
+        },
+        {
+          "scenario": "policy-publication-and-exact-order-version-acceptance",
+          "passed": true
+        },
+        {
+          "scenario": "one-stock-five-concurrent-real-http-checkouts",
+          "passed": true,
+          "statuses": [
+            201,
+            409,
+            409,
+            409,
+            409
+          ],
+          "remainingStock": 0,
+          "paymentStatus": "pending",
+          "acceptanceVersions": 3
+        },
+        {
+          "scenario": "local-test-fixture-retained",
+          "storeId": "7955206a-dae4-43bb-92ff-79fea80f9462",
+          "slug": "test-report-contract-1792081653856",
+          "note": "Local TEST store kept as acceptance evidence; immutable financial history preserved."
+        }
+      ]
+    },
+    "report-followup-browser": {
+      "generatedAt": "2026-10-15T16:33:00.303Z",
+      "scope": "Local browser only",
+      "results": [
+        {
+          "scenario": "G24-order-click-renders-detail-and-financial-trail",
+          "passed": true
+        },
+        {
+          "scenario": "G09-SEO-data-loads-before-checks",
+          "passed": true
+        },
+        {
+          "scenario": "G09-SEO-query-error-does-not-claim-empty-and-retry-recovers",
+          "passed": true
+        },
+        {
+          "scenario": "G08-seller-SEO-360px",
+          "passed": true,
+          "width": 360,
+          "scroll": 360
+        },
+        {
+          "scenario": "G08-seller-SEO-375px",
+          "passed": true,
+          "width": 375,
+          "scroll": 375
+        },
+        {
+          "scenario": "G08-seller-SEO-768px",
+          "passed": true,
+          "width": 768,
+          "scroll": 768
+        },
+        {
+          "scenario": "F07-old-blog-slug",
+          "httpStatus": 404
+        }
+      ],
+      "pageErrors": []
+    },
+    "report-followup-mobile": {
+      "generatedAt": "2026-10-15T16:38:17.562Z",
+      "scope": "Local browser, no successful settings write",
+      "results": [
+        {
+          "scenario": "G08-supplier-product-modal-360",
+          "passed": true,
+          "width": 360
+        },
+        {
+          "scenario": "G08-supplier-product-modal-375",
+          "passed": true,
+          "width": 375
+        },
+        {
+          "scenario": "G08-supplier-product-modal-768",
+          "passed": true,
+          "width": 672
+        },
+        {
+          "scenario": "G08-modal-Escape-close",
+          "passed": true
+        },
+        {
+          "scenario": "G11-seven-panel-onboarding",
+          "passed": true
+        },
+        {
+          "scenario": "G06-offline-save-keeps-draft",
+          "passed": true
+        },
+        {
+          "scenario": "G06-kolay-settings-360",
+          "passed": true,
+          "width": 360,
+          "scroll": 360
+        },
+        {
+          "scenario": "G06-kolay-settings-375",
+          "passed": true,
+          "width": 375,
+          "scroll": 375
+        },
+        {
+          "scenario": "G06-kolay-settings-768",
+          "passed": true,
+          "width": 768,
+          "scroll": 768
+        }
+      ],
+      "pageErrors": []
+    },
+    "report-followup-history": {
+      "generatedAt": "2026-10-15T16:29:44.862Z",
+      "readOnly": true,
+      "requestedOrders": [
+        "LOCAL-0005"
+      ],
+      "missingOrders": [],
+      "orders": [
+        {
+          "id": "a8ac4cbb-6bbc-4ded-873f-8d406fb03c68",
+          "order_number": "LOCAL-0005",
+          "store_id": "a8d65a0a-4512-4054-bbf2-c5be85144b0a",
+          "item_count": 3,
+          "supplier_count": 2
+        }
+      ],
+      "lines": [
+        {
+          "item_id": "3e96a2a3-10e1-4269-8cf6-49730aae8603",
+          "order_id": "a8ac4cbb-6bbc-4ded-873f-8d406fb03c68",
+          "store_id": "a8d65a0a-4512-4054-bbf2-c5be85144b0a",
+          "snapshot_owners": [],
+          "commission_owners": [],
+          "current_import_owners": [],
+          "current_catalog_owners": [],
+          "decision": "historical_evidence_required"
+        },
+        {
+          "item_id": "5316d944-925c-41ab-8912-f4c27199bb01",
+          "order_id": "a8ac4cbb-6bbc-4ded-873f-8d406fb03c68",
+          "store_id": "a8d65a0a-4512-4054-bbf2-c5be85144b0a",
+          "snapshot_owners": [
+            "7270be5b-ef12-4b09-85af-e8530035e896"
+          ],
+          "commission_owners": [],
+          "current_import_owners": [],
+          "current_catalog_owners": [],
+          "decision": "snapshot_exists"
+        },
+        {
+          "item_id": "7100592a-c8f3-414d-bd25-2d5992851a69",
+          "order_id": "a8ac4cbb-6bbc-4ded-873f-8d406fb03c68",
+          "store_id": "a8d65a0a-4512-4054-bbf2-c5be85144b0a",
+          "snapshot_owners": [
+            "eec08c2a-fff1-49df-92f0-9db5253bce0d"
+          ],
+          "commission_owners": [],
+          "current_import_owners": [],
+          "current_catalog_owners": [],
+          "decision": "snapshot_exists"
+        }
+      ],
+      "note": "Current catalog/import relationships are diagnostic only. They do not prove historical ownership. No writes performed."
+    }
+  },
+  "items": [
+    {
+      "id": "A01",
+      "title": "Paket seçimi — A01",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Paket/dönem parametreleri kayıt hedefi, kullanıcı metadata ve onboarding üzerinden korunuyor; kayıtlı ücretsiz plan ücretli abonelik gibi etkinleşmiyor.",
+      "remaining": "Yeni hesap ve e-posta doğrulamasıyla tam akış.",
+      "files": [
+        "src/routes/auth.tsx",
+        "src/lib/stores.functions.test.ts",
+        "src/lib/landing-destinations.test.ts"
+      ]
+    },
+    {
+      "id": "A04",
+      "title": "Enterprise fiyatı — A04",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Aylık/yıllık fiyatlar /admin/plans üzerinden dinamik değişir. plans.price_monthly / price_yearly hem kartlarda hem sunucu ödeme hesabında okunur; kayıtta plans önbelleği yenilenir. Fiyat değiştirilmedi.",
+      "remaining": "Enterprise için ticari fiyat kararı; bu teknik bir hesap hatası olarak işaretlenmedi.",
+      "files": [
+        "src/routes/_authenticated/admin.plans.tsx",
+        "src/lib/admin.functions.ts",
+        "src/lib/plan-price.test.ts",
+        "src/lib/plan-checkout.server.ts"
+      ]
+    },
+    {
+      "id": "B02",
+      "title": "Tedarikçi siparişinde boş kalem ve 0 alt toplam",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Kısmi düzeltme",
+      "result": "Kesin kalem/komisyon bağlantısıyla geçmiş kurtarma ve çok tedarikçili izolasyon test edildi. Eksik komisyon/hakediş artık sıfır yerine Hesaplanamadı; ilişki uyarısı masaüstünde de görünür. Salt okunur teşhis aracı eklendi.",
+      "remaining": "Üretimdeki MEF-K603UZO6D, MEF-OCZ5ZV3ND ve MEF-LCHUKMIPL için gerçek geçmiş bağlantıları incelenmeli. Kanıtsız kalem sahipliği yazılmadı.",
+      "files": [
+        "src/lib/supplier-desk.server.ts",
+        "src/lib/supplier-desk.server.test.ts",
+        "scripts/audit-supplier-order-history.mjs",
+        "docs/report-followup-history.json"
+      ]
+    },
+    {
+      "id": "B03",
+      "title": "Gazebo görseli açılmıyor",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Kod düzeltildi",
+      "result": "XML görsel URL ayrıştırması boşluk/Türkçe harf/noktalama içeren dosya adlarını korur. Ham ürün verisinden tam adres kurtarılır; birden çok URL ve HTML entity testleri geçti.",
+      "remaining": "Gazebo SKU 431 için kaynak sunucudan gerçek yedi görselin erişimi ve üretim görüntüleme kontrolü. Üretim feed eşitlemesi çalıştırılmadı.",
+      "files": [
+        "src/lib/feed-image-urls.ts",
+        "src/lib/feed-image-urls.test.ts",
+        "src/lib/product-image-sources.ts",
+        "src/lib/supplier-workflow.server.ts"
+      ]
+    },
+    {
+      "id": "F03",
+      "title": "Kabul istenen politika belgeleri yayınlanmamış",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Eksik politika halinde kasa reddi, yetkili atomik politika yayını ve üç sürümün gerçek yerel sipariş kabul kaydı doğrulandı.",
+      "remaining": "Web Dijital ve diğer mağazaların işletme onaylı metinleri üretimde yayınlanmalı. Test metni gerçek hukuki belge olarak yayınlanmadı.",
+      "files": [
+        "src/lib/policy-publication.server.ts",
+        "src/lib/checkout-policies.server.test.ts",
+        "docs/report-followup-local.json"
+      ]
+    },
+    {
+      "id": "F07",
+      "title": "İki eski blog adresinde yazı bulunamadı",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Eski blog adresi için gerçek yerel HTTP 404 doğrulandı. Rota, kayıtlı slug geçmişinde yayınlanmış hedef varsa 301; hedef yoksa notFound kullanıyor.",
+      "remaining": "Üretim içerik/taşınmış slug envanteri; bilinmeyen yazı için tahmini yönlendirme eklenmedi.",
+      "files": [
+        "src/routes/blog.$slug.tsx",
+        "src/lib/platform-blog.functions.ts",
+        "docs/report-followup-browser.json"
+      ]
+    },
+    {
+      "id": "F11",
+      "title": "Politika yolları — F11",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Yerel kontrol",
+      "result": "F03 ile aynı politika yayını/kabul akışı; ayrı bir hata düzeltmesi gibi sayılmadı.",
+      "remaining": "Üretim mağaza belgelerinin onaylı içerikle yayını.",
+      "files": [
+        "docs/report-followup-local.json",
+        "src/lib/checkout-policies.server.ts"
+      ]
+    },
+    {
+      "id": "Kontrol",
+      "title": "Başarılı uzun koşu ve sınırı",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Dış ölçüm gerekli",
+      "result": "Uzun HTTP koşusunun eşzamanlı müşteri/ödeme kapasitesi anlamına gelmediği rapor sınıflandırması ve testleri korundu.",
+      "remaining": "Staging uzun koşusu, ham k6 ve CPU/RAM/DB ölçümleri. Bu çalışmada yük sonucu üretilmedi.",
+      "files": [
+        "loadtest/k6/run-summary.js",
+        "loadtest/k6/run-summary.test.js"
+      ]
+    },
+    {
+      "id": "L01",
+      "title": "Blog hata kaydı — L01",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "SSR tarih formatlama ve modül başlangıcı regresyonları geçti; düzeltme yapılan ekranlardaki yerel tarayıcı koşusunda pageerror yok.",
+      "remaining": "Blog için uzun SSR/hydration ve yayın sonrası gerçek sürüm matrisi.",
+      "files": [
+        "src/lib/date-rendering.test.ts",
+        "src/routes/blog.$slug.tsx",
+        "docs/report-followup-browser.json"
+      ]
+    },
+    {
+      "id": "L02",
+      "title": "Modül yükleme — L02",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Chunk hata tanıma, formu koruyan kurtarma ve başarısız modül yüklemesinin sonradan tekrar denenmesi testleri geçti.",
+      "remaining": "Eski sekme açıkken gerçek yeni deploy testi.",
+      "files": [
+        "src/lib/chunk-recovery.test.ts",
+        "src/lib/retryable-module.test.ts"
+      ]
+    },
+    {
+      "id": "N01",
+      "title": "Dekont tutarı tek başına “ödendi” durumu üretiyor",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "OCR yalnız pending_review üretir; eksik/bozuk belge, yetkisiz onay, mükerrer işlem ve iade/iptal korumaları birim ve SQL testlerinde geçti.",
+      "remaining": "Banka/ödeme sağlayıcısı sandbox uçtan uca tahsilat ve negatif belge matrisi.",
+      "files": [
+        "src/lib/receipt-review.test.ts",
+        "scripts/verify-bugfix-sql.mjs"
+      ]
+    },
+    {
+      "id": "N02",
+      "title": "İade webhook’u aynı tutarı tekrar ekliyor",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Aynı iade referansının tekrarları, senkron yanıt/callback birleşimi ve erken callback izole SQL testlerinde tek finansal etki bıraktı.",
+      "remaining": "Gerçek sağlayıcı imzası ve sandbox paralel/gecikmiş callback mutabakatı.",
+      "files": [
+        "scripts/verify-bugfix-sql.mjs"
+      ]
+    },
+    {
+      "id": "N03",
+      "title": "İade sağlayıcı çağrısı öncesinde atomik sahiplenme yok",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Gerçek processRefund fonksiyonunun paralel sahiplenme ve sağlayıcı başarısı sonrası DB hatası/kurtarma testleri geçti; sağlayıcı sahte.",
+      "remaining": "Gerçek sağlayıcı sandbox ve DB kesintisi deneyi.",
+      "files": [
+        "src/lib/refunds.server.test.ts",
+        "src/lib/refunds.server.ts"
+      ]
+    },
+    {
+      "id": "N04",
+      "title": "Checkout’tan müşteri kaydına geçiş dönüşü kaybediyor",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Checkout dönüş hedefi login/register/doğrulama hedefinde korunuyor; keyfi dış yönlendirme reddediliyor.",
+      "remaining": "Doğrulama e-postasıyla yeni müşteri ve sepetin tam uçtan uca kabulü. Yerel Auth e-posta onayı kapalı.",
+      "files": [
+        "src/lib/customer-return.test.ts",
+        "src/routes/s.$slug.register.tsx",
+        "src/routes/s.$slug.login.tsx"
+      ]
+    },
+    {
+      "id": "P01",
+      "title": "Yoğun testte 429 ve gecikme artışı",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "429, kalan bekleme, Retry-After ve no-store testleri geçti. Normal limitler değiştirilmedi; yük ucu ayrı izin anahtarı ve TEST kontrolüyle korunur.",
+      "remaining": "Normal kullanıcı/test trafik matrisi altında 50/100 VU staging ölçümü.",
+      "files": [
+        "src/lib/rate-limit.test.ts",
+        "src/lib/loadtest-checkout.server.ts"
+      ]
+    },
+    {
+      "id": "P02",
+      "title": "Uzun koşu — P02",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Dış ölçüm gerekli",
+      "result": "Modül başlangıç hatasında reddedilen Promise önbelleğe kilitlenmez; yerel kurtarma testleri geçti. Eski 500 sonuçları yeni ölçüm gibi kullanılmadı.",
+      "remaining": "Uzun staging koşusu ve sunucu hata/kaynak kayıtları.",
+      "files": [
+        "src/lib/retryable-module.ts",
+        "src/lib/retryable-module.test.ts"
+      ]
+    },
+    {
+      "id": "T01",
+      "title": "Dekonttan ödeme onayı",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "N01 ile ortak dekont/ödeme kabulü incelendi; ikinci bağımsız düzeltme sayılmadı.",
+      "remaining": "Doğrulanmış banka/sağlayıcı sandbox işlemi.",
+      "files": [
+        "src/lib/receipt-review.test.ts",
+        "scripts/verify-bugfix-sql.mjs"
+      ]
+    },
+    {
+      "id": "G02",
+      "title": "Büyük listelerde sunucu sayfalaması ve sınırlı render",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "25/50 satırlı sayfalama, kararlı sıralama, tüm sayfaları okuma ve 2000 üstü sipariş özetleri testleri geçti. Tedarikçi aramasında 1105. kayda erişim yerel tarayıcıda görüldü.",
+      "remaining": "Tüm CRM/katalog yüzeyleri için üretim ölçeğinde performans matrisi.",
+      "files": [
+        "src/lib/kolay-customers.functions.ts",
+        "src/lib/order-list.functions.test.ts",
+        "src/lib/read-all-pages.test.ts",
+        "scripts/verify-optimization-sql.mjs"
+      ]
+    },
+    {
+      "id": "G03",
+      "title": "XML eşitleme iş durumunu görünür kılma",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Kod düzeltildi",
+      "result": "İşlenen etiketi düzeltildi. Aynı kaynağın cursor devamı, aynı SKU ile mükerrersiz güncelleme, aktif iş kilidi ve kısmi hata ilerlemesi testleri geçti.",
+      "remaining": "Gerçek XML kaynağıyla tekrar import. Eski işlerin bulunmayan metrikleri geçmişten uydurulmadı.",
+      "files": [
+        "src/components/supplier/workflow-panels.tsx",
+        "src/lib/supplier-feed-progress.test.ts"
+      ]
+    },
+    {
+      "id": "G04",
+      "title": "Stok kaynağı ve rezervasyon açıklaması",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Kaynak stok, mağaza stoku ve depo rezervasyonu ayrı kaynak/zaman alanlarıyla tutuluyor. Yeni TEST kasada atomik stok rezervasyonu gerçek HTTP ile doğrulandı.",
+      "remaining": "Gerçek sipariş→iptal→iade boyunca tüm depo/tedarikçi stok zinciri.",
+      "files": [
+        "src/lib/supplier-desk.server.ts",
+        "src/components/supplier/workspace-panels.tsx",
+        "docs/report-followup-local.json"
+      ]
+    },
+    {
+      "id": "G05",
+      "title": "Kategori ve ürün eşleme düzeni",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Kategori leaf/eşleme ve aynı SKU ile tekrarlanan feed import regresyonları geçti.",
+      "remaining": "Gerçek feed ile varyant/ürün kotası ve mükerrer kayıt matrisi.",
+      "files": [
+        "src/lib/import-category.test.ts",
+        "src/lib/supplier-feed-progress.test.ts",
+        "src/components/supplier-catalog/import-preview.tsx"
+      ]
+    },
+    {
+      "id": "G06",
+      "title": "Kolay Panel ayarlarını kısa gruplara ayırma",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Profil/Teslimat/Ödeme/SEO/Pazarlama grupları incelendi. Kayıt isteği ağ hatasıyla kesildiğinde yeni değer formda kaldı ve hata açıklaması gösterildi. 360/375/768 px ayarlar taşmasız.",
+      "remaining": "Fiziksel cihaz matrisi; tarayıcı koşusu üç viewport ve ağ hatasıyla sınırlıdır.",
+      "files": [
+        "src/components/homemaker/store-tab.tsx",
+        "docs/report-followup-mobile.json"
+      ]
+    },
+    {
+      "id": "G07",
+      "title": "İş gruplarıyla anlaşılır menü",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Kod düzeltildi",
+      "result": "Veritabanından gelen eski Hakımızda yazımı ortak çeviri katmanında Hakkımızda anahtarına çevrilir; beş dil testi geçti. Ortak ana sayfa bileşeni korundu.",
+      "remaining": "Dağıtım sonrası üretim footer kontrolü.",
+      "files": [
+        "src/lib/landing-i18n.tsx",
+        "src/lib/landing-destinations.test.ts"
+      ]
+    },
+    {
+      "id": "G08",
+      "title": "Mobil tablo ve ürün detayları",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "SEO, Kolay Panel ayarları ve tedarikçi ürün detayı 360/375/768 px yerel tarayıcıda taşmasız açıldı. Ürün detayı Escape ile kapandı; ekran görüntüleri incelendi.",
+      "remaining": "Fiziksel cihaz ve tam klavye/odak matrisi.",
+      "files": [
+        "docs/report-followup-browser.json",
+        "docs/report-followup-mobile.json",
+        "src/components/supplier/workspace-panels.tsx"
+      ]
+    },
+    {
+      "id": "G09",
+      "title": "Yükleniyor, boş ve hata durumlarını ayırma",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Kod düzeltildi",
+      "result": "SEO kontrolleri gereken veriler gelmeden render edilmez. Her sorgu için yükleme/hata/tekrar deneme ve eski veri açıklaması var. Zorlanmış API hatası→tekrar dene→kurtarma tarayıcıda geçti.",
+      "remaining": "Üretimde aynı davranışın dağıtım sonrası kontrolü.",
+      "files": [
+        "src/routes/_authenticated/store.$storeId.seo.tsx",
+        "src/components/query-status.tsx",
+        "docs/report-followup-browser.json"
+      ]
+    },
+    {
+      "id": "G10",
+      "title": "Ekip isimleri ve yetki açıklamaları",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Gerçek yerel PostgreSQL/RLS ile owner/admin izin, staff/marketing/support ret ve başka mağaza siparişlerini okuyamama doğrulandı. Altı hesabın Auth girişi ve tedarikçi izolasyonu da geçti.",
+      "remaining": "Üretim Supabase üzerinde destek/personel/pazarlama/tedarikçi tam işlem matrisi.",
+      "files": [
+        "src/lib/store-access.server.test.ts",
+        "docs/report-followup-local.json"
+      ]
+    },
+    {
+      "id": "G11",
+      "title": "Rehber ve mağaza hazırlık listesini güncelleme",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Kod düzeltildi",
+      "result": "Başlangıç sihirbazı gerçek yedi bölümle eşleştirildi; yerel tarayıcıda doğrulandı. Hazırlık listesi mevcut yayınlı politika kaynağını kullanır.",
+      "remaining": "İşletme belgeleri yayınlandıktan sonra üretim hazırlık sayımı.",
+      "files": [
+        "src/components/homemaker/onboarding-wizard.tsx",
+        "src/lib/store-readiness.functions.ts",
+        "docs/report-followup-mobile.json"
+      ]
+    },
+    {
+      "id": "G12",
+      "title": "Platform ve mağaza sitemap envanteri",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Sitemap ayrıştırma/kapsam/tekrar testleri ve kaynak yayın/noindex filtreleri incelendi.",
+      "remaining": "Kontrollü yayınlama-gizleme ve canonical/hreflang üretim matrisi.",
+      "files": [
+        "src/lib/sitemap.server.ts",
+        "src/lib/sitemap-inspection.test.ts"
+      ]
+    },
+    {
+      "id": "G13",
+      "title": "SEO medya ve meta için ortak veri kuralı",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Ortak medya/meta kaynağı, storage_path ve legacy og_image regresyonları geçti; SEO sorgusu bütün ürünleri sayfalar.",
+      "remaining": "Gerçek meta/canonical/hreflang ve düzenleme sonrası skor yenilemesinin tüm kapsamı.",
+      "files": [
+        "src/lib/product-seo-data.test.ts",
+        "src/lib/seo-queries.ts",
+        "src/lib/kolay-seo-dashboard.functions.ts"
+      ]
+    },
+    {
+      "id": "G14",
+      "title": "Dil bilgisini giriş ve dönüşte koruma",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Dil/auth hedefleri, belge lang/RTL ve dış yönlendirme reddi testleri geçti; ortak dil bileşenleri korundu.",
+      "remaining": "Yabancı dil hesabıyla giriş/özel hedef/e-posta doğrulaması tam matrisi.",
+      "files": [
+        "src/lib/auth-navigation.test.ts",
+        "src/lib/landing-destinations.test.ts",
+        "src/routes/__root.tsx"
+      ]
+    },
+    {
+      "id": "G15",
+      "title": "Eski slug ve bozuk bağlantı envanteri",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "AST bağlantı envanteri yeniden üretildi; eksik rota yok. Eski blog için yerel HTTP 404 doğrulandı. Slug geçmişi varsa 301 yolu korunuyor.",
+      "remaining": "Üretim taşınmış içerik listesi ve belirsiz anchor hedefleri.",
+      "files": [
+        "scripts/check-public-links.mjs",
+        "docs/public-link-inventory.json",
+        "docs/report-followup-browser.json"
+      ]
+    },
+    {
+      "id": "G16",
+      "title": "Politika yayın ve kabul sürümü takibi",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Gerçek yerel atomik yayın sonrası kasada üç doğru sürüm kaydı oluşturuldu; yayınsız durumda kasa 422 ile reddedildi.",
+      "remaining": "İşletme onaylı gerçek mağaza belgelerinin üretim yayını. F03/F11 ile ortak iş.",
+      "files": [
+        "docs/report-followup-local.json",
+        "src/lib/policy-publication.server.ts"
+      ]
+    },
+    {
+      "id": "G17",
+      "title": "Paket seçimi ve destek hedeflerini açıklama",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Aylık/yıllık fiyatların admin panelden dinamik yönetimi ve sunucu tarafında aynı plan verisinden hesaplandığı doğrulandı; paket/dönem testleri geçti.",
+      "remaining": "Yeni doğrulamalı kayıt sonrası gerçek abonelik ve işletmenin fiyat kararı.",
+      "files": [
+        "src/routes/_authenticated/admin.plans.tsx",
+        "src/lib/plan-price.test.ts",
+        "src/lib/stores.functions.test.ts"
+      ]
+    },
+    {
+      "id": "G18",
+      "title": "Görselleri kullanıldığı boyuta göre yükleme",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "480/960/1440 özel medya boyutları, responsive srcSet ve hata fallback testleri geçti. URL aktarım düzeltmesi B03 ile ortak.",
+      "remaining": "Aynı cihaz/rota için transfer baytı, istek sayısı ve LCP önce/sonra ölçümü.",
+      "files": [
+        "src/lib/image.test.ts",
+        "src/lib/signed-image.server.ts",
+        "src/components/smart-image.tsx"
+      ]
+    },
+    {
+      "id": "G19",
+      "title": "Ağır ekran ve sorgu yükünü azaltma",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Ağır grafik lazy yüklenir; DB müşteri özetleri 2000 üstü sipariş ve kiracı izolasyon testlerini geçti. Üretim buildi ve TypeScript geçti.",
+      "remaining": "Karşılaştırılabilir CWV/Lighthouse ve gerçek DB süreleri; kapasite/hız kazancı uydurulmadı.",
+      "files": [
+        "src/components/supplier/analytics-panel.tsx",
+        "scripts/verify-optimization-sql.mjs",
+        "docs/local-qa-results.json"
+      ]
+    },
+    {
+      "id": "G20",
+      "title": "Güvenilir log ve sistem sağlığı ekranı",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Ölçüm yok/gerçek sıfır ayrımı, build bağlamı ve hata durumları kaynak/testlerle kontrol edildi.",
+      "remaining": "Gerçek telemetri kesintisi, yeni log oluşturma/filtreleme ve alarm kabulü. Mesaj veya webhook gönderilmedi.",
+      "files": [
+        "src/lib/api-health-summary.test.ts",
+        "src/lib/monitoring.server.ts",
+        "src/lib/build-version.test.ts"
+      ]
+    },
+    {
+      "id": "G21",
+      "title": "SSR ve yayın sonrası eski sekme kontrolü",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Tarih/saat dilimi, başarısız chunk ve yeniden yüklenebilir modül testleri geçti; yerel ekran koşusunda pageerror yok.",
+      "remaining": "Eski sekme + yeni deploy ve tüm SSR/locale matrisi.",
+      "files": [
+        "src/lib/date-rendering.test.ts",
+        "src/lib/chunk-recovery.test.ts",
+        "src/lib/retryable-module.test.ts"
+      ]
+    },
+    {
+      "id": "G22",
+      "title": "Normal kullanım ile test trafiğini ayırma",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "Normal kullanıcı rate limitleri korunur. Yeni test uçları ayrı staging bayrakları, anahtar ve her adımda TEST mağaza kontrolü ister. Yanlış anahtar ve gerçek mağaza ret testleri geçti.",
+      "remaining": "Normal/test trafiğinin yük altındaki ayrı metrikleri.",
+      "files": [
+        "src/lib/rate-limit.test.ts",
+        "src/lib/loadtest-checkout.server.test.ts",
+        "docs/report-followup-local.json"
+      ]
+    },
+    {
+      "id": "G23",
+      "title": "Gerçek yük metrikleri ve doğru test adı",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Kod düzeltildi",
+      "result": "Eksik cart/checkout uçları eklendi; imzalı sepet gerçek fiyatlandırma/sipariş/stok yolunu kullanır. Beş eşzamanlı istek bir stokta 1×201 + 4×409; tek pending sipariş. Test modu müşteri bildirimi/ödeme sağlayıcısı çağırmaz.",
+      "remaining": "Gerçek k6 staging koşusu ve CPU/RAM/DB önce/sonra ölçümü. Beş istek kapasite testi değildir.",
+      "files": [
+        "src/lib/loadtest-checkout.server.ts",
+        "loadtest/k6/checkout.js",
+        "loadtest/README.md",
+        "docs/report-followup-local.json"
+      ]
+    },
+    {
+      "id": "G24",
+      "title": "Tahsilat, iade ve hakediş mutabakatı",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Kod düzeltildi",
+      "result": "Sipariş üst rotası Outlet oldu; liste index rotasına taşındı. Gerçek tarayıcıda siparişe tıklayınca detay açıldı ve yetkili finansal hareket sorgusu yüklendi.",
+      "remaining": "Gerçek sağlayıcı sandbox mutabakatı; N01/N02/N03 kabulü.",
+      "files": [
+        "src/routes/_authenticated/store.$storeId.orders.tsx",
+        "src/routes/_authenticated/store.$storeId.orders.index.tsx",
+        "docs/report-followup-browser.json"
+      ]
+    },
+    {
+      "id": "G25",
+      "title": "Sipariş geçmişindeki kalem sahipliğini kalıcılaştırma",
+      "sourceStatus": "Açık / kısmi",
+      "reviewStatus": "Kısmi düzeltme",
+      "result": "B02 ile ortak. Kalıcı snapshot/komisyon kurtarma korundu; eksik finans verisi sıfır gösterilmez. Salt okunur araç, yerel iki tedarikçili siparişte 2 snapshot ve 1 gerçekten kanıtsız kalemi ayırdı.",
+      "remaining": "Üç üretim siparişinin gerçek geçmiş ilişkilerinin veri onarımı; kanıtsız sahiplik tahmin edilmez.",
+      "files": [
+        "scripts/audit-supplier-order-history.mjs",
+        "docs/report-followup-history.json",
+        "src/lib/supplier-item-ownership.test.ts"
+      ]
+    },
+    {
+      "id": "G26",
+      "title": "Staging ve kritik regresyon senaryoları",
+      "sourceStatus": "Atlandı",
+      "reviewStatus": "Yerel kontrol",
+      "result": "181 birim, 53 izole SQL, gerçek yerel rol/RLS, politika ve paralel kasa kontrolleri yapıldı. Yerel Auth HTTP bağlantısını engelleyen CSP yalnız geliştirme için düzeltildi; üretimde localhost izni yok.",
+      "remaining": "Gerçek sağlayıcı sandbox, doğrulama e-postası, deploy/eski sekme ve staging kesinti/yük matrisi.",
+      "files": [
+        "docs/local-qa-results.json",
+        "docs/report-followup-local.json",
+        "docs/report-followup-browser.json",
+        "src/lib/security-headers.test.ts"
+      ]
+    }
+  ]
+}

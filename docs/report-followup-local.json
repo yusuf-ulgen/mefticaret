@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-10-15T16:27:34.928Z",
+  "scope": "Loopback local Supabase and HTTP only. No external payment provider.",
+  "results": [
+    {
+      "scenario": "real-postgres-manager-role-owner",
+      "passed": true
+    },
+    {
+      "scenario": "real-postgres-manager-role-admin",
+      "passed": true
+    },
+    {
+      "scenario": "real-postgres-manager-role-staff",
+      "passed": true
+    },
+    {
+      "scenario": "real-postgres-manager-role-marketing",
+      "passed": true
+    },
+    {
+      "scenario": "real-postgres-manager-role-support",
+      "passed": true
+    },
+    {
+      "scenario": "loadtest-unauthorized-and-real-store-rejected",
+      "passed": true
+    },
+    {
+      "scenario": "unpublished-policy-checkout-block",
+      "passed": true
+    },
+    {
+      "scenario": "policy-publication-and-exact-order-version-acceptance",
+      "passed": true
+    },
+    {
+      "scenario": "one-stock-five-concurrent-real-http-checkouts",
+      "passed": true,
+      "statuses": [
+        201,
+        409,
+        409,
+        409,
+        409
+      ],
+      "remainingStock": 0,
+      "paymentStatus": "pending",
+      "acceptanceVersions": 3
+    },
+    {
+      "scenario": "local-test-fixture-retained",
+      "storeId": "7955206a-dae4-43bb-92ff-79fea80f9462",
+      "slug": "test-report-contract-1792081653856",
+      "note": "Local TEST store kept as acceptance evidence; immutable financial history preserved."
+    }
+  ]
+}

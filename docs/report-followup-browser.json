@@ -1,0 +1,41 @@
+{
+  "generatedAt": "2026-10-15T16:33:00.303Z",
+  "scope": "Local browser only",
+  "results": [
+    {
+      "scenario": "G24-order-click-renders-detail-and-financial-trail",
+      "passed": true
+    },
+    {
+      "scenario": "G09-SEO-data-loads-before-checks",
+      "passed": true
+    },
+    {
+      "scenario": "G09-SEO-query-error-does-not-claim-empty-and-retry-recovers",
+      "passed": true
+    },
+    {
+      "scenario": "G08-seller-SEO-360px",
+      "passed": true,
+      "width": 360,
+      "scroll": 360
+    },
+    {
+      "scenario": "G08-seller-SEO-375px",
+      "passed": true,
+      "width": 375,
+      "scroll": 375
+    },
+    {
+      "scenario": "G08-seller-SEO-768px",
+      "passed": true,
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "scenario": "F07-old-blog-slug",
+      "httpStatus": 404
+    }
+  ],
+  "pageErrors": []
+}

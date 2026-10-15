@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-13T13:01:04.189Z",
+  "generatedAt": "2026-10-15T16:31:38.719Z",
   "scope": "static public JSX links; dynamic expressions and database slugs require runtime verification",
-  "routes": 371,
+  "routes": 374,
   "links": 137,
   "failures": 0,
   "entries": [
@@ -769,38 +769,32 @@
     },
     {
       "source": "src/components/platform-home.tsx",
-      "line": 172,
+      "line": 173,
       "target": "#icerik",
       "status": "route_found"
     },
     {
       "source": "src/components/platform-home.tsx",
-      "line": 180,
+      "line": 181,
       "target": "/",
       "status": "route_found"
     },
     {
       "source": "src/components/platform-home.tsx",
-      "line": 211,
+      "line": 212,
       "target": "/stores",
       "status": "route_found"
     },
     {
       "source": "src/components/platform-home.tsx",
-      "line": 378,
+      "line": 383,
       "target": "/auth",
       "status": "route_found"
     },
     {
       "source": "src/components/platform-home.tsx",
-      "line": 525,
+      "line": 530,
       "target": "/auth",
-      "status": "route_found"
-    },
-    {
-      "source": "src/components/platform-home.tsx",
-      "line": 600,
-      "target": "/tedarikci-giris",
       "status": "route_found"
     },
     {
@@ -811,7 +805,13 @@
     },
     {
       "source": "src/components/platform-home.tsx",
-      "line": 638,
+      "line": 610,
+      "target": "/tedarikci-giris",
+      "status": "route_found"
+    },
+    {
+      "source": "src/components/platform-home.tsx",
+      "line": 643,
       "target": "/mesajlar-giris",
       "status": "route_found"
     },

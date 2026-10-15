@@ -37,10 +37,11 @@ export function translateLanding(
   vars?: Record<string, string | number>,
 ): string {
   if (text == null) return "";
-  let out = text;
+  const normalized = text.trim() === "Hakımızda" ? "Hakkımızda" : text;
+  let out = normalized;
   if (locale !== "tr") {
-    const key = text.trim();
-    out = (key && LANDING_DICT[locale]?.[key]) || text;
+    const key = normalized.trim();
+    out = (key && LANDING_DICT[locale]?.[key]) || normalized;
   }
   if (vars)
     out = out.replace(/\{(\w+)\}/g, (m, name: string) => (name in vars ? String(vars[name]) : m));
@@ -87,7 +88,7 @@ export function localizeSection(
   section: SiteSection | null,
   locale: LandingLocale,
 ): SiteSection | null {
-  if (!section || locale === "tr") return section;
+  if (!section) return section;
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(section)) {
     if (key === "items" && Array.isArray(value)) {

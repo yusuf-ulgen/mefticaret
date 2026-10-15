@@ -259,7 +259,11 @@ export function SupplierXmlFeeds({ supplierId, data }: { supplierId: string; dat
   const save = useServerFn(supplierSaveFeed);
   const run = useServerFn(supplierRunFeed);
   const recover = useServerFn(supplierRecoverFeed);
-  const recoverMutation = useMutation({ mutationFn: (feedId: string) => recover({ data: { supplierId, feedId } }), onSuccess: refresh, onError: (error: Error) => toast.error(error.message) });
+  const recoverMutation = useMutation({
+    mutationFn: (feedId: string) => recover({ data: { supplierId, feedId } }),
+    onSuccess: refresh,
+    onError: (error: Error) => toast.error(error.message),
+  });
   const remove = useServerFn(supplierDeleteFeed);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
@@ -368,7 +372,16 @@ export function SupplierXmlFeeds({ supplierId, data }: { supplierId: string; dat
                 >
                   {(feed.stats.remaining ?? 0) > 0 ? "Kaldığı yerden devam et" : "Şimdi eşitle"}
                 </Button>
-                {feed.lastStatus === "running" ? <Button size="sm" variant="outline" disabled={recoverMutation.isPending} onClick={() => recoverMutation.mutate(feed.id)}>Kesilen işi yeniden aç</Button> : null}
+                {feed.lastStatus === "running" ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={recoverMutation.isPending}
+                    onClick={() => recoverMutation.mutate(feed.id)}
+                  >
+                    Kesilen işi yeniden aç
+                  </Button>
+                ) : null}
                 <Button
                   size="sm"
                   variant="ghost"
@@ -424,9 +437,10 @@ export function SupplierXmlFeeds({ supplierId, data }: { supplierId: string; dat
                         : "Henüz çalışmadı"}
               </div>
               <div>
-                ??lenen: {feed.stats.processed ?? "—"} / {feed.stats.totalRows ?? "—"}
+                İşlenen: {feed.stats.processed ?? "—"} / {feed.stats.totalRows ?? "—"}
               </div>
-              <div>Kalan: {feed.stats.remaining ?? "—"}</div><div>Devam noktası: {feed.stats.nextOffset ?? "—"}</div>
+              <div>Kalan: {feed.stats.remaining ?? "—"}</div>
+              <div>Devam noktası: {feed.stats.nextOffset ?? "—"}</div>
               <div>
                 Son başarı: {feed.stats.lastSuccessAt ? formatDate(feed.stats.lastSuccessAt) : "—"}
               </div>
@@ -446,7 +460,12 @@ export function SupplierXmlFeeds({ supplierId, data }: { supplierId: string; dat
                 eşitlemede işlenir; tamamlanmış sayılmaz.
               </p>
             ) : null}
-            {(feed.stats.remaining ?? 0) > 0 ? <p className="text-xs text-muted-foreground">Kaynak 200 kayıtlık parçalarla işlenir. Kaynak içeriği değişmediyse sonraki parça kaldığı yerden sürer; değiştiyse yeni tarama başlar.</p> : null}
+            {(feed.stats.remaining ?? 0) > 0 ? (
+              <p className="text-xs text-muted-foreground">
+                Kaynak 200 kayıtlık parçalarla işlenir. Kaynak içeriği değişmediyse sonraki parça
+                kaldığı yerden sürer; değiştiyse yeni tarama başlar.
+              </p>
+            ) : null}
             {feed.lastStatus === "partial" || feed.lastStatus === "failed" ? (
               <p className="text-xs text-muted-foreground">
                 Tekrar deneme manuel yapılır. Aynı stok kodu mevcut kaydı günceller.

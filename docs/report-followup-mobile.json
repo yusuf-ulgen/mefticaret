@@ -1,0 +1,52 @@
+{
+  "generatedAt": "2026-10-15T16:38:17.562Z",
+  "scope": "Local browser, no successful settings write",
+  "results": [
+    {
+      "scenario": "G08-supplier-product-modal-360",
+      "passed": true,
+      "width": 360
+    },
+    {
+      "scenario": "G08-supplier-product-modal-375",
+      "passed": true,
+      "width": 375
+    },
+    {
+      "scenario": "G08-supplier-product-modal-768",
+      "passed": true,
+      "width": 672
+    },
+    {
+      "scenario": "G08-modal-Escape-close",
+      "passed": true
+    },
+    {
+      "scenario": "G11-seven-panel-onboarding",
+      "passed": true
+    },
+    {
+      "scenario": "G06-offline-save-keeps-draft",
+      "passed": true
+    },
+    {
+      "scenario": "G06-kolay-settings-360",
+      "passed": true,
+      "width": 360,
+      "scroll": 360
+    },
+    {
+      "scenario": "G06-kolay-settings-375",
+      "passed": true,
+      "width": 375,
+      "scroll": 375
+    },
+    {
+      "scenario": "G06-kolay-settings-768",
+      "passed": true,
+      "width": 768,
+      "scroll": 768
+    }
+  ],
+  "pageErrors": []
+}
