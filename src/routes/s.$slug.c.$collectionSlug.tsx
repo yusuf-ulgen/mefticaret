@@ -7,7 +7,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { StorefrontChrome, storefrontTokens } from "@/components/storefront-chrome";
 import { WokieeProductCard } from "@/components/wokiee/product-card";
-import { formatMoney } from "@/lib/mefti";
+import { formatMoney } from "@/lib/display-currency";
 import { storefrontCollectionQuery } from "@/lib/storefront-queries";
 import { getRequestOrigin } from "@/lib/origin.functions";
 import { getStoreSeoContext } from "@/lib/seo-public.functions";

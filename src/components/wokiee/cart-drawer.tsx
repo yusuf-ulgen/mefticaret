@@ -5,7 +5,7 @@ import { SmartImage } from "@/components/smart-image";
 
 import { isDark, storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
-import { formatMoney } from "@/lib/mefti";
+import { GeorgiaCustomsNotice, formatMoney } from "@/lib/display-currency";
 import { storefrontUI, useStorefrontUI } from "@/lib/storefront-ui";
 import type { StorefrontCommerce } from "@/lib/storefront-commerce";
 import { resolveDesignTokens } from "@/lib/theme-design";
@@ -228,6 +228,7 @@ export function CartDrawer({
         </div>
 
         <footer style={{ padding: 18, borderTop: `1px solid ${border}`, display: "grid", gap: 10 }}>
+          <GeorgiaCustomsNotice amount={subtotal} currency={currency} />
           <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700 }}>
             <span>Ara toplam</span>
             <span>{formatMoney(subtotal, currency)}</span>

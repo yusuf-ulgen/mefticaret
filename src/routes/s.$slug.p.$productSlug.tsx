@@ -20,7 +20,7 @@ import { StockAlertForm } from "@/components/stock-alert-form";
 import { useCart } from "@/lib/cart";
 import { useCompare } from "@/lib/compare";
 import { useFavorites } from "@/lib/favorites";
-import { formatMoney } from "@/lib/mefti";
+import { formatMoney } from "@/lib/display-currency";
 import { recordRecentProduct } from "@/lib/recently-viewed";
 import { storefrontProductQuery, storefrontQuery } from "@/lib/storefront-queries";
 import { storefrontUI } from "@/lib/storefront-ui";
