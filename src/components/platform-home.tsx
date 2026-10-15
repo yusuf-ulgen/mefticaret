@@ -20,7 +20,6 @@ import { CommerceFlowAnimation } from "@/components/commerce-flow-animation";
 import { LandingGrowthSuite } from "@/components/landing-growth-suite";
 import { LandingMegaMenu, LandingMobileMenu } from "@/components/landing-mega-menu";
 import { PlatformLocaleSwitcher } from "@/components/platform-locale-switcher";
-import { BuildVersionBadge } from "@/components/build-version-badge";
 import {
   AppShowcaseSection,
   BlogSection,
@@ -239,10 +238,6 @@ function LandingPage({ locale }: { locale: LandingLocale }) {
             </div>
           </div>
 
-
-          <div className="flex justify-end px-4 pb-2 min-[1500px]:absolute min-[1500px]:end-4 min-[1500px]:top-1/2 min-[1500px]:-translate-y-1/2 min-[1500px]:p-0">
-            <BuildVersionBadge />
-          </div>
 
           <LandingMobileMenu
             section={mega}

@@ -1,10 +1,6 @@
 /** Ana sayfa metinleri: Türkçe metin → çeviri. Otomatik üretildi; elle düzeltilebilir. */
 export const LANDING_DICT: Record<"en" | "de" | "fr" | "ar", Record<string, string>> = {
   en: {
-    "Commit bilinmiyor": "Commit unknown",
-    "Yerel değişiklikler var": "Local changes present",
-    "Derleme zamanı": "Build time",
-    "Commit kaydını aç": "Open commit",
     "Aylık karşılığı {price}": "Monthly equivalent {price}",
     tasarruf: "savings",
     "Fiyat için iletişime geçin": "Contact us for pricing",
@@ -465,10 +461,6 @@ export const LANDING_DICT: Record<"en" | "de" | "fr" | "ar", Record<string, stri
       "Track conversion and channel reports in one view, and boost organic traffic with SEO settings.",
   },
   de: {
-    "Commit bilinmiyor": "Commit unbekannt",
-    "Yerel değişiklikler var": "Lokale Änderungen vorhanden",
-    "Derleme zamanı": "Build-Zeit",
-    "Commit kaydını aç": "Commit öffnen",
     "Aylık karşılığı {price}": "Monatlicher Gegenwert {price}",
     tasarruf: "Ersparnis",
     "Fiyat için iletişime geçin": "Preis auf Anfrage",
@@ -934,10 +926,6 @@ export const LANDING_DICT: Record<"en" | "de" | "fr" | "ar", Record<string, stri
       "Behalten Sie Conversion- und Kanalberichte zentral im Blick und steigern Sie mit SEO-Einstellungen Ihren organischen Traffic.",
   },
   fr: {
-    "Commit bilinmiyor": "Commit inconnu",
-    "Yerel değişiklikler var": "Modifications locales présentes",
-    "Derleme zamanı": "Date de compilation",
-    "Commit kaydını aç": "Ouvrir le commit",
     "Aylık karşılığı {price}": "Équivalent mensuel {price}",
     tasarruf: "économies",
     "Fiyat için iletişime geçin": "Contactez-nous pour le tarif",
@@ -1410,10 +1398,6 @@ export const LANDING_DICT: Record<"en" | "de" | "fr" | "ar", Record<string, stri
       "Suivez vos conversions et les performances de vos canaux sur un seul écran, et boostez votre trafic organique grâce aux réglages SEO.",
   },
   ar: {
-    "Commit bilinmiyor": "معرّف الإصدار غير معروف",
-    "Yerel değişiklikler var": "توجد تغييرات محلية",
-    "Derleme zamanı": "وقت البناء",
-    "Commit kaydını aç": "فتح الإصدار",
     "Aylık karşılığı {price}": "المقابل الشهري {price}",
     tasarruf: "توفير",
     "Fiyat için iletişime geçin": "تواصل معنا للتسعير",
