@@ -1038,3 +1038,4 @@
 [dir="rtl"] h3 {
   letter-spacing: normal;
 }
+.hm-storefront-locale { display: flex; justify-content: flex-end; padding: 6px max(14px, calc((100vw - 900px) / 2)); border-bottom: 1px solid var(--border); background: var(--background); }

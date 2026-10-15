@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
-import { formatMoney } from "@/lib/mefti";
+import { formatMoney } from "@/lib/display-currency";
 import { storefrontQuery } from "@/lib/storefront-queries";
 
 const normalize = (value: string) => value.toLocaleLowerCase("tr");

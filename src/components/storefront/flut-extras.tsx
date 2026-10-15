@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
 import { useCart } from "@/lib/cart";
-import { formatMoney } from "@/lib/mefti";
+import { formatMoney } from "@/lib/display-currency";
 import { storefrontUI } from "@/lib/storefront-ui";
 import { getFlutProductExtras } from "@/lib/flut-theme.functions";
 
