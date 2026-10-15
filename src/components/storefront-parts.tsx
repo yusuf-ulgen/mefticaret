@@ -4,7 +4,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { QuickAddButton } from "@/components/quick-add-button";
 import { SmartImage } from "@/components/smart-image";
 import { storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
-import { formatMoney } from "@/lib/mefti";
+import { formatMoney } from "@/lib/display-currency";
 
 export type StorefrontCard = {
   id: string;

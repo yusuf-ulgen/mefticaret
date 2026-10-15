@@ -3,6 +3,12 @@ import { checkoutPolicies } from "@/lib/checkout-policies.server";
 import { samePolicyVersions } from "@/lib/checkout-policies";
 
 import { DEFAULT_STORE_TIMEZONE, QUOTA_EXCLUDED_STATUSES, storeDayStart } from "@/lib/day-window";
+import {
+  CUSTOMS_ID_PATTERN,
+  DOMESTIC_ONLY_PAYMENT_CODES,
+  EXPORT_INVOICE_LABEL,
+  isGeorgia,
+} from "@/lib/export-ge";
 import { isGiftCardUsable, normalizeGiftCardCode, redeemableAmount } from "@/lib/gift-cards";
 
 /**
@@ -30,6 +36,8 @@ export const placeOrderSchema = z.object({
   address: z
     .object({
       country: z.string().trim().min(2).max(60),
+      /** ETGB (mikro ihracat) için pasaport/kimlik no — Gürcistan teslimatında zorunlu. */
+      customsId: z.string().trim().regex(CUSTOMS_ID_PATTERN).optional(),
       city: z.string().trim().min(1).max(80),
       district: z.string().trim().max(80).optional(),
       line1: z.string().trim().min(5).max(240),
@@ -95,7 +103,7 @@ export async function loadCheckoutOptions(input: z.infer<typeof checkoutOptionsS
   const [paymentsRes, ratesRes, settingsRes] = await Promise.all([
     supabase
       .from("store_payment_methods")
-      .select("id, display_name, instructions, installments_enabled, extra_fee_rate, sort_order")
+      .select("id, display_name, instructions, installments_enabled, extra_fee_rate, sort_order, connectors(code)")
       .eq("store_id", store.id)
       .eq("is_active", true)
       .order("sort_order"),
@@ -156,6 +164,9 @@ type PricingInput = {
   discountCode?: string | undefined;
   giftCardCode?: string | undefined;
   giftWrap?: boolean | undefined;
+  /** Teslimat ülkesi; yurt dışı (mikro ihracat) siparişlerinde KDV %0 uygulanır. */
+  country?: string | undefined;
+  address?: { country: string } | undefined;
 };
 
 async function priceCart(
@@ -283,22 +294,28 @@ async function priceCart(
     .select("default_tax_rate, tax_included_prices")
     .eq("store_id", store.id)
     .maybeSingle();
-  const taxRate = Number(settings?.default_tax_rate ?? 0);
-  const taxIncluded = Boolean(settings?.tax_included_prices);
+  // Mikro ihracat (Gürcistan teslimatı): KDV %0, ETGB ihracat faturası.
+  const exportInvoice = !digitalOnly && isGeorgia(input.address?.country ?? input.country);
+  const taxRate = exportInvoice ? 0 : Number(settings?.default_tax_rate ?? 0);
+  const taxIncluded = exportInvoice ? false : Boolean(settings?.tax_included_prices);
   const taxable = Math.max(0, subtotal - discountTotal);
-  const taxTotal = taxIncluded ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
+  const taxTotal = taxIncluded || exportInvoice ? 0 : Number(((taxable * taxRate) / 100).toFixed(2));
 
   let paymentLabel: string | null = null;
   let extraFee = 0;
   if (input.paymentMethodId) {
     const { data: method, error: methodError } = await supabase
       .from("store_payment_methods")
-      .select("id, display_name, extra_fee_rate, is_active")
+      .select("id, display_name, extra_fee_rate, is_active, connectors(code)")
       .eq("store_id", store.id)
       .eq("id", input.paymentMethodId)
       .maybeSingle();
     if (methodError) throw new Error(methodError.message);
     if (!method || !method.is_active) throw new Error("Seçilen ödeme yöntemi kullanılamıyor");
+    const methodCode = (method as { connectors?: { code?: string } | null }).connectors?.code ?? "";
+    if (exportInvoice && (DOMESTIC_ONLY_PAYMENT_CODES as readonly string[]).includes(methodCode)) {
+      throw new Error("Bu ödeme yöntemi yurt dışı siparişlerde kullanılamaz; lütfen kartla ödemeyi seçin.");
+    }
     paymentLabel = method.display_name;
     extraFee = Number(
       (((taxable + shippingTotal) * Number(method.extra_fee_rate ?? 0)) / 100).toFixed(2),
@@ -356,6 +373,7 @@ async function priceCart(
     giftCardApplied,
     grandTotal,
     digitalOnly,
+    exportInvoice,
     currency: store.currency,
   };
 }
@@ -371,6 +389,7 @@ export const quoteCheckoutSchema = z.object({
   discountCode: z.string().trim().max(60).optional(),
   giftCardCode: z.string().trim().max(60).optional(),
   giftWrap: z.boolean().optional(),
+  country: z.string().trim().max(60).optional(),
 });
 
 /**
@@ -410,6 +429,7 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
       giftCardApplied: quote.giftCardApplied,
       grandTotal: quote.grandTotal,
       digitalOnly: quote.digitalOnly,
+      exportInvoice: quote.exportInvoice,
     };
   } catch (error) {
     return {
@@ -432,6 +452,7 @@ export async function quoteCheckout(input: z.infer<typeof quoteCheckoutSchema>) 
       giftCardApplied: 0,
       grandTotal: 0,
       digitalOnly: false,
+      exportInvoice: false,
     };
   }
 }
@@ -521,9 +542,13 @@ export async function createStorefrontOrder(
     giftCardApplied,
     grandTotal,
     digitalOnly,
+    exportInvoice,
   } = priced;
   // Fiziki ürün içeren sepetlerde teslimat adresi zorunludur (sunucu karar verir).
   if (!digitalOnly && !input.address) throw new Error("Teslimat adresi gerekli.");
+  if (exportInvoice && !input.address?.customsId) {
+    throw new Error("Gürcistan teslimatı için pasaport veya kimlik numarası (ETGB) zorunludur.");
+  }
 
   // Müşteri kaydı (e-posta ile tekilleştirilir)
   const { data: existingCustomer } = await supabase
@@ -567,6 +592,12 @@ export async function createStorefrontOrder(
         district: input.address.district ?? null,
         line1: input.address.line1,
         postal_code: input.address.postalCode ?? null,
+        ...(exportInvoice
+          ? {
+              customs_id: input.address.customsId ?? null,
+              export_invoice: { label: EXPORT_INVOICE_LABEL, regime: "ETGB", vat_rate: 0 },
+            }
+          : {}),
       }
     : { recipient: input.customer.fullName, phone: input.customer.phone, digital_delivery: true };
 
@@ -583,6 +614,9 @@ export async function createStorefrontOrder(
         postal_code: input.billingAddress.postalCode ?? null,
         tax_id: input.billingAddress.taxId ?? null,
         company: input.billingAddress.company ?? null,
+        ...(exportInvoice
+          ? { export_invoice: { label: EXPORT_INVOICE_LABEL, regime: "ETGB", vat_rate: 0 } }
+          : {}),
       }
     : addressJson;
 
@@ -605,7 +639,15 @@ export async function createStorefrontOrder(
       exchangeRate = rate;
       rateSource = rateRow?.source === "manual" ? "manual" : "auto";
     } else {
-      rateSource = "missing";
+      // Mağaza kur tablosunda yoksa vitrinde gösterilen canlı kur kilitlenir.
+      const { liveRate } = await import("@/lib/live-fx.server");
+      const live = await liveRate(baseCurrency, displayCurrency);
+      if (live) {
+        exchangeRate = live;
+        rateSource = "auto";
+      } else {
+        rateSource = "missing";
+      }
     }
   }
 

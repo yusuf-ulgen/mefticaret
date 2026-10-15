@@ -36,6 +36,7 @@ export const LANGUAGE_CATALOG: LanguageDef[] = [
   { code: "ro", locale: "ro-RO", label: "Romence", native: "Română", dir: "ltr", flag: "🇷🇴", currency: "RON" },
   { code: "el", locale: "el-GR", label: "Yunanca", native: "Ελληνικά", dir: "ltr", flag: "🇬🇷", currency: "EUR" },
   { code: "bg", locale: "bg-BG", label: "Bulgarca", native: "Български", dir: "ltr", flag: "🇧🇬" },
+  { code: "ka", locale: "ka-GE", label: "Gürcüce", native: "ქართული", dir: "ltr", flag: "🇬🇪", currency: "GEL" },
   { code: "sv", locale: "sv-SE", label: "İsveççe", native: "Svenska", dir: "ltr", flag: "🇸🇪" },
   { code: "da", locale: "da-DK", label: "Danca", native: "Dansk", dir: "ltr", flag: "🇩🇰" },
   { code: "no", locale: "nb-NO", label: "Norveççe", native: "Norsk", dir: "ltr", flag: "🇳🇴" },

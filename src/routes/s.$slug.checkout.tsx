@@ -21,7 +21,22 @@ import {
 } from "@/lib/checkout.functions";
 import { startOrderPayment } from "@/lib/order-payment.functions";
 import { checkGiftCardBalance } from "@/lib/gift-cards-public.functions";
-import { formatMoney } from "@/lib/mefti";
+import {
+  GeorgiaCustomsNotice,
+  formatMoney,
+  useDisplayCurrency,
+  useExportLang,
+} from "@/lib/display-currency";
+import {
+  CUSTOMS_ID_PATTERN,
+  DOMESTIC_ONLY_PAYMENT_CODES,
+  EXPORT_INVOICE_LABEL,
+  GE_CITIES,
+  INTERNATIONAL_POS_CODES,
+  SHIP_COUNTRIES,
+  exportT,
+  isGeorgia,
+} from "@/lib/export-ge";
 import { fetchStorefrontPickupLocations } from "@/lib/retail-ops.functions";
 import { checkoutOptionsQuery, storefrontQuery } from "@/lib/storefront-queries";
 import { POLICY_LABELS } from "@/lib/policy-content";
@@ -69,7 +84,13 @@ function CheckoutPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const display = useDisplayCurrency();
+  const lang = useExportLang();
   const [country, setCountry] = useState("Türkiye");
+  // "Diğer ülke" serbest yazımı ayrı tutulur; yazarken liste kendiliğinden geri dönmez.
+  const [otherCountry, setOtherCountry] = useState(false);
+  const [customsId, setCustomsId] = useState("");
+  const headerCountryApplied = useRef(false);
   const [city, setCity] = useState("");
   const [district, setDistrict] = useState("");
   const [line1, setLine1] = useState("");
@@ -170,7 +191,15 @@ function CheckoutPage() {
     pickupLocations.find((location) => location.id === pickupLocationId) ?? null;
 
   const rates = options.data?.shippingRates ?? [];
-  const methods = options.data?.paymentMethods ?? [];
+  const allMethods = options.data?.paymentMethods ?? [];
+  const exportOrder = !otherCountry && isGeorgia(country);
+  const methodCode = (method: (typeof allMethods)[number]) =>
+    String((method as { connectors?: { code?: string } | null }).connectors?.code ?? "");
+  const methods = exportOrder
+    ? allMethods.filter(
+        (method) => !(DOMESTIC_ONLY_PAYMENT_CODES as readonly string[]).includes(methodCode(method)),
+      )
+    : allMethods;
   const selectedRate = useMemo(
     () => rates.find((rate) => rate.id === shippingRateId) ?? null,
     [rates, shippingRateId],
@@ -184,10 +213,19 @@ function CheckoutPage() {
     if (first) setShippingRateId(first.id);
   }, [rates, shippingRateId, pickupLocationId]);
 
+  useEffect(() => {
+    if (headerCountryApplied.current) return;
+    headerCountryApplied.current = true;
+    if (isGeorgia(display.shipCountry)) setCountry("Gürcistan");
+  }, [display.shipCountry]);
+
   // Ödeme yöntemi de ön seçilir; kullanıcı isterse değiştirir.
   useEffect(() => {
-    if (methods.length === 0) return;
     if (paymentMethodId && methods.some((method) => method.id === paymentMethodId)) return;
+    if (methods.length === 0) {
+      if (paymentMethodId) setPaymentMethodId("");
+      return;
+    }
     const first = methods[0];
     if (first) setPaymentMethodId(first.id);
   }, [methods, paymentMethodId]);
@@ -284,6 +322,7 @@ function CheckoutPage() {
       shippingRateId,
       paymentMethodId,
       gift.wrap,
+      exportOrder,
     ],
     enabled: lines.length > 0,
     staleTime: 5_000,
@@ -297,6 +336,7 @@ function CheckoutPage() {
           discountCode: appliedDiscount?.code || undefined,
           giftCardCode: appliedGiftCard?.code || undefined,
           giftWrap: gift.wrap || undefined,
+          country: exportOrder ? "Gürcistan" : country.trim() || undefined,
         },
       }),
   });
@@ -371,6 +411,10 @@ function CheckoutPage() {
         toast.error("Lütfen ülke yazın.");
         return;
       }
+      if (exportOrder && !CUSTOMS_ID_PATTERN.test(customsId.trim())) {
+        toast.error(exportT(lang, "customsIdError"));
+        return;
+      }
       if (city.trim().length < 1) {
         toast.error("Lütfen şehir yazın.");
         return;
@@ -417,6 +461,7 @@ function CheckoutPage() {
               district: district || undefined,
               line1,
               postalCode: postalCode || undefined,
+              customsId: exportOrder ? customsId.trim() : undefined,
             },
         billingAddress:
           billingSame || digitalOnly
@@ -687,15 +732,60 @@ function CheckoutPage() {
                   {digitalOnly ? null : (
                     <>
                       <Field label="Ülke" muted={muted}>
-                        <input
+                        <select
                           style={inputStyle}
-                          value={country}
-                          onChange={(e) => setCountry(e.target.value)}
-                        />
+                          value={otherCountry ? "__other" : country}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setCity("");
+                            if (v === "__other") {
+                              setOtherCountry(true);
+                              setCountry("");
+                            } else {
+                              setOtherCountry(false);
+                              setCountry(v);
+                            }
+                          }}
+                        >
+                          {SHIP_COUNTRIES.map((row) => (
+                            <option key={row.code} value={row.value}>
+                              {row.value}
+                            </option>
+                          ))}
+                          {!otherCountry &&
+                          country &&
+                          !SHIP_COUNTRIES.some((row) => row.value === country) ? (
+                            <option value={country}>{country}</option>
+                          ) : null}
+                          <option value="__other">Diğer ülke…</option>
+                        </select>
+                        {otherCountry ? (
+                          <input
+                            style={{ ...inputStyle, marginTop: 6 }}
+                            placeholder="Ülke adı (ör. Almanya)"
+                            autoComplete="country-name"
+                            value={country}
+                            onChange={(e) => setCountry(e.target.value)}
+                          />
+                        ) : null}
                       </Field>
                       <Field label="Şehir *" muted={muted}>
-                        {/^(tr|türkiye|turkiye|turkey)$/i.test(country.trim()) ||
-                        !country.trim() ? (
+                        {exportOrder ? (
+                          <select
+                            style={inputStyle}
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                          >
+                            <option value="">{exportT(lang, "selectCity")}</option>
+                            {GE_CITIES.map((c) => (
+                              <option key={c} value={c}>
+                                {c}
+                              </option>
+                            ))}
+                          </select>
+                        ) : !otherCountry &&
+                          (/^(tr|türkiye|turkiye|turkey)$/i.test(country.trim()) ||
+                            !country.trim()) ? (
                           <select
                             style={inputStyle}
                             autoComplete="address-level1"
@@ -736,6 +826,22 @@ function CheckoutPage() {
                           onChange={(e) => setPostalCode(e.target.value)}
                         />
                       </Field>
+                      {exportOrder ? (
+                        <Field label={`${exportT(lang, "customsId")} *`} muted={muted}>
+                          <input
+                            style={inputStyle}
+                            required
+                            maxLength={20}
+                            value={customsId}
+                            onChange={(e) =>
+                              setCustomsId(e.target.value.replace(/[^A-Za-z0-9]/g, ""))
+                            }
+                          />
+                          <span style={{ fontSize: 11, color: muted }}>
+                            {exportT(lang, "customsIdHint")}
+                          </span>
+                        </Field>
+                      ) : null}
                     </>
                   )}
                 </div>
@@ -972,6 +1078,19 @@ function CheckoutPage() {
                 <h2 style={{ fontFamily: fonts.heading, fontSize: 16, margin: "0 0 14px" }}>
                   Ödeme yöntemi
                 </h2>
+                {exportOrder ? (
+                  <p style={{ margin: "0 0 10px", fontSize: 12, color: muted }}>
+                    {methods.some((m) =>
+                      (INTERNATIONAL_POS_CODES as readonly string[]).includes(methodCode(m)),
+                    )
+                      ? `${exportT(lang, "posTitle")} · ${exportT(lang, "posNote", {
+                          base: store.currency,
+                          display: display.active,
+                          amount: formatMoney(q?.grandTotal ?? estimatedTotal, store.currency),
+                        })}`
+                      : exportT(lang, "noPos")}
+                  </p>
+                ) : null}
                 {methods.length === 0 ? (
                   <p style={{ margin: 0, fontSize: 13, color: muted }}>
                     Ödeme yöntemi tanımlı değil. Sipariş, ödeme beklemede olarak oluşturulur.
@@ -988,8 +1107,11 @@ function CheckoutPage() {
                         accent={t.accent_color}
                         title={method.display_name}
                         subtitle={
-                          method.instructions ??
-                          (method.installments_enabled ? "Taksit imkanı" : "")
+                          exportOrder &&
+                          (INTERNATIONAL_POS_CODES as readonly string[]).includes(methodCode(method))
+                            ? exportT(lang, "posForeign")
+                            : method.instructions ??
+                              (method.installments_enabled ? "Taksit imkanı" : "")
                         }
                         right={
                           Number(method.extra_fee_rate) > 0 ? `+%${method.extra_fee_rate}` : ""
@@ -1131,6 +1253,11 @@ function CheckoutPage() {
                   </button>
                 </p>
               ) : null}
+              <GeorgiaCustomsNotice
+                amount={q?.grandTotal ?? estimatedTotal}
+                currency={store.currency}
+                country={exportOrder ? "Gürcistan" : country}
+              />
               <div style={{ marginTop: 12, borderTop: `1px solid ${border}`, paddingTop: 12 }}>
                 <SummaryRow
                   label="Ara toplam"
@@ -1153,7 +1280,9 @@ function CheckoutPage() {
                   value={formatMoney(q?.shippingTotal ?? shippingTotal, store.currency)}
                   muted={muted}
                 />
-                {q && !q.taxIncluded ? (
+                {q?.exportInvoice ? (
+                  <SummaryRow label={exportT(lang, "vatZero")} value={formatMoney(0, store.currency)} muted={muted} />
+                ) : q && !q.taxIncluded ? (
                   <SummaryRow
                     label={`Vergi${q.taxRate ? ` (%${q.taxRate})` : ""}`}
                     value={formatMoney(q.taxTotal, store.currency)}
@@ -1188,6 +1317,21 @@ function CheckoutPage() {
                   value={formatMoney(q?.grandTotal ?? estimatedTotal, store.currency)}
                   muted={muted}
                 />
+                {q?.exportInvoice ? (
+                  <p
+                    style={{
+                      display: "inline-block",
+                      margin: "8px 0 0",
+                      padding: "2px 8px",
+                      borderRadius: 999,
+                      border: `1px solid ${border}`,
+                      fontSize: 11,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {EXPORT_INVOICE_LABEL}
+                  </p>
+                ) : null}
                 {quote.data && !quote.data.ok ? (
                   <p style={{ fontSize: 12, color: "#e0603a", margin: "8px 0 0" }}>
                     {quote.data.error}

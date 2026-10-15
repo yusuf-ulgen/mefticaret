@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { storefrontTokens, type StoreTheme } from "@/components/storefront-chrome";
-import { formatMoney } from "@/lib/mefti";
+import { formatMoney } from "@/lib/display-currency";
 import { storefrontQuery } from "@/lib/storefront-queries";
 
 /** Görselli mega menü: koleksiyon sütunları, öne çıkan ürün kartları ve rozetler. */
