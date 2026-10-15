@@ -3,25 +3,11 @@ import { useTx } from "@/lib/landing-i18n";
 
 export function BuildVersionBadge() {
   const tx = useTx();
-  const { commit, builtAt, dirty } = APP_BUILD;
-  const label = commit ? `${commit.slice(0, 8)}${dirty ? "*" : ""}` : tx("Commit bilinmiyor");
-  const title = [
-    commit ? `Commit: ${commit}` : tx("Commit bilinmiyor"),
-    dirty ? tx("Yerel değişiklikler var") : null,
-    `${tx("Derleme zamanı")}: ${builtAt}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const { commit, dirty } = APP_BUILD;
+  const title = tx("Commit kaydını aç");
   const className =
     "inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md border border-border bg-muted/30 px-2 py-1.5 text-[11px] text-muted-foreground";
-  const content = (
-    <>
-      {commit ? <span>Commit</span> : null}
-      <code dir="ltr" className="font-mono tabular-nums text-foreground">
-        {label}
-      </code>
-    </>
-  );
+  const content = <span dir="ltr">commit</span>;
 
   return commit ? (
     <a
@@ -30,7 +16,7 @@ export function BuildVersionBadge() {
       rel="noopener noreferrer"
       className={`${className} transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring`}
       title={title}
-      aria-label={`${tx("Commit kaydını aç")}: ${label}`}
+      aria-label={title}
       data-build-commit={commit}
       data-build-dirty={dirty}
     >
